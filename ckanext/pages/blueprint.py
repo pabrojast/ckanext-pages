@@ -65,6 +65,34 @@ def blog_delete(page):
     return utils.pages_delete(page, page_type='blog')
 
 
+def rapid_response_index():
+    return utils.pages_list_pages('rapid-response')
+
+
+def rapid_response_show(page):
+    return utils.pages_show(page, page_type='rapid-response')
+
+
+def rapid_response_edit(page=None, data=None, errors=None, error_summary=None):
+    return utils.pages_edit(page, data, errors, error_summary, 'rapid-response')
+
+
+def rapid_response_revisions(page):
+    return utils.pages_revisions(page, page_type='rapid-response')
+
+
+def rapid_response_revisions_preview(page, revision):
+    return utils.pages_revisions_preview(page, revision, page_type='rapid-response')
+
+
+def rapid_response_revision_restore(page, revision):
+    return utils.pages_revision_restore(page, revision, page_type='rapid-response')
+
+
+def rapid_response_delete(page):
+    return utils.pages_delete(page, page_type='rapid-response')
+
+
 def org_show(id, page=None):
     return utils.group_show(id, 'organization', page)
 
@@ -111,6 +139,17 @@ pages.add_url_rule("/blog_edit", view_func=blog_edit, endpoint='blog_new', metho
 pages.add_url_rule("/blog_edit/", view_func=blog_edit, endpoint='blog_new', methods=['GET', 'POST'])
 pages.add_url_rule("/blog_edit/<page>", view_func=blog_edit, endpoint='blog_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/blog_delete/<page>", view_func=blog_delete, endpoint='blog_delete', methods=['GET', 'POST'])
+
+
+pages.add_url_rule("/rapid-response", view_func=rapid_response_index, endpoint='rapid_response_index')
+pages.add_url_rule("/rapid-response/<page>", view_func=rapid_response_show, endpoint='rapid_response_show')
+pages.add_url_rule("/rapid-response/<page>/revisions", view_func=rapid_response_revisions)
+pages.add_url_rule("/rapid-response/<page>/revisions/<revision>", view_func=rapid_response_revisions_preview)
+pages.add_url_rule("/rapid-response/<page>/revisions/<revision>/restore", view_func=rapid_response_revision_restore, methods=['GET'])
+pages.add_url_rule("/rapid-response_edit", view_func=rapid_response_edit, endpoint='rapid_response_new', methods=['GET', 'POST'])
+pages.add_url_rule("/rapid-response_edit/", view_func=rapid_response_edit, endpoint='rapid_response_new', methods=['GET', 'POST'])
+pages.add_url_rule("/rapid-response_edit/<page>", view_func=rapid_response_edit, endpoint='rapid_response_edit', methods=['GET', 'POST'])
+pages.add_url_rule("/rapid-response_delete/<page>", view_func=rapid_response_delete, endpoint='rapid_response_delete', methods=['GET', 'POST'])
 
 
 pages.add_url_rule("/organization/pages/<id>", view_func=org_show, endpoint='organization_pages_index')

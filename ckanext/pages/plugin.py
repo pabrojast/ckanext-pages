@@ -1,4 +1,3 @@
-
 import logging
 from html import escape as html_escape
 
@@ -49,6 +48,8 @@ def build_pages_nav_main(*args):
 
     for page in pages_list:
         type_ = 'blog' if page['page_type'] == 'blog' else 'pages'
+        if page['page_type'] == 'rapid-response':
+            type_ = 'rapid-response'
         name = quote(page['name'])
         title = html_escape(page['title'])
         link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
@@ -80,6 +81,22 @@ def get_recent_blog_posts(number=5, exclude=None):
         if exclude and blog['name'] == exclude:
             continue
         new_list.append(blog)
+        if len(new_list) == number:
+            break
+
+    return new_list
+
+
+def get_recent_rapid_response_posts(number=5, exclude=None):
+    rapid_response_list = tk.get_action('ckanext_pages_list')(
+        None, {'order_publish_date': True, 'private': False,
+               'page_type': 'rapid-response'}
+    )
+    new_list = []
+    for rr_post in rapid_response_list:
+        if exclude and rr_post['name'] == exclude:
+            continue
+        new_list.append(rr_post)
         if len(new_list) == number:
             break
 
@@ -123,6 +140,7 @@ class PagesPlugin(PagesPluginBase):
             'render_content': render_content,
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,
+            'get_recent_rapid_response_posts': get_recent_rapid_response_posts,
         }
 
     def get_actions(self):

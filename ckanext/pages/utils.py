@@ -24,7 +24,7 @@ def _parse_form_data(request):
 
 def pages_list_pages(page_type):
     data_dict = {'org_id': None, 'page_type': page_type}
-    if page_type == 'blog':
+    if page_type in ['blog', 'rapid-response']:
         data_dict['order_publish_date'] = True
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
@@ -38,6 +38,8 @@ def pages_list_pages(page_type):
 
     if page_type == 'blog':
         return tk.render('ckanext_pages/blog_list.html')
+    elif page_type == 'rapid-response':
+        return tk.render('ckanext_pages/rapid-response_list.html')
     return tk.render('ckanext_pages/pages_list.html')
 
 
@@ -79,6 +81,8 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 page, data, errors, error_summary, page_type=page_type)
 
         endpoint = 'show' if page_type in ('pages', 'page') else '%s_show' % page_type
+        if page_type == 'rapid-response':
+            endpoint = 'rapid_response_show'
         return tk.redirect_to('pages.%s' % endpoint, page=page_dict['name'])
 
     if not data:
@@ -240,6 +244,8 @@ def pages_revision_restore(page, revision, page_type='page'):
                 Page name - '{name}', Revision version - '{rev}'""".format(name=page, rev=revision))
 
     endpoint = 'show' if page_type in ('pages', 'page') else '%s_show' % page_type
+    if page_type == 'rapid-response':
+        endpoint = 'rapid_response_show'
     return tk.redirect_to('pages.%s' % endpoint, page=page)
 
 
@@ -253,6 +259,8 @@ def pages_delete(page, page_type='pages'):
         if tk.request.method == 'POST':
             tk.get_action('ckanext_pages_delete')({}, {'page': page})
             endpoint = page_type + '_index'
+            if page_type == 'rapid-response':
+                endpoint = 'rapid_response_index'
             return tk.redirect_to('pages.%s' % endpoint)
         else:
             return tk.abort(404, _('Page Not Found'))

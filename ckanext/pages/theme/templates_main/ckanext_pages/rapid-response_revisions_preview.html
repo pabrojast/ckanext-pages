@@ -1,0 +1,197 @@
+{% extends "ckanext_pages/base.html" %}
+
+{% block subtitle %}{{ _('Revision') }} {{ revision.id[:8] }} - {{ page.title or page.name }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {% if self.breadcrumb_content_selected() %}
+    {{ super() }}
+  {% endif %}
+  <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+  <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+  <li><a href="{{ h.url_for('pages', page=page.name, action='revisions') }}">{{ _('Revisions') }}</a></li>
+  <li class="active">{{ _('Revision') }} {{ revision.id[:8] }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="module-content">
+    <header class="module-content">
+      <div class="page-header">
+        <h1>
+          {{ _('Revision Preview') }}
+          <small>{{ revision.id[:8] }} - {{ h.render_datetime(revision.timestamp, '%Y-%m-%d %H:%M:%S') }}</small>
+        </h1>
+        
+        <div class="revision-actions">
+          {% if h.check_access('ckanext_pages_update') %}
+            <a href="{{ h.url_for('pages', page=page.name, revision=revision.id, action='restore') }}" class="btn btn-warning" data-confirm="{{ _('Are you sure you want to restore this revision? This will overwrite the current version.') }}">
+              <i class="fa fa-undo"></i> {{ _('Restore This Revision') }}
+            </a>
+          {% endif %}
+          <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" class="btn btn-default">
+            <i class="fa fa-eye"></i> {{ _('View Current Version') }}
+          </a>
+          <a href="{{ h.url_for('pages', page=page.name, action='revisions') }}" class="btn btn-default">
+            <i class="fa fa-list"></i> {{ _('All Revisions') }}
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="revision-info alert alert-info">
+      <strong>{{ _('Revision Information:') }}</strong>
+      {{ _('Author:') }} {{ revision.author or _('Unknown') }} |
+      {{ _('Date:') }} {{ h.render_datetime(revision.timestamp, '%B %d, %Y at %H:%M:%S') }} |
+      {{ _('Message:') }} {{ revision.message or _('No message') }}
+    </div>
+
+    <!-- Show the page content as it was in this revision -->
+    <div class="revision-preview">
+      <div class="rapid-response-page">
+        
+        <!-- Header Image Section -->
+        {% if page.header_image %}
+          <div class="rapid-response-header">
+            <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive rapid-response-header-img">
+          </div>
+        {% else %}
+          <div class="rapid-response-header">
+            <img src="/assets/images/rapid-response-header.jpg" alt="Rapid Response and Recovery" class="img-responsive rapid-response-header-img">
+          </div>
+        {% endif %}
+
+        <!-- Title and Disaster Information -->
+        <div class="rapid-response-title-section text-center">
+          <h1 class="rapid-response-title">{{ page.title or page.name }}</h1>
+          {% if page.subtitle %}
+            <h2 class="rapid-response-subtitle">{{ page.subtitle }}</h2>
+          {% endif %}
+        </div>
+
+        <!-- Key Information Box -->
+        {% if page.key_info %}
+          <div class="key-info-box" style="background-color: #C1E4F5; border: 1px solid #467886; padding: 15px; margin: 20px 0;">
+            {{ h.render_markdown(page.key_info, allow_html=True) | safe }}
+          </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div class="rapid-response-content">
+          {{ h.render_markdown(page.content, allow_html=True) | safe }}
+        </div>
+
+        <!-- Image Carousel Section -->
+        {% if page.image_carousel %}
+          <div class="image-carousel-section">
+            <h3>{{ _('Image Gallery') }}</h3>
+            <div class="image-carousel">
+              {{ h.render_markdown(page.image_carousel, allow_html=True) | safe }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Map Stories Section -->
+        {% if page.map_stories %}
+          <div class="map-stories-section">
+            <h2>{{ _('Map Stories') }}</h2>
+            <div class="map-stories-content">
+              {{ h.render_markdown(page.map_stories, allow_html=True) | safe }}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Additional Sections -->
+        {% if page.additional_content %}
+          <div class="additional-content">
+            {{ h.render_markdown(page.additional_content, allow_html=True) | safe }}
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom CSS for revision preview -->
+  <style>
+    .revision-actions {
+      float: right;
+      margin-top: 10px;
+    }
+    
+    .revision-actions .btn {
+      margin-left: 5px;
+    }
+    
+    .revision-info {
+      margin: 20px 0;
+    }
+    
+    .revision-preview {
+      border: 2px dashed #467886;
+      padding: 20px;
+      margin-top: 20px;
+      background-color: #f9f9f9;
+    }
+    
+    .revision-preview::before {
+      content: "{{ _('Revision Preview') }}";
+      display: block;
+      background-color: #467886;
+      color: white;
+      padding: 5px 10px;
+      margin: -20px -20px 20px -20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    
+    /* Apply the same styles as the main rapid-response template */
+    .rapid-response-header-img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+    
+    .rapid-response-title {
+      color: #467886;
+      margin-bottom: 10px;
+    }
+    
+    .rapid-response-subtitle {
+      color: #666;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    
+    .key-info-box {
+      border-radius: 5px;
+    }
+    
+    .rapid-response-content iframe {
+      width: 100%;
+      min-height: 400px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    
+    .map-stories-section h2 {
+      color: #467886;
+      border-bottom: 2px solid #467886;
+      padding-bottom: 10px;
+    }
+    
+    @media (max-width: 768px) {
+      .revision-actions {
+        float: none;
+        margin-top: 20px;
+      }
+      
+      .revision-actions .btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+      }
+    }
+  </style>
+{% endblock %} 

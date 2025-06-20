@@ -46,3 +46,9 @@ index-css:
   contents:
     - css/pages.css
 
+rapid-response-css:
+  output: ckanext-pages/%(version)s_rapid-response.css
+  filters: cssrewrite
+  contents:
+    - css/rapid-response.css
+

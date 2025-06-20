@@ -1,0 +1,165 @@
+{% extends "ckanext_pages/base_form.html" %}
+
+{% block subtitle %}
+  {% if page %}
+    {{ _('Edit Rapid Response Page') }}
+  {% else %}
+    {{ _('Add Rapid Response Page') }}
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumb_content %}
+  {% if self.breadcrumb_content_selected() %}
+    {{ super() }}
+  {% endif %}
+  <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+  {% if page %}
+    <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+    <li class="active">{{ _('Edit') }}</li>
+  {% else %}
+    <li class="active">{{ _('Add Page') }}</li>
+  {% endif %}
+{% endblock %}
+
+{% block form_content %}
+  <div class="rapid-response-edit-form">
+    
+    <!-- Basic Information -->
+    <fieldset>
+      <legend>{{ _('Basic Information') }}</legend>
+      
+      {{ form.input('name', id='field-name', label=_('URL'), placeholder=_('my-rapid-response-page'), value=data.name, error=errors.name, classes=['control-full'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
+      
+      {{ form.input('title', id='field-title', label=_('Disaster Title'), placeholder=_('e.g., Cyclone Idai Floods and Landslides'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-slug', 'class': 'form-control'}) }}
+      
+      {{ form.input('subtitle', id='field-subtitle', label=_('Subtitle'), placeholder=_('Additional disaster information'), value=data.subtitle, error=errors.subtitle, classes=['control-full'], attrs={'class': 'form-control'}) }}
+      
+      {{ form.input('publish_date', id='field-publish-date', label=_('Event Date'), placeholder=_('YYYY-MM-DD'), value=data.publish_date, error=errors.publish_date, classes=['control-medium'], attrs={'class': 'form-control', 'type': 'date'}) }}
+      
+      {{ form.select('private', id='field-private', label=_('Visibility'), options=[{'value': 'True', 'text': _('Private')}, {'value': 'False', 'text': _('Public')}], selected=data.private, error=errors.private, classes=['control-medium']) }}
+      
+    </fieldset>
+
+    <!-- Key Information Box -->
+    <fieldset>
+      <legend>{{ _('Key Information Box') }}</legend>
+      <p class="help-block">{{ _('This information will be displayed in a highlighted blue box. You can use tables and HTML formatting.') }}</p>
+      
+      {{ form.markdown('key_info', id='field-key-info', label=_('Key Information'), placeholder=_('Event Date, Countries Affected, Exposure, UNESCO Sites, etc.'), value=data.key_info, error=errors.key_info, attrs={'class': 'form-control', 'rows': '8'}) }}
+      
+    </fieldset>
+
+    <!-- Main Content -->
+    <fieldset>
+      <legend>{{ _('Main Content') }}</legend>
+      <p class="help-block">{{ _('Main content of the rapid response page. You can include iframes for maps and interactive content.') }}</p>
+      
+      {{ form.markdown('content', id='field-content', label=_('Content'), placeholder=_('Detailed information about the disaster and response...'), value=data.content, error=errors.content, attrs={'class': 'form-control', 'rows': '15'}) }}
+      
+    </fieldset>
+
+    <!-- Image Carousel -->
+    <fieldset>
+      <legend>{{ _('Image Gallery/Carousel') }}</legend>
+      <p class="help-block">{{ _('Add images related to the disaster. You can use HTML img tags or markdown image syntax.') }}</p>
+      
+      {{ form.markdown('image_carousel', id='field-image-carousel', label=_('Image Carousel'), placeholder=_('![Image description](image-url)\n\nLinks to images from Wikipedia, official sources, etc.'), value=data.image_carousel, error=errors.image_carousel, attrs={'class': 'form-control', 'rows': '6'}) }}
+      
+    </fieldset>
+
+    <!-- Map Stories -->
+    <fieldset>
+      <legend>{{ _('Map Stories') }}</legend>
+      <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
+      
+      {{ form.markdown('map_stories', id='field-map-stories', label=_('Map Stories'), placeholder=_('Introduction\n\nIn response to the disaster...\n\n<iframe src="map-url" width="100%" height="400"></iframe>\n\n### Floods\n\n### Landslides'), value=data.map_stories, error=errors.map_stories, attrs={'class': 'form-control', 'rows': '10'}) }}
+      
+    </fieldset>
+
+    <!-- Additional Content -->
+    <fieldset>
+      <legend>{{ _('Additional Sections') }}</legend>
+      <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
+      
+      {{ form.markdown('additional_content', id='field-additional-content', label=_('Additional Content'), placeholder=_('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis'), value=data.additional_content, error=errors.additional_content, attrs={'class': 'form-control', 'rows': '8'}) }}
+      
+    </fieldset>
+
+    <!-- Header Image -->
+    <fieldset>
+      <legend>{{ _('Header Image') }}</legend>
+      <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
+      
+      {{ form.input('header_image', id='field-header-image', label=_('Header Image URL'), placeholder=_('https://example.com/disaster-image.jpg'), value=data.header_image, error=errors.header_image, classes=['control-full'], attrs={'class': 'form-control'}) }}
+      
+    </fieldset>
+
+    <!-- Excerpt -->
+    <fieldset>
+      <legend>{{ _('Summary/Excerpt') }}</legend>
+      <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
+      
+      {{ form.markdown('excerpt', id='field-excerpt', label=_('Excerpt'), placeholder=_('Brief summary of the disaster and response efforts...'), value=data.excerpt, error=errors.excerpt, attrs={'class': 'form-control', 'rows': '4'}) }}
+      
+    </fieldset>
+
+  </div>
+
+  <!-- Custom CSS for the edit form -->
+  <style>
+    .rapid-response-edit-form fieldset {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+    }
+    
+    .rapid-response-edit-form legend {
+      color: #467886;
+      font-weight: bold;
+      padding: 0 10px;
+      margin-bottom: 15px;
+    }
+    
+    .rapid-response-edit-form .help-block {
+      margin-bottom: 10px;
+      font-style: italic;
+      color: #666;
+    }
+    
+    .rapid-response-edit-form textarea {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+    
+    .rapid-response-edit-form .control-full input,
+    .rapid-response-edit-form .control-full textarea {
+      width: 100%;
+    }
+    
+    .rapid-response-edit-form .control-medium input,
+    .rapid-response-edit-form .control-medium select {
+      width: 50%;
+    }
+  </style>
+
+  <!-- JavaScript for form enhancements -->
+  <script>
+    $(document).ready(function() {
+      // Auto-generate URL slug from title
+      $('#field-title').on('input', function() {
+        var title = $(this).val().toLowerCase()
+          .replace(/[^\w ]+/g,'')
+          .replace(/ +/g,'-');
+        $('#field-name').val(title);
+      });
+      
+      // WYSIWYG editor integration if available
+      if (typeof CKEDITOR !== 'undefined') {
+        CKEDITOR.replace('field-content');
+        CKEDITOR.replace('field-key-info');
+        CKEDITOR.replace('field-map-stories');
+        CKEDITOR.replace('field-additional-content');
+      }
+    });
+  </script>
+{% endblock %} 

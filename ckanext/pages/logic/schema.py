@@ -26,6 +26,14 @@ def default_pages_schema():
         'created': [ignore_missing, isodate],
         'publish_date': [
             not_empty_if_blog, ignore_missing, isodate],
+        # Rapid Response specific fields
+        'subtitle': [ignore_missing, unicode_safe],
+        'key_info': [ignore_missing, unicode_safe],
+        'image_carousel': [ignore_missing, unicode_safe],
+        'map_stories': [ignore_missing, unicode_safe],
+        'additional_content': [ignore_missing, unicode_safe],
+        'header_image': [ignore_missing, unicode_safe],
+        'excerpt': [ignore_missing, unicode_safe],
     }
 
 

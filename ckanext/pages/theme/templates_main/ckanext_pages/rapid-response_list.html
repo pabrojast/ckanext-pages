@@ -1,0 +1,156 @@
+{% extends "ckanext_pages/base.html" %}
+
+{% block subtitle %}{{ _('Rapid Response & Recovery') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {% if self.breadcrumb_content_selected() %}
+    {{ super() }}
+  {% endif %}
+  <li class="active">{{ _('Rapid Response & Recovery') }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="module-content">
+    {% block page_primary_action %}
+      {% if h.check_access('ckanext_pages_update') %}
+        <div class="page-header">
+          <ul class="nav nav-pills pull-right">
+            <li>{% link_for _('Add Rapid Response Page'), named_route='pages.rapid_response_new', class_='btn btn-primary' %}</li>
+          </ul>
+        </div>
+      {% endif %}
+    {% endblock %}
+
+    <header class="module-content">
+      <div class="page-header">
+        <h1>
+          {{ _('Rapid Response & Recovery') }}
+          <small>{{ _('Emergency Response Documentation') }}</small>
+        </h1>
+      </div>
+    </header>
+
+    {% if pages %}
+      <div class="rapid-response-list">
+        {% for page in pages %}
+          <article class="rapid-response-item module-content">
+            <header>
+              <h2>
+                <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">
+                  {{ page.title or page.name }}
+                </a>
+              </h2>
+              {% if page.subtitle %}
+                <p class="rapid-response-subtitle">{{ page.subtitle }}</p>
+              {% endif %}
+            </header>
+            
+            <div class="rapid-response-summary">
+              {% if page.excerpt %}
+                {{ h.render_markdown(page.excerpt) | safe }}
+              {% else %}
+                {{ h.render_markdown(page.content[:300]) | safe }}
+                {% if page.content|length > 300 %}...{% endif %}
+              {% endif %}
+            </div>
+
+            <footer class="rapid-response-meta">
+              <p class="text-muted">
+                <small>
+                  {{ _('Published:') }} {{ h.render_datetime(page.created, '%B %d, %Y') }}
+                  {% if page.modified %}
+                    | {{ _('Updated:') }} {{ h.render_datetime(page.modified, '%B %d, %Y') }}
+                  {% endif %}
+                  {% if page.publish_date %}
+                    | {{ _('Event Date:') }} {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                  {% endif %}
+                </small>
+              </p>
+              
+              {% if h.check_access('ckanext_pages_update') %}
+                <div class="rapid-response-actions">
+                  <a href="{{ h.url_for('pages.rapid_response_edit', page=page.name) }}" class="btn btn-xs btn-default">
+                    <i class="fa fa-edit"></i> {{ _('Edit') }}
+                  </a>
+                  <a href="{{ h.url_for('pages.rapid_response_delete', page=page.name) }}" class="btn btn-xs btn-danger" data-confirm="{{ _('Are you sure you want to delete this page?') }}">
+                    <i class="fa fa-trash"></i> {{ _('Delete') }}
+                  </a>
+                </div>
+              {% endif %}
+            </footer>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <h3>{{ _('No Rapid Response pages found') }}</h3>
+        <p>{{ _('Get started by creating your first rapid response documentation page.') }}</p>
+        {% if h.check_access('ckanext_pages_update') %}
+          <p>
+            <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary">
+              {{ _('Add Rapid Response Page') }}
+            </a>
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Custom CSS for Rapid Response list styling -->
+  <style>
+    .rapid-response-item {
+      margin-bottom: 30px;
+      padding: 20px;
+      border-left: 4px solid #467886;
+    }
+    
+    .rapid-response-item header h2 {
+      color: #467886;
+      margin-bottom: 10px;
+    }
+    
+    .rapid-response-item header h2 a {
+      color: #467886;
+      text-decoration: none;
+    }
+    
+    .rapid-response-item header h2 a:hover {
+      color: #356068;
+    }
+    
+    .rapid-response-subtitle {
+      color: #666;
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+    
+    .rapid-response-summary {
+      margin: 15px 0;
+      line-height: 1.6;
+    }
+    
+    .rapid-response-meta {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    
+    .rapid-response-actions {
+      margin-top: 10px;
+    }
+    
+    .rapid-response-actions .btn {
+      margin-right: 5px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+    
+    .empty-state h3 {
+      color: #467886;
+    }
+  </style>
+{% endblock %} 
