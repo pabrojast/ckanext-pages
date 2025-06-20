@@ -34,6 +34,9 @@ def default_pages_schema():
         'additional_content': [ignore_missing, unicode_safe],
         'header_image': [ignore_missing, unicode_safe],
         'excerpt': [ignore_missing, unicode_safe],
+        'timeline_events': [ignore_missing, unicode_safe],  # Dynamic timeline events
+        'uploaded_images': [ignore_missing, unicode_safe],  # Uploaded images metadata
+        'image_gallery': [ignore_missing, unicode_safe],     # Enhanced image gallery
     }
 
 

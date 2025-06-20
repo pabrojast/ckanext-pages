@@ -49,6 +49,40 @@
             <div class="row">
               <div class="col-md-12">
                 
+                <!-- Timeline Events -->
+                {% if page.timeline_events %}
+                <div class="rapid-response-timeline" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <h2>{{ _('Timeline of Events') }}</h2>
+                      <div class="timeline-container">
+                        {% set timeline_events = page.timeline_events | from_json %}
+                        {% if timeline_events %}
+                          {% for event in timeline_events %}
+                          <div class="timeline-event">
+                            <div class="timeline-marker timeline-marker-{{ event.type }}">
+                              <div class="timeline-date">
+                                {% if event.date %}
+                                  {{ h.render_datetime(event.date, '%b %d') }}
+                                {% endif %}
+                              </div>
+                            </div>
+                            <div class="timeline-content">
+                              <div class="timeline-event-type">{{ _(event.type | title) }}</div>
+                              <div class="timeline-description">{{ event.description }}</div>
+                              {% if event.date %}
+                                <div class="timeline-full-date">{{ h.render_datetime(event.date, '%B %d, %Y') }}</div>
+                              {% endif %}
+                            </div>
+                          </div>
+                          {% endfor %}
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
                 <!-- Key Information Box -->
                 {% if page.key_info %}
                 <div class="rapid-response-key-info" style="margin-bottom: 3rem;">
@@ -88,15 +122,51 @@
                 </div>
                 {% endif %}
 
-                <!-- Image Gallery Section -->
-                {% if page.image_carousel %}
+                <!-- Enhanced Image Gallery Section -->
+                {% if page.uploaded_images or page.image_carousel %}
                 <div class="rapid-response-gallery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
                       <h2>{{ _('Image Gallery') }}</h2>
-                      <div class="image-gallery-content">
-                        {{ h.render_markdown(page.image_carousel, allow_html=True) | safe }}
+                      
+                      <!-- Uploaded Images Grid -->
+                      {% if page.uploaded_images %}
+                        {% set uploaded_images = page.uploaded_images | from_json %}
+                        {% if uploaded_images %}
+                        <div class="uploaded-images-gallery">
+                          <h3>{{ _('Uploaded Images') }}</h3>
+                          <div class="images-grid">
+                            {% for image in uploaded_images %}
+                            <div class="gallery-image-item">
+                              <div class="image-container">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
+                                <div class="image-overlay">
+                                  <i class="fa fa-expand"></i>
+                                </div>
+                              </div>
+                              {% if image.caption %}
+                                <div class="image-caption">{{ image.caption }}</div>
+                              {% elif image.alt %}
+                                <div class="image-caption">{{ image.alt }}</div>
+                              {% endif %}
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      {% endif %}
+
+                      <!-- External Images (Markdown/HTML) -->
+                      {% if page.image_carousel %}
+                      <div class="external-images-gallery">
+                        {% if page.uploaded_images %}
+                          <h3>{{ _('Additional Images') }}</h3>
+                        {% endif %}
+                        <div class="image-gallery-content">
+                          {{ h.render_markdown(page.image_carousel, allow_html=True) | safe }}
+                        </div>
                       </div>
+                      {% endif %}
                     </div>
                   </section>
                 </div>
@@ -156,6 +226,24 @@
 
     </div>
     {% endblock %}
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="imageModalTitle">{{ _('Image Preview') }}</h4>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-responsive" style="max-width: 100%; height: auto;">
+        <p id="modalCaption" class="image-modal-caption"></p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Enhanced CSS for Rapid Response styling -->
@@ -248,6 +336,128 @@
   font-weight: bold;
 }
 
+/* Timeline Styling */
+.rapid-response-timeline .module {
+  border-left: 4px solid #467886;
+}
+
+.timeline-container {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  left: 25px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #467886 0%, #c1e4f5 100%);
+}
+
+.timeline-event {
+  position: relative;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  z-index: 2;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-marker-activation {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.timeline-marker-assessment {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+}
+
+.timeline-marker-response {
+  background: linear-gradient(135deg, #467886 0%, #2c5660 100%);
+}
+
+.timeline-marker-recovery {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.timeline-marker-update {
+  background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+}
+
+.timeline-marker-closure {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+.timeline-content {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-left: 1rem;
+  flex: 1;
+  position: relative;
+}
+
+.timeline-content::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 20px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #dee2e6;
+}
+
+.timeline-content::after {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 21px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid #f8f9fa;
+}
+
+.timeline-event-type {
+  font-weight: bold;
+  color: #467886;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.timeline-description {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.timeline-full-date {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
 /* Key Information Box */
 .rapid-response-key-info .module {
   border-left: 4px solid #467886;
@@ -310,6 +520,89 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
+/* Enhanced Image Gallery */
+.uploaded-images-gallery {
+  margin-bottom: 2rem;
+}
+
+.uploaded-images-gallery h3,
+.external-images-gallery h3 {
+  color: #467886;
+  border-bottom: 2px solid #467886;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.gallery-image-item {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-image-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-container:hover .gallery-image {
+  transform: scale(1.1);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(70, 120, 134, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 2rem;
+}
+
+.image-caption {
+  padding: 1rem;
+  background: #f8f9fa;
+  font-size: 0.9rem;
+  color: #495057;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .image-gallery-content img {
   max-width: 100%;
   height: auto;
@@ -321,6 +614,13 @@
 
 .image-gallery-content img:hover {
   transform: scale(1.02);
+}
+
+/* Image Modal */
+.image-modal-caption {
+  margin-top: 1rem;
+  font-style: italic;
+  color: #6c757d;
 }
 
 /* Action buttons */
@@ -365,6 +665,37 @@
     width: 100%;
     margin: 5px 0;
   }
+
+  /* Timeline responsive */
+  .timeline-container {
+    padding-left: 1rem;
+  }
+  
+  .timeline-container::before {
+    left: 15px;
+  }
+  
+  .timeline-marker {
+    left: -1.5rem;
+    width: 30px;
+    height: 30px;
+    font-size: 0.7rem;
+  }
+  
+  .timeline-content {
+    margin-left: 0.5rem;
+    padding: 1rem;
+  }
+
+  /* Gallery responsive */
+  .images-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .gallery-image {
+    height: 150px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -382,5 +713,46 @@
   }
 }
 </style>
+
+<!-- JavaScript for Enhanced Functionality -->
+<script>
+$(document).ready(function() {
+  // Image modal functionality
+  $('.gallery-image').on('click', function() {
+    const imageUrl = $(this).data('image');
+    const caption = $(this).data('caption');
+    
+    $('#modalImage').attr('src', imageUrl);
+    $('#modalImage').attr('alt', caption);
+    $('#modalCaption').text(caption);
+    
+    $('#imageModal').modal('show');
+  });
+  
+  // Enhanced iframe responsiveness
+  $('iframe').each(function() {
+    const $iframe = $(this);
+    if (!$iframe.parent().hasClass('iframe-container')) {
+      $iframe.wrap('<div class="iframe-container"></div>');
+    }
+  });
+  
+  // Add loading animation for images
+  $('.gallery-image').on('load', function() {
+    $(this).addClass('loaded');
+  });
+  
+  // Smooth scrolling for internal links
+  $('a[href^="#"]').on('click', function(e) {
+    e.preventDefault();
+    const target = $(this.getAttribute('href'));
+    if (target.length) {
+      $('html, body').animate({
+        scrollTop: target.offset().top - 100
+      }, 1000);
+    }
+  });
+});
+</script>
 
 {% endblock %} 

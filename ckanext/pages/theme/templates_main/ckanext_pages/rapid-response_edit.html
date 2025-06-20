@@ -61,7 +61,7 @@
                   <section class="module module-narrow">
                     <div class="module-content">
                       
-                      <form method="post" enctype="multipart/form-data">
+                      <form method="post" enctype="multipart/form-data" id="rapid-response-form">
                         
                         <!-- Error Summary -->
                         {% if error_summary %}
@@ -117,6 +117,28 @@
                           </div>
                         </fieldset>
 
+                        <!-- Timeline Events (Copernicus-style) -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Timeline Events') }}</legend>
+                          <p class="help-block">{{ _('Add key dates and events in chronological order. Similar to Copernicus emergency mapping activation timeline.') }}</p>
+                          
+                          <div id="timeline-events-container">
+                            <div class="timeline-events-list">
+                              <!-- Timeline events will be dynamically added here -->
+                            </div>
+                            
+                            <div class="timeline-add-section">
+                              <button type="button" class="btn btn-info" id="add-timeline-event">
+                                <i class="fa fa-plus"></i> {{ _('Add Timeline Event') }}
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <!-- Hidden field to store timeline data -->
+                          <input type="hidden" id="timeline-events-data" name="timeline_events" value="{{ data.timeline_events or '' }}">
+                          {% if errors.timeline_events %}<span class="error-block">{{ errors.timeline_events }}</span>{% endif %}
+                        </fieldset>
+
                         <!-- Key Information Box -->
                         <fieldset class="form-section">
                           <legend>{{ _('Key Information Box') }}</legend>
@@ -139,15 +161,41 @@
                           </div>
                         </fieldset>
 
-                        <!-- Image Gallery -->
+                        <!-- Enhanced Image Gallery with Upload -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Image Gallery/Carousel') }}</legend>
-                          <p class="help-block">{{ _('Add images related to the disaster. You can use HTML img tags or markdown image syntax.') }}</p>
+                          <legend>{{ _('Image Gallery') }}</legend>
+                          <p class="help-block">{{ _('Upload images directly or add external image URLs. Uploaded images will be automatically resized and optimized.') }}</p>
+                          
+                          <!-- Image Upload Section -->
+                          <div class="image-upload-section">
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload New Images') }}</label>
+                              <div class="upload-dropzone" id="image-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-cloud-upload fa-3x"></i>
+                                  <p>{{ _('Drop images here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+                                </div>
+                                <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+                              </div>
+                            </div>
+                            
+                            <!-- Uploaded Images Preview -->
+                            <div id="uploaded-images-preview" class="uploaded-images-grid">
+                              <!-- Uploaded images will appear here -->
+                            </div>
+                          </div>
+
+                          <!-- External Images Section -->
                           <div class="form-group">
-                            <label for="field-image-carousel" class="control-label">{{ _('Image Carousel') }}</label>
+                            <label for="field-image-carousel" class="control-label">{{ _('External Image URLs') }}</label>
                             <textarea id="field-image-carousel" name="image_carousel" rows="6" class="form-control" placeholder="{{ _('Add images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.') }}">{{ data.image_carousel or '' }}</textarea>
                             {% if errors.image_carousel %}<span class="error-block">{{ errors.image_carousel }}</span>{% endif %}
                           </div>
+
+                          <!-- Hidden fields for uploaded images -->
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.uploaded_images or '' }}">
+                          <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.image_gallery or '' }}">
                         </fieldset>
 
                         <!-- Map Stories -->
@@ -291,6 +339,223 @@ textarea.form-control {
   min-height: 120px;
 }
 
+/* Timeline Events Styling */
+.timeline-events-list {
+  margin-bottom: 1.5rem;
+}
+
+.timeline-event-item {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.timeline-event-item .timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.timeline-event-number {
+  background: var(--unesco-blue, #467886);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.timeline-remove-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.timeline-remove-btn:hover {
+  background: #c82333;
+}
+
+.timeline-event-fields {
+  display: grid;
+  grid-template-columns: 200px 1fr 150px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.timeline-field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-field-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2c5660;
+  font-size: 0.9rem;
+}
+
+.timeline-field-group input,
+.timeline-field-group textarea {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
+.timeline-field-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.timeline-add-section {
+  text-align: center;
+  padding: 1rem;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+/* Image Upload Styling */
+.image-upload-section {
+  margin-bottom: 2rem;
+}
+
+.upload-dropzone {
+  border: 3px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--unesco-blue, #467886);
+  background: #e8f4f6;
+}
+
+.upload-dropzone.dragover {
+  border-color: var(--unesco-blue, #467886);
+  background: #e8f4f6;
+  transform: scale(1.02);
+}
+
+.dropzone-content {
+  pointer-events: none;
+}
+
+.dropzone-content i {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.dropzone-content p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+.dropzone-content .text-muted {
+  font-size: 0.9rem;
+}
+
+.uploaded-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.uploaded-image-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.uploaded-image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.uploaded-image-preview {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.uploaded-image-info {
+  padding: 1rem;
+}
+
+.uploaded-image-info input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.uploaded-image-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.image-copy-url {
+  background: var(--unesco-blue, #467886);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.image-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Upload Progress */
+.upload-progress {
+  margin-top: 1rem;
+}
+
+.progress {
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--unesco-blue, #467886) 0%, #2c5660 100%);
+  transition: width 0.3s ease;
+}
+
 /* Help Text */
 .help-block {
   margin-bottom: 1rem;
@@ -380,6 +645,15 @@ textarea.form-control {
   .pull-right {
     float: none !important;
   }
+
+  .timeline-event-fields {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .uploaded-images-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -390,9 +664,13 @@ textarea.form-control {
   .form-section legend {
     font-size: 1.1rem;
   }
+
+  .upload-dropzone {
+    padding: 2rem 1rem;
+  }
 }
 
-/* Banner Section from previous styling */
+/* Header Section Styling */
 .section-title {
   position: relative;
   height: 250px;
@@ -490,9 +768,297 @@ textarea.form-control {
 }
 </style>
 
-<!-- JavaScript for form enhancements -->
+<!-- JavaScript for Enhanced Form Functionality -->
 <script>
 $(document).ready(function() {
+  // Timeline Events Management
+  let timelineEventCounter = 0;
+  
+  // Load existing timeline events
+  function loadTimelineEvents() {
+    const timelineData = $('#timeline-events-data').val();
+    if (timelineData) {
+      try {
+        const events = JSON.parse(timelineData);
+        events.forEach(event => {
+          addTimelineEvent(event);
+        });
+      } catch (e) {
+        console.error('Error parsing timeline data:', e);
+      }
+    }
+  }
+  
+  // Add timeline event
+  function addTimelineEvent(eventData = null) {
+    timelineEventCounter++;
+    const eventId = `timeline-event-${timelineEventCounter}`;
+    
+    const eventHtml = `
+      <div class="timeline-event-item" data-event-id="${eventId}">
+        <div class="timeline-header">
+          <div class="timeline-event-number">${timelineEventCounter}</div>
+          <button type="button" class="timeline-remove-btn" onclick="removeTimelineEvent('${eventId}')">
+            <i class="fa fa-trash"></i> {{ _('Remove') }}
+          </button>
+        </div>
+        <div class="timeline-event-fields">
+          <div class="timeline-field-group">
+            <label>{{ _('Date') }}</label>
+            <input type="date" class="timeline-date" value="${eventData ? eventData.date : ''}" placeholder="{{ _('Event date') }}">
+          </div>
+          <div class="timeline-field-group">
+            <label>{{ _('Event Description') }}</label>
+            <textarea class="timeline-description" placeholder="{{ _('Describe what happened on this date...') }}">${eventData ? eventData.description : ''}</textarea>
+          </div>
+          <div class="timeline-field-group">
+            <label>{{ _('Event Type') }}</label>
+            <select class="timeline-type">
+              <option value="activation" ${eventData && eventData.type === 'activation' ? 'selected' : ''}>{{ _('Activation') }}</option>
+              <option value="assessment" ${eventData && eventData.type === 'assessment' ? 'selected' : ''}>{{ _('Assessment') }}</option>
+              <option value="response" ${eventData && eventData.type === 'response' ? 'selected' : ''}>{{ _('Response') }}</option>
+              <option value="recovery" ${eventData && eventData.type === 'recovery' ? 'selected' : ''}>{{ _('Recovery') }}</option>
+              <option value="update" ${eventData && eventData.type === 'update' ? 'selected' : ''}>{{ _('Update') }}</option>
+              <option value="closure" ${eventData && eventData.type === 'closure' ? 'selected' : ''}>{{ _('Closure') }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    $('.timeline-events-list').append(eventHtml);
+    updateTimelineData();
+  }
+  
+  // Remove timeline event
+  window.removeTimelineEvent = function(eventId) {
+    $(`.timeline-event-item[data-event-id="${eventId}"]`).remove();
+    updateTimelineEventNumbers();
+    updateTimelineData();
+  };
+  
+  // Update timeline event numbers
+  function updateTimelineEventNumbers() {
+    $('.timeline-event-item').each(function(index) {
+      $(this).find('.timeline-event-number').text(index + 1);
+    });
+  }
+  
+  // Update timeline data
+  function updateTimelineData() {
+    const events = [];
+    $('.timeline-event-item').each(function() {
+      const $item = $(this);
+      const event = {
+        date: $item.find('.timeline-date').val(),
+        description: $item.find('.timeline-description').val(),
+        type: $item.find('.timeline-type').val()
+      };
+      if (event.date || event.description) {
+        events.push(event);
+      }
+    });
+    $('#timeline-events-data').val(JSON.stringify(events));
+  }
+  
+  // Event listeners
+  $('#add-timeline-event').click(function() {
+    addTimelineEvent();
+  });
+  
+  $(document).on('change input', '.timeline-date, .timeline-description, .timeline-type', function() {
+    updateTimelineData();
+  });
+  
+  // Image Upload Management
+  let uploadedImages = [];
+  
+  // Load existing uploaded images
+  function loadUploadedImages() {
+    const uploadedData = $('#uploaded-images-data').val();
+    if (uploadedData) {
+      try {
+        uploadedImages = JSON.parse(uploadedData);
+        uploadedImages.forEach(img => {
+          addUploadedImagePreview(img);
+        });
+      } catch (e) {
+        console.error('Error parsing uploaded images data:', e);
+      }
+    }
+  }
+  
+  // Handle file upload
+  $('#image-upload').change(function() {
+    const files = this.files;
+    Array.from(files).forEach(file => {
+      uploadImage(file);
+    });
+  });
+  
+  // Handle dropzone
+  const dropzone = $('#image-dropzone');
+  
+  dropzone.click(function() {
+    $('#image-upload').click();
+  });
+  
+  dropzone.on('dragover', function(e) {
+    e.preventDefault();
+    $(this).addClass('dragover');
+  });
+  
+  dropzone.on('dragleave', function(e) {
+    e.preventDefault();
+    $(this).removeClass('dragover');
+  });
+  
+  dropzone.on('drop', function(e) {
+    e.preventDefault();
+    $(this).removeClass('dragover');
+    
+    const files = e.originalEvent.dataTransfer.files;
+    Array.from(files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        uploadImage(file);
+      }
+    });
+  });
+  
+  // Upload image function
+  function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('upload', file);
+    
+    // Show upload progress
+    const progressId = `progress-${Date.now()}`;
+    const progressHtml = `
+      <div id="${progressId}" class="upload-progress">
+        <p>{{ _('Uploading') }} ${file.name}...</p>
+        <div class="progress">
+          <div class="progress-bar" style="width: 0%"></div>
+        </div>
+      </div>
+    `;
+    $('#uploaded-images-preview').append(progressHtml);
+    
+    $.ajax({
+      url: '{{ h.url_for("pages.upload") }}',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      xhr: function() {
+        const xhr = new window.XMLHttpRequest();
+        xhr.upload.addEventListener("progress", function(evt) {
+          if (evt.lengthComputable) {
+            const percentComplete = (evt.loaded / evt.total) * 100;
+            $(`#${progressId} .progress-bar`).css('width', percentComplete + '%');
+          }
+        }, false);
+        return xhr;
+      },
+      success: function(response) {
+        $(`#${progressId}`).remove();
+        if (response.uploaded === 1) {
+          const imageData = {
+            url: response.url,
+            fileName: response.fileName,
+            alt: file.name.replace(/\.[^/.]+$/, ""), // Remove extension for alt text
+            caption: ''
+          };
+          uploadedImages.push(imageData);
+          addUploadedImagePreview(imageData);
+          updateUploadedImagesData();
+        } else {
+          alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
+        }
+      },
+      error: function() {
+        $(`#${progressId}`).remove();
+        alert('{{ _("Error uploading image. Please try again.") }}');
+      }
+    });
+  }
+  
+  // Add uploaded image preview
+  function addUploadedImagePreview(imageData) {
+    const imageId = `uploaded-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const imageHtml = `
+      <div class="uploaded-image-item" data-image-id="${imageId}">
+        <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
+        <div class="uploaded-image-info">
+          <input type="text" class="image-alt" value="${imageData.alt}" placeholder="{{ _('Alt text') }}">
+          <input type="text" class="image-caption" value="${imageData.caption}" placeholder="{{ _('Caption (optional)') }}">
+          <div class="uploaded-image-actions">
+            <button type="button" class="image-copy-url" onclick="copyImageUrl('${imageData.url}')">
+              <i class="fa fa-copy"></i> {{ _('Copy URL') }}
+            </button>
+            <button type="button" class="image-remove" onclick="removeUploadedImage('${imageId}')">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    $('#uploaded-images-preview').append(imageHtml);
+  }
+  
+  // Copy image URL to clipboard
+  window.copyImageUrl = function(url) {
+    navigator.clipboard.writeText(url).then(function() {
+      // Show temporary success message
+      const btn = event.target.closest('.image-copy-url');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa fa-check"></i> {{ _("Copied!") }}';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    });
+  };
+  
+  // Remove uploaded image
+  window.removeUploadedImage = function(imageId) {
+    $(`.uploaded-image-item[data-image-id="${imageId}"]`).remove();
+    // Update uploadedImages array
+    const $removedItem = $(`.uploaded-image-item[data-image-id="${imageId}"]`);
+    const imageUrl = $removedItem.find('img').attr('src');
+    uploadedImages = uploadedImages.filter(img => img.url !== imageUrl);
+    updateUploadedImagesData();
+  };
+  
+  // Update uploaded images data
+  function updateUploadedImagesData() {
+    // Update data from current DOM state
+    const currentImages = [];
+    $('.uploaded-image-item').each(function() {
+      const $item = $(this);
+      const imageData = {
+        url: $item.find('img').attr('src'),
+        fileName: $item.find('img').attr('src').split('/').pop(),
+        alt: $item.find('.image-alt').val(),
+        caption: $item.find('.image-caption').val()
+      };
+      currentImages.push(imageData);
+    });
+    uploadedImages = currentImages;
+    $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
+    
+    // Also update image gallery data for easier template rendering
+    const galleryData = uploadedImages.map(img => ({
+      type: 'uploaded',
+      url: img.url,
+      alt: img.alt,
+      caption: img.caption
+    }));
+    $('#image-gallery-data').val(JSON.stringify(galleryData));
+  }
+  
+  // Update image data when alt text or caption changes
+  $(document).on('change input', '.image-alt, .image-caption', function() {
+    updateUploadedImagesData();
+  });
+  
   // Auto-generate URL slug from title
   $('#field-title').on('input', function() {
     var title = $(this).val().toLowerCase()
@@ -519,6 +1085,10 @@ $(document).ready(function() {
       e.preventDefault();
       return false;
     }
+    
+    // Update data before submit
+    updateTimelineData();
+    updateUploadedImagesData();
   });
   
   // WYSIWYG editor integration if available
@@ -537,6 +1107,10 @@ $(document).ready(function() {
       return false;
     }
   });
+  
+  // Initialize
+  loadTimelineEvents();
+  loadUploadedImages();
 });
 </script>
 
