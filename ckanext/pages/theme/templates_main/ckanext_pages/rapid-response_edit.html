@@ -41,11 +41,11 @@
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   {% if page %}
-                    <h1>{{ _('Edit Rapid Response Page') }}</h1>
-                    <p class="section-title-description">{{ _('Update emergency response documentation') }}</p>
+                    <h1>{{ _('Update Emergency Event') }}</h1>
+                    <p class="section-title-description">{{ _('Update emergency response event information') }}</p>
                   {% else %}
-                    <h1>{{ _('Create New Rapid Response Page') }}</h1>
-                    <p class="section-title-description">{{ _('Document emergency response efforts for UNESCO sites and communities') }}</p>
+                    <h1>{{ _('Report New Emergency Event') }}</h1>
+                    <p class="section-title-description">{{ _('Report and track emergency events affecting UNESCO heritage sites and communities') }}</p>
                   {% endif %}
                 </div>
               </div>
@@ -75,52 +75,68 @@
                           </div>
                         {% endif %}
                         
-                        <!-- Basic Information -->
+                        <!-- Event Information -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Basic Information') }}</legend>
+                          <legend>{{ _('Event Information') }}</legend>
                           <div class="form-group">
-                            <label for="field-name" class="control-label">{{ _('URL') }}</label>
-                            <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('my-rapid-response-page') }}" class="form-control" data-module="slug-preview-target">
+                            <label for="field-name" class="control-label">{{ _('Event URL') }}</label>
+                            <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('cyclone-chido-mozambique-2024') }}" class="form-control" data-module="slug-preview-target">
+                            <div class="help-text">{{ _('This will be the web address for this event page') }}</div>
                             {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
                           </div>
                           
                           <div class="form-group">
-                            <label for="field-title" class="control-label">{{ _('Disaster Title') }}</label>
-                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Cyclone Idai Floods and Landslides') }}" class="form-control" data-module="slug-preview-slug">
+                            <label for="field-title" class="control-label">{{ _('Event Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="form-control" data-module="slug-preview-slug" required>
+                            <div class="help-text">{{ _('Clear, descriptive title of the emergency event') }}</div>
                             {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
                           </div>
                           
                           <div class="form-group">
-                            <label for="field-subtitle" class="control-label">{{ _('Subtitle') }}</label>
-                            <input type="text" id="field-subtitle" name="subtitle" value="{{ data.subtitle or '' }}" placeholder="{{ _('Additional disaster information') }}" class="form-control">
+                            <label for="field-subtitle" class="control-label">{{ _('Event Type/Category') }}</label>
+                            <select id="field-event-type" name="subtitle" class="form-control">
+                              <option value="">{{ _('Select event type...') }}</option>
+                              <option value="Tropical Cyclone" {% if data.subtitle == 'Tropical Cyclone' %}selected{% endif %}>{{ _('Tropical Cyclone') }}</option>
+                              <option value="Earthquake" {% if data.subtitle == 'Earthquake' %}selected{% endif %}>{{ _('Earthquake') }}</option>
+                              <option value="Tsunami" {% if data.subtitle == 'Tsunami' %}selected{% endif %}>{{ _('Tsunami') }}</option>
+                              <option value="Flood" {% if data.subtitle == 'Flood' %}selected{% endif %}>{{ _('Flood') }}</option>
+                              <option value="Wildfire" {% if data.subtitle == 'Wildfire' %}selected{% endif %}>{{ _('Wildfire') }}</option>
+                              <option value="Volcanic Eruption" {% if data.subtitle == 'Volcanic Eruption' %}selected{% endif %}>{{ _('Volcanic Eruption') }}</option>
+                              <option value="Drought" {% if data.subtitle == 'Drought' %}selected{% endif %}>{{ _('Drought') }}</option>
+                              <option value="Armed Conflict" {% if data.subtitle == 'Armed Conflict' %}selected{% endif %}>{{ _('Armed Conflict') }}</option>
+                              <option value="Other" {% if data.subtitle and data.subtitle not in ['Tropical Cyclone', 'Earthquake', 'Tsunami', 'Flood', 'Wildfire', 'Volcanic Eruption', 'Drought', 'Armed Conflict'] %}selected{% endif %}>{{ _('Other') }}</option>
+                            </select>
+                            <div class="help-text">{{ _('Type of emergency or disaster event') }}</div>
                             {% if errors.subtitle %}<span class="error-block">{{ errors.subtitle }}</span>{% endif %}
                           </div>
                           
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="field-publish-date" class="control-label">{{ _('Event Date') }}</label>
-                                <input type="date" id="field-publish-date" name="publish_date" value="{{ data.publish_date or '' }}" class="form-control">
+                                <label for="field-publish-date" class="control-label">{{ _('Event Date') }} <span class="text-danger">*</span></label>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{{ data.publish_date or '' }}" class="form-control" required>
+                                <div class="help-text">{{ _('When did the emergency event occur?') }}</div>
                                 {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+                                <label for="field-private" class="control-label">{{ _('Event Status') }}</label>
                                 <select id="field-private" name="private" class="form-control">
-                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public') }}</option>
-                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Private') }}</option>
+                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - Active Event') }}</option>
+                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Internal - Under Review') }}</option>
                                 </select>
+                                <div class="help-text">{{ _('Whether this event should be visible to the public') }}</div>
                                 {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
                               </div>
                             </div>
                           </div>
                         </fieldset>
 
-                        <!-- Timeline Events (Copernicus-style) -->
+                        <!-- Emergency Response Timeline -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Timeline Events') }}</legend>
-                          <p class="help-block">{{ _('Add key dates and events in chronological order. Similar to Copernicus emergency mapping activation timeline.') }}</p>
+                          <legend>{{ _('Response Timeline') }}</legend>
+                          <p class="help-block">{{ _('Track key response activities and milestones. Add events like activation, assessment, first reports, etc.') }}</p>
                           
                           <div id="timeline-events-container">
                             <div class="timeline-events-list">
@@ -129,7 +145,7 @@
                             
                             <div class="timeline-add-section">
                               <button type="button" class="btn btn-info" id="add-timeline-event">
-                                <i class="fa fa-plus"></i> {{ _('Add Timeline Event') }}
+                                <i class="fa fa-plus"></i> {{ _('Add Response Activity') }}
                               </button>
                             </div>
                           </div>
@@ -139,24 +155,28 @@
                           {% if errors.timeline_events %}<span class="error-block">{{ errors.timeline_events }}</span>{% endif %}
                         </fieldset>
 
-                        <!-- Key Information Box -->
+                        <!-- Event Summary -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Key Information Box') }}</legend>
-                          <p class="help-block">{{ _('This information will be displayed in a highlighted blue box. You can use tables and HTML formatting.') }}</p>
+                          <legend>{{ _('Event Summary') }}</legend>
+                          <p class="help-block">{{ _('Key facts about the emergency event. This information will be prominently displayed in a highlighted box.') }}</p>
                           <div class="form-group">
-                            <label for="field-key-info" class="control-label">{{ _('Key Information') }}</label>
-                            <textarea id="field-key-info" name="key_info" rows="8" class="form-control" placeholder="{{ _('Event Date | Countries Affected | Exposure | UNESCO Sites | etc.') }}">{{ data.key_info or '' }}</textarea>
+                            <label for="field-key-info" class="control-label">{{ _('Key Facts') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-key-info" name="key_info" rows="8" class="form-control" required
+                                      placeholder="{{ _('Activation: 15 December 2024\nEvent Date: 15 December 2024\nCountries Affected: Mozambique\nExposure: 2.5 million people\nUNESCO Sites: Ilha de Moçambique\nStatus: Active monitoring') }}">{{ data.key_info or '' }}</textarea>
+                            <div class="help-text">{{ _('Enter one fact per line in format "Label: Value". Example: "Countries Affected: Mozambique"') }}</div>
                             {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
                           </div>
                         </fieldset>
 
-                        <!-- Main Content -->
+                        <!-- Event Description -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Main Content') }}</legend>
-                          <p class="help-block">{{ _('Main content of the rapid response page. You can include iframes for maps and interactive content.') }}</p>
+                          <legend>{{ _('Event Description & Response') }}</legend>
+                          <p class="help-block">{{ _('Detailed description of the emergency event, impact, and response activities undertaken.') }}</p>
                           <div class="form-group">
-                            <label for="field-content" class="control-label">{{ _('Content') }}</label>
-                            <textarea id="field-content" name="content" rows="15" class="form-control" placeholder="{{ _('Detailed information about the disaster and response...') }}">{{ data.content or '' }}</textarea>
+                            <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-content" name="content" rows="15" class="form-control" required
+                                      placeholder="{{ _('## Event Overview\nDescribe the emergency event, when and where it occurred, and its initial impact...\n\n## Response Activities\nDetail the immediate response efforts, agencies involved, and current status...\n\n## Impact Assessment\nDescribe the damage to heritage sites, communities affected, and ongoing concerns...') }}">{{ data.content or '' }}</textarea>
+                            <div class="help-text">{{ _('Use ## for section headings. Include event details, response activities, and impact assessment.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
                           </div>
                         </fieldset>
@@ -247,19 +267,19 @@
                           <input type="hidden" name="page_type" value="rapid-response">
                           {% if page %}
                             <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-save"></i> {{ _('Update Page') }}
+                              <i class="fa fa-save"></i> {{ _('Update Event') }}
                             </button>
                             <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" class="btn btn-default">
                               <i class="fa fa-times"></i> {{ _('Cancel') }}
                             </a>
                             {% if h.check_access('ckanext_pages_delete') %}
-                              <a href="{{ h.url_for('pages.rapid_response_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this page?') }}">
-                                <i class="fa fa-trash"></i> {{ _('Delete') }}
+                              <a href="{{ h.url_for('pages.rapid_response_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this emergency event?') }}">
+                                <i class="fa fa-trash"></i> {{ _('Delete Event') }}
                               </a>
                             {% endif %}
                           {% else %}
                             <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('Create Page') }}
+                              <i class="fa fa-plus"></i> {{ _('Report Emergency Event') }}
                             </button>
                             <a href="{{ h.url_for('pages.rapid_response_index') }}" class="btn btn-default">
                               <i class="fa fa-times"></i> {{ _('Cancel') }}

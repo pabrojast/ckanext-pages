@@ -31,7 +31,7 @@
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ _('Rapid Response & Recovery') }}</h1>
-                  <p class="section-title-description">{{ _('UNESCO disaster response documentation and mapping for heritage sites and communities.') }}</p>
+                  <p class="section-title-description">{{ _('Emergency mapping and response events for UNESCO heritage sites and communities') }}</p>
                 </div>
               </div>
             </section>
@@ -47,13 +47,13 @@
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <div class="row">
                         <div class="col-md-8">
-                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Emergency Response Documentation') }}</h2>
-                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Track and document disaster response efforts for UNESCO sites and communities') }}</p>
+                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Emergency Response Events') }}</h2>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Real-time emergency activations and response events for disasters affecting UNESCO sites') }}</p>
                         </div>
                         <div class="col-md-4 text-right">
                           {% if h.check_access('ckanext_pages_update') %}
                             <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('New Response Document') }}
+                              <i class="fa fa-plus"></i> {{ _('Report New Event') }}
                             </a>
                           {% endif %}
                         </div>
@@ -62,6 +62,58 @@
                   </section>
                 </div>
 
+                <!-- Event Status Summary -->
+                {% if pages %}
+                <div class="event-status-summary" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1rem 2.5rem;">
+                      <div class="row text-center">
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ pages|length }}</div>
+                            <div class="metric-label">{{ _('Active Events') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set recent_count = 0 %}
+                              {% for page in pages %}
+                                {% if page.created and (page.created | to_datetime | datetime_delta).days <= 7 %}
+                                  {% set recent_count = recent_count + 1 %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ recent_count }}
+                            </div>
+                            <div class="metric-label">{{ _('This Week') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set countries = [] %}
+                              {% for page in pages %}
+                                {% if page.key_info and 'Countries Affected' in page.key_info %}
+                                  {% set countries = countries + [page] %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ countries|length }}
+                            </div>
+                            <div class="metric-label">{{ _('Countries') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">24/7</div>
+                            <div class="metric-label">{{ _('Monitoring') }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
                 <!-- Filter and Search -->
                 {% if pages or request.args.q %}
                 <div class="rapid-response-filters" style="margin-bottom: 2rem;">
@@ -69,23 +121,33 @@
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get" class="form-inline">
                         <div class="row">
-                          <div class="col-md-6">
+                          <div class="col-md-4">
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
                               <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
-                                     placeholder="{{ _('Search response documents...') }}" 
+                                     placeholder="{{ _('Search events...') }}" 
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
                           <div class="col-md-3">
-                            <select name="order_by" class="form-control">
-                              <option value="">{{ _('Sort by...') }}</option>
-                              <option value="created" {% if request.args.order_by == 'created' %}selected{% endif %}>{{ _('Date Created') }}</option>
-                              <option value="modified" {% if request.args.order_by == 'modified' %}selected{% endif %}>{{ _('Last Modified') }}</option>
-                              <option value="title" {% if request.args.order_by == 'title' %}selected{% endif %}>{{ _('Title') }}</option>
+                            <select name="event_type" class="form-control">
+                              <option value="">{{ _('All Event Types') }}</option>
+                              <option value="cyclone" {% if request.args.event_type == 'cyclone' %}selected{% endif %}>{{ _('Cyclones') }}</option>
+                              <option value="earthquake" {% if request.args.event_type == 'earthquake' %}selected{% endif %}>{{ _('Earthquakes') }}</option>
+                              <option value="flood" {% if request.args.event_type == 'flood' %}selected{% endif %}>{{ _('Floods') }}</option>
+                              <option value="fire" {% if request.args.event_type == 'fire' %}selected{% endif %}>{{ _('Fires') }}</option>
+                              <option value="conflict" {% if request.args.event_type == 'conflict' %}selected{% endif %}>{{ _('Conflicts') }}</option>
                             </select>
                           </div>
                           <div class="col-md-3">
+                            <select name="order_by" class="form-control">
+                              <option value="">{{ _('Sort by...') }}</option>
+                              <option value="recent" {% if request.args.order_by == 'recent' %}selected{% endif %}>{{ _('Most Recent') }}</option>
+                              <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Severity') }}</option>
+                              <option value="country" {% if request.args.order_by == 'country' %}selected{% endif %}>{{ _('Country') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
                             <button type="submit" class="btn btn-default btn-block">
                               <i class="fa fa-search"></i> {{ _('Filter') }}
                             </button>
@@ -97,83 +159,116 @@
                 </div>
                 {% endif %}
 
-                <!-- Results Count -->
+                <!-- Emergency Events Feed -->
                 {% if pages %}
-                <div class="rapid-response-results-info" style="margin-bottom: 1.5rem;">
-                  <p class="text-muted">
-                    <i class="fa fa-info-circle"></i> 
-                    {% trans count=pages|length %}{{ count }} response document found{% pluralize %}{{ count }} response documents found{% endtrans %}
-                  </p>
-                </div>
-                {% endif %}
-
-                <!-- Response Documents Grid -->
-                {% if pages %}
-                <div class="rapid-response-grid">
-                  <div class="row">
-                    {% for page in pages %}
-                    <div class="col-md-6 col-lg-4" style="margin-bottom: 2rem;">
-                      <div class="rapid-response-card">
-                        <article class="module">
-                          <!-- Card Header with Image -->
-                          <div class="card-header">
-                            {% if page.header_image %}
-                              <div class="card-image" style="background-image: url('{{ page.header_image }}');"></div>
-                            {% else %}
-                              <div class="card-image" style="background-image: url('/images/rapid-response-header.jpg');"></div>
-                            {% endif %}
-                            <div class="card-overlay"></div>
-                            <div class="card-meta">
+                <div class="emergency-events-feed">
+                  {% for page in pages %}
+                  <div class="event-card" style="margin-bottom: 2rem;">
+                    <article class="module">
+                      <!-- Event Status Header -->
+                      <div class="event-status-header">
+                        <div class="row">
+                          <div class="col-md-8">
+                            <div class="event-metadata">
                               {% if page.publish_date %}
-                                <span class="card-date">
-                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%b %d, %Y') }}
+                                <span class="event-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
                                 </span>
+                              {% endif %}
+                              <span class="event-status-badge status-active">{{ _('ACTIVE') }}</span>
+                              {% if page.timeline_events %}
+                                {% set timeline = page.timeline_events | from_json %}
+                                {% if timeline %}
+                                  <span class="event-updates-count">
+                                    <i class="fa fa-clock-o"></i> {{ timeline|length }} {{ _('updates') }}
+                                  </span>
+                                {% endif %}
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="col-md-4 text-right">
+                            <div class="event-severity">
+                              <span class="severity-indicator severity-high"></span>
+                              <span class="severity-label">{{ _('High Priority') }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Event Content -->
+                      <div class="module-content">
+                        <div class="row">
+                          <!-- Event Image -->
+                          <div class="col-md-4">
+                            <div class="event-image">
+                              {% if page.header_image %}
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                              {% elif page.uploaded_images %}
+                                {% set images = page.uploaded_images | from_json %}
+                                {% if images and images[0] %}
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                {% else %}
+                                  <div class="placeholder-image">
+                                    <i class="fa fa-map-marker fa-3x"></i>
+                                  </div>
+                                {% endif %}
+                              {% else %}
+                                <div class="placeholder-image">
+                                  <i class="fa fa-map-marker fa-3x"></i>
+                                </div>
                               {% endif %}
                             </div>
                           </div>
                           
-                          <!-- Card Content -->
-                          <div class="module-content">
-                            <h3 class="card-title">
+                          <!-- Event Details -->
+                          <div class="col-md-8">
+                            <h3 class="event-title">
                               <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">
                                 {{ page.title or page.name }}
                               </a>
                             </h3>
                             
                             {% if page.subtitle %}
-                              <p class="card-subtitle">{{ page.subtitle }}</p>
+                              <p class="event-subtitle">{{ page.subtitle }}</p>
+                            {% endif %}
+                            
+                            <!-- Key Information Quick View -->
+                            {% if page.key_info %}
+                            <div class="key-info-preview">
+                              {% set key_lines = page.key_info.split('\n')[:3] %}
+                              {% for line in key_lines %}
+                                {% if line.strip() %}
+                                  <div class="key-info-item">{{ line.strip() }}</div>
+                                {% endif %}
+                              {% endfor %}
+                            </div>
                             {% endif %}
                             
                             {% if page.excerpt %}
-                              <p class="card-excerpt">{{ page.excerpt[:150] }}{% if page.excerpt|length > 150 %}...{% endif %}</p>
+                              <p class="event-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
                             {% elif page.content %}
-                              <p class="card-excerpt">{{ (page.content|striptags)[:150] }}{% if page.content|length > 150 %}...{% endif %}</p>
+                              <p class="event-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
                             {% endif %}
                             
-                            <!-- Card Footer -->
-                            <div class="card-footer">
-                              <div class="row">
-                                <div class="col-xs-8">
-                                  {% if page.created %}
-                                    <small class="text-muted">
-                                      <i class="fa fa-clock-o"></i> {{ h.render_datetime(page.created, '%B %d, %Y') }}
-                                    </small>
-                                  {% endif %}
-                                </div>
-                                <div class="col-xs-4 text-right">
-                                  <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" 
-                                     class="btn btn-sm btn-primary">
-                                    {{ _('View') }} <i class="fa fa-arrow-right"></i>
-                                  </a>
-                                </div>
-                              </div>
+                            <!-- Event Actions -->
+                            <div class="event-actions">
+                              <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" 
+                                 class="btn btn-primary">
+                                <i class="fa fa-eye"></i> {{ _('View Event Details') }}
+                              </a>
+                              {% if h.check_access('ckanext_pages_update') %}
+                                <a href="{{ h.url_for('pages.rapid_response_edit', page=page.name) }}" 
+                                   class="btn btn-default">
+                                  <i class="fa fa-edit"></i> {{ _('Update') }}
+                                </a>
+                              {% endif %}
                             </div>
                           </div>
-                        </article>
+                        </div>
                       </div>
-                    </div>
-                    {% endfor %}
+                    </article>
                   </div>
+                  {% endfor %}
                 </div>
                 
                 {% else %}
@@ -182,21 +277,21 @@
                   <section class="module module-narrow">
                     <div class="module-content text-center" style="padding: 4rem 2.5rem;">
                       <div class="empty-state-icon">
-                        <i class="fa fa-file-text-o fa-4x" style="color: var(--unesco-light-blue); margin-bottom: 2rem;"></i>
+                        <i class="fa fa-exclamation-triangle fa-4x" style="color: var(--unesco-light-blue); margin-bottom: 2rem;"></i>
                       </div>
-                      <h3>{{ _('No Response Documents Found') }}</h3>
+                      <h3>{{ _('No Emergency Events') }}</h3>
                       <p class="text-muted" style="margin-bottom: 2rem;">
                         {% if request.args.q %}
-                          {{ _('No documents match your search criteria.') }}
+                          {{ _('No events match your search criteria.') }}
                           <br>
-                          <a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('View all documents') }}</a>
+                          <a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('View all events') }}</a>
                         {% else %}
-                          {{ _('Start documenting emergency response efforts by creating your first document.') }}
+                          {{ _('No active emergency events at this time.') }}
                         {% endif %}
                       </p>
                       {% if h.check_access('ckanext_pages_update') %}
                         <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary btn-lg">
-                          <i class="fa fa-plus"></i> {{ _('Create First Document') }}
+                          <i class="fa fa-plus"></i> {{ _('Report Emergency Event') }}
                         </a>
                       {% endif %}
                     </div>
@@ -212,115 +307,224 @@
     {% endblock %}
 </div>
 
-<!-- Enhanced CSS for Rapid Response List -->
+<!-- Enhanced CSS for Emergency Events Feed -->
 <style>
-/* Card System */
-.rapid-response-card .module {
-  height: 100%;
+/* Event Status Summary */
+.event-status-summary .module {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--unesco-blue);
+}
+
+.status-metric {
+  padding: 1rem 0;
+}
+
+.metric-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--unesco-blue);
+  line-height: 1;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Event Cards */
+.event-card .module {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
 }
 
-.rapid-response-card .module:hover {
-  transform: translateY(-5px);
+.event-card .module:hover {
+  transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
-.card-header {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
+.event-status-header {
+  background: linear-gradient(135deg, #467886 0%, #2c5660 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  margin: 0;
 }
 
-.card-image {
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: transform 0.3s ease;
+.event-metadata {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.rapid-response-card .module:hover .card-image {
-  transform: scale(1.05);
+.event-date {
+  font-size: 0.9rem;
+  opacity: 0.9;
 }
 
-.card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(70, 120, 134, 0.6) 0%, rgba(70, 120, 134, 0.3) 100%);
+.event-status-badge {
+  background: #dc3545;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
-.card-meta {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 10;
+.status-active {
+  background: #28a745;
 }
 
-.card-date {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--unesco-dark-blue);
-  padding: 5px 10px;
-  border-radius: 15px;
+.status-monitoring {
+  background: #ffc107;
+  color: #212529;
+}
+
+.status-closed {
+  background: #6c757d;
+}
+
+.event-updates-count {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.event-severity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.severity-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.severity-high {
+  background: #dc3545;
+  box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
+}
+
+.severity-medium {
+  background: #ffc107;
+}
+
+.severity-low {
+  background: #28a745;
+}
+
+.severity-label {
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-.card-title {
-  margin: 0 0 1rem 0;
-  font-size: 1.3rem;
+/* Event Image */
+.event-image {
+  height: 180px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-image img {
+  transform: scale(1.05);
+}
+
+.placeholder-image {
+  color: #6c757d;
+  text-align: center;
+}
+
+/* Event Content */
+.event-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
   line-height: 1.3;
 }
 
-.card-title a {
+.event-title a {
   color: var(--unesco-blue);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   transition: color 0.3s ease;
 }
 
-.card-title a:hover {
+.event-title a:hover {
   color: var(--unesco-dark-blue);
   text-decoration: underline;
 }
 
-.card-subtitle {
+.event-subtitle {
   color: #6c757d;
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin-bottom: 1rem;
   font-weight: 500;
 }
 
-.card-excerpt {
+.key-info-preview {
+  background: rgba(70, 120, 134, 0.1);
+  border-left: 3px solid var(--unesco-blue);
+  padding: 0.75rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.key-info-item {
+  font-size: 0.85rem;
+  color: #2c5660;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.key-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.event-excerpt {
   color: #495057;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.5;
   margin-bottom: 1.5rem;
 }
 
-.card-footer {
-  border-top: 1px solid #e9ecef;
-  padding-top: 1rem;
-  margin-top: auto;
+.event-actions {
+  margin-top: 1rem;
+}
+
+.event-actions .btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Action Bar */
 .rapid-response-actions-bar .btn-primary {
-  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-dark-blue) 100%);
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
   border: none;
   border-radius: 25px;
   padding: 12px 24px;
   font-weight: 600;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .rapid-response-actions-bar .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(70, 120, 134, 0.4);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
 }
 
 /* Filters */
@@ -352,11 +556,6 @@
   opacity: 0.6;
 }
 
-/* Results Info */
-.rapid-response-results-info {
-  padding-left: 1rem;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .rapid-response-actions-bar .col-md-4 {
@@ -365,32 +564,55 @@
   }
   
   .rapid-response-filters .col-md-3,
-  .rapid-response-filters .col-md-6 {
+  .rapid-response-filters .col-md-4,
+  .rapid-response-filters .col-md-2 {
     margin-bottom: 10px;
   }
   
-  .card-header {
-    height: 150px;
+  .event-status-header {
+    padding: 1rem;
   }
   
-  .card-footer .col-xs-4 {
-    text-align: center !important;
+  .event-metadata {
+    gap: 0.5rem;
+  }
+  
+  .event-severity {
+    justify-content: center;
     margin-top: 0.5rem;
+  }
+  
+  .event-image {
+    height: 120px;
+    margin-bottom: 1rem;
+  }
+  
+  .metric-number {
+    font-size: 1.5rem;
+  }
+  
+  .event-actions .btn {
+    display: block;
+    width: 100%;
+    margin: 0.25rem 0;
   }
 }
 
 @media (max-width: 480px) {
-  .rapid-response-grid .col-md-6 {
-    padding-left: 0;
-    padding-right: 0;
+  .event-card .module-content {
+    padding: 1rem !important;
   }
   
-  .module-content {
-    padding: 1.5rem !important;
+  .event-image {
+    height: 100px;
   }
   
-  .card-header {
-    height: 120px;
+  .event-title {
+    font-size: 1.2rem;
+  }
+  
+  .status-metric {
+    padding: 0.5rem 0;
   }
 }
 </style>
