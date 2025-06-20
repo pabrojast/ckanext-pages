@@ -62,7 +62,18 @@
                     <div class="module-content">
                       
                       <form method="post" enctype="multipart/form-data">
-                        {{ form.errors(error_summary) }}
+                        
+                        <!-- Error Summary -->
+                        {% if error_summary %}
+                          <div class="error-summary alert alert-danger">
+                            <p class="alert-heading">{{ _('The form contains invalid entries:') }}</p>
+                            <ul>
+                              {% for key, error in error_summary.items() %}
+                                <li>{{ error }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        {% endif %}
                         
                         <!-- Basic Information -->
                         <fieldset class="form-section">
