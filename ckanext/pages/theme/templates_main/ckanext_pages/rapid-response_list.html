@@ -52,7 +52,7 @@
                         </div>
                         <div class="col-md-4 text-right">
                           {% if h.check_access('ckanext_pages_update') %}
-                            <a href="{{ h.url_for('pages.rapid_response_edit') }}" class="btn btn-primary btn-lg">
+                            <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary btn-lg">
                               <i class="fa fa-plus"></i> {{ _('New Response Document') }}
                             </a>
                           {% endif %}
@@ -195,7 +195,7 @@
                         {% endif %}
                       </p>
                       {% if h.check_access('ckanext_pages_update') %}
-                        <a href="{{ h.url_for('pages.rapid_response_edit') }}" class="btn btn-primary btn-lg">
+                        <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary btn-lg">
                           <i class="fa fa-plus"></i> {{ _('Create First Document') }}
                         </a>
                       {% endif %}
