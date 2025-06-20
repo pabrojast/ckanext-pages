@@ -1,165 +1,532 @@
-{% extends "ckanext_pages/base_form.html" %}
+{% extends "page.html" %}
 
-{% block subtitle %}
+{% block title %}
   {% if page %}
-    {{ _('Edit Rapid Response Page') }}
+    {{ _('Edit Rapid Response Page') }} - {{ super() }}
   {% else %}
-    {{ _('Add Rapid Response Page') }}
+    {{ _('Add Rapid Response Page') }} - {{ super() }}
   {% endif %}
 {% endblock %}
 
-{% block breadcrumb_content %}
-  {% if self.breadcrumb_content_selected() %}
-    {{ super() }}
-  {% endif %}
-  <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
-  {% if page %}
-    <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
-    <li class="active">{{ _('Edit') }}</li>
-  {% else %}
-    <li class="active">{{ _('Add Page') }}</li>
-  {% endif %}
-{% endblock %}
+{% block content %}
 
-{% block form_content %}
-  <div class="rapid-response-edit-form">
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
     
-    <!-- Basic Information -->
-    <fieldset>
-      <legend>{{ _('Basic Information') }}</legend>
-      
-      {{ form.input('name', id='field-name', label=_('URL'), placeholder=_('my-rapid-response-page'), value=data.name, error=errors.name, classes=['control-full'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
-      
-      {{ form.input('title', id='field-title', label=_('Disaster Title'), placeholder=_('Example: Cyclone Idai Floods and Landslides'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-slug', 'class': 'form-control'}) }}
-      
-      {{ form.input('subtitle', id='field-subtitle', label=_('Subtitle'), placeholder=_('Additional disaster information'), value=data.subtitle, error=errors.subtitle, classes=['control-full'], attrs={'class': 'form-control'}) }}
-      
-      {{ form.input('publish_date', id='field-publish-date', label=_('Event Date'), placeholder=_('YYYY-MM-DD'), value=data.publish_date, error=errors.publish_date, classes=['control-medium'], attrs={'class': 'form-control', 'type': 'date'}) }}
-      
-      {{ form.select('private', id='field-private', label=_('Visibility'), options=[{'value': 'True', 'text': _('Private')}, {'value': 'False', 'text': _('Public')}], selected=data.private, error=errors.private, classes=['control-medium']) }}
-      
-    </fieldset>
+    {% block primary_content %}
+    <div class="main">
 
-    <!-- Key Information Box -->
-    <fieldset>
-      <legend>{{ _('Key Information Box') }}</legend>
-      <p class="help-block">{{ _('This information will be displayed in a highlighted blue box. You can use tables and HTML formatting.') }}</p>
-      
-      {{ form.markdown('key_info', id='field-key-info', label=_('Key Information'), placeholder=_('Event Date | Countries Affected | Exposure | UNESCO Sites | etc.'), value=data.key_info, error=errors.key_info, attrs={'class': 'form-control', 'rows': '8'}) }}
-      
-    </fieldset>
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+                    {% if page %}
+                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li class="active">{{ _('Edit') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Add Page') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
 
-    <!-- Main Content -->
-    <fieldset>
-      <legend>{{ _('Main Content') }}</legend>
-      <p class="help-block">{{ _('Main content of the rapid response page. You can include iframes for maps and interactive content.') }}</p>
-      
-      {{ form.markdown('content', id='field-content', label=_('Content'), placeholder=_('Detailed information about the disaster and response...'), value=data.content, error=errors.content, attrs={'class': 'form-control', 'rows': '15'}) }}
-      
-    </fieldset>
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/assets/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if page %}
+                    <h1>{{ _('Edit Rapid Response Page') }}</h1>
+                    <p class="section-title-description">{{ _('Update emergency response documentation') }}</p>
+                  {% else %}
+                    <h1>{{ _('Create New Rapid Response Page') }}</h1>
+                    <p class="section-title-description">{{ _('Document emergency response efforts for UNESCO sites and communities') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Form Section -->
+                <div class="rapid-response-form-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      
+                      <form method="post" enctype="multipart/form-data">
+                        {{ form.errors(error_summary) }}
+                        
+                        <!-- Basic Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Basic Information') }}</legend>
+                          <div class="form-group">
+                            <label for="field-name" class="control-label">{{ _('URL') }}</label>
+                            <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('my-rapid-response-page') }}" class="form-control" data-module="slug-preview-target">
+                            {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="form-group">
+                            <label for="field-title" class="control-label">{{ _('Disaster Title') }}</label>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Cyclone Idai Floods and Landslides') }}" class="form-control" data-module="slug-preview-slug">
+                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="form-group">
+                            <label for="field-subtitle" class="control-label">{{ _('Subtitle') }}</label>
+                            <input type="text" id="field-subtitle" name="subtitle" value="{{ data.subtitle or '' }}" placeholder="{{ _('Additional disaster information') }}" class="form-control">
+                            {% if errors.subtitle %}<span class="error-block">{{ errors.subtitle }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-publish-date" class="control-label">{{ _('Event Date') }}</label>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{{ data.publish_date or '' }}" class="form-control">
+                                {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+                                <select id="field-private" name="private" class="form-control">
+                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public') }}</option>
+                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Private') }}</option>
+                                </select>
+                                {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+                        </fieldset>
 
-    <!-- Image Carousel -->
-    <fieldset>
-      <legend>{{ _('Image Gallery/Carousel') }}</legend>
-      <p class="help-block">{{ _('Add images related to the disaster. You can use HTML img tags or markdown image syntax.') }}</p>
-      
-      {{ form.markdown('image_carousel', id='field-image-carousel', label=_('Image Carousel'), placeholder=_('Add images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.'), value=data.image_carousel, error=errors.image_carousel, attrs={'class': 'form-control', 'rows': '6'}) }}
-      
-    </fieldset>
+                        <!-- Key Information Box -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Key Information Box') }}</legend>
+                          <p class="help-block">{{ _('This information will be displayed in a highlighted blue box. You can use tables and HTML formatting.') }}</p>
+                          <div class="form-group">
+                            <label for="field-key-info" class="control-label">{{ _('Key Information') }}</label>
+                            <textarea id="field-key-info" name="key_info" rows="8" class="form-control" placeholder="{{ _('Event Date | Countries Affected | Exposure | UNESCO Sites | etc.') }}">{{ data.key_info or '' }}</textarea>
+                            {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
+                          </div>
+                        </fieldset>
 
-    <!-- Map Stories -->
-    <fieldset>
-      <legend>{{ _('Map Stories') }}</legend>
-      <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
-      
-      {{ form.markdown('map_stories', id='field-map-stories', label=_('Map Stories'), placeholder=_('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides'), value=data.map_stories, error=errors.map_stories, attrs={'class': 'form-control', 'rows': '10'}) }}
-      
-    </fieldset>
+                        <!-- Main Content -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Main Content') }}</legend>
+                          <p class="help-block">{{ _('Main content of the rapid response page. You can include iframes for maps and interactive content.') }}</p>
+                          <div class="form-group">
+                            <label for="field-content" class="control-label">{{ _('Content') }}</label>
+                            <textarea id="field-content" name="content" rows="15" class="form-control" placeholder="{{ _('Detailed information about the disaster and response...') }}">{{ data.content or '' }}</textarea>
+                            {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
+                          </div>
+                        </fieldset>
 
-    <!-- Additional Content -->
-    <fieldset>
-      <legend>{{ _('Additional Sections') }}</legend>
-      <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
-      
-      {{ form.markdown('additional_content', id='field-additional-content', label=_('Additional Content'), placeholder=_('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis'), value=data.additional_content, error=errors.additional_content, attrs={'class': 'form-control', 'rows': '8'}) }}
-      
-    </fieldset>
+                        <!-- Image Gallery -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Image Gallery/Carousel') }}</legend>
+                          <p class="help-block">{{ _('Add images related to the disaster. You can use HTML img tags or markdown image syntax.') }}</p>
+                          <div class="form-group">
+                            <label for="field-image-carousel" class="control-label">{{ _('Image Carousel') }}</label>
+                            <textarea id="field-image-carousel" name="image_carousel" rows="6" class="form-control" placeholder="{{ _('Add images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.') }}">{{ data.image_carousel or '' }}</textarea>
+                            {% if errors.image_carousel %}<span class="error-block">{{ errors.image_carousel }}</span>{% endif %}
+                          </div>
+                        </fieldset>
 
-    <!-- Header Image -->
-    <fieldset>
-      <legend>{{ _('Header Image') }}</legend>
-      <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
-      
-      {{ form.input('header_image', id='field-header-image', label=_('Header Image URL'), placeholder=_('Enter the URL of your header image'), value=data.header_image, error=errors.header_image, classes=['control-full'], attrs={'class': 'form-control'}) }}
-      
-    </fieldset>
+                        <!-- Map Stories -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Map Stories') }}</legend>
+                          <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
+                          <div class="form-group">
+                            <label for="field-map-stories" class="control-label">{{ _('Map Stories') }}</label>
+                            <textarea id="field-map-stories" name="map_stories" rows="10" class="form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
+                            {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
+                          </div>
+                        </fieldset>
 
-    <!-- Excerpt -->
-    <fieldset>
-      <legend>{{ _('Summary/Excerpt') }}</legend>
-      <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
-      
-      {{ form.markdown('excerpt', id='field-excerpt', label=_('Excerpt'), placeholder=_('Brief summary of the disaster and response efforts...'), value=data.excerpt, error=errors.excerpt, attrs={'class': 'form-control', 'rows': '4'}) }}
-      
-    </fieldset>
+                        <!-- Additional Content -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Additional Sections') }}</legend>
+                          <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
+                          <div class="form-group">
+                            <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
+                            <textarea id="field-additional-content" name="additional_content" rows="8" class="form-control" placeholder="{{ _('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis') }}">{{ data.additional_content or '' }}</textarea>
+                            {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
+                          </div>
+                        </fieldset>
 
-  </div>
+                        <!-- Header Image -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Header Image') }}</legend>
+                          <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
+                          <div class="form-group">
+                            <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
+                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="form-control">
+                            {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
+                          </div>
+                        </fieldset>
 
-  <!-- Custom CSS for the edit form -->
-  <style>
-    .rapid-response-edit-form fieldset {
-      margin-bottom: 30px;
-      padding: 20px;
-      border: 1px solid #e0e0e0;
-      border-radius: 5px;
+                        <!-- Excerpt -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Summary/Excerpt') }}</legend>
+                          <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
+                          <div class="form-group">
+                            <label for="field-excerpt" class="control-label">{{ _('Excerpt') }}</label>
+                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" placeholder="{{ _('Brief summary of the disaster and response efforts...') }}">{{ data.excerpt or '' }}</textarea>
+                            {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
+                          </div>
+                        </fieldset>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                          <input type="hidden" name="page_type" value="rapid-response">
+                          {% if page %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-save"></i> {{ _('Update Page') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                            {% if h.check_access('ckanext_pages_delete') %}
+                              <a href="{{ h.url_for('pages.rapid_response_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this page?') }}">
+                                <i class="fa fa-trash"></i> {{ _('Delete') }}
+                              </a>
+                            {% endif %}
+                          {% else %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Create Page') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.rapid_response_index') }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                          {% endif %}
+                        </div>
+
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Enhanced CSS for Rapid Response Edit Form -->
+<style>
+/* Form Section Styling */
+.rapid-response-form-wrapper {
+  margin-bottom: 3rem;
+}
+
+.form-section {
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-left: 4px solid var(--unesco-blue, #467886);
+}
+
+.form-section legend {
+  color: var(--unesco-blue, #467886);
+  font-weight: 700;
+  padding: 0 15px;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  border: none;
+  width: auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.control-label {
+  font-weight: 600;
+  color: #2c5660;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  padding: 12px 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--unesco-blue, #467886);
+  box-shadow: 0 0 0 0.2rem rgba(70, 120, 134, 0.25);
+  outline: none;
+}
+
+.form-control[type="textarea"],
+textarea.form-control {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Help Text */
+.help-block {
+  margin-bottom: 1rem;
+  font-style: italic;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Error Styling */
+.error-block {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-group.has-error .form-control {
+  border-color: #dc3545;
+}
+
+/* Action Buttons */
+.form-actions {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.form-actions .btn {
+  margin: 0 0.5rem;
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.form-actions .btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue, #467886) 0%, #2c5660 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(70, 120, 134, 0.3);
+}
+
+.form-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(70, 120, 134, 0.4);
+}
+
+.form-actions .btn-default {
+  background: #fff;
+  border: 2px solid #dee2e6;
+  color: #6c757d;
+}
+
+.form-actions .btn-default:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.form-actions .btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border: none;
+}
+
+.form-actions .btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1.5rem;
+  }
+  
+  .form-actions {
+    padding: 1.5rem;
+  }
+  
+  .form-actions .btn {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+  
+  .pull-right {
+    float: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-section {
+    padding: 1rem;
+  }
+  
+  .form-section legend {
+    font-size: 1.1rem;
+  }
+}
+
+/* Banner Section from previous styling */
+.section-title {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 3rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.65);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(70, 120, 134, 0.85) 0%, rgba(70, 120, 134, 0.65) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+}
+
+/* Breadcrumb styling */
+.toolbar {
+  margin-bottom: 2rem;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 25px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.breadcrumb > li {
+  display: inline-block;
+  font-weight: 500;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 10px;
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.breadcrumb > li a {
+  color: var(--unesco-blue, #467886);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: #2c5660;
+  text-decoration: underline;
+}
+
+.breadcrumb > li.active a {
+  color: #2c5660;
+  font-weight: 700;
+}
+</style>
+
+<!-- JavaScript for form enhancements -->
+<script>
+$(document).ready(function() {
+  // Auto-generate URL slug from title
+  $('#field-title').on('input', function() {
+    var title = $(this).val().toLowerCase()
+      .replace(/[^\w ]+/g,'')
+      .replace(/ +/g,'-');
+    $('#field-name').val(title);
+  });
+  
+  // Form validation
+  $('form').on('submit', function(e) {
+    var title = $('#field-title').val().trim();
+    var name = $('#field-name').val().trim();
+    
+    if (!title) {
+      alert('{{ _("Please enter a disaster title") }}');
+      $('#field-title').focus();
+      e.preventDefault();
+      return false;
     }
     
-    .rapid-response-edit-form legend {
-      color: #467886;
-      font-weight: bold;
-      padding: 0 10px;
-      margin-bottom: 15px;
+    if (!name) {
+      alert('{{ _("Please enter a URL name") }}');
+      $('#field-name').focus();
+      e.preventDefault();
+      return false;
     }
-    
-    .rapid-response-edit-form .help-block {
-      margin-bottom: 10px;
-      font-style: italic;
-      color: #666;
+  });
+  
+  // WYSIWYG editor integration if available
+  if (typeof CKEDITOR !== 'undefined') {
+    CKEDITOR.replace('field-content');
+    CKEDITOR.replace('field-key-info');
+    CKEDITOR.replace('field-map-stories');
+    CKEDITOR.replace('field-additional-content');
+    CKEDITOR.replace('field-excerpt');
+  }
+  
+  // Confirmation for delete button
+  $('[data-confirm]').on('click', function(e) {
+    if (!confirm($(this).data('confirm'))) {
+      e.preventDefault();
+      return false;
     }
-    
-    .rapid-response-edit-form textarea {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    }
-    
-    .rapid-response-edit-form .control-full input,
-    .rapid-response-edit-form .control-full textarea {
-      width: 100%;
-    }
-    
-    .rapid-response-edit-form .control-medium input,
-    .rapid-response-edit-form .control-medium select {
-      width: 50%;
-    }
-  </style>
+  });
+});
+</script>
 
-  <!-- JavaScript for form enhancements -->
-  <script>
-    $(document).ready(function() {
-      // Auto-generate URL slug from title
-      $('#field-title').on('input', function() {
-        var title = $(this).val().toLowerCase()
-          .replace(/[^\w ]+/g,'')
-          .replace(/ +/g,'-');
-        $('#field-name').val(title);
-      });
-      
-      // WYSIWYG editor integration if available
-      if (typeof CKEDITOR !== 'undefined') {
-        CKEDITOR.replace('field-content');
-        CKEDITOR.replace('field-key-info');
-        CKEDITOR.replace('field-map-stories');
-        CKEDITOR.replace('field-additional-content');
-      }
-    });
-  </script>
 {% endblock %} 
