@@ -30,7 +30,7 @@
       
       {{ form.input('name', id='field-name', label=_('URL'), placeholder=_('my-rapid-response-page'), value=data.name, error=errors.name, classes=['control-full'], attrs={'data-module': 'slug-preview-target', 'class': 'form-control'}) }}
       
-      {{ form.input('title', id='field-title', label=_('Disaster Title'), placeholder=_('e.g., Cyclone Idai Floods and Landslides'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-slug', 'class': 'form-control'}) }}
+      {{ form.input('title', id='field-title', label=_('Disaster Title'), placeholder=_('Example: Cyclone Idai Floods and Landslides'), value=data.title, error=errors.title, classes=['control-full'], attrs={'data-module': 'slug-preview-slug', 'class': 'form-control'}) }}
       
       {{ form.input('subtitle', id='field-subtitle', label=_('Subtitle'), placeholder=_('Additional disaster information'), value=data.subtitle, error=errors.subtitle, classes=['control-full'], attrs={'class': 'form-control'}) }}
       
@@ -45,7 +45,7 @@
       <legend>{{ _('Key Information Box') }}</legend>
       <p class="help-block">{{ _('This information will be displayed in a highlighted blue box. You can use tables and HTML formatting.') }}</p>
       
-      {{ form.markdown('key_info', id='field-key-info', label=_('Key Information'), placeholder=_('Event Date, Countries Affected, Exposure, UNESCO Sites, etc.'), value=data.key_info, error=errors.key_info, attrs={'class': 'form-control', 'rows': '8'}) }}
+      {{ form.markdown('key_info', id='field-key-info', label=_('Key Information'), placeholder=_('Event Date | Countries Affected | Exposure | UNESCO Sites | etc.'), value=data.key_info, error=errors.key_info, attrs={'class': 'form-control', 'rows': '8'}) }}
       
     </fieldset>
 
@@ -63,7 +63,7 @@
       <legend>{{ _('Image Gallery/Carousel') }}</legend>
       <p class="help-block">{{ _('Add images related to the disaster. You can use HTML img tags or markdown image syntax.') }}</p>
       
-      {{ form.markdown('image_carousel', id='field-image-carousel', label=_('Image Carousel'), placeholder=_('![Image description](image-url)\n\nLinks to images from Wikipedia, official sources, etc.'), value=data.image_carousel, error=errors.image_carousel, attrs={'class': 'form-control', 'rows': '6'}) }}
+      {{ form.markdown('image_carousel', id='field-image-carousel', label=_('Image Carousel'), placeholder=_('Add images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.'), value=data.image_carousel, error=errors.image_carousel, attrs={'class': 'form-control', 'rows': '6'}) }}
       
     </fieldset>
 
@@ -72,7 +72,7 @@
       <legend>{{ _('Map Stories') }}</legend>
       <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
       
-      {{ form.markdown('map_stories', id='field-map-stories', label=_('Map Stories'), placeholder=_('Introduction\n\nIn response to the disaster...\n\n<iframe src=\'map-url\' width=\'100%\' height=\'400\'></iframe>\n\n### Floods\n\n### Landslides'), value=data.map_stories, error=errors.map_stories, attrs={'class': 'form-control', 'rows': '10'}) }}
+      {{ form.markdown('map_stories', id='field-map-stories', label=_('Map Stories'), placeholder=_('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides'), value=data.map_stories, error=errors.map_stories, attrs={'class': 'form-control', 'rows': '10'}) }}
       
     </fieldset>
 
@@ -90,7 +90,7 @@
       <legend>{{ _('Header Image') }}</legend>
       <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
       
-      {{ form.input('header_image', id='field-header-image', label=_('Header Image URL'), placeholder=_('https://example.com/disaster-image.jpg'), value=data.header_image, error=errors.header_image, classes=['control-full'], attrs={'class': 'form-control'}) }}
+      {{ form.input('header_image', id='field-header-image', label=_('Header Image URL'), placeholder=_('Enter the URL of your header image'), value=data.header_image, error=errors.header_image, classes=['control-full'], attrs={'class': 'form-control'}) }}
       
     </fieldset>
 
