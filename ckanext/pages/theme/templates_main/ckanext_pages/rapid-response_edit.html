@@ -94,7 +94,7 @@
                           
                           <div class="form-group">
                             <label for="field-title" class="control-label">{{ _('Event Title') }} <span class="text-danger">*</span></label>
-                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="form-control" data-module="slug-preview-slug" required>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="form-control" required>
                             <div class="help-text">{{ _('Clear, descriptive title of the emergency event') }}</div>
                             {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
                           </div>
@@ -351,8 +351,18 @@
   padding: 12px 15px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  height: 3em !important;
-  margin-bottom: .5em !important;
+  min-height: 3em;
+  margin-bottom: .5em;
+}
+
+.form-control:not([readonly]):not([disabled]) {
+  background-color: #fff;
+  cursor: text;
+}
+
+.form-control[readonly] {
+  background-color: #e9ecef;
+  cursor: not-allowed;
 }
 
 .form-control:focus {
@@ -1185,7 +1195,17 @@ textarea.form-control {
     }
   });
   
-    // Initialize
+    // Ensure title field is editable on load
+  $('#field-title').prop('readonly', false).prop('disabled', false);
+  
+  // Debug info
+  console.log('Title field properties:', {
+    readonly: $('#field-title').prop('readonly'),
+    disabled: $('#field-title').prop('disabled'),
+    value: $('#field-title').val()
+  });
+
+  // Initialize
   loadTimelineEvents();
   loadUploadedImages();
   }); // Close waitForJQuery function
