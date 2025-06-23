@@ -344,6 +344,8 @@
   padding: 12px 15px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  height: 3em !important;
+  margin-bottom: .5em !important;
 }
 
 .form-control:focus {
@@ -790,7 +792,19 @@ textarea.form-control {
 
 <!-- JavaScript for Enhanced Form Functionality -->
 <script>
-$(document).ready(function() {
+(function() {
+  // Wait for jQuery to be available
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
   // Timeline Events Management
   let timelineEventCounter = 0;
   
@@ -1128,10 +1142,11 @@ $(document).ready(function() {
     }
   });
   
-  // Initialize
+    // Initialize
   loadTimelineEvents();
   loadUploadedImages();
-});
+  }); // Close waitForJQuery function
+})(); // Close main function
 </script>
 
 {% endblock %} 
