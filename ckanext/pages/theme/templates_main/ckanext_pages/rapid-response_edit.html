@@ -80,8 +80,15 @@
                           <legend>{{ _('Event Information') }}</legend>
                           <div class="form-group">
                             <label for="field-name" class="control-label">{{ _('Event URL') }}</label>
-                            <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('cyclone-chido-mozambique-2024') }}" class="form-control" data-module="slug-preview-target">
-                            <div class="help-text">{{ _('This will be the web address for this event page') }}</div>
+                            <div class="input-group">
+                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="form-control" data-module="slug-preview-target" readonly>
+                              <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="help-text">{{ _('Auto-generated from event title. Click edit button to modify manually.') }}</div>
                             {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
                           </div>
                           
@@ -990,7 +997,7 @@ textarea.form-control {
     $('#uploaded-images-preview').append(progressHtml);
     
     $.ajax({
-      url: '{{ h.url_for("pages.upload") }}',
+      url: '/pages_upload',
       type: 'POST',
       data: formData,
       processData: false,
@@ -1108,10 +1115,33 @@ textarea.form-control {
   
   // Auto-generate URL slug from title
   $('#field-title').on('input', function() {
-    var title = $(this).val().toLowerCase()
-      .replace(/[^\w ]+/g,'')
-      .replace(/ +/g,'-');
-    $('#field-name').val(title);
+    if ($('#field-name').prop('readonly')) {
+      var title = $(this).val().toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+      $('#field-name').val(title);
+    }
+  });
+  
+  // Toggle URL field editing
+  $('#edit-url-btn').on('click', function() {
+    var $urlField = $('#field-name');
+    var $btn = $(this);
+    
+    if ($urlField.prop('readonly')) {
+      $urlField.prop('readonly', false).focus();
+      $btn.html('<i class="fa fa-lock"></i>').attr('title', '{{ _("Lock auto-generation") }}');
+      $btn.removeClass('btn-default').addClass('btn-warning');
+    } else {
+      $urlField.prop('readonly', true);
+      $btn.html('<i class="fa fa-edit"></i>').attr('title', '{{ _("Edit URL manually") }}');
+      $btn.removeClass('btn-warning').addClass('btn-default');
+      // Re-generate from title
+      var title = $('#field-title').val().toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+      $urlField.val(title);
+    }
   });
   
   // Form validation

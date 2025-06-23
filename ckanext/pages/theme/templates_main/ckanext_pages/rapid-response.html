@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ page.title or page.name }} - {{ _('Rapid Response & Recovery') }} - {{ super() }}
+{{ c.page.title or c.page.name }} - {{ _('Rapid Response & Recovery') }} - {{ super() }}
 {% endblock %}
 
 {% block content %}
@@ -21,23 +21,23 @@
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
                     <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
-                    <li class="active"><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.rapid_response_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
                 </ol>
             </div>
 
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('{% if page.header_image %}{{ page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
-                  <h1>{{ page.title or page.name }}</h1>
-                  {% if page.subtitle %}
-                    <p class="section-title-description">{{ page.subtitle }}</p>
+                  <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% if c.page.subtitle %}
+                    <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
-                  {% if page.publish_date %}
+                  {% if c.page.publish_date %}
                     <p class="section-title-meta">
-                      <i class="fa fa-calendar"></i> {{ _('Event Date:') }} {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                      <i class="fa fa-calendar"></i> {{ _('Event Date:') }} {{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}
                     </p>
                   {% endif %}
                 </div>
@@ -50,13 +50,13 @@
               <div class="col-md-12">
                 
                 <!-- Timeline Events -->
-                {% if page.timeline_events %}
+                {% if c.page.timeline_events %}
                 <div class="rapid-response-timeline" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
                       <h2>{{ _('Timeline of Events') }}</h2>
                       <div class="timeline-container">
-                        {% set timeline_events = h.json_loads(page.timeline_events) or [] %}
+                        {% set timeline_events = h.json_loads(c.page.timeline_events) or [] %}
                         {% if timeline_events %}
                           {% for event in timeline_events %}
                           <div class="timeline-event">
@@ -84,13 +84,13 @@
                 {% endif %}
 
                 <!-- Key Information Box -->
-                {% if page.key_info %}
+                {% if c.page.key_info %}
                 <div class="rapid-response-key-info" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
                       <h2>{{ _('Key Information') }}</h2>
                       <div class="key-info-content">
-                        {{ h.render_markdown(page.key_info, allow_html=True) | safe }}
+                        {{ h.render_markdown(c.page.key_info, allow_html=True) | safe }}
                       </div>
                     </div>
                   </section>
@@ -98,24 +98,24 @@
                 {% endif %}
 
                 <!-- Main Content -->
-                {% if page.content %}
+                {% if c.page.content %}
                 <div class="rapid-response-main-content" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
-                      {{ h.render_markdown(page.content, allow_html=True) | safe }}
+                      {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
                     </div>
                   </section>
                 </div>
                 {% endif %}
 
                 <!-- Map Stories Section -->
-                {% if page.map_stories %}
+                {% if c.page.map_stories %}
                 <div class="rapid-response-map-stories" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
                       <h2>{{ _('Map Stories') }}</h2>
                       <div class="map-stories-content">
-                        {{ h.render_markdown(page.map_stories, allow_html=True) | safe }}
+                        {{ h.render_markdown(c.page.map_stories, allow_html=True) | safe }}
                       </div>
                     </div>
                   </section>
@@ -123,15 +123,15 @@
                 {% endif %}
 
                 <!-- Enhanced Image Gallery Section -->
-                {% if page.uploaded_images or page.image_carousel %}
+                {% if c.page.uploaded_images or c.page.image_carousel %}
                 <div class="rapid-response-gallery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
                       <h2>{{ _('Image Gallery') }}</h2>
                       
                       <!-- Uploaded Images Grid -->
-                      {% if page.uploaded_images %}
-                        {% set uploaded_images = h.json_loads(page.uploaded_images) or [] %}
+                      {% if c.page.uploaded_images %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
                         {% if uploaded_images %}
                         <div class="uploaded-images-gallery">
                           <h3>{{ _('Uploaded Images') }}</h3>
@@ -157,13 +157,13 @@
                       {% endif %}
 
                       <!-- External Images (Markdown/HTML) -->
-                      {% if page.image_carousel %}
+                      {% if c.page.image_carousel %}
                       <div class="external-images-gallery">
-                        {% if page.uploaded_images %}
+                        {% if c.page.uploaded_images %}
                           <h3>{{ _('Additional Images') }}</h3>
                         {% endif %}
                         <div class="image-gallery-content">
-                          {{ h.render_markdown(page.image_carousel, allow_html=True) | safe }}
+                          {{ h.render_markdown(c.page.image_carousel, allow_html=True) | safe }}
                         </div>
                       </div>
                       {% endif %}
@@ -173,13 +173,13 @@
                 {% endif %}
 
                 <!-- Additional Content as Cards -->
-                {% if page.additional_content %}
+                {% if c.page.additional_content %}
                 <div class="rapid-response-additional" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
                       <h2>{{ _('Additional Information') }}</h2>
                       <div class="additional-content">
-                        {{ h.render_markdown(page.additional_content, allow_html=True) | safe }}
+                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
                       </div>
                     </div>
                   </section>
@@ -192,12 +192,12 @@
                     <div class="module-content">
                       <div class="row">
                         <div class="col-md-8">
-                          {% if page.created %}
+                          {% if c.page.created %}
                             <p class="text-muted">
                               <small>
-                                <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(page.created, '%B %d, %Y') }}
-                                {% if page.modified %}
-                                  | {{ _('Last updated:') }} {{ h.render_datetime(page.modified, '%B %d, %Y') }}
+                                <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                {% if c.page.modified %}
+                                  | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
                                 {% endif %}
                               </small>
                             </p>
@@ -206,10 +206,10 @@
                         <div class="col-md-4 text-right">
                           {% if h.check_access('ckanext_pages_update') %}
                             <div class="action-buttons">
-                              <a href="{{ h.url_for('pages.rapid_response_edit', page=page.name) }}" class="btn btn-default btn-sm">
+                              <a href="{{ h.url_for('pages.rapid_response_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-edit"></i> {{ _('Edit') }}
                               </a>
-                              <a href="{{ h.url_for('pages', page=page.name, action='revisions') }}" class="btn btn-default btn-sm">
+                              <a href="{{ h.url_for('pages', page=c.page.name, action='revisions') }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-history"></i> {{ _('History') }}
                               </a>
                             </div>
