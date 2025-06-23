@@ -190,13 +190,13 @@
                           <div class="image-upload-section">
                             <div class="form-group">
                               <label class="control-label">{{ _('Upload New Images') }}</label>
+                              <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
                               <div class="upload-dropzone" id="image-dropzone">
                                 <div class="dropzone-content">
                                   <i class="fa fa-cloud-upload fa-3x"></i>
                                   <p>{{ _('Drop images here or click to browse') }}</p>
                                   <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
                                 </div>
-                                <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
                               </div>
                             </div>
                             
@@ -923,40 +923,53 @@ textarea.form-control {
   }
   
   // Handle file upload
-  $('#image-upload').change(function() {
+  $('#image-upload').on('change', function(e) {
+    e.stopPropagation();
     const files = this.files;
-    Array.from(files).forEach(file => {
-      uploadImage(file);
-    });
+    if (files.length > 0) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          uploadImage(file);
+        }
+      });
+      // Clear the input so the same file can be selected again
+      this.value = '';
+    }
   });
   
-  // Handle dropzone
-  const dropzone = $('#image-dropzone');
-  
-  dropzone.click(function() {
-    $('#image-upload').click();
-  });
-  
-  dropzone.on('dragover', function(e) {
+  // Handle dropzone click
+  $('#image-dropzone').on('click', function(e) {
     e.preventDefault();
+    e.stopPropagation();
+    $('#image-upload').trigger('click');
+  });
+  
+  // Handle dropzone drag and drop
+  $('#image-dropzone').on('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
     $(this).addClass('dragover');
   });
   
-  dropzone.on('dragleave', function(e) {
+  $('#image-dropzone').on('dragleave', function(e) {
     e.preventDefault();
+    e.stopPropagation();
     $(this).removeClass('dragover');
   });
   
-  dropzone.on('drop', function(e) {
+  $('#image-dropzone').on('drop', function(e) {
     e.preventDefault();
+    e.stopPropagation();
     $(this).removeClass('dragover');
     
     const files = e.originalEvent.dataTransfer.files;
-    Array.from(files).forEach(file => {
-      if (file.type.startsWith('image/')) {
-        uploadImage(file);
-      }
-    });
+    if (files.length > 0) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          uploadImage(file);
+        }
+      });
+    }
   });
   
   // Upload image function
