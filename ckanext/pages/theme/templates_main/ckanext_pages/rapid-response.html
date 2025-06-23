@@ -56,7 +56,11 @@
                     <div class="module-content">
                       <h2>{{ _('Timeline of Events') }}</h2>
                       <div class="timeline-container">
-                        {% set timeline_events = page.timeline_events | from_json %}
+                        {% try %}
+                        {% set timeline_events = h.json_loads(page.timeline_events) %}
+                        {% except %}
+                        {% set timeline_events = [] %}
+                        {% endtry %}
                         {% if timeline_events %}
                           {% for event in timeline_events %}
                           <div class="timeline-event">
@@ -131,7 +135,11 @@
                       
                       <!-- Uploaded Images Grid -->
                       {% if page.uploaded_images %}
-                        {% set uploaded_images = page.uploaded_images | from_json %}
+                        {% try %}
+                        {% set uploaded_images = h.json_loads(page.uploaded_images) %}
+                        {% except %}
+                        {% set uploaded_images = [] %}
+                        {% endtry %}
                         {% if uploaded_images %}
                         <div class="uploaded-images-gallery">
                           <h3>{{ _('Uploaded Images') }}</h3>

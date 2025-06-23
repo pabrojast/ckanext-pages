@@ -177,7 +177,11 @@
                               {% endif %}
                               <span class="event-status-badge status-active">{{ _('ACTIVE') }}</span>
                               {% if page.timeline_events %}
-                                {% set timeline = page.timeline_events | from_json %}
+                                {% try %}
+                                {% set timeline = h.json_loads(page.timeline_events) %}
+                                {% except %}
+                                {% set timeline = [] %}
+                                {% endtry %}
                                 {% if timeline %}
                                   <span class="event-updates-count">
                                     <i class="fa fa-clock-o"></i> {{ timeline|length }} {{ _('updates') }}
@@ -204,7 +208,11 @@
                               {% if page.header_image %}
                                 <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
                               {% elif page.uploaded_images %}
-                                {% set images = page.uploaded_images | from_json %}
+                                {% try %}
+                                {% set images = h.json_loads(page.uploaded_images) %}
+                                {% except %}
+                                {% set images = [] %}
+                                {% endtry %}
                                 {% if images and images[0] %}
                                   <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
                                 {% else %}
