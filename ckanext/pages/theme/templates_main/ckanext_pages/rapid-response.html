@@ -36,9 +36,9 @@
                     <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
                   {% if c.page.publish_date %}
-                    <p class="section-title-meta">
+                    <div class="section-title-meta-date">
                       <i class="fa fa-calendar"></i> {{ _('Event Date:') }} {{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}
-                    </p>
+                    </div>
                   {% endif %}
                 </div>
               </div>
@@ -111,7 +111,7 @@
                               </div>
                             </div>
                             <div class="timeline-content">
-                              <div class="timeline-event-type">{{ _(event.type | title) }}</div>
+                              <div class="timeline-event-type">{{ event.type | title }}</div>
                               <div class="timeline-description">{{ event.description }}</div>
                               {% if event.date %}
                                 <div class="timeline-full-date">{{ h.render_datetime(event.date, '%B %d, %Y') }}</div>
@@ -399,15 +399,23 @@
   line-height: 1.4;
 }
 
-.section-title-meta {
-  font-size: 1.1rem;
-  opacity: 0.95;
-  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+.section-title-meta-date {
+  font-size: 1.2rem;
+  color: white;
+  opacity: 1;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 /* Professional Breadcrumb */
