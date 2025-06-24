@@ -26,7 +26,7 @@
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
                     <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title if page.title else page.name }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Add Page') }}</li>
@@ -146,6 +146,7 @@
                         <!-- 1. Event Description & Overview -->
                         <fieldset class="form-section">
                           <legend>{{ _('Event Overview') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Detailed description of the emergency event, when and where it occurred, and its overall impact.') }}</p>
                           <div class="form-group">
                             <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
@@ -154,11 +155,13 @@
                             <div class="help-text">{{ _('This is the main description that appears first. Focus on what happened, where, and when.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 2. Key Information Summary -->
                         <fieldset class="form-section">
                           <legend>{{ _('Key Information') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Key facts about the emergency event. This information will be prominently displayed in a highlighted box.') }}</p>
                           <div class="form-group">
                             <label for="field-key-info" class="control-label">{{ _('Key Facts') }} <span class="text-danger">*</span></label>
@@ -167,11 +170,13 @@
                             <div class="help-text">{{ _('Enter one fact per line in format "Label: Value". Example: "Countries Affected: Mozambique"') }}</div>
                             {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 3. Response Timeline -->
                         <fieldset class="form-section">
                           <legend>{{ _('Timeline of Events') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Track key response activities and milestones. Add events like activation, assessment, first reports, etc.') }}</p>
                           
                           <div id="timeline-events-container">
@@ -189,11 +194,13 @@
                           <!-- Hidden field to store timeline data -->
                           <input type="hidden" id="timeline-events-data" name="timeline_events" value="{{ data.timeline_events or '' }}">
                           {% if errors.timeline_events %}<span class="error-block">{{ errors.timeline_events }}</span>{% endif %}
+                          </div>
                         </fieldset>
 
                         <!-- 4. Response Activities -->
                         <fieldset class="form-section">
                           <legend>{{ _('Response Activities') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
                           <div class="form-group">
                             <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
@@ -202,11 +209,13 @@
                             <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
                             {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 5. Impact Assessment -->
                         <fieldset class="form-section">
                           <legend>{{ _('Impact Assessment') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
                           <div class="form-group">
                             <label for="field-impact-assessment" class="control-label">{{ _('Impact Assessment') }}</label>
@@ -215,22 +224,26 @@
                             <div class="help-text">{{ _('Assessment of the damage and impact caused by the emergency event.') }}</div>
                             {% if errors.impact_assessment %}<span class="error-block">{{ errors.impact_assessment }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 6. Map Stories -->
                         <fieldset class="form-section">
                           <legend>{{ _('Map Stories') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
                           <div class="form-group">
                             <label for="field-map-stories" class="control-label">{{ _('Map Stories') }}</label>
                             <textarea id="field-map-stories" name="map_stories" rows="10" class="form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 7. Image Gallery -->
                         <fieldset class="form-section">
                           <legend>{{ _('Image Gallery') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Upload images directly or add external image URLs. Uploaded images will be automatically resized and optimized.') }}</p>
                           
                           <!-- Image Upload Section -->
@@ -263,38 +276,45 @@
                           <!-- Hidden fields for uploaded images -->
                           <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.uploaded_images or '' }}">
                           <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.image_gallery or '' }}">
+                          </div>
                         </fieldset>
 
                         <!-- 8. Additional Information -->
                         <fieldset class="form-section">
                           <legend>{{ _('Additional Information') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
                           <div class="form-group">
                             <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
                             <textarea id="field-additional-content" name="additional_content" rows="8" class="form-control" placeholder="{{ _('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis') }}">{{ data.additional_content or '' }}</textarea>
                             {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 9. Header Image -->
                         <fieldset class="form-section">
                           <legend>{{ _('Header Image') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
                             <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="form-control">
                             {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
                           </div>
+                          </div>
                         </fieldset>
 
                         <!-- 10. Summary/Excerpt -->
                         <fieldset class="form-section">
                           <legend>{{ _('Summary/Excerpt') }}</legend>
+                          <div class="form-section-content">
                           <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Excerpt') }}</label>
                             <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" placeholder="{{ _('Brief summary of the disaster and response efforts...') }}">{{ data.excerpt or '' }}</textarea>
                             {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
+                          </div>
                           </div>
                         </fieldset>
 
@@ -534,6 +554,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: var(--shadow-light);
 }
 
 .form-section legend::after {
@@ -612,11 +633,61 @@
   transform: translateY(-1px);
 }
 
+/* Enhanced Help Text */
+.help-block {
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 4px solid var(--unesco-blue);
+}
+
 .form-control[type="textarea"],
 textarea.form-control {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   resize: vertical;
   min-height: 120px;
+  line-height: 1.6;
+}
+
+/* Buttons Enhancement */
+.btn {
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  text-transform: none;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  color: var(--text-primary);
+  border: 2px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  transform: translateY(-1px);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
 }
 
 /* Timeline Events Styling */
