@@ -78,6 +78,14 @@
                         <!-- Event Information -->
                         <fieldset class="form-section">
                           <legend>{{ _('Event Information') }}</legend>
+
+                          <div class="form-group">
+                            <label for="field-title" class="control-label">{{ _('Event Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="form-control" required>
+                            <div class="help-text">{{ _('Clear, descriptive title of the emergency event') }}</div>
+                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
+                          </div>
+
                           <div class="form-group">
                             <label for="field-name" class="control-label">{{ _('Event URL') }}</label>
                             <div class="input-group">
@@ -91,14 +99,7 @@
                             <div class="help-text">{{ _('Auto-generated from event title. Click edit button to modify manually.') }}</div>
                             {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
                           </div>
-                          
-                          <div class="form-group">
-                            <label for="field-title" class="control-label">{{ _('Event Title') }} <span class="text-danger">*</span></label>
-                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="form-control" required>
-                            <div class="help-text">{{ _('Clear, descriptive title of the emergency event') }}</div>
-                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
-                          </div>
-                          
+                                                    
                           <div class="form-group">
                             <label for="field-subtitle" class="control-label">{{ _('Event Type/Category') }}</label>
                             <select id="field-event-type" name="subtitle" class="form-control">

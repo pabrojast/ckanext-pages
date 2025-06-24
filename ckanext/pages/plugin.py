@@ -1,4 +1,5 @@
 import logging
+import json
 from html import escape as html_escape
 
 from six.moves.urllib.parse import quote
@@ -103,6 +104,16 @@ def get_recent_rapid_response_posts(number=5, exclude=None):
     return new_list
 
 
+def safe_json_loads(json_string):
+    """Safely parse JSON string and return empty list if parsing fails"""
+    if not json_string:
+        return []
+    try:
+        return json.loads(json_string)
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return []
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -141,6 +152,7 @@ class PagesPlugin(PagesPluginBase):
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,
             'get_recent_rapid_response_posts': get_recent_rapid_response_posts,
+            'json_loads': safe_json_loads,
         }
 
     def get_actions(self):
