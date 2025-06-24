@@ -49,7 +49,33 @@
             <div class="row">
               <div class="col-md-12">
                 
-                <!-- Timeline Events -->
+                <!-- 1. Event Overview (Main Content) -->
+                {% if c.page.content %}
+                <div class="rapid-response-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <h2>{{ _('Event Overview') }}</h2>
+                      {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 2. Key Information Box -->
+                {% if c.page.key_info %}
+                <div class="rapid-response-key-info" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <h2>{{ _('Key Information') }}</h2>
+                      <div class="key-info-content">
+                        {{ h.render_markdown(c.page.key_info, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 3. Timeline Events -->
                 {% if c.page.timeline_events %}
                 <div class="rapid-response-timeline" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
@@ -83,32 +109,35 @@
                 </div>
                 {% endif %}
 
-                <!-- Key Information Box -->
-                {% if c.page.key_info %}
-                <div class="rapid-response-key-info" style="margin-bottom: 3rem;">
+                <!-- 4. Response Activities -->
+                {% if c.page.response_activities %}
+                <div class="rapid-response-activities" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
-                      <h2>{{ _('Key Information') }}</h2>
-                      <div class="key-info-content">
-                        {{ h.render_markdown(c.page.key_info, allow_html=True) | safe }}
+                      <h2>{{ _('Response Activities') }}</h2>
+                      <div class="response-activities-content">
+                        {{ h.render_markdown(c.page.response_activities, allow_html=True) | safe }}
                       </div>
                     </div>
                   </section>
                 </div>
                 {% endif %}
 
-                <!-- Main Content -->
-                {% if c.page.content %}
-                <div class="rapid-response-main-content" style="margin-bottom: 3rem;">
+                <!-- 5. Impact Assessment -->
+                {% if c.page.impact_assessment %}
+                <div class="rapid-response-impact" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
-                      {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                      <h2>{{ _('Impact Assessment') }}</h2>
+                      <div class="impact-assessment-content">
+                        {{ h.render_markdown(c.page.impact_assessment, allow_html=True) | safe }}
+                      </div>
                     </div>
                   </section>
                 </div>
                 {% endif %}
 
-                <!-- Map Stories Section -->
+                <!-- 6. Map Stories Section -->
                 {% if c.page.map_stories %}
                 <div class="rapid-response-map-stories" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
@@ -122,7 +151,7 @@
                 </div>
                 {% endif %}
 
-                <!-- Enhanced Image Gallery Section -->
+                <!-- 7. Enhanced Image Gallery Section -->
                 {% if c.page.uploaded_images or c.page.image_carousel %}
                 <div class="rapid-response-gallery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
@@ -172,7 +201,7 @@
                 </div>
                 {% endif %}
 
-                <!-- Additional Content as Cards -->
+                <!-- 8. Additional Information -->
                 {% if c.page.additional_content %}
                 <div class="rapid-response-additional" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
@@ -186,7 +215,7 @@
                 </div>
                 {% endif %}
 
-                <!-- Actions and Metadata -->
+                <!-- 9. Actions and Metadata -->
                 <div class="rapid-response-actions" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
@@ -275,7 +304,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(70, 120, 134, 0.8) 0%, rgba(70, 120, 134, 0.6) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.85) 0%, rgba(0, 158, 224, 0.75) 100%);
 }
 
 .section-title-content {
@@ -305,8 +334,12 @@
 
 .section-title-meta {
   font-size: 1rem;
-  opacity: 0.9;
+  opacity: 0.95;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
 }
 
 /* Breadcrumb styling */
@@ -332,13 +365,13 @@
 }
 
 .breadcrumb > li.active a {
-  color: #467886;
+  color: #0072BC;
   font-weight: bold;
 }
 
 /* Timeline Styling */
 .rapid-response-timeline .module {
-  border-left: 4px solid #467886;
+  border-left: 4px solid #0072BC;
 }
 
 .timeline-container {
@@ -353,7 +386,7 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #467886 0%, #c1e4f5 100%);
+  background: linear-gradient(180deg, #0072BC 0%, #009EE0 100%);
 }
 
 .timeline-event {
@@ -390,7 +423,7 @@
 }
 
 .timeline-marker-response {
-  background: linear-gradient(135deg, #467886 0%, #2c5660 100%);
+  background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%);
 }
 
 .timeline-marker-recovery {
@@ -441,7 +474,7 @@
 
 .timeline-event-type {
   font-weight: bold;
-  color: #467886;
+  color: #0072BC;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   font-size: 0.9rem;
@@ -460,12 +493,12 @@
 
 /* Key Information Box */
 .rapid-response-key-info .module {
-  border-left: 4px solid #467886;
-  background: linear-gradient(135deg, #C1E4F5 0%, #E8F4F8 100%);
+  border-left: 4px solid #0072BC;
+  background: linear-gradient(135deg, #E3F2FD 0%, #F0F8FF 100%);
 }
 
 .rapid-response-key-info h2 {
-  color: #2c5660;
+  color: #0072BC;
   margin-bottom: 1.5rem;
   font-weight: bold;
 }
@@ -480,13 +513,13 @@
 .key-info-content td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid rgba(70, 120, 134, 0.2);
+  border-bottom: 1px solid rgba(0, 114, 188, 0.2);
 }
 
 .key-info-content th {
-  background-color: rgba(70, 120, 134, 0.1);
+  background-color: rgba(0, 114, 188, 0.1);
   font-weight: bold;
-  color: #2c5660;
+  color: #0072BC;
 }
 
 /* Module styling */
@@ -502,8 +535,8 @@
 }
 
 .module h2 {
-  color: #467886;
-  border-bottom: 3px solid #467886;
+  color: #0072BC;
+  border-bottom: 3px solid #0072BC;
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
   font-weight: bold;
@@ -527,8 +560,8 @@
 
 .uploaded-images-gallery h3,
 .external-images-gallery h3 {
-  color: #467886;
-  border-bottom: 2px solid #467886;
+  color: #0072BC;
+  border-bottom: 2px solid #0072BC;
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
   font-size: 1.2rem;
@@ -577,7 +610,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(70, 120, 134, 0.8);
+  background: rgba(0, 114, 188, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -716,43 +749,94 @@
 
 <!-- JavaScript for Enhanced Functionality -->
 <script>
-$(document).ready(function() {
-  // Image modal functionality
-  $('.gallery-image').on('click', function() {
-    const imageUrl = $(this).data('image');
-    const caption = $(this).data('caption');
-    
-    $('#modalImage').attr('src', imageUrl);
-    $('#modalImage').attr('alt', caption);
-    $('#modalCaption').text(caption);
-    
-    $('#imageModal').modal('show');
-  });
-  
-  // Enhanced iframe responsiveness
-  $('iframe').each(function() {
-    const $iframe = $(this);
-    if (!$iframe.parent().hasClass('iframe-container')) {
-      $iframe.wrap('<div class="iframe-container"></div>');
+(function() {
+  // Wait for jQuery to be available
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
     }
-  });
+  }
   
-  // Add loading animation for images
-  $('.gallery-image').on('load', function() {
-    $(this).addClass('loaded');
-  });
-  
-  // Smooth scrolling for internal links
-  $('a[href^="#"]').on('click', function(e) {
-    e.preventDefault();
-    const target = $(this.getAttribute('href'));
-    if (target.length) {
-      $('html, body').animate({
-        scrollTop: target.offset().top - 100
-      }, 1000);
-    }
-  });
-});
+  waitForJQuery(function($) {
+    
+    // Image modal functionality
+    $('.image-container, .gallery-image').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
+      const imageUrl = $img.attr('src');
+      const caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
+      
+      if (imageUrl) {
+        $('#modalImage').attr('src', imageUrl);
+        $('#modalImage').attr('alt', caption);
+        $('#modalCaption').text(caption);
+        $('#imageModalTitle').text('Vista de imagen');
+        
+        // Use Bootstrap modal if available, otherwise custom modal
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('show');
+        } else {
+          $('#imageModal').css('display', 'block').addClass('show');
+        }
+      }
+    });
+    
+    // Close modal functionality
+    $('.close, .modal').on('click', function(e) {
+      if (e.target === this) {
+        $('#imageModal').modal('hide').css('display', 'none').removeClass('show');
+      }
+    });
+    
+    // Enhanced iframe responsiveness
+    $('iframe').each(function() {
+      const $iframe = $(this);
+      if (!$iframe.parent().hasClass('iframe-container')) {
+        $iframe.wrap('<div class="iframe-container"></div>');
+      }
+    });
+    
+    // Add loading animation for images
+    $('.gallery-image').on('load', function() {
+      $(this).addClass('loaded').css('opacity', '1');
+    });
+    
+    // Ensure images are clickable
+    $('.gallery-image').css('cursor', 'pointer');
+    
+    // Add hover effects
+    $('.gallery-image-item').hover(
+      function() {
+        $(this).find('.image-overlay').css('opacity', '1');
+      },
+      function() {
+        $(this).find('.image-overlay').css('opacity', '0');
+      }
+    );
+    
+    // Smooth scrolling for internal links
+    $('a[href^="#"]').on('click', function(e) {
+      e.preventDefault();
+      const target = $(this.getAttribute('href'));
+      if (target.length) {
+        $('html, body').animate({
+          scrollTop: target.offset().top - 100
+        }, 1000);
+      }
+    });
+    
+    // Debug info
+    console.log('Rapid Response gallery initialized');
+    console.log('Gallery images found:', $('.gallery-image').length);
+    
+  }); // Close waitForJQuery function
+})(); // Close main function
 </script>
 
 {% endblock %} 

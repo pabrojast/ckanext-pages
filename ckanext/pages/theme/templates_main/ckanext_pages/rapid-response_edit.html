@@ -141,9 +141,35 @@
                           </div>
                         </fieldset>
 
-                        <!-- Emergency Response Timeline -->
+                        <!-- 1. Event Description & Overview -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Response Timeline') }}</legend>
+                          <legend>{{ _('Event Overview') }}</legend>
+                          <p class="help-block">{{ _('Detailed description of the emergency event, when and where it occurred, and its overall impact.') }}</p>
+                          <div class="form-group">
+                            <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-content" name="content" rows="15" class="form-control" required
+                                      placeholder="{{ _('Describe the emergency event, when and where it occurred, and its initial impact.\n\nProvide context about the situation, affected areas, population at risk, and immediate concerns.\n\nThis section gives readers the overall picture of what happened.') }}">{{ data.content or '' }}</textarea>
+                            <div class="help-text">{{ _('This is the main description that appears first. Focus on what happened, where, and when.') }}</div>
+                            {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
+                          </div>
+                        </fieldset>
+
+                        <!-- 2. Key Information Summary -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Key Information') }}</legend>
+                          <p class="help-block">{{ _('Key facts about the emergency event. This information will be prominently displayed in a highlighted box.') }}</p>
+                          <div class="form-group">
+                            <label for="field-key-info" class="control-label">{{ _('Key Facts') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-key-info" name="key_info" rows="8" class="form-control" required
+                                      placeholder="{{ _('Activation: 15 December 2024\nEvent Date: 15 December 2024\nCountries Affected: Mozambique\nExposure: 2.5 million people\nUNESCO Sites: Ilha de Moçambique\nStatus: Active monitoring') }}">{{ data.key_info or '' }}</textarea>
+                            <div class="help-text">{{ _('Enter one fact per line in format "Label: Value". Example: "Countries Affected: Mozambique"') }}</div>
+                            {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
+                          </div>
+                        </fieldset>
+
+                        <!-- 3. Response Timeline -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Timeline of Events') }}</legend>
                           <p class="help-block">{{ _('Track key response activities and milestones. Add events like activation, assessment, first reports, etc.') }}</p>
                           
                           <div id="timeline-events-container">
@@ -163,33 +189,44 @@
                           {% if errors.timeline_events %}<span class="error-block">{{ errors.timeline_events }}</span>{% endif %}
                         </fieldset>
 
-                        <!-- Event Summary -->
+                        <!-- 4. Response Activities -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Event Summary') }}</legend>
-                          <p class="help-block">{{ _('Key facts about the emergency event. This information will be prominently displayed in a highlighted box.') }}</p>
+                          <legend>{{ _('Response Activities') }}</legend>
+                          <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
                           <div class="form-group">
-                            <label for="field-key-info" class="control-label">{{ _('Key Facts') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-key-info" name="key_info" rows="8" class="form-control" required
-                                      placeholder="{{ _('Activation: 15 December 2024\nEvent Date: 15 December 2024\nCountries Affected: Mozambique\nExposure: 2.5 million people\nUNESCO Sites: Ilha de Moçambique\nStatus: Active monitoring') }}">{{ data.key_info or '' }}</textarea>
-                            <div class="help-text">{{ _('Enter one fact per line in format "Label: Value". Example: "Countries Affected: Mozambique"') }}</div>
-                            {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
+                            <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
+                            <textarea id="field-response-activities" name="response_activities" rows="10" class="form-control"
+                                      placeholder="{{ _('Detail the immediate response efforts, agencies involved, and current status.\n\nInclude:\n- Emergency response protocols activated\n- Agencies and organizations involved\n- Coordination efforts\n- Current response status') }}">{{ data.response_activities or '' }}</textarea>
+                            <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
+                            {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
                           </div>
                         </fieldset>
 
-                        <!-- Event Description -->
+                        <!-- 5. Impact Assessment -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Event Description & Response') }}</legend>
-                          <p class="help-block">{{ _('Detailed description of the emergency event, impact, and response activities undertaken.') }}</p>
+                          <legend>{{ _('Impact Assessment') }}</legend>
+                          <p class="help-block">{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
                           <div class="form-group">
-                            <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-content" name="content" rows="15" class="form-control" required
-                                      placeholder="{{ _('## Event Overview\nDescribe the emergency event, when and where it occurred, and its initial impact...\n\n## Response Activities\nDetail the immediate response efforts, agencies involved, and current status...\n\n## Impact Assessment\nDescribe the damage to heritage sites, communities affected, and ongoing concerns...') }}">{{ data.content or '' }}</textarea>
-                            <div class="help-text">{{ _('Use ## for section headings. Include event details, response activities, and impact assessment.') }}</div>
-                            {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
+                            <label for="field-impact-assessment" class="control-label">{{ _('Impact Assessment') }}</label>
+                            <textarea id="field-impact-assessment" name="impact_assessment" rows="10" class="form-control"
+                                      placeholder="{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.\n\nInclude:\n- Heritage sites impacted\n- Communities affected\n- Infrastructure damage\n- Environmental impact\n- Cultural heritage at risk') }}">{{ data.impact_assessment or '' }}</textarea>
+                            <div class="help-text">{{ _('Assessment of the damage and impact caused by the emergency event.') }}</div>
+                            {% if errors.impact_assessment %}<span class="error-block">{{ errors.impact_assessment }}</span>{% endif %}
                           </div>
                         </fieldset>
 
-                        <!-- Enhanced Image Gallery with Upload -->
+                        <!-- 6. Map Stories -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Map Stories') }}</legend>
+                          <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
+                          <div class="form-group">
+                            <label for="field-map-stories" class="control-label">{{ _('Map Stories') }}</label>
+                            <textarea id="field-map-stories" name="map_stories" rows="10" class="form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
+                            {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
+                          </div>
+                        </fieldset>
+
+                        <!-- 7. Image Gallery -->
                         <fieldset class="form-section">
                           <legend>{{ _('Image Gallery') }}</legend>
                           <p class="help-block">{{ _('Upload images directly or add external image URLs. Uploaded images will be automatically resized and optimized.') }}</p>
@@ -226,20 +263,9 @@
                           <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.image_gallery or '' }}">
                         </fieldset>
 
-                        <!-- Map Stories -->
+                        <!-- 8. Additional Information -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Map Stories') }}</legend>
-                          <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
-                          <div class="form-group">
-                            <label for="field-map-stories" class="control-label">{{ _('Map Stories') }}</label>
-                            <textarea id="field-map-stories" name="map_stories" rows="10" class="form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
-                            {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
-                          </div>
-                        </fieldset>
-
-                        <!-- Additional Content -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Additional Sections') }}</legend>
+                          <legend>{{ _('Additional Information') }}</legend>
                           <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
                           <div class="form-group">
                             <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
@@ -248,7 +274,7 @@
                           </div>
                         </fieldset>
 
-                        <!-- Header Image -->
+                        <!-- 9. Header Image -->
                         <fieldset class="form-section">
                           <legend>{{ _('Header Image') }}</legend>
                           <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
@@ -259,7 +285,7 @@
                           </div>
                         </fieldset>
 
-                        <!-- Excerpt -->
+                        <!-- 10. Summary/Excerpt -->
                         <fieldset class="form-section">
                           <legend>{{ _('Summary/Excerpt') }}</legend>
                           <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
