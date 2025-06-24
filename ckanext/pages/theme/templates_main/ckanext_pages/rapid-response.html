@@ -209,7 +209,7 @@
                               <a href="{{ h.url_for('pages.rapid_response_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-edit"></i> {{ _('Edit') }}
                               </a>
-                              <a href="{{ h.url_for('pages', page=c.page.name, action='revisions') }}" class="btn btn-default btn-sm">
+                              <a href="/rapid-response/{{ c.page.name }}/revisions" class="btn btn-default btn-sm">
                                 <i class="fa fa-history"></i> {{ _('History') }}
                               </a>
                             </div>
