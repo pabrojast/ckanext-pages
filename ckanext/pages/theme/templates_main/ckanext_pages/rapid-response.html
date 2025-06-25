@@ -1000,6 +1000,8 @@
 /* Image Modal - Enhanced */
 .modal-dialog {
   margin: 30px auto;
+  max-width: 90vw;
+  width: auto;
 }
 
 .modal-content {
@@ -1022,6 +1024,18 @@
 
 .modal-body {
   padding: 2rem;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+#modalImage {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+  object-fit: contain;
 }
 
 .image-modal-caption {
@@ -1190,6 +1204,21 @@
     padding: 1.5rem;
     border-radius: 12px;
   }
+  
+  /* Modal responsive adjustments */
+  .modal-dialog {
+    margin: 15px;
+    max-width: 95vw;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+    max-height: 75vh;
+  }
+  
+  #modalImage {
+    max-height: 65vh;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1249,6 +1278,30 @@
     padding: 12px 16px;
     font-size: 0.95rem;
   }
+  
+  /* Modal adjustments for very small screens */
+  .modal-dialog {
+    margin: 10px;
+    max-width: 98vw;
+  }
+  
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+    max-height: 70vh;
+  }
+  
+  #modalImage {
+    max-height: 60vh;
+  }
+  
+  .image-modal-caption {
+    font-size: 0.95rem;
+    margin-top: 1rem;
+  }
 }
 </style>
 
@@ -1281,7 +1334,6 @@
         $('#modalImage').attr('src', imageUrl);
         $('#modalImage').attr('alt', caption);
         $('#modalCaption').text(caption);
-        $('#imageModalTitle').text('Vista de imagen');
         
         // Use Bootstrap modal if available, otherwise custom modal
         if (typeof $.fn.modal !== 'undefined') {
