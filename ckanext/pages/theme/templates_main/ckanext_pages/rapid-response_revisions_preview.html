@@ -1,197 +1,378 @@
-{% extends "ckanext_pages/base.html" %}
+{% extends "page.html" %}
 
-{% block subtitle %}{{ _('Revision') }} {{ revision.id[:8] }} - {{ page.title or page.name }}{% endblock %}
-
-{% block breadcrumb_content %}
-  {% if self.breadcrumb_content_selected() %}
-    {{ super() }}
-  {% endif %}
-  <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
-  <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
-  <li><a href="{{ h.url_for('pages', page=page.name, action='revisions') }}">{{ _('Revisions') }}</a></li>
-  <li class="active">{{ _('Revision') }} {{ revision.id[:8] }}</li>
+{% block title %}
+{{ _('Revision') }} {{ revision.id[:8] }} - {{ page.title or page.name }} - {{ _('Rapid Response & Recovery') }} - {{ super() }}
 {% endblock %}
 
 {% block content %}
-  <div class="module-content">
-    <header class="module-content">
-      <div class="page-header">
-        <h1>
-          {{ _('Revision Preview') }}
-          <small>{{ revision.id[:8] }} - {{ h.render_datetime(revision.timestamp, '%Y-%m-%d %H:%M:%S') }}</small>
-        </h1>
-        
-        <div class="revision-actions">
-          {% if h.check_access('ckanext_pages_update') %}
-            <a href="{{ h.url_for('pages', page=page.name, revision=revision.id, action='restore') }}" class="btn btn-warning" data-confirm="{{ _('Are you sure you want to restore this revision? This will overwrite the current version.') }}">
-              <i class="fa fa-undo"></i> {{ _('Restore This Revision') }}
-            </a>
-          {% endif %}
-          <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" class="btn btn-default">
-            <i class="fa fa-eye"></i> {{ _('View Current Version') }}
-          </a>
-          <a href="{{ h.url_for('pages', page=page.name, action='revisions') }}" class="btn btn-default">
-            <i class="fa fa-list"></i> {{ _('All Revisions') }}
-          </a>
-        </div>
-      </div>
-    </header>
 
-    <div class="revision-info alert alert-info">
-      <strong>{{ _('Revision Information:') }}</strong>
-      {{ _('Author:') }} {{ revision.author or _('Unknown') }} |
-      {{ _('Date:') }} {{ h.render_datetime(revision.timestamp, '%B %d, %Y at %H:%M:%S') }} |
-      {{ _('Message:') }} {{ revision.message or _('No message') }}
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
     </div>
+    
+    {% block primary_content %}
+    <div class="main">
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_revisions', page=page.name) }}">{{ _('Revisions') }}</a></li>
+                    <li class="active">{{ _('Revision') }} {{ revision.id[:8] }}</li>
+                </ol>
+            </div>
 
-    <!-- Show the page content as it was in this revision -->
-    <div class="revision-preview">
-      <div class="rapid-response-page">
+            <!-- Banner -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Revision Preview') }}</h1>
+                  <p class="section-title-description">{{ revision.id[:8] }} - {{ h.render_datetime(revision.created, '%B %d, %Y') if revision.created else _('Unknown Date') }}</p>
+                </div>
+              </div>
+            </section>
         
-        <!-- Header Image Section -->
-        {% if page.header_image %}
-          <div class="rapid-response-header">
-            <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive rapid-response-header-img">
-          </div>
-        {% else %}
-          <div class="rapid-response-header">
-            <img src="/images/rapid-response-header.jpg" alt="Rapid Response and Recovery" class="img-responsive rapid-response-header-img">
-          </div>
-        {% endif %}
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Action Bar -->
+                <div class="revision-actions-bar" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Revision Preview') }}</h2>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">
+                            {{ _('Author:') }} {{ revision.author or _('System') }} | 
+                            {{ _('Date:') }} {{ h.render_datetime(revision.created, '%B %d, %Y at %H:%M:%S') if revision.created else _('Unknown') }}
+                          </p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                          <div class="revision-action-buttons">
+                            {% if h.check_access('ckanext_pages_update') %}
+                              <a href="{{ h.url_for('pages.rapid_response_revision_restore', page=page.name, revision=revision.id) }}" 
+                                 class="btn btn-warning" 
+                                 data-confirm="{{ _('Are you sure you want to restore this revision?') }}">
+                                <i class="fa fa-undo"></i> {{ _('Restore') }}
+                              </a>
+                            {% endif %}
+                            <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" class="btn btn-default">
+                              <i class="fa fa-eye"></i> {{ _('Current') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.rapid_response_revisions', page=page.name) }}" class="btn btn-primary">
+                              <i class="fa fa-list"></i> {{ _('All Revisions') }}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
 
-        <!-- Title and Disaster Information -->
-        <div class="rapid-response-title-section text-center">
-          <h1 class="rapid-response-title">{{ page.title or page.name }}</h1>
-          {% if page.subtitle %}
-            <h2 class="rapid-response-subtitle">{{ page.subtitle }}</h2>
-          {% endif %}
-        </div>
+                <!-- Revision Preview Content -->
+                <div class="revision-preview-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="revision-section-header">
+                        <div class="revision-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Content Preview') }}</h2>
+                      </div>
+                      
+                      <div class="alert alert-info">
+                        <strong>{{ _('Revision Information:') }}</strong>
+                        {{ _('This is how the content looked at this revision.') }}
+                      </div>
+                      
+                      <!-- Content Preview -->
+                      <div class="revision-preview-content">
+                        
+                        <!-- Title Section -->
+                        <h1 class="revision-title">{{ page.title or page.name }}</h1>
+                        {% if page.subtitle %}
+                          <h2 class="revision-subtitle">{{ page.subtitle }}</h2>
+                        {% endif %}
 
-        <!-- Key Information Box -->
-        {% if page.key_info %}
-          <div class="key-info-box" style="background-color: #C1E4F5; border: 1px solid #467886; padding: 15px; margin: 20px 0;">
-            {{ h.render_markdown(page.key_info, allow_html=True) | safe }}
-          </div>
-        {% endif %}
+                        <!-- Key Information -->
+                        {% if page.key_info %}
+                          <div class="revision-key-info">
+                            <h3>{{ _('Key Information') }}</h3>
+                            <div class="key-info-content">
+                              {{ h.render_markdown(page.key_info, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
 
-        <!-- Main Content -->
-        <div class="rapid-response-content">
-          {{ h.render_markdown(page.content, allow_html=True) | safe }}
-        </div>
+                        <!-- Main Content -->
+                        {% if page.content %}
+                          <div class="revision-main-content">
+                            <h3>{{ _('Event Overview') }}</h3>
+                            <div class="content-body">
+                              {{ h.render_markdown(page.content, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
 
-        <!-- Image Carousel Section -->
-        {% if page.image_carousel %}
-          <div class="image-carousel-section">
-            <h3>{{ _('Image Gallery') }}</h3>
-            <div class="image-carousel">
-              {{ h.render_markdown(page.image_carousel, allow_html=True) | safe }}
+                        <!-- Additional Content -->
+                        {% if page.additional_content %}
+                          <div class="revision-additional">
+                            <h3>{{ _('Additional Information') }}</h3>
+                            <div class="additional-content">
+                              {{ h.render_markdown(page.additional_content, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
             </div>
-          </div>
-        {% endif %}
-
-        <!-- Map Stories Section -->
-        {% if page.map_stories %}
-          <div class="map-stories-section">
-            <h2>{{ _('Map Stories') }}</h2>
-            <div class="map-stories-content">
-              {{ h.render_markdown(page.map_stories, allow_html=True) | safe }}
-            </div>
-          </div>
-        {% endif %}
-
-        <!-- Additional Sections -->
-        {% if page.additional_content %}
-          <div class="additional-content">
-            {{ h.render_markdown(page.additional_content, allow_html=True) | safe }}
-          </div>
-        {% endif %}
-
-      </div>
+        </div>
     </div>
-  </div>
+    {% endblock %}
+</div>
 
-  <!-- Custom CSS for revision preview -->
-  <style>
-    .revision-actions {
-      float: right;
-      margin-top: 10px;
+<style>
+/* Professional Revision Preview Styling */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.revision-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid #E3F2FD;
+}
+
+.revision-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #0072BC 0%, #009EE0 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+}
+
+.revision-section-header h2 {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  border: none;
+}
+
+.revision-action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.revision-action-buttons .btn {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%);
+  border: none;
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+  border: none;
+  color: #212529;
+}
+
+.btn-default {
+  background: #fff;
+  border: 2px solid #e9ecef;
+  color: #6c757d;
+}
+
+.revision-preview-content {
+  border: 3px dashed #0072BC;
+  padding: 2rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+}
+
+.revision-preview-content::before {
+  content: "Revision Content Preview";
+  position: absolute;
+  top: -12px;
+  left: 2rem;
+  background: #0072BC;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.revision-title {
+  color: #0072BC;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 3px solid #E3F2FD;
+  padding-bottom: 1rem;
+}
+
+.revision-subtitle {
+  color: #6c757d;
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.revision-key-info,
+.revision-main-content,
+.revision-additional {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border-left: 6px solid #0072BC;
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);
+}
+
+.revision-key-info h3,
+.revision-main-content h3,
+.revision-additional h3 {
+  color: #0072BC;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border: none;
+}
+
+.key-info-content {
+  background: #E3F2FD;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .revision-action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .revision-action-buttons .btn {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .revision-title {
+    font-size: 2rem;
+  }
+}
+</style>
+
+<script>
+(function() {
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
     }
-    
-    .revision-actions .btn {
-      margin-left: 5px;
-    }
-    
-    .revision-info {
-      margin: 20px 0;
-    }
-    
-    .revision-preview {
-      border: 2px dashed #467886;
-      padding: 20px;
-      margin-top: 20px;
-      background-color: #f9f9f9;
-    }
-    
-    .revision-preview::before {
-      content: "{{ _('Revision Preview') }}";
-      display: block;
-      background-color: #467886;
-      color: white;
-      padding: 5px 10px;
-      margin: -20px -20px 20px -20px;
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 12px;
-    }
-    
-    /* Apply the same styles as the main rapid-response template */
-    .rapid-response-header-img {
-      width: 100%;
-      max-height: 300px;
-      object-fit: cover;
-      margin-bottom: 20px;
-    }
-    
-    .rapid-response-title {
-      color: #467886;
-      margin-bottom: 10px;
-    }
-    
-    .rapid-response-subtitle {
-      color: #666;
-      font-size: 1.2em;
-      margin-bottom: 20px;
-    }
-    
-    .key-info-box {
-      border-radius: 5px;
-    }
-    
-    .rapid-response-content iframe {
-      width: 100%;
-      min-height: 400px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      margin: 10px 0;
-    }
-    
-    .map-stories-section h2 {
-      color: #467886;
-      border-bottom: 2px solid #467886;
-      padding-bottom: 10px;
-    }
-    
-    @media (max-width: 768px) {
-      .revision-actions {
-        float: none;
-        margin-top: 20px;
+  }
+  
+  waitForJQuery(function($) {
+    $('[data-confirm]').on('click', function(e) {
+      if (!confirm($(this).data('confirm'))) {
+        e.preventDefault();
+        return false;
       }
-      
-      .revision-actions .btn {
-        display: block;
-        width: 100%;
-        margin: 5px 0;
-      }
-    }
-  </style>
+    });
+  });
+})();
+</script>
+
 {% endblock %} 

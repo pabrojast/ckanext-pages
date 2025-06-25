@@ -267,9 +267,21 @@ def pages_revisions(page, page_type='page'):
 
     if not _page:
         return tk.abort(404, _('Page Not Found'))
+    
     tk.c.page_type = page_type
     tk.c.page = _page
-    return tk.render('ckanext_pages/%s_revisions.html' % page_type)
+    
+    # Get revisions list for the template
+    revisions = []
+    if _page.revisions:
+        revisions = list(_page.revisions.values())
+        # Sort by timestamp descending (newest first)
+        revisions.sort(key=lambda x: x.get('created', ''), reverse=True)
+    
+    return tk.render('ckanext_pages/%s_revisions.html' % page_type, extra_vars={
+        'page': _page,
+        'revisions': revisions
+    })
 
 
 def pages_revisions_preview(page, revision, page_type='page'):
@@ -279,10 +291,15 @@ def pages_revisions_preview(page, revision, page_type='page'):
         return tk.abort(401, _('Unauthorized to view this page'))
 
     _page = Page.get(name=page)
+    
+    if not _page:
+        return tk.abort(404, _('Page Not Found'))
+        
     tk.c.page_type = page_type
     tk.c.page = _page
     try:
         return tk.render('ckanext_pages/%s_revisions_preview.html' % page_type, extra_vars={
+            "page": _page,
             "revision": _page.revisions[revision]
         })
     except KeyError:
