@@ -68,13 +68,44 @@ class Page(DomainObject, BaseModel):
         '''Finds a single entity in the register.'''
         order = kw.pop('order', False)
         order_publish_date = kw.pop('order_publish_date', False)
+        
+        # New search and filter parameters
+        q = kw.pop('q', None)
+        event_type = kw.pop('event_type', None) 
+        order_by = kw.pop('order_by', None)
 
         query = model.Session.query(cls).autoflush(False)
         query = query.filter_by(**kw)
+        
+        # Apply search query
+        if q:
+            search_filter = sa.or_(
+                cls.title.ilike('%' + q + '%'),
+                cls.content.ilike('%' + q + '%'),
+                cls.extras.ilike('%' + q + '%')
+            )
+            query = query.filter(search_filter)
+        
+        # Apply event type filter (stored in extras JSON)
+        if event_type:
+            query = query.filter(
+                cls.extras.ilike('%"event_type": "' + event_type + '"%')
+            )
+        
+        # Apply custom ordering
         if order:
             query = query.order_by(sa.cast(cls.order, sa.Integer)).filter(cls.order != '')
+        elif order_by == 'recent':
+            query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
+        elif order_by == 'severity':
+            # Order by severity (you can customize this logic)
+            query = query.order_by(cls.created.desc())
+        elif order_by == 'country':
+            # Order by country alphabetically (stored in extras)
+            query = query.order_by(cls.extras)
         elif order_publish_date:
-            query = query.order_by(cls.publish_date.desc()).filter(cls.publish_date != None)  # noqa: E711
+            # Default for rapid-response: most recent first
+            query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
         else:
             query = query.order_by(cls.created.desc())
         return query.all()

@@ -171,6 +171,42 @@ def safe_json_loads(json_string):
         return []
 
 
+def get_event_status(page):
+    """Determine event status based on timeline events"""
+    if not page.get('timeline_events'):
+        return 'active'
+    
+    try:
+        timeline_events = json.loads(page['timeline_events'])
+        if not timeline_events:
+            return 'active'
+        
+        # Check for closure events
+        closure_types = ['closure', 'closed', 'end', 'completed', 'resolved']
+        for event in timeline_events:
+            event_type = event.get('type', '').lower()
+            description = event.get('description', '').lower()
+            
+            # Check if event type or description indicates closure
+            if (event_type in closure_types or 
+                any(closure_word in description for closure_word in closure_types)):
+                return 'closed'
+        
+        return 'active'
+    except:
+        return 'active'
+
+
+def get_event_status_badge_class(status):
+    """Get CSS class for event status badge"""
+    if status == 'closed':
+        return 'status-closed'
+    elif status == 'active':
+        return 'status-active'
+    else:
+        return 'status-unknown'
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -213,6 +249,8 @@ class PagesPlugin(PagesPluginBase):
             'get_recent_water_events': get_recent_water_events,
             'get_recent_water_publications': get_recent_water_publications,
             'json_loads': safe_json_loads,
+            'get_event_status': get_event_status,
+            'get_event_status_badge_class': get_event_status_badge_class,
         }
 
     def get_actions(self):

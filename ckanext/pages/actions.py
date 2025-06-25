@@ -43,12 +43,25 @@ def _pages_list(context, data_dict):
     order_publish_date = data_dict.get('order_publish_date')
     page_type = data_dict.get('page_type')
     private = data_dict.get('private', True)
+    
+    # New search and filter parameters
+    q = data_dict.get('q')  # Search query
+    event_type = data_dict.get('event_type')  # Event type filter
+    order_by = data_dict.get('order_by')  # Custom ordering
+    
     if ordered:
         search['order'] = True
     if page_type:
         search['page_type'] = page_type
     if order_publish_date:
         search['order_publish_date'] = True
+    if q:
+        search['q'] = q
+    if event_type:
+        search['event_type'] = event_type
+    if order_by:
+        search['order_by'] = order_by
+        
     if not org_id:
         search['group_id'] = None
         try:

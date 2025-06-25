@@ -27,6 +27,14 @@ def pages_list_pages(page_type):
     if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications']:
         data_dict['order_publish_date'] = True
     
+    # Pass search and filter parameters from request
+    if tk.request.args.get('q'):
+        data_dict['q'] = tk.request.args.get('q')
+    if tk.request.args.get('event_type'):
+        data_dict['event_type'] = tk.request.args.get('event_type')
+    if tk.request.args.get('order_by'):
+        data_dict['order_by'] = tk.request.args.get('order_by')
+    
     # For water family content, only show public items to regular users
     if page_type in ['water-news', 'water-events', 'water-publications']:
         try:
@@ -39,10 +47,21 @@ def pages_list_pages(page_type):
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
     )
+    
+    # Create custom pager URL to preserve search parameters
+    def pager_url_with_params(page):
+        params = []
+        for key, value in tk.request.args.items():
+            if key != 'page' and value:
+                params.append(f"{key}={value}")
+        params.append(f"page={page}")
+        base_url = tk.request.path
+        return f"{base_url}?{'&'.join(params)}"
+    
     tk.c.page = helpers.Page(
         collection=tk.g.pages_dict,
         page=tk.request.args.get('page', 1),
-        url=helpers.pager_url,
+        url=pager_url_with_params,
         items_per_page=21
     )
 
