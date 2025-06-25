@@ -1,0 +1,456 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ c.page.title or c.page.name }} - {{ _('Water Family Publications') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.water_publications_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/water-publications-header.jpg{% endif %}');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% if c.page.subtitle %}
+                    <p class="section-title-description">{{ c.page.subtitle }}</p>
+                  {% endif %}
+                  {% if c.page.publish_date %}
+                    <div class="section-title-meta-date">
+                      <i class="fa fa-calendar"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.publish_date, '%B %Y') }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Publication Overview -->
+                {% if c.page.content %}
+                <div class="water-publication-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-overview">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Abstract') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Publication Details -->
+                {% if c.page.publication_details %}
+                <div class="water-publication-details" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-details">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Publication Details') }}</h2>
+                      </div>
+                      <div class="publication-details-content">
+                        {% set detail_lines = c.page.publication_details.split('\n') if c.page.publication_details else [] %}
+                        {% if detail_lines %}
+                          <div class="publication-details-table">
+                            {% for line in detail_lines %}
+                              {% if line.strip() and ':' in line %}
+                                {% set parts = line.split(':', 1) %}
+                                {% if parts|length == 2 %}
+                                  <div class="publication-detail-row">
+                                    <div class="publication-detail-label">
+                                      <i class="fa fa-info"></i>
+                                      {{ parts[0].strip() }}
+                                    </div>
+                                    <div class="publication-detail-value">
+                                      {{ parts[1].strip() }}
+                                    </div>
+                                  </div>
+                                {% endif %}
+                              {% elif line.strip() and ':' not in line %}
+                                <div class="publication-detail-note">
+                                  {{ line.strip() }}
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Authors & Affiliations -->
+                {% if c.page.authors %}
+                <div class="water-publication-authors" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-authors">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-users"></i>
+                        </div>
+                        <h2>{{ _('Authors & Affiliations') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.authors, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Download & Access -->
+                {% if c.page.publication_url or c.page.download_url %}
+                <div class="water-publication-access" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-access">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-download"></i>
+                        </div>
+                        <h2>{{ _('Access Publication') }}</h2>
+                      </div>
+                      <div class="access-buttons" style="text-align: center; margin-top: 2rem;">
+                        {% if c.page.publication_url %}
+                          <a href="{{ c.page.publication_url }}" target="_blank" class="btn btn-primary btn-lg" style="margin: 0.5rem;">
+                            <i class="fa fa-external-link"></i> {{ _('Read Online') }}
+                          </a>
+                        {% endif %}
+                        {% if c.page.download_url %}
+                          <a href="{{ c.page.download_url }}" target="_blank" class="btn btn-success btn-lg" style="margin: 0.5rem;">
+                            <i class="fa fa-download"></i> {{ _('Download PDF') }}
+                          </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Image Gallery -->
+                {% if c.page.uploaded_images or c.page.image_carousel %}
+                <div class="water-publication-gallery" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-gallery">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-camera"></i>
+                        </div>
+                        <h2>{{ _('Figures & Images') }}</h2>
+                      </div>
+                      
+                      {% if c.page.uploaded_images %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
+                        {% if uploaded_images %}
+                        <div class="uploaded-images-gallery">
+                          <div class="images-grid">
+                            {% for image in uploaded_images %}
+                            <div class="gallery-image-item">
+                              <div class="image-container">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
+                                <div class="image-overlay">
+                                  <i class="fa fa-expand"></i>
+                                </div>
+                              </div>
+                              {% if image.caption %}
+                                <div class="image-caption">{{ image.caption }}</div>
+                              {% elif image.alt %}
+                                <div class="image-caption">{{ image.alt }}</div>
+                              {% endif %}
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      {% endif %}
+
+                      {% if c.page.image_carousel %}
+                      <div class="external-images-gallery">
+                        <div class="image-gallery-content">
+                          {{ h.render_markdown(c.page.image_carousel, allow_html=True) | safe }}
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Additional Information -->
+                {% if c.page.additional_content %}
+                <div class="water-publication-additional" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-additional">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-plus-circle"></i>
+                        </div>
+                        <h2>{{ _('Additional Information') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Actions and Metadata -->
+                <div class="water-publication-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="row">
+                        <div class="col-md-8">
+                          {% if c.page.created %}
+                            <p class="text-muted">
+                              <small>
+                                <i class="fa fa-clock-o"></i> {{ _('Shared:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                {% if c.page.modified %}
+                                  | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
+                                {% endif %}
+                              </small>
+                            </p>
+                          {% endif %}
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <div class="action-buttons">
+                              <a href="{{ h.url_for('pages.water_publications_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
+                                <i class="fa fa-edit"></i> {{ _('Edit') }}
+                              </a>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Water Publications CSS - Purple Theme -->
+<style>
+:root {
+  --water-publications-primary: #6f42c1;
+  --water-publications-primary-dark: #5a32a3;
+  --water-publications-primary-light: #8e5bd9;
+  --water-publications-pale: #f3f0ff;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(111, 66, 193, 0.08);
+  --shadow-medium: 0 4px 16px rgba(111, 66, 193, 0.12);
+  --shadow-strong: 0 8px 32px rgba(111, 66, 193, 0.16);
+}
+
+.section-title {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(111, 66, 193, 0.9) 0%, rgba(90, 50, 163, 0.8) 100%);
+}
+
+.section-title-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.water-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-light) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+}
+
+.water-module-overview {
+  border-left: 6px solid var(--water-publications-primary);
+}
+
+.water-module-details {
+  background: linear-gradient(135deg, var(--water-publications-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--water-publications-primary-light);
+}
+
+.water-module-authors {
+  border-left: 6px solid #28a745;
+}
+
+.water-module-access {
+  border-left: 6px solid #007bff;
+}
+
+.water-module-gallery {
+  border-left: 6px solid #fd7e14;
+}
+
+.water-module-additional {
+  border-left: 6px solid var(--text-secondary);
+}
+
+.publication-details-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+}
+
+.publication-detail-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(111, 66, 193, 0.1);
+}
+
+.publication-detail-label {
+  flex: 0 0 40%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-light) 100%);
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.publication-detail-value {
+  flex: 1;
+  padding: 18px 24px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-dark) 100%);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+/* Image Gallery (same as other templates) */
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.gallery-image-item {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.4s ease;
+}
+
+.gallery-image-item:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-strong);
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .publication-detail-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .publication-detail-label {
+    border-radius: 0;
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+</style>
+
+{% endblock %} 

@@ -1,0 +1,686 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ c.page.title or c.page.name }} - {{ _('Water Family Events') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_events_index') }}">{{ _('Events') }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.water_events_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/water-events-header.jpg{% endif %}');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% if c.page.subtitle %}
+                    <p class="section-title-description">{{ c.page.subtitle }}</p>
+                  {% endif %}
+                  {% if c.page.publish_date %}
+                    <div class="section-title-meta-date">
+                      <i class="fa fa-calendar"></i> {{ _('Event Date:') }} {{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Event Overview -->
+                {% if c.page.content %}
+                <div class="water-event-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-overview">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Event Overview') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Event Details -->
+                {% if c.page.event_details %}
+                <div class="water-event-details" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-details">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-list"></i>
+                        </div>
+                        <h2>{{ _('Event Details') }}</h2>
+                      </div>
+                      <div class="event-details-content">
+                        {% set detail_lines = c.page.event_details.split('\n') if c.page.event_details else [] %}
+                        {% if detail_lines %}
+                          <div class="event-details-table">
+                            {% for line in detail_lines %}
+                              {% if line.strip() and ':' in line %}
+                                {% set parts = line.split(':', 1) %}
+                                {% if parts|length == 2 %}
+                                  <div class="event-detail-row">
+                                    <div class="event-detail-label">
+                                      <i class="fa fa-calendar"></i>
+                                      {{ parts[0].strip() }}
+                                    </div>
+                                    <div class="event-detail-value">
+                                      {{ parts[1].strip() }}
+                                    </div>
+                                  </div>
+                                {% endif %}
+                              {% elif line.strip() and ':' not in line %}
+                                <div class="event-detail-note">
+                                  {{ line.strip() }}
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Speakers/Organizers -->
+                {% if c.page.speakers %}
+                <div class="water-event-speakers" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-speakers">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-users"></i>
+                        </div>
+                        <h2>{{ _('Speakers & Organizers') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.speakers, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Registration Info -->
+                {% if c.page.registration_info %}
+                <div class="water-event-registration" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-registration">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-ticket"></i>
+                        </div>
+                        <h2>{{ _('Registration Information') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.registration_info, allow_html=True) | safe }}
+                        {% if c.page.registration_url %}
+                          <div class="registration-cta" style="margin-top: 2rem; text-align: center;">
+                            <a href="{{ c.page.registration_url }}" target="_blank" class="btn btn-primary btn-lg">
+                              <i class="fa fa-external-link"></i> {{ _('Register Now') }}
+                            </a>
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Image Gallery -->
+                {% if c.page.uploaded_images or c.page.image_carousel %}
+                <div class="water-event-gallery" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-gallery">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-camera"></i>
+                        </div>
+                        <h2>{{ _('Image Gallery') }}</h2>
+                      </div>
+                      
+                      {% if c.page.uploaded_images %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
+                        {% if uploaded_images %}
+                        <div class="uploaded-images-gallery">
+                          <div class="images-grid">
+                            {% for image in uploaded_images %}
+                            <div class="gallery-image-item">
+                              <div class="image-container">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
+                                <div class="image-overlay">
+                                  <i class="fa fa-expand"></i>
+                                </div>
+                              </div>
+                              {% if image.caption %}
+                                <div class="image-caption">{{ image.caption }}</div>
+                              {% elif image.alt %}
+                                <div class="image-caption">{{ image.alt }}</div>
+                              {% endif %}
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      {% endif %}
+
+                      {% if c.page.image_carousel %}
+                      <div class="external-images-gallery">
+                        <div class="image-gallery-content">
+                          {{ h.render_markdown(c.page.image_carousel, allow_html=True) | safe }}
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Additional Information -->
+                {% if c.page.additional_content %}
+                <div class="water-event-additional" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-additional">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Additional Information') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Actions and Metadata -->
+                <div class="water-event-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="row">
+                        <div class="col-md-8">
+                          {% if c.page.created %}
+                            <p class="text-muted">
+                              <small>
+                                <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                {% if c.page.modified %}
+                                  | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
+                                {% endif %}
+                              </small>
+                            </p>
+                          {% endif %}
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <div class="action-buttons">
+                              <a href="{{ h.url_for('pages.water_events_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
+                                <i class="fa fa-edit"></i> {{ _('Edit') }}
+                              </a>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="imageModalTitle">{{ _('Image Preview') }}</h4>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-responsive" style="max-width: 100%; height: auto;">
+        <p id="modalCaption" class="image-modal-caption"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Water Events CSS - Orange Theme (Matching rapid-response style) -->
+<style>
+/* Water Events Color Palette - Orange Theme */
+:root {
+  --water-events-primary: #fd7e14;
+  --water-events-primary-dark: #e8590c;
+  --water-events-primary-light: #ff9332;
+  --water-events-pale: #fff3e0;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(253, 126, 20, 0.08);
+  --shadow-medium: 0 4px 16px rgba(253, 126, 20, 0.12);
+  --shadow-strong: 0 8px 32px rgba(253, 126, 20, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(253, 126, 20, 0.9) 0%, rgba(232, 89, 12, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 800px;
+}
+
+.section-title-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.section-title-description {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+}
+
+.section-title-meta-date {
+  font-size: 1.2rem;
+  padding: 12px 24px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Section Headers */
+.water-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--water-events-pale);
+}
+
+.water-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-light) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+}
+
+.water-section-header h2 {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.water-content-body {
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* Module Types */
+.water-module-overview {
+  border-left: 6px solid var(--water-events-primary);
+}
+
+.water-module-details {
+  background: linear-gradient(135deg, var(--water-events-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--water-events-primary-light);
+}
+
+.water-module-speakers {
+  border-left: 6px solid #28a745;
+}
+
+.water-module-registration {
+  border-left: 6px solid #007bff;
+}
+
+.water-module-gallery {
+  border-left: 6px solid #6f42c1;
+}
+
+.water-module-additional {
+  border-left: 6px solid var(--text-secondary);
+}
+
+/* Event Details Table */
+.event-details-content {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,243,224,0.6) 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 2px solid var(--water-events-pale);
+  box-shadow: var(--shadow-light);
+}
+
+.event-details-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+}
+
+.event-detail-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(253, 126, 20, 0.1);
+}
+
+.event-detail-row:last-child {
+  border-bottom: none;
+}
+
+.event-detail-label {
+  flex: 0 0 40%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-light) 100%);
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.event-detail-value {
+  flex: 1;
+  padding: 18px 24px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.event-detail-note {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--water-events-primary);
+  margin: 12px 0;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+/* Image Gallery */
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.gallery-image-item {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.4s ease;
+}
+
+.gallery-image-item:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-strong);
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  height: 220px;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.image-container:hover .gallery-image {
+  transform: scale(1.15);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(253, 126, 20, 0.9) 0%, rgba(232, 89, 12, 0.8) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 2.5rem;
+}
+
+.image-caption {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  font-size: 1rem;
+  color: var(--text-primary);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-dark) 100%);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--water-events-pale);
+  border-color: var(--water-events-primary);
+  color: var(--water-events-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .water-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .water-section-icon {
+    margin-bottom: 1rem;
+    margin-right: 0;
+  }
+  
+  .event-detail-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .event-detail-label {
+    border-radius: 0;
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+</style>
+
+<script>
+// Image modal functionality (same as rapid-response)
+(function() {
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    $('.image-container, .gallery-image').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
+      const imageUrl = $img.attr('src');
+      const caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
+      
+      if (imageUrl) {
+        $('#modalImage').attr('src', imageUrl);
+        $('#modalCaption').text(caption);
+        
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('show');
+        }
+      }
+    });
+    
+    $('.close, .modal').on('click', function(e) {
+      if (e.target === this) {
+        $('#imageModal').modal('hide');
+      }
+    });
+  });
+})();
+</script>
+
+{% endblock %} 

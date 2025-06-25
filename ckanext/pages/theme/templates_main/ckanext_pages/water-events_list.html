@@ -1,0 +1,899 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Water Family Events') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.water_events_index') }}">{{ _('Events') }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/water-events-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Water Family Events') }}</h1>
+                  <p class="section-title-description">{{ _('Conferences, workshops, meetings and activities from the IHP Water Family community') }}</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Action Bar -->
+                <div class="water-events-actions-bar" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Community Events') }}</h2>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Share events, conferences, workshops and meetings relevant to the water community') }}</p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Share Event') }}
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Event Status Summary -->
+                {% if c.page.items %}
+                <div class="event-status-summary" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1rem 2.5rem;">
+                      <div class="row text-center">
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ c.page.items|length }}</div>
+                            <div class="metric-label">{{ _('Total Events') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set upcoming_count = 0 %}
+                              {% for page in c.page.items %}
+                                {% if page.publish_date and page.publish_date > h.datetime.now().isoformat() %}
+                                  {% set upcoming_count = upcoming_count + 1 %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ upcoming_count }}
+                            </div>
+                            <div class="metric-label">{{ _('Upcoming') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set countries = [] %}
+                              {% for page in c.page.items %}
+                                {% if page.location and page.location not in countries %}
+                                  {% set countries = countries + [page.location] %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ countries|length }}
+                            </div>
+                            <div class="metric-label">{{ _('Countries') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ _('Global') }}</div>
+                            <div class="metric-label">{{ _('Community') }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Filter and Search -->
+                {% if c.page.items or request.args.q %}
+                <div class="water-events-filters" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <form method="get" class="form-inline">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group" style="width: 100%;">
+                              <label for="q" class="sr-only">{{ _('Search') }}</label>
+                              <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
+                                     placeholder="{{ _('Search events...') }}" 
+                                     value="{{ request.args.q or '' }}">
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <select name="event_type" class="form-control">
+                              <option value="">{{ _('All Event Types') }}</option>
+                              <option value="conference" {% if request.args.event_type == 'conference' %}selected{% endif %}>{{ _('Conferences') }}</option>
+                              <option value="workshop" {% if request.args.event_type == 'workshop' %}selected{% endif %}>{{ _('Workshops') }}</option>
+                              <option value="meeting" {% if request.args.event_type == 'meeting' %}selected{% endif %}>{{ _('Meetings') }}</option>
+                              <option value="webinar" {% if request.args.event_type == 'webinar' %}selected{% endif %}>{{ _('Webinars') }}</option>
+                              <option value="training" {% if request.args.event_type == 'training' %}selected{% endif %}>{{ _('Training') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-3">
+                            <select name="order_by" class="form-control">
+                              <option value="">{{ _('Sort by...') }}</option>
+                              <option value="recent" {% if request.args.order_by == 'recent' %}selected{% endif %}>{{ _('Most Recent') }}</option>
+                              <option value="upcoming" {% if request.args.order_by == 'upcoming' %}selected{% endif %}>{{ _('Upcoming First') }}</option>
+                              <option value="location" {% if request.args.order_by == 'location' %}selected{% endif %}>{{ _('Location') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <button type="submit" class="btn btn-default btn-block">
+                              <i class="fa fa-search"></i> {{ _('Filter') }}
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Events Feed -->
+                {% if c.page.items %}
+                <div class="water-events-feed">
+                  {% for page in c.page.items %}
+                  <div class="event-card" style="margin-bottom: 2rem;">
+                    <article class="module">
+                      <!-- Event Status Header -->
+                      <div class="event-status-header">
+                        <div class="row">
+                          <div class="col-md-8">
+                            <div class="event-metadata">
+                              {% if page.publish_date %}
+                                <span class="event-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                </span>
+                              {% endif %}
+                              {% if page.location %}
+                                <span class="event-location">
+                                  <i class="fa fa-map-marker"></i> {{ page.location }}
+                                </span>
+                              {% endif %}
+                              {% if page.private == 'True' %}
+                                <span class="event-status-badge status-pending">
+                                  {{ _('PENDING APPROVAL') }}
+                                </span>
+                              {% else %}
+                                <span class="event-status-badge status-published">
+                                  {{ _('PUBLISHED') }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="col-md-4 text-right">
+                            <div class="event-type">
+                              <i class="fa fa-tag"></i>
+                              <span class="type-label">{{ page.subtitle or _('Event') }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Event Content -->
+                      <div class="module-content">
+                        <div class="row">
+                          <!-- Event Image -->
+                          <div class="col-md-4">
+                            <div class="event-image">
+                              {% if page.header_image %}
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                              {% elif page.uploaded_images %}
+                                {% set images = h.json_loads(page.uploaded_images) or [] %}
+                                {% if images and images[0] %}
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                {% else %}
+                                  <div class="placeholder-image">
+                                    <i class="fa fa-calendar fa-3x"></i>
+                                  </div>
+                                {% endif %}
+                              {% else %}
+                                <div class="placeholder-image">
+                                  <i class="fa fa-calendar fa-3x"></i>
+                                </div>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <!-- Event Details -->
+                          <div class="col-md-8">
+                            <h3 class="event-title">
+                              <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}">
+                                {{ page.title or page.name }}
+                              </a>
+                            </h3>
+                            
+                            {% if page.organization %}
+                              <p class="event-organization">
+                                <i class="fa fa-building"></i> {{ page.organization }}
+                              </p>
+                            {% endif %}
+                            
+                            <!-- Event Info Preview -->
+                            {% if page.event_details %}
+                              <div class="event-info-preview">
+                                {% set detail_lines = page.event_details.split('\n')[:3] %}
+                                {% for line in detail_lines %}
+                                  {% if line.strip() %}
+                                    <div class="event-detail-item">{{ line.strip() }}</div>
+                                  {% endif %}
+                                {% endfor %}
+                              </div>
+                            {% endif %}
+                            
+                            {% if page.excerpt %}
+                              <p class="event-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif page.content %}
+                              <p class="event-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <!-- Event Actions -->
+                            <div class="event-actions">
+                              <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}" 
+                                 class="btn btn-primary">
+                                <i class="fa fa-eye"></i> {{ _('View Event') }}
+                              </a>
+                              {% if h.check_access('ckanext_pages_update') %}
+                                <a href="{{ h.url_for('pages.water_events_edit', page=page.name) }}" 
+                                   class="btn btn-default">
+                                  <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                </a>
+                              {% endif %}
+                              {% if page.registration_url %}
+                                <a href="{{ page.registration_url }}" target="_blank" class="btn btn-success">
+                                  <i class="fa fa-external-link"></i> {{ _('Register') }}
+                                </a>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if c.page.page_count > 1 %}
+                <div class="pagination-wrapper" style="margin-top: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 1.5rem;">
+                      {{ c.page.pager() }}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <!-- Empty State -->
+                <div class="water-events-empty-state">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="empty-state-icon">
+                        <i class="fa fa-calendar fa-4x" style="color: var(--water-events-primary); margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('No Events Found') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {% if request.args.q %}
+                          {{ _('No events match your search criteria.') }}
+                          <br>
+                          <a href="{{ h.url_for('pages.water_events_index') }}">{{ _('View all events') }}</a>
+                        {% else %}
+                          {{ _('No events have been shared yet. Be the first to share an event!') }}
+                        {% endif %}
+                      </p>
+                      {% if h.check_access('ckanext_pages_update') %}
+                        <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg">
+                          <i class="fa fa-plus"></i> {{ _('Share Event') }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Professional Water Events List CSS - Orange Theme -->
+<style>
+/* Water Events Color Palette - Orange Theme */
+:root {
+  --water-events-primary: #fd7e14;
+  --water-events-primary-dark: #e8590c;
+  --water-events-primary-light: #ff9332;
+  --water-events-pale: #fff3e0;
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(253, 126, 20, 0.08);
+  --shadow-medium: 0 4px 16px rgba(253, 126, 20, 0.12);
+  --shadow-strong: 0 8px 32px rgba(253, 126, 20, 0.16);
+}
+
+/* Banner Section - Orange Theme */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(253, 126, 20, 0.9) 0%, rgba(232, 89, 12, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(253, 126, 20, 0.08);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--water-events-primary);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--water-events-primary);
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Event Status Summary */
+.event-status-summary .module {
+  background: linear-gradient(135deg, var(--water-events-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--water-events-primary);
+}
+
+.status-metric {
+  padding: 1rem 0;
+}
+
+.metric-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--water-events-primary);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.metric-label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* Event Cards */
+.event-card .module {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.event-card .module:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.event-status-header {
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-dark) 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  margin: 0;
+}
+
+.event-metadata {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.event-date,
+.event-location {
+  font-size: 0.95rem;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-published {
+  background: #28a745;
+  color: white;
+  animation: pulse-green 2s infinite;
+}
+
+.status-pending {
+  background: #ffc107;
+  color: #212529;
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+}
+
+.event-type {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.type-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Event Image */
+.event-image {
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--water-events-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-light);
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-image img {
+  transform: scale(1.05);
+}
+
+.placeholder-image {
+  color: var(--water-events-primary);
+  text-align: center;
+  opacity: 0.6;
+}
+
+/* Event Content */
+.event-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.event-title a {
+  color: var(--water-events-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.event-title a:hover {
+  color: var(--water-events-primary-dark);
+  text-decoration: underline;
+}
+
+.event-organization {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: var(--water-events-pale);
+  border-radius: 8px;
+  border-left: 4px solid var(--water-events-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-info-preview {
+  background: linear-gradient(135deg, rgba(253, 126, 20, 0.05) 0%, rgba(255, 243, 224, 0.3) 100%);
+  border-left: 4px solid var(--water-events-primary);
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: var(--shadow-light);
+}
+
+.event-detail-item {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-detail-item:before {
+  content: "▸";
+  color: var(--water-events-primary);
+  font-weight: bold;
+}
+
+.event-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.event-excerpt {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.event-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.event-actions .btn {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+/* Action Bar */
+.water-events-actions-bar .btn-primary {
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-dark) 100%);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+}
+
+.water-events-actions-bar .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(253, 126, 20, 0.4);
+  color: white;
+}
+
+/* Filters */
+.water-events-filters .form-control {
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  height: 3.3em;
+}
+
+.water-events-filters .form-control:focus {
+  border-color: var(--water-events-primary);
+  box-shadow: 0 0 0 0.2rem rgba(253, 126, 20, 0.25);
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.water-events-filters .btn-default {
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow-light);
+  height: 3.3em;
+}
+
+.water-events-filters .btn-default:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--water-events-primary) 0%, var(--water-events-primary-dark) 100%);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--water-events-primary-dark) 0%, var(--water-events-primary) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--water-events-pale);
+  border-color: var(--water-events-primary);
+  color: var(--water-events-primary);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+/* Pagination */
+.pagination-wrapper .module {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+}
+
+/* Empty State */
+.empty-state-icon {
+  opacity: 0.7;
+}
+
+.water-events-empty-state h3 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .water-events-actions-bar .col-md-4 {
+    text-align: center !important;
+    margin-top: 1rem;
+  }
+  
+  .water-events-filters .col-md-3,
+  .water-events-filters .col-md-4,
+  .water-events-filters .col-md-2 {
+    margin-bottom: 10px;
+  }
+  
+  .event-status-header {
+    padding: 1rem;
+  }
+  
+  .event-metadata {
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .event-type {
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+  
+  .event-image {
+    height: 150px;
+    margin-bottom: 1rem;
+  }
+  
+  .metric-number {
+    font-size: 2rem;
+  }
+  
+  .event-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .event-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .event-image {
+    height: 120px;
+  }
+  
+  .event-title {
+    font-size: 1.3rem;
+  }
+  
+  .status-metric {
+    padding: 0.5rem 0;
+  }
+  
+  .metric-number {
+    font-size: 1.5rem;
+  }
+}
+</style>
+
+{% endblock %} 

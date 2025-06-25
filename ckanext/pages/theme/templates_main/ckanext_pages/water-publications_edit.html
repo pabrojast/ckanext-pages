@@ -1,0 +1,631 @@
+{% extends "page.html" %}
+
+{% block title %}
+  {% if page %}
+    {{ _('Edit Publication') }} - {{ super() }}
+  {% else %}
+    {{ _('Share Publication') }} - {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
+                    {% if page %}
+                      <li><a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li class="active">{{ _('Edit') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Share Publication') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/water-publications-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if page %}
+                    <h1>{{ _('Update Publication') }}</h1>
+                    <p class="section-title-description">{{ _('Update publication information and details') }}</p>
+                  {% else %}
+                    <h1>{{ _('Share New Publication') }}</h1>
+                    <p class="section-title-description">{{ _('Share research papers, reports, books and scientific contributions with the Water Family community') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Form Section -->
+                <div class="water-publications-form-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      
+                      <form method="post" enctype="multipart/form-data" id="water-publications-form">
+                        
+                        <!-- Error Summary -->
+                        {% if error_summary %}
+                          <div class="error-summary alert alert-danger">
+                            <p class="alert-heading">{{ _('The form contains invalid entries:') }}</p>
+                            <ul>
+                              {% for key, error in error_summary.items() %}
+                                <li>{{ error }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        {% endif %}
+                        
+                        <!-- Publication Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Publication Information') }}</legend>
+                          <div class="form-section-content">
+
+                          <div class="form-group">
+                            <label for="field-title" class="control-label">{{ _('Publication Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Sustainable Water Management in Urban Areas') }}" class="form-control" required>
+                            <div class="help-text">{{ _('Full title of the publication') }}</div>
+                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-name" class="control-label">{{ _('Publication URL') }}</label>
+                            <div class="input-group">
+                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="form-control" data-module="slug-preview-target" readonly>
+                              <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="help-text">{{ _('Auto-generated from publication title. Click edit button to modify manually.') }}</div>
+                            {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
+                          </div>
+                                                    
+                          <div class="form-group">
+                            <label for="field-subtitle" class="control-label">{{ _('Publication Type') }}</label>
+                            <select id="field-publication-type" name="subtitle" class="form-control">
+                              <option value="">{{ _('Select publication type...') }}</option>
+                              <option value="Research Paper" {% if data.subtitle == 'Research Paper' %}selected{% endif %}>{{ _('Research Paper') }}</option>
+                              <option value="Report" {% if data.subtitle == 'Report' %}selected{% endif %}>{{ _('Report') }}</option>
+                              <option value="Book" {% if data.subtitle == 'Book' %}selected{% endif %}>{{ _('Book') }}</option>
+                              <option value="Book Chapter" {% if data.subtitle == 'Book Chapter' %}selected{% endif %}>{{ _('Book Chapter') }}</option>
+                              <option value="Thesis" {% if data.subtitle == 'Thesis' %}selected{% endif %}>{{ _('Thesis') }}</option>
+                              <option value="Policy Brief" {% if data.subtitle == 'Policy Brief' %}selected{% endif %}>{{ _('Policy Brief') }}</option>
+                              <option value="Technical Document" {% if data.subtitle == 'Technical Document' %}selected{% endif %}>{{ _('Technical Document') }}</option>
+                              <option value="Other" {% if data.subtitle and data.subtitle not in ['Research Paper', 'Report', 'Book', 'Book Chapter', 'Thesis', 'Policy Brief', 'Technical Document'] %}selected{% endif %}>{{ _('Other') }}</option>
+                            </select>
+                            <div class="help-text">{{ _('Type of academic or technical publication') }}</div>
+                            {% if errors.subtitle %}<span class="error-block">{{ errors.subtitle }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-publish-date" class="control-label">{{ _('Publication Date') }} <span class="text-danger">*</span></label>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="form-control" required>
+                                <div class="help-text">{{ _('When was this publication released?') }}</div>
+                                {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+                                <select id="field-private" name="private" class="form-control">
+                                  {% if h.check_access('sysadmin') %}
+                                    <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - Visible to everyone') }}</option>
+                                    <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Internal - Under review') }}</option>
+                                  {% else %}
+                                    <option value="True" selected>{{ _('Pending approval - Will be reviewed by administrators') }}</option>
+                                  {% endif %}
+                                </select>
+                                <div class="help-text">
+                                  {% if h.check_access('sysadmin') %}
+                                    {{ _('Whether this publication should be visible to the public') }}
+                                  {% else %}
+                                    {{ _('Your publication will be reviewed by administrators before being published') }}
+                                  {% endif %}
+                                </div>
+                                {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-author" class="control-label">{{ _('Primary Author') }}</label>
+                                <input type="text" id="field-author" name="author" value="{{ data.author or '' }}" placeholder="{{ _('Dr. Jane Smith') }}" class="form-control">
+                                <div class="help-text">{{ _('Main or corresponding author') }}</div>
+                                {% if errors.author %}<span class="error-block">{{ errors.author }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-journal" class="control-label">{{ _('Journal/Publisher') }}</label>
+                                <input type="text" id="field-journal" name="journal" value="{{ data.journal or '' }}" placeholder="{{ _('Water Resources Research, UNESCO, etc.') }}" class="form-control">
+                                <div class="help-text">{{ _('Where was this published?') }}</div>
+                                {% if errors.journal %}<span class="error-block">{{ errors.journal }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Abstract -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Abstract') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Summary or abstract of the publication, its main findings and conclusions.') }}</p>
+                          <div class="form-group">
+                            <label for="field-content" class="control-label">{{ _('Abstract/Summary') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-content" name="content" rows="15" class="form-control" required
+                                      placeholder="{{ _('Provide a comprehensive summary of the publication.\n\nInclude:\n- Research objectives\n- Methodology (if applicable)\n- Main findings\n- Conclusions and implications\n- Relevance to the water community') }}">{{ data.content or '' }}</textarea>
+                            <div class="help-text">{{ _('This is the main description that appears first. Focus on what the publication contributes to knowledge.') }}</div>
+                            {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Publication Details -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Publication Details') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Specific bibliographic details and metadata. This information will be prominently displayed.') }}</p>
+                          <div class="form-group">
+                            <label for="field-publication-details" class="control-label">{{ _('Publication Details') }}</label>
+                            <textarea id="field-publication-details" name="publication_details" rows="8" class="form-control"
+                                      placeholder="{{ _('Journal: Water Resources Research\nVolume: 58\nIssue: 3\nPages: 1-15\nDOI: 10.1029/2021WR031234\nISSN: 0043-1397\nLanguage: English\nOpen Access: Yes') }}">{{ data.publication_details or '' }}</textarea>
+                            <div class="help-text">{{ _('Enter one detail per line in format "Label: Value". Example: "Volume: 58"') }}</div>
+                            {% if errors.publication_details %}<span class="error-block">{{ errors.publication_details }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Authors & Affiliations -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Authors & Affiliations') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Complete list of authors and their institutional affiliations.') }}</p>
+                          <div class="form-group">
+                            <label for="field-authors" class="control-label">{{ _('All Authors & Affiliations') }}</label>
+                            <textarea id="field-authors" name="authors" rows="10" class="form-control"
+                                      placeholder="{{ _('### Authors\n\n**Dr. Jane Smith** (Corresponding Author)\n- UNESCO International Hydrological Programme\n- Email: j.smith@unesco.org\n\n**Prof. John Doe**\n- University of Water Sciences, Department of Hydrology\n- City, Country\n\n**Dr. Sarah Johnson**\n- Water Research Institute\n- City, Country') }}">{{ data.authors or '' }}</textarea>
+                            <div class="help-text">{{ _('Use markdown formatting. Include names, titles, affiliations, and contact information where appropriate.') }}</div>
+                            {% if errors.authors %}<span class="error-block">{{ errors.authors }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Access Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Access Information') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('How others can access and read this publication.') }}</p>
+                          
+                          <div class="form-group">
+                            <label for="field-publication-url" class="control-label">{{ _('Publication URL') }}</label>
+                            <input type="url" id="field-publication-url" name="publication_url" value="{{ data.publication_url or '' }}" placeholder="{{ _('https://doi.org/10.1029/2021WR031234') }}" class="form-control">
+                            <div class="help-text">{{ _('Direct link to read the publication online (DOI, journal website, etc.)') }}</div>
+                            {% if errors.publication_url %}<span class="error-block">{{ errors.publication_url }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-download-url" class="control-label">{{ _('Download URL') }}</label>
+                            <input type="url" id="field-download-url" name="download_url" value="{{ data.download_url or '' }}" placeholder="{{ _('https://example.com/paper.pdf') }}" class="form-control">
+                            <div class="help-text">{{ _('Direct link to download PDF or other format') }}</div>
+                            {% if errors.download_url %}<span class="error-block">{{ errors.download_url }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Image Gallery -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Figures & Images') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Upload figures, charts, maps or other images related to the publication.') }}</p>
+                          
+                          <!-- Image Upload Section -->
+                          <div class="image-upload-section">
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload Images') }}</label>
+                              <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+                              <div class="upload-dropzone" id="image-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-cloud-upload fa-3x"></i>
+                                  <p>{{ _('Drop images here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Uploaded Images Preview -->
+                            <div id="uploaded-images-preview" class="uploaded-images-grid">
+                              <!-- Uploaded images will appear here -->
+                            </div>
+                          </div>
+
+                          <!-- External Images Section -->
+                          <div class="form-group">
+                            <label for="field-image-carousel" class="control-label">{{ _('External Image URLs') }}</label>
+                            <textarea id="field-image-carousel" name="image_carousel" rows="6" class="form-control" placeholder="{{ _('Add images using markdown syntax or HTML tags.\n\nExample: ![Figure 1: Water cycle diagram](image-url)\n\nLinks to figures from the publication, institutional websites, etc.') }}">{{ data.image_carousel or '' }}</textarea>
+                            {% if errors.image_carousel %}<span class="error-block">{{ errors.image_carousel }}</span>{% endif %}
+                          </div>
+
+                          <!-- Hidden fields for uploaded images -->
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.uploaded_images or '' }}">
+                          </div>
+                        </fieldset>
+
+                        <!-- Additional Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Additional Information') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Any additional content such as keywords, funding information, acknowledgments, etc.') }}</p>
+                          <div class="form-group">
+                            <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
+                            <textarea id="field-additional-content" name="additional_content" rows="8" class="form-control" placeholder="{{ _('### Keywords\nwater management, sustainability, urban hydrology\n\n### Funding\nThis research was supported by...\n\n### Acknowledgments\nThe authors thank...\n\n### Citation\nSmith, J. et al. (2024). Title. Journal, Volume(Issue), pages.') }}">{{ data.additional_content or '' }}</textarea>
+                            {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Header Image -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Header Image') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default publications header will be used.') }}</p>
+                          <div class="form-group">
+                            <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
+                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="form-control">
+                            {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Summary/Excerpt -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Summary/Excerpt') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Brief summary for the publications list page. If not provided, first 300 characters of abstract will be used.') }}</p>
+                          <div class="form-group">
+                            <label for="field-excerpt" class="control-label">{{ _('Excerpt') }}</label>
+                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" placeholder="{{ _('Brief summary of the publication and its key contributions to the water community...') }}">{{ data.excerpt or '' }}</textarea>
+                            {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                          <input type="hidden" name="page_type" value="water-publications">
+                          {% if page %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-save"></i> {{ _('Update Publication') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                            {% if h.check_access('ckanext_pages_delete') %}
+                              <a href="{{ h.url_for('pages.water_publications_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this publication?') }}">
+                                <i class="fa fa-trash"></i> {{ _('Delete Publication') }}
+                              </a>
+                            {% endif %}
+                          {% else %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Share Publication') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.water_publications_index') }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                          {% endif %}
+                        </div>
+
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Water Publications Edit Form CSS - Purple Theme -->
+<style>
+/* Water Publications Color Palette - Purple Theme */
+:root {
+  --water-publications-primary: #6f42c1;
+  --water-publications-primary-dark: #5a32a3;
+  --water-publications-primary-light: #8e5bd9;
+  --water-publications-pale: #f3f0ff;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(111, 66, 193, 0.08);
+  --shadow-medium: 0 4px 16px rgba(111, 66, 193, 0.12);
+  --shadow-strong: 0 8px 32px rgba(111, 66, 193, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(111, 66, 193, 0.9) 0%, rgba(90, 50, 163, 0.8) 100%);
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+/* Form Section Styling */
+.form-section {
+  margin-bottom: 3rem;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+  border-left: 6px solid var(--water-publications-primary);
+}
+
+.form-section legend {
+  background: linear-gradient(135deg, var(--water-publications-pale) 0%, #ffffff 100%);
+  color: var(--water-publications-primary);
+  font-weight: 700;
+  padding: 1.5rem 2.5rem;
+  margin: 0;
+  font-size: 1.4rem;
+  border: none;
+  width: 100%;
+  border-bottom: 3px solid var(--water-publications-pale);
+}
+
+.form-section-content {
+  padding: 2.5rem;
+}
+
+.form-control {
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  padding: 14px 18px;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: var(--shadow-light);
+}
+
+.form-control:focus {
+  border-color: var(--water-publications-primary);
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-dark) 100%);
+  border: none;
+  color: white;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  border-radius: 25px;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--water-publications-pale);
+  border-color: var(--water-publications-primary);
+  color: var(--water-publications-primary);
+  transform: translateY(-1px);
+}
+
+/* Upload dropzone */
+.upload-dropzone {
+  border: 3px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--water-publications-primary);
+  background: var(--water-publications-pale);
+}
+
+.help-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.help-block {
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 4px solid var(--water-publications-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .form-section-content {
+    padding: 1.5rem;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}
+</style>
+
+<!-- JavaScript for Enhanced Form Functionality -->
+<script>
+(function() {
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    
+    // Auto-generate URL slug from title
+    $('#field-title').on('input', function() {
+      if ($('#field-name').prop('readonly')) {
+        var title = $(this).val().toLowerCase()
+          .replace(/[^\w ]+/g,'')
+          .replace(/ +/g,'-');
+        $('#field-name').val(title);
+      }
+    });
+    
+    // Toggle URL field editing
+    $('#edit-url-btn').on('click', function() {
+      var $urlField = $('#field-name');
+      var $btn = $(this);
+      
+      if ($urlField.prop('readonly')) {
+        $urlField.prop('readonly', false).focus();
+        $btn.html('<i class="fa fa-lock"></i>').attr('title', '{{ _("Lock auto-generation") }}');
+        $btn.removeClass('btn-default').addClass('btn-warning');
+      } else {
+        $urlField.prop('readonly', true);
+        $btn.html('<i class="fa fa-edit"></i>').attr('title', '{{ _("Edit URL manually") }}');
+        $btn.removeClass('btn-warning').addClass('btn-default');
+        var title = $('#field-title').val().toLowerCase()
+          .replace(/[^\w ]+/g,'')
+          .replace(/ +/g,'-');
+        $urlField.val(title);
+      }
+    });
+    
+    // Handle file upload
+    $('#image-upload').on('change', function(e) {
+      const files = this.files;
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            uploadImage(file);
+          }
+        });
+        this.value = '';
+      }
+    });
+    
+    // Handle dropzone
+    $('#image-dropzone').on('click', function(e) {
+      e.preventDefault();
+      $('#image-upload').trigger('click');
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+      var title = $('#field-title').val().trim();
+      var name = $('#field-name').val().trim();
+      
+      if (!title) {
+        alert('{{ _("Please enter a publication title") }}');
+        $('#field-title').focus();
+        e.preventDefault();
+        return false;
+      }
+      
+      if (!name) {
+        alert('{{ _("Please enter a URL name") }}');
+        $('#field-name').focus();
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    // Confirmation for delete button
+    $('[data-confirm]').on('click', function(e) {
+      if (!confirm($(this).data('confirm'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    function uploadImage(file) {
+      // Placeholder upload function - implement as needed
+      console.log('Uploading image:', file.name);
+    }
+    
+  });
+})();
+</script>
+
+{% endblock %} 
