@@ -1,0 +1,413 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Revision') }} {{ revision.id[:8] }} - {{ page.title or page.name }} - {{ _('Water Family Publications') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_publications_revisions', page=page.name) }}">{{ _('Revisions') }}</a></li>
+                    <li class="active">{{ _('Revision') }} {{ revision.id[:8] }}</li>
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="publications-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/publications-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Publication Revision Preview') }}</h1>
+                  <p class="section-title-description">{{ _('Revision') }} {{ revision.id[:8] }} - {{ h.render_datetime(revision.timestamp) }}</p>
+                </div>
+              </div>
+            </section>
+        </div>
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              
+              <!-- Revision Information -->
+              <section class="module module-narrow">
+                <div class="module-header">
+                  <h2>{{ _('Revision Information') }}</h2>
+                </div>
+                <div class="module-content">
+                  <div class="revision-info">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <p><strong>{{ _('Revision ID:') }}</strong> {{ revision.id }}</p>
+                        <p><strong>{{ _('Created:') }}</strong> {{ h.render_datetime(revision.timestamp) }}</p>
+                        {% if revision.author %}
+                          <p><strong>{{ _('Author:') }}</strong> {{ revision.author }}</p>
+                        {% endif %}
+                      </div>
+                      <div class="col-md-6">
+                        <div class="revision-actions">
+                          <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}" class="btn btn-default">
+                            <i class="fa fa-eye"></i> {{ _('View Current') }}
+                          </a>
+                          <a href="{{ h.url_for('pages.water_publications_revisions', page=page.name) }}" class="btn btn-default">
+                            <i class="fa fa-history"></i> {{ _('All Revisions') }}
+                          </a>
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <a href="{{ h.url_for('pages.water_publications_revision_restore', page=page.name, revision=revision.id) }}" 
+                               class="btn btn-warning" 
+                               data-confirm="{{ _('Are you sure you want to restore this revision?') }}">
+                              <i class="fa fa-undo"></i> {{ _('Restore This Version') }}
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Publication Content Preview -->
+              <section class="module module-narrow">
+                <div class="module-header">
+                  <h2>{{ _('Publication Content (Revision Preview)') }}</h2>
+                </div>
+                <div class="module-content">
+                  <div class="revision-preview">
+                    
+                    <!-- Publication Header -->
+                    <div class="publication-header">
+                      <h1 class="publication-title">{{ page.title or page.name }}</h1>
+                      {% if page.subtitle %}
+                        <h2 class="publication-type">{{ page.subtitle }}</h2>
+                      {% endif %}
+                    </div>
+
+                    <!-- Publication Meta Information -->
+                    {% if page.publish_date or page.authors or page.doi or page.journal %}
+                      <div class="publication-meta">
+                        {% if page.authors %}
+                          <p><strong>{{ _('Authors:') }}</strong> {{ page.authors }}</p>
+                        {% endif %}
+                        {% if page.journal %}
+                          <p><strong>{{ _('Journal:') }}</strong> {{ page.journal }}</p>
+                        {% endif %}
+                        {% if page.publish_date %}
+                          <p><strong>{{ _('Publication Date:') }}</strong> {{ h.render_datetime(page.publish_date, '%Y-%m-%d') }}</p>
+                        {% endif %}
+                        {% if page.doi %}
+                          <p><strong>{{ _('DOI:') }}</strong> <a href="https://doi.org/{{ page.doi }}" target="_blank">{{ page.doi }}</a></p>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+
+                    <!-- Abstract -->
+                    {% if page.abstract %}
+                      <div class="publication-abstract">
+                        <h3>{{ _('Abstract') }}</h3>
+                        <div class="abstract-content">
+                          {{ page.abstract | safe }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- Content -->
+                    {% if page.content %}
+                      <div class="publication-content">
+                        <h3>{{ _('Content') }}</h3>
+                        <div class="content-text">
+                          {{ page.content | safe }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- Key Findings -->
+                    {% if page.key_findings %}
+                      <div class="publication-findings">
+                        <h3>{{ _('Key Findings') }}</h3>
+                        <div class="findings-content">
+                          {{ page.key_findings | safe }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- Methodology -->
+                    {% if page.methodology %}
+                      <div class="publication-methodology">
+                        <h3>{{ _('Methodology') }}</h3>
+                        <div class="methodology-content">
+                          {{ page.methodology | safe }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- Conclusions -->
+                    {% if page.conclusions %}
+                      <div class="publication-conclusions">
+                        <h3>{{ _('Conclusions') }}</h3>
+                        <div class="conclusions-content">
+                          {{ page.conclusions | safe }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <!-- References -->
+                    {% if page.references %}
+                      <div class="publication-references">
+                        <h3>{{ _('References') }}</h3>
+                        <div class="references-content">
+                          {{ page.references | safe }}
+                        </div>
+                      </div>
+                    {% endif %}
+
+                  </div>
+                </div>
+              </section>
+
+            </div>
+          </div>
+        </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Water Publications Revision Preview CSS -->
+<style>
+/* Water Publications Color Palette */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+}
+
+.publications-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: var(--shadow-medium);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.7);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+}
+
+.revision-info {
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-radius: 12px;
+  border-left: 6px solid var(--unesco-blue);
+}
+
+.revision-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.revision-preview {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.revision-preview::before {
+  content: "{{ _('REVISION PREVIEW') }}";
+  display: inline-block;
+  background: var(--unesco-blue);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.publication-header {
+  margin-bottom: 2rem;
+}
+
+.publication-title {
+  color: var(--unesco-blue);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.publication-type {
+  color: var(--unesco-blue-dark);
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.publication-meta {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-left: 4px solid var(--unesco-blue);
+}
+
+.publication-abstract,
+.publication-content,
+.publication-findings,
+.publication-methodology,
+.publication-conclusions,
+.publication-references {
+  margin-bottom: 2rem;
+}
+
+.publication-abstract h3,
+.publication-content h3,
+.publication-findings h3,
+.publication-methodology h3,
+.publication-conclusions h3,
+.publication-references h3 {
+  color: var(--unesco-blue);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--unesco-blue-light);
+  padding-bottom: 0.5rem;
+}
+
+.abstract-content,
+.content-text,
+.findings-content,
+.methodology-content,
+.conclusions-content,
+.references-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border: none;
+  color: white;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, #004080 100%);
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .publications-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .revision-actions {
+    margin-top: 1rem;
+  }
+  
+  .revision-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .publication-title {
+    font-size: 2rem;
+  }
+}
+</style>
+
+<script>
+(function() {
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    // Confirmation for restore button
+    $('[data-confirm]').on('click', function(e) {
+      if (!confirm($(this).data('confirm'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  });
+})();
+</script>
+
+{% endblock %} 

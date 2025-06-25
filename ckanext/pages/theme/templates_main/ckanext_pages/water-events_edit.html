@@ -517,9 +517,109 @@
   transition: all 0.3s ease;
 }
 
-.upload-dropzone:hover {
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
   border-color: var(--unesco-blue-light);
   background: var(--unesco-blue-pale);
+}
+
+/* Uploaded Images Grid */
+.uploaded-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.uploaded-image-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.uploaded-image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.uploaded-image-preview {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.uploaded-image-info {
+  padding: 1rem;
+}
+
+.uploaded-image-info input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.uploaded-image-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.uploaded-image-actions button {
+  flex: 1;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.image-copy-url {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.image-copy-url:hover {
+  background: #ced4da;
+}
+
+.image-remove {
+  background: #dc3545;
+  color: white;
+}
+
+.image-remove:hover {
+  background: #c82333;
+}
+
+/* Upload Progress */
+.upload-progress {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.progress {
+  width: 100%;
+  height: 20px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--unesco-blue-light), var(--unesco-blue));
+  transition: width 0.3s ease;
 }
 
 .help-text {
@@ -652,11 +752,178 @@
       }
     });
     
-    function uploadImage(file) {
-      // Placeholder upload function - implement as needed
-      console.log('Uploading image:', file.name);
+    // Image Upload Management
+    let uploadedImages = [];
+    
+    // Load existing uploaded images
+    function loadUploadedImages() {
+      const uploadedData = $('#uploaded-images-data').val();
+      if (uploadedData) {
+        try {
+          uploadedImages = JSON.parse(uploadedData);
+          uploadedImages.forEach(img => {
+            addUploadedImagePreview(img);
+          });
+        } catch (e) {
+          console.error('Error parsing uploaded images data:', e);
+        }
+      }
     }
     
+    // Handle dropzone drag and drop
+    $('#image-dropzone').on('dragover', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).addClass('dragover');
+    });
+    
+    $('#image-dropzone').on('dragleave', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).removeClass('dragover');
+    });
+    
+    $('#image-dropzone').on('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).removeClass('dragover');
+      
+      const files = e.originalEvent.dataTransfer.files;
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            uploadImage(file);
+          }
+        });
+      }
+    });
+    
+    // Upload image function
+    function uploadImage(file) {
+      const formData = new FormData();
+      formData.append('upload', file);
+      
+      // Show upload progress
+      const progressId = `progress-${Date.now()}`;
+      const progressHtml = `
+        <div id="${progressId}" class="upload-progress">
+          <p>{{ _('Uploading') }} ${file.name}...</p>
+          <div class="progress">
+            <div class="progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+      `;
+      $('#uploaded-images-preview').append(progressHtml);
+      
+      $.ajax({
+        url: '/pages_upload',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        xhr: function() {
+          const xhr = new window.XMLHttpRequest();
+          xhr.upload.addEventListener("progress", function(evt) {
+            if (evt.lengthComputable) {
+              const percentComplete = (evt.loaded / evt.total) * 100;
+              $(`#${progressId} .progress-bar`).css('width', percentComplete + '%');
+            }
+          }, false);
+          return xhr;
+        },
+        success: function(response) {
+          $(`#${progressId}`).remove();
+          if (response.uploaded === 1) {
+            const imageData = {
+              url: response.url,
+              fileName: response.fileName,
+              alt: file.name.replace(/\.[^/.]+$/, ""),
+              caption: ''
+            };
+            uploadedImages.push(imageData);
+            addUploadedImagePreview(imageData);
+            updateUploadedImagesData();
+          } else {
+            alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
+          }
+        },
+        error: function() {
+          $(`#${progressId}`).remove();
+          alert('{{ _("Error uploading image. Please try again.") }}');
+        }
+      });
+    }
+    
+    // Add uploaded image preview
+    function addUploadedImagePreview(imageData) {
+      const imageId = `uploaded-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const imageHtml = `
+        <div class="uploaded-image-item" data-image-id="${imageId}">
+          <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
+          <div class="uploaded-image-info">
+            <input type="text" class="image-alt" value="${imageData.alt}" placeholder="{{ _('Alt text') }}">
+            <input type="text" class="image-caption" value="${imageData.caption}" placeholder="{{ _('Caption (optional)') }}">
+            <div class="uploaded-image-actions">
+              <button type="button" class="image-copy-url" onclick="copyImageUrl('${imageData.url}')">
+                <i class="fa fa-copy"></i> {{ _('Copy URL') }}
+              </button>
+              <button type="button" class="image-remove" onclick="removeUploadedImage('${imageId}')">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      $('#uploaded-images-preview').append(imageHtml);
+    }
+    
+    // Copy image URL to clipboard
+    window.copyImageUrl = function(url) {
+      navigator.clipboard.writeText(url).then(function() {
+        const btn = event.target.closest('.image-copy-url');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-check"></i> {{ _("Copied!") }}';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2000);
+      });
+    };
+    
+    // Remove uploaded image
+    window.removeUploadedImage = function(imageId) {
+      $(`.uploaded-image-item[data-image-id="${imageId}"]`).remove();
+      const $removedItem = $(`.uploaded-image-item[data-image-id="${imageId}"]`);
+      const imageUrl = $removedItem.find('img').attr('src');
+      uploadedImages = uploadedImages.filter(img => img.url !== imageUrl);
+      updateUploadedImagesData();
+    };
+    
+    // Update uploaded images data
+    function updateUploadedImagesData() {
+      const currentImages = [];
+      $('.uploaded-image-item').each(function() {
+        const $item = $(this);
+        const imageData = {
+          url: $item.find('img').attr('src'),
+          fileName: $item.find('img').attr('src').split('/').pop(),
+          alt: $item.find('.image-alt').val(),
+          caption: $item.find('.image-caption').val()
+        };
+        currentImages.push(imageData);
+      });
+      uploadedImages = currentImages;
+      $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
+    }
+    
+    // Update image data when alt text or caption changes
+    $(document).on('change input', '.image-alt, .image-caption', function() {
+      updateUploadedImagesData();
+    });
+
+    // Initialize
+    loadUploadedImages();
+    
+    console.log('Water Events edit form initialized with image upload functionality');
   });
 })();
 </script>

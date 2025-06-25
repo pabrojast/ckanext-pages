@@ -80,7 +80,7 @@
                             <div class="metric-number">
                               {% set upcoming_count = 0 %}
                               {% for page in c.page.items %}
-                                {% if page.publish_date and page.publish_date > h.datetime.now().isoformat() %}
+                                {% if page.publish_date %}
                                   {% set upcoming_count = upcoming_count + 1 %}
                                 {% endif %}
                               {% endfor %}

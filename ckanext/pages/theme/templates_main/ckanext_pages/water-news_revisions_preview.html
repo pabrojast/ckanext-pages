@@ -1,0 +1,412 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Revision') }} {{ revision.id[:8] }} - {{ page.title or page.name }} - {{ _('Water Family News') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_news_index') }}">{{ _('News') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_news_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_news_revisions', page=page.name) }}">{{ _('Revisions') }}</a></li>
+                    <li class="active">{{ _('Revision') }} {{ revision.id[:8] }}</li>
+                </ol>
+            </div>
+
+            <!-- Banner -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Revision Preview') }}</h1>
+                  <p class="section-title-description">{{ revision.id[:8] }} - {{ h.render_datetime(revision.created, '%B %d, %Y') if revision.created else _('Unknown Date') }}</p>
+                </div>
+              </div>
+            </section>
+        
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Action Bar -->
+                <div class="revision-actions-bar" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Revision Preview') }}</h2>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">
+                            {{ _('Author:') }} {{ revision.author or _('System') }} | 
+                            {{ _('Date:') }} {{ h.render_datetime(revision.created, '%B %d, %Y at %H:%M:%S') if revision.created else _('Unknown') }}
+                          </p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                          <div class="revision-action-buttons">
+                            {% if h.check_access('ckanext_pages_update') %}
+                              <a href="{{ h.url_for('pages.water_news_revision_restore', page=page.name, revision=revision.id) }}" 
+                                 class="btn btn-warning" 
+                                 data-confirm="{{ _('Are you sure you want to restore this revision?') }}">
+                                <i class="fa fa-undo"></i> {{ _('Restore') }}
+                              </a>
+                            {% endif %}
+                            <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}" class="btn btn-default">
+                              <i class="fa fa-eye"></i> {{ _('Current') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.water_news_revisions', page=page.name) }}" class="btn btn-primary">
+                              <i class="fa fa-list"></i> {{ _('All Revisions') }}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Revision Preview Content -->
+                <div class="revision-preview-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="revision-section-header">
+                        <div class="revision-section-icon">
+                          <i class="fa fa-newspaper-o"></i>
+                        </div>
+                        <h2>{{ _('Article Preview') }}</h2>
+                      </div>
+                      
+                      <div class="alert alert-info">
+                        <strong>{{ _('Revision Information:') }}</strong>
+                        {{ _('This is how the news article looked at this revision.') }}
+                      </div>
+                      
+                      <!-- Content Preview -->
+                      <div class="revision-preview-content">
+                        
+                        <!-- Title Section -->
+                        <h1 class="revision-title">{{ page.title or page.name }}</h1>
+                        {% if page.author %}
+                          <p class="revision-author"><i class="fa fa-user"></i> {{ page.author }}</p>
+                        {% endif %}
+                        {% if page.publish_date %}
+                          <p class="revision-date"><i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}</p>
+                        {% endif %}
+
+                        <!-- Excerpt -->
+                        {% if page.excerpt %}
+                          <div class="revision-excerpt">
+                            <h3>{{ _('Article Summary') }}</h3>
+                            <div class="excerpt-content">
+                              {{ h.render_markdown(page.excerpt, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Main Content -->
+                        {% if page.content %}
+                          <div class="revision-main-content">
+                            <h3>{{ _('Article Content') }}</h3>
+                            <div class="content-body">
+                              {{ h.render_markdown(page.content, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Additional Content -->
+                        {% if page.additional_content %}
+                          <div class="revision-additional">
+                            <h3>{{ _('Additional Information') }}</h3>
+                            <div class="additional-content">
+                              {{ h.render_markdown(page.additional_content, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- External Links -->
+                        {% if page.external_links %}
+                          <div class="revision-links">
+                            <h3>{{ _('Related Links') }}</h3>
+                            <div class="links-content">
+                              {{ h.render_markdown(page.external_links, allow_html=True) | safe }}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</div>
+
+<style>
+/* Water News Revision Preview Theme - UNESCO Palette */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Professional Revision Preview Styling */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 90, 156, 0.9) 0%, rgba(0, 114, 188, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.revision-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--unesco-blue-pale);
+}
+
+.revision-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+}
+
+.revision-section-header h2 {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  border: none;
+}
+
+.revision-action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.revision-action-buttons .btn {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  border: none;
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+  border: none;
+  color: #212529;
+}
+
+.btn-default {
+  background: #fff;
+  border: 2px solid #e9ecef;
+  color: #6c757d;
+}
+
+.revision-preview-content {
+  border: 3px dashed var(--unesco-blue-dark);
+  padding: 2rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+}
+
+.revision-preview-content::before {
+  content: "News Article Preview";
+  position: absolute;
+  top: -12px;
+  left: 2rem;
+  background: var(--unesco-blue-dark);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.revision-title {
+  color: var(--unesco-blue-dark);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 3px solid var(--unesco-blue-pale);
+  padding-bottom: 1rem;
+}
+
+.revision-author,
+.revision-date {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.revision-excerpt,
+.revision-main-content,
+.revision-additional,
+.revision-links {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border-left: 6px solid var(--unesco-blue-dark);
+  box-shadow: var(--shadow-light);
+}
+
+.revision-excerpt h3,
+.revision-main-content h3,
+.revision-additional h3,
+.revision-links h3 {
+  color: var(--unesco-blue-dark);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border: none;
+}
+
+.excerpt-content {
+  background: var(--unesco-blue-pale);
+  padding: 1.5rem;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .revision-action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .revision-action-buttons .btn {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .revision-title {
+    font-size: 2rem;
+  }
+}
+</style>
+
+<script>
+(function() {
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    $('[data-confirm]').on('click', function(e) {
+      if (!confirm($(this).data('confirm'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  });
+})();
+</script>
+
+{% endblock %} 
