@@ -209,7 +209,7 @@
                   <section class="module module-narrow">
                     <div class="module-content text-center" style="padding: 4rem 2.5rem;">
                       <div class="empty-state-icon">
-                        <i class="fa fa-newspaper-o fa-4x" style="color: #e74c3c; margin-bottom: 2rem;"></i>
+                        <i class="fa fa-newspaper-o fa-4x" style="color: var(--unesco-blue); margin-bottom: 2rem;"></i>
                       </div>
                       <h3>{{ _('No News Articles') }}</h3>
                       <p class="text-muted" style="margin-bottom: 2rem;">
@@ -241,15 +241,15 @@
 
 <!-- Professional Water News List CSS -->
 <style>
-/* Water News Theme - Red News Palette */
+/* Water News Theme - UNESCO Palette */
 :root {
-  /* News Red Colors */
-  --news-red: #E74C3C;
-  --news-red-dark: #C0392B;
-  --news-red-light: #EC7063;
-  --news-red-pale: #FADBD8;
+  /* UNESCO Blue Colors */
+  --news-red: #0072BC;
+  --news-red-dark: #005A9C;
+  --news-red-light: #009EE0;
+  --news-red-pale: #E3F2FD;
   
-  /* UNESCO Blue (for reference) */
+  /* UNESCO Blue (same as above for consistency) */
   --unesco-blue: #0072BC;
   --unesco-blue-dark: #005A9C;
   --unesco-blue-light: #009EE0;
@@ -260,10 +260,10 @@
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
   
-  /* Red-themed Shadows */
-  --shadow-light: 0 2px 8px rgba(231, 76, 60, 0.08);
-  --shadow-medium: 0 4px 16px rgba(231, 76, 60, 0.12);
-  --shadow-strong: 0 8px 32px rgba(231, 76, 60, 0.16);
+  /* UNESCO Blue-themed Shadows */
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
 /* Banner Section */
@@ -450,14 +450,14 @@
 }
 
 .status-pending {
-  background: #f39c12;
+  background: #009EE0;
   color: white;
-  animation: pulse-orange 2s infinite;
+  animation: pulse-blue 2s infinite;
 }
 
-@keyframes pulse-orange {
-  0%, 100% { box-shadow: 0 0 5px rgba(243, 156, 18, 0.5); }
-  50% { box-shadow: 0 0 15px rgba(243, 156, 18, 0.8); }
+@keyframes pulse-blue {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 158, 224, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(0, 158, 224, 0.8); }
 }
 
 .news-author {
@@ -547,12 +547,12 @@
   padding: 12px 24px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
 }
 
 .water-news-actions-bar .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 114, 188, 0.4);
 }
 
 /* Filters */
@@ -568,7 +568,7 @@
 
 .water-news-filters .form-control:focus {
   border-color: var(--news-red);
-  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
   background: #ffffff;
   transform: translateY(-1px);
 }

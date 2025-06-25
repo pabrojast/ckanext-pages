@@ -336,17 +336,17 @@
     {% endblock %}
 </div>
 
-<!-- Professional Water Publications List CSS - Purple Theme -->
+<!-- Professional Water Publications List CSS - UNESCO Theme -->
 <style>
-/* Water Publications Color Palette - Purple Theme */
+/* Water Publications Color Palette - UNESCO Theme */
 :root {
-  /* Primary Purple Colors */
-  --water-publications-primary: #6F42C1;
-  --water-publications-primary-dark: #5A32A3;
-  --water-publications-primary-light: #8B5CF6;
-  --water-publications-pale: #F3F0FF;
+  /* UNESCO Blue Colors */
+  --water-publications-primary: #0072BC;
+  --water-publications-primary-dark: #005A9C;
+  --water-publications-primary-light: #009EE0;
+  --water-publications-pale: #E3F2FD;
   
-  /* UNESCO Blue (for reference) */
+  /* UNESCO Blue (same as above for consistency) */
   --unesco-blue: #0072BC;
   --unesco-blue-dark: #005A9C;
   --unesco-blue-light: #009EE0;
@@ -357,13 +357,13 @@
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
   
-  /* Purple-themed Shadows */
-  --shadow-light: 0 2px 8px rgba(111, 66, 193, 0.08);
-  --shadow-medium: 0 4px 16px rgba(111, 66, 193, 0.12);
-  --shadow-strong: 0 8px 32px rgba(111, 66, 193, 0.16);
+  /* UNESCO Blue-themed Shadows */
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
-/* Banner Section - Purple Theme */
+/* Banner Section - UNESCO Theme */
 .section-title {
   position: relative;
   height: 300px;
@@ -396,7 +396,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(111, 66, 193, 0.9) 0%, rgba(90, 50, 163, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
 }
 
 .section-title-content {
@@ -610,7 +610,7 @@
 }
 
 .publication-info-preview {
-  background: linear-gradient(135deg, rgba(111, 66, 193, 0.05) 0%, rgba(243, 240, 255, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.05) 0%, rgba(227, 242, 253, 0.3) 100%);
   border-left: 4px solid var(--water-publications-primary);
   padding: 1rem;
   margin: 1.5rem 0;
@@ -668,12 +668,12 @@
   padding: 12px 24px;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
 }
 
 .water-publications-actions-bar .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 114, 188, 0.4);
   color: white;
 }
 
@@ -745,7 +745,7 @@
 
 .water-publications-filters .form-control:focus {
   border-color: var(--water-publications-primary);
-  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
   background: #ffffff;
   transform: translateY(-1px);
 }
