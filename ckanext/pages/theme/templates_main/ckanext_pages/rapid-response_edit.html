@@ -26,7 +26,7 @@
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
                     <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title|e if page.title else page.name|e }}</a></li>
+                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Add Page') }}</li>
@@ -123,7 +123,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-publish-date" class="control-label">{{ _('Event Date') }} <span class="text-danger">*</span></label>
-                                <input type="date" id="field-publish-date" name="publish_date" value="{{ data.publish_date or '' }}" class="form-control" required>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="form-control" required>
                                 <div class="help-text">{{ _('When did the emergency event occur?') }}</div>
                                 {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
                               </div>
@@ -1137,6 +1137,29 @@ textarea.form-control {
   }
   
   waitForJQuery(function($) {
+  // Utility function to format date for HTML date input
+  function formatDateForInput(dateStr) {
+    if (!dateStr) return '';
+    // If it's already in YYYY-MM-DD format, return as is
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateStr;
+    }
+    // If it's in ISO format (YYYY-MM-DDTHH:MM:SS), extract just the date part
+    if (dateStr.includes('T')) {
+      return dateStr.split('T')[0];
+    }
+    // If it's in other formats, try to parse and format
+    try {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      console.warn('Could not parse date:', dateStr);
+    }
+    return '';
+  }
+  
   // Timeline Events Management
   let timelineEventCounter = 0;
   
@@ -1171,7 +1194,7 @@ textarea.form-control {
         <div class="timeline-event-fields">
           <div class="timeline-field-group">
             <label>{{ _('Date') }}</label>
-            <input type="date" class="timeline-date" value="${eventData ? eventData.date : ''}" placeholder="{{ _('Event date') }}">
+            <input type="date" class="timeline-date" value="${eventData ? formatDateForInput(eventData.date) : ''}" placeholder="{{ _('Event date') }}">
           </div>
           <div class="timeline-field-group">
             <label>{{ _('Event Description') }}</label>
@@ -1519,6 +1542,12 @@ textarea.form-control {
     disabled: $('#field-title').prop('disabled'),
     value: $('#field-title').val()
   });
+  
+  // Debug date field
+  const publishDateValue = $('#field-publish-date').val();
+  if (publishDateValue) {
+    console.log('Publish date field value:', publishDateValue);
+  }
 
   // Initialize
   loadTimelineEvents();
