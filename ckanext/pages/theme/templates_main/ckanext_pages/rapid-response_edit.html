@@ -26,7 +26,7 @@
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
                     <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title if page.title else page.name }}</a></li>
+                      <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.title|e if page.title else page.name|e }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Add Page') }}</li>
@@ -185,7 +185,7 @@
                             </div>
                             
                             <div class="timeline-add-section">
-                              <button type="button" class="btn btn-info" id="add-timeline-event">
+                              <button type="button" class="btn btn-primary" id="add-timeline-event">
                                 <i class="fa fa-plus"></i> {{ _('Add Response Activity') }}
                               </button>
                             </div>
@@ -359,7 +359,7 @@
 
 <!-- Professional Rapid Response Edit Form CSS -->
 <style>
-/* UNESCO Color Palette */
+/* UNESCO Color Palette - Matching rapid-response.html */
 :root {
   --unesco-blue: #0072BC;
   --unesco-blue-dark: #005A9C;
@@ -574,7 +574,7 @@
 
 .control-label {
   font-weight: 600;
-  color: #2c5660;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   display: block;
 }
@@ -669,12 +669,14 @@ textarea.form-control {
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   color: white;
   box-shadow: var(--shadow-light);
+  border: none;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-medium);
   background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  color: white;
 }
 
 .btn-default {
@@ -688,6 +690,7 @@ textarea.form-control {
   transform: translateY(-1px);
   border-color: var(--unesco-blue);
   color: var(--unesco-blue);
+  background: var(--unesco-blue-pale);
 }
 
 /* Timeline Events Styling */
@@ -712,7 +715,7 @@ textarea.form-control {
 }
 
 .timeline-event-number {
-  background: var(--unesco-blue, #467886);
+  background: var(--unesco-blue);
   color: white;
   border-radius: 50%;
   width: 30px;
@@ -753,7 +756,7 @@ textarea.form-control {
 .timeline-field-group label {
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #2c5660;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
@@ -795,13 +798,13 @@ textarea.form-control {
 }
 
 .upload-dropzone:hover {
-  border-color: var(--unesco-blue, #467886);
-  background: #e8f4f6;
+  border-color: var(--unesco-blue);
+  background: var(--unesco-blue-pale);
 }
 
 .upload-dropzone.dragover {
-  border-color: var(--unesco-blue, #467886);
-  background: #e8f4f6;
+  border-color: var(--unesco-blue);
+  background: var(--unesco-blue-pale);
   transform: scale(1.02);
 }
 
@@ -871,7 +874,7 @@ textarea.form-control {
 }
 
 .image-copy-url {
-  background: var(--unesco-blue, #467886);
+  background: var(--unesco-blue);
   color: white;
   border: none;
   border-radius: 4px;
@@ -903,7 +906,7 @@ textarea.form-control {
 }
 
 .progress-bar {
-  background: linear-gradient(90deg, var(--unesco-blue, #467886) 0%, #2c5660 100%);
+  background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   transition: width 0.3s ease;
 }
 
@@ -946,14 +949,14 @@ textarea.form-control {
 }
 
 .form-actions .btn-primary {
-  background: linear-gradient(135deg, var(--unesco-blue, #467886) 0%, #2c5660 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   border: none;
-  box-shadow: 0 4px 12px rgba(70, 120, 134, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
 }
 
 .form-actions .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(70, 120, 134, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 114, 188, 0.4);
 }
 
 .form-actions .btn-default {
@@ -1049,7 +1052,7 @@ textarea.form-control {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(70, 120, 134, 0.85) 0%, rgba(70, 120, 134, 0.65) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
 }
 
 .section-title-content {
@@ -1103,18 +1106,18 @@ textarea.form-control {
 }
 
 .breadcrumb > li a {
-  color: var(--unesco-blue, #467886);
+  color: var(--unesco-blue);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .breadcrumb > li a:hover {
-  color: #2c5660;
+  color: var(--unesco-blue-dark);
   text-decoration: underline;
 }
 
 .breadcrumb > li.active a {
-  color: #2c5660;
+  color: var(--unesco-blue-dark);
   font-weight: 700;
 }
 </style>
