@@ -43,39 +43,127 @@
           <div class="container">
             <div class="row">
               <div class="col-md-12">
-                
-                <!-- Introduction Section -->
-                <div class="water-family-intro" style="margin-bottom: 3rem;">
-                  <section class="module module-narrow wf-module-intro">
+
+                <!-- Admin Panel (for sysadmins only) -->
+                {% if h.check_access('sysadmin') %}
+                <div class="admin-panel" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module">
                     <div class="module-content">
                       <div class="wf-section-header">
-                        <div class="wf-section-icon">
-                          <i class="fa fa-info-circle"></i>
+                        <div>
+                          <div class="wf-section-icon admin-icon">
+                            <i class="fa fa-shield"></i>
+                          </div>
+                          <h2>{{ _('Administration Panel') }}</h2>
                         </div>
-                        <h2>{{ _('Welcome to the IHP Water Family Community') }}</h2>
+                        <div class="section-actions">
+                          <a href="{{ h.url_for('pages.water_admin_dashboard') }}" class="btn btn-admin">
+                            <i class="fa fa-cog"></i> {{ _('Admin Dashboard') }}
+                          </a>
+                        </div>
                       </div>
-                      <div class="wf-content-body">
-                        <p>{{ _('The IHP Water Family Community of Practice is a collaborative platform that brings together water professionals, researchers, and practitioners from around the world. Here you can find the latest news, upcoming events, and valuable publications from our global water community.') }}</p>
-                        
-                        <div class="community-stats">
-                          <div class="row text-center">
-                            <div class="col-md-4">
-                              <div class="stat-item">
-                                <div class="stat-number">{{ news_items|length + 25 }}</div>
-                                <div class="stat-label">{{ _('News Articles') }}</div>
+                      
+                      <div class="admin-summary-grid">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="admin-summary-card news-pending">
+                              <div class="summary-icon">
+                                <i class="fa fa-newspaper-o"></i>
+                              </div>
+                              <div class="summary-content">
+                                <div class="summary-number">
+                                  {% set pending_news_count = 0 %}
+                                  {% for item in news_items if item.private == 'True' %}
+                                    {% set pending_news_count = pending_news_count + 1 %}
+                                  {% endfor %}
+                                  {{ pending_news_count }}
+                                </div>
+                                <div class="summary-label">{{ _('Pending News') }}</div>
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="stat-item">
-                                <div class="stat-number">{{ events_items|length + 15 }}</div>
-                                <div class="stat-label">{{ _('Upcoming Events') }}</div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="admin-summary-card events-pending">
+                              <div class="summary-icon">
+                                <i class="fa fa-calendar"></i>
+                              </div>
+                              <div class="summary-content">
+                                <div class="summary-number">
+                                  {% set pending_events_count = 0 %}
+                                  {% for item in events_items if item.private == 'True' %}
+                                    {% set pending_events_count = pending_events_count + 1 %}
+                                  {% endfor %}
+                                  {{ pending_events_count }}
+                                </div>
+                                <div class="summary-label">{{ _('Pending Events') }}</div>
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <div class="stat-item">
-                                <div class="stat-number">{{ publications_items|length + 45 }}</div>
-                                <div class="stat-label">{{ _('Publications') }}</div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="admin-summary-card publications-pending">
+                              <div class="summary-icon">
+                                <i class="fa fa-file-text-o"></i>
                               </div>
+                              <div class="summary-content">
+                                <div class="summary-number">
+                                  {% set pending_publications_count = 0 %}
+                                  {% for item in publications_items if item.private == 'True' %}
+                                    {% set pending_publications_count = pending_publications_count + 1 %}
+                                  {% endfor %}
+                                  {{ pending_publications_count }}
+                                </div>
+                                <div class="summary-label">{{ _('Pending Publications') }}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+                
+                <!-- Community Statistics -->
+                <div class="community-overview" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-stats">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-bar-chart"></i>
+                          </div>
+                          <h2>{{ _('Community Overview') }}</h2>
+                        </div>
+                      </div>
+                      
+                      <div class="community-stats">
+                        <div class="row text-center">
+                          <div class="col-md-3">
+                            <div class="stat-item news-stat">
+                              <div class="stat-number">{{ news_items|length }}</div>
+                              <div class="stat-label">{{ _('News Articles') }}</div>
+                              <div class="stat-icon"><i class="fa fa-newspaper-o"></i></div>
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <div class="stat-item events-stat">
+                              <div class="stat-number">{{ events_items|length }}</div>
+                              <div class="stat-label">{{ _('Events') }}</div>
+                              <div class="stat-icon"><i class="fa fa-calendar"></i></div>
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <div class="stat-item publications-stat">
+                              <div class="stat-number">{{ publications_items|length }}</div>
+                              <div class="stat-label">{{ _('Publications') }}</div>
+                              <div class="stat-icon"><i class="fa fa-file-text-o"></i></div>
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <div class="stat-item community-stat">
+                              <div class="stat-number">{{ _('Global') }}</div>
+                              <div class="stat-label">{{ _('Community') }}</div>
+                              <div class="stat-icon"><i class="fa fa-globe"></i></div>
                             </div>
                           </div>
                         </div>
@@ -89,10 +177,12 @@
                   <section class="module module-narrow wf-module-actions">
                     <div class="module-content">
                       <div class="wf-section-header">
-                        <div class="wf-section-icon">
-                          <i class="fa fa-plus-circle"></i>
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-plus-circle"></i>
+                          </div>
+                          <h2>{{ _('Share with the Community') }}</h2>
                         </div>
-                        <h2>{{ _('Share with the Community') }}</h2>
                       </div>
                       <div class="action-buttons-grid">
                         <div class="row">
@@ -148,7 +238,7 @@
                         </div>
                       </div>
                       <div class="content-grid">
-                        {% for item in news_items %}
+                        {% for item in news_items[:3] %}
                         <div class="content-card news-card">
                           <div class="card-header">
                             {% if item.publish_date %}
@@ -156,7 +246,7 @@
                                 <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
                               </div>
                             {% endif %}
-                            <div class="card-type">{{ _('News') }}</div>
+                            <div class="card-type news-type">{{ _('News') }}</div>
                           </div>
                           <div class="card-content">
                             <h3><a href="{{ h.url_for('pages.water_news_show', page=item.name) }}">{{ item.title }}</a></h3>
@@ -169,6 +259,116 @@
                           <div class="card-footer">
                             <a href="{{ h.url_for('pages.water_news_show', page=item.name) }}" class="read-more">
                               {{ _('Read More') }} <i class="fa fa-arrow-right"></i>
+                            </a>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Latest Events -->
+                {% if events_items %}
+                <div class="water-family-events" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-events">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-calendar"></i>
+                          </div>
+                          <h2>{{ _('Upcoming Events') }}</h2>
+                        </div>
+                        <div class="section-actions">
+                          <a href="{{ h.url_for('pages.water_events_index') }}" class="btn btn-outline">
+                            {{ _('View All Events') }} <i class="fa fa-arrow-right"></i>
+                          </a>
+                        </div>
+                      </div>
+                      <div class="content-grid">
+                        {% for item in events_items[:3] %}
+                        <div class="content-card events-card">
+                          <div class="card-header">
+                            {% if item.publish_date %}
+                              <div class="card-date">
+                                <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                              </div>
+                            {% endif %}
+                            <div class="card-type events-type">{{ _('Event') }}</div>
+                          </div>
+                          <div class="card-content">
+                            <h3><a href="{{ h.url_for('pages.water_events_show', page=item.name) }}">{{ item.title }}</a></h3>
+                            {% if item.location %}
+                              <div class="event-location">
+                                <i class="fa fa-map-marker"></i> {{ item.location }}
+                              </div>
+                            {% endif %}
+                            {% if item.excerpt %}
+                              <p>{{ item.excerpt[:130] }}{% if item.excerpt|length > 130 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p>{{ (item.content|striptags)[:130] }}{% if item.content|length > 130 %}...{% endif %}</p>
+                            {% endif %}
+                          </div>
+                          <div class="card-footer">
+                            <a href="{{ h.url_for('pages.water_events_show', page=item.name) }}" class="read-more">
+                              {{ _('Learn More') }} <i class="fa fa-arrow-right"></i>
+                            </a>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Latest Publications -->
+                {% if publications_items %}
+                <div class="water-family-publications" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-publications">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-file-text-o"></i>
+                          </div>
+                          <h2>{{ _('Recent Publications') }}</h2>
+                        </div>
+                        <div class="section-actions">
+                          <a href="{{ h.url_for('pages.water_publications_index') }}" class="btn btn-outline">
+                            {{ _('View All Publications') }} <i class="fa fa-arrow-right"></i>
+                          </a>
+                        </div>
+                      </div>
+                      <div class="content-grid">
+                        {% for item in publications_items[:3] %}
+                        <div class="content-card publications-card">
+                          <div class="card-header">
+                            {% if item.publish_date %}
+                              <div class="card-date">
+                                <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                              </div>
+                            {% endif %}
+                            <div class="card-type publications-type">{{ item.subtitle or _('Publication') }}</div>
+                          </div>
+                          <div class="card-content">
+                            <h3><a href="{{ h.url_for('pages.water_publications_show', page=item.name) }}">{{ item.title }}</a></h3>
+                            {% if item.author %}
+                              <div class="publication-author">
+                                <i class="fa fa-user"></i> {{ item.author }}
+                              </div>
+                            {% endif %}
+                            {% if item.excerpt %}
+                              <p>{{ item.excerpt[:130] }}{% if item.excerpt|length > 130 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p>{{ (item.content|striptags)[:130] }}{% if item.content|length > 130 %}...{% endif %}</p>
+                            {% endif %}
+                          </div>
+                          <div class="card-footer">
+                            <a href="{{ h.url_for('pages.water_publications_show', page=item.name) }}" class="read-more">
+                              {{ _('Read Publication') }} <i class="fa fa-arrow-right"></i>
                             </a>
                           </div>
                         </div>
@@ -226,6 +426,70 @@
                   </section>
                 </div>
 
+                <!-- Navigation Links -->
+                <div class="water-family-navigation" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-navigation">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-compass"></i>
+                          </div>
+                          <h2>{{ _('Explore the Community') }}</h2>
+                        </div>
+                      </div>
+                      <div class="navigation-grid">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <a href="{{ h.url_for('pages.water_news_index') }}" class="nav-link-card news-nav">
+                              <div class="nav-icon">
+                                <i class="fa fa-newspaper-o"></i>
+                              </div>
+                              <div class="nav-content">
+                                <h4>{{ _('Browse All News') }}</h4>
+                                <p>{{ _('Stay updated with the latest developments in the water sector') }}</p>
+                              </div>
+                              <div class="nav-arrow">
+                                <i class="fa fa-arrow-right"></i>
+                              </div>
+                            </a>
+                          </div>
+                          <div class="col-md-6">
+                            <a href="{{ h.url_for('pages.water_events_index') }}" class="nav-link-card events-nav">
+                              <div class="nav-icon">
+                                <i class="fa fa-calendar"></i>
+                              </div>
+                              <div class="nav-content">
+                                <h4>{{ _('Find Events') }}</h4>
+                                <p>{{ _('Discover conferences, workshops, and networking opportunities') }}</p>
+                              </div>
+                              <div class="nav-arrow">
+                                <i class="fa fa-arrow-right"></i>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 1rem;">
+                          <div class="col-md-12">
+                            <a href="{{ h.url_for('pages.water_publications_index') }}" class="nav-link-card publications-nav">
+                              <div class="nav-icon">
+                                <i class="fa fa-file-text-o"></i>
+                              </div>
+                              <div class="nav-content">
+                                <h4>{{ _('Access Publications Library') }}</h4>
+                                <p>{{ _('Explore research papers, reports, and technical documents from water experts worldwide') }}</p>
+                              </div>
+                              <div class="nav-arrow">
+                                <i class="fa fa-arrow-right"></i>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
               </div>
             </div>
           </div>
@@ -234,7 +498,7 @@
     {% endblock %}
 </div>
 
-<!-- CSS incluido aquí para mantener el diseño consistente -->
+<!-- Professional Water Family CSS - UNESCO Theme -->
 <style>
 /* Water Family Theme - UNESCO Palette */
 :root {
@@ -243,6 +507,10 @@
   --unesco-blue-light: #009EE0;
   --unesco-blue-pale: #E3F2FD;
   --unesco-gray: #f8f9fa;
+  --admin-gold: #F39C12;
+  --news-blue: #005A9C;
+  --events-orange: #fd7e14;
+  --publications-purple: #6f42c1;
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
   --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
@@ -250,6 +518,7 @@
   --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
+/* Banner Section */
 .section-title {
   position: relative;
   height: 350px;
@@ -324,6 +593,7 @@
   font-weight: 500;
 }
 
+/* Breadcrumb */
 .breadcrumb {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   padding: 12px 20px;
@@ -333,6 +603,7 @@
   box-shadow: var(--shadow-light);
 }
 
+/* Modules */
 .module {
   background: #fff;
   border: none;
@@ -352,6 +623,7 @@
   padding: 2.5rem;
 }
 
+/* Section Headers */
 .wf-section-header {
   display: flex;
   align-items: center;
@@ -381,6 +653,10 @@
   box-shadow: var(--shadow-light);
 }
 
+.wf-section-icon.admin-icon {
+  background: linear-gradient(135deg, var(--admin-gold) 0%, #e67e22 100%);
+}
+
 .wf-section-header h2 {
   color: var(--text-primary);
   font-size: 1.8rem;
@@ -390,7 +666,13 @@
   padding: 0;
 }
 
-.wf-module-intro {
+/* Module Variants */
+.admin-module {
+  border-left: 6px solid var(--admin-gold);
+  background: linear-gradient(135deg, #fff3cd 0%, #ffffff 100%);
+}
+
+.wf-module-stats {
   border-left: 6px solid var(--unesco-blue);
 }
 
@@ -399,13 +681,105 @@
 }
 
 .wf-module-news {
-  border-left: 6px solid var(--unesco-blue-dark);
+  border-left: 6px solid var(--news-blue);
+}
+
+.wf-module-events {
+  border-left: 6px solid var(--events-orange);
+}
+
+.wf-module-publications {
+  border-left: 6px solid var(--publications-purple);
 }
 
 .wf-module-guidelines {
   border-left: 6px solid var(--unesco-blue);
 }
 
+.wf-module-navigation {
+  border-left: 6px solid var(--unesco-blue-light);
+}
+
+/* Admin Panel */
+.admin-summary-grid {
+  margin-top: 1.5rem;
+}
+
+.admin-summary-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-light);
+}
+
+.admin-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.summary-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.news-pending .summary-icon {
+  background: linear-gradient(135deg, var(--news-blue) 0%, #003d6b 100%);
+}
+
+.events-pending .summary-icon {
+  background: linear-gradient(135deg, var(--events-orange) 0%, #dc6545 100%);
+}
+
+.publications-pending .summary-icon {
+  background: linear-gradient(135deg, var(--publications-purple) 0%, #5a3090 100%);
+}
+
+.summary-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.btn-admin {
+  background: linear-gradient(135deg, var(--admin-gold) 0%, #e67e22 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-admin:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+/* Community Stats */
 .community-stats {
   margin-top: 2rem;
   padding: 2rem;
@@ -414,7 +788,35 @@
 }
 
 .stat-item {
-  padding: 1rem;
+  padding: 1.5rem 1rem;
+  background: white;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-light);
+}
+
+.stat-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+
+.news-stat:hover {
+  border-color: var(--news-blue);
+}
+
+.events-stat:hover {
+  border-color: var(--events-orange);
+}
+
+.publications-stat:hover {
+  border-color: var(--publications-purple);
+}
+
+.community-stat:hover {
+  border-color: var(--unesco-blue);
 }
 
 .stat-number {
@@ -431,8 +833,19 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
+  margin-bottom: 1rem;
 }
 
+.stat-icon {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: var(--unesco-blue);
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+/* Action Cards */
 .action-card {
   display: block;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -468,6 +881,7 @@
   box-shadow: var(--shadow-light);
 }
 
+/* Content Cards */
 .content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -499,7 +913,6 @@
 }
 
 .card-type {
-  background: var(--unesco-blue);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
@@ -508,8 +921,16 @@
   text-transform: uppercase;
 }
 
-.news-card .card-type {
-  background: var(--unesco-blue-dark);
+.news-type {
+  background: var(--news-blue);
+}
+
+.events-type {
+  background: var(--events-orange);
+}
+
+.publications-type {
+  background: var(--publications-purple);
 }
 
 .card-content {
@@ -525,6 +946,37 @@
   color: var(--unesco-blue);
 }
 
+.event-location,
+.publication-author {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f8f9fa;
+}
+
+.read-more {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.read-more:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: none;
+}
+
+/* Guidelines */
 .guideline-item {
   text-align: center;
   padding: 1.5rem 1rem;
@@ -544,6 +996,99 @@
   box-shadow: var(--shadow-light);
 }
 
+/* Navigation Cards */
+.nav-link-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-light);
+}
+
+.nav-link-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.news-nav:hover {
+  border-color: var(--news-blue);
+}
+
+.events-nav:hover {
+  border-color: var(--events-orange);
+}
+
+.publications-nav:hover {
+  border-color: var(--publications-purple);
+}
+
+.nav-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+}
+
+.nav-content {
+  flex: 1;
+}
+
+.nav-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.nav-content p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.nav-arrow {
+  color: var(--unesco-blue);
+  font-size: 1.2rem;
+  margin-left: 1rem;
+}
+
+/* Buttons */
+.btn-outline {
+  background: transparent;
+  color: var(--unesco-blue);
+  border: 2px solid var(--unesco-blue);
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-outline:hover {
+  background: var(--unesco-blue);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .section-title {
     height: 250px;
@@ -557,8 +1102,62 @@
     padding: 1.5rem;
   }
   
+  .wf-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .wf-section-icon {
+    margin-bottom: 1rem;
+    margin-right: 0;
+  }
+  
   .content-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .admin-summary-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .nav-link-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .nav-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .nav-arrow {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .stat-item {
+    padding: 1rem 0.5rem;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
   }
 }
 </style>
