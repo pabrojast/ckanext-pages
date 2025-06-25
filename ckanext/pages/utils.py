@@ -29,8 +29,8 @@ def pages_list_pages(page_type):
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
     )
-    tk.g.page = helpers.Page(
-        collection=tk.c.pages_dict,
+    tk.c.page = helpers.Page(
+        collection=tk.g.pages_dict,
         page=tk.request.args.get('page', 1),
         url=helpers.pager_url,
         items_per_page=21

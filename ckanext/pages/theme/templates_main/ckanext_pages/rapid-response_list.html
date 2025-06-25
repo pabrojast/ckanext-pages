@@ -63,14 +63,14 @@
                 </div>
 
                 <!-- Event Status Summary -->
-                {% if pages %}
+                {% if c.page.items %}
                 <div class="event-status-summary" style="margin-bottom: 2rem;">
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1rem 2.5rem;">
                       <div class="row text-center">
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ pages|length }}</div>
+                            <div class="metric-number">{{ c.page.items|length }}</div>
                             <div class="metric-label">{{ _('Active Events') }}</div>
                           </div>
                         </div>
@@ -78,7 +78,7 @@
                           <div class="status-metric">
                             <div class="metric-number">
                               {% set recent_count = 0 %}
-                              {% for page in pages %}
+                              {% for page in c.page.items %}
                                 {% if page.publish_date %}
                                   {% set recent_count = recent_count + 1 %}
                                 {% endif %}
@@ -92,7 +92,7 @@
                           <div class="status-metric">
                             <div class="metric-number">
                               {% set countries = [] %}
-                              {% for page in pages %}
+                              {% for page in c.page.items %}
                                 {% if page.key_info and 'Countries Affected' in page.key_info %}
                                   {% set countries = countries + [page] %}
                                 {% endif %}
@@ -115,7 +115,7 @@
                 {% endif %}
 
                 <!-- Filter and Search -->
-                {% if pages or request.args.q %}
+                {% if c.page.items or request.args.q %}
                 <div class="rapid-response-filters" style="margin-bottom: 2rem;">
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
@@ -160,9 +160,9 @@
                 {% endif %}
 
                 <!-- Emergency Events Feed -->
-                {% if pages %}
+                {% if c.page.items %}
                 <div class="emergency-events-feed">
-                  {% for page in pages %}
+                  {% for page in c.page.items %}
                   <div class="event-card" style="margin-bottom: 2rem;">
                     <article class="module">
                       <!-- Event Status Header -->
@@ -271,13 +271,24 @@
                   {% endfor %}
                 </div>
                 
+                <!-- Pagination -->
+                {% if c.page.page_count > 1 %}
+                <div class="pagination-wrapper" style="margin-top: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 1.5rem;">
+                      {{ c.page.pager() }}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+                
                 {% else %}
                 <!-- Empty State -->
                 <div class="rapid-response-empty-state">
                   <section class="module module-narrow">
                     <div class="module-content text-center" style="padding: 4rem 2.5rem;">
                       <div class="empty-state-icon">
-                        <i class="fa fa-exclamation-triangle fa-4x" style="color: var(--unesco-light-blue); margin-bottom: 2rem;"></i>
+                        <i class="fa fa-exclamation-triangle fa-4x" style="color: var(--unesco-blue); margin-bottom: 2rem;"></i>
                       </div>
                       <h3>{{ _('No Emergency Events') }}</h3>
                       <p class="text-muted" style="margin-bottom: 2rem;">
@@ -307,12 +318,154 @@
     {% endblock %}
 </div>
 
-<!-- Enhanced CSS for Emergency Events Feed -->
+<!-- Professional Rapid Response List CSS - Unified with other templates -->
 <style>
+/* UNESCO Color Palette - Matching rapid-response.html and rapid-response_edit.html */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Banner Section - Enhanced */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--unesco-blue);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--unesco-blue);
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
 /* Event Status Summary */
 .event-status-summary .module {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-left: 4px solid var(--unesco-blue);
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .status-metric {
@@ -320,18 +473,19 @@
 }
 
 .metric-number {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 2.5rem;
+  font-weight: 700;
   color: var(--unesco-blue);
   line-height: 1;
+  margin-bottom: 0.5rem;
 }
 
 .metric-label {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 /* Event Cards */
@@ -341,14 +495,14 @@
 }
 
 .event-card .module:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
 }
 
 .event-status-header {
-  background: linear-gradient(135deg, #467886 0%, #2c5660 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   color: white;
-  padding: 1rem 1.5rem;
+  padding: 1.5rem 2rem;
   margin: 0;
 }
 
@@ -360,78 +514,83 @@
 }
 
 .event-date {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-.event-status-badge {
-  background: #dc3545;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.status-active {
-  background: #28a745;
-}
-
-.status-monitoring {
-  background: #ffc107;
-  color: #212529;
-}
-
-.status-closed {
-  background: #6c757d;
-}
-
-.event-updates-count {
-  font-size: 0.85rem;
-  opacity: 0.9;
-}
-
-.event-severity {
+  font-size: 0.95rem;
+  opacity: 0.95;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
+.event-status-badge {
+  background: #28a745;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-light);
+}
+
+.status-active {
+  background: #28a745;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+}
+
+.event-updates-count {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.event-severity {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
 .severity-indicator {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   display: inline-block;
 }
 
 .severity-high {
   background: #dc3545;
-  box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
+  box-shadow: 0 0 10px rgba(220, 53, 69, 0.6);
+  animation: pulse-red 2s infinite;
 }
 
-.severity-medium {
-  background: #ffc107;
-}
-
-.severity-low {
-  background: #28a745;
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.8); }
 }
 
 .severity-label {
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 /* Event Image */
 .event-image {
-  height: 180px;
+  height: 200px;
   overflow: hidden;
-  border-radius: 8px;
-  background: #f8f9fa;
+  border-radius: 12px;
+  background: var(--unesco-gray);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-light);
 }
 
 .event-image img {
@@ -446,49 +605,64 @@
 }
 
 .placeholder-image {
-  color: #6c757d;
+  color: var(--text-secondary);
   text-align: center;
+  opacity: 0.6;
 }
 
 /* Event Content */
 .event-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.4rem;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
   line-height: 1.3;
+  font-weight: 700;
 }
 
 .event-title a {
   color: var(--unesco-blue);
   text-decoration: none;
-  font-weight: 700;
   transition: color 0.3s ease;
 }
 
 .event-title a:hover {
-  color: var(--unesco-dark-blue);
+  color: var(--unesco-blue-dark);
   text-decoration: underline;
 }
 
 .event-subtitle {
-  color: #6c757d;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
   font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: var(--unesco-blue-pale);
+  border-radius: 8px;
+  border-left: 4px solid var(--unesco-blue);
 }
 
 .key-info-preview {
-  background: rgba(70, 120, 134, 0.1);
-  border-left: 3px solid var(--unesco-blue);
-  padding: 0.75rem;
-  margin: 1rem 0;
-  border-radius: 0 4px 4px 0;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.05) 0%, rgba(227, 242, 253, 0.3) 100%);
+  border-left: 4px solid var(--unesco-blue);
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: var(--shadow-light);
 }
 
 .key-info-item {
-  font-size: 0.85rem;
-  color: #2c5660;
-  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.key-info-item:before {
+  content: "▸";
+  color: var(--unesco-blue);
+  font-weight: bold;
 }
 
 .key-info-item:last-child {
@@ -496,19 +670,25 @@
 }
 
 .event-excerpt {
-  color: #495057;
-  font-size: 0.95rem;
-  line-height: 1.5;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
   margin-bottom: 1.5rem;
 }
 
 .event-actions {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .event-actions .btn {
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
 }
 
 /* Action Bar */
@@ -529,35 +709,100 @@
 
 /* Filters */
 .rapid-response-filters .form-control {
-  border-radius: 8px;
+  border-radius: 12px;
   border: 2px solid #e9ecef;
-  transition: border-color 0.3s ease;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
 
 .rapid-response-filters .form-control:focus {
   border-color: var(--unesco-blue);
-  box-shadow: 0 0 0 0.2rem rgba(70, 120, 134, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+  background: #ffffff;
+  transform: translateY(-1px);
 }
 
 .rapid-response-filters .btn-default {
-  background: var(--unesco-blue);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow-light);
 }
 
 .rapid-response-filters .btn-default:hover {
-  background: var(--unesco-dark-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Pagination */
+.pagination-wrapper .module {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
 }
 
 /* Empty State */
 .empty-state-icon {
-  opacity: 0.6;
+  opacity: 0.7;
+}
+
+.rapid-response-empty-state h3 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
   .rapid-response-actions-bar .col-md-4 {
     text-align: center !important;
     margin-top: 1rem;
@@ -575,44 +820,62 @@
   
   .event-metadata {
     gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
   .event-severity {
-    justify-content: center;
+    justify-content: flex-start;
     margin-top: 0.5rem;
   }
   
   .event-image {
-    height: 120px;
+    height: 150px;
     margin-bottom: 1rem;
   }
   
   .metric-number {
-    font-size: 1.5rem;
+    font-size: 2rem;
+  }
+  
+  .event-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
   
   .event-actions .btn {
-    display: block;
     width: 100%;
-    margin: 0.25rem 0;
+    text-align: center;
   }
 }
 
 @media (max-width: 480px) {
-  .event-card .module-content {
-    padding: 1rem !important;
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
   }
   
   .event-image {
-    height: 100px;
+    height: 120px;
   }
   
   .event-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   
   .status-metric {
     padding: 0.5rem 0;
+  }
+  
+  .metric-number {
+    font-size: 1.5rem;
   }
 }
 </style>
