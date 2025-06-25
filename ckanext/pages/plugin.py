@@ -104,6 +104,63 @@ def get_recent_rapid_response_posts(number=5, exclude=None):
     return new_list
 
 
+def get_recent_water_news(number=5, exclude=None):
+    """Get recent water family news"""
+    try:
+        news_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'water-news'}
+        )
+        new_list = []
+        for news_post in news_list:
+            if exclude and news_post['name'] == exclude:
+                continue
+            new_list.append(news_post)
+            if len(new_list) == number:
+                break
+        return new_list
+    except:
+        return []
+
+
+def get_recent_water_events(number=5, exclude=None):
+    """Get recent water family events"""
+    try:
+        events_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'water-events'}
+        )
+        new_list = []
+        for event_post in events_list:
+            if exclude and event_post['name'] == exclude:
+                continue
+            new_list.append(event_post)
+            if len(new_list) == number:
+                break
+        return new_list
+    except:
+        return []
+
+
+def get_recent_water_publications(number=5, exclude=None):
+    """Get recent water family publications"""
+    try:
+        publications_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'water-publications'}
+        )
+        new_list = []
+        for pub_post in publications_list:
+            if exclude and pub_post['name'] == exclude:
+                continue
+            new_list.append(pub_post)
+            if len(new_list) == number:
+                break
+        return new_list
+    except:
+        return []
+
+
 def safe_json_loads(json_string):
     """Safely parse JSON string and return empty list if parsing fails"""
     if not json_string:
@@ -152,6 +209,9 @@ class PagesPlugin(PagesPluginBase):
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,
             'get_recent_rapid_response_posts': get_recent_rapid_response_posts,
+            'get_recent_water_news': get_recent_water_news,
+            'get_recent_water_events': get_recent_water_events,
+            'get_recent_water_publications': get_recent_water_publications,
             'json_loads': safe_json_loads,
         }
 

@@ -1,0 +1,981 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ c.page.title or c.page.name }} - {{ _('Water Family News') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_news_index') }}">{{ _('News') }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.water_news_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/water-news-header.jpg{% endif %}');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% if c.page.excerpt %}
+                    <p class="section-title-description">{{ c.page.excerpt }}</p>
+                  {% endif %}
+                  {% if c.page.publish_date %}
+                    <div class="section-title-meta-date">
+                      <i class="fa fa-calendar"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Article Meta Information -->
+                <div class="news-meta-info" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-meta">
+                    <div class="module-content">
+                      <div class="meta-grid">
+                        <div class="row">
+                          <div class="col-md-8">
+                            <div class="meta-primary">
+                              {% if c.page.publish_date %}
+                                <div class="meta-item">
+                                  <div class="meta-icon">
+                                    <i class="fa fa-calendar"></i>
+                                  </div>
+                                  <div class="meta-content">
+                                    <span class="meta-label">{{ _('Publication Date') }}</span>
+                                    <span class="meta-value">{{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}</span>
+                                  </div>
+                                </div>
+                              {% endif %}
+                              
+                              {% if c.page.author %}
+                                <div class="meta-item">
+                                  <div class="meta-icon">
+                                    <i class="fa fa-user"></i>
+                                  </div>
+                                  <div class="meta-content">
+                                    <span class="meta-label">{{ _('Author') }}</span>
+                                    <span class="meta-value">{{ c.page.author }}</span>
+                                  </div>
+                                </div>
+                              {% endif %}
+                              
+                              {% if c.page.source %}
+                                <div class="meta-item">
+                                  <div class="meta-icon">
+                                    <i class="fa fa-external-link"></i>
+                                  </div>
+                                  <div class="meta-content">
+                                    <span class="meta-label">{{ _('Source') }}</span>
+                                    <span class="meta-value">{{ c.page.source }}</span>
+                                  </div>
+                                </div>
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="meta-secondary">
+                              <div class="news-type-badge">
+                                <i class="fa fa-newspaper-o"></i>
+                                {{ _('News Article') }}
+                              </div>
+                              {% if c.page.created %}
+                                <div class="meta-timestamps">
+                                  <div class="timestamp-item">
+                                    <small class="text-muted">
+                                      <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                    </small>
+                                  </div>
+                                  {% if c.page.modified %}
+                                    <div class="timestamp-item">
+                                      <small class="text-muted">
+                                        <i class="fa fa-edit"></i> {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
+                                      </small>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Main News Content -->
+                {% if c.page.content %}
+                <div class="news-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-content">
+                    <div class="module-content">
+                      <div class="news-section-header">
+                        <div class="news-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Article Content') }}</h2>
+                      </div>
+                      <div class="news-content-body">
+                        {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Image Gallery Section -->
+                {% if c.page.uploaded_images or c.page.image_gallery %}
+                <div class="news-gallery" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-gallery">
+                    <div class="module-content">
+                      <div class="news-section-header">
+                        <div class="news-section-icon">
+                          <i class="fa fa-camera"></i>
+                        </div>
+                        <h2>{{ _('Related Images') }}</h2>
+                      </div>
+                      
+                      <!-- Uploaded Images Grid -->
+                      {% if c.page.uploaded_images %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
+                        {% if uploaded_images %}
+                        <div class="uploaded-images-gallery">
+                          <div class="images-grid">
+                            {% for image in uploaded_images %}
+                            <div class="gallery-image-item">
+                              <div class="image-container">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
+                                <div class="image-overlay">
+                                  <i class="fa fa-expand"></i>
+                                </div>
+                              </div>
+                              {% if image.caption %}
+                                <div class="image-caption">{{ image.caption }}</div>
+                              {% elif image.alt %}
+                                <div class="image-caption">{{ image.alt }}</div>
+                              {% endif %}
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      {% endif %}
+
+                      <!-- External Images (Markdown/HTML) -->
+                      {% if c.page.image_gallery %}
+                      <div class="external-images-gallery">
+                        {% if c.page.uploaded_images %}
+                          <h3>{{ _('Additional Images') }}</h3>
+                        {% endif %}
+                        <div class="image-gallery-content">
+                          {{ h.render_markdown(c.page.image_gallery, allow_html=True) | safe }}
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Additional Information -->
+                {% if c.page.additional_content %}
+                <div class="news-additional" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-additional">
+                    <div class="module-content">
+                      <div class="news-section-header">
+                        <div class="news-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Additional Information') }}</h2>
+                      </div>
+                      <div class="news-content-body">
+                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- External Links -->
+                {% if c.page.external_links %}
+                <div class="news-links" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-links">
+                    <div class="module-content">
+                      <div class="news-section-header">
+                        <div class="news-section-icon">
+                          <i class="fa fa-external-link"></i>
+                        </div>
+                        <h2>{{ _('Related Links') }}</h2>
+                      </div>
+                      <div class="links-content">
+                        {{ h.render_markdown(c.page.external_links, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Actions and Navigation -->
+                <div class="news-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="navigation-links">
+                            <a href="{{ h.url_for('pages.water_news_index') }}" class="btn btn-default btn-lg">
+                              <i class="fa fa-arrow-left"></i> {{ _('Back to News') }}
+                            </a>
+                          </div>
+                        </div>
+                        <div class="col-md-6 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <div class="admin-actions">
+                              <a href="{{ h.url_for('pages.water_news_edit', page=c.page.name) }}" class="btn btn-primary">
+                                <i class="fa fa-edit"></i> {{ _('Edit Article') }}
+                              </a>
+                              {% if h.check_access('sysadmin') %}
+                                <a href="/water-news/{{ c.page.name }}/revisions" class="btn btn-default">
+                                  <i class="fa fa-history"></i> {{ _('History') }}
+                                </a>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Related News -->
+                <div class="related-news" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-related">
+                    <div class="module-content">
+                      <div class="news-section-header">
+                        <div class="news-section-icon">
+                          <i class="fa fa-newspaper-o"></i>
+                        </div>
+                        <h2>{{ _('Related News') }}</h2>
+                      </div>
+                      
+                      {% set related_news = h.get_recent_water_news(number=3, exclude=c.page.name) %}
+                      {% if related_news %}
+                        <div class="related-news-grid">
+                          {% for item in related_news %}
+                          <div class="related-news-card">
+                            <div class="card-content">
+                              <h4><a href="{{ h.url_for('pages.water_news_show', page=item.name) }}">{{ item.title }}</a></h4>
+                              {% if item.publish_date %}
+                                <div class="card-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                                </div>
+                              {% endif %}
+                              {% if item.excerpt %}
+                                <p>{{ item.excerpt[:100] }}{% if item.excerpt|length > 100 %}...{% endif %}</p>
+                              {% endif %}
+                            </div>
+                          </div>
+                          {% endfor %}
+                        </div>
+                      {% else %}
+                        <div class="no-related-content">
+                          <p class="text-muted">{{ _('No related news articles available at this time.') }}</p>
+                          <a href="{{ h.url_for('pages.water_news_index') }}" class="btn btn-outline">
+                            {{ _('Browse All News') }} <i class="fa fa-arrow-right"></i>
+                          </a>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="imageModalTitle">{{ _('Image Preview') }}</h4>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-responsive" style="max-width: 100%; height: auto;">
+        <p id="modalCaption" class="image-modal-caption"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Professional Water News CSS -->
+<style>
+/* Water News Theme */
+:root {
+  --news-red: #e74c3c;
+  --news-red-dark: #c0392b;
+  --news-red-light: #ec7063;
+  --news-red-pale: #fadbd8;
+  --water-blue: #0072BC;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(231, 76, 60, 0.08);
+  --shadow-medium: 0 4px 16px rgba(231, 76, 60, 0.12);
+  --shadow-strong: 0 8px 32px rgba(231, 76, 60, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 800px;
+}
+
+.section-title-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+.section-title-meta-date {
+  font-size: 1.2rem;
+  color: white;
+  opacity: 1;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--news-red);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--news-red);
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Section Headers with Icons */
+.news-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--news-red-pale);
+  position: relative;
+}
+
+.news-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--news-red) 0%, var(--news-red-light) 100%);
+  border-radius: 2px;
+}
+
+.news-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-light) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+  flex-shrink: 0;
+}
+
+.news-section-header h2 {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+  border: none;
+  padding: 0;
+}
+
+.news-content-body {
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* Specialized Module Styles */
+.news-module-meta {
+  border-left: 6px solid var(--news-red);
+}
+
+.news-module-content {
+  border-left: 6px solid var(--water-blue);
+}
+
+.news-module-gallery {
+  border-left: 6px solid #f39c12;
+}
+
+.news-module-additional {
+  border-left: 6px solid #27ae60;
+}
+
+.news-module-links {
+  border-left: 6px solid #9b59b6;
+}
+
+.news-module-related {
+  border-left: 6px solid var(--text-secondary);
+}
+
+/* Meta Information */
+.meta-grid {
+  margin-top: 1rem;
+}
+
+.meta-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--news-red-pale) 0%, #ffffff 100%);
+  border-radius: 12px;
+  border-left: 4px solid var(--news-red);
+}
+
+.meta-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.meta-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.meta-value {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.meta-secondary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.news-type-badge {
+  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.meta-timestamps {
+  text-align: right;
+}
+
+.timestamp-item {
+  margin-bottom: 0.5rem;
+}
+
+/* Image Gallery - Enhanced */
+.uploaded-images-gallery {
+  margin-bottom: 2rem;
+}
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.gallery-image-item {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.gallery-image-item:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-strong);
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  height: 220px;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.image-container:hover .gallery-image {
+  transform: scale(1.15);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.8) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.image-caption {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Related News */
+.related-news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.related-news-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.related-news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--news-red);
+}
+
+.related-news-card h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.related-news-card h4 a {
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.related-news-card h4 a:hover {
+  color: var(--news-red);
+}
+
+.card-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.no-related-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--news-red);
+  border: 2px solid var(--news-red);
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-outline:hover {
+  background: var(--news-red);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Action Buttons */
+.admin-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--news-red-dark) 0%, var(--news-red) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+}
+
+.btn-default:hover {
+  background: var(--news-red-pale);
+  border-color: var(--news-red);
+  color: var(--news-red);
+  transform: translateY(-1px);
+}
+
+/* Modal Enhancements */
+.modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: var(--shadow-strong);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-light) 100%);
+  color: white;
+  border-radius: 20px 20px 0 0;
+  padding: 1.5rem 2rem;
+}
+
+.modal-title {
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.modal-body {
+  padding: 2rem;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.image-modal-caption {
+  margin-top: 1.5rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .news-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .news-section-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .meta-primary {
+    margin-bottom: 2rem;
+  }
+  
+  .meta-secondary {
+    align-items: flex-start;
+  }
+  
+  .meta-timestamps {
+    text-align: left;
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .related-news-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .admin-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .meta-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .meta-content {
+    align-items: center;
+  }
+  
+  .image-container {
+    height: 180px;
+  }
+}
+</style>
+
+{% endblock %} 

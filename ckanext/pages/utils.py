@@ -24,8 +24,18 @@ def _parse_form_data(request):
 
 def pages_list_pages(page_type):
     data_dict = {'org_id': None, 'page_type': page_type}
-    if page_type in ['blog', 'rapid-response']:
+    if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications']:
         data_dict['order_publish_date'] = True
+    
+    # For water family content, only show public items to regular users
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        try:
+            tk.check_access('sysadmin', {'user': tk.g.user})
+            # Admin can see all items including private ones
+        except tk.NotAuthorized:
+            # Regular users only see public items
+            data_dict['private'] = False
+    
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
     )
@@ -40,6 +50,12 @@ def pages_list_pages(page_type):
         return tk.render('ckanext_pages/blog_list.html')
     elif page_type == 'rapid-response':
         return tk.render('ckanext_pages/rapid-response_list.html')
+    elif page_type == 'water-news':
+        return tk.render('ckanext_pages/water-news_list.html')
+    elif page_type == 'water-events':
+        return tk.render('ckanext_pages/water-events_list.html')
+    elif page_type == 'water-publications':
+        return tk.render('ckanext_pages/water-publications_list.html')
     return tk.render('ckanext_pages/pages_list.html')
 
 
@@ -69,10 +85,31 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         page_dict['page'] = page
         page_dict['page_type'] = 'page' if page_type == 'pages' else page_type
 
+        # For water family content, set as private by default for non-admin users
+        if page_type in ['water-news', 'water-events', 'water-publications'] and not page:
+            try:
+                tk.check_access('sysadmin', {'user': tk.g.user})
+                # Admin can choose public/private
+            except tk.NotAuthorized:
+                # Regular users create as private (pending approval)
+                page_dict['private'] = 'True'
+
         try:
             tk.get_action('ckanext_pages_update')(
                 context={}, data_dict=page_dict
             )
+            
+            # Show different messages based on user type and page status
+            if page_type in ['water-news', 'water-events', 'water-publications']:
+                try:
+                    tk.check_access('sysadmin', {'user': tk.g.user})
+                    if page_dict.get('private') == 'True':
+                        tk.h.flash_success(_('Content saved as draft'))
+                    else:
+                        tk.h.flash_success(_('Content published successfully'))
+                except tk.NotAuthorized:
+                    tk.h.flash_success(_('Content submitted for review. It will be published after admin approval.'))
+            
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -80,9 +117,17 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             return pages_edit(
                 page, data, errors, error_summary, page_type=page_type)
 
+        # Handle redirects for different page types
         endpoint = 'show' if page_type in ('pages', 'page') else '%s_show' % page_type
         if page_type == 'rapid-response':
             endpoint = 'rapid_response_show'
+        elif page_type == 'water-news':
+            endpoint = 'water_news_show'
+        elif page_type == 'water-events':
+            endpoint = 'water_events_show'
+        elif page_type == 'water-publications':
+            endpoint = 'water_publications_show'
+        
         return tk.redirect_to('pages.%s' % endpoint, page=page_dict['name'])
 
     if not data:
@@ -258,9 +303,18 @@ def pages_delete(page, page_type='pages'):
     try:
         if tk.request.method == 'POST':
             tk.get_action('ckanext_pages_delete')({}, {'page': page})
+            
+            # Handle redirects for different page types
             endpoint = page_type + '_index'
             if page_type == 'rapid-response':
                 endpoint = 'rapid_response_index'
+            elif page_type == 'water-news':
+                endpoint = 'water_news_index'
+            elif page_type == 'water-events':
+                endpoint = 'water_events_index'
+            elif page_type == 'water-publications':
+                endpoint = 'water_publications_index'
+            
             return tk.redirect_to('pages.%s' % endpoint)
         else:
             return tk.abort(404, _('Page Not Found'))
@@ -436,3 +490,153 @@ def group_delete(id, group_type, page):
         'ckanext_pages/confirm_delete.html',
         {'page': page, 'group_type': group_type, 'group_dict': group_dict}
     )
+
+
+# Water Family Community of Practice Functions
+def water_family_main_page():
+    """Main water family page showing all three content types"""
+    
+    # Get recent items from each category (only approved/public items)
+    try:
+        news_items = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None, 
+                'page_type': 'water-news',
+                'order_publish_date': True,
+                'private': False
+            }
+        )[:3]  # Latest 3 news items
+    except:
+        news_items = []
+    
+    try:
+        events_items = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None, 
+                'page_type': 'water-events',
+                'order_publish_date': True,
+                'private': False
+            }
+        )[:3]  # Latest 3 events
+    except:
+        events_items = []
+    
+    try:
+        publications_items = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None, 
+                'page_type': 'water-publications',
+                'order_publish_date': True,
+                'private': False
+            }
+        )[:3]  # Latest 3 publications
+    except:
+        publications_items = []
+    
+    return tk.render('ckanext_pages/water-family.html', extra_vars={
+        'news_items': news_items,
+        'events_items': events_items,
+        'publications_items': publications_items
+    })
+
+
+def water_admin_dashboard():
+    """Admin dashboard to approve/reject water family content"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to access admin dashboard'))
+    
+    # Get all pending items (private items that need approval)
+    try:
+        pending_news = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None, 
+                'page_type': 'water-news',
+                'private': True,
+                'order_publish_date': True
+            }
+        )
+    except:
+        pending_news = []
+    
+    try:
+        pending_events = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None, 
+                'page_type': 'water-events',
+                'private': True,
+                'order_publish_date': True
+            }
+        )
+    except:
+        pending_events = []
+    
+    try:
+        pending_publications = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None, 
+                'page_type': 'water-publications',
+                'private': True,
+                'order_publish_date': True
+            }
+        )
+    except:
+        pending_publications = []
+    
+    return tk.render('ckanext_pages/water-admin-dashboard.html', extra_vars={
+        'pending_news': pending_news,
+        'pending_events': pending_events,
+        'pending_publications': pending_publications
+    })
+
+
+def water_admin_approve(page, page_type):
+    """Approve a water family content item (make it public)"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to approve content'))
+    
+    if tk.request.method == 'POST':
+        try:
+            # Get the page first
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            
+            # Update to make it public
+            page_dict['private'] = 'False'
+            page_dict['page'] = page
+            page_dict['page_type'] = page_type
+            
+            tk.get_action('ckanext_pages_update')(
+                context={}, data_dict=page_dict
+            )
+            
+            tk.h.flash_success(_('Content approved and published successfully'))
+            
+        except Exception as e:
+            tk.h.flash_error(_('Error approving content: %s') % str(e))
+    
+    return tk.redirect_to('pages.water_admin_dashboard')
+
+
+def water_admin_reject(page, page_type):
+    """Reject a water family content item (delete it)"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to reject content'))
+    
+    if tk.request.method == 'POST':
+        try:
+            tk.get_action('ckanext_pages_delete')({}, {'page': page})
+            tk.h.flash_success(_('Content rejected and deleted successfully'))
+        except Exception as e:
+            tk.h.flash_error(_('Error rejecting content: %s') % str(e))
+    
+    return tk.redirect_to('pages.water_admin_dashboard')

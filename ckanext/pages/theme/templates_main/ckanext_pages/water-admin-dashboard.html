@@ -1,0 +1,962 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Water Family - Admin Dashboard') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+                    <li class="active">{{ _('Admin Dashboard') }}</li>
+                </ol>
+            </div>
+
+            <!-- Banner -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title admin-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Water Family Admin Dashboard') }}</h1>
+                  <p class="section-title-description">{{ _('Review and approve community submissions') }}</p>
+                  <div class="section-title-meta">
+                    <i class="fa fa-shield"></i> {{ _('Administrator Panel') }}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Summary Stats -->
+                <div class="admin-summary" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-summary">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-dashboard"></i>
+                        </div>
+                        <h2>{{ _('Pending Approvals Summary') }}</h2>
+                      </div>
+                      <div class="admin-stats-grid">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="admin-stat-card news-stat">
+                              <div class="stat-icon">
+                                <i class="fa fa-newspaper-o"></i>
+                              </div>
+                              <div class="stat-info">
+                                <div class="stat-number">{{ pending_news|length }}</div>
+                                <div class="stat-label">{{ _('News Items') }}</div>
+                                <div class="stat-action">
+                                  {% if pending_news %}
+                                    <a href="#pending-news" class="btn btn-sm btn-primary">{{ _('Review') }}</a>
+                                  {% else %}
+                                    <span class="text-muted">{{ _('All up to date') }}</span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="admin-stat-card events-stat">
+                              <div class="stat-icon">
+                                <i class="fa fa-calendar"></i>
+                              </div>
+                              <div class="stat-info">
+                                <div class="stat-number">{{ pending_events|length }}</div>
+                                <div class="stat-label">{{ _('Events') }}</div>
+                                <div class="stat-action">
+                                  {% if pending_events %}
+                                    <a href="#pending-events" class="btn btn-sm btn-primary">{{ _('Review') }}</a>
+                                  {% else %}
+                                    <span class="text-muted">{{ _('All up to date') }}</span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="admin-stat-card publications-stat">
+                              <div class="stat-icon">
+                                <i class="fa fa-file-text-o"></i>
+                              </div>
+                              <div class="stat-info">
+                                <div class="stat-number">{{ pending_publications|length }}</div>
+                                <div class="stat-label">{{ _('Publications') }}</div>
+                                <div class="stat-action">
+                                  {% if pending_publications %}
+                                    <a href="#pending-publications" class="btn btn-sm btn-primary">{{ _('Review') }}</a>
+                                  {% else %}
+                                    <span class="text-muted">{{ _('All up to date') }}</span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="admin-quick-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-actions">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-flash"></i>
+                        </div>
+                        <h2>{{ _('Quick Actions') }}</h2>
+                      </div>
+                      <div class="quick-actions-grid">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <a href="{{ h.url_for('pages.water_news_index') }}" class="quick-action-card">
+                              <div class="action-icon news-icon">
+                                <i class="fa fa-newspaper-o"></i>
+                              </div>
+                              <h3>{{ _('Manage News') }}</h3>
+                              <p>{{ _('View all news articles and manage visibility') }}</p>
+                            </a>
+                          </div>
+                          <div class="col-md-4">
+                            <a href="{{ h.url_for('pages.water_events_index') }}" class="quick-action-card">
+                              <div class="action-icon events-icon">
+                                <i class="fa fa-calendar"></i>
+                              </div>
+                              <h3>{{ _('Manage Events') }}</h3>
+                              <p>{{ _('View all events and manage schedules') }}</p>
+                            </a>
+                          </div>
+                          <div class="col-md-4">
+                            <a href="{{ h.url_for('pages.water_publications_index') }}" class="quick-action-card">
+                              <div class="action-icon publications-icon">
+                                <i class="fa fa-file-text-o"></i>
+                              </div>
+                              <h3>{{ _('Manage Publications') }}</h3>
+                              <p>{{ _('View all publications and manage library') }}</p>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Pending News Items -->
+                {% if pending_news %}
+                <div id="pending-news" class="admin-pending-news" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-news">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-newspaper-o"></i>
+                        </div>
+                        <h2>{{ _('Pending News Articles') }}</h2>
+                      </div>
+                      
+                      <div class="pending-items-list">
+                        {% for item in pending_news %}
+                        <div class="pending-item news-item">
+                          <div class="item-header">
+                            <div class="item-meta">
+                              <div class="item-type-badge news-badge">{{ _('News') }}</div>
+                              {% if item.publish_date %}
+                                <div class="item-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                                </div>
+                              {% endif %}
+                              <div class="item-status pending-status">
+                                <i class="fa fa-clock-o"></i> {{ _('Pending Review') }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="item-content">
+                            <h3>{{ item.title }}</h3>
+                            {% if item.excerpt %}
+                              <p class="item-excerpt">{{ item.excerpt[:200] }}{% if item.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p class="item-excerpt">{{ (item.content|striptags)[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <div class="item-details">
+                              {% if item.created %}
+                                <span class="detail-item">
+                                  <strong>{{ _('Submitted:') }}</strong> {{ h.render_datetime(item.created, '%B %d, %Y at %H:%M') }}
+                                </span>
+                              {% endif %}
+                              {% if item.author %}
+                                <span class="detail-item">
+                                  <strong>{{ _('Author:') }}</strong> {{ item.author }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <div class="item-actions">
+                            <a href="{{ h.url_for('pages.water_news_show', page=item.name) }}" 
+                               class="btn btn-default btn-sm" target="_blank">
+                              <i class="fa fa-eye"></i> {{ _('Preview') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.water_news_edit', page=item.name) }}" 
+                               class="btn btn-default btn-sm">
+                              <i class="fa fa-edit"></i> {{ _('Edit') }}
+                            </a>
+                            <form method="post" action="{{ h.url_for('pages.water_admin_approve', page_type='water-news', page=item.name) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('{{ _('Are you sure you want to approve this news article?') }}')">
+                              <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa fa-check"></i> {{ _('Approve') }}
+                              </button>
+                            </form>
+                            <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-news', page=item.name) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this news article?') }}')">
+                              <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa fa-times"></i> {{ _('Reject') }}
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Pending Events -->
+                {% if pending_events %}
+                <div id="pending-events" class="admin-pending-events" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-events">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-calendar"></i>
+                        </div>
+                        <h2>{{ _('Pending Events') }}</h2>
+                      </div>
+                      
+                      <div class="pending-items-list">
+                        {% for item in pending_events %}
+                        <div class="pending-item events-item">
+                          <div class="item-header">
+                            <div class="item-meta">
+                              <div class="item-type-badge events-badge">{{ _('Event') }}</div>
+                              {% if item.event_date %}
+                                <div class="item-date event-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(item.event_date, '%B %d, %Y') }}
+                                </div>
+                              {% elif item.publish_date %}
+                                <div class="item-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                                </div>
+                              {% endif %}
+                              <div class="item-status pending-status">
+                                <i class="fa fa-clock-o"></i> {{ _('Pending Review') }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="item-content">
+                            <h3>{{ item.title }}</h3>
+                            {% if item.location %}
+                              <div class="event-location">
+                                <i class="fa fa-map-marker"></i> {{ item.location }}
+                              </div>
+                            {% endif %}
+                            {% if item.excerpt %}
+                              <p class="item-excerpt">{{ item.excerpt[:200] }}{% if item.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p class="item-excerpt">{{ (item.content|striptags)[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <div class="item-details">
+                              {% if item.created %}
+                                <span class="detail-item">
+                                  <strong>{{ _('Submitted:') }}</strong> {{ h.render_datetime(item.created, '%B %d, %Y at %H:%M') }}
+                                </span>
+                              {% endif %}
+                              {% if item.organizer %}
+                                <span class="detail-item">
+                                  <strong>{{ _('Organizer:') }}</strong> {{ item.organizer }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <div class="item-actions">
+                            <a href="{{ h.url_for('pages.water_events_show', page=item.name) }}" 
+                               class="btn btn-default btn-sm" target="_blank">
+                              <i class="fa fa-eye"></i> {{ _('Preview') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.water_events_edit', page=item.name) }}" 
+                               class="btn btn-default btn-sm">
+                              <i class="fa fa-edit"></i> {{ _('Edit') }}
+                            </a>
+                            <form method="post" action="{{ h.url_for('pages.water_admin_approve', page_type='water-events', page=item.name) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('{{ _('Are you sure you want to approve this event?') }}')">
+                              <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa fa-check"></i> {{ _('Approve') }}
+                              </button>
+                            </form>
+                            <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-events', page=item.name) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this event?') }}')">
+                              <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa fa-times"></i> {{ _('Reject') }}
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Pending Publications -->
+                {% if pending_publications %}
+                <div id="pending-publications" class="admin-pending-publications" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-publications">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Pending Publications') }}</h2>
+                      </div>
+                      
+                      <div class="pending-items-list">
+                        {% for item in pending_publications %}
+                        <div class="pending-item publications-item">
+                          <div class="item-header">
+                            <div class="item-meta">
+                              <div class="item-type-badge publications-badge">{{ _('Publication') }}</div>
+                              {% if item.publish_date %}
+                                <div class="item-date">
+                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                                </div>
+                              {% endif %}
+                              <div class="item-status pending-status">
+                                <i class="fa fa-clock-o"></i> {{ _('Pending Review') }}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="item-content">
+                            <h3>{{ item.title }}</h3>
+                            {% if item.authors %}
+                              <div class="publication-authors">
+                                <i class="fa fa-user"></i> {{ item.authors }}
+                              </div>
+                            {% endif %}
+                            {% if item.excerpt %}
+                              <p class="item-excerpt">{{ item.excerpt[:200] }}{% if item.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p class="item-excerpt">{{ (item.content|striptags)[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <div class="item-details">
+                              {% if item.created %}
+                                <span class="detail-item">
+                                  <strong>{{ _('Submitted:') }}</strong> {{ h.render_datetime(item.created, '%B %d, %Y at %H:%M') }}
+                                </span>
+                              {% endif %}
+                              {% if item.publication_type %}
+                                <span class="detail-item">
+                                  <strong>{{ _('Type:') }}</strong> {{ item.publication_type }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <div class="item-actions">
+                            <a href="{{ h.url_for('pages.water_publications_show', page=item.name) }}" 
+                               class="btn btn-default btn-sm" target="_blank">
+                              <i class="fa fa-eye"></i> {{ _('Preview') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.water_publications_edit', page=item.name) }}" 
+                               class="btn btn-default btn-sm">
+                              <i class="fa fa-edit"></i> {{ _('Edit') }}
+                            </a>
+                            <form method="post" action="{{ h.url_for('pages.water_admin_approve', page_type='water-publications', page=item.name) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('{{ _('Are you sure you want to approve this publication?') }}')">
+                              <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa fa-check"></i> {{ _('Approve') }}
+                              </button>
+                            </form>
+                            <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-publications', page=item.name) }}" 
+                                  style="display: inline-block;" 
+                                  onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this publication?') }}')">
+                              <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa fa-times"></i> {{ _('Reject') }}
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- No Pending Items Message -->
+                {% if not pending_news and not pending_events and not pending_publications %}
+                <div class="admin-no-pending" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="no-pending-icon">
+                        <i class="fa fa-check-circle fa-4x" style="color: #27ae60; margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('All Caught Up!') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {{ _('There are no pending items requiring review at this time.') }}
+                      </p>
+                      <a href="{{ h.url_for('pages.water_family_index') }}" class="btn btn-primary">
+                        <i class="fa fa-arrow-left"></i> {{ _('Back to Water Family') }}
+                      </a>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Professional Admin Dashboard CSS -->
+<style>
+/* Water Family Admin Theme */
+:root {
+  --admin-blue: #0072BC;
+  --admin-blue-dark: #005A9C;
+  --admin-blue-light: #009EE0;
+  --admin-blue-pale: #E3F2FD;
+  --admin-teal: #008B8B;
+  --admin-green: #27ae60;
+  --admin-orange: #f39c12;
+  --admin-red: #e74c3c;
+  --admin-purple: #9b59b6;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Admin Banner */
+.admin-title {
+  height: 300px;
+}
+
+.admin-title .section-title-bg {
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 50%, #1a252f 100%);
+}
+
+.admin-title .section-title-overlay {
+  background: linear-gradient(135deg, rgba(52, 73, 94, 0.9) 0%, rgba(44, 62, 80, 0.8) 100%);
+}
+
+/* Admin Modules */
+.admin-module-summary {
+  border-left: 6px solid var(--admin-blue);
+}
+
+.admin-module-actions {
+  border-left: 6px solid var(--admin-teal);
+}
+
+.admin-module-news {
+  border-left: 6px solid var(--admin-red);
+}
+
+.admin-module-events {
+  border-left: 6px solid var(--admin-orange);
+}
+
+.admin-module-publications {
+  border-left: 6px solid var(--admin-purple);
+}
+
+/* Admin Section Headers */
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--admin-blue-pale);
+  position: relative;
+}
+
+.admin-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--admin-blue) 0%, var(--admin-blue-light) 100%);
+  border-radius: 2px;
+}
+
+.admin-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--admin-blue) 0%, var(--admin-teal) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+}
+
+.admin-section-header h2 {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+/* Admin Stats Cards */
+.admin-stats-grid {
+  margin-top: 1.5rem;
+}
+
+.admin-stat-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  height: 100%;
+  box-shadow: var(--shadow-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.news-stat:hover {
+  border-color: var(--admin-red);
+}
+
+.events-stat:hover {
+  border-color: var(--admin-orange);
+}
+
+.publications-stat:hover {
+  border-color: var(--admin-purple);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.news-stat .stat-icon {
+  background: linear-gradient(135deg, var(--admin-red) 0%, #c0392b 100%);
+}
+
+.events-stat .stat-icon {
+  background: linear-gradient(135deg, var(--admin-orange) 0%, #e67e22 100%);
+}
+
+.publications-stat .stat-icon {
+  background: linear-gradient(135deg, var(--admin-purple) 0%, #8e44ad 100%);
+}
+
+.stat-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.stat-action {
+  margin-top: auto;
+}
+
+/* Quick Actions */
+.quick-actions-grid {
+  margin-top: 1.5rem;
+}
+
+.quick-action-card {
+  display: block;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  height: 100%;
+  box-shadow: var(--shadow-light);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.action-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.news-icon {
+  background: linear-gradient(135deg, var(--admin-red) 0%, #c0392b 100%);
+}
+
+.events-icon {
+  background: linear-gradient(135deg, var(--admin-orange) 0%, #e67e22 100%);
+}
+
+.publications-icon {
+  background: linear-gradient(135deg, var(--admin-purple) 0%, #8e44ad 100%);
+}
+
+/* Pending Items */
+.pending-items-list {
+  margin-top: 1.5rem;
+}
+
+.pending-item {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.pending-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.news-item {
+  border-left: 4px solid var(--admin-red);
+}
+
+.events-item {
+  border-left: 4px solid var(--admin-orange);
+}
+
+.publications-item {
+  border-left: 4px solid var(--admin-purple);
+}
+
+.item-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.item-type-badge {
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.news-badge {
+  background: var(--admin-red);
+}
+
+.events-badge {
+  background: var(--admin-orange);
+}
+
+.publications-badge {
+  background: var(--admin-purple);
+}
+
+.item-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-date.event-date {
+  color: var(--admin-orange);
+  font-weight: 600;
+}
+
+.item-status {
+  font-size: 0.85rem;
+  color: #f39c12;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.pending-status {
+  background: rgba(243, 156, 18, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.item-content {
+  padding: 1.5rem;
+}
+
+.item-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.event-location,
+.publication-authors {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.item-excerpt {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.item-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 4px solid var(--admin-blue-pale);
+}
+
+.detail-item {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.detail-item strong {
+  color: var(--text-primary);
+}
+
+.item-actions {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f8f9fa;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.item-actions .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.item-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+.item-actions .btn-success {
+  background: linear-gradient(135deg, var(--admin-green) 0%, #2ecc71 100%);
+  border: none;
+  color: white;
+}
+
+.item-actions .btn-success:hover {
+  background: linear-gradient(135deg, #2ecc71 0%, var(--admin-green) 100%);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+.item-actions .btn-danger {
+  background: linear-gradient(135deg, var(--admin-red) 0%, #c0392b 100%);
+  border: none;
+  color: white;
+}
+
+.item-actions .btn-danger:hover {
+  background: linear-gradient(135deg, #c0392b 0%, var(--admin-red) 100%);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+/* No Pending Items */
+.no-pending-icon {
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-title {
+    height: 250px;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .admin-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .admin-section-icon {
+    margin-bottom: 1rem;
+    margin-right: 0;
+  }
+  
+  .admin-stats-grid .col-md-4,
+  .quick-actions-grid .col-md-4 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .item-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .item-status {
+    margin-left: 0;
+  }
+  
+  .item-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .item-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .item-actions .btn,
+  .item-actions form {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-title {
+    height: 200px;
+  }
+  
+  .admin-title .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .admin-stat-card,
+  .quick-action-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
+}
+</style>
+
+{% endblock %} 

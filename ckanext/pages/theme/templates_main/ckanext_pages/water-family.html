@@ -1,0 +1,558 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('IHP Water Family - Community of Practice') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/water-family-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('IHP Water Family') }}</h1>
+                  <p class="section-title-description">{{ _('Community of Practice - News, Events & Publications') }}</p>
+                  <div class="section-title-meta">
+                    <i class="fa fa-users"></i> {{ _('Connecting the global water community') }}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Introduction Section -->
+                <div class="water-family-intro" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-intro">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div class="wf-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Welcome to the IHP Water Family Community') }}</h2>
+                      </div>
+                      <div class="wf-content-body">
+                        <p>{{ _('The IHP Water Family Community of Practice is a collaborative platform that brings together water professionals, researchers, and practitioners from around the world. Here you can find the latest news, upcoming events, and valuable publications from our global water community.') }}</p>
+                        
+                        <div class="community-stats">
+                          <div class="row text-center">
+                            <div class="col-md-4">
+                              <div class="stat-item">
+                                <div class="stat-number">{{ news_items|length + 25 }}</div>
+                                <div class="stat-label">{{ _('News Articles') }}</div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="stat-item">
+                                <div class="stat-number">{{ events_items|length + 15 }}</div>
+                                <div class="stat-label">{{ _('Upcoming Events') }}</div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="stat-item">
+                                <div class="stat-number">{{ publications_items|length + 45 }}</div>
+                                <div class="stat-label">{{ _('Publications') }}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="water-family-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-actions">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div class="wf-section-icon">
+                          <i class="fa fa-plus-circle"></i>
+                        </div>
+                        <h2>{{ _('Share with the Community') }}</h2>
+                      </div>
+                      <div class="action-buttons-grid">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <a href="{{ h.url_for('pages.water_news_new') }}" class="action-card action-card-news">
+                              <div class="action-icon">
+                                <i class="fa fa-newspaper-o"></i>
+                              </div>
+                              <h3>{{ _('Share News') }}</h3>
+                              <p>{{ _('Share important news and updates with the water community') }}</p>
+                            </a>
+                          </div>
+                          <div class="col-md-4">
+                            <a href="{{ h.url_for('pages.water_events_new') }}" class="action-card action-card-events">
+                              <div class="action-icon">
+                                <i class="fa fa-calendar"></i>
+                              </div>
+                              <h3>{{ _('Post Event') }}</h3>
+                              <p>{{ _('Announce conferences, workshops, and training opportunities') }}</p>
+                            </a>
+                          </div>
+                          <div class="col-md-4">
+                            <a href="{{ h.url_for('pages.water_publications_new') }}" class="action-card action-card-publications">
+                              <div class="action-icon">
+                                <i class="fa fa-file-text-o"></i>
+                              </div>
+                              <h3>{{ _('Submit Publication') }}</h3>
+                              <p>{{ _('Share research papers, reports, and technical documents') }}</p>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Latest News -->
+                {% if news_items %}
+                <div class="water-family-news" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-news">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-newspaper-o"></i>
+                          </div>
+                          <h2>{{ _('Latest News') }}</h2>
+                        </div>
+                        <div class="section-actions">
+                          <a href="{{ h.url_for('pages.water_news_index') }}" class="btn btn-outline">
+                            {{ _('View All News') }} <i class="fa fa-arrow-right"></i>
+                          </a>
+                        </div>
+                      </div>
+                      <div class="content-grid">
+                        {% for item in news_items %}
+                        <div class="content-card news-card">
+                          <div class="card-header">
+                            {% if item.publish_date %}
+                              <div class="card-date">
+                                <i class="fa fa-calendar"></i> {{ h.render_datetime(item.publish_date, '%B %d, %Y') }}
+                              </div>
+                            {% endif %}
+                            <div class="card-type">{{ _('News') }}</div>
+                          </div>
+                          <div class="card-content">
+                            <h3><a href="{{ h.url_for('pages.water_news_show', page=item.name) }}">{{ item.title }}</a></h3>
+                            {% if item.excerpt %}
+                              <p>{{ item.excerpt[:150] }}{% if item.excerpt|length > 150 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p>{{ (item.content|striptags)[:150] }}{% if item.content|length > 150 %}...{% endif %}</p>
+                            {% endif %}
+                          </div>
+                          <div class="card-footer">
+                            <a href="{{ h.url_for('pages.water_news_show', page=item.name) }}" class="read-more">
+                              {{ _('Read More') }} <i class="fa fa-arrow-right"></i>
+                            </a>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Community Guidelines -->
+                <div class="water-family-guidelines" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow wf-module-guidelines">
+                    <div class="module-content">
+                      <div class="wf-section-header">
+                        <div>
+                          <div class="wf-section-icon">
+                            <i class="fa fa-info-circle"></i>
+                          </div>
+                          <h2>{{ _('Community Guidelines') }}</h2>
+                        </div>
+                      </div>
+                      <div class="guidelines-grid">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="guideline-item">
+                              <div class="guideline-icon">
+                                <i class="fa fa-check-circle"></i>
+                              </div>
+                              <h4>{{ _('Quality Content') }}</h4>
+                              <p>{{ _('Share high-quality, relevant content that benefits the water community') }}</p>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="guideline-item">
+                              <div class="guideline-icon">
+                                <i class="fa fa-users"></i>
+                              </div>
+                              <h4>{{ _('Respectful Collaboration') }}</h4>
+                              <p>{{ _('Maintain a respectful and professional tone in all interactions') }}</p>
+                            </div>
+                          </div>
+                          <div class="col-md-4">
+                            <div class="guideline-item">
+                              <div class="guideline-icon">
+                                <i class="fa fa-shield"></i>
+                              </div>
+                              <h4>{{ _('Approval Process') }}</h4>
+                              <p>{{ _('All submissions are reviewed by our moderators before publication') }}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- CSS incluido aquí para mantener el diseño consistente -->
+<style>
+/* Water Family Theme */
+:root {
+  --water-blue: #0072BC;
+  --water-blue-dark: #005A9C;
+  --water-blue-light: #009EE0;
+  --water-blue-pale: #E3F2FD;
+  --water-teal: #008B8B;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+.section-title {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0072BC 0%, #008B8B 50%, #00BCD4 100%);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 139, 139, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+}
+
+.section-title-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+
+.section-title-description {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+}
+
+.section-title-meta {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+}
+
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+.wf-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--water-blue-pale);
+  position: relative;
+}
+
+.wf-section-header > div:first-child {
+  display: flex;
+  align-items: center;
+}
+
+.wf-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--water-blue) 0%, var(--water-teal) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+}
+
+.wf-section-header h2 {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.wf-module-intro {
+  border-left: 6px solid var(--water-blue);
+}
+
+.wf-module-actions {
+  border-left: 6px solid var(--water-teal);
+}
+
+.wf-module-news {
+  border-left: 6px solid #e74c3c;
+}
+
+.wf-module-guidelines {
+  border-left: 6px solid #27ae60;
+}
+
+.community-stats {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--water-blue-pale) 0%, #ffffff 100%);
+  border-radius: 16px;
+}
+
+.stat-item {
+  padding: 1rem;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--water-blue);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.action-card {
+  display: block;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  height: 100%;
+  box-shadow: var(--shadow-light);
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.action-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--water-blue) 0%, var(--water-teal) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.content-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.content-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-type {
+  background: var(--water-blue);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.news-card .card-type {
+  background: #e74c3c;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.card-content h3 a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.card-content h3 a:hover {
+  color: var(--water-blue);
+}
+
+.guideline-item {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.guideline-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+{% endblock %} 

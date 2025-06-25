@@ -1,0 +1,635 @@
+{% extends "page.html" %}
+
+{% block title %}
+  {% if page %}
+    {{ _('Edit News Article') }} - {{ super() }}
+  {% else %}
+    {{ _('Share News Article') }} - {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_news_index') }}">{{ _('News') }}</a></li>
+                    {% if page %}
+                      <li><a href="{{ h.url_for('pages.water_news_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li class="active">{{ _('Edit') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Share News') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/water-news-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if page %}
+                    <h1>{{ _('Edit News Article') }}</h1>
+                    <p class="section-title-description">{{ _('Update your news article for the water community') }}</p>
+                  {% else %}
+                    <h1>{{ _('Share News with the Water Community') }}</h1>
+                    <p class="section-title-description">{{ _('Share important news and updates with water professionals worldwide') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Form Section -->
+                <div class="water-news-form-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      
+                      <form method="post" enctype="multipart/form-data" id="water-news-form">
+                        
+                        <!-- Error Summary -->
+                        {% if error_summary %}
+                          <div class="error-summary alert alert-danger">
+                            <p class="alert-heading">{{ _('The form contains invalid entries:') }}</p>
+                            <ul>
+                              {% for key, error in error_summary.items() %}
+                                <li>{{ error }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        {% endif %}
+                        
+                        <!-- Article Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Article Information') }}</legend>
+                          <div class="form-section-content">
+
+                          <div class="form-group">
+                            <label for="field-title" class="control-label">{{ _('Article Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: New UNESCO Water Guidelines Released') }}" class="form-control" required>
+                            <div class="help-text">{{ _('Clear, engaging title for your news article') }}</div>
+                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-name" class="control-label">{{ _('Article URL') }}</label>
+                            <div class="input-group">
+                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="form-control" data-module="slug-preview-target" readonly>
+                              <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="help-text">{{ _('Auto-generated from article title. Click edit button to modify manually.') }}</div>
+                            {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-publish-date" class="control-label">{{ _('Publication Date') }} <span class="text-danger">*</span></label>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="form-control" required>
+                                <div class="help-text">{{ _('When was this news published?') }}</div>
+                                {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-author" class="control-label">{{ _('Author/Source') }}</label>
+                                <input type="text" id="field-author" name="author" value="{{ data.author or '' }}" placeholder="{{ _('Author name or news source') }}" class="form-control">
+                                <div class="help-text">{{ _('Who wrote or published this news?') }}</div>
+                                {% if errors.author %}<span class="error-block">{{ errors.author }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+
+                          {% if h.check_access('sysadmin') %}
+                          <div class="form-group">
+                            <label for="field-private" class="control-label">{{ _('Publication Status') }}</label>
+                            <select id="field-private" name="private" class="form-control">
+                              <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Published - Visible to everyone') }}</option>
+                              <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Draft - Needs approval') }}</option>
+                            </select>
+                            <div class="help-text">{{ _('Administrators can publish articles immediately') }}</div>
+                            {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
+                          </div>
+                          {% else %}
+                          <div class="form-group">
+                            <div class="alert alert-info">
+                              <i class="fa fa-info-circle"></i>
+                              {{ _('Your article will be reviewed by our administrators before being published.') }}
+                            </div>
+                          </div>
+                          {% endif %}
+                          </div>
+                        </fieldset>
+
+                        <!-- Article Content -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Article Content') }}</legend>
+                          <div class="form-section-content">
+                          
+                          <div class="form-group">
+                            <label for="field-excerpt" class="control-label">{{ _('Article Summary') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" required
+                                      placeholder="{{ _('Brief summary of the news article (100-300 words)...') }}">{{ data.excerpt or '' }}</textarea>
+                            <div class="help-text">{{ _('This summary will appear in news listings and social media shares') }}</div>
+                            {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="form-group">
+                            <label for="field-content" class="control-label">{{ _('Full Article Content') }} <span class="text-danger">*</span></label>
+                            <textarea id="field-content" name="content" rows="20" class="form-control" required
+                                      placeholder="{{ _('Write the full news article here. Include all relevant details, quotes, and context.\n\nUse markdown formatting for better presentation:\n- **bold text**\n- *italic text*\n- [links](http://example.com)\n- # Headings\n- - Bullet points') }}">{{ data.content or '' }}</textarea>
+                            <div class="help-text">{{ _('Main content of your news article. You can use Markdown formatting.') }}</div>
+                            {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Additional Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Additional Information') }}</legend>
+                          <div class="form-section-content">
+                          
+                          <div class="form-group">
+                            <label for="field-source" class="control-label">{{ _('Original Source URL') }}</label>
+                            <input type="url" id="field-source" name="source" value="{{ data.source or '' }}" placeholder="{{ _('https://example.com/original-article') }}" class="form-control">
+                            <div class="help-text">{{ _('Link to the original news source (if applicable)') }}</div>
+                            {% if errors.source %}<span class="error-block">{{ errors.source }}</span>{% endif %}
+                          </div>
+                          
+                          <div class="form-group">
+                            <label for="field-external-links" class="control-label">{{ _('Related Links') }}</label>
+                            <textarea id="field-external-links" name="external_links" rows="6" class="form-control" 
+                                      placeholder="{{ _('Add related links using markdown format:\n\n- [UNESCO Water Portal](https://unesco.org/water)\n- [Related Article](https://example.com)\n- [Press Release](https://example.com/press)') }}">{{ data.external_links or '' }}</textarea>
+                            <div class="help-text">{{ _('Links to related articles, press releases, or additional resources') }}</div>
+                            {% if errors.external_links %}<span class="error-block">{{ errors.external_links }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
+                            <textarea id="field-additional-content" name="additional_content" rows="8" class="form-control" 
+                                      placeholder="{{ _('Any additional information, context, or analysis that supplements the main article...') }}">{{ data.additional_content or '' }}</textarea>
+                            <div class="help-text">{{ _('Optional additional content such as background information or analysis') }}</div>
+                            {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Image Gallery -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Images') }}</legend>
+                          <div class="form-section-content">
+                          
+                          <!-- Header Image -->
+                          <div class="form-group">
+                            <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
+                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('https://example.com/image.jpg') }}" class="form-control">
+                            <div class="help-text">{{ _('Main image for the article (will appear in the header and listings)') }}</div>
+                            {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
+                          </div>
+
+                          <!-- Image Upload Section -->
+                          <div class="image-upload-section">
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload Additional Images') }}</label>
+                              <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+                              <div class="upload-dropzone" id="image-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-cloud-upload fa-3x"></i>
+                                  <p>{{ _('Drop images here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Uploaded Images Preview -->
+                            <div id="uploaded-images-preview" class="uploaded-images-grid">
+                              <!-- Uploaded images will appear here -->
+                            </div>
+                          </div>
+
+                          <!-- External Images Section -->
+                          <div class="form-group">
+                            <label for="field-image-gallery" class="control-label">{{ _('External Image URLs') }}</label>
+                            <textarea id="field-image-gallery" name="image_gallery" rows="6" class="form-control" 
+                                      placeholder="{{ _('Add images using markdown syntax:\n\n![Image description](https://example.com/image.jpg)\n![Another image](https://example.com/image2.jpg)') }}">{{ data.image_gallery or '' }}</textarea>
+                            <div class="help-text">{{ _('Images from external sources using Markdown format') }}</div>
+                            {% if errors.image_gallery %}<span class="error-block">{{ errors.image_gallery }}</span>{% endif %}
+                          </div>
+
+                          <!-- Hidden fields for uploaded images -->
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.uploaded_images or '' }}">
+                          </div>
+                        </fieldset>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                          <input type="hidden" name="page_type" value="water-news">
+                          {% if page %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-save"></i> {{ _('Update Article') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                            {% if h.check_access('ckanext_pages_delete') %}
+                              <a href="{{ h.url_for('pages.water_news_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this news article?') }}">
+                                <i class="fa fa-trash"></i> {{ _('Delete Article') }}
+                              </a>
+                            {% endif %}
+                          {% else %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-share"></i> {{ _('Share News Article') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.water_news_index') }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                          {% endif %}
+                        </div>
+
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Professional Water News Edit Form CSS -->
+<style>
+/* Water News Form Theme */
+:root {
+  --news-red: #e74c3c;
+  --news-red-dark: #c0392b;
+  --news-red-light: #ec7063;
+  --news-red-pale: #fadbd8;
+  --water-blue: #0072BC;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(231, 76, 60, 0.08);
+  --shadow-medium: 0 4px 16px rgba(231, 76, 60, 0.12);
+  --shadow-strong: 0 8px 32px rgba(231, 76, 60, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #a93226 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 3rem;
+  border: none;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border-left: 6px solid var(--news-red);
+}
+
+.form-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.form-section legend {
+  background: linear-gradient(135deg, var(--news-red-pale) 0%, #ffffff 100%);
+  color: var(--news-red);
+  font-weight: 700;
+  padding: 1.5rem 2.5rem;
+  margin: 0;
+  font-size: 1.4rem;
+  border: none;
+  width: 100%;
+  border-bottom: 3px solid var(--news-red-pale);
+}
+
+.form-section-content {
+  padding: 2.5rem;
+}
+
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.control-label {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.8rem;
+  display: block;
+  font-size: 1.05rem;
+}
+
+.form-control {
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  padding: 14px 18px;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  min-height: 48px;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: var(--shadow-light);
+}
+
+.form-control:focus {
+  border-color: var(--news-red);
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+  outline: none;
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.form-control[readonly] {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  cursor: not-allowed;
+  color: var(--text-secondary);
+}
+
+.help-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.error-block {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Image Upload */
+.upload-dropzone {
+  border: 3px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--news-red);
+  background: var(--news-red-pale);
+}
+
+.dropzone-content i {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.uploaded-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  color: var(--text-primary);
+  border: 2px solid #e9ecef;
+}
+
+.btn-default:hover {
+  transform: translateY(-1px);
+  border-color: var(--news-red);
+  color: var(--news-red);
+}
+
+.form-actions {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .form-section-content {
+    padding: 1.5rem;
+  }
+  
+  .form-actions .btn {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}
+</style>
+
+<!-- JavaScript for form functionality -->
+<script>
+(function() {
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    // Auto-generate URL slug from title
+    $('#field-title').on('input', function() {
+      if ($('#field-name').prop('readonly')) {
+        var title = $(this).val().toLowerCase()
+          .replace(/[^\w ]+/g,'')
+          .replace(/ +/g,'-');
+        $('#field-name').val(title);
+      }
+    });
+    
+    // Toggle URL field editing
+    $('#edit-url-btn').on('click', function() {
+      var $urlField = $('#field-name');
+      var $btn = $(this);
+      
+      if ($urlField.prop('readonly')) {
+        $urlField.prop('readonly', false).focus();
+        $btn.html('<i class="fa fa-lock"></i>').attr('title', '{{ _("Lock auto-generation") }}');
+        $btn.removeClass('btn-default').addClass('btn-warning');
+      } else {
+        $urlField.prop('readonly', true);
+        $btn.html('<i class="fa fa-edit"></i>').attr('title', '{{ _("Edit URL manually") }}');
+        $btn.removeClass('btn-warning').addClass('btn-default');
+        var title = $('#field-title').val().toLowerCase()
+          .replace(/[^\w ]+/g,'')
+          .replace(/ +/g,'-');
+        $urlField.val(title);
+      }
+    });
+    
+    // Form validation
+    $('form').on('submit', function(e) {
+      var title = $('#field-title').val().trim();
+      var excerpt = $('#field-excerpt').val().trim();
+      var content = $('#field-content').val().trim();
+      
+      if (!title) {
+        alert('{{ _("Please enter an article title") }}');
+        $('#field-title').focus();
+        e.preventDefault();
+        return false;
+      }
+      
+      if (!excerpt) {
+        alert('{{ _("Please enter an article summary") }}');
+        $('#field-excerpt').focus();
+        e.preventDefault();
+        return false;
+      }
+      
+      if (!content) {
+        alert('{{ _("Please enter the article content") }}');
+        $('#field-content').focus();
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    // Delete confirmation
+    $('[data-confirm]').on('click', function(e) {
+      if (!confirm($(this).data('confirm'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    
+    // Set default publish date to today if empty
+    if (!$('#field-publish-date').val()) {
+      var today = new Date().toISOString().split('T')[0];
+      $('#field-publish-date').val(today);
+    }
+  });
+})();
+</script>
+
+{% endblock %} 
