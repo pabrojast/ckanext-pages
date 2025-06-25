@@ -524,6 +524,7 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+  color: #212529 !important;
 }
 
 .event-date,
@@ -570,6 +571,7 @@
 .type-label {
   font-size: 0.9rem;
   font-weight: 600;
+  color: #212529 !important;
 }
 
 /* Event Image */
@@ -891,5 +893,19 @@
   }
 }
 </style>
+
+<!-- Auto-submit functionality for sort filter -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const sortSelect = document.querySelector('.water-events-filters select[name="order_by"]');
+  
+  if (sortSelect) {
+    sortSelect.addEventListener('change', function() {
+      // Submit the form automatically when sort selection changes
+      this.closest('form').submit();
+    });
+  }
+});
+</script>
 
 {% endblock %} 
