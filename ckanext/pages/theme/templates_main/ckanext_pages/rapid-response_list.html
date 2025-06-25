@@ -90,15 +90,7 @@
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">
-                              {% set countries = [] %}
-                              {% for page in c.page.items %}
-                                {% if page.key_info and 'Countries Affected' in page.key_info %}
-                                  {% set countries = countries + [page] %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ countries|length }}
-                            </div>
+                            <div class="metric-number">{{ h.count_unique_countries(c.page.items) }}</div>
                             <div class="metric-label">{{ _('Countries') }}</div>
                           </div>
                         </div>
@@ -142,7 +134,7 @@
                           <div class="col-md-3">
                             <select name="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
-                              <option value="recent" {% if request.args.order_by == 'recent' %}selected{% endif %}>{{ _('Most Recent') }}</option>
+                              <option value="recent" {% if request.args.order_by == 'recent' or not request.args.order_by %}selected{% endif %}>{{ _('Most Recent') }}</option>
                               <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Severity') }}</option>
                               <option value="country" {% if request.args.order_by == 'country' %}selected{% endif %}>{{ _('Country') }}</option>
                             </select>

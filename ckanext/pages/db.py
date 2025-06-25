@@ -92,21 +92,23 @@ class Page(DomainObject, BaseModel):
                 cls.extras.ilike('%"event_type": "' + event_type + '"%')
             )
         
-        # Apply custom ordering
-        if order:
-            query = query.order_by(sa.cast(cls.order, sa.Integer)).filter(cls.order != '')
-        elif order_by == 'recent':
+        # Apply custom ordering (prioritize order_by over other ordering options)
+        if order_by == 'recent':
             query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
         elif order_by == 'severity':
             # Order by severity (you can customize this logic)
             query = query.order_by(cls.created.desc())
         elif order_by == 'country':
-            # Order by country alphabetically (stored in extras)
-            query = query.order_by(cls.extras)
+            # Order by country alphabetically - extract from key_info field
+            # This will attempt to order by country but may not be perfect due to the text format
+            query = query.order_by(cls.title)  # Fallback to title ordering for now
+        elif order:
+            query = query.order_by(sa.cast(cls.order, sa.Integer)).filter(cls.order != '')
         elif order_publish_date:
-            # Default for rapid-response: most recent first
+            # Fallback to publish date ordering
             query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
         else:
+            # Default fallback ordering
             query = query.order_by(cls.created.desc())
         return query.all()
 

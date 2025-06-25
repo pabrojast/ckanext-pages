@@ -207,6 +207,27 @@ def get_event_status_badge_class(status):
         return 'status-unknown'
 
 
+def count_unique_countries(pages):
+    """Count unique countries from pages' key_info field"""
+    countries = set()
+    for page in pages:
+        if page.get('key_info'):
+            lines = page['key_info'].split('\n')
+            for line in lines:
+                line = line.strip()
+                if line.lower().startswith('countries affected:') or line.lower().startswith('country affected:'):
+                    # Extract the country part after the colon
+                    country_part = line.split(':', 1)
+                    if len(country_part) > 1:
+                        country_text = country_part[1].strip()
+                        # Split by comma in case multiple countries are listed
+                        for country in country_text.split(','):
+                            country = country.strip()
+                            if country:
+                                countries.add(country)
+    return len(countries)
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -251,6 +272,7 @@ class PagesPlugin(PagesPluginBase):
             'json_loads': safe_json_loads,
             'get_event_status': get_event_status,
             'get_event_status_badge_class': get_event_status_badge_class,
+            'count_unique_countries': count_unique_countries,
         }
 
     def get_actions(self):

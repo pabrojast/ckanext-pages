@@ -24,8 +24,6 @@ def _parse_form_data(request):
 
 def pages_list_pages(page_type):
     data_dict = {'org_id': None, 'page_type': page_type}
-    if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications']:
-        data_dict['order_publish_date'] = True
     
     # Pass search and filter parameters from request
     if tk.request.args.get('q'):
@@ -34,6 +32,10 @@ def pages_list_pages(page_type):
         data_dict['event_type'] = tk.request.args.get('event_type')
     if tk.request.args.get('order_by'):
         data_dict['order_by'] = tk.request.args.get('order_by')
+    else:
+        # Default ordering for different page types
+        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications']:
+            data_dict['order_by'] = 'recent'  # Default to most recent first
     
     # For water family content, only show public items to regular users
     if page_type in ['water-news', 'water-events', 'water-publications']:
