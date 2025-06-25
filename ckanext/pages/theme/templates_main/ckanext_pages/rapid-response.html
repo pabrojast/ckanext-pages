@@ -80,7 +80,36 @@
                         <h2>{{ _('Key Information') }}</h2>
                       </div>
                       <div class="key-info-content">
-                        {{ h.render_markdown(c.page.key_info, allow_html=True) | safe }}
+                        {% set key_info_lines = c.page.key_info.split('\n') if c.page.key_info else [] %}
+                        {% if key_info_lines %}
+                          <div class="key-info-table">
+                            {% for line in key_info_lines %}
+                              {% if line.strip() and ':' in line %}
+                                {% set parts = line.split(':', 1) %}
+                                {% if parts|length == 2 %}
+                                  <div class="key-info-row">
+                                    <div class="key-info-label">
+                                      <i class="fa fa-info-circle"></i>
+                                      {{ parts[0].strip() }}
+                                    </div>
+                                    <div class="key-info-value">
+                                      {{ parts[1].strip() }}
+                                    </div>
+                                  </div>
+                                {% endif %}
+                              {% elif line.strip() and ':' not in line %}
+                                <div class="key-info-note">
+                                  {{ line.strip() }}
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+                        {% else %}
+                          <div class="key-info-placeholder">
+                            <i class="fa fa-info-circle text-muted"></i>
+                            <span class="text-muted">{{ _('No key information available.') }}</span>
+                          </div>
+                        {% endif %}
                       </div>
                     </div>
                   </section>
@@ -716,47 +745,107 @@
   box-shadow: var(--shadow-light);
 }
 
-.key-info-content table {
-  width: 100%;
-  margin: 0;
-  border-collapse: separate;
-  border-spacing: 0;
+.key-info-table {
   background: white;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-light);
 }
 
-.key-info-content th,
-.key-info-content td {
-  padding: 16px 20px;
-  text-align: left;
+.key-info-row {
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid rgba(0, 114, 188, 0.1);
-  font-size: 1.05rem;
+  transition: all 0.3s ease;
 }
 
-.key-info-content th {
-  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-}
-
-.key-info-content td {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.key-info-content tr:hover td {
+.key-info-row:hover {
   background-color: var(--unesco-blue-pale);
-  transition: background-color 0.3s ease;
 }
 
-.key-info-content tr:last-child th,
-.key-info-content tr:last-child td {
+.key-info-row:last-child {
   border-bottom: none;
+}
+
+.key-info-label {
+  flex: 0 0 40%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-right: 3px solid var(--unesco-blue-light);
+}
+
+.key-info-label i {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.key-info-value {
+  flex: 1;
+  padding: 18px 24px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  background: white;
+}
+
+.key-info-note {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--unesco-blue);
+  margin: 12px 0;
+  border-radius: 8px;
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.key-info-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+  font-size: 1.1rem;
+}
+
+.key-info-placeholder i {
+  font-size: 1.5rem;
+}
+
+/* Responsive design for key info */
+@media (max-width: 768px) {
+  .key-info-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .key-info-label {
+    flex: none;
+    border-right: none;
+    border-bottom: 2px solid var(--unesco-blue-light);
+    border-radius: 0;
+  }
+  
+  .key-info-value {
+    flex: none;
+  }
+  
+  .key-info-label,
+  .key-info-value {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
 }
 
 /* Content styling - Enhanced */
