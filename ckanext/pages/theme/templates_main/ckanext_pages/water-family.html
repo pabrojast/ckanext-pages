@@ -27,7 +27,7 @@
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('/images/water-family-header.jpg');"></div>
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ _('IHP Water Family') }}</h1>
@@ -236,13 +236,13 @@
 
 <!-- CSS incluido aquí para mantener el diseño consistente -->
 <style>
-/* Water Family Theme */
+/* Water Family Theme - UNESCO Palette */
 :root {
-  --water-blue: #0072BC;
-  --water-blue-dark: #005A9C;
-  --water-blue-light: #009EE0;
-  --water-blue-pale: #E3F2FD;
-  --water-teal: #008B8B;
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
   --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
@@ -265,7 +265,15 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #0072BC 0%, #008B8B 50%, #00BCD4 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
 }
 
 .section-title-overlay {
@@ -274,7 +282,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 139, 139, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
 }
 
 .section-title-content {
@@ -350,7 +358,7 @@
   justify-content: space-between;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 3px solid var(--water-blue-pale);
+  border-bottom: 3px solid var(--unesco-blue-pale);
   position: relative;
 }
 
@@ -362,7 +370,7 @@
 .wf-section-icon {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, var(--water-blue) 0%, var(--water-teal) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -383,25 +391,25 @@
 }
 
 .wf-module-intro {
-  border-left: 6px solid var(--water-blue);
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .wf-module-actions {
-  border-left: 6px solid var(--water-teal);
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .wf-module-news {
-  border-left: 6px solid #e74c3c;
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 .wf-module-guidelines {
-  border-left: 6px solid #27ae60;
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .community-stats {
   margin-top: 2rem;
   padding: 2rem;
-  background: linear-gradient(135deg, var(--water-blue-pale) 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
   border-radius: 16px;
 }
 
@@ -412,7 +420,7 @@
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--water-blue);
+  color: var(--unesco-blue);
   line-height: 1;
   margin-bottom: 0.5rem;
 }
@@ -450,7 +458,7 @@
   width: 60px;
   height: 60px;
   margin: 0 auto 1.5rem;
-  background: linear-gradient(135deg, var(--water-blue) 0%, var(--water-teal) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -491,7 +499,7 @@
 }
 
 .card-type {
-  background: var(--water-blue);
+  background: var(--unesco-blue);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
@@ -501,7 +509,7 @@
 }
 
 .news-card .card-type {
-  background: #e74c3c;
+  background: var(--unesco-blue-dark);
 }
 
 .card-content {
@@ -514,7 +522,7 @@
 }
 
 .card-content h3 a:hover {
-  color: var(--water-blue);
+  color: var(--unesco-blue);
 }
 
 .guideline-item {
@@ -526,7 +534,7 @@
   width: 60px;
   height: 60px;
   margin: 0 auto 1.5rem;
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;

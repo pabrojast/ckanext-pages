@@ -29,7 +29,7 @@
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/water-publications-header.jpg{% endif %}');"></div>
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ c.page.title or c.page.name }}</h1>
@@ -266,18 +266,19 @@
     {% endblock %}
 </div>
 
-<!-- Water Publications CSS - Purple Theme -->
+<!-- Water Publications CSS - UNESCO Theme -->
 <style>
 :root {
-  --water-publications-primary: #6f42c1;
-  --water-publications-primary-dark: #5a32a3;
-  --water-publications-primary-light: #8e5bd9;
-  --water-publications-pale: #f3f0ff;
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
-  --shadow-light: 0 2px 8px rgba(111, 66, 193, 0.08);
-  --shadow-medium: 0 4px 16px rgba(111, 66, 193, 0.12);
-  --shadow-strong: 0 8px 32px rgba(111, 66, 193, 0.16);
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
 .section-title {
@@ -295,7 +296,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(111, 66, 193, 0.9) 0%, rgba(90, 50, 163, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 90, 156, 0.8) 100%);
 }
 
 .section-title-content h1 {
@@ -308,7 +309,7 @@
 .water-section-icon {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-light) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -320,28 +321,28 @@
 }
 
 .water-module-overview {
-  border-left: 6px solid var(--water-publications-primary);
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .water-module-details {
-  background: linear-gradient(135deg, var(--water-publications-pale) 0%, #ffffff 100%);
-  border-left: 6px solid var(--water-publications-primary-light);
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .water-module-authors {
-  border-left: 6px solid #28a745;
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 .water-module-access {
-  border-left: 6px solid #007bff;
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .water-module-gallery {
-  border-left: 6px solid #fd7e14;
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .water-module-additional {
-  border-left: 6px solid var(--text-secondary);
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 .publication-details-table {
@@ -354,13 +355,13 @@
 .publication-detail-row {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(111, 66, 193, 0.1);
+  border-bottom: 1px solid rgba(0, 114, 188, 0.1);
 }
 
 .publication-detail-label {
   flex: 0 0 40%;
   padding: 18px 24px;
-  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-light) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
   color: white;
   font-weight: 700;
   display: flex;
@@ -377,7 +378,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--water-publications-primary) 0%, var(--water-publications-primary-dark) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   border: none;
   color: white;
   border-radius: 12px;

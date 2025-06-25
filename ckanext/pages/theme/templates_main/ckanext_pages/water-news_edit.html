@@ -38,7 +38,7 @@
             <!-- Header Section -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('/images/water-news-header.jpg');"></div>
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   {% if page %}
@@ -283,18 +283,18 @@
 
 <!-- Professional Water News Edit Form CSS -->
 <style>
-/* Water News Form Theme */
+/* Water News Form Theme - UNESCO Palette */
 :root {
-  --news-red: #e74c3c;
-  --news-red-dark: #c0392b;
-  --news-red-light: #ec7063;
-  --news-red-pale: #fadbd8;
-  --water-blue: #0072BC;
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
-  --shadow-light: 0 2px 8px rgba(231, 76, 60, 0.08);
-  --shadow-medium: 0 4px 16px rgba(231, 76, 60, 0.12);
-  --shadow-strong: 0 8px 32px rgba(231, 76, 60, 0.16);
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
 /* Banner Section */
@@ -313,11 +313,15 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #a93226 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
 }
 
 .section-title-overlay {
@@ -326,7 +330,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 90, 156, 0.9) 0%, rgba(0, 114, 188, 0.8) 100%);
 }
 
 .section-title-content {
@@ -376,7 +380,7 @@
   box-shadow: var(--shadow-medium);
   transition: all 0.3s ease;
   overflow: hidden;
-  border-left: 6px solid var(--news-red);
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 .form-section:hover {
@@ -385,15 +389,15 @@
 }
 
 .form-section legend {
-  background: linear-gradient(135deg, var(--news-red-pale) 0%, #ffffff 100%);
-  color: var(--news-red);
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  color: var(--unesco-blue-dark);
   font-weight: 700;
   padding: 1.5rem 2.5rem;
   margin: 0;
   font-size: 1.4rem;
   border: none;
   width: 100%;
-  border-bottom: 3px solid var(--news-red-pale);
+  border-bottom: 3px solid var(--unesco-blue-pale);
 }
 
 .form-section-content {
@@ -425,8 +429,8 @@
 }
 
 .form-control:focus {
-  border-color: var(--news-red);
-  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+  border-color: var(--unesco-blue-dark);
+  box-shadow: 0 0 0 0.2rem rgba(0, 90, 156, 0.25);
   outline: none;
   background: #ffffff;
   transform: translateY(-1px);
@@ -464,8 +468,8 @@
 }
 
 .upload-dropzone:hover {
-  border-color: var(--news-red);
-  background: var(--news-red-pale);
+  border-color: var(--unesco-blue-dark);
+  background: var(--unesco-blue-pale);
 }
 
 .dropzone-content i {
@@ -490,7 +494,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   color: white;
   box-shadow: var(--shadow-light);
 }
@@ -509,8 +513,8 @@
 
 .btn-default:hover {
   transform: translateY(-1px);
-  border-color: var(--news-red);
-  color: var(--news-red);
+  border-color: var(--unesco-blue-dark);
+  color: var(--unesco-blue-dark);
 }
 
 .form-actions {

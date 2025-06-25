@@ -29,7 +29,7 @@
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/water-news-header.jpg{% endif %}');"></div>
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ c.page.title or c.page.name }}</h1>
@@ -337,18 +337,18 @@
 
 <!-- Professional Water News CSS -->
 <style>
-/* Water News Theme */
+/* Water News Theme - UNESCO Palette */
 :root {
-  --news-red: #e74c3c;
-  --news-red-dark: #c0392b;
-  --news-red-light: #ec7063;
-  --news-red-pale: #fadbd8;
-  --water-blue: #0072BC;
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
-  --shadow-light: 0 2px 8px rgba(231, 76, 60, 0.08);
-  --shadow-medium: 0 4px 16px rgba(231, 76, 60, 0.12);
-  --shadow-strong: 0 8px 32px rgba(231, 76, 60, 0.16);
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
 /* Banner Section */
@@ -384,7 +384,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 90, 156, 0.9) 0%, rgba(0, 114, 188, 0.8) 100%);
 }
 
 .section-title-content {
@@ -460,7 +460,7 @@
 }
 
 .breadcrumb > li.active a {
-  color: var(--news-red);
+  color: var(--unesco-blue-dark);
   font-weight: 600;
 }
 
@@ -471,7 +471,7 @@
 }
 
 .breadcrumb > li a:hover {
-  color: var(--news-red);
+  color: var(--unesco-blue-dark);
 }
 
 /* Professional Module Styling */
@@ -500,7 +500,7 @@
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
-  border-bottom: 3px solid var(--news-red-pale);
+  border-bottom: 3px solid var(--unesco-blue-pale);
   position: relative;
 }
 
@@ -511,14 +511,14 @@
   left: 0;
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, var(--news-red) 0%, var(--news-red-light) 100%);
+  background: linear-gradient(90deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   border-radius: 2px;
 }
 
 .news-section-icon {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-light) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -548,27 +548,27 @@
 
 /* Specialized Module Styles */
 .news-module-meta {
-  border-left: 6px solid var(--news-red);
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 .news-module-content {
-  border-left: 6px solid var(--water-blue);
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .news-module-gallery {
-  border-left: 6px solid #f39c12;
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .news-module-additional {
-  border-left: 6px solid #27ae60;
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .news-module-links {
-  border-left: 6px solid #9b59b6;
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .news-module-related {
-  border-left: 6px solid var(--text-secondary);
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 /* Meta Information */
@@ -587,15 +587,15 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, var(--news-red-pale) 0%, #ffffff 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
   border-radius: 12px;
-  border-left: 4px solid var(--news-red);
+  border-left: 4px solid var(--unesco-blue-dark);
 }
 
 .meta-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -633,7 +633,7 @@
 }
 
 .news-type-badge {
-  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   color: white;
   padding: 12px 20px;
   border-radius: 25px;
@@ -705,7 +705,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 90, 156, 0.9) 0%, rgba(0, 114, 188, 0.8) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -759,7 +759,7 @@
 .related-news-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-medium);
-  border-color: var(--news-red);
+  border-color: var(--unesco-blue-dark);
 }
 
 .related-news-card h4 {
@@ -775,7 +775,7 @@
 }
 
 .related-news-card h4 a:hover {
-  color: var(--news-red);
+  color: var(--unesco-blue-dark);
 }
 
 .card-date {
@@ -794,8 +794,8 @@
 
 .btn-outline {
   background: transparent;
-  color: var(--news-red);
-  border: 2px solid var(--news-red);
+  color: var(--unesco-blue-dark);
+  border: 2px solid var(--unesco-blue-dark);
   border-radius: 25px;
   padding: 8px 20px;
   font-weight: 600;
@@ -807,7 +807,7 @@
 }
 
 .btn-outline:hover {
-  background: var(--news-red);
+  background: var(--unesco-blue-dark);
   color: white;
   text-decoration: none;
   transform: translateY(-1px);
@@ -829,13 +829,13 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   border: none;
   color: white;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--news-red-dark) 0%, var(--news-red) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-medium);
   color: white;
@@ -848,9 +848,9 @@
 }
 
 .btn-default:hover {
-  background: var(--news-red-pale);
-  border-color: var(--news-red);
-  color: var(--news-red);
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue-dark);
+  color: var(--unesco-blue-dark);
   transform: translateY(-1px);
 }
 
@@ -862,7 +862,7 @@
 }
 
 .modal-header {
-  background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-light) 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   color: white;
   border-radius: 20px 20px 0 0;
   padding: 1.5rem 2rem;

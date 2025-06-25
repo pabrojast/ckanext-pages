@@ -455,17 +455,14 @@
 
 <!-- Professional Admin Dashboard CSS -->
 <style>
-/* Water Family Admin Theme */
+/* Water Family Admin Theme - UNESCO Palette */
 :root {
-  --admin-blue: #0072BC;
-  --admin-blue-dark: #005A9C;
-  --admin-blue-light: #009EE0;
-  --admin-blue-pale: #E3F2FD;
-  --admin-teal: #008B8B;
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
   --admin-green: #27ae60;
-  --admin-orange: #f39c12;
-  --admin-red: #e74c3c;
-  --admin-purple: #9b59b6;
   --text-primary: #2c3e50;
   --text-secondary: #6c757d;
   --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
@@ -479,32 +476,37 @@
 }
 
 .admin-title .section-title-bg {
-  background: linear-gradient(135deg, #34495e 0%, #2c3e50 50%, #1a252f 100%);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 50%, var(--unesco-blue-light) 100%);
+  background-image: url('/images/rapid-response-header.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
 }
 
 .admin-title .section-title-overlay {
-  background: linear-gradient(135deg, rgba(52, 73, 94, 0.9) 0%, rgba(44, 62, 80, 0.8) 100%);
+  background: linear-gradient(135deg, rgba(0, 90, 156, 0.9) 0%, rgba(0, 114, 188, 0.8) 100%);
 }
 
 /* Admin Modules */
 .admin-module-summary {
-  border-left: 6px solid var(--admin-blue);
+  border-left: 6px solid var(--unesco-blue);
 }
 
 .admin-module-actions {
-  border-left: 6px solid var(--admin-teal);
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .admin-module-news {
-  border-left: 6px solid var(--admin-red);
+  border-left: 6px solid var(--unesco-blue-dark);
 }
 
 .admin-module-events {
-  border-left: 6px solid var(--admin-orange);
+  border-left: 6px solid var(--unesco-blue-light);
 }
 
 .admin-module-publications {
-  border-left: 6px solid var(--admin-purple);
+  border-left: 6px solid var(--unesco-blue);
 }
 
 /* Admin Section Headers */
