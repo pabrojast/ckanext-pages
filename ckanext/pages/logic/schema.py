@@ -41,6 +41,28 @@ def default_pages_schema():
         'source': [ignore_missing, unicode_safe],           # Original source URL
         'external_links': [ignore_missing, unicode_safe],   # Related links
         'author': [ignore_missing, unicode_safe],           # Author/Source name
+        # Water Events specific fields
+        'location': [ignore_missing, unicode_safe],         # Event location
+        'organization': [ignore_missing, unicode_safe],     # Organizing institution
+        'event_details': [ignore_missing, unicode_safe],    # Event details and schedule
+        'speakers': [ignore_missing, unicode_safe],         # Speakers and organizers
+        'registration_info': [ignore_missing, unicode_safe], # Registration information
+        'registration_url': [ignore_missing, unicode_safe], # Registration URL
+        # Water Publications specific fields
+        'publication_url': [ignore_missing, unicode_safe],  # URL to publication
+        'publication_type': [ignore_missing, unicode_safe], # Type of publication
+        'authors': [ignore_missing, unicode_safe],          # Publication authors
+        'publication_details': [ignore_missing, unicode_safe], # Publication bibliographic details
+        'download_url': [ignore_missing, unicode_safe],     # Direct download URL
+        'isbn': [ignore_missing, unicode_safe],             # ISBN for books
+        'doi': [ignore_missing, unicode_safe],              # DOI for papers
+        'journal': [ignore_missing, unicode_safe],          # Journal name
+        'conference': [ignore_missing, unicode_safe],       # Conference name
+        'year': [ignore_missing, unicode_safe],             # Publication year
+        'volume': [ignore_missing, unicode_safe],           # Volume number
+        'issue': [ignore_missing, unicode_safe],            # Issue number
+        'pages': [ignore_missing, unicode_safe],            # Page numbers
+        'abstract': [ignore_missing, unicode_safe],         # Publication abstract
     }
 
 
