@@ -476,6 +476,13 @@
   box-shadow: var(--shadow-light);
 }
 
+/* Ensure input and textarea fields maintain their original styling */
+input.form-control:not([type="file"]),
+textarea.form-control {
+  padding: 14px 18px;
+  height: auto;
+}
+
 .form-control:focus {
   border-color: var(--unesco-blue-light);
   box-shadow: 0 0 0 0.2rem rgba(0, 158, 224, 0.25);
@@ -490,19 +497,29 @@ select.form-control {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 15px center;
   background-size: 12px;
   cursor: pointer;
+  height: auto;
+  min-height: 3em;
+  padding: 12px 35px 12px 18px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
 }
 
 select.form-control:focus {
   outline: none;
+  height: auto;
+  min-height: 3em;
 }
 
 select.form-control option {
   padding: 8px 12px;
   background: white;
   color: #333;
+  line-height: 1.4;
+  height: auto;
 }
 
 select.form-control option:hover,
