@@ -103,7 +103,7 @@
                           </div>
                                                     
                           <div class="form-group">
-                            <label for="field-subtitle" class="control-label">{{ _('Event Type') }}</label>
+                            <label for="field-event-type" class="control-label">{{ _('Event Type') }}</label>
                             <select id="field-event-type" name="subtitle" class="form-control">
                               <option value="">{{ _('Select event type...') }}</option>
                               <option value="Conference" {% if data.subtitle == 'Conference' %}selected{% endif %}>{{ _('Conference') }}</option>
@@ -481,6 +481,34 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 158, 224, 0.25);
   background: #ffffff;
   transform: translateY(-1px);
+}
+
+/* Specific styling for select fields */
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  cursor: pointer;
+}
+
+select.form-control:focus {
+  outline: none;
+}
+
+select.form-control option {
+  padding: 8px 12px;
+  background: white;
+  color: #333;
+}
+
+select.form-control option:hover,
+select.form-control option:selected {
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
 }
 
 .btn-primary {
@@ -930,8 +958,25 @@
       updateUploadedImagesData();
     });
 
+    // Ensure select fields work correctly
+    function preventSelectReset() {
+      // Prevent form reset issues with select fields
+      $('#field-event-type, #field-private').on('change', function() {
+        var $this = $(this);
+        var selectedValue = $this.val();
+        
+        // Small delay to ensure value is preserved
+        setTimeout(function() {
+          if ($this.val() !== selectedValue) {
+            $this.val(selectedValue);
+          }
+        }, 10);
+      });
+    }
+
     // Initialize
     loadUploadedImages();
+    preventSelectReset();
     
     console.log('Water Events edit form initialized with image upload functionality');
   });
