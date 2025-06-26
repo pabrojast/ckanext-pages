@@ -1,0 +1,974 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Open Source Software & Learning Resources') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software & Learning') }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Open Source Software & Learning Resources') }}</h1>
+                  <p class="section-title-description">{{ _('Discover powerful open-source tools, applications and learning courses for geospatial analysis and data management') }}</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Action Bar -->
+                <div class="software-actions-bar" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Software Catalog & Learning Resources') }}</h2>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Curated collection of open-source software, example applications, and associated learning courses') }}</p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Add Software Entry') }}
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Software Summary -->
+                {% if c.page.items %}
+                <div class="software-summary" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1rem 2.5rem;">
+                      <div class="row text-center">
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ c.page.items|length }}</div>
+                            <div class="metric-label">{{ _('Total Entries') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set category_count = h.count_software_by_category(c.page.items) %}
+                              {{ category_count.keys()|length if category_count else 0 }}
+                            </div>
+                            <div class="metric-label">{{ _('Categories') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set course_count = 0 %}
+                              {% for item in c.page.items %}
+                                {% if item.learning_resources %}
+                                  {% set course_count = course_count + 1 %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ course_count }}
+                            </div>
+                            <div class="metric-label">{{ _('With Courses') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ _('100%') }}</div>
+                            <div class="metric-label">{{ _('Open Source') }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Filter and Search -->
+                {% if c.page.items or request.args.q %}
+                <div class="software-filters" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <form method="get" class="form-inline">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group" style="width: 100%;">
+                              <label for="q" class="sr-only">{{ _('Search') }}</label>
+                              <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
+                                     placeholder="{{ _('Search software and tools...') }}" 
+                                     value="{{ request.args.q or '' }}">
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <select name="category" class="form-control">
+                              <option value="">{{ _('All Categories') }}</option>
+                              <option value="gis" {% if request.args.category == 'gis' %}selected{% endif %}>{{ _('GIS Software') }}</option>
+                              <option value="data-processing" {% if request.args.category == 'data-processing' %}selected{% endif %}>{{ _('Data Processing') }}</option>
+                              <option value="visualization" {% if request.args.category == 'visualization' %}selected{% endif %}>{{ _('Visualization') }}</option>
+                              <option value="web-platform" {% if request.args.category == 'web-platform' %}selected{% endif %}>{{ _('Web Platforms') }}</option>
+                              <option value="desktop-app" {% if request.args.category == 'desktop-app' %}selected{% endif %}>{{ _('Desktop Apps') }}</option>
+                              <option value="library" {% if request.args.category == 'library' %}selected{% endif %}>{{ _('Libraries') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-3">
+                            <select name="difficulty" class="form-control">
+                              <option value="">{{ _('All Levels') }}</option>
+                              <option value="beginner" {% if request.args.difficulty == 'beginner' %}selected{% endif %}>{{ _('Beginner') }}</option>
+                              <option value="intermediate" {% if request.args.difficulty == 'intermediate' %}selected{% endif %}>{{ _('Intermediate') }}</option>
+                              <option value="advanced" {% if request.args.difficulty == 'advanced' %}selected{% endif %}>{{ _('Advanced') }}</option>
+                              <option value="expert" {% if request.args.difficulty == 'expert' %}selected{% endif %}>{{ _('Expert') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <button type="submit" class="btn btn-default btn-block">
+                              <i class="fa fa-search"></i> {{ _('Filter') }}
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Software Catalog -->
+                {% if c.page.items %}
+                <div class="software-catalog">
+                  {% for page in c.page.items %}
+                  <div class="software-card" style="margin-bottom: 2rem;">
+                    <article class="module">
+                      <!-- Software Header -->
+                      <div class="software-header">
+                        <div class="row">
+                          <div class="col-md-8">
+                            <div class="software-metadata">
+                              {% if page.software_category %}
+                                <span class="software-category-badge {{ h.get_software_category_class(page.software_category) }}">
+                                  {{ page.software_category.replace('-', ' ').title() }}
+                                </span>
+                              {% endif %}
+                              {% if page.software_license %}
+                                <span class="license-badge">
+                                  <i class="fa fa-certificate"></i> {{ page.software_license }}
+                                </span>
+                              {% endif %}
+                              {% if page.software_difficulty %}
+                                <span class="difficulty-badge {{ h.get_software_difficulty_class(page.software_difficulty) }}">
+                                  <i class="fa fa-signal"></i> {{ page.software_difficulty.title() }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          <div class="col-md-4 text-right">
+                            <div class="software-status">
+                              {% if page.project_status %}
+                                <span class="status-indicator status-{{ page.project_status.lower() }}"></span>
+                                <span class="status-label">{{ page.project_status.title() }}</span>
+                              {% else %}
+                                <span class="status-indicator status-active"></span>
+                                <span class="status-label">{{ _('Active') }}</span>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Software Content -->
+                      <div class="module-content">
+                        <div class="row">
+                          <!-- Software Logo/Screenshot -->
+                          <div class="col-md-4">
+                            <div class="software-image">
+                              {% if page.header_image %}
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                              {% elif page.uploaded_images %}
+                                {% set images = h.json_loads(page.uploaded_images) or [] %}
+                                {% if images and images[0] %}
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                {% else %}
+                                  <div class="placeholder-image">
+                                    <i class="fa fa-code fa-3x"></i>
+                                  </div>
+                                {% endif %}
+                              {% else %}
+                                <div class="placeholder-image">
+                                  <i class="fa fa-code fa-3x"></i>
+                                </div>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <!-- Software Details -->
+                          <div class="col-md-8">
+                            <h3 class="software-title">
+                              <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">
+                                {{ page.title or page.name }}
+                              </a>
+                            </h3>
+                            
+                            {% if page.subtitle %}
+                              <p class="software-subtitle">{{ page.subtitle }}</p>
+                            {% endif %}
+                            
+                            <!-- Key Features Preview -->
+                            {% if page.key_features %}
+                            <div class="key-features-preview">
+                              {% set feature_lines = page.key_features.split('\n')[:3] %}
+                              {% for feature in feature_lines %}
+                                {% if feature.strip() %}
+                                  <div class="feature-item">
+                                    <i class="fa fa-check-circle"></i> {{ feature.strip() }}
+                                  </div>
+                                {% endif %}
+                              {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if page.excerpt %}
+                              <p class="software-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif page.content %}
+                              <p class="software-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <!-- Quick Links -->
+                            {% if page.repository_url or page.website_url or page.documentation_url %}
+                            <div class="quick-links">
+                              {% if page.repository_url %}
+                                <a href="{{ page.repository_url }}" target="_blank" class="quick-link">
+                                  <i class="fa fa-github"></i> {{ _('Repository') }}
+                                </a>
+                              {% endif %}
+                              {% if page.website_url %}
+                                <a href="{{ page.website_url }}" target="_blank" class="quick-link">
+                                  <i class="fa fa-external-link"></i> {{ _('Website') }}
+                                </a>
+                              {% endif %}
+                              {% if page.documentation_url %}
+                                <a href="{{ page.documentation_url }}" target="_blank" class="quick-link">
+                                  <i class="fa fa-book"></i> {{ _('Docs') }}
+                                </a>
+                              {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Software Actions -->
+                            <div class="software-actions">
+                              <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" 
+                                 class="btn btn-primary">
+                                <i class="fa fa-eye"></i> {{ _('View Details') }}
+                              </a>
+                              {% if h.check_access('ckanext_pages_update') %}
+                                <a href="{{ h.url_for('pages.open_source_software_edit', page=page.name) }}" 
+                                   class="btn btn-default">
+                                  <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                </a>
+                              {% endif %}
+                              {% if page.learning_resources %}
+                                <span class="has-courses-indicator">
+                                  <i class="fa fa-graduation-cap"></i> {{ _('Includes Courses') }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if c.page.page_count > 1 %}
+                <div class="pagination-wrapper" style="margin-top: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 1.5rem;">
+                      {{ c.page.pager() }}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <!-- Empty State -->
+                <div class="software-empty-state">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="empty-state-icon">
+                        <i class="fa fa-code fa-4x" style="color: var(--unesco-blue); margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('No Software Entries') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {% if request.args.q %}
+                          {{ _('No software entries match your search criteria.') }}
+                          <br>
+                          <a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('View all entries') }}</a>
+                        {% else %}
+                          {{ _('No software entries available at this time.') }}
+                        {% endif %}
+                      </p>
+                      {% if h.check_access('ckanext_pages_update') %}
+                        <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-primary btn-lg">
+                          <i class="fa fa-plus"></i> {{ _('Add Software Entry') }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Professional Open Source Software CSS -->
+<style>
+/* UNESCO Color Palette - Consistent with rapid-response design */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+  
+  /* Category colors */
+  --category-gis: #28a745;
+  --category-data: #17a2b8;
+  --category-viz: #fd7e14;
+  --category-web: #6f42c1;
+  --category-desktop: #20c997;
+  --category-library: #6c757d;
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--unesco-blue);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--unesco-blue);
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Software Summary */
+.software-summary .module {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--unesco-blue);
+}
+
+.status-metric {
+  padding: 1rem 0;
+}
+
+.metric-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--unesco-blue);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.metric-label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* Software Cards */
+.software-card .module {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.software-card .module:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.software-header {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  margin: 0;
+}
+
+.software-metadata {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Category Badges */
+.software-category-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.category-gis { background: var(--category-gis); }
+.category-data { background: var(--category-data); }
+.category-viz { background: var(--category-viz); }
+.category-web { background: var(--category-web); }
+.category-desktop { background: var(--category-desktop); }
+.category-library { background: var(--category-library); }
+.category-default { background: var(--text-secondary); }
+
+.license-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.difficulty-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.difficulty-beginner { background: #28a745; }
+.difficulty-intermediate { background: #ffc107; color: #212529; }
+.difficulty-advanced { background: #fd7e14; }
+.difficulty-expert { background: #dc3545; }
+
+.software-status {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: white;
+}
+
+.status-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-active {
+  background: #28a745;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+  animation: pulse-green 2s infinite;
+}
+
+.status-maintained {
+  background: #17a2b8;
+}
+
+.status-archived {
+  background: #6c757d;
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+}
+
+/* Software Image */
+.software-image {
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--unesco-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-light);
+}
+
+.software-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.software-card:hover .software-image img {
+  transform: scale(1.05);
+}
+
+.placeholder-image {
+  color: var(--text-secondary);
+  text-align: center;
+  opacity: 0.6;
+}
+
+/* Software Content */
+.software-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.software-title a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.software-title a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: underline;
+}
+
+.software-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: var(--unesco-blue-pale);
+  border-radius: 8px;
+  border-left: 4px solid var(--unesco-blue);
+}
+
+.key-features-preview {
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.05) 0%, rgba(227, 242, 253, 0.3) 100%);
+  border-left: 4px solid var(--unesco-blue);
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: var(--shadow-light);
+}
+
+.feature-item {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-item i {
+  color: var(--unesco-blue);
+  font-size: 0.8rem;
+}
+
+.feature-item:last-child {
+  margin-bottom: 0;
+}
+
+.software-excerpt {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Quick Links */
+.quick-links {
+  margin: 1rem 0;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.quick-link {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  color: var(--unesco-blue);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--unesco-blue-pale);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-link:hover {
+  background: var(--unesco-blue);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+.software-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.software-actions .btn {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.has-courses-indicator {
+  color: var(--category-gis);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 16px;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+/* Action Bar */
+.software-actions-bar .btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
+}
+
+.software-actions-bar .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 114, 188, 0.4);
+}
+
+/* Filters */
+.software-filters .form-control {
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  height: 3.3em;
+}
+
+.software-filters .form-control:focus {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.software-filters .btn-default {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow-light);
+  height: 3.3em;
+}
+
+.software-filters .btn-default:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border: none;
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .software-actions-bar .col-md-4 {
+    text-align: center !important;
+    margin-top: 1rem;
+  }
+  
+  .software-filters .col-md-3,
+  .software-filters .col-md-4,
+  .software-filters .col-md-2 {
+    margin-bottom: 10px;
+  }
+  
+  .software-header {
+    padding: 1rem;
+  }
+  
+  .software-metadata {
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .software-status {
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+  
+  .software-image {
+    height: 150px;
+    margin-bottom: 1rem;
+  }
+  
+  .metric-number {
+    font-size: 2rem;
+  }
+  
+  .software-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .software-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .quick-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .quick-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .software-image {
+    height: 120px;
+  }
+  
+  .software-title {
+    font-size: 1.3rem;
+  }
+  
+  .status-metric {
+    padding: 0.5rem 0;
+  }
+  
+  .metric-number {
+    font-size: 1.5rem;
+  }
+}
+</style>
+
+{% endblock %} 

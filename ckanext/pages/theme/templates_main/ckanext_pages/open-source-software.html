@@ -1,0 +1,1058 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ c.page.title or c.page.name }} - {{ _('Open Source Software') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software') }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.open_source_software_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% if c.page.subtitle %}
+                    <p class="section-title-description">{{ c.page.subtitle }}</p>
+                  {% endif %}
+                  {% if c.page.software_category %}
+                    <div class="section-title-meta-category">
+                      <i class="fa fa-tag"></i> {{ _('Category:') }} {{ c.page.software_category.replace('-', ' ').title() }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- 1. Software Overview -->
+                {% if c.page.content %}
+                <div class="software-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-overview">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Software Overview') }}</h2>
+                      </div>
+                      <div class="software-content-body">
+                        {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 2. Key Features Box -->
+                {% if c.page.key_features %}
+                <div class="software-key-features" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-features">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-star"></i>
+                        </div>
+                        <h2>{{ _('Key Features') }}</h2>
+                      </div>
+                      <div class="key-features-content">
+                        {% set feature_lines = c.page.key_features.split('\n') if c.page.key_features else [] %}
+                        {% if feature_lines %}
+                          <div class="features-grid">
+                            {% for feature in feature_lines %}
+                              {% if feature.strip() %}
+                                <div class="feature-item">
+                                  <i class="fa fa-check-circle"></i>
+                                  <span>{{ feature.strip() }}</span>
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 3. Technical Information -->
+                {% if c.page.technical_requirements or c.page.software_license or c.page.software_difficulty %}
+                <div class="software-technical-info" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-tech">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-cogs"></i>
+                        </div>
+                        <h2>{{ _('Technical Information') }}</h2>
+                      </div>
+                      <div class="tech-info-content">
+                        <div class="tech-info-grid">
+                          {% if c.page.software_license %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-certificate"></i>
+                              {{ _('License') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.software_license }}
+                            </div>
+                          </div>
+                          {% endif %}
+                          
+                          {% if c.page.software_difficulty %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-signal"></i>
+                              {{ _('Difficulty Level') }}
+                            </div>
+                            <div class="tech-info-value">
+                              <span class="difficulty-badge {{ h.get_software_difficulty_class(c.page.software_difficulty) }}">
+                                {{ c.page.software_difficulty.title() }}
+                              </span>
+                            </div>
+                          </div>
+                          {% endif %}
+                          
+                          {% if c.page.project_status %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-heartbeat"></i>
+                              {{ _('Project Status') }}
+                            </div>
+                            <div class="tech-info-value">
+                              <span class="status-indicator status-{{ c.page.project_status.lower() }}"></span>
+                              {{ c.page.project_status.title() }}
+                            </div>
+                          </div>
+                          {% endif %}
+                        </div>
+                        
+                        {% if c.page.technical_requirements %}
+                        <div class="requirements-section">
+                          <h4>{{ _('Technical Requirements') }}</h4>
+                          <div class="requirements-content">
+                            {{ h.render_markdown(c.page.technical_requirements, allow_html=True) | safe }}
+                          </div>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 4. Installation & Usage -->
+                {% if c.page.installation_instructions %}
+                <div class="software-installation" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-install">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-download"></i>
+                        </div>
+                        <h2>{{ _('Installation & Usage') }}</h2>
+                      </div>
+                      <div class="software-content-body">
+                        {{ h.render_markdown(c.page.installation_instructions, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 5. Learning Resources & Courses -->
+                {% if c.page.learning_resources %}
+                <div class="software-learning" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-learning">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-graduation-cap"></i>
+                        </div>
+                        <h2>{{ _('Learning Resources & Courses') }}</h2>
+                      </div>
+                      <div class="software-content-body">
+                        {{ h.render_markdown(c.page.learning_resources, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 6. Examples & Use Cases -->
+                {% if c.page.example_applications %}
+                <div class="software-examples" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-examples">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-lightbulb-o"></i>
+                        </div>
+                        <h2>{{ _('Examples & Use Cases') }}</h2>
+                      </div>
+                      <div class="software-content-body">
+                        {{ h.render_markdown(c.page.example_applications, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 7. Screenshots & Gallery -->
+                {% if c.page.uploaded_images or c.page.image_carousel %}
+                <div class="software-gallery" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-gallery">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-camera"></i>
+                        </div>
+                        <h2>{{ _('Screenshots & Gallery') }}</h2>
+                      </div>
+                      
+                      <!-- Uploaded Images Grid -->
+                      {% if c.page.uploaded_images %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
+                        {% if uploaded_images %}
+                        <div class="uploaded-images-gallery">
+                          <div class="images-grid">
+                            {% for image in uploaded_images %}
+                            <div class="gallery-image-item">
+                              <div class="image-container">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
+                                <div class="image-overlay">
+                                  <i class="fa fa-expand"></i>
+                                </div>
+                              </div>
+                              {% if image.caption %}
+                                <div class="image-caption">{{ image.caption }}</div>
+                              {% elif image.alt %}
+                                <div class="image-caption">{{ image.alt }}</div>
+                              {% endif %}
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      {% endif %}
+
+                      <!-- External Images (Markdown/HTML) -->
+                      {% if c.page.image_carousel %}
+                      <div class="external-images-gallery">
+                        <div class="image-gallery-content">
+                          {{ h.render_markdown(c.page.image_carousel, allow_html=True) | safe }}
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 8. Links & Resources -->
+                {% if c.page.repository_url or c.page.website_url or c.page.documentation_url %}
+                <div class="software-links" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-links">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-link"></i>
+                        </div>
+                        <h2>{{ _('Links & Resources') }}</h2>
+                      </div>
+                      <div class="links-grid">
+                        {% if c.page.repository_url %}
+                        <a href="{{ c.page.repository_url }}" target="_blank" class="resource-link repository">
+                          <div class="link-icon">
+                            <i class="fa fa-github"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Source Code Repository') }}</h4>
+                            <p>{{ _('Access the source code, report issues, and contribute') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if c.page.website_url %}
+                        <a href="{{ c.page.website_url }}" target="_blank" class="resource-link website">
+                          <div class="link-icon">
+                            <i class="fa fa-globe"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Official Website') }}</h4>
+                            <p>{{ _('Visit the official project website') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if c.page.documentation_url %}
+                        <a href="{{ c.page.documentation_url }}" target="_blank" class="resource-link documentation">
+                          <div class="link-icon">
+                            <i class="fa fa-book"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Documentation') }}</h4>
+                            <p>{{ _('Read comprehensive guides and API documentation') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 9. Actions and Metadata -->
+                <div class="software-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="row">
+                        <div class="col-md-8">
+                          {% if c.page.created %}
+                            <p class="text-muted">
+                              <small>
+                                <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                {% if c.page.modified %}
+                                  | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
+                                {% endif %}
+                              </small>
+                            </p>
+                          {% endif %}
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <div class="action-buttons">
+                              <a href="{{ h.url_for('pages.open_source_software_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
+                                <i class="fa fa-edit"></i> {{ _('Edit') }}
+                              </a>
+                              <a href="/open-source-software/{{ c.page.name }}/revisions" class="btn btn-default btn-sm">
+                                <i class="fa fa-history"></i> {{ _('History') }}
+                              </a>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="imageModalTitle">{{ _('Image Preview') }}</h4>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-responsive" style="max-width: 100%; height: auto;">
+        <p id="modalCaption" class="image-modal-caption"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Professional Open Source Software View CSS -->
+<style>
+/* UNESCO Color Palette */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 800px;
+}
+
+.section-title-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+}
+
+.section-title-description {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+}
+
+.section-title-meta-category {
+  font-size: 1.2rem;
+  color: white;
+  opacity: 1;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Section Headers with Icons */
+.software-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid var(--unesco-blue-pale);
+  position: relative;
+}
+
+.software-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 2px;
+}
+
+.software-section-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-light);
+  flex-shrink: 0;
+}
+
+.software-section-header h2 {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.software-content-body {
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* Specialized Module Styles */
+.software-module-overview {
+  border-left: 6px solid var(--unesco-blue);
+}
+
+.software-module-features {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--unesco-blue-light);
+}
+
+.software-module-tech {
+  border-left: 6px solid #17a2b8;
+}
+
+.software-module-install {
+  border-left: 6px solid #28a745;
+}
+
+.software-module-learning {
+  border-left: 6px solid #fd7e14;
+}
+
+.software-module-examples {
+  border-left: 6px solid #6f42c1;
+}
+
+.software-module-gallery {
+  border-left: 6px solid var(--unesco-blue);
+}
+
+.software-module-links {
+  border-left: 6px solid var(--text-secondary);
+}
+
+/* Key Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.feature-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--unesco-blue);
+  box-shadow: var(--shadow-light);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateX(4px);
+}
+
+.feature-item i {
+  color: var(--unesco-blue);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Technical Info Grid */
+.tech-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tech-info-item {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  transition: transform 0.3s ease;
+}
+
+.tech-info-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.tech-info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--unesco-blue);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.tech-info-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Difficulty and Status Badges */
+.difficulty-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.difficulty-beginner { background: #28a745; }
+.difficulty-intermediate { background: #ffc107; color: #212529; }
+.difficulty-advanced { background: #fd7e14; }
+.difficulty-expert { background: #dc3545; }
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.status-active {
+  background: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+  animation: pulse-green 2s infinite;
+}
+
+.status-maintained { background: #17a2b8; }
+.status-archived { background: #6c757d; }
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+}
+
+/* Requirements Section */
+.requirements-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.requirements-section h4 {
+  color: var(--unesco-blue);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Links Grid */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.resource-link {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.resource-link:hover {
+  text-decoration: none;
+  color: inherit;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  border-color: var(--unesco-blue);
+}
+
+.link-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.resource-link.repository .link-icon {
+  background: linear-gradient(135deg, #333 0%, #24292e 100%);
+}
+
+.resource-link.website .link-icon {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+}
+
+.resource-link.documentation .link-icon {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.link-content {
+  flex: 1;
+}
+
+.link-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.link-content p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.link-arrow {
+  color: var(--unesco-blue);
+  font-size: 1.2rem;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.resource-link:hover .link-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* Enhanced Image Gallery */
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.gallery-image-item {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.4s ease;
+}
+
+.gallery-image-item:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-strong);
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  height: 220px;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.image-container:hover .gallery-image {
+  transform: scale(1.15);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 2.5rem;
+  animation: pulse 2s infinite;
+}
+
+.image-caption {
+  padding: 1.5rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Professional Action buttons */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-light);
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--unesco-blue);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--unesco-blue);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2.2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .software-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .software-section-icon {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tech-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .links-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .images-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .software-section-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .software-section-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .image-container {
+    height: 180px;
+  }
+}
+</style>
+
+<!-- JavaScript for Enhanced Functionality -->
+<script>
+(function() {
+  // Image modal functionality
+  $('.image-container, .gallery-image').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
+    const imageUrl = $img.attr('src');
+    const caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
+    
+    if (imageUrl) {
+      $('#modalImage').attr('src', imageUrl);
+      $('#modalImage').attr('alt', caption);
+      $('#modalCaption').text(caption);
+      
+      if (typeof $.fn.modal !== 'undefined') {
+        $('#imageModal').modal('show');
+      }
+    }
+  });
+  
+  // Close modal functionality
+  $('.close, .modal').on('click', function(e) {
+    if (e.target === this) {
+      $('#imageModal').modal('hide');
+    }
+  });
+})();
+</script>
+
+{% endblock %} 

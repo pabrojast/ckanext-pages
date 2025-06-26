@@ -34,7 +34,7 @@ def pages_list_pages(page_type):
         data_dict['order_by'] = tk.request.args.get('order_by')
     else:
         # Default ordering for different page types
-        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications']:
+        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications', 'open-source-software']:
             data_dict['order_by'] = 'recent'  # Default to most recent first
     
     # For water family content, only show public items to regular users
@@ -77,6 +77,8 @@ def pages_list_pages(page_type):
         return tk.render('ckanext_pages/water-events_list.html')
     elif page_type == 'water-publications':
         return tk.render('ckanext_pages/water-publications_list.html')
+    elif page_type == 'open-source-software':
+        return tk.render('ckanext_pages/open-source-software_list.html')
     return tk.render('ckanext_pages/pages_list.html')
 
 
@@ -148,6 +150,8 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             endpoint = 'water_events_show'
         elif page_type == 'water-publications':
             endpoint = 'water_publications_show'
+        elif page_type == 'open-source-software':
+            endpoint = 'open_source_software_show'
         
         return tk.redirect_to('pages.%s' % endpoint, page=page_dict['name'])
 
@@ -329,6 +333,8 @@ def pages_revision_restore(page, revision, page_type='page'):
     endpoint = 'show' if page_type in ('pages', 'page') else '%s_show' % page_type
     if page_type == 'rapid-response':
         endpoint = 'rapid_response_show'
+    elif page_type == 'open-source-software':
+        endpoint = 'open_source_software_show'
     return tk.redirect_to('pages.%s' % endpoint, page=page)
 
 
@@ -352,6 +358,8 @@ def pages_delete(page, page_type='pages'):
                 endpoint = 'water_events_index'
             elif page_type == 'water-publications':
                 endpoint = 'water_publications_index'
+            elif page_type == 'open-source-software':
+                endpoint = 'open_source_software_index'
             
             return tk.redirect_to('pages.%s' % endpoint)
         else:

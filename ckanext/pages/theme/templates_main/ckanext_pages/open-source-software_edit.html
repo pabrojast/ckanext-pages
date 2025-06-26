@@ -1,0 +1,819 @@
+{% extends "page.html" %}
+
+{% block title %}
+{% if page %}
+  {{ _('Edit Software Entry') }} - {{ page.title or page.name }}
+{% else %}
+  {{ _('Add New Software Entry') }}
+{% endif %}
+- {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software') }}</a></li>
+                    {% if page %}
+                      <li><a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li class="active">{{ _('Edit') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Add Software Entry') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+
+            <!-- Form Header -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if page %}
+                    <h1>{{ _('Edit Software Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Update software information, features, and learning resources') }}</p>
+                  {% else %}
+                    <h1>{{ _('Add New Software Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Add a new open-source software, application, or learning resource') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Main Form -->
+                <div class="software-edit-form" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      
+                      {% if error_summary %}
+                        <div class="alert alert-danger">
+                          <h4>{{ _('Errors in form') }}</h4>
+                          {{ error_summary }}
+                        </div>
+                      {% endif %}
+
+                      <form method="post" enctype="multipart/form-data" class="software-form">
+                        
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-info-circle"></i>
+                            {{ _('Basic Information') }}
+                          </h3>
+                          
+                          <div class="form-group">
+                            <label for="name" class="control-label">{{ _('URL') }} <span class="required">*</span></label>
+                            <input type="text" name="name" id="name" class="form-control" 
+                                   value="{{ data.get('name', '') }}" 
+                                   placeholder="{{ _('unique-software-name') }}"
+                                   {% if page %}readonly{% endif %}>
+                            <p class="help-block">{{ _('A unique identifier for this software entry (auto-generated from title)') }}</p>
+                            {% if errors.name %}
+                              <div class="error-block">{{ errors.name[0] }}</div>
+                            {% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="title" class="control-label">{{ _('Software Title') }} <span class="required">*</span></label>
+                            <input type="text" name="title" id="title" class="form-control" 
+                                   value="{{ data.get('title', '') }}" 
+                                   placeholder="{{ _('e.g., QGIS - Geographic Information System') }}">
+                            {% if errors.title %}
+                              <div class="error-block">{{ errors.title[0] }}</div>
+                            {% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="subtitle" class="control-label">{{ _('Subtitle/Short Description') }}</label>
+                            <input type="text" name="subtitle" id="subtitle" class="form-control" 
+                                   value="{{ data.get('subtitle', '') }}" 
+                                   placeholder="{{ _('Brief description of the software') }}">
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="software_category" class="control-label">{{ _('Category') }}</label>
+                                <select name="software_category" id="software_category" class="form-control">
+                                  <option value="">{{ _('Select Category') }}</option>
+                                  <option value="gis" {% if data.get('software_category') == 'gis' %}selected{% endif %}>{{ _('GIS Software') }}</option>
+                                  <option value="data-processing" {% if data.get('software_category') == 'data-processing' %}selected{% endif %}>{{ _('Data Processing') }}</option>
+                                  <option value="visualization" {% if data.get('software_category') == 'visualization' %}selected{% endif %}>{{ _('Visualization') }}</option>
+                                  <option value="web-platform" {% if data.get('software_category') == 'web-platform' %}selected{% endif %}>{{ _('Web Platform') }}</option>
+                                  <option value="desktop-app" {% if data.get('software_category') == 'desktop-app' %}selected{% endif %}>{{ _('Desktop Application') }}</option>
+                                  <option value="mobile-app" {% if data.get('software_category') == 'mobile-app' %}selected{% endif %}>{{ _('Mobile Application') }}</option>
+                                  <option value="library" {% if data.get('software_category') == 'library' %}selected{% endif %}>{{ _('Library/Framework') }}</option>
+                                  <option value="api" {% if data.get('software_category') == 'api' %}selected{% endif %}>{{ _('API/Service') }}</option>
+                                  <option value="tool" {% if data.get('software_category') == 'tool' %}selected{% endif %}>{{ _('Tool/Utility') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="software_difficulty" class="control-label">{{ _('Difficulty Level') }}</label>
+                                <select name="software_difficulty" id="software_difficulty" class="form-control">
+                                  <option value="">{{ _('Select Difficulty') }}</option>
+                                  <option value="beginner" {% if data.get('software_difficulty') == 'beginner' %}selected{% endif %}>{{ _('Beginner') }}</option>
+                                  <option value="intermediate" {% if data.get('software_difficulty') == 'intermediate' %}selected{% endif %}>{{ _('Intermediate') }}</option>
+                                  <option value="advanced" {% if data.get('software_difficulty') == 'advanced' %}selected{% endif %}>{{ _('Advanced') }}</option>
+                                  <option value="expert" {% if data.get('software_difficulty') == 'expert' %}selected{% endif %}>{{ _('Expert') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="software_license" class="control-label">{{ _('License') }}</label>
+                                <input type="text" name="software_license" id="software_license" class="form-control" 
+                                       value="{{ data.get('software_license', '') }}" 
+                                       placeholder="{{ _('e.g., GPL v3, MIT, Apache 2.0') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="project_status" class="control-label">{{ _('Project Status') }}</label>
+                                <select name="project_status" id="project_status" class="form-control">
+                                  <option value="">{{ _('Select Status') }}</option>
+                                  <option value="active" {% if data.get('project_status') == 'active' %}selected{% endif %}>{{ _('Active Development') }}</option>
+                                  <option value="maintained" {% if data.get('project_status') == 'maintained' %}selected{% endif %}>{{ _('Maintained') }}</option>
+                                  <option value="archived" {% if data.get('project_status') == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="private" class="control-label">{{ _('Visibility') }}</label>
+                            <select name="private" id="private" class="form-control">
+                              <option value="False" {% if not data.get('private') or data.get('private') == 'False' %}selected{% endif %}>{{ _('Public') }}</option>
+                              <option value="True" {% if data.get('private') == 'True' %}selected{% endif %}>{{ _('Private') }}</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <!-- Content Sections -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-file-text-o"></i>
+                            {{ _('Content & Description') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="excerpt" class="control-label">{{ _('Excerpt/Summary') }}</label>
+                            <textarea name="excerpt" id="excerpt" rows="3" class="form-control" 
+                                      placeholder="{{ _('Brief summary that appears in listings...') }}">{{ data.get('excerpt', '') }}</textarea>
+                            <p class="help-block">{{ _('Short summary shown in software listings (200 characters recommended)') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="content" class="control-label">{{ _('Software Overview') }}</label>
+                            <textarea name="content" id="content" rows="10" class="form-control ckeditor" 
+                                      placeholder="{{ _('Detailed description of the software, its purpose, and main capabilities...') }}">{{ data.get('content', '') }}</textarea>
+                            <p class="help-block">{{ _('Detailed description of the software. Supports Markdown and HTML.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="key_features" class="control-label">{{ _('Key Features') }}</label>
+                            <textarea name="key_features" id="key_features" rows="8" class="form-control" 
+                                      placeholder="{{ _('List key features, one per line:\n\nAdvanced spatial analysis tools\nUser-friendly interface\nExtensive plugin ecosystem\nCross-platform compatibility') }}">{{ data.get('key_features', '') }}</textarea>
+                            <p class="help-block">{{ _('List main features, one per line. These will be displayed as highlighted points.') }}</p>
+                          </div>
+                        </div>
+
+                        <!-- Technical Information -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-cogs"></i>
+                            {{ _('Technical Information') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="technical_requirements" class="control-label">{{ _('Technical Requirements') }}</label>
+                            <textarea name="technical_requirements" id="technical_requirements" rows="6" class="form-control ckeditor" 
+                                      placeholder="{{ _('System requirements, dependencies, supported platforms...') }}">{{ data.get('technical_requirements', '') }}</textarea>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="installation_instructions" class="control-label">{{ _('Installation & Usage Instructions') }}</label>
+                            <textarea name="installation_instructions" id="installation_instructions" rows="8" class="form-control ckeditor" 
+                                      placeholder="{{ _('Step-by-step installation and basic usage instructions...') }}">{{ data.get('installation_instructions', '') }}</textarea>
+                          </div>
+                        </div>
+
+                        <!-- Links & Resources -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-link"></i>
+                            {{ _('Links & Resources') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="repository_url" class="control-label">{{ _('Repository URL') }}</label>
+                                <input type="url" name="repository_url" id="repository_url" class="form-control" 
+                                       value="{{ data.get('repository_url', '') }}" 
+                                       placeholder="{{ _('https://github.com/user/project') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="website_url" class="control-label">{{ _('Official Website') }}</label>
+                                <input type="url" name="website_url" id="website_url" class="form-control" 
+                                       value="{{ data.get('website_url', '') }}" 
+                                       placeholder="{{ _('https://project.org') }}">
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="documentation_url" class="control-label">{{ _('Documentation URL') }}</label>
+                            <input type="url" name="documentation_url" id="documentation_url" class="form-control" 
+                                   value="{{ data.get('documentation_url', '') }}" 
+                                   placeholder="{{ _('https://docs.project.org') }}">
+                          </div>
+                        </div>
+
+                        <!-- Learning Resources -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-graduation-cap"></i>
+                            {{ _('Learning Resources & Courses') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="learning_resources" class="control-label">{{ _('Learning Resources') }}</label>
+                            <textarea name="learning_resources" id="learning_resources" rows="10" class="form-control ckeditor" 
+                                      placeholder="{{ _('List learning resources, tutorials, courses, and training materials...') }}">{{ data.get('learning_resources', '') }}</textarea>
+                            <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials. Supports Markdown and HTML.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="example_applications" class="control-label">{{ _('Example Applications & Use Cases') }}</label>
+                            <textarea name="example_applications" id="example_applications" rows="8" class="form-control ckeditor" 
+                                      placeholder="{{ _('Describe real-world examples and use cases...') }}">{{ data.get('example_applications', '') }}</textarea>
+                          </div>
+                        </div>
+
+                        <!-- Media Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-camera"></i>
+                            {{ _('Images & Media') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="header_image" class="control-label">{{ _('Header Image URL') }}</label>
+                            <input type="url" name="header_image" id="header_image" class="form-control" 
+                                   value="{{ data.get('header_image', '') }}" 
+                                   placeholder="{{ _('https://example.com/image.jpg') }}">
+                            <p class="help-block">{{ _('Main image displayed in the header (recommended: 1200x400px)') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="image_carousel" class="control-label">{{ _('Screenshots & Gallery') }}</label>
+                            <textarea name="image_carousel" id="image_carousel" rows="6" class="form-control ckeditor" 
+                                      placeholder="{{ _('Add screenshots, diagrams, and other images using Markdown or HTML...') }}">{{ data.get('image_carousel', '') }}</textarea>
+                            <p class="help-block">{{ _('Add screenshots and images. Supports Markdown image syntax and HTML.') }}</p>
+                          </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                          <input type="hidden" name="page_type" value="open-source-software">
+                          {% if page %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-save"></i> {{ _('Update Software Entry') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                            {% if h.check_access('ckanext_pages_delete') %}
+                              <a href="{{ h.url_for('pages.open_source_software_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this software entry?') }}">
+                                <i class="fa fa-trash"></i> {{ _('Delete Entry') }}
+                              </a>
+                            {% endif %}
+                          {% else %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Add Software Entry') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                          {% endif %}
+                        </div>
+
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Professional Software Edit Form CSS -->
+<style>
+/* UNESCO Color Palette */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module-content {
+  padding: 3rem;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 2rem;
+}
+
+.form-section-title {
+  color: var(--unesco-blue);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--unesco-blue-pale);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 2px;
+}
+
+.form-section-title i {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-light);
+  flex-shrink: 0;
+}
+
+/* Enhanced Form Controls */
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.control-label {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  display: block;
+}
+
+.required {
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: var(--shadow-light);
+}
+
+.form-control:focus {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+  background: #ffffff;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.form-control:hover {
+  border-color: var(--unesco-blue-light);
+  transform: translateY(-1px);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-control[readonly] {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  color: var(--text-secondary);
+}
+
+/* Help Text */
+.help-block {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Error Styling */
+.error-block {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+/* Professional Action Buttons */
+.form-actions {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 3rem;
+  text-align: center;
+  border: 2px solid var(--unesco-blue-pale);
+  box-shadow: var(--shadow-light);
+}
+
+.btn {
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-light);
+  margin: 0 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
+  color: white;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: white;
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.btn-default:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  color: white;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active {
+  color: var(--unesco-blue);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--unesco-blue);
+}
+
+/* CKEditor Styling */
+.cke_chrome {
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+}
+
+.cke_top {
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.cke_bottom {
+  border-radius: 0 0 12px 12px;
+  background: #f8f9fa;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    height: 200px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 2rem;
+  }
+  
+  .form-section-title {
+    font-size: 1.3rem;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .form-section-title i {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-actions {
+    padding: 1.5rem;
+  }
+  
+  .btn {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+  
+  .btn-danger {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 150px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .form-section {
+    margin-bottom: 2rem;
+  }
+  
+  .form-section-title {
+    font-size: 1.2rem;
+  }
+}
+</style>
+
+<!-- Enhanced Form JavaScript -->
+<script>
+(function() {
+  // Auto-generate URL from title
+  $('#title').on('input', function() {
+    if (!$('#name').prop('readonly')) {
+      var title = $(this).val();
+      var url = title.toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .trim('-');
+      $('#name').val(url);
+    }
+  });
+  
+  // Form validation
+  $('form').on('submit', function(e) {
+    var isValid = true;
+    var title = $('#title').val().trim();
+    var name = $('#name').val().trim();
+    
+    if (!title) {
+      alert('{{ _("Please enter a software title") }}');
+      $('#title').focus();
+      isValid = false;
+    }
+    
+    if (!name) {
+      alert('{{ _("Please enter a URL") }}');
+      $('#name').focus();
+      isValid = false;
+    }
+    
+    if (!isValid) {
+      e.preventDefault();
+    }
+  });
+  
+  // Confirmation for delete
+  $('[data-confirm]').on('click', function(e) {
+    if (!confirm($(this).data('confirm'))) {
+      e.preventDefault();
+    }
+  });
+  
+  // Enhanced textarea auto-resize
+  $('textarea').each(function() {
+    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+  }).on('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
+  
+})();
+</script>
+
+<!-- CKEditor Integration -->
+{% if h.pages_get_wysiwyg_editor() %}
+<script src="/pages/js/ckedit.js"></script>
+<link rel="stylesheet" href="/pages/css/ckedit.css">
+{% endif %}
+
+{% endblock %} 

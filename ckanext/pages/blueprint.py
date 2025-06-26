@@ -194,6 +194,35 @@ def water_admin_reject(page, page_type):
     return utils.water_admin_reject(page, page_type)
 
 
+# Open Source Software endpoints
+def open_source_software_index():
+    return utils.pages_list_pages('open-source-software')
+
+
+def open_source_software_show(page):
+    return utils.pages_show(page, page_type='open-source-software')
+
+
+def open_source_software_edit(page=None, data=None, errors=None, error_summary=None):
+    return utils.pages_edit(page, data, errors, error_summary, 'open-source-software')
+
+
+def open_source_software_revisions(page):
+    return utils.pages_revisions(page, page_type='open-source-software')
+
+
+def open_source_software_revisions_preview(page, revision):
+    return utils.pages_revisions_preview(page, revision, page_type='open-source-software')
+
+
+def open_source_software_revision_restore(page, revision):
+    return utils.pages_revision_restore(page, revision, page_type='open-source-software')
+
+
+def open_source_software_delete(page):
+    return utils.pages_delete(page, page_type='open-source-software')
+
+
 def org_show(id, page=None):
     return utils.group_show(id, 'organization', page)
 
@@ -314,3 +343,14 @@ pages.add_url_rule("/water-publications_delete/<page>", view_func=water_publicat
 pages.add_url_rule("/water-admin", view_func=water_admin_dashboard, endpoint='water_admin_dashboard')
 pages.add_url_rule("/water-admin/approve/<page_type>/<page>", view_func=water_admin_approve, endpoint='water_admin_approve', methods=['POST'])
 pages.add_url_rule("/water-admin/reject/<page_type>/<page>", view_func=water_admin_reject, endpoint='water_admin_reject', methods=['POST'])
+
+# Open Source Software URLs
+pages.add_url_rule("/open-source-software", view_func=open_source_software_index, endpoint='open_source_software_index')
+pages.add_url_rule("/open-source-software/<page>", view_func=open_source_software_show, endpoint='open_source_software_show')
+pages.add_url_rule("/open-source-software/<page>/revisions", view_func=open_source_software_revisions, endpoint='open_source_software_revisions')
+pages.add_url_rule("/open-source-software/<page>/revisions/<revision>", view_func=open_source_software_revisions_preview, endpoint='open_source_software_revisions_preview')
+pages.add_url_rule("/open-source-software/<page>/revisions/<revision>/restore", view_func=open_source_software_revision_restore, endpoint='open_source_software_revision_restore', methods=['GET'])
+pages.add_url_rule("/open-source-software_edit", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
+pages.add_url_rule("/open-source-software_edit/", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
+pages.add_url_rule("/open-source-software_edit/<page>", view_func=open_source_software_edit, endpoint='open_source_software_edit', methods=['GET', 'POST'])
+pages.add_url_rule("/open-source-software_delete/<page>", view_func=open_source_software_delete, endpoint='open_source_software_delete', methods=['GET', 'POST'])

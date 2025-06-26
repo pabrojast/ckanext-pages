@@ -51,6 +51,8 @@ def build_pages_nav_main(*args):
         type_ = 'blog' if page['page_type'] == 'blog' else 'pages'
         if page['page_type'] == 'rapid-response':
             type_ = 'rapid-response'
+        elif page['page_type'] == 'open-source-software':
+            type_ = 'open-source-software'
         name = quote(page['name'])
         title = html_escape(page['title'])
         link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
@@ -161,6 +163,25 @@ def get_recent_water_publications(number=5, exclude=None):
         return []
 
 
+def get_recent_open_source_software(number=5, exclude=None):
+    """Get recent open source software entries"""
+    try:
+        software_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'open-source-software'}
+        )
+        new_list = []
+        for software_post in software_list:
+            if exclude and software_post['name'] == exclude:
+                continue
+            new_list.append(software_post)
+            if len(new_list) == number:
+                break
+        return new_list
+    except:
+        return []
+
+
 def safe_json_loads(json_string):
     """Safely parse JSON string and return empty list if parsing fails"""
     if not json_string:
@@ -228,6 +249,43 @@ def count_unique_countries(pages):
     return len(countries)
 
 
+def get_software_category_class(category):
+    """Get CSS class for software category"""
+    category_classes = {
+        'gis': 'category-gis',
+        'data-processing': 'category-data',
+        'visualization': 'category-viz',
+        'web-platform': 'category-web',
+        'desktop-app': 'category-desktop',
+        'mobile-app': 'category-mobile',
+        'library': 'category-library',
+        'framework': 'category-framework',
+        'api': 'category-api',
+        'tool': 'category-tool'
+    }
+    return category_classes.get(category.lower(), 'category-default')
+
+
+def count_software_by_category(pages):
+    """Count software entries by category"""
+    categories = {}
+    for page in pages:
+        category = page.get('software_category', 'other').lower()
+        categories[category] = categories.get(category, 0) + 1
+    return categories
+
+
+def get_software_difficulty_class(difficulty):
+    """Get CSS class for software difficulty level"""
+    difficulty_classes = {
+        'beginner': 'difficulty-beginner',
+        'intermediate': 'difficulty-intermediate', 
+        'advanced': 'difficulty-advanced',
+        'expert': 'difficulty-expert'
+    }
+    return difficulty_classes.get(difficulty.lower(), 'difficulty-intermediate')
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -269,10 +327,14 @@ class PagesPlugin(PagesPluginBase):
             'get_recent_water_news': get_recent_water_news,
             'get_recent_water_events': get_recent_water_events,
             'get_recent_water_publications': get_recent_water_publications,
+            'get_recent_open_source_software': get_recent_open_source_software,
             'json_loads': safe_json_loads,
             'get_event_status': get_event_status,
             'get_event_status_badge_class': get_event_status_badge_class,
             'count_unique_countries': count_unique_countries,
+            'get_software_category_class': get_software_category_class,
+            'count_software_by_category': count_software_by_category,
+            'get_software_difficulty_class': get_software_difficulty_class,
         }
 
     def get_actions(self):
