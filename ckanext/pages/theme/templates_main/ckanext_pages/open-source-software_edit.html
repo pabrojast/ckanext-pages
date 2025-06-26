@@ -79,18 +79,6 @@
                           </h3>
                           
                           <div class="form-group">
-                            <label for="name" class="control-label">{{ _('URL') }} <span class="required">*</span></label>
-                            <input type="text" name="name" id="name" class="form-control" 
-                                   value="{{ data.get('name', '') }}" 
-                                   placeholder="{{ _('unique-software-name') }}"
-                                   {% if page %}readonly{% endif %}>
-                            <p class="help-block">{{ _('A unique identifier for this software entry (auto-generated from title)') }}</p>
-                            {% if errors.name %}
-                              <div class="error-block">{{ errors.name[0] }}</div>
-                            {% endif %}
-                          </div>
-
-                          <div class="form-group">
                             <label for="title" class="control-label">{{ _('Software Title') }} <span class="required">*</span></label>
                             <input type="text" name="title" id="title" class="form-control" 
                                    value="{{ data.get('title', '') }}" 
@@ -101,10 +89,36 @@
                           </div>
 
                           <div class="form-group">
+                            <label for="name" class="control-label">{{ _('URL') }} <span class="required">*</span></label>
+                            <div class="input-group">
+                              <input type="text" name="name" id="name" class="form-control" 
+                                     value="{{ data.get('name', '') }}" 
+                                     placeholder="{{ _('auto-generated-from-title') }}"
+                                     {% if page %}readonly{% else %}readonly{% endif %}>
+                              <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <p class="help-block">{{ _('A unique identifier for this software entry (auto-generated from title)') }}</p>
+                            {% if errors.name %}
+                              <div class="error-block">{{ errors.name[0] }}</div>
+                            {% endif %}
+                          </div>
+
+                          <div class="form-group">
                             <label for="subtitle" class="control-label">{{ _('Subtitle/Short Description') }}</label>
                             <input type="text" name="subtitle" id="subtitle" class="form-control" 
                                    value="{{ data.get('subtitle', '') }}" 
                                    placeholder="{{ _('Brief description of the software') }}">
+                          </div>
+
+                          <div class="form-group">
+                            <label for="author" class="control-label">{{ _('Author/Contributor') }}</label>
+                            <input type="text" name="author" id="author" class="form-control" 
+                                   value="{{ data.get('author', '') }}" 
+                                   placeholder="{{ _('Name of the person or organization contributing this entry') }}">
                           </div>
 
                           <div class="row">
@@ -289,12 +303,36 @@
                             <p class="help-block">{{ _('Main image displayed in the header (recommended: 1200x400px)') }}</p>
                           </div>
 
-                          <div class="form-group">
-                            <label for="image_carousel" class="control-label">{{ _('Screenshots & Gallery') }}</label>
-                            <textarea name="image_carousel" id="image_carousel" rows="6" class="form-control ckeditor" 
-                                      placeholder="{{ _('Add screenshots, diagrams, and other images using Markdown or HTML...') }}">{{ data.get('image_carousel', '') }}</textarea>
-                            <p class="help-block">{{ _('Add screenshots and images. Supports Markdown image syntax and HTML.') }}</p>
+                          <!-- Image Upload Section -->
+                          <div class="image-upload-section">
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload Screenshots & Images') }}</label>
+                              <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+                              <div class="upload-dropzone" id="image-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-cloud-upload fa-3x"></i>
+                                  <p>{{ _('Drop images here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Uploaded Images Preview -->
+                            <div id="uploaded-images-preview" class="uploaded-images-grid">
+                              <!-- Uploaded images will appear here -->
+                            </div>
                           </div>
+
+                          <div class="form-group">
+                            <label for="image_carousel" class="control-label">{{ _('External Image URLs') }}</label>
+                            <textarea name="image_carousel" id="image_carousel" rows="6" class="form-control" 
+                                      placeholder="{{ _('Add external images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.') }}">{{ data.get('image_carousel', '') }}</textarea>
+                            <p class="help-block">{{ _('Add external images using Markdown image syntax and HTML.') }}</p>
+                          </div>
+
+                          <!-- Hidden fields for uploaded images -->
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.get('uploaded_images', '') }}">
+                          <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.get('image_gallery', '') }}">
                         </div>
 
                         <!-- Action Buttons -->
@@ -500,6 +538,7 @@
   padding: 12px 16px;
   font-size: 1rem;
   line-height: 1.5;
+  height: 3em;
   transition: all 0.3s ease;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   box-shadow: var(--shadow-light);
@@ -521,6 +560,7 @@
 textarea.form-control {
   resize: vertical;
   min-height: 120px;
+  height: auto;
 }
 
 .form-control[readonly] {
@@ -682,6 +722,136 @@ textarea.form-control {
   background: #f8f9fa;
 }
 
+/* Image Upload Styling */
+.image-upload-section {
+  margin-bottom: 2rem;
+}
+
+.upload-dropzone {
+  border: 3px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--unesco-blue);
+  background: var(--unesco-blue-pale);
+}
+
+.upload-dropzone.dragover {
+  border-color: var(--unesco-blue);
+  background: var(--unesco-blue-pale);
+  transform: scale(1.02);
+}
+
+.dropzone-content {
+  pointer-events: none;
+}
+
+.dropzone-content i {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.dropzone-content p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+.dropzone-content .text-muted {
+  font-size: 0.9rem;
+}
+
+.uploaded-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.uploaded-image-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.uploaded-image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.uploaded-image-preview {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.uploaded-image-info {
+  padding: 1rem;
+}
+
+.uploaded-image-info input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  height: auto;
+}
+
+.uploaded-image-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.image-copy-url {
+  background: var(--unesco-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.image-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Upload Progress */
+.upload-progress {
+  margin-top: 1rem;
+}
+
+.progress {
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  transition: width 0.3s ease;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .section-title {
@@ -756,16 +926,241 @@ textarea.form-control {
 <!-- Enhanced Form JavaScript -->
 <script>
 (function() {
+  // Wait for jQuery to be available
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+  // Image Upload Management
+  let uploadedImages = [];
+  
+  // Load existing uploaded images
+  function loadUploadedImages() {
+    const uploadedData = $('#uploaded-images-data').val();
+    if (uploadedData) {
+      try {
+        uploadedImages = JSON.parse(uploadedData);
+        uploadedImages.forEach(img => {
+          addUploadedImagePreview(img);
+        });
+      } catch (e) {
+        console.error('Error parsing uploaded images data:', e);
+      }
+    }
+  }
+  
+  // Handle file upload
+  $('#image-upload').on('change', function(e) {
+    e.stopPropagation();
+    const files = this.files;
+    if (files.length > 0) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          uploadImage(file);
+        }
+      });
+      this.value = '';
+    }
+  });
+  
+  // Handle dropzone click
+  $('#image-dropzone').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $('#image-upload').trigger('click');
+  });
+  
+  // Handle dropzone drag and drop
+  $('#image-dropzone').on('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).addClass('dragover');
+  });
+  
+  $('#image-dropzone').on('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('dragover');
+  });
+  
+  $('#image-dropzone').on('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('dragover');
+    
+    const files = e.originalEvent.dataTransfer.files;
+    if (files.length > 0) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          uploadImage(file);
+        }
+      });
+    }
+  });
+  
+  // Upload image function
+  function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('upload', file);
+    
+    const progressId = `progress-${Date.now()}`;
+    const progressHtml = `
+      <div id="${progressId}" class="upload-progress">
+        <p>{{ _('Uploading') }} ${file.name}...</p>
+        <div class="progress">
+          <div class="progress-bar" style="width: 0%"></div>
+        </div>
+      </div>
+    `;
+    $('#uploaded-images-preview').append(progressHtml);
+    
+    $.ajax({
+      url: '/pages_upload',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      xhr: function() {
+        const xhr = new window.XMLHttpRequest();
+        xhr.upload.addEventListener("progress", function(evt) {
+          if (evt.lengthComputable) {
+            const percentComplete = (evt.loaded / evt.total) * 100;
+            $(`#${progressId} .progress-bar`).css('width', percentComplete + '%');
+          }
+        }, false);
+        return xhr;
+      },
+      success: function(response) {
+        $(`#${progressId}`).remove();
+        if (response.uploaded === 1) {
+          const imageData = {
+            url: response.url,
+            fileName: response.fileName,
+            alt: file.name.replace(/\.[^/.]+$/, ""),
+            caption: ''
+          };
+          uploadedImages.push(imageData);
+          addUploadedImagePreview(imageData);
+          updateUploadedImagesData();
+        } else {
+          alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
+        }
+      },
+      error: function() {
+        $(`#${progressId}`).remove();
+        alert('{{ _("Error uploading image. Please try again.") }}');
+      }
+    });
+  }
+  
+  // Add uploaded image preview
+  function addUploadedImagePreview(imageData) {
+    const imageId = `uploaded-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const imageHtml = `
+      <div class="uploaded-image-item" data-image-id="${imageId}">
+        <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
+        <div class="uploaded-image-info">
+          <input type="text" class="image-alt" value="${imageData.alt}" placeholder="{{ _('Alt text') }}">
+          <input type="text" class="image-caption" value="${imageData.caption}" placeholder="{{ _('Caption (optional)') }}">
+          <div class="uploaded-image-actions">
+            <button type="button" class="image-copy-url" onclick="copyImageUrl('${imageData.url}')">
+              <i class="fa fa-copy"></i> {{ _('Copy URL') }}
+            </button>
+            <button type="button" class="image-remove" onclick="removeUploadedImage('${imageId}')">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    $('#uploaded-images-preview').append(imageHtml);
+  }
+  
+  // Copy image URL to clipboard
+  window.copyImageUrl = function(url) {
+    navigator.clipboard.writeText(url).then(function() {
+      const btn = event.target.closest('.image-copy-url');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa fa-check"></i> {{ _("Copied!") }}';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    });
+  };
+  
+  // Remove uploaded image
+  window.removeUploadedImage = function(imageId) {
+    $(`.uploaded-image-item[data-image-id="${imageId}"]`).remove();
+    const $removedItem = $(`.uploaded-image-item[data-image-id="${imageId}"]`);
+    const imageUrl = $removedItem.find('img').attr('src');
+    uploadedImages = uploadedImages.filter(img => img.url !== imageUrl);
+    updateUploadedImagesData();
+  };
+  
+  // Update uploaded images data
+  function updateUploadedImagesData() {
+    const currentImages = [];
+    $('.uploaded-image-item').each(function() {
+      const $item = $(this);
+      const imageData = {
+        url: $item.find('img').attr('src'),
+        fileName: $item.find('img').attr('src').split('/').pop(),
+        alt: $item.find('.image-alt').val(),
+        caption: $item.find('.image-caption').val()
+      };
+      currentImages.push(imageData);
+    });
+    uploadedImages = currentImages;
+    $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
+    
+    const galleryData = uploadedImages.map(img => ({
+      type: 'uploaded',
+      url: img.url,
+      alt: img.alt,
+      caption: img.caption
+    }));
+    $('#image-gallery-data').val(JSON.stringify(galleryData));
+  }
+  
+  // Update image data when alt text or caption changes
+  $(document).on('change input', '.image-alt, .image-caption', function() {
+    updateUploadedImagesData();
+  });
+  
   // Auto-generate URL from title
   $('#title').on('input', function() {
-    if (!$('#name').prop('readonly')) {
-      var title = $(this).val();
-      var url = title.toLowerCase()
-                    .replace(/[^a-z0-9\s-]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/-+/g, '-')
-                    .trim('-');
-      $('#name').val(url);
+    if ($('#name').prop('readonly')) {
+      var title = $(this).val().toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+      $('#name').val(title);
+    }
+  });
+  
+  // Toggle URL field editing
+  $('#edit-url-btn').on('click', function() {
+    var $urlField = $('#name');
+    var $btn = $(this);
+    
+    if ($urlField.prop('readonly')) {
+      $urlField.prop('readonly', false).focus();
+      $btn.html('<i class="fa fa-lock"></i>').attr('title', '{{ _("Lock auto-generation") }}');
+      $btn.removeClass('btn-default').addClass('btn-warning');
+    } else {
+      $urlField.prop('readonly', true);
+      $btn.html('<i class="fa fa-edit"></i>').attr('title', '{{ _("Edit URL manually") }}');
+      $btn.removeClass('btn-warning').addClass('btn-default');
+      var title = $('#title').val().toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+      $urlField.val(title);
     }
   });
   
@@ -789,6 +1184,8 @@ textarea.form-control {
     
     if (!isValid) {
       e.preventDefault();
+    } else {
+      updateUploadedImagesData();
     }
   });
   
@@ -807,6 +1204,9 @@ textarea.form-control {
     this.style.height = (this.scrollHeight) + 'px';
   });
   
+  // Initialize
+  loadUploadedImages();
+  }); // Close waitForJQuery function
 })();
 </script>
 
