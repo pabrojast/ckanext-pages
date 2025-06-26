@@ -342,33 +342,92 @@ def pages_delete(page, page_type='pages'):
     if page.startswith('/'):
         page = page[1:]
     if 'cancel' in tk.request.args:
-        return tk.redirect_to('pages.%s_edit' % page_type, page=page)
+        # Handle cancellation - redirect back to edit page for this page type
+        if page_type == 'rapid-response':
+            return tk.redirect_to('pages.rapid_response_edit', page=page)
+        elif page_type == 'water-news':
+            return tk.redirect_to('pages.water_news_edit', page=page)
+        elif page_type == 'water-events':
+            return tk.redirect_to('pages.water_events_edit', page=page)
+        elif page_type == 'water-publications':
+            return tk.redirect_to('pages.water_publications_edit', page=page)
+        elif page_type == 'open-source-software':
+            return tk.redirect_to('pages.open_source_software_edit', page=page)
+        else:
+            return tk.redirect_to('pages.edit', page=page)
 
     try:
-        if tk.request.method == 'POST':
+        tk.check_access('ckanext_pages_delete', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to delete page'))
+
+    # Get page info for display
+    try:
+        page_dict = tk.get_action('ckanext_pages_show')(
+            context={}, data_dict={'org_id': None, 'page': page}
+        )
+        if not page_dict:
+            return tk.abort(404, _('Page Not Found'))
+    except tk.ObjectNotFound:
+        return tk.abort(404, _('Page Not Found'))
+
+    if tk.request.method == 'POST':
+        try:
             tk.get_action('ckanext_pages_delete')({}, {'page': page})
             
-            # Handle redirects for different page types
+            # Handle redirects for different page types after successful deletion
             endpoint = page_type + '_index'
             if page_type == 'rapid-response':
                 endpoint = 'rapid_response_index'
+                tk.h.flash_success(_('Emergency event deleted successfully'))
             elif page_type == 'water-news':
                 endpoint = 'water_news_index'
+                tk.h.flash_success(_('News article deleted successfully'))
             elif page_type == 'water-events':
                 endpoint = 'water_events_index'
+                tk.h.flash_success(_('Event deleted successfully'))
             elif page_type == 'water-publications':
                 endpoint = 'water_publications_index'
+                tk.h.flash_success(_('Publication deleted successfully'))
             elif page_type == 'open-source-software':
                 endpoint = 'open_source_software_index'
+                tk.h.flash_success(_('Software entry deleted successfully'))
+            else:
+                endpoint = 'pages_index'
+                tk.h.flash_success(_('Page deleted successfully'))
             
             return tk.redirect_to('pages.%s' % endpoint)
-        else:
+        except tk.ObjectNotFound:
             return tk.abort(404, _('Page Not Found'))
-    except tk.NotAuthorized:
-        return tk.abort(401, _('Unauthorized to delete page'))
-    except tk.ObjectNotFound:
-        return tk.abort(404, _('Group not found'))
-    return tk.render('ckanext_pages/confirm_delete.html', {'page': page})
+        except Exception as e:
+            tk.h.flash_error(_('Error deleting page: %s') % str(e))
+            # Redirect back to edit page on error
+            if page_type == 'rapid-response':
+                return tk.redirect_to('pages.rapid_response_edit', page=page)
+            else:
+                return tk.redirect_to('pages.edit', page=page)
+    else:
+        # GET request - show confirmation page
+        # Determine the correct delete URL for the form action
+        if page_type == 'rapid-response':
+            delete_url = tk.h.url_for('pages.rapid_response_delete', page=page)
+        elif page_type == 'water-news':
+            delete_url = tk.h.url_for('pages.water_news_delete', page=page)
+        elif page_type == 'water-events':
+            delete_url = tk.h.url_for('pages.water_events_delete', page=page)
+        elif page_type == 'water-publications':
+            delete_url = tk.h.url_for('pages.water_publications_delete', page=page)
+        elif page_type == 'open-source-software':
+            delete_url = tk.h.url_for('pages.open_source_software_delete', page=page)
+        else:
+            delete_url = tk.h.url_for('pages.delete', page=page)
+        
+        return tk.render('ckanext_pages/confirm_delete.html', extra_vars={
+            'page': page,
+            'page_dict': page_dict,
+            'page_type': page_type,
+            'delete_url': delete_url
+        })
 
 
 def pages_upload():
