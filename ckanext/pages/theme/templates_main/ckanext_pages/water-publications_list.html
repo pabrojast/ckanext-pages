@@ -185,9 +185,17 @@
                                 </span>
                               {% endif %}
                               {% if page.authors %}
-                                <span class="publication-author">
-                                  <i class="fa fa-user"></i> {{ page.authors }}
-                                </span>
+                                {% set author_text = page.authors.strip() %}
+                                {% if ',' in author_text or 'and' in author_text.lower() or '&' in author_text %}
+                                  {% set first_author = author_text.split(',')[0].split(' and ')[0].split(' & ')[0].strip() %}
+                                  <span class="publication-author">
+                                    <i class="fa fa-user"></i> {{ first_author }} <em>et al.</em>
+                                  </span>
+                                {% else %}
+                                  <span class="publication-author">
+                                    <i class="fa fa-user"></i> {{ author_text }}
+                                  </span>
+                                {% endif %}
                               {% elif page.author %}
                                 <span class="publication-author">
                                   <i class="fa fa-user"></i> {{ page.author }}
@@ -564,6 +572,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.publication-author em {
+  color: var(--water-publications-primary);
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
 .publication-status-badge {
