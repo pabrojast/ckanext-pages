@@ -37,6 +37,10 @@ def default_pages_schema():
         'timeline_events': [ignore_missing, unicode_safe],  # Dynamic timeline events
         'uploaded_images': [ignore_missing, unicode_safe],  # Uploaded images metadata
         'image_gallery': [ignore_missing, unicode_safe],     # Enhanced image gallery
+        # Water News specific fields
+        'source': [ignore_missing, unicode_safe],           # Original source URL
+        'external_links': [ignore_missing, unicode_safe],   # Related links
+        'author': [ignore_missing, unicode_safe],           # Author/Source name
     }
 
 

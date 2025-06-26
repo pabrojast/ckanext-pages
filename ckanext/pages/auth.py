@@ -6,7 +6,8 @@ from ckanext.pages import db
 
 
 def sysadmin(context, data_dict):
-    return {'success':  False}
+    '''Check if user is a sysadmin'''
+    return {'success': p.toolkit.check_access('sysadmin', context, data_dict)}
 
 
 @p.toolkit.auth_allow_anonymous_access
