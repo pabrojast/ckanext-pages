@@ -27,7 +27,7 @@
                     <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
                     <li><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">{{ page.name }}</a></li>
+                      <li><a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Share Publication') }}</li>
@@ -371,7 +371,7 @@
   --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
-/* Banner Section */
+/* Banner Section - Enhanced */
 .section-title {
   position: relative;
   height: 300px;
@@ -379,6 +379,23 @@
   border-radius: 16px;
   margin-bottom: 3rem;
   box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
 }
 
 .section-title-overlay {
@@ -390,11 +407,36 @@
   background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
 }
 
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white !important;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
 .section-title-content h1 {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: white !important;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+  color: white !important;
 }
 
 /* Form Section Styling */
@@ -443,6 +485,51 @@
   transform: translateY(-1px);
 }
 
+/* Ensure input and textarea fields maintain their original styling */
+input.form-control:not([type="file"]),
+textarea.form-control {
+  padding: 14px 18px;
+  height: auto;
+}
+
+/* Specific styling for select fields */
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+  cursor: pointer;
+  height: auto;
+  min-height: 3em;
+  padding: 12px 35px 12px 18px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+}
+
+select.form-control:focus {
+  outline: none;
+  height: auto;
+  min-height: 3em;
+}
+
+select.form-control option {
+  padding: 8px 12px;
+  background: white;
+  color: #333;
+  line-height: 1.4;
+  height: auto;
+}
+
+select.form-control option:hover,
+select.form-control option:selected {
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   border: none;
@@ -486,9 +573,109 @@
   transition: all 0.3s ease;
 }
 
-.upload-dropzone:hover {
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
   border-color: var(--unesco-blue);
   background: var(--unesco-blue-pale);
+}
+
+/* Uploaded Images Grid */
+.uploaded-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.uploaded-image-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.uploaded-image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.uploaded-image-preview {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.uploaded-image-info {
+  padding: 1rem;
+}
+
+.uploaded-image-info input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.uploaded-image-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.uploaded-image-actions button {
+  flex: 1;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.image-copy-url {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.image-copy-url:hover {
+  background: #ced4da;
+}
+
+.image-remove {
+  background: #dc3545;
+  color: white;
+}
+
+.image-remove:hover {
+  background: #c82333;
+}
+
+/* Upload Progress */
+.upload-progress {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.progress {
+  width: 100%;
+  height: 20px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--unesco-blue), var(--unesco-blue-dark));
+  transition: width 0.3s ease;
 }
 
 .help-text {
@@ -508,6 +695,40 @@
   border-left: 4px solid var(--unesco-blue);
 }
 
+/* Breadcrumb styling */
+.toolbar .breadcrumb {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-light);
+  backdrop-filter: blur(10px);
+}
+
+.toolbar .breadcrumb li {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar .breadcrumb li a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.toolbar .breadcrumb li a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: underline;
+}
+
+.toolbar .breadcrumb li.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .section-title {
@@ -525,6 +746,10 @@
   .form-actions .btn {
     width: 100%;
     margin: 0.5rem 0;
+  }
+  
+  .toolbar .breadcrumb li {
+    max-width: 150px;
   }
 }
 </style>
@@ -621,10 +846,195 @@
       }
     });
     
-    function uploadImage(file) {
-      // Placeholder upload function - implement as needed
-      console.log('Uploading image:', file.name);
+    // Image Upload Management
+    let uploadedImages = [];
+    
+    // Load existing uploaded images
+    function loadUploadedImages() {
+      const uploadedData = $('#uploaded-images-data').val();
+      if (uploadedData) {
+        try {
+          uploadedImages = JSON.parse(uploadedData);
+          uploadedImages.forEach(img => {
+            addUploadedImagePreview(img);
+          });
+        } catch (e) {
+          console.error('Error parsing uploaded images data:', e);
+        }
+      }
     }
+    
+    // Handle dropzone drag and drop
+    $('#image-dropzone').on('dragover', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).addClass('dragover');
+    });
+    
+    $('#image-dropzone').on('dragleave', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).removeClass('dragover');
+    });
+    
+    $('#image-dropzone').on('drop', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).removeClass('dragover');
+      
+      const files = e.originalEvent.dataTransfer.files;
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            uploadImage(file);
+          }
+        });
+      }
+    });
+    
+    // Upload image function
+    function uploadImage(file) {
+      const formData = new FormData();
+      formData.append('upload', file);
+      
+      // Show upload progress
+      const progressId = `progress-${Date.now()}`;
+      const progressHtml = `
+        <div id="${progressId}" class="upload-progress">
+          <p>{{ _('Uploading') }} ${file.name}...</p>
+          <div class="progress">
+            <div class="progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+      `;
+      $('#uploaded-images-preview').append(progressHtml);
+      
+      $.ajax({
+        url: '/pages_upload',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        xhr: function() {
+          const xhr = new window.XMLHttpRequest();
+          xhr.upload.addEventListener("progress", function(evt) {
+            if (evt.lengthComputable) {
+              const percentComplete = (evt.loaded / evt.total) * 100;
+              $(`#${progressId} .progress-bar`).css('width', percentComplete + '%');
+            }
+          }, false);
+          return xhr;
+        },
+        success: function(response) {
+          $(`#${progressId}`).remove();
+          if (response.uploaded === 1) {
+            const imageData = {
+              url: response.url,
+              fileName: response.fileName,
+              alt: file.name.replace(/\.[^/.]+$/, ""),
+              caption: ''
+            };
+            uploadedImages.push(imageData);
+            addUploadedImagePreview(imageData);
+            updateUploadedImagesData();
+          } else {
+            alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
+          }
+        },
+        error: function() {
+          $(`#${progressId}`).remove();
+          alert('{{ _("Error uploading image. Please try again.") }}');
+        }
+      });
+    }
+    
+    // Add uploaded image preview
+    function addUploadedImagePreview(imageData) {
+      const imageId = `uploaded-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const imageHtml = `
+        <div class="uploaded-image-item" data-image-id="${imageId}">
+          <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
+          <div class="uploaded-image-info">
+            <input type="text" class="image-alt" value="${imageData.alt}" placeholder="{{ _('Alt text') }}">
+            <input type="text" class="image-caption" value="${imageData.caption}" placeholder="{{ _('Caption (optional)') }}">
+            <div class="uploaded-image-actions">
+              <button type="button" class="image-copy-url" onclick="copyImageUrl('${imageData.url}')">
+                <i class="fa fa-copy"></i> {{ _('Copy URL') }}
+              </button>
+              <button type="button" class="image-remove" onclick="removeUploadedImage('${imageId}')">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      $('#uploaded-images-preview').append(imageHtml);
+    }
+    
+    // Copy image URL to clipboard
+    window.copyImageUrl = function(url) {
+      navigator.clipboard.writeText(url).then(function() {
+        const btn = event.target.closest('.image-copy-url');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa fa-check"></i> {{ _("Copied!") }}';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2000);
+      });
+    };
+    
+    // Remove uploaded image
+    window.removeUploadedImage = function(imageId) {
+      $(`.uploaded-image-item[data-image-id="${imageId}"]`).remove();
+      const $removedItem = $(`.uploaded-image-item[data-image-id="${imageId}"]`);
+      const imageUrl = $removedItem.find('img').attr('src');
+      uploadedImages = uploadedImages.filter(img => img.url !== imageUrl);
+      updateUploadedImagesData();
+    };
+    
+    // Update uploaded images data
+    function updateUploadedImagesData() {
+      const currentImages = [];
+      $('.uploaded-image-item').each(function() {
+        const $item = $(this);
+        const imageData = {
+          url: $item.find('img').attr('src'),
+          fileName: $item.find('img').attr('src').split('/').pop(),
+          alt: $item.find('.image-alt').val(),
+          caption: $item.find('.image-caption').val()
+        };
+        currentImages.push(imageData);
+      });
+      uploadedImages = currentImages;
+      $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
+    }
+    
+    // Update image data when alt text or caption changes
+    $(document).on('change input', '.image-alt, .image-caption', function() {
+      updateUploadedImagesData();
+    });
+
+    // Ensure select fields work correctly
+    function preventSelectReset() {
+      // Prevent form reset issues with select fields
+      $('#field-publication-type, #field-private').on('change', function() {
+        var $this = $(this);
+        var selectedValue = $this.val();
+        
+        // Small delay to ensure value is preserved
+        setTimeout(function() {
+          if ($this.val() !== selectedValue) {
+            $this.val(selectedValue);
+          }
+        }, 10);
+      });
+    }
+
+    // Initialize
+    loadUploadedImages();
+    preventSelectReset();
+    
+    console.log('Water Publications edit form initialized with full image upload functionality');
     
   });
 })();

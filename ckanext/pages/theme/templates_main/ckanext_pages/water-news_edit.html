@@ -27,7 +27,7 @@
                     <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
                     <li><a href="{{ h.url_for('pages.water_news_index') }}">{{ _('News') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.water_news_show', page=page.name) }}">{{ page.name }}</a></li>
+                      <li><a href="{{ h.url_for('pages.water_news_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Share News') }}</li>
@@ -361,14 +361,38 @@
   font-weight: 300;
 }
 
-/* Breadcrumb */
-.breadcrumb {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+/* Breadcrumb styling */
+.toolbar .breadcrumb {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 8px;
   padding: 12px 20px;
-  margin: 0;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
+  margin-bottom: 2rem;
   box-shadow: var(--shadow-light);
+  backdrop-filter: blur(10px);
+}
+
+.toolbar .breadcrumb li {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar .breadcrumb li a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.toolbar .breadcrumb li a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: underline;
+}
+
+.toolbar .breadcrumb li.active {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 /* Form Sections */
@@ -441,6 +465,51 @@
   background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
   cursor: not-allowed;
   color: var(--text-secondary);
+}
+
+/* Ensure input and textarea fields maintain their original styling */
+input.form-control:not([type="file"]),
+textarea.form-control {
+  padding: 14px 18px;
+  height: auto;
+}
+
+/* Specific styling for select fields */
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+  cursor: pointer;
+  height: auto;
+  min-height: 3em;
+  padding: 12px 35px 12px 18px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+}
+
+select.form-control:focus {
+  outline: none;
+  height: auto;
+  min-height: 3em;
+}
+
+select.form-control option {
+  padding: 8px 12px;
+  background: white;
+  color: #333;
+  line-height: 1.4;
+  height: auto;
+}
+
+select.form-control option:hover,
+select.form-control option:selected {
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
 }
 
 .help-text {
@@ -626,6 +695,10 @@
     display: block;
     width: 100%;
     margin: 0.5rem 0;
+  }
+  
+  .toolbar .breadcrumb li {
+    max-width: 150px;
   }
 }
 </style>
@@ -909,8 +982,25 @@
       updateUploadedImagesData();
     });
 
+    // Ensure select fields work correctly
+    function preventSelectReset() {
+      // Prevent form reset issues with select fields
+      $('#field-private').on('change', function() {
+        var $this = $(this);
+        var selectedValue = $this.val();
+        
+        // Small delay to ensure value is preserved
+        setTimeout(function() {
+          if ($this.val() !== selectedValue) {
+            $this.val(selectedValue);
+          }
+        }, 10);
+      });
+    }
+
     // Initialize
     loadUploadedImages();
+    preventSelectReset();
     
     console.log('Water News edit form initialized with image upload functionality');
   });

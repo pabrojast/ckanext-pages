@@ -403,9 +403,18 @@
 
 .news-header {
   background: linear-gradient(135deg, var(--news-red) 0%, var(--news-red-dark) 100%);
-  color: white;
+  color: white !important;
   padding: 1.5rem 2rem;
   margin: 0;
+}
+
+/* Ensure all elements in news header are white */
+.news-header * {
+  color: white !important;
+}
+
+.news-header .fa {
+  color: white !important;
 }
 
 .news-metadata {
@@ -413,35 +422,47 @@
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+  color: white !important;
 }
 
 .news-date {
   font-size: 0.95rem;
-  opacity: 0.95;
+  color: white !important;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.news-date i {
+  color: white !important;
+  opacity: 0.9;
 }
 
 .news-type-badge {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: white !important;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  backdrop-filter: blur(5px);
 }
 
 .news-status-badge {
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .status-published {
@@ -462,11 +483,18 @@
 
 .news-author {
   font-size: 0.9rem;
-  opacity: 0.9;
+  color: white !important;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-end;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.news-author i {
+  color: white !important;
+  opacity: 0.9;
 }
 
 /* News Image */

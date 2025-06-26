@@ -27,7 +27,7 @@
                     <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
                     <li><a href="{{ h.url_for('pages.water_events_index') }}">{{ _('Events') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.water_events_show', page=page.name) }}">{{ page.name }}</a></li>
+                      <li><a href="{{ h.url_for('pages.water_events_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Share Event') }}</li>
@@ -694,6 +694,40 @@ select.form-control option:selected {
   border-left: 4px solid var(--unesco-blue-light);
 }
 
+/* Breadcrumb styling */
+.toolbar .breadcrumb {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-light);
+  backdrop-filter: blur(10px);
+}
+
+.toolbar .breadcrumb li {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar .breadcrumb li a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.toolbar .breadcrumb li a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: underline;
+}
+
+.toolbar .breadcrumb li.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .section-title {
@@ -711,6 +745,10 @@ select.form-control option:selected {
   .form-actions .btn {
     width: 100%;
     margin: 0.5rem 0;
+  }
+  
+  .toolbar .breadcrumb li {
+    max-width: 150px;
   }
 }
 </style>
