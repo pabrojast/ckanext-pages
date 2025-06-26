@@ -405,7 +405,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: white;
+  color: white !important;
   z-index: 10;
   width: 90%;
   max-width: 700px;
@@ -418,6 +418,7 @@
   text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
   line-height: 1.2;
   letter-spacing: -0.02em;
+  color: white !important;
 }
 
 .section-title-description {
@@ -427,6 +428,49 @@
   text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
   font-weight: 300;
   line-height: 1.4;
+  color: white !important;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--water-publications-primary);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--water-publications-primary);
 }
 
 /* Professional Module Styling */
