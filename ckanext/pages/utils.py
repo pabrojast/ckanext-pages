@@ -657,6 +657,66 @@ def water_family_main_page():
     })
 
 
+def _filter_non_admin_pages(page_type):
+    """Get private pages created by non-admin users for the specified page type"""
+    from ckanext.pages.db import Page
+    from ckan import model
+    
+    # Get all private pages of the specified type
+    query = model.Session.query(Page).filter(
+        Page.page_type == page_type,
+        Page.private == True,
+        Page.group_id == None
+    ).order_by(Page.publish_date.desc())
+    
+    private_pages = query.all()
+    
+    filtered_pages = []
+    for page in private_pages:
+        if page.user_id:
+            try:
+                # Get the user object
+                user = model.User.get(page.user_id)
+                if user:
+                    # Check if the page creator is a sysadmin
+                    context = {'user': user.name}
+                    tk.check_access('sysadmin', context, {})
+                    # If no exception, user is admin - skip this page
+                    continue
+            except tk.NotAuthorized:
+                # User is not admin - include this page for review
+                pass
+            except:
+                # Any other error, include for review
+                pass
+        
+        # Convert page object to dict format expected by template
+        page_dict = {
+            'title': page.title,
+            'content': page.content,
+            'name': page.name,
+            'publish_date': page.publish_date.isoformat() if page.publish_date else None,
+            'group_id': page.group_id,
+            'page_type': page.page_type,
+            'private': 'True',
+            'created': page.created.isoformat() if page.created else None,
+            'user_id': page.user_id
+        }
+        
+        # Add extras if they exist
+        if page.extras:
+            try:
+                import json
+                extras = json.loads(page.extras)
+                page_dict.update(extras)
+            except:
+                pass
+        
+        filtered_pages.append(page_dict)
+    
+    return filtered_pages
+
+
 def water_admin_dashboard():
     """Admin dashboard to approve/reject water family content"""
     
@@ -665,40 +725,19 @@ def water_admin_dashboard():
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to access admin dashboard'))
     
-    # Get all pending items (private items that need approval)
+    # Get pending items created by non-admin users
     try:
-        pending_news = tk.get_action('ckanext_pages_list')(
-            context={}, data_dict={
-                'org_id': None, 
-                'page_type': 'water-news',
-                'private': True,
-                'order_publish_date': True
-            }
-        )
+        pending_news = _filter_non_admin_pages('water-news')
     except:
         pending_news = []
     
     try:
-        pending_events = tk.get_action('ckanext_pages_list')(
-            context={}, data_dict={
-                'org_id': None, 
-                'page_type': 'water-events',
-                'private': True,
-                'order_publish_date': True
-            }
-        )
+        pending_events = _filter_non_admin_pages('water-events')
     except:
         pending_events = []
     
     try:
-        pending_publications = tk.get_action('ckanext_pages_list')(
-            context={}, data_dict={
-                'org_id': None, 
-                'page_type': 'water-publications',
-                'private': True,
-                'order_publish_date': True
-            }
-        )
+        pending_publications = _filter_non_admin_pages('water-publications')
     except:
         pending_publications = []
     
