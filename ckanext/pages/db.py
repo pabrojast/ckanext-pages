@@ -72,6 +72,7 @@ class Page(DomainObject, BaseModel):
         # New search and filter parameters
         q = kw.pop('q', None)
         event_type = kw.pop('event_type', None) 
+        priority = kw.pop('priority', None)
         order_by = kw.pop('order_by', None)
 
         query = model.Session.query(cls).autoflush(False)
@@ -92,12 +93,36 @@ class Page(DomainObject, BaseModel):
                 cls.extras.ilike('%"event_type": "' + event_type + '"%')
             )
         
+        # Apply priority filter (stored in extras JSON)
+        if priority:
+            query = query.filter(
+                cls.extras.ilike('%"priority": "' + priority + '"%')
+            )
+        
         # Apply custom ordering (prioritize order_by over other ordering options)
         if order_by == 'recent':
             query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
         elif order_by == 'severity':
-            # Order by severity (you can customize this logic)
-            query = query.order_by(cls.created.desc())
+            # Order by priority and severity (urgent/high priority first, then by severity, then by date)
+            # Using PostgreSQL CASE statement to create sort order
+            query = query.order_by(
+                sa.case(
+                    [(cls.extras.ilike('%"priority": "urgent"%'), 4),
+                     (cls.extras.ilike('%"priority": "high"%'), 3),
+                     (cls.extras.ilike('%"priority": "medium"%'), 2),
+                     (cls.extras.ilike('%"priority": "low"%'), 1)],
+                    else_=3  # Default to high priority
+                ).desc(),
+                sa.case(
+                    [(cls.extras.ilike('%"severity": "critical"%'), 4),
+                     (cls.extras.ilike('%"severity": "high"%'), 3),
+                     (cls.extras.ilike('%"severity": "moderate"%'), 2),
+                     (cls.extras.ilike('%"severity": "low"%'), 1)],
+                    else_=0  # Default for no severity
+                ).desc(),
+                cls.publish_date.desc().nullslast(),
+                cls.created.desc()
+            )
         elif order_by == 'country':
             # Order by country alphabetically - extract from key_info field
             # This will attempt to order by country but may not be perfect due to the text format

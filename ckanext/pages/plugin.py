@@ -283,7 +283,53 @@ def get_software_difficulty_class(difficulty):
         'advanced': 'difficulty-advanced',
         'expert': 'difficulty-expert'
     }
-    return difficulty_classes.get(difficulty.lower(), 'difficulty-intermediate')
+    return difficulty_classes.get(difficulty, 'difficulty-beginner')
+
+
+def get_priority_sort_key(page):
+    """Get numeric sort key for priority level (higher number = higher priority)"""
+    priority = page.get('priority', 'high').lower()
+    priority_weights = {
+        'urgent': 4,
+        'high': 3,
+        'medium': 2,
+        'low': 1
+    }
+    return priority_weights.get(priority, 3)  # Default to high priority
+
+
+def get_severity_sort_key(page):
+    """Get numeric sort key for severity level (higher number = higher severity)"""
+    severity = page.get('severity', '').lower()
+    severity_weights = {
+        'critical': 4,
+        'high': 3,
+        'moderate': 2,
+        'low': 1
+    }
+    return severity_weights.get(severity, 0)  # Default to 0 if no severity set
+
+
+def get_priority_class(priority):
+    """Get CSS class for priority level"""
+    priority_classes = {
+        'urgent': 'priority-urgent',
+        'high': 'priority-high',
+        'medium': 'priority-medium',
+        'low': 'priority-low'
+    }
+    return priority_classes.get(priority, 'priority-high')
+
+
+def get_severity_class(severity):
+    """Get CSS class for severity level"""
+    severity_classes = {
+        'critical': 'severity-critical',
+        'high': 'severity-high', 
+        'moderate': 'severity-moderate',
+        'low': 'severity-low'
+    }
+    return severity_classes.get(severity, '')
 
 
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
@@ -335,6 +381,10 @@ class PagesPlugin(PagesPluginBase):
             'get_software_category_class': get_software_category_class,
             'count_software_by_category': count_software_by_category,
             'get_software_difficulty_class': get_software_difficulty_class,
+            'get_priority_sort_key': get_priority_sort_key,
+            'get_severity_sort_key': get_severity_sort_key,
+            'get_priority_class': get_priority_class,
+            'get_severity_class': get_severity_class,
         }
 
     def get_actions(self):

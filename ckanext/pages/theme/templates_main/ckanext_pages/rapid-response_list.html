@@ -121,9 +121,9 @@
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
-                          <div class="col-md-3">
+                          <div class="col-md-2">
                             <select name="event_type" class="form-control">
-                              <option value="">{{ _('All Event Types') }}</option>
+                              <option value="">{{ _('All Types') }}</option>
                               <option value="cyclone" {% if request.args.event_type == 'cyclone' %}selected{% endif %}>{{ _('Cyclones') }}</option>
                               <option value="earthquake" {% if request.args.event_type == 'earthquake' %}selected{% endif %}>{{ _('Earthquakes') }}</option>
                               <option value="flood" {% if request.args.event_type == 'flood' %}selected{% endif %}>{{ _('Floods') }}</option>
@@ -131,11 +131,20 @@
                               <option value="conflict" {% if request.args.event_type == 'conflict' %}selected{% endif %}>{{ _('Conflicts') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-3">
+                          <div class="col-md-2">
+                            <select name="priority" class="form-control">
+                              <option value="">{{ _('All Priorities') }}</option>
+                              <option value="urgent" {% if request.args.priority == 'urgent' %}selected{% endif %}>{{ _('Urgent') }}</option>
+                              <option value="high" {% if request.args.priority == 'high' %}selected{% endif %}>{{ _('High') }}</option>
+                              <option value="medium" {% if request.args.priority == 'medium' %}selected{% endif %}>{{ _('Medium') }}</option>
+                              <option value="low" {% if request.args.priority == 'low' %}selected{% endif %}>{{ _('Low') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
                             <select name="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
                               <option value="recent" {% if request.args.order_by == 'recent' or not request.args.order_by %}selected{% endif %}>{{ _('Most Recent') }}</option>
-                              <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Severity') }}</option>
+                              <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Priority & Severity') }}</option>
                               <option value="country" {% if request.args.order_by == 'country' %}selected{% endif %}>{{ _('Country') }}</option>
                             </select>
                           </div>
@@ -188,8 +197,41 @@
                           </div>
                           <div class="col-md-4 text-right">
                             <div class="event-severity">
-                              <span class="severity-indicator severity-high"></span>
-                              <span class="severity-label">{{ _('High Priority') }}</span>
+                              {% set priority_level = page.priority or 'high' %}
+                              {% set severity_level = page.severity or '' %}
+                              
+                              {% if priority_level == 'urgent' %}
+                                <span class="severity-indicator severity-urgent"></span>
+                                <span class="severity-label">{{ _('URGENT') }}</span>
+                              {% elif priority_level == 'high' %}
+                                <span class="severity-indicator severity-high"></span>
+                                <span class="severity-label">{{ _('High Priority') }}</span>
+                              {% elif priority_level == 'medium' %}
+                                <span class="severity-indicator severity-medium"></span>
+                                <span class="severity-label">{{ _('Medium Priority') }}</span>
+                              {% elif priority_level == 'low' %}
+                                <span class="severity-indicator severity-low"></span>
+                                <span class="severity-label">{{ _('Low Priority') }}</span>
+                              {% else %}
+                                <span class="severity-indicator severity-high"></span>
+                                <span class="severity-label">{{ _('High Priority') }}</span>
+                              {% endif %}
+                              
+                              {% if severity_level %}
+                                <div class="impact-level">
+                                  <small class="text-muted">
+                                    {% if severity_level == 'critical' %}
+                                      <i class="fa fa-exclamation-triangle" style="color: #dc3545;"></i> {{ _('Critical Impact') }}
+                                    {% elif severity_level == 'high' %}
+                                      <i class="fa fa-exclamation-triangle" style="color: #fd7e14;"></i> {{ _('High Impact') }}
+                                    {% elif severity_level == 'moderate' %}
+                                      <i class="fa fa-info-circle" style="color: #ffc107;"></i> {{ _('Moderate Impact') }}
+                                    {% elif severity_level == 'low' %}
+                                      <i class="fa fa-info-circle" style="color: #28a745;"></i> {{ _('Low Impact') }}
+                                    {% endif %}
+                                  </small>
+                                </div>
+                              {% endif %}
                             </div>
                           </div>
                         </div>
@@ -588,10 +630,38 @@
   display: inline-block;
 }
 
+.severity-urgent {
+  background: #8b0000;
+  box-shadow: 0 0 15px rgba(139, 0, 0, 0.8);
+  animation: pulse-urgent 1.5s infinite;
+}
+
 .severity-high {
   background: #dc3545;
   box-shadow: 0 0 10px rgba(220, 53, 69, 0.6);
   animation: pulse-red 2s infinite;
+}
+
+.severity-medium {
+  background: #fd7e14;
+  box-shadow: 0 0 8px rgba(253, 126, 20, 0.5);
+  animation: pulse-orange 3s infinite;
+}
+
+.severity-low {
+  background: #ffc107;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.4);
+}
+
+@keyframes pulse-urgent {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(139, 0, 0, 1);
+    transform: scale(1.1);
+  }
 }
 
 @keyframes pulse-red {
@@ -599,10 +669,20 @@
   50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.8); }
 }
 
+@keyframes pulse-orange {
+  0%, 100% { box-shadow: 0 0 3px rgba(253, 126, 20, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(253, 126, 20, 0.6); }
+}
+
 .severity-label {
   font-size: 0.9rem;
   font-weight: 600;
   color: #212529 !important;
+}
+
+.impact-level {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
 }
 
 /* Event Image */
