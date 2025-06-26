@@ -149,9 +149,15 @@
                           
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Article Summary') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" required
+                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" required maxlength="300"
                                       placeholder="{{ _('Brief summary of the news article (100-300 words)...') }}">{{ data.excerpt or '' }}</textarea>
-                            <div class="help-text">{{ _('This summary will appear in news listings and social media shares') }}</div>
+                            <div class="character-counter-wrapper">
+                              <div class="help-text">{{ _('This summary will appear in news listings and social media shares') }}</div>
+                              <div class="character-counter">
+                                <span id="excerpt-counter" class="counter-text">0</span>
+                                <span class="counter-limit">/ 300 {{ _('characters') }}</span>
+                              </div>
+                            </div>
                             {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
                           </div>
                           
@@ -636,6 +642,76 @@ select.form-control option:selected {
   transform: scale(1.02);
 }
 
+/* Character Counter */
+.character-counter-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.character-counter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.counter-text {
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.counter-limit {
+  color: var(--text-secondary);
+}
+
+/* Counter states */
+.character-counter.warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-color: #ffeaa7;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1);
+}
+
+.character-counter.warning .counter-text {
+  color: #856404;
+}
+
+.character-counter.danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-color: #f5c6cb;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+}
+
+.character-counter.danger .counter-text {
+  color: #721c24;
+}
+
+.character-counter.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border-color: #c3e6cb;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.character-counter.success .counter-text {
+  color: #155724;
+}
+
+/* Textarea feedback when over limit */
+.form-control.text-danger {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
 /* Buttons */
 .btn {
   border-radius: 25px;
@@ -699,6 +775,18 @@ select.form-control option:selected {
   
   .toolbar .breadcrumb li {
     max-width: 150px;
+  }
+  
+  /* Character counter responsive */
+  .character-counter-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .character-counter {
+    align-self: flex-end;
+    min-width: 100px;
   }
 }
 </style>
@@ -788,6 +876,49 @@ select.form-control option:selected {
       var today = new Date().toISOString().split('T')[0];
       $('#field-publish-date').val(today);
     }
+
+    // Character Counter for Article Summary
+    function updateCharacterCounter() {
+      const $textarea = $('#field-excerpt');
+      const $counter = $('#excerpt-counter');
+      const $counterContainer = $('.character-counter');
+      const maxLength = 300;
+      
+      function updateCounter() {
+        const currentLength = $textarea.val().length;
+        $counter.text(currentLength);
+        
+        // Remove all status classes
+        $counterContainer.removeClass('success warning danger');
+        
+        // Add appropriate class based on character count
+        if (currentLength >= maxLength) {
+          $counterContainer.addClass('danger');
+        } else if (currentLength >= maxLength * 0.8) { // 80% of limit (240 chars)
+          $counterContainer.addClass('warning');
+        } else if (currentLength >= 50) { // Good amount of content
+          $counterContainer.addClass('success');
+        }
+        
+        // Add visual feedback when approaching limit
+        if (currentLength > maxLength) {
+          $textarea.addClass('text-danger');
+        } else {
+          $textarea.removeClass('text-danger');
+        }
+      }
+      
+      // Update counter on page load
+      updateCounter();
+      
+      // Update counter on input
+      $textarea.on('input keyup paste', function() {
+        updateCounter();
+      });
+    }
+    
+    // Initialize character counter
+    updateCharacterCounter();
 
     // Image Upload Management
     let uploadedImages = [];
