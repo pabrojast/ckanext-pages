@@ -27,7 +27,7 @@
                     <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
                     <li><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
                     {% if page %}
-                      <li><a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li><a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">{% if data.title %}{{ data.title }}{% else %}{{ page.name }}{% endif %}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
                       <li class="active">{{ _('Share Publication') }}</li>
