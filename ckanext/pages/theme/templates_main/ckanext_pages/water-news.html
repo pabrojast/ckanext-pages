@@ -50,81 +50,6 @@
             <div class="row">
               <div class="col-md-12">
                 
-                <!-- Article Meta Information -->
-                <div class="news-meta-info" style="margin-bottom: 3rem;">
-                  <section class="module module-narrow news-module-meta">
-                    <div class="module-content">
-                      <div class="meta-grid">
-                        <div class="row">
-                          <div class="col-md-8">
-                            <div class="meta-primary">
-                              {% if c.page.publish_date %}
-                                <div class="meta-item">
-                                  <div class="meta-icon">
-                                    <i class="fa fa-calendar"></i>
-                                  </div>
-                                  <div class="meta-content">
-                                    <span class="meta-label">{{ _('Publication Date') }}</span>
-                                    <span class="meta-value">{{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}</span>
-                                  </div>
-                                </div>
-                              {% endif %}
-                              
-                              {% if c.page.author %}
-                                <div class="meta-item">
-                                  <div class="meta-icon">
-                                    <i class="fa fa-user"></i>
-                                  </div>
-                                  <div class="meta-content">
-                                    <span class="meta-label">{{ _('Author') }}</span>
-                                    <span class="meta-value">{{ c.page.author }}</span>
-                                  </div>
-                                </div>
-                              {% endif %}
-                              
-                              {% if c.page.source %}
-                                <div class="meta-item">
-                                  <div class="meta-icon">
-                                    <i class="fa fa-external-link"></i>
-                                  </div>
-                                  <div class="meta-content">
-                                    <span class="meta-label">{{ _('Source') }}</span>
-                                    <span class="meta-value">{{ c.page.source }}</span>
-                                  </div>
-                                </div>
-                              {% endif %}
-                            </div>
-                          </div>
-                          <div class="col-md-4">
-                            <div class="meta-secondary">
-                              <div class="news-type-badge">
-                                <i class="fa fa-newspaper-o"></i>
-                                {{ _('News Article') }}
-                              </div>
-                              {% if c.page.created %}
-                                <div class="meta-timestamps">
-                                  <div class="timestamp-item">
-                                    <small class="text-muted">
-                                      <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
-                                    </small>
-                                  </div>
-                                  {% if c.page.modified %}
-                                    <div class="timestamp-item">
-                                      <small class="text-muted">
-                                        <i class="fa fa-edit"></i> {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
-                                      </small>
-                                    </div>
-                                  {% endif %}
-                                </div>
-                              {% endif %}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                </div>
-
                 <!-- Main News Content -->
                 {% if c.page.content %}
                 <div class="news-main-content" style="margin-bottom: 3rem;">
@@ -141,6 +66,31 @@
                       </div>
                     </div>
                   </section>
+                </div>
+                {% endif %}
+
+                <!-- Article Timestamps -->
+                {% if c.page.publish_date or c.page.created or c.page.modified %}
+                <div class="article-timestamps" style="margin-bottom: 3rem;">
+                  <div class="timestamps-container">
+                    {% if c.page.publish_date %}
+                      <div class="timestamp-badge">
+                        <i class="fa fa-calendar"></i>
+                        <span>{{ _('Published') }}: {{ h.render_datetime(c.page.publish_date, '%B %d, %Y') }}</span>
+                      </div>
+                    {% elif c.page.created %}
+                      <div class="timestamp-badge">
+                        <i class="fa fa-calendar"></i>
+                        <span>{{ _('Published') }}: {{ h.render_datetime(c.page.created, '%B %d, %Y') }}</span>
+                      </div>
+                    {% endif %}
+                    {% if c.page.modified %}
+                      <div class="timestamp-badge">
+                        <i class="fa fa-clock-o"></i>
+                        <span>{{ _('Last updated') }}: {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}</span>
+                      </div>
+                    {% endif %}
+                  </div>
                 </div>
                 {% endif %}
 
@@ -571,88 +521,48 @@
   border-left: 6px solid var(--unesco-blue-dark);
 }
 
-/* Meta Information */
-.meta-grid {
-  margin-top: 1rem;
-}
-
-.meta-primary {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+/* Article Timestamps - Subtle Design */
+.article-timestamps {
+  text-align: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   border-radius: 12px;
-  border-left: 4px solid var(--unesco-blue-dark);
+  margin: 2rem 0;
 }
 
-.meta-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
-  border-radius: 50%;
+.timestamps-container {
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 1rem;
-  flex-shrink: 0;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
-.meta-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.meta-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-
-.meta-value {
-  font-size: 1.1rem;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.meta-secondary {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1rem;
-}
-
-.news-type-badge {
-  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.timestamp-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: var(--shadow-light);
+  padding: 8px 16px;
+  background: rgba(0, 114, 188, 0.1);
+  border: 1px solid rgba(0, 114, 188, 0.2);
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.meta-timestamps {
-  text-align: right;
+.timestamp-badge:hover {
+  background: rgba(0, 114, 188, 0.15);
+  border-color: rgba(0, 114, 188, 0.3);
+  color: var(--unesco-blue-dark);
 }
 
-.timestamp-item {
-  margin-bottom: 0.5rem;
+.timestamp-badge i {
+  color: var(--unesco-blue);
+  font-size: 0.9rem;
 }
 
 /* Image Gallery - Enhanced */
@@ -917,16 +827,13 @@
     margin-bottom: 1rem;
   }
   
-  .meta-primary {
-    margin-bottom: 2rem;
+  .timestamps-container {
+    gap: 1rem;
   }
   
-  .meta-secondary {
-    align-items: flex-start;
-  }
-  
-  .meta-timestamps {
-    text-align: left;
+  .timestamp-badge {
+    font-size: 0.85rem;
+    padding: 6px 12px;
   }
   
   .images-grid {
@@ -962,14 +869,14 @@
     padding: 1rem;
   }
   
-  .meta-item {
+  .timestamps-container {
     flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
   
-  .meta-content {
-    align-items: center;
+  .timestamp-badge {
+    font-size: 0.8rem;
+    padding: 6px 12px;
   }
   
   .image-container {
