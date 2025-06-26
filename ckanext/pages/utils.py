@@ -163,8 +163,20 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     form_snippet = config.get('ckanext.pages.form', 'ckanext_pages/base_form.html')
 
+    # Create a simple object that allows attribute access for template compatibility
+    class PageObject:
+        def __init__(self, data_dict):
+            for key, value in data_dict.items():
+                setattr(self, key, value)
+    
+    # Pass both the page object (if editing) and page name for the template
+    page_object = None
+    if page and page_dict:
+        page_object = PageObject(page_dict)
+    
     vars = {'data': data, 'errors': errors,
-            'error_summary': error_summary, 'page': page or '',
+            'error_summary': error_summary, 'page': page_object,
+            'page_name': page or '',
             'form_snippet': form_snippet}
 
     return tk.render(
