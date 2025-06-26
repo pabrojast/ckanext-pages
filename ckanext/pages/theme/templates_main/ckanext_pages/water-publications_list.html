@@ -80,7 +80,7 @@
                             <div class="metric-number">
                               {% set recent_count = 0 %}
                               {% for page in c.page.items %}
-                                {% if page.publish_date %}
+                                {% if page.publish_date or page.created %}
                                   {% set recent_count = recent_count + 1 %}
                                 {% endif %}
                               {% endfor %}
@@ -94,8 +94,16 @@
                             <div class="metric-number">
                               {% set authors = [] %}
                               {% for page in c.page.items %}
-                                {% if page.author and page.author not in authors %}
-                                  {% set authors = authors + [page.author] %}
+                                {% if page.authors and page.authors.strip() %}
+                                  {% set author_text = page.authors.strip() %}
+                                  {% if author_text not in authors %}
+                                    {% set authors = authors + [author_text] %}
+                                  {% endif %}
+                                {% elif page.author and page.author.strip() %}
+                                  {% set author_text = page.author.strip() %}
+                                  {% if author_text not in authors %}
+                                    {% set authors = authors + [author_text] %}
+                                  {% endif %}
                                 {% endif %}
                               {% endfor %}
                               {{ authors|length }}
@@ -176,7 +184,11 @@
                                   <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %Y') }}
                                 </span>
                               {% endif %}
-                              {% if page.author %}
+                              {% if page.authors %}
+                                <span class="publication-author">
+                                  <i class="fa fa-user"></i> {{ page.authors }}
+                                </span>
+                              {% elif page.author %}
                                 <span class="publication-author">
                                   <i class="fa fa-user"></i> {{ page.author }}
                                 </span>
