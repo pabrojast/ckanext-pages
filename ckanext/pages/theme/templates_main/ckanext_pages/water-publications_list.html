@@ -184,7 +184,11 @@
                                   <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %Y') }}
                                 </span>
                               {% endif %}
-                              {% if page.authors %}
+                              {% if page.author %}
+                                <span class="publication-author">
+                                  <i class="fa fa-user"></i> {{ page.author }}
+                                </span>
+                              {% elif page.authors %}
                                 {% set author_text = page.authors.strip() %}
                                 {% if ',' in author_text or 'and' in author_text.lower() or '&' in author_text %}
                                   {% set first_author = author_text.split(',')[0].split(' and ')[0].split(' & ')[0].strip() %}
@@ -196,10 +200,6 @@
                                     <i class="fa fa-user"></i> {{ author_text }}
                                   </span>
                                 {% endif %}
-                              {% elif page.author %}
-                                <span class="publication-author">
-                                  <i class="fa fa-user"></i> {{ page.author }}
-                                </span>
                               {% endif %}
                               {% if page.private == 'True' %}
                                 <span class="publication-status-badge status-pending">
