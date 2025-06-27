@@ -1212,8 +1212,8 @@ textarea.form-control {
 
 <!-- CKEditor Integration -->
 {% if h.pages_get_wysiwyg_editor() %}
-<script src="/pages/js/ckedit.js"></script>
-<link rel="stylesheet" href="/pages/css/ckedit.css">
+{% asset 'pages/main-js' %}
+{% asset 'pages/main-css' %}
 {% endif %}
 
 {% endblock %} 
