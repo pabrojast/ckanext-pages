@@ -429,6 +429,13 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_group_pages_update': auth.group_pages_update,
             'ckanext_group_pages_delete': auth.group_pages_delete,
             'ckanext_group_pages_list': auth.group_pages_list,
+            # Water Family specific permissions
+            'ckanext_water_news_update': auth.water_news_update,
+            'ckanext_water_news_delete': auth.water_news_delete,
+            'ckanext_water_events_update': auth.water_events_update,
+            'ckanext_water_events_delete': auth.water_events_delete,
+            'ckanext_water_publications_update': auth.water_publications_update,
+            'ckanext_water_publications_delete': auth.water_publications_delete,
         }
 
 
