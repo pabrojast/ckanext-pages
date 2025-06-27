@@ -213,7 +213,7 @@
                           </div>
                         </div>
                         <div class="col-md-6 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_water_news_update') %}
                             <div class="admin-actions">
                               <a href="{{ h.url_for('pages.water_news_edit', page=c.page.name) }}" class="btn btn-primary">
                                 <i class="fa fa-edit"></i> {{ _('Edit Article') }}

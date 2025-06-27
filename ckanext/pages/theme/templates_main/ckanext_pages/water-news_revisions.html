@@ -51,7 +51,7 @@
                           <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Track changes and restore previous versions') }}</p>
                         </div>
                         <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_water_news_update') %}
                             <a href="{{ h.url_for('pages.water_news_edit', page=page.name) }}" class="btn btn-primary btn-lg">
                               <i class="fa fa-edit"></i> {{ _('Edit Current Version') }}
                             </a>
@@ -112,7 +112,7 @@
                                        class="btn btn-sm btn-default">
                                       <i class="fa fa-eye"></i> {{ _('Preview') }}
                                     </a>
-                                    {% if h.check_access('ckanext_pages_update') and not loop.first %}
+                                    {% if h.check_access('ckanext_water_news_update') and not loop.first %}
                                       <a href="{{ h.url_for('pages.water_news_revision_restore', page=page.name, revision=revision.id) }}" 
                                          class="btn btn-sm btn-warning" 
                                          data-confirm="{{ _('Are you sure you want to restore this revision?') }}">

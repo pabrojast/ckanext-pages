@@ -94,7 +94,7 @@
                             <a href="{{ h.url_for('pages.water_publications_revisions_preview', page=page.name, revision=revision.id) }}" class="btn btn-sm btn-default">
                               <i class="fa fa-eye"></i> {{ _('View') }}
                             </a>
-                            {% if h.check_access('ckanext_pages_update') %}
+                            {% if h.check_access('ckanext_water_publications_update') %}
                               <a href="{{ h.url_for('pages.water_publications_revision_restore', page=page.name, revision=revision.id) }}" 
                                  class="btn btn-sm btn-warning" 
                                  data-confirm="{{ _('Are you sure you want to restore this revision?') }}">

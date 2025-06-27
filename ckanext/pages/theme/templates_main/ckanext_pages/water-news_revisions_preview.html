@@ -56,7 +56,7 @@
                         </div>
                         <div class="col-md-4 text-right">
                           <div class="revision-action-buttons">
-                            {% if h.check_access('ckanext_pages_update') %}
+                            {% if h.check_access('ckanext_water_news_update') %}
                               <a href="{{ h.url_for('pages.water_news_revision_restore', page=page.name, revision=revision.id) }}" 
                                  class="btn btn-warning" 
                                  data-confirm="{{ _('Are you sure you want to restore this revision?') }}">

@@ -52,7 +52,7 @@
                           <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Share events, conferences, workshops and meetings relevant to the water community') }}</p>
                         </div>
                         <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_water_events_update') %}
                             <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg">
                               <i class="fa fa-plus"></i> {{ _('Share Event') }}
                             </a>
@@ -264,7 +264,7 @@
                                  class="btn btn-primary">
                                 <i class="fa fa-eye"></i> {{ _('View Event') }}
                               </a>
-                              {% if h.check_access('ckanext_pages_update') %}
+                              {% if h.check_access('ckanext_water_events_update') %}
                                 <a href="{{ h.url_for('pages.water_events_edit', page=page.name) }}" 
                                    class="btn btn-default">
                                   <i class="fa fa-edit"></i> {{ _('Edit') }}
@@ -313,7 +313,7 @@
                           {{ _('No events have been shared yet. Be the first to share an event!') }}
                         {% endif %}
                       </p>
-                      {% if h.check_access('ckanext_pages_update') %}
+                      {% if h.check_access('ckanext_water_events_update') %}
                         <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg">
                           <i class="fa fa-plus"></i> {{ _('Share Event') }}
                         </a>
