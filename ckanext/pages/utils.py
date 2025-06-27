@@ -94,8 +94,13 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     if page_dict is None:
         page_dict = {}
 
+    # Check permissions based on page type
+    permission_needed = 'ckanext_pages_update'
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        permission_needed = f'ckanext_{page_type.replace("-", "_")}_update'
+    
     try:
-        tk.check_access('ckanext_pages_update', {'user': tk.g.user})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to create or edit a page'))
 

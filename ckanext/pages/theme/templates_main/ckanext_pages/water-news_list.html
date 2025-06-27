@@ -52,7 +52,7 @@
                           <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Stay informed with the latest developments in the water sector') }}</p>
                         </div>
                         <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_water_news_update') %}
                             <a href="{{ h.url_for('pages.water_news_new') }}" class="btn btn-primary btn-lg">
                               <i class="fa fa-plus"></i> {{ _('Share News') }}
                             </a>
@@ -177,7 +177,7 @@
                                  class="btn btn-primary">
                                 <i class="fa fa-eye"></i> {{ _('Read Full Article') }}
                               </a>
-                              {% if h.check_access('ckanext_pages_update') %}
+                              {% if h.check_access('ckanext_water_news_update') %}
                                 <a href="{{ h.url_for('pages.water_news_edit', page=page.name) }}" 
                                    class="btn btn-default">
                                   <i class="fa fa-edit"></i> {{ _('Edit') }}
@@ -221,7 +221,7 @@
                           {{ _('No news articles have been published yet.') }}
                         {% endif %}
                       </p>
-                      {% if h.check_access('ckanext_pages_update') %}
+                      {% if h.check_access('ckanext_water_news_update') %}
                         <a href="{{ h.url_for('pages.water_news_new') }}" class="btn btn-primary btn-lg">
                           <i class="fa fa-plus"></i> {{ _('Share First News Article') }}
                         </a>

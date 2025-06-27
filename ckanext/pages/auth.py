@@ -75,3 +75,56 @@ group_pages_show = page_privacy
 group_pages_update = page_group_admin
 group_pages_delete = page_group_admin
 group_pages_list = anyone
+
+
+def user_authenticated(context, data_dict):
+    '''Check if user is authenticated (logged in)'''
+    user = context.get('user')
+    if user:
+        return {'success': True}
+    else:
+        return {'success': False, 'msg': p.toolkit._('You must be logged in')}
+
+
+def water_content_create(context, data_dict):
+    '''Allow authenticated users to create water family content (will be saved as private/pending)'''
+    return user_authenticated(context, data_dict)
+
+
+def water_content_edit(context, data_dict):
+    '''Allow the author or admin to edit water family content'''
+    # Check if user is sysadmin
+    try:
+        return sysadmin(context, data_dict)
+    except:
+        pass
+    
+    # Check if user is the author of the content
+    user = context.get('user')
+    page = data_dict.get('page')
+    
+    if user and page:
+        try:
+            from ckanext.pages import db
+            page_obj = db.Page.get(name=page)
+            if page_obj and page_obj.user_id:
+                # Get user object from username
+                from ckan import model
+                user_obj = model.User.get(user)
+                if user_obj and page_obj.user_id == user_obj.id:
+                    return {'success': True}
+        except:
+            pass
+    
+    return {'success': False, 'msg': p.toolkit._('Not authorized to edit this content')}
+
+
+# Water Family specific permissions
+water_news_update = water_content_create
+water_news_delete = sysadmin  # Only admins can delete
+
+water_events_update = water_content_create  
+water_events_delete = sysadmin
+
+water_publications_update = water_content_create
+water_publications_delete = sysadmin
