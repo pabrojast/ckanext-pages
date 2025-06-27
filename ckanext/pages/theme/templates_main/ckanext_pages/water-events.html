@@ -547,6 +547,7 @@
   bottom: 0;
   background: linear-gradient(135deg, rgba(0, 158, 224, 0.9) 0%, rgba(0, 114, 188, 0.8) 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 0;
@@ -560,6 +561,22 @@
 .image-overlay i {
   color: white;
   font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.image-overlay::before {
+  content: 'Click to expand';
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .image-caption {
@@ -568,6 +585,55 @@
   font-size: 1rem;
   color: var(--text-primary);
   text-align: center;
+  font-weight: 500;
+}
+
+/* Image Modal - Enhanced */
+.modal-dialog {
+  margin: 30px auto;
+  max-width: 90vw;
+  width: auto;
+}
+
+.modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: var(--shadow-strong);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  color: white;
+  border-radius: 20px 20px 0 0;
+  padding: 1.5rem 2rem;
+}
+
+.modal-title {
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.modal-body {
+  padding: 2rem;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+#modalImage {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+  object-fit: contain;
+}
+
+.image-modal-caption {
+  margin-top: 1.5rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
   font-weight: 500;
 }
 
@@ -641,12 +707,86 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+  
+  /* Modal responsive adjustments */
+  .modal-dialog {
+    margin: 15px;
+    max-width: 95vw;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+    max-height: 75vh;
+  }
+  
+  #modalImage {
+    max-height: 65vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .section-title-description {
+    font-size: 1rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .water-section-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .water-section-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .images-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  /* Modal adjustments for very small screens */
+  .modal-dialog {
+    margin: 10px;
+    max-width: 98vw;
+  }
+  
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+    max-height: 70vh;
+  }
+  
+  #modalImage {
+    max-height: 60vh;
+  }
+  
+  .image-modal-caption {
+    font-size: 0.95rem;
+    margin-top: 1rem;
+  }
 }
 </style>
 
 <script>
-// Image modal functionality (same as rapid-response)
+// Enhanced JavaScript for Water Events Gallery (same functionality as rapid-response)
 (function() {
+  // Wait for jQuery to be available
   function waitForJQuery(callback) {
     if (typeof jQuery !== 'undefined') {
       callback(jQuery);
@@ -658,6 +798,8 @@
   }
   
   waitForJQuery(function($) {
+    
+    // Image modal functionality
     $('.image-container, .gallery-image').on('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -668,21 +810,68 @@
       
       if (imageUrl) {
         $('#modalImage').attr('src', imageUrl);
+        $('#modalImage').attr('alt', caption);
         $('#modalCaption').text(caption);
         
+        // Use Bootstrap modal if available, otherwise custom modal
         if (typeof $.fn.modal !== 'undefined') {
           $('#imageModal').modal('show');
+        } else {
+          $('#imageModal').css('display', 'block').addClass('show');
         }
       }
     });
     
+    // Close modal functionality
     $('.close, .modal').on('click', function(e) {
       if (e.target === this) {
-        $('#imageModal').modal('hide');
+        $('#imageModal').modal('hide').css('display', 'none').removeClass('show');
       }
     });
-  });
-})();
+    
+    // Enhanced iframe responsiveness
+    $('iframe').each(function() {
+      const $iframe = $(this);
+      if (!$iframe.parent().hasClass('iframe-container')) {
+        $iframe.wrap('<div class="iframe-container"></div>');
+      }
+    });
+    
+    // Add loading animation for images
+    $('.gallery-image').on('load', function() {
+      $(this).addClass('loaded').css('opacity', '1');
+    });
+    
+    // Ensure images are clickable
+    $('.gallery-image').css('cursor', 'pointer');
+    
+    // Add hover effects
+    $('.gallery-image-item').hover(
+      function() {
+        $(this).find('.image-overlay').css('opacity', '1');
+      },
+      function() {
+        $(this).find('.image-overlay').css('opacity', '0');
+      }
+    );
+    
+    // Smooth scrolling for internal links
+    $('a[href^="#"]').on('click', function(e) {
+      e.preventDefault();
+      const target = $(this.getAttribute('href'));
+      if (target.length) {
+        $('html, body').animate({
+          scrollTop: target.offset().top - 100
+        }, 1000);
+      }
+    });
+    
+    // Debug info
+    console.log('Water Events gallery initialized');
+    console.log('Gallery images found:', $('.gallery-image').length);
+    
+  }); // Close waitForJQuery function
+})(); // Close main function
 </script>
 
 {% endblock %} 
