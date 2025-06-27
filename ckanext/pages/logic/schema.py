@@ -63,6 +63,19 @@ def default_pages_schema():
         'issue': [ignore_missing, unicode_safe],            # Issue number
         'pages': [ignore_missing, unicode_safe],            # Page numbers
         'abstract': [ignore_missing, unicode_safe],         # Publication abstract
+        # Open Source Software specific fields
+        'key_features': [ignore_missing, unicode_safe],     # Key features list
+        'technical_requirements': [ignore_missing, unicode_safe], # Technical requirements
+        'installation_instructions': [ignore_missing, unicode_safe], # Installation instructions
+        'repository_url': [ignore_missing, unicode_safe],   # Repository URL
+        'website_url': [ignore_missing, unicode_safe],      # Official website
+        'documentation_url': [ignore_missing, unicode_safe], # Documentation URL
+        'learning_resources': [ignore_missing, unicode_safe], # Learning resources
+        'example_applications': [ignore_missing, unicode_safe], # Example applications
+        'software_category': [ignore_missing, unicode_safe], # Software category
+        'software_difficulty': [ignore_missing, unicode_safe], # Difficulty level
+        'software_license': [ignore_missing, unicode_safe], # Software license
+        'project_status': [ignore_missing, unicode_safe],   # Project status
     }
 
 
