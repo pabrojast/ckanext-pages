@@ -958,4 +958,95 @@
 }
 </style>
 
+<!-- JavaScript for Enhanced Functionality -->
+<script>
+(function() {
+  // Wait for jQuery to be available
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    
+    // Image modal functionality
+    $('.image-container, .gallery-image').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
+      const imageUrl = $img.attr('src');
+      const caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
+      
+      if (imageUrl) {
+        $('#modalImage').attr('src', imageUrl);
+        $('#modalImage').attr('alt', caption);
+        $('#modalCaption').text(caption);
+        
+        // Use Bootstrap modal if available, otherwise custom modal
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('show');
+        } else {
+          $('#imageModal').css('display', 'block').addClass('show');
+        }
+      }
+    });
+    
+    // Close modal functionality
+    $('.close, .modal').on('click', function(e) {
+      if (e.target === this) {
+        $('#imageModal').modal('hide').css('display', 'none').removeClass('show');
+      }
+    });
+    
+    // Enhanced iframe responsiveness
+    $('iframe').each(function() {
+      const $iframe = $(this);
+      if (!$iframe.parent().hasClass('iframe-container')) {
+        $iframe.wrap('<div class="iframe-container"></div>');
+      }
+    });
+    
+    // Add loading animation for images
+    $('.gallery-image').on('load', function() {
+      $(this).addClass('loaded').css('opacity', '1');
+    });
+    
+    // Ensure images are clickable
+    $('.gallery-image').css('cursor', 'pointer');
+    
+    // Add hover effects
+    $('.gallery-image-item').hover(
+      function() {
+        $(this).find('.image-overlay').css('opacity', '1');
+      },
+      function() {
+        $(this).find('.image-overlay').css('opacity', '0');
+      }
+    );
+    
+    // Smooth scrolling for internal links
+    $('a[href^="#"]').on('click', function(e) {
+      e.preventDefault();
+      const target = $(this.getAttribute('href'));
+      if (target.length) {
+        $('html, body').animate({
+          scrollTop: target.offset().top - 100
+        }, 1000);
+      }
+    });
+    
+    // Debug info
+    console.log('Water News gallery initialized');
+    console.log('Gallery images found:', $('.gallery-image').length);
+    
+  }); // Close waitForJQuery function
+})(); // Close main function
+</script>
+
 {% endblock %} 
