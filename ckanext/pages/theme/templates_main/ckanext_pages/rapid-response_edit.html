@@ -82,7 +82,7 @@
 
                           <div class="form-group">
                             <label for="field-title" class="control-label">{{ _('Event Title') }} <span class="text-danger">*</span></label>
-                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="form-control" required>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Tropical Cyclone CHIDO in Mozambique') }}" class="rr-form-control" required>
                             <div class="help-text">{{ _('Clear, descriptive title of the emergency event') }}</div>
                             {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
                           </div>
@@ -90,7 +90,7 @@
                           <div class="form-group">
                             <label for="field-name" class="control-label">{{ _('Event URL') }}</label>
                             <div class="input-group">
-                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="form-control" data-module="slug-preview-target" readonly>
+                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="rr-form-control" data-module="slug-preview-target" readonly>
                               <div class="input-group-btn">
                                 <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
                                   <i class="fa fa-edit"></i>
@@ -103,7 +103,7 @@
                                                     
                           <div class="form-group">
                             <label for="field-subtitle" class="control-label">{{ _('Event Type/Category') }}</label>
-                            <select id="field-event-type" name="subtitle" class="form-control">
+                            <select id="field-event-type" name="subtitle" class="rr-form-control">
                               <option value="">{{ _('Select event type...') }}</option>
                               <option value="Tropical Cyclone" {% if data.subtitle == 'Tropical Cyclone' %}selected{% endif %}>{{ _('Tropical Cyclone') }}</option>
                               <option value="Earthquake" {% if data.subtitle == 'Earthquake' %}selected{% endif %}>{{ _('Earthquake') }}</option>
@@ -123,7 +123,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-publish-date" class="control-label">{{ _('Event Date') }} <span class="text-danger">*</span></label>
-                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="form-control" required>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="rr-form-control" required>
                                 <div class="help-text">{{ _('When did the emergency event occur?') }}</div>
                                 {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
                               </div>
@@ -131,7 +131,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-private" class="control-label">{{ _('Event Status') }}</label>
-                                <select id="field-private" name="private" class="form-control">
+                                <select id="field-private" name="private" class="rr-form-control">
                                   <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - Active Event') }}</option>
                                   <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Internal - Under Review') }}</option>
                                 </select>
@@ -145,7 +145,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-priority" class="control-label">{{ _('Priority Level') }}</label>
-                                <select id="field-priority" name="priority" class="form-control">
+                                <select id="field-priority" name="priority" class="rr-form-control">
                                   <option value="high" {% if data.priority == 'high' or not data.priority %}selected{% endif %}>{{ _('High Priority') }}</option>
                                   <option value="medium" {% if data.priority == 'medium' %}selected{% endif %}>{{ _('Medium Priority') }}</option>
                                   <option value="low" {% if data.priority == 'low' %}selected{% endif %}>{{ _('Low Priority') }}</option>
@@ -158,7 +158,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-severity" class="control-label">{{ _('Severity Level') }}</label>
-                                <select id="field-severity" name="severity" class="form-control">
+                                <select id="field-severity" name="severity" class="rr-form-control">
                                   <option value="">{{ _('Select severity...') }}</option>
                                   <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact') }}</option>
                                   <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact') }}</option>
@@ -180,7 +180,7 @@
                           <p class="help-block">{{ _('Detailed description of the emergency event, when and where it occurred, and its overall impact.') }}</p>
                           <div class="form-group">
                             <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-content" name="content" rows="15" class="form-control" required
+                            <textarea id="field-content" name="content" rows="15" class="rr-form-control" required
                                       placeholder="{{ _('Describe the emergency event, when and where it occurred, and its initial impact.\n\nProvide context about the situation, affected areas, population at risk, and immediate concerns.\n\nThis section gives readers the overall picture of what happened.') }}">{{ data.content or '' }}</textarea>
                             <div class="help-text">{{ _('This is the main description that appears first. Focus on what happened, where, and when.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
@@ -195,7 +195,7 @@
                           <p class="help-block">{{ _('Key facts about the emergency event. This information will be prominently displayed in a highlighted box.') }}</p>
                           <div class="form-group">
                             <label for="field-key-info" class="control-label">{{ _('Key Facts') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-key-info" name="key_info" rows="8" class="form-control" required
+                            <textarea id="field-key-info" name="key_info" rows="8" class="rr-form-control" required
                                       placeholder="{{ _('Activation: 15 December 2024\nEvent Date: 15 December 2024\nCountries Affected: Mozambique\nExposure: 2.5 million people\nUNESCO Sites: Ilha de Moçambique\nStatus: Active monitoring') }}">{{ data.key_info or '' }}</textarea>
                             <div class="help-text">
                               <strong>{{ _('Important:') }}</strong> {{ _('Enter one fact per line in format "Label: Value". Lines starting with "Countries Affected:" or "Country Affected:" are automatically counted for the countries summary.') }}
@@ -237,7 +237,7 @@
                           <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
                           <div class="form-group">
                             <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
-                            <textarea id="field-response-activities" name="response_activities" rows="10" class="form-control"
+                            <textarea id="field-response-activities" name="response_activities" rows="10" class="rr-form-control"
                                       placeholder="{{ _('Detail the immediate response efforts, agencies involved, and current status.\n\nInclude:\n- Emergency response protocols activated\n- Agencies and organizations involved\n- Coordination efforts\n- Current response status') }}">{{ data.response_activities or '' }}</textarea>
                             <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
                             {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
@@ -252,7 +252,7 @@
                           <p class="help-block">{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
                           <div class="form-group">
                             <label for="field-impact-assessment" class="control-label">{{ _('Impact Assessment') }}</label>
-                            <textarea id="field-impact-assessment" name="impact_assessment" rows="10" class="form-control"
+                            <textarea id="field-impact-assessment" name="impact_assessment" rows="10" class="rr-form-control"
                                       placeholder="{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.\n\nInclude:\n- Heritage sites impacted\n- Communities affected\n- Infrastructure damage\n- Environmental impact\n- Cultural heritage at risk') }}">{{ data.impact_assessment or '' }}</textarea>
                             <div class="help-text">{{ _('Assessment of the damage and impact caused by the emergency event.') }}</div>
                             {% if errors.impact_assessment %}<span class="error-block">{{ errors.impact_assessment }}</span>{% endif %}
@@ -267,7 +267,7 @@
                           <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
                           <div class="form-group">
                             <label for="field-map-stories" class="control-label">{{ _('Map Stories') }}</label>
-                            <textarea id="field-map-stories" name="map_stories" rows="10" class="form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
+                            <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>
                           </div>
@@ -302,7 +302,7 @@
                           <!-- External Images Section -->
                           <div class="form-group">
                             <label for="field-image-carousel" class="control-label">{{ _('External Image URLs') }}</label>
-                            <textarea id="field-image-carousel" name="image_carousel" rows="6" class="form-control" placeholder="{{ _('Add images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.') }}">{{ data.image_carousel or '' }}</textarea>
+                            <textarea id="field-image-carousel" name="image_carousel" rows="6" class="rr-form-control" placeholder="{{ _('Add images using markdown syntax or HTML tags.\n\nExample: ![Alt text](image-url)\n\nLinks to images from Wikipedia, official sources, etc.') }}">{{ data.image_carousel or '' }}</textarea>
                             {% if errors.image_carousel %}<span class="error-block">{{ errors.image_carousel }}</span>{% endif %}
                           </div>
 
@@ -319,7 +319,7 @@
                           <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
                           <div class="form-group">
                             <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
-                            <textarea id="field-additional-content" name="additional_content" rows="8" class="form-control" placeholder="{{ _('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis') }}">{{ data.additional_content or '' }}</textarea>
+                            <textarea id="field-additional-content" name="additional_content" rows="8" class="rr-form-control" placeholder="{{ _('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis') }}">{{ data.additional_content or '' }}</textarea>
                             {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
                           </div>
                           </div>
@@ -332,7 +332,7 @@
                           <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
-                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="form-control">
+                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="rr-form-control">
                             {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
                           </div>
                           </div>
@@ -345,7 +345,7 @@
                           <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Excerpt') }}</label>
-                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" placeholder="{{ _('Brief summary of the disaster and response efforts...') }}">{{ data.excerpt or '' }}</textarea>
+                            <textarea id="field-excerpt" name="excerpt" rows="4" class="rr-form-control" placeholder="{{ _('Brief summary of the disaster and response efforts...') }}">{{ data.excerpt or '' }}</textarea>
                             {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
                           </div>
                           </div>
@@ -632,29 +632,30 @@
   line-height: 1.4;
 }
 
-.form-control {
+.rr-form-control {
   border-radius: 12px;
   border: 2px solid #e9ecef;
   padding: 14px 18px;
   font-size: 1.05rem;
   transition: all 0.3s ease;
-  min-height: 48px;
+  min-height: 3.2em;
   margin-bottom: 0.5rem;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   box-shadow: var(--shadow-light);
+  width: 100%;
 }
 
-.form-control:not([readonly]):not([disabled]) {
+.rr-form-control:not([readonly]):not([disabled]) {
   cursor: text;
 }
 
-.form-control[readonly] {
+.rr-form-control[readonly] {
   background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
   cursor: not-allowed;
   color: var(--text-secondary);
 }
 
-.form-control:focus {
+.rr-form-control:focus {
   border-color: var(--unesco-blue);
   box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
   outline: none;
@@ -662,7 +663,7 @@
   transform: translateY(-1px);
 }
 
-.form-control:hover:not([readonly]):not(:focus) {
+.rr-form-control:hover:not([readonly]):not(:focus) {
   border-color: var(--unesco-blue-light);
   transform: translateY(-1px);
 }
@@ -680,8 +681,8 @@
   border-left: 4px solid var(--unesco-blue);
 }
 
-.form-control[type="textarea"],
-textarea.form-control {
+.rr-form-control[type="textarea"],
+textarea.rr-form-control {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   resize: vertical;
   min-height: 120px;

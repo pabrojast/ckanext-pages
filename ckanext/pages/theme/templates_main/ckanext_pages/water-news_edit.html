@@ -83,7 +83,7 @@
 
                           <div class="form-group">
                             <label for="field-title" class="control-label">{{ _('Article Title') }} <span class="text-danger">*</span></label>
-                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: New UNESCO Water Guidelines Released') }}" class="form-control" required>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: New UNESCO Water Guidelines Released') }}" class="wn-form-control" required>
                             <div class="help-text">{{ _('Clear, engaging title for your news article') }}</div>
                             {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
                           </div>
@@ -91,7 +91,7 @@
                           <div class="form-group">
                             <label for="field-name" class="control-label">{{ _('Article URL') }}</label>
                             <div class="input-group">
-                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="form-control" data-module="slug-preview-target" readonly>
+                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="wn-form-control" data-module="slug-preview-target" readonly>
                               <div class="input-group-btn">
                                 <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
                                   <i class="fa fa-edit"></i>
@@ -106,7 +106,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-publish-date" class="control-label">{{ _('Publication Date') }} <span class="text-danger">*</span></label>
-                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="form-control" required>
+                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="wn-form-control" required>
                                 <div class="help-text">{{ _('When was this news published?') }}</div>
                                 {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
                               </div>
@@ -114,7 +114,7 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-author" class="control-label">{{ _('Author/Source') }}</label>
-                                <input type="text" id="field-author" name="author" value="{{ data.author or '' }}" placeholder="{{ _('Author name or news source') }}" class="form-control">
+                                <input type="text" id="field-author" name="author" value="{{ data.author or '' }}" placeholder="{{ _('Author name or news source') }}" class="wn-form-control">
                                 <div class="help-text">{{ _('Who wrote or published this news?') }}</div>
                                 {% if errors.author %}<span class="error-block">{{ errors.author }}</span>{% endif %}
                               </div>
@@ -124,7 +124,7 @@
                           {% if h.check_access('sysadmin') %}
                           <div class="form-group">
                             <label for="field-private" class="control-label">{{ _('Publication Status') }}</label>
-                            <select id="field-private" name="private" class="form-control">
+                            <select id="field-private" name="private" class="wn-form-control">
                               <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Published - Visible to everyone') }}</option>
                               <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Draft - Needs approval') }}</option>
                             </select>
@@ -149,7 +149,7 @@
                           
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Article Summary') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" required maxlength="300"
+                            <textarea id="field-excerpt" name="excerpt" rows="4" class="wn-form-control" required maxlength="300"
                                       placeholder="{{ _('Brief summary of the news article (100-300 words)...') }}">{{ data.excerpt or '' }}</textarea>
                             <div class="character-counter-wrapper">
                               <div class="help-text">{{ _('This summary will appear in news listings and social media shares') }}</div>
@@ -163,9 +163,9 @@
                           
                           <div class="form-group">
                             <label for="field-content" class="control-label">{{ _('Full Article Content') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-content" name="content" rows="20" class="form-control" required
+                            <textarea id="field-content" name="content" rows="20" class="wn-form-control markdown-editor" required
                                       placeholder="{{ _('Write the full news article here. Include all relevant details, quotes, and context.\n\nUse markdown formatting for better presentation:\n- **bold text**\n- *italic text*\n- [links](http://example.com)\n- # Headings\n- - Bullet points') }}">{{ data.content or '' }}</textarea>
-                            <div class="help-text">{{ _('Main content of your news article. You can use Markdown formatting.') }}</div>
+                            <div class="help-text">{{ _('Main content of your news article. Use the toolbar above for formatting or write in Markdown.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
                           </div>
                           </div>
@@ -178,14 +178,14 @@
                           
                           <div class="form-group">
                             <label for="field-source" class="control-label">{{ _('Original Source URL') }}</label>
-                            <input type="url" id="field-source" name="source" value="{{ data.source or '' }}" placeholder="{{ _('https://example.com/original-article') }}" class="form-control">
+                            <input type="url" id="field-source" name="source" value="{{ data.source or '' }}" placeholder="{{ _('https://example.com/original-article') }}" class="wn-form-control">
                             <div class="help-text">{{ _('Link to the original news source (if applicable)') }}</div>
                             {% if errors.source %}<span class="error-block">{{ errors.source }}</span>{% endif %}
                           </div>
                           
                           <div class="form-group">
                             <label for="field-external-links" class="control-label">{{ _('Related Links') }}</label>
-                            <textarea id="field-external-links" name="external_links" rows="6" class="form-control" 
+                            <textarea id="field-external-links" name="external_links" rows="6" class="wn-form-control" 
                                       placeholder="{{ _('Add related links using markdown format:\n\n- [UNESCO Water Portal](https://unesco.org/water)\n- [Related Article](https://example.com)\n- [Press Release](https://example.com/press)') }}">{{ data.external_links or '' }}</textarea>
                             <div class="help-text">{{ _('Links to related articles, press releases, or additional resources') }}</div>
                             {% if errors.external_links %}<span class="error-block">{{ errors.external_links }}</span>{% endif %}
@@ -193,7 +193,7 @@
 
                           <div class="form-group">
                             <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
-                            <textarea id="field-additional-content" name="additional_content" rows="8" class="form-control" 
+                            <textarea id="field-additional-content" name="additional_content" rows="8" class="wn-form-control" 
                                       placeholder="{{ _('Any additional information, context, or analysis that supplements the main article...') }}">{{ data.additional_content or '' }}</textarea>
                             <div class="help-text">{{ _('Optional additional content such as background information or analysis') }}</div>
                             {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
@@ -209,7 +209,7 @@
                           <!-- Header Image -->
                           <div class="form-group">
                             <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
-                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('https://example.com/image.jpg') }}" class="form-control">
+                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('https://example.com/image.jpg') }}" class="wn-form-control">
                             <div class="help-text">{{ _('Main image for the article (will appear in the header and listings)') }}</div>
                             {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
                           </div>
@@ -237,7 +237,7 @@
                           <!-- External Images Section -->
                           <div class="form-group">
                             <label for="field-image-gallery" class="control-label">{{ _('External Image URLs') }}</label>
-                            <textarea id="field-image-gallery" name="image_gallery" rows="6" class="form-control" 
+                            <textarea id="field-image-gallery" name="image_gallery" rows="6" class="wn-form-control" 
                                       placeholder="{{ _('Add images using markdown syntax:\n\n![Image description](https://example.com/image.jpg)\n![Another image](https://example.com/image2.jpg)') }}">{{ data.image_gallery or '' }}</textarea>
                             <div class="help-text">{{ _('Images from external sources using Markdown format') }}</div>
                             {% if errors.image_gallery %}<span class="error-block">{{ errors.image_gallery }}</span>{% endif %}
@@ -447,7 +447,7 @@
   font-size: 1.05rem;
 }
 
-.form-control {
+.wn-form-control {
   border-radius: 12px;
   border: 2px solid #e9ecef;
   padding: 14px 18px;
@@ -459,7 +459,7 @@
   box-shadow: var(--shadow-light);
 }
 
-.form-control:focus {
+.wn-form-control:focus {
   border-color: var(--unesco-blue-dark);
   box-shadow: 0 0 0 0.2rem rgba(0, 90, 156, 0.25);
   outline: none;
@@ -467,21 +467,21 @@
   transform: translateY(-1px);
 }
 
-.form-control[readonly] {
+.wn-form-control[readonly] {
   background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
   cursor: not-allowed;
   color: var(--text-secondary);
 }
 
 /* Ensure input and textarea fields maintain their original styling */
-input.form-control:not([type="file"]),
-textarea.form-control {
+input.wn-form-control:not([type="file"]),
+textarea.wn-form-control {
   padding: 14px 18px;
   height: auto;
 }
 
 /* Specific styling for select fields */
-select.form-control {
+select.wn-form-control {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -498,13 +498,13 @@ select.form-control {
   align-items: center;
 }
 
-select.form-control:focus {
+select.wn-form-control:focus {
   outline: none;
   height: auto;
   min-height: 3em;
 }
 
-select.form-control option {
+select.wn-form-control option {
   padding: 8px 12px;
   background: white;
   color: #333;
@@ -512,8 +512,8 @@ select.form-control option {
   height: auto;
 }
 
-select.form-control option:hover,
-select.form-control option:selected {
+select.wn-form-control option:hover,
+select.wn-form-control option:selected {
   background: var(--unesco-blue-pale);
   color: var(--unesco-blue);
 }
@@ -707,7 +707,7 @@ select.form-control option:selected {
 }
 
 /* Textarea feedback when over limit */
-.form-control.text-danger {
+.wn-form-control.text-danger {
   border-color: #dc3545 !important;
   box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
 }
@@ -789,7 +789,210 @@ select.form-control option:selected {
     min-width: 100px;
   }
 }
+
+/* EasyMDE Markdown Editor Styles */
+.editor-toolbar {
+  border-top: 2px solid var(--unesco-blue-pale) !important;
+  border-left: 2px solid var(--unesco-blue-pale) !important;
+  border-right: 2px solid var(--unesco-blue-pale) !important;
+  border-bottom: none !important;
+  border-radius: 12px 12px 0 0 !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  box-shadow: var(--shadow-light) !important;
+  padding: 8px 12px !important;
+}
+
+.editor-toolbar button {
+  border: none !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: var(--unesco-blue-dark) !important;
+  padding: 8px 10px !important;
+  margin: 2px !important;
+  transition: all 0.2s ease !important;
+  font-size: 16px !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.editor-toolbar button:hover {
+  background: var(--unesco-blue-pale) !important;
+  color: var(--unesco-blue-dark) !important;
+  transform: scale(1.05) !important;
+}
+
+.editor-toolbar button.active {
+  background: var(--unesco-blue) !important;
+  color: white !important;
+}
+
+.editor-toolbar i.separator {
+  border-left: 1px solid var(--unesco-blue-pale) !important;
+  margin: 0 8px !important;
+  height: 20px !important;
+}
+
+.CodeMirror {
+  border-left: 2px solid var(--unesco-blue-pale) !important;
+  border-right: 2px solid var(--unesco-blue-pale) !important;
+  border-bottom: 2px solid var(--unesco-blue-pale) !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  background: #ffffff !important;
+  box-shadow: var(--shadow-light) !important;
+  min-height: 400px !important;
+}
+
+.CodeMirror:focus-within {
+  border-color: var(--unesco-blue-dark) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 90, 156, 0.25) !important;
+}
+
+.CodeMirror-cursor {
+  border-left: 2px solid var(--unesco-blue-dark) !important;
+}
+
+.CodeMirror-selected {
+  background: rgba(0, 114, 188, 0.15) !important;
+}
+
+.CodeMirror-line {
+  padding: 0 8px !important;
+}
+
+.editor-preview-side {
+  border: 2px solid var(--unesco-blue-pale) !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  box-shadow: var(--shadow-light) !important;
+  padding: 20px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  line-height: 1.6 !important;
+}
+
+.editor-preview {
+  background: #ffffff !important;
+  border: 2px solid var(--unesco-blue-pale) !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  line-height: 1.6 !important;
+  box-shadow: var(--shadow-light) !important;
+}
+
+.editor-preview h1, .editor-preview-side h1 {
+  color: var(--unesco-blue-dark) !important;
+  border-bottom: 2px solid var(--unesco-blue-pale) !important;
+  padding-bottom: 8px !important;
+}
+
+.editor-preview h2, .editor-preview-side h2 {
+  color: var(--unesco-blue) !important;
+  border-bottom: 1px solid var(--unesco-blue-pale) !important;
+  padding-bottom: 6px !important;
+}
+
+.editor-preview a, .editor-preview-side a {
+  color: var(--unesco-blue) !important;
+}
+
+.editor-preview blockquote, .editor-preview-side blockquote {
+  border-left: 4px solid var(--unesco-blue-pale) !important;
+  background: #f8f9fa !important;
+  margin: 0 !important;
+  padding: 16px 20px !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.editor-preview code, .editor-preview-side code {
+  background: var(--unesco-blue-pale) !important;
+  color: var(--unesco-blue-dark) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-size: 0.9em !important;
+}
+
+.editor-preview pre, .editor-preview-side pre {
+  background: #f8f9fa !important;
+  border: 1px solid var(--unesco-blue-pale) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+}
+
+.editor-statusbar {
+  border-left: 2px solid var(--unesco-blue-pale) !important;
+  border-right: 2px solid var(--unesco-blue-pale) !important;
+  border-bottom: 2px solid var(--unesco-blue-pale) !important;
+  border-top: 1px solid var(--unesco-blue-pale) !important;
+  border-radius: 0 0 12px 12px !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  color: var(--text-secondary) !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+}
+
+/* Fullscreen mode adjustments */
+.editor-toolbar.fullscreen {
+  z-index: 9999 !important;
+}
+
+.CodeMirror.CodeMirror-fullscreen {
+  z-index: 9999 !important;
+  background: #ffffff !important;
+}
+
+/* Hide the original textarea when editor is active */
+.markdown-editor-container .wn-form-control {
+  display: none;
+}
+
+/* Loading state */
+.markdown-editor-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-secondary);
+  background: var(--unesco-blue-pale);
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.markdown-editor-loading i {
+  animation: fa-spin 1s infinite linear;
+  margin-right: 8px;
+}
+
+/* Mobile responsiveness for editor */
+@media (max-width: 768px) {
+  .editor-toolbar {
+    padding: 6px 8px !important;
+  }
+  
+  .editor-toolbar button {
+    padding: 6px 8px !important;
+    margin: 1px !important;
+    font-size: 14px !important;
+  }
+  
+  .CodeMirror {
+    font-size: 14px !important;
+    min-height: 300px !important;
+  }
+  
+  .editor-preview, .editor-preview-side {
+    padding: 15px !important;
+    font-size: 14px !important;
+  }
+}
 </style>
+
+<!-- EasyMDE CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+
+<!-- EasyMDE JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
 
 <!-- JavaScript for form functionality -->
 <script>
@@ -919,6 +1122,161 @@ select.form-control option:selected {
     
     // Initialize character counter
     updateCharacterCounter();
+
+    // Initialize Markdown Editor
+    function initializeMarkdownEditor() {
+      // Check if EasyMDE is available
+      if (typeof EasyMDE === 'undefined') {
+        console.log('EasyMDE not loaded yet, retrying...');
+        setTimeout(initializeMarkdownEditor, 100);
+        return;
+      }
+      
+      const contentTextarea = document.getElementById('field-content');
+      if (!contentTextarea) {
+        console.error('Content textarea not found');
+        return;
+      }
+      
+      // Show loading state
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'markdown-editor-loading';
+      loadingDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i>{{ _("Loading markdown editor...") }}';
+      contentTextarea.parentNode.insertBefore(loadingDiv, contentTextarea);
+      
+      try {
+        // Initialize EasyMDE
+        const easyMDE = new EasyMDE({
+          element: contentTextarea,
+          minHeight: '400px',
+          maxHeight: '800px',
+          autofocus: false,
+          spellChecker: false,
+          status: ['lines', 'words', 'cursor'],
+          placeholder: '{{ _("Write your news article content here...\\n\\nUse the toolbar above for formatting or write directly in Markdown:\\n\\n# Main Heading\\n## Sub Heading\\n\\n**Bold text** and *italic text*\\n\\n- Bullet point\\n- Another point\\n\\n[Link text](https://example.com)\\n\\n> Quote or important note") }}',
+          toolbar: [
+            'bold', 'italic', 'strikethrough', '|',
+            'heading-1', 'heading-2', 'heading-3', '|',
+            'quote', 'unordered-list', 'ordered-list', '|',
+            'link', 'image', 'table', '|',
+            'code', 'horizontal-rule', '|',
+            'preview', 'side-by-side', 'fullscreen', '|',
+            'guide', 
+            {
+              name: 'insert-template',
+              action: function customFunction(editor) {
+                const template = `
+# Article Title
+
+## Introduction
+Start with a compelling introduction that summarizes the key points.
+
+## Main Content
+Provide detailed information, analysis, and context.
+
+### Key Points
+- Important point 1
+- Important point 2
+- Important point 3
+
+## Conclusion
+Summarize the implications and next steps.
+
+---
+
+**Sources:**
+- [Source 1](https://example.com)
+- [Source 2](https://example.com)
+`;
+                editor.codemirror.replaceSelection(template);
+              },
+              className: 'fa fa-file-text-o',
+              title: '{{ _("Insert Article Template") }}'
+            }
+          ],
+          shortcuts: {
+            'drawTable': 'Cmd-Alt-T',
+            'toggleBlockquote': 'Cmd-\\'',
+            'toggleBold': 'Cmd-B',
+            'cleanBlock': 'Cmd-E',
+            'toggleHeadingSmaller': 'Cmd-H',
+            'toggleItalic': 'Cmd-I',
+            'drawLink': 'Cmd-K',
+            'toggleUnorderedList': 'Cmd-L',
+            'togglePreview': 'Cmd-P',
+            'toggleCodeBlock': 'Cmd-Alt-C',
+            'toggleOrderedList': 'Cmd-Alt-L',
+            'drawHorizontalRule': 'Cmd-R',
+            'toggleSideBySide': 'F9',
+            'toggleFullScreen': 'F11'
+          },
+          sideBySideFullscreen: false,
+          tabSize: 2,
+          indentWithTabs: false,
+          insertTexts: {
+            horizontalRule: ['\\n\\n---\\n\\n', ''],
+            image: ['![{{ _("Alt text") }}](', ')'],
+            link: ['[', '](https://example.com)'],
+            table: ['\\n\\n| {{ _("Column 1") }} | {{ _("Column 2") }} | {{ _("Column 3") }} |\\n| --- | --- | --- |\\n| {{ _("Text") }} | {{ _("Text") }} | {{ _("Text") }} |\\n\\n', '']
+          },
+          previewRender: function(plainText) {
+            // Basic markdown rendering for preview
+            let html = plainText
+              .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+              .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+              .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+              .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+              .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+              .replace(/\*(.*)\*/gim, '<em>$1</em>')
+              .replace(/!\[([^\]]*)\]\(([^\)]*)\)/gim, '<img alt="$1" src="$2" style="max-width: 100%; height: auto;" />')
+              .replace(/\[([^\]]*)\]\(([^\)]*)\)/gim, '<a href="$2" target="_blank">$1</a>')
+              .replace(/\n\n/gim, '</p><p>')
+              .replace(/\n/gim, '<br>')
+              .replace(/^- (.*$)/gim, '<li>$1</li>')
+              .replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>')
+              .replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+            
+            return '<div style="padding: 20px; line-height: 1.6;"><p>' + html + '</p></div>';
+          },
+          errorCallback: function(errorMessage) {
+            console.error('EasyMDE Error:', errorMessage);
+          }
+        });
+        
+        // Remove loading state
+        loadingDiv.remove();
+        
+        // Sync with form validation
+        easyMDE.codemirror.on('change', function() {
+          // Update the original textarea for form submission
+          contentTextarea.value = easyMDE.value();
+          
+          // Trigger any existing change events
+          const event = new Event('input', { bubbles: true });
+          contentTextarea.dispatchEvent(event);
+        });
+        
+        // Make sure the editor content is synced on form submit
+        $('form').on('submit', function() {
+          if (easyMDE && easyMDE.value) {
+            contentTextarea.value = easyMDE.value();
+          }
+        });
+        
+        // Store editor instance globally for potential use
+        window.contentEditor = easyMDE;
+        
+        console.log('EasyMDE markdown editor initialized successfully');
+        
+      } catch (error) {
+        console.error('Error initializing EasyMDE:', error);
+        loadingDiv.innerHTML = '<i class="fa fa-exclamation-triangle"></i>{{ _("Error loading editor. Using basic textarea.") }}';
+        setTimeout(() => loadingDiv.remove(), 3000);
+      }
+    }
+    
+    // Initialize markdown editor after a short delay to ensure DOM is ready
+    setTimeout(initializeMarkdownEditor, 200);
 
     // Image Upload Management
     let uploadedImages = [];

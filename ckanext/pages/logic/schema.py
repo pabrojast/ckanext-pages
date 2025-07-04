@@ -37,6 +37,8 @@ def default_pages_schema():
         'timeline_events': [ignore_missing, unicode_safe],  # Dynamic timeline events
         'uploaded_images': [ignore_missing, unicode_safe],  # Uploaded images metadata
         'image_gallery': [ignore_missing, unicode_safe],     # Enhanced image gallery
+        'response_activities': [ignore_missing, unicode_safe], # Response activities for rapid response
+        'impact_assessment': [ignore_missing, unicode_safe],  # Impact assessment for rapid response
         # Water News specific fields
         'source': [ignore_missing, unicode_safe],           # Original source URL
         'external_links': [ignore_missing, unicode_safe],   # Related links
