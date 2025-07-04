@@ -177,7 +177,7 @@
                         </div>
                         <h2>{{ _('Installation & Usage') }}</h2>
                       </div>
-                      <div class="software-content-body">
+                      <div class="installation-content">
                         {{ h.render_markdown(c.page.installation_instructions, allow_html=True) | safe }}
                       </div>
                     </div>
@@ -196,7 +196,7 @@
                         </div>
                         <h2>{{ _('Learning Resources & Courses') }}</h2>
                       </div>
-                      <div class="software-content-body">
+                      <div class="learning-resources-content">
                         {{ h.render_markdown(c.page.learning_resources, allow_html=True) | safe }}
                       </div>
                     </div>
@@ -410,6 +410,226 @@
   --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
   --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
   --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Icon-based Resource Cards for Learning Resources and Installation */
+.learning-resources-content,
+.installation-content {
+  /* Enhanced styling for icon-based cards */
+}
+
+.learning-resources-content .resource-card,
+.installation-content .resource-card {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 0.5rem;
+  min-width: 280px;
+  max-width: 350px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  cursor: pointer;
+  vertical-align: top;
+}
+
+.learning-resources-content .resource-card:hover,
+.installation-content .resource-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  border-color: var(--unesco-blue);
+  text-decoration: none;
+  color: inherit;
+}
+
+.learning-resources-content .resource-card .card-icon,
+.installation-content .resource-card .card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.learning-resources-content .resource-card .card-icon.youtube {
+  background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+}
+
+.learning-resources-content .resource-card .card-icon.video {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+}
+
+.learning-resources-content .resource-card .card-icon.course {
+  background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+}
+
+.learning-resources-content .resource-card .card-icon.tutorial {
+  background: linear-gradient(135deg, #20c997 0%, #17a085 100%);
+}
+
+.learning-resources-content .resource-card .card-icon.documentation {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.installation-content .resource-card .card-icon.download {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+}
+
+.installation-content .resource-card .card-icon.guide {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+.installation-content .resource-card .card-icon.blog {
+  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+}
+
+.installation-content .resource-card .card-icon.external {
+  background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+}
+
+.learning-resources-content .resource-card .card-content,
+.installation-content .resource-card .card-content {
+  flex: 1;
+}
+
+.learning-resources-content .resource-card .card-title,
+.installation-content .resource-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.learning-resources-content .resource-card .card-description,
+.installation-content .resource-card .card-description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+
+.learning-resources-content .resource-card .card-meta,
+.installation-content .resource-card .card-meta {
+  font-size: 0.8rem;
+  color: var(--unesco-blue);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Enhanced link styling for external resources */
+.learning-resources-content a[href*="youtube.com"],
+.learning-resources-content a[href*="youtu.be"] {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 0.5rem;
+  min-width: 280px;
+  max-width: 350px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  vertical-align: top;
+}
+
+.learning-resources-content a[href*="youtube.com"]:hover,
+.learning-resources-content a[href*="youtu.be"]:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  border-color: #FF0000;
+  text-decoration: none;
+  color: inherit;
+}
+
+.learning-resources-content a[href*="youtube.com"]:before,
+.learning-resources-content a[href*="youtu.be"]:before {
+  content: "\f16a";
+  font-family: FontAwesome;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  vertical-align: top;
+}
+
+/* Style for installation blog links */
+.installation-content a[href*="blog"],
+.installation-content a[href*="tutorial"] {
+  display: inline-block;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin: 0.5rem;
+  min-width: 280px;
+  max-width: 350px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  vertical-align: top;
+}
+
+.installation-content a[href*="blog"]:hover,
+.installation-content a[href*="tutorial"]:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  border-color: var(--unesco-blue);
+  text-decoration: none;
+  color: inherit;
+}
+
+.installation-content a[href*="blog"]:before {
+  content: "\f1ea";
+  font-family: FontAwesome;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  vertical-align: top;
+}
+
+.installation-content a[href*="tutorial"]:before {
+  content: "\f02d";
+  font-family: FontAwesome;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  vertical-align: top;
 }
 
 /* Banner Section */
@@ -1026,31 +1246,127 @@
 <!-- JavaScript for Enhanced Functionality -->
 <script>
 (function() {
-  // Image modal functionality
-  $('.image-container, .gallery-image').on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+  // Wait for DOM to be ready
+  $(document).ready(function() {
     
-    const $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
-    const imageUrl = $img.attr('src');
-    const caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
-    
-    if (imageUrl) {
-      $('#modalImage').attr('src', imageUrl);
-      $('#modalImage').attr('alt', caption);
-      $('#modalCaption').text(caption);
+    // Image modal functionality - Enhanced version from rapid-response.html
+    function initImageModal() {
+      // Handle clicks on gallery images
+      $(document).on('click', '.gallery-image, .image-container', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var $clickedElement = $(this);
+        var $img = $clickedElement.is('img') ? $clickedElement : $clickedElement.find('.gallery-image, img').first();
+        
+        if ($img.length === 0) {
+          return;
+        }
+        
+        var imageUrl = $img.attr('src') || $img.data('src');
+        var caption = $img.attr('alt') || $img.data('caption') || $img.siblings('.image-caption').text() || 'Image';
+        
+        if (imageUrl) {
+          $('#modalImage').attr('src', imageUrl).attr('alt', caption);
+          $('#modalCaption').text(caption);
+          $('#imageModalTitle').text(caption);
+          
+          // Show modal with Bootstrap or fallback
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('show');
+          } else {
+            // Fallback for when Bootstrap modal is not available
+            $('#imageModal').fadeIn(300);
+          }
+        }
+      });
       
-      if (typeof $.fn.modal !== 'undefined') {
-        $('#imageModal').modal('show');
-      }
+      // Handle clicks on images within markdown content
+      $(document).on('click', '.software-content-body img, .learning-resources-content img, .installation-content img', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var $img = $(this);
+        var imageUrl = $img.attr('src');
+        var caption = $img.attr('alt') || $img.attr('title') || 'Image';
+        
+        if (imageUrl) {
+          $('#modalImage').attr('src', imageUrl).attr('alt', caption);
+          $('#modalCaption').text(caption);
+          $('#imageModalTitle').text(caption);
+          
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('show');
+          } else {
+            $('#imageModal').fadeIn(300);
+          }
+        }
+      });
     }
-  });
-  
-  // Close modal functionality
-  $('.close, .modal').on('click', function(e) {
-    if (e.target === this) {
-      $('#imageModal').modal('hide');
+    
+    // Close modal functionality
+    function initModalClose() {
+      // Close button
+      $(document).on('click', '.modal .close', function(e) {
+        e.preventDefault();
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('hide');
+        } else {
+          $('#imageModal').fadeOut(300);
+        }
+      });
+      
+      // Click outside modal
+      $(document).on('click', '.modal', function(e) {
+        if (e.target === this) {
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('hide');
+          } else {
+            $('#imageModal').fadeOut(300);
+          }
+        }
+      });
+      
+      // Escape key
+      $(document).on('keyup', function(e) {
+        if (e.keyCode === 27) { // ESC key
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('hide');
+          } else {
+            $('#imageModal').fadeOut(300);
+          }
+        }
+      });
     }
+    
+    // Initialize functionality
+    initImageModal();
+    initModalClose();
+    
+    // Enhanced link styling for YouTube and external resources
+    function enhanceResourceLinks() {
+      // Style YouTube links in learning resources
+      $('.learning-resources-content a[href*="youtube.com"], .learning-resources-content a[href*="youtu.be"]').each(function() {
+        var $link = $(this);
+        if (!$link.hasClass('resource-card')) {
+          $link.addClass('youtube-link');
+        }
+      });
+      
+      // Style blog and tutorial links in installation
+      $('.installation-content a[href*="blog"], .installation-content a[href*="tutorial"]').each(function() {
+        var $link = $(this);
+        if (!$link.hasClass('resource-card')) {
+          $link.addClass('blog-link');
+        }
+      });
+    }
+    
+    // Run enhancement
+    enhanceResourceLinks();
+    
+    // Re-run enhancement if content is dynamically loaded
+    setTimeout(enhanceResourceLinks, 1000);
   });
 })();
 </script>
