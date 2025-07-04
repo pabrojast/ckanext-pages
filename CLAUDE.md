@@ -166,3 +166,157 @@ The plugin provides numerous template helper functions in `plugin.py`:
 ## File Upload Support
 
 The extension includes file upload capabilities for page attachments, using CKAN's built-in uploader system with proper permission checks.
+
+# CKANEXT-PAGES - Mejoras de Imágenes y Diseño
+
+## Nuevas Funcionalidades Implementadas
+
+### 1. Sistema de Redimensionamiento Automático de Logos
+
+Se ha implementado un sistema automático de procesamiento de imágenes que:
+
+- **Redimensiona automáticamente** los logos a 200x80 píxeles
+- **Mantiene la proporción** original de la imagen
+- **Centra la imagen** en un fondo blanco
+- **Convierte automáticamente** a formato JPEG optimizado
+- **Maneja transparencias** correctamente
+
+### 2. Interfaz de Usuario Mejorada
+
+#### Subida de Logos
+- **Zona de arrastre especializada** para logos
+- **Vista previa inmediata** del logo procesado
+- **Botón de eliminación** para cambiar el logo
+- **Indicador visual** de que será redimensionado automáticamente
+
+#### Diseño de Lista Mejorado
+- **Imágenes uniformes** de 200x80 píxeles en la lista
+- **Efectos hover** profesionales
+- **Diseño responsive** que se adapta a móviles
+- **Colores consistentes** con la paleta UNESCO
+
+### 3. JavaScript Corregido
+
+#### Funcionalidad "Read More"
+- **Delegación de eventos** para contenido dinámico
+- **Textos por defecto** si no se especifican
+- **Animaciones suaves** de expand/collapse
+- **Compatibilidad mejorada** con jQuery
+
+#### Gestión de Uploads
+- **Separación clara** entre logos y imágenes generales
+- **Manejo de errores** mejorado
+- **Progreso visual** durante la subida
+- **Procesamiento automático** de logos
+
+## Instalación
+
+### 1. Instalar Dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+La nueva dependencia `Pillow>=9.0.0` se instalará automáticamente.
+
+### 2. Funcionalidades Técnicas
+
+#### Procesamiento de Imágenes
+```python
+def _process_logo_image(image_path, upload_dir):
+    """
+    Procesa una imagen para convertirla en un logo con dimensiones estándar.
+    
+    - Dimensiones: 200x80 píxeles
+    - Formato: JPEG optimizado
+    - Fondo: Blanco
+    - Calidad: 90%
+    """
+```
+
+#### Upload API
+```javascript
+// Para subir un logo (procesamiento automático)
+formData.append('is_logo', 'true');
+
+// Para subir imágenes generales (sin procesamiento)
+// No incluir el campo is_logo
+```
+
+## Uso
+
+### 1. Subir un Logo
+1. En el formulario de edición de software
+2. Ir a la sección "Images & Media"
+3. Usar la zona de "Upload Logo Image"
+4. Arrastrar o seleccionar una imagen
+5. El logo se procesará automáticamente a 200x80px
+
+### 2. Visualización en Lista
+- Todos los logos se muestran con **dimensiones uniformes**
+- **Efectos hover** que mejoran la experiencia
+- **Diseño responsive** para móviles
+- **Fallback visual** para software sin logo
+
+### 3. Funcionalidad "Read More"
+- **Clic automático** en enlaces "Read more"
+- **Expansión suave** del contenido
+- **Texto dinámico** que cambia entre "Read more" y "Read less"
+
+## Mejoras de Diseño
+
+### 1. Paleta de Colores UNESCO
+```css
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+}
+```
+
+### 2. Efectos Visuales
+- **Sombras suaves** con colores UNESCO
+- **Transiciones animadas** de 0.3s
+- **Transform effects** en hover
+- **Gradientes profesionales**
+
+### 3. Responsive Design
+- **Móviles**: Logos de 120x48px
+- **Tablets**: Logos de 150x60px
+- **Desktop**: Logos de 200x80px
+
+## Solución de Problemas
+
+### Error: "PIL not found"
+```bash
+pip install Pillow>=9.0.0
+```
+
+### Error: "JavaScript not working"
+- Verificar que jQuery esté cargado
+- Revisar la consola del navegador
+- Asegurar que el evento delegation esté funcionando
+
+### Error: "Images not displaying"
+- Verificar permisos de escritura en `/uploads/page_images/`
+- Comprobar que la URL base esté configurada correctamente
+- Revisar logs de CKAN para errores de upload
+
+## Archivos Modificados
+
+1. `ckanext/pages/actions.py` - Lógica de procesamiento de imágenes
+2. `requirements.txt` - Nueva dependencia Pillow
+3. `ckanext/pages/theme/templates_main/ckanext_pages/open-source-software_edit.html` - UI de upload
+4. `ckanext/pages/theme/templates_main/ckanext_pages/open-source-software_list.html` - Lista mejorada
+5. `CLAUDE.md` - Documentación
+
+## Beneficios
+
+- ✅ **Logos uniformes** en todas las listas
+- ✅ **Procesamiento automático** sin intervención manual
+- ✅ **Diseño profesional** con colores UNESCO
+- ✅ **Experiencia responsive** en todos los dispositivos
+- ✅ **JavaScript funcional** para "Read more"
+- ✅ **Optimización automática** de imágenes
+- ✅ **Interfaz intuitiva** para usuarios

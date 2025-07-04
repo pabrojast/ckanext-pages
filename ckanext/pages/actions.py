@@ -16,6 +16,12 @@ import ckan.authz as authz
 
 from ckanext.pages import db
 
+# Nuevas importaciones para el procesamiento de imágenes
+from PIL import Image, ImageOps
+import os
+import tempfile
+import shutil
+
 
 class HTMLFirstImage(HTMLParser):
     def __init__(self):
@@ -194,10 +200,11 @@ def _remove_keys_revision_from_dict(data_dict, keys=['current']):
 
 
 def pages_upload(context, data_dict):
-    """ Upload a file to the CKAN server.
+    """ Upload a file to the CKAN server with automatic image processing.
 
-    This method implements the logic for file uploads used by CKEditor. For
-    more details on implementation and expected return values see:
+    This method implements the logic for file uploads used by CKEditor with
+    automatic image resizing and cropping for logos. For more details on 
+    implementation and expected return values see:
      - https://ckeditor.com/docs/ckeditor4/latest/guide/dev_file_upload.html#server-side-configuration
 
     """
@@ -223,13 +230,114 @@ def pages_upload(context, data_dict):
         )
         return {'uploaded': 0, 'error': {'message': message}}
 
+    # Procesar la imagen si es un logo
     image_url = data_dict.get('image_url')
+    is_logo = data_dict.get('is_logo', False)
+    
+    if image_url and is_logo:
+        try:
+            # Obtener la ruta del archivo subido
+            if image_url[0:6] not in {'http:/', 'https:'}:
+                # Es un archivo local
+                upload_dir = upload.get_directory()
+                image_path = os.path.join(upload_dir, image_url)
+                
+                # Procesar la imagen
+                processed_image_path = _process_logo_image(image_path, upload_dir)
+                
+                if processed_image_path:
+                    # Actualizar la URL de la imagen procesada
+                    image_url = os.path.basename(processed_image_path)
+                    upload.filename = image_url
+                    
+        except Exception as e:
+            # Log el error pero continúa con la imagen original
+            logging.error(f"Error processing logo image: {str(e)}")
+    
+    # Generar URL final
     if image_url and image_url[0:6] not in {'http:/', 'https:'}:
         image_url = h.url_for_static(
             'uploads/page_images/%s' % image_url,
             qualified=True
         )
+    
     return {'url': image_url, 'fileName': upload.filename, 'uploaded': 1}
+
+
+def _process_logo_image(image_path, upload_dir):
+    """
+    Procesa una imagen para convertirla en un logo con dimensiones estándar.
+    
+    Args:
+        image_path: Ruta al archivo de imagen original
+        upload_dir: Directorio donde guardar la imagen procesada
+        
+    Returns:
+        Ruta al archivo procesado o None si hay error
+    """
+    try:
+        # Dimensiones estándar para logos
+        LOGO_WIDTH = 200
+        LOGO_HEIGHT = 80
+        
+        # Abrir la imagen original
+        with Image.open(image_path) as img:
+            # Convertir a RGB si es necesario
+            if img.mode in ('RGBA', 'LA', 'P'):
+                # Crear fondo blanco para imágenes con transparencia
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Calcular las dimensiones para mantener la proporción
+            img_width, img_height = img.size
+            aspect_ratio = img_width / img_height
+            
+            # Determinar si la imagen es más ancha o alta
+            if aspect_ratio > LOGO_WIDTH / LOGO_HEIGHT:
+                # Imagen más ancha - ajustar por ancho
+                new_width = LOGO_WIDTH
+                new_height = int(LOGO_WIDTH / aspect_ratio)
+            else:
+                # Imagen más alta - ajustar por altura
+                new_height = LOGO_HEIGHT
+                new_width = int(LOGO_HEIGHT * aspect_ratio)
+            
+            # Redimensionar la imagen manteniendo proporción
+            img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            # Crear lienzo final con fondo blanco
+            final_img = Image.new('RGB', (LOGO_WIDTH, LOGO_HEIGHT), (255, 255, 255))
+            
+            # Centrar la imagen redimensionada
+            x_offset = (LOGO_WIDTH - new_width) // 2
+            y_offset = (LOGO_HEIGHT - new_height) // 2
+            final_img.paste(img_resized, (x_offset, y_offset))
+            
+            # Generar nombre para la imagen procesada
+            base_name = os.path.splitext(os.path.basename(image_path))[0]
+            processed_name = f"{base_name}_logo.jpg"
+            processed_path = os.path.join(upload_dir, processed_name)
+            
+            # Guardar la imagen procesada
+            final_img.save(processed_path, 'JPEG', quality=90, optimize=True)
+            
+            # Eliminar la imagen original si es diferente
+            if os.path.abspath(image_path) != os.path.abspath(processed_path):
+                try:
+                    os.remove(image_path)
+                except:
+                    pass
+            
+            return processed_path
+            
+    except Exception as e:
+        logging.error(f"Error processing logo image: {str(e)}")
+        return None
 
 
 @tk.side_effect_free

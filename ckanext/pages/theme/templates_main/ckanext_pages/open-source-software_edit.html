@@ -396,6 +396,27 @@
                               </div>
                             </div>
                             
+                            <!-- Logo Upload Section -->
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload Logo Image') }}</label>
+                              <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+                              <div class="upload-dropzone logo-dropzone" id="logo-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-image fa-3x"></i>
+                                  <p>{{ _('Drop logo here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Logo will be automatically resized to 200x80px') }}</p>
+                                </div>
+                              </div>
+                              <div id="logo-preview" class="logo-preview-container" style="display: none;">
+                                <img id="logo-preview-img" src="" alt="Logo Preview" class="logo-preview-img">
+                                <div class="logo-preview-actions">
+                                  <button type="button" class="btn btn-sm btn-danger" id="remove-logo">
+                                    <i class="fa fa-trash"></i> {{ _('Remove Logo') }}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            
                             <!-- Uploaded Images Preview -->
                             <div id="uploaded-images-preview" class="uploaded-images-grid">
                               <!-- Uploaded images will appear here -->
@@ -931,6 +952,50 @@ textarea.form-control {
   transition: width 0.3s ease;
 }
 
+/* Logo Upload Styling */
+.logo-dropzone {
+  border: 3px dashed #28a745;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: #f8fff8;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logo-dropzone:hover {
+  border-color: #20c997;
+  background: #e8f5e8;
+}
+
+.logo-dropzone.dragover {
+  border-color: #17a2b8;
+  background: #e8f5f8;
+  transform: scale(1.02);
+}
+
+.logo-preview-container {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+.logo-preview-img {
+  max-width: 200px;
+  max-height: 80px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  padding: 4px;
+}
+
+.logo-preview-actions {
+  margin-top: 1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .section-title {
@@ -1019,6 +1084,7 @@ textarea.form-control {
   waitForJQuery(function($) {
   // Image Upload Management
   let uploadedImages = [];
+  let logoUrl = '';
   
   // Load existing uploaded images
   function loadUploadedImages() {
@@ -1033,6 +1099,13 @@ textarea.form-control {
         console.error('Error parsing uploaded images data:', e);
       }
     }
+    
+    // Load existing logo from header_image field
+    const headerImage = $('#header_image').val();
+    if (headerImage) {
+      logoUrl = headerImage;
+      showLogoPreview(headerImage);
+    }
   }
   
   // Handle file upload
@@ -1042,9 +1115,19 @@ textarea.form-control {
     if (files.length > 0) {
       Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
-          uploadImage(file);
+          uploadImage(file, false);
         }
       });
+      this.value = '';
+    }
+  });
+  
+  // Handle logo upload
+  $('#logo-upload').on('change', function(e) {
+    e.stopPropagation();
+    const files = this.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      uploadImage(files[0], true);
       this.value = '';
     }
   });
@@ -1054,6 +1137,13 @@ textarea.form-control {
     e.preventDefault();
     e.stopPropagation();
     $('#image-upload').trigger('click');
+  });
+  
+  // Handle logo dropzone click
+  $('#logo-dropzone').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $('#logo-upload').trigger('click');
   });
   
   // Handle dropzone drag and drop
@@ -1078,16 +1168,43 @@ textarea.form-control {
     if (files.length > 0) {
       Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
-          uploadImage(file);
+          uploadImage(file, false);
         }
       });
     }
   });
   
+  // Handle logo dropzone drag and drop
+  $('#logo-dropzone').on('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).addClass('dragover');
+  });
+  
+  $('#logo-dropzone').on('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('dragover');
+  });
+  
+  $('#logo-dropzone').on('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('dragover');
+    
+    const files = e.originalEvent.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      uploadImage(files[0], true);
+    }
+  });
+  
   // Upload image function
-  function uploadImage(file) {
+  function uploadImage(file, isLogo) {
     const formData = new FormData();
     formData.append('upload', file);
+    if (isLogo) {
+      formData.append('is_logo', 'true');
+    }
     
     const progressId = `progress-${Date.now()}`;
     const progressHtml = `
@@ -1098,7 +1215,12 @@ textarea.form-control {
         </div>
       </div>
     `;
-    $('#uploaded-images-preview').append(progressHtml);
+    
+    if (isLogo) {
+      $('#logo-dropzone').after(progressHtml);
+    } else {
+      $('#uploaded-images-preview').append(progressHtml);
+    }
     
     $.ajax({
       url: '/pages_upload',
@@ -1119,15 +1241,21 @@ textarea.form-control {
       success: function(response) {
         $(`#${progressId}`).remove();
         if (response.uploaded === 1) {
-          const imageData = {
-            url: response.url,
-            fileName: response.fileName,
-            alt: file.name.replace(/\.[^/.]+$/, ""),
-            caption: ''
-          };
-          uploadedImages.push(imageData);
-          addUploadedImagePreview(imageData);
-          updateUploadedImagesData();
+          if (isLogo) {
+            logoUrl = response.url;
+            $('#header_image').val(response.url);
+            showLogoPreview(response.url);
+          } else {
+            const imageData = {
+              url: response.url,
+              fileName: response.fileName,
+              alt: file.name.replace(/\.[^/.]+$/, ""),
+              caption: ''
+            };
+            uploadedImages.push(imageData);
+            addUploadedImagePreview(imageData);
+            updateUploadedImagesData();
+          }
         } else {
           alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
         }
@@ -1138,6 +1266,21 @@ textarea.form-control {
       }
     });
   }
+  
+  // Show logo preview
+  function showLogoPreview(url) {
+    $('#logo-preview-img').attr('src', url);
+    $('#logo-preview').show();
+    $('#logo-dropzone').hide();
+  }
+  
+  // Remove logo
+  $('#remove-logo').on('click', function() {
+    logoUrl = '';
+    $('#header_image').val('');
+    $('#logo-preview').hide();
+    $('#logo-dropzone').show();
+  });
   
   // Add uploaded image preview
   function addUploadedImagePreview(imageData) {

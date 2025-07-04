@@ -4,6 +4,38 @@
 {{ _('Open Source Software & Learning Resources') }} - {{ super() }}
 {% endblock %}
 
+{# Helper functions for software categories #}
+{% set get_software_category_class = {
+  'gis': 'category-gis',
+  'data-processing': 'category-data',
+  'visualization': 'category-viz',
+  'web-platform': 'category-web',
+  'desktop-app': 'category-desktop',
+  'mobile-app': 'category-desktop',
+  'library': 'category-library',
+  'api': 'category-library',
+  'tool': 'category-library'
+} %}
+
+{% macro get_category_class(category) %}
+  {{ get_software_category_class.get(category, 'category-default') }}
+{% endmacro %}
+
+{% macro count_software_by_category(items) %}
+  {% set category_count = {} %}
+  {% for item in items %}
+    {% if item.software_category %}
+      {% set category = item.software_category %}
+      {% if category in category_count %}
+        {% set _ = category_count.update({category: category_count[category] + 1}) %}
+      {% else %}
+        {% set _ = category_count.update({category: 1}) %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {{ category_count }}
+{% endmacro %}
+
 {% block content %}
 
 <div class="homepage layout-1">
@@ -74,15 +106,15 @@
                             <div class="metric-label">{{ _('Total Entries') }}</div>
                           </div>
                         </div>
-                        <div class="col-md-2 col-sm-4">
-                          <div class="status-metric">
-                            <div class="metric-number">
-                              {% set category_count = h.count_software_by_category(c.page.items) %}
-                              {{ category_count.keys()|length if category_count else 0 }}
+                                                  <div class="col-md-2 col-sm-4">
+                            <div class="status-metric">
+                              <div class="metric-number">
+                                {% set category_count = count_software_by_category(c.page.items) %}
+                                {{ category_count.keys()|length if category_count else 0 }}
+                              </div>
+                              <div class="metric-label">{{ _('Categories') }}</div>
                             </div>
-                            <div class="metric-label">{{ _('Categories') }}</div>
                           </div>
-                        </div>
                         <div class="col-md-2 col-sm-4">
                           <div class="status-metric">
                             <div class="metric-number">
@@ -248,7 +280,7 @@
                           <div class="col-md-8">
                             <div class="software-metadata">
                               {% if page.software_category %}
-                                <span class="software-category-badge {{ h.get_software_category_class(page.software_category) }}">
+                                <span class="software-category-badge {{ get_category_class(page.software_category) }}">
                                   {{ page.software_category.replace('-', ' ').title() }}
                                 </span>
                               {% endif %}
@@ -293,7 +325,7 @@
                               {% if page.header_image %}
                                 <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
                               {% elif page.uploaded_images %}
-                                {% set images = h.json_loads(page.uploaded_images) or [] %}
+                                {% set images = page.uploaded_images|from_json if page.uploaded_images else [] %}
                                 {% if images and images[0] %}
                                   <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
                                 {% else %}
@@ -519,31 +551,52 @@
 }
 
 .software-image-compact {
-  height: 60px;
+  width: 200px;
+  height: 80px;
   overflow: hidden;
-  border-radius: 8px;
-  background: #f8f9fa;
+  border-radius: 12px;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.software-image-compact:hover {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 4px 8px rgba(0, 114, 188, 0.15);
+  transform: translateY(-2px);
 }
 
 .software-image-compact img {
   width: 100%;
-  height: 60px;
+  height: 100%;
   object-fit: contain;
-  padding: 4px;
+  padding: 8px;
+  transition: transform 0.3s ease;
+}
+
+.software-image-compact:hover img {
+  transform: scale(1.05);
 }
 
 .placeholder-image-compact {
   width: 100%;
-  height: 60px;
+  height: 100%;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #6c757d;
   border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.placeholder-image-compact:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #e9ecef 100%);
+  color: var(--unesco-blue);
 }
 
 .software-title-compact {
@@ -707,6 +760,12 @@
     padding: 1rem !important;
   }
   
+  .software-image-compact {
+    width: 150px;
+    height: 60px;
+    margin: 0 auto 1rem auto;
+  }
+  
   .software-title-compact {
     font-size: 1.1rem;
   }
@@ -727,58 +786,94 @@
     margin-top: 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .software-image-compact {
+    width: 120px;
+    height: 48px;
+  }
+  
+  .software-metadata {
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .software-category-badge,
+  .license-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+  }
+}
 </style>
 
 <!-- JavaScript for Read More functionality -->
 <script>
-$(document).ready(function() {
-  // Read more toggle functionality
-  $('.read-more-toggle').on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+// Wait for jQuery to be available
+function waitForJQuery(callback) {
+  if (typeof jQuery !== 'undefined') {
+    callback(jQuery);
+  } else {
+    setTimeout(function() {
+      waitForJQuery(callback);
+    }, 50);
+  }
+}
+
+waitForJQuery(function($) {
+  $(document).ready(function() {
+    // Read more toggle functionality - Use event delegation for dynamic content
+    $(document).on('click', '.read-more-toggle', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const $this = $(this);
+      const $parent = $this.closest('.software-excerpt');
+      const $short = $parent.find('.excerpt-short');
+      const $full = $parent.find('.excerpt-full');
+      const moreText = $this.data('more-text') || '{{ _("Read more") }}';
+      const lessText = $this.data('less-text') || '{{ _("Read less") }}';
+      
+      if ($full.is(':visible')) {
+        $full.slideUp(200);
+        $short.slideDown(200);
+        $this.text(moreText);
+      } else {
+        $short.slideUp(200);
+        $full.slideDown(200);
+        $this.text(lessText);
+      }
+      
+      return false;
+    });
     
-    const $this = $(this);
-    const $parent = $this.closest('.software-excerpt');
-    const $short = $parent.find('.excerpt-short');
-    const $full = $parent.find('.excerpt-full');
-    const moreText = $this.data('more-text');
-    const lessText = $this.data('less-text');
+    // Add category form submission
+    $('#add-category-form').on('submit', function(e) {
+      e.preventDefault();
+      
+      const categoryValue = $('#category-value').val().trim();
+      const categoryDisplay = $('#category-display').val().trim();
+      
+      if (!categoryValue || !categoryDisplay) {
+        alert('{{ _("Please fill in both category value and display name.") }}');
+        return;
+      }
+      
+      // Create new badge
+      const newBadge = $('<span class="badge badge-success">' + categoryDisplay + '</span>');
+      $('.badge-list').append(newBadge);
+      
+      // Clear form
+      $('#category-value').val('');
+      $('#category-display').val('');
+      
+      // Show success message
+      alert('{{ _("Category added successfully! Note: This is a preview. To permanently add categories, modify the template file.") }}');
+    });
     
-    if ($full.is(':visible')) {
-      $full.slideUp(200);
-      $short.slideDown(200);
-      $this.text(moreText);
-    } else {
-      $short.slideUp(200);
-      $full.slideDown(200);
-      $this.text(lessText);
+    // Initialize tooltips if Bootstrap is available
+    if (typeof $().tooltip === 'function') {
+      $('[data-toggle="tooltip"]').tooltip();
     }
-    
-    return false;
-  });
-  
-  // Add category form submission
-  $('#add-category-form').on('submit', function(e) {
-    e.preventDefault();
-    
-    const categoryValue = $('#category-value').val().trim();
-    const categoryDisplay = $('#category-display').val().trim();
-    
-    if (!categoryValue || !categoryDisplay) {
-      alert('{{ _("Please fill in both category value and display name.") }}');
-      return;
-    }
-    
-    // Create new badge
-    const newBadge = $('<span class="badge badge-success">' + categoryDisplay + '</span>');
-    $('.badge-list').append(newBadge);
-    
-    // Clear form
-    $('#category-value').val('');
-    $('#category-display').val('');
-    
-    // Show success message
-    alert('{{ _("Category added successfully! Note: This is a preview. To permanently add categories, modify the template file.") }}');
   });
 });
 </script>
