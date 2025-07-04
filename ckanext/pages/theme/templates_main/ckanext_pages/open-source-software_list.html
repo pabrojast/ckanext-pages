@@ -240,7 +240,7 @@
                 {% if c.page.items %}
                 <div class="software-catalog">
                   {% for page in c.page.items %}
-                  <div class="software-card" style="margin-bottom: 2rem;">
+                  <div class="software-card" style="margin-bottom: 1rem;">
                     <article class="module">
                       <!-- Software Header -->
                       <div class="software-header">
@@ -269,13 +269,9 @@
                               {% if page.user_id %}
                                 <small class="contributor-info">
                                   <i class="fa fa-user"></i> 
-                                  {{ page.user_id or _('Unknown User') }}
-                                  <br>
-                                  <i class="fa fa-clock-o"></i> 
+                                  {{ _('Anonymous') }}
                                   {% if page.modified %}
-                                    {{ h.time_ago_in_words_from_str(page.modified) }}
-                                  {% else %}
-                                    {{ _('Recently') }}
+                                    • {{ h.time_ago_in_words_from_str(page.modified) }}
                                   {% endif %}
                                 </small>
                               {% else %}
@@ -344,7 +340,7 @@
                                     <span class="excerpt-full" style="display: none;">
                                       {{ content_text }}
                                     </span>
-                                    <a href="#" class="read-more-toggle" data-more-text="{{ _('Read more') }}" data-less-text="{{ _('Read less') }}">
+                                    <a href="javascript:void(0);" class="read-more-toggle" data-more-text="{{ _('Read more') }}" data-less-text="{{ _('Read less') }}">
                                       {{ _('Read more') }}
                                     </a>
                                   {% endif %}
@@ -523,7 +519,7 @@
 }
 
 .software-image-compact {
-  height: 80px;
+  height: 60px;
   overflow: hidden;
   border-radius: 8px;
   background: #f8f9fa;
@@ -534,13 +530,14 @@
 
 .software-image-compact img {
   width: 100%;
-  height: 80px;
-  object-fit: cover;
+  height: 60px;
+  object-fit: contain;
+  padding: 4px;
 }
 
 .placeholder-image-compact {
   width: 100%;
-  height: 80px;
+  height: 60px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   display: flex;
   align-items: center;
@@ -598,8 +595,8 @@
 
 .contributor-info {
   color: #6c757d;
-  font-size: 0.85rem;
-  line-height: 1.4;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .contributor-info i {
@@ -738,22 +735,26 @@ $(document).ready(function() {
   // Read more toggle functionality
   $('.read-more-toggle').on('click', function(e) {
     e.preventDefault();
+    e.stopPropagation();
     
     const $this = $(this);
-    const $short = $this.siblings('.excerpt-short');
-    const $full = $this.siblings('.excerpt-full');
+    const $parent = $this.closest('.software-excerpt');
+    const $short = $parent.find('.excerpt-short');
+    const $full = $parent.find('.excerpt-full');
     const moreText = $this.data('more-text');
     const lessText = $this.data('less-text');
     
     if ($full.is(':visible')) {
-      $full.hide();
-      $short.show();
+      $full.slideUp(200);
+      $short.slideDown(200);
       $this.text(moreText);
     } else {
-      $short.hide();
-      $full.show();
+      $short.slideUp(200);
+      $full.slideDown(200);
       $this.text(lessText);
     }
+    
+    return false;
   });
   
   // Add category form submission
@@ -933,7 +934,11 @@ $(document).ready(function() {
 }
 
 .module-content {
-  padding: 2.5rem;
+  padding: 1.5rem;
+}
+
+.software-compact {
+  padding: 1rem !important;
 }
 
 /* Software Summary */
@@ -966,6 +971,7 @@ $(document).ready(function() {
 .software-card .module {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
+  margin-bottom: 1rem;
 }
 
 .software-card .module:hover {
@@ -976,7 +982,7 @@ $(document).ready(function() {
 .software-header {
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   color: white;
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   margin: 0;
 }
 
