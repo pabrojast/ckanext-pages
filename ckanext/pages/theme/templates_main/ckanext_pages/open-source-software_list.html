@@ -269,12 +269,11 @@
                               {% if page.user_id %}
                                 <small class="contributor-info">
                                   <i class="fa fa-user"></i> 
-                                  {% set user = h.get_user(page.user_id) %}
-                                  {{ user.display_name or user.name if user else _('Unknown User') }}
+                                  {{ page.user_id or _('Unknown User') }}
                                   <br>
                                   <i class="fa fa-clock-o"></i> 
                                   {% if page.modified %}
-                                    {{ h.time_ago_from_timestamp(page.modified) }}
+                                    {{ h.time_ago_in_words_from_str(page.modified) }}
                                   {% else %}
                                     {{ _('Recently') }}
                                   {% endif %}
