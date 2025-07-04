@@ -75,9 +75,15 @@ def default_pages_schema():
         'learning_resources': [ignore_missing, unicode_safe], # Learning resources
         'example_applications': [ignore_missing, unicode_safe], # Example applications
         'software_category': [ignore_missing, unicode_safe], # Software category
-        'software_difficulty': [ignore_missing, unicode_safe], # Difficulty level
         'software_license': [ignore_missing, unicode_safe], # Software license
         'project_status': [ignore_missing, unicode_safe],   # Project status
+        'access_type': [ignore_missing, unicode_safe],      # Open Source or Open Access
+        'programming_language': [ignore_missing, unicode_safe], # Programming language
+        'platform': [ignore_missing, unicode_safe],         # Platform compatibility
+        'version': [ignore_missing, unicode_safe],          # Current version
+        'attribution': [ignore_missing, unicode_safe],      # Attribution requirements
+        'organization_id': [ignore_missing, unicode_safe],  # CKAN organization
+        'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
     }
 
 

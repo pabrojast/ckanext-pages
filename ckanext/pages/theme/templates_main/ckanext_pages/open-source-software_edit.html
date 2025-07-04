@@ -141,36 +141,114 @@
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="software_difficulty" class="control-label">{{ _('Difficulty Level') }}</label>
-                                <select name="software_difficulty" id="software_difficulty" class="form-control">
-                                  <option value="">{{ _('Select Difficulty') }}</option>
-                                  <option value="beginner" {% if data.get('software_difficulty') == 'beginner' %}selected{% endif %}>{{ _('Beginner') }}</option>
-                                  <option value="intermediate" {% if data.get('software_difficulty') == 'intermediate' %}selected{% endif %}>{{ _('Intermediate') }}</option>
-                                  <option value="advanced" {% if data.get('software_difficulty') == 'advanced' %}selected{% endif %}>{{ _('Advanced') }}</option>
-                                  <option value="expert" {% if data.get('software_difficulty') == 'expert' %}selected{% endif %}>{{ _('Expert') }}</option>
+                                <label for="access_type" class="control-label">{{ _('Access Type') }}</label>
+                                <select name="access_type" id="access_type" class="form-control">
+                                  <option value="open-source" {% if data.get('access_type') == 'open-source' or not data.get('access_type') %}selected{% endif %}>{{ _('Open Source') }}</option>
+                                  <option value="open-access" {% if data.get('access_type') == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
                                 </select>
+                                <p class="help-block">{{ _('Open Source: Source code is available. Open Access: Free to use but source may not be available.') }}</p>
                               </div>
                             </div>
                           </div>
 
+                          <!-- New Technical Information Row -->
+                          <div class="row">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="programming_language" class="control-label">{{ _('Programming Language') }}</label>
+                                <select name="programming_language" id="programming_language" class="form-control">
+                                  <option value="">{{ _('Select Language') }}</option>
+                                  <option value="Python" {% if data.get('programming_language') == 'Python' %}selected{% endif %}>Python</option>
+                                  <option value="JavaScript" {% if data.get('programming_language') == 'JavaScript' %}selected{% endif %}>JavaScript</option>
+                                  <option value="R" {% if data.get('programming_language') == 'R' %}selected{% endif %}>R</option>
+                                  <option value="Java" {% if data.get('programming_language') == 'Java' %}selected{% endif %}>Java</option>
+                                  <option value="C++" {% if data.get('programming_language') == 'C++' %}selected{% endif %}>C++</option>
+                                  <option value="C" {% if data.get('programming_language') == 'C' %}selected{% endif %}>C</option>
+                                  <option value="PHP" {% if data.get('programming_language') == 'PHP' %}selected{% endif %}>PHP</option>
+                                  <option value="Go" {% if data.get('programming_language') == 'Go' %}selected{% endif %}>Go</option>
+                                  <option value="Rust" {% if data.get('programming_language') == 'Rust' %}selected{% endif %}>Rust</option>
+                                  <option value="Other" {% if data.get('programming_language') == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="platform" class="control-label">{{ _('Platform') }}</label>
+                                <select name="platform" id="platform" class="form-control">
+                                  <option value="">{{ _('Select Platform') }}</option>
+                                  <option value="Web" {% if data.get('platform') == 'Web' %}selected{% endif %}>{{ _('Web') }}</option>
+                                  <option value="Windows" {% if data.get('platform') == 'Windows' %}selected{% endif %}>Windows</option>
+                                  <option value="macOS" {% if data.get('platform') == 'macOS' %}selected{% endif %}>macOS</option>
+                                  <option value="Linux" {% if data.get('platform') == 'Linux' %}selected{% endif %}>Linux</option>
+                                  <option value="Cross-platform" {% if data.get('platform') == 'Cross-platform' %}selected{% endif %}>{{ _('Cross-platform') }}</option>
+                                  <option value="Mobile" {% if data.get('platform') == 'Mobile' %}selected{% endif %}>{{ _('Mobile') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="version" class="control-label">{{ _('Current Version') }}</label>
+                                <input type="text" name="version" id="version" class="form-control" 
+                                       value="{{ data.get('version', '') }}" 
+                                       placeholder="{{ _('e.g., 3.2.1, v2.0, beta') }}">
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- License and Attribution Row -->
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="software_license" class="control-label">{{ _('License') }}</label>
-                                <input type="text" name="software_license" id="software_license" class="form-control" 
-                                       value="{{ data.get('software_license', '') }}" 
-                                       placeholder="{{ _('e.g., GPL v3, MIT, Apache 2.0') }}">
+                                <select name="software_license" id="software_license" class="form-control">
+                                  <option value="">{{ _('Select License') }}</option>
+                                  <option value="MIT" {% if data.get('software_license') == 'MIT' %}selected{% endif %}>MIT</option>
+                                  <option value="GPL" {% if data.get('software_license') == 'GPL' %}selected{% endif %}>GPL</option>
+                                  <option value="Apache" {% if data.get('software_license') == 'Apache' %}selected{% endif %}>Apache</option>
+                                  <option value="BSD" {% if data.get('software_license') == 'BSD' %}selected{% endif %}>BSD</option>
+                                  <option value="Creative Commons" {% if data.get('software_license') == 'Creative Commons' %}selected{% endif %}>Creative Commons</option>
+                                  <option value="Proprietary" {% if data.get('software_license') == 'Proprietary' %}selected{% endif %}>{{ _('Proprietary') }}</option>
+                                  <option value="Other" {% if data.get('software_license') == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
+                                </select>
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="project_status" class="control-label">{{ _('Project Status') }}</label>
-                                <select name="project_status" id="project_status" class="form-control">
-                                  <option value="">{{ _('Select Status') }}</option>
-                                  <option value="active" {% if data.get('project_status') == 'active' %}selected{% endif %}>{{ _('Active Development') }}</option>
-                                  <option value="maintained" {% if data.get('project_status') == 'maintained' %}selected{% endif %}>{{ _('Maintained') }}</option>
-                                  <option value="archived" {% if data.get('project_status') == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
+                                <label for="attribution" class="control-label">{{ _('Attribution Requirements') }}</label>
+                                <select name="attribution" id="attribution" class="form-control">
+                                  <option value="">{{ _('Select Attribution') }}</option>
+                                  <option value="Required" {% if data.get('attribution') == 'Required' %}selected{% endif %}>{{ _('Required') }}</option>
+                                  <option value="Optional" {% if data.get('attribution') == 'Optional' %}selected{% endif %}>{{ _('Optional') }}</option>
+                                  <option value="None" {% if data.get('attribution') == 'None' %}selected{% endif %}>{{ _('None') }}</option>
                                 </select>
+                                <p class="help-block">{{ _('Whether attribution is required when using this software') }}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Organization Information Row -->
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="organization_id" class="control-label">{{ _('CKAN Organization') }}</label>
+                                <select name="organization_id" id="organization_id" class="form-control">
+                                  <option value="">{{ _('Select Organization') }}</option>
+                                  {% for org in h.get_site_user_orgs_list() %}
+                                    <option value="{{ org.id }}" {% if data.get('organization_id') == org.id %}selected{% endif %}>
+                                      {{ org.display_name or org.name }}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                                <p class="help-block">{{ _('CKAN organization this user belongs to') }}</p>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="credit_organization" class="control-label">{{ _('Credit Organization') }}</label>
+                                <input type="text" name="credit_organization" id="credit_organization" class="form-control" 
+                                       value="{{ data.get('credit_organization', '') }}" 
+                                       placeholder="{{ _('Organization that developed the software') }}">
+                                <p class="help-block">{{ _('Organization that should be credited for developing this software (may differ from user organization)') }}</p>
                               </div>
                             </div>
                           </div>

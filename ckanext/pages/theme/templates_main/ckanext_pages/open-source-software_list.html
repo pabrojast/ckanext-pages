@@ -68,13 +68,13 @@
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1rem 2.5rem;">
                       <div class="row text-center">
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-2 col-sm-4">
                           <div class="status-metric">
                             <div class="metric-number">{{ c.page.items|length }}</div>
                             <div class="metric-label">{{ _('Total Entries') }}</div>
                           </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-2 col-sm-4">
                           <div class="status-metric">
                             <div class="metric-number">
                               {% set category_count = h.count_software_by_category(c.page.items) %}
@@ -83,7 +83,7 @@
                             <div class="metric-label">{{ _('Categories') }}</div>
                           </div>
                         </div>
-                        <div class="col-md-3 col-sm-6">
+                        <div class="col-md-2 col-sm-4">
                           <div class="status-metric">
                             <div class="metric-number">
                               {% set course_count = 0 %}
@@ -99,8 +99,30 @@
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">100%</div>
+                            <div class="metric-number">
+                              {% set open_source_count = 0 %}
+                              {% for item in c.page.items %}
+                                {% if item.access_type == 'open-source' or not item.access_type %}
+                                  {% set open_source_count = open_source_count + 1 %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ open_source_count }}
+                            </div>
                             <div class="metric-label">{{ _('Open Source') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">
+                              {% set open_access_count = 0 %}
+                              {% for item in c.page.items %}
+                                {% if item.access_type == 'open-access' %}
+                                  {% set open_access_count = open_access_count + 1 %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ open_access_count }}
+                            </div>
+                            <div class="metric-label">{{ _('Open Access') }}</div>
                           </div>
                         </div>
                       </div>
@@ -116,7 +138,7 @@
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get" class="form-inline">
                         <div class="row">
-                          <div class="col-md-4">
+                          <div class="col-md-6">
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
                               <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
@@ -124,7 +146,7 @@
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
-                          <div class="col-md-3">
+                          <div class="col-md-2">
                             <select name="category" class="form-control">
                               <option value="">{{ _('All Categories') }}</option>
                               <option value="gis" {% if request.args.category == 'gis' %}selected{% endif %}>{{ _('GIS Software') }}</option>
@@ -133,21 +155,79 @@
                               <option value="web-platform" {% if request.args.category == 'web-platform' %}selected{% endif %}>{{ _('Web Platforms') }}</option>
                               <option value="desktop-app" {% if request.args.category == 'desktop-app' %}selected{% endif %}>{{ _('Desktop Apps') }}</option>
                               <option value="library" {% if request.args.category == 'library' %}selected{% endif %}>{{ _('Libraries') }}</option>
+                              <option value="framework" {% if request.args.category == 'framework' %}selected{% endif %}>{{ _('Frameworks') }}</option>
+                              <option value="api" {% if request.args.category == 'api' %}selected{% endif %}>{{ _('APIs') }}</option>
+                              <option value="tool" {% if request.args.category == 'tool' %}selected{% endif %}>{{ _('Tools') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-3">
-                            <select name="difficulty" class="form-control">
-                              <option value="">{{ _('All Levels') }}</option>
-                              <option value="beginner" {% if request.args.difficulty == 'beginner' %}selected{% endif %}>{{ _('Beginner') }}</option>
-                              <option value="intermediate" {% if request.args.difficulty == 'intermediate' %}selected{% endif %}>{{ _('Intermediate') }}</option>
-                              <option value="advanced" {% if request.args.difficulty == 'advanced' %}selected{% endif %}>{{ _('Advanced') }}</option>
-                              <option value="expert" {% if request.args.difficulty == 'expert' %}selected{% endif %}>{{ _('Expert') }}</option>
+                          <div class="col-md-2">
+                            <select name="access_type" class="form-control">
+                              <option value="">{{ _('All Types') }}</option>
+                              <option value="open-source" {% if request.args.access_type == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
+                              <option value="open-access" {% if request.args.access_type == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
                             </select>
                           </div>
                           <div class="col-md-2">
                             <button type="submit" class="btn btn-default btn-block">
                               <i class="fa fa-search"></i> {{ _('Filter') }}
                             </button>
+                          </div>
+                        </div>
+                        
+                        <!-- Advanced Filters Row -->
+                        <div class="row" style="margin-top: 1rem;">
+                          <div class="col-md-2">
+                            <select name="license" class="form-control">
+                              <option value="">{{ _('All Licenses') }}</option>
+                              <option value="MIT" {% if request.args.license == 'MIT' %}selected{% endif %}>MIT</option>
+                              <option value="GPL" {% if request.args.license == 'GPL' %}selected{% endif %}>GPL</option>
+                              <option value="Apache" {% if request.args.license == 'Apache' %}selected{% endif %}>Apache</option>
+                              <option value="BSD" {% if request.args.license == 'BSD' %}selected{% endif %}>BSD</option>
+                              <option value="Creative Commons" {% if request.args.license == 'Creative Commons' %}selected{% endif %}>Creative Commons</option>
+                              <option value="Other" {% if request.args.license == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <select name="language" class="form-control">
+                              <option value="">{{ _('All Languages') }}</option>
+                              <option value="Python" {% if request.args.language == 'Python' %}selected{% endif %}>Python</option>
+                              <option value="JavaScript" {% if request.args.language == 'JavaScript' %}selected{% endif %}>JavaScript</option>
+                              <option value="R" {% if request.args.language == 'R' %}selected{% endif %}>R</option>
+                              <option value="Java" {% if request.args.language == 'Java' %}selected{% endif %}>Java</option>
+                              <option value="C++" {% if request.args.language == 'C++' %}selected{% endif %}>C++</option>
+                              <option value="C" {% if request.args.language == 'C' %}selected{% endif %}>C</option>
+                              <option value="PHP" {% if request.args.language == 'PHP' %}selected{% endif %}>PHP</option>
+                              <option value="Go" {% if request.args.language == 'Go' %}selected{% endif %}>Go</option>
+                              <option value="Rust" {% if request.args.language == 'Rust' %}selected{% endif %}>Rust</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <select name="platform" class="form-control">
+                              <option value="">{{ _('All Platforms') }}</option>
+                              <option value="Web" {% if request.args.platform == 'Web' %}selected{% endif %}>{{ _('Web') }}</option>
+                              <option value="Windows" {% if request.args.platform == 'Windows' %}selected{% endif %}>Windows</option>
+                              <option value="macOS" {% if request.args.platform == 'macOS' %}selected{% endif %}>macOS</option>
+                              <option value="Linux" {% if request.args.platform == 'Linux' %}selected{% endif %}>Linux</option>
+                              <option value="Cross-platform" {% if request.args.platform == 'Cross-platform' %}selected{% endif %}>{{ _('Cross-platform') }}</option>
+                              <option value="Mobile" {% if request.args.platform == 'Mobile' %}selected{% endif %}>{{ _('Mobile') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <select name="attribution" class="form-control">
+                              <option value="">{{ _('All Attribution') }}</option>
+                              <option value="Required" {% if request.args.attribution == 'Required' %}selected{% endif %}>{{ _('Required') }}</option>
+                              <option value="Optional" {% if request.args.attribution == 'Optional' %}selected{% endif %}>{{ _('Optional') }}</option>
+                              <option value="None" {% if request.args.attribution == 'None' %}selected{% endif %}>{{ _('None') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-4">
+                            {% if h.check_access('sysadmin') %}
+                            <div class="btn-group" style="width: 100%;">
+                              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#admin-categories-modal" style="width: 100%;">
+                                <i class="fa fa-cogs"></i> {{ _('Manage Categories') }}
+                              </button>
+                            </div>
+                            {% endif %}
                           </div>
                         </div>
                       </form>
@@ -185,13 +265,24 @@
                             </div>
                           </div>
                           <div class="col-md-4 text-right">
-                            <div class="software-status">
-                              {% if page.project_status %}
-                                <span class="status-indicator status-{{ page.project_status.lower() }}"></span>
-                                <span class="status-label">{{ page.project_status.title() }}</span>
+                            <div class="software-contributor">
+                              {% if page.user_id %}
+                                <small class="contributor-info">
+                                  <i class="fa fa-user"></i> 
+                                  {% set user = h.get_user(page.user_id) %}
+                                  {{ user.display_name or user.name if user else _('Unknown User') }}
+                                  <br>
+                                  <i class="fa fa-clock-o"></i> 
+                                  {% if page.modified %}
+                                    {{ h.time_ago_from_timestamp(page.modified) }}
+                                  {% else %}
+                                    {{ _('Recently') }}
+                                  {% endif %}
+                                </small>
                               {% else %}
-                                <span class="status-indicator status-active"></span>
-                                <span class="status-label">{{ _('Active') }}</span>
+                                <small class="contributor-info">
+                                  <i class="fa fa-user"></i> {{ _('Anonymous') }}
+                                </small>
                               {% endif %}
                             </div>
                           </div>
@@ -199,11 +290,11 @@
                       </div>
                       
                       <!-- Software Content -->
-                      <div class="module-content">
+                      <div class="module-content software-compact">
                         <div class="row">
                           <!-- Software Logo/Screenshot -->
-                          <div class="col-md-4">
-                            <div class="software-image">
+                          <div class="col-md-3">
+                            <div class="software-image-compact">
                               {% if page.header_image %}
                                 <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
                               {% elif page.uploaded_images %}
@@ -211,49 +302,56 @@
                                 {% if images and images[0] %}
                                   <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
                                 {% else %}
-                                  <div class="placeholder-image">
-                                    <i class="fa fa-code fa-3x"></i>
+                                  <div class="placeholder-image-compact">
+                                    <i class="fa fa-code fa-2x"></i>
                                   </div>
                                 {% endif %}
                               {% else %}
-                                <div class="placeholder-image">
-                                  <i class="fa fa-code fa-3x"></i>
+                                <div class="placeholder-image-compact">
+                                  <i class="fa fa-code fa-2x"></i>
                                 </div>
                               {% endif %}
                             </div>
                           </div>
                           
                           <!-- Software Details -->
-                          <div class="col-md-8">
-                            <h3 class="software-title">
+                          <div class="col-md-9">
+                            <h3 class="software-title-compact">
                               <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">
                                 {{ page.title or page.name }}
                               </a>
                             </h3>
                             
                             {% if page.subtitle %}
-                              <p class="software-subtitle">{{ page.subtitle }}</p>
+                              <p class="software-subtitle-compact">{{ page.subtitle }}</p>
                             {% endif %}
                             
-                            <!-- Key Features Preview -->
-                            {% if page.key_features %}
-                            <div class="key-features-preview">
-                              {% set feature_lines = page.key_features.split('\n')[:3] %}
-                              {% for feature in feature_lines %}
-                                {% if feature.strip() %}
-                                  <div class="feature-item">
-                                    <i class="fa fa-check-circle"></i> {{ feature.strip() }}
-                                  </div>
-                                {% endif %}
-                              {% endfor %}
+                            <!-- Software Description with Read More -->
+                            <div class="software-description">
+                              {% if page.excerpt %}
+                                {% set content_text = page.excerpt %}
+                              {% elif page.content %}
+                                {% set content_text = page.content %}
+                              {% else %}
+                                {% set content_text = '' %}
+                              {% endif %}
+                              
+                              {% if content_text %}
+                                <p class="software-excerpt">
+                                  <span class="excerpt-short">
+                                    {{ content_text[:150] }}{% if content_text|length > 150 %}...{% endif %}
+                                  </span>
+                                  {% if content_text|length > 150 %}
+                                    <span class="excerpt-full" style="display: none;">
+                                      {{ content_text }}
+                                    </span>
+                                    <a href="#" class="read-more-toggle" data-more-text="{{ _('Read more') }}" data-less-text="{{ _('Read less') }}">
+                                      {{ _('Read more') }}
+                                    </a>
+                                  {% endif %}
+                                </p>
+                              {% endif %}
                             </div>
-                            {% endif %}
-                            
-                            {% if page.excerpt %}
-                              <p class="software-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
-                            {% elif page.content %}
-                              <p class="software-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
-                            {% endif %}
                             
                             <!-- Quick Links -->
                             {% if page.repository_url or page.website_url or page.documentation_url %}
@@ -348,6 +446,342 @@
     </div>
     {% endblock %}
 </div>
+
+<!-- Admin Categories Management Modal -->
+{% if h.check_access('sysadmin') %}
+<div class="modal fade" id="admin-categories-modal" tabindex="-1" role="dialog" aria-labelledby="adminCategoriesModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="adminCategoriesModalLabel">{{ _('Manage Software Categories') }}</h4>
+      </div>
+      <div class="modal-body">
+        <p class="help-text">{{ _('Add new categories to the software catalog. Categories help users filter and find relevant software.') }}</p>
+        
+        <form id="add-category-form">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="category-value">{{ _('Category Value') }}</label>
+                <input type="text" class="form-control" id="category-value" placeholder="e.g., machine-learning">
+                <small class="help-block">{{ _('URL-friendly value (lowercase, hyphenated)') }}</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="category-display">{{ _('Display Name') }}</label>
+                <input type="text" class="form-control" id="category-display" placeholder="e.g., Machine Learning">
+                <small class="help-block">{{ _('Human-readable name') }}</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary form-control">
+                  <i class="fa fa-plus"></i> {{ _('Add Category') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        
+        <hr>
+        
+        <h5>{{ _('Current Categories') }}</h5>
+        <div class="category-list">
+          <div class="badge-list">
+            <span class="badge badge-info">GIS Software</span>
+            <span class="badge badge-info">Data Processing</span>
+            <span class="badge badge-info">Visualization</span>
+            <span class="badge badge-info">Web Platforms</span>
+            <span class="badge badge-info">Desktop Apps</span>
+            <span class="badge badge-info">Libraries</span>
+            <span class="badge badge-info">Frameworks</span>
+            <span class="badge badge-info">APIs</span>
+            <span class="badge badge-info">Tools</span>
+          </div>
+        </div>
+        
+        <div class="alert alert-info" style="margin-top: 1rem;">
+          <i class="fa fa-info-circle"></i>
+          {{ _('Note: To modify existing categories or remove them, please contact a system administrator or edit the template directly.') }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Compact Software List Styles -->
+<style>
+/* Compact software cards */
+.software-compact {
+  padding: 1.5rem !important;
+}
+
+.software-image-compact {
+  height: 80px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.software-image-compact img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+}
+
+.placeholder-image-compact {
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  border-radius: 8px;
+}
+
+.software-title-compact {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.software-title-compact a {
+  color: #0072BC;
+  text-decoration: none;
+}
+
+.software-title-compact a:hover {
+  color: #005A9C;
+  text-decoration: underline;
+}
+
+.software-subtitle-compact {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.software-excerpt {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  color: #495057;
+}
+
+.read-more-toggle {
+  color: #0072BC;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.read-more-toggle:hover {
+  color: #005A9C;
+  text-decoration: underline;
+}
+
+/* Contributor info styling */
+.software-contributor {
+  text-align: right;
+}
+
+.contributor-info {
+  color: #6c757d;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.contributor-info i {
+  margin-right: 0.3rem;
+  color: #0072BC;
+}
+
+/* Quick links compact */
+.quick-links {
+  margin-bottom: 1rem;
+}
+
+.quick-link {
+  display: inline-block;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  background: #f8f9fa;
+  color: #0072BC;
+  text-decoration: none;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.quick-link:hover {
+  background: #0072BC;
+  color: white;
+  text-decoration: none;
+}
+
+.quick-link i {
+  margin-right: 0.4rem;
+}
+
+/* Software actions compact */
+.software-actions {
+  margin-top: 1rem;
+}
+
+.software-actions .btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+}
+
+.has-courses-indicator {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}
+
+.has-courses-indicator i {
+  margin-right: 0.4rem;
+}
+
+/* Metadata badges */
+.software-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.software-category-badge,
+.license-badge,
+.difficulty-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.license-badge {
+  background: #17a2b8;
+  color: white;
+}
+
+/* Modal styles */
+.badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Remove difficulty badges from metadata since we're removing levels */
+.difficulty-badge {
+  display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .software-compact {
+    padding: 1rem !important;
+  }
+  
+  .software-title-compact {
+    font-size: 1.1rem;
+  }
+  
+  .quick-link {
+    margin-right: 0.5rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .software-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .contributor-info {
+    text-align: left;
+    margin-top: 1rem;
+  }
+}
+</style>
+
+<!-- JavaScript for Read More functionality -->
+<script>
+$(document).ready(function() {
+  // Read more toggle functionality
+  $('.read-more-toggle').on('click', function(e) {
+    e.preventDefault();
+    
+    const $this = $(this);
+    const $short = $this.siblings('.excerpt-short');
+    const $full = $this.siblings('.excerpt-full');
+    const moreText = $this.data('more-text');
+    const lessText = $this.data('less-text');
+    
+    if ($full.is(':visible')) {
+      $full.hide();
+      $short.show();
+      $this.text(moreText);
+    } else {
+      $short.hide();
+      $full.show();
+      $this.text(lessText);
+    }
+  });
+  
+  // Add category form submission
+  $('#add-category-form').on('submit', function(e) {
+    e.preventDefault();
+    
+    const categoryValue = $('#category-value').val().trim();
+    const categoryDisplay = $('#category-display').val().trim();
+    
+    if (!categoryValue || !categoryDisplay) {
+      alert('{{ _("Please fill in both category value and display name.") }}');
+      return;
+    }
+    
+    // Create new badge
+    const newBadge = $('<span class="badge badge-success">' + categoryDisplay + '</span>');
+    $('.badge-list').append(newBadge);
+    
+    // Clear form
+    $('#category-value').val('');
+    $('#category-display').val('');
+    
+    // Show success message
+    alert('{{ _("Category added successfully! Note: This is a preview. To permanently add categories, modify the template file.") }}');
+  });
+});
+</script>
 
 <!-- Professional Open Source Software CSS -->
 <style>
