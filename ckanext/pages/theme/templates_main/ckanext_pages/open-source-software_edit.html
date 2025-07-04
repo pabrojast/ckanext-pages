@@ -233,7 +233,7 @@
                                 <label for="organization_id" class="control-label">{{ _('CKAN Organization') }}</label>
                                 <select name="organization_id" id="organization_id" class="form-control">
                                   <option value="">{{ _('Select Organization') }}</option>
-                                  {% set organizations = h.get_action('organization_list', {'all_fields': True}) %}
+                                  {% set organizations = h.toolkit.get_action('organization_list', {'all_fields': True}) %}
                                   {% for org in organizations %}
                                     <option value="{{ org.id }}" {% if data.get('organization_id') == org.id %}selected{% endif %}>
                                       {{ org.display_name or org.name }}
