@@ -233,6 +233,7 @@ def pages_upload(context, data_dict):
     # Procesar la imagen si es un logo
     image_url = data_dict.get('image_url')
     is_logo = data_dict.get('is_logo', False)
+    add_background = data_dict.get('add_background', False)
     
     if image_url and is_logo:
         try:
@@ -243,7 +244,7 @@ def pages_upload(context, data_dict):
                 image_path = os.path.join(upload_dir, image_url)
                 
                 # Procesar la imagen
-                processed_image_path = _process_logo_image(image_path, upload_dir)
+                processed_image_path = _process_logo_image(image_path, upload_dir, add_background)
                 
                 if processed_image_path:
                     # Actualizar la URL de la imagen procesada
@@ -264,13 +265,14 @@ def pages_upload(context, data_dict):
     return {'url': image_url, 'fileName': upload.filename, 'uploaded': 1}
 
 
-def _process_logo_image(image_path, upload_dir):
+def _process_logo_image(image_path, upload_dir, add_background=False):
     """
     Procesa una imagen para convertirla en un logo con dimensiones estándar.
     
     Args:
         image_path: Ruta al archivo de imagen original
         upload_dir: Directorio donde guardar la imagen procesada
+        add_background: Si se debe agregar fondo blanco (default: False)
         
     Returns:
         Ruta al archivo procesado o None si hay error
@@ -284,13 +286,18 @@ def _process_logo_image(image_path, upload_dir):
         with Image.open(image_path) as img:
             # Convertir a RGB si es necesario
             if img.mode in ('RGBA', 'LA', 'P'):
-                # Crear fondo blanco para imágenes con transparencia
-                background = Image.new('RGB', img.size, (255, 255, 255))
-                if img.mode == 'P':
-                    img = img.convert('RGBA')
-                background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
-                img = background
-            elif img.mode != 'RGB':
+                if add_background:
+                    # Crear fondo blanco para imágenes con transparencia
+                    background = Image.new('RGB', img.size, (255, 255, 255))
+                    if img.mode == 'P':
+                        img = img.convert('RGBA')
+                    background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+                    img = background
+                else:
+                    # Mantener transparencia si no se quiere fondo
+                    if img.mode == 'P':
+                        img = img.convert('RGBA')
+            elif img.mode != 'RGB' and img.mode != 'RGBA':
                 img = img.convert('RGB')
             
             # Calcular las dimensiones para mantener la proporción
@@ -310,21 +317,37 @@ def _process_logo_image(image_path, upload_dir):
             # Redimensionar la imagen manteniendo proporción
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
             
-            # Crear lienzo final con fondo blanco
-            final_img = Image.new('RGB', (LOGO_WIDTH, LOGO_HEIGHT), (255, 255, 255))
-            
-            # Centrar la imagen redimensionada
-            x_offset = (LOGO_WIDTH - new_width) // 2
-            y_offset = (LOGO_HEIGHT - new_height) // 2
-            final_img.paste(img_resized, (x_offset, y_offset))
+            # Crear lienzo final
+            if add_background or img.mode == 'RGB':
+                # Con fondo blanco
+                final_img = Image.new('RGB', (LOGO_WIDTH, LOGO_HEIGHT), (255, 255, 255))
+                # Centrar la imagen redimensionada
+                x_offset = (LOGO_WIDTH - new_width) // 2
+                y_offset = (LOGO_HEIGHT - new_height) // 2
+                if img_resized.mode == 'RGBA':
+                    final_img.paste(img_resized, (x_offset, y_offset), img_resized)
+                else:
+                    final_img.paste(img_resized, (x_offset, y_offset))
+            else:
+                # Sin fondo (mantener transparencia)
+                final_img = Image.new('RGBA', (LOGO_WIDTH, LOGO_HEIGHT), (255, 255, 255, 0))
+                # Centrar la imagen redimensionada
+                x_offset = (LOGO_WIDTH - new_width) // 2
+                y_offset = (LOGO_HEIGHT - new_height) // 2
+                final_img.paste(img_resized, (x_offset, y_offset), img_resized if img_resized.mode == 'RGBA' else None)
             
             # Generar nombre para la imagen procesada
             base_name = os.path.splitext(os.path.basename(image_path))[0]
-            processed_name = f"{base_name}_logo.jpg"
-            processed_path = os.path.join(upload_dir, processed_name)
-            
-            # Guardar la imagen procesada
-            final_img.save(processed_path, 'JPEG', quality=90, optimize=True)
+            if add_background or img.mode == 'RGB' or final_img.mode == 'RGB':
+                processed_name = f"{base_name}_logo.jpg"
+                processed_path = os.path.join(upload_dir, processed_name)
+                # Guardar como JPEG
+                final_img.save(processed_path, 'JPEG', quality=90, optimize=True)
+            else:
+                processed_name = f"{base_name}_logo.png"
+                processed_path = os.path.join(upload_dir, processed_name)
+                # Guardar como PNG para mantener transparencia
+                final_img.save(processed_path, 'PNG', optimize=True)
             
             # Eliminar la imagen original si es diferente
             if os.path.abspath(image_path) != os.path.abspath(processed_path):
