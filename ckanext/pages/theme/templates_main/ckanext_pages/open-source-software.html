@@ -253,13 +253,25 @@
                       </div>
                       
                       <!-- Uploaded Images Grid -->
-                      {% if c.page.uploaded_images %}
-                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
-                        {% if uploaded_images %}
+                      {% if c.page.uploaded_images or (c.page.header_image and c.page.include_logo_in_gallery == 'true') %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
+                        {% set all_images = [] %}
+                        
+                        {# Add logo to gallery if option is enabled #}
+                        {% if c.page.header_image and c.page.include_logo_in_gallery == 'true' %}
+                          {% set _ = all_images.append({'url': c.page.header_image, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
+                        {% endif %}
+                        
+                        {# Add uploaded images #}
+                        {% for img in uploaded_images %}
+                          {% set _ = all_images.append(img) %}
+                        {% endfor %}
+                        
+                        {% if all_images %}
                         <div class="uploaded-images-gallery">
                           <div class="images-grid">
-                            {% for image in uploaded_images %}
-                            <div class="gallery-image-item">
+                            {% for image in all_images %}
+                            <div class="gallery-image-item {% if image.is_logo %}logo-gallery-item{% endif %}">
                               <div class="image-container">
                                 <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
                                 <div class="image-overlay">

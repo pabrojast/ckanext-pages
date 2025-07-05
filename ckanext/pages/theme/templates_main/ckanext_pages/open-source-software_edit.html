@@ -388,26 +388,67 @@
 
                           <!-- Header Display Options -->
                           <div class="form-group">
-                            <label class="control-label">{{ _('Header Display Options') }}</label>
-                            <div class="header-options-container">
-                              <label class="radio-option">
-                                <input type="radio" name="header_display_mode" value="text" 
-                                       {% if not data.get('header_display_mode') or data.get('header_display_mode') == 'text' %}checked{% endif %}>
-                                <span class="radio-label">{{ _('Text Only') }}</span>
-                                <small class="help-block">{{ _('Show title text in the header') }}</small>
-                              </label>
-                              <label class="radio-option">
-                                <input type="radio" name="header_display_mode" value="logo" 
-                                       {% if data.get('header_display_mode') == 'logo' %}checked{% endif %}>
-                                <span class="radio-label">{{ _('Logo Only') }}</span>
-                                <small class="help-block">{{ _('Show only the logo image in the header') }}</small>
-                              </label>
-                              <label class="radio-option">
-                                <input type="radio" name="header_display_mode" value="logo_text" 
-                                       {% if data.get('header_display_mode') == 'logo_text' %}checked{% endif %}>
-                                <span class="radio-label">{{ _('Logo Above Text') }}</span>
-                                <small class="help-block">{{ _('Show logo image above the title text') }}</small>
-                              </label>
+                            <label class="control-label">{{ _('Page Header Display Mode') }}</label>
+                            <div class="header-display-preview-container">
+                              <p class="help-block" style="margin-bottom: 1rem;">
+                                <i class="fa fa-info-circle"></i> {{ _('Choose how the software title appears in the page header banner') }}
+                              </p>
+                              <div class="header-options-container">
+                                <label class="radio-option header-display-option" data-preview="text">
+                                  <input type="radio" name="header_display_mode" value="text" 
+                                         {% if not data.get('header_display_mode') or data.get('header_display_mode') == 'text' %}checked{% endif %}>
+                                  <div class="option-content">
+                                    <div class="option-preview preview-text">
+                                      <div class="preview-banner">
+                                        <h3>{{ data.get('title', 'Software Title') or 'Software Title' }}</h3>
+                                      </div>
+                                    </div>
+                                    <div class="option-details">
+                                      <span class="radio-label">{{ _('Text Only') }}</span>
+                                      <small class="help-block">{{ _('Display only the title text in the header') }}</small>
+                                    </div>
+                                  </div>
+                                </label>
+                                <label class="radio-option header-display-option" data-preview="logo">
+                                  <input type="radio" name="header_display_mode" value="logo" 
+                                         {% if data.get('header_display_mode') == 'logo' %}checked{% endif %}>
+                                  <div class="option-content">
+                                    <div class="option-preview preview-logo">
+                                      <div class="preview-banner">
+                                        <div class="preview-logo-img">
+                                          <i class="fa fa-image"></i>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="option-details">
+                                      <span class="radio-label">{{ _('Logo Only') }}</span>
+                                      <small class="help-block">{{ _('Display only the logo image, no text') }}</small>
+                                    </div>
+                                  </div>
+                                </label>
+                                <label class="radio-option header-display-option" data-preview="logo_text">
+                                  <input type="radio" name="header_display_mode" value="logo_text" 
+                                         {% if data.get('header_display_mode') == 'logo_text' %}checked{% endif %}>
+                                  <div class="option-content">
+                                    <div class="option-preview preview-logo-text">
+                                      <div class="preview-banner">
+                                        <div class="preview-logo-img small">
+                                          <i class="fa fa-image"></i>
+                                        </div>
+                                        <h4>{{ data.get('title', 'Software Title') or 'Software Title' }}</h4>
+                                      </div>
+                                    </div>
+                                    <div class="option-details">
+                                      <span class="radio-label">{{ _('Logo Above Text') }}</span>
+                                      <small class="help-block">{{ _('Display logo image above the title text') }}</small>
+                                    </div>
+                                  </div>
+                                </label>
+                              </div>
+                              <div class="alert alert-info" style="margin-top: 1rem;">
+                                <i class="fa fa-lightbulb-o"></i> 
+                                <strong>{{ _('Note:') }}</strong> {{ _('Logo display options require a logo image to be uploaded above.') }}
+                              </div>
                             </div>
                           </div>
 
@@ -441,6 +482,12 @@
                                   <input type="checkbox" id="add-background" name="add_background" value="true">
                                   <span class="checkbox-label">{{ _('Add white background to logo') }}</span>
                                   <small class="help-inline">{{ _('Check this for logos with transparency that need a white background') }}</small>
+                                </label>
+                                <label class="checkbox-inline" style="margin-top: 0.5rem;">
+                                  <input type="checkbox" id="include-logo-in-gallery" name="include_logo_in_gallery" value="true" 
+                                         {% if data.get('include_logo_in_gallery') == 'true' %}checked{% endif %}>
+                                  <span class="checkbox-label">{{ _('Include logo in image gallery') }}</span>
+                                  <small class="help-inline">{{ _('Show the logo image in the screenshots gallery section') }}</small>
                                 </label>
                               </div>
                               <div id="logo-preview" class="logo-preview-container" style="display: none;">
@@ -1096,61 +1143,136 @@ textarea.form-control {
 }
 
 /* Header Options Styling */
-.header-options-container {
+.header-display-preview-container {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: 2rem;
+  border-radius: 16px;
   border: 1px solid #dee2e6;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
-.radio-option {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
+.header-options-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.header-display-option {
+  position: relative;
+  padding: 0;
   background: white;
-  border-radius: 8px;
-  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  border: 3px solid #e9ecef;
   cursor: pointer;
   transition: all 0.3s ease;
-}
-
-.radio-option:hover {
-  border-color: var(--unesco-blue);
+  overflow: hidden;
   box-shadow: var(--shadow-light);
 }
 
-.radio-option input[type="radio"] {
-  margin-right: 0.5rem;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
+.header-display-option:hover {
+  border-color: var(--unesco-blue-light);
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
 }
 
-.radio-option .radio-label {
+.header-display-option input[type="radio"] {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.header-display-option input[type="radio"]:checked {
+  accent-color: var(--unesco-blue);
+}
+
+.header-display-option input[type="radio"]:checked ~ .option-content {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+}
+
+.header-display-option input[type="radio"]:checked ~ .option-content .radio-label {
+  color: var(--unesco-blue);
+  font-weight: 700;
+}
+
+.option-content {
+  padding: 1rem;
+  transition: background 0.3s ease;
+}
+
+.option-preview {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-banner {
+  text-align: center;
+  width: 100%;
+}
+
+.preview-banner h3,
+.preview-banner h4 {
+  color: white;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.preview-banner h3 {
+  font-size: 1.3rem;
+}
+
+.preview-banner h4 {
+  font-size: 1.1rem;
+}
+
+.preview-logo-img {
+  width: 80px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 1.5rem;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.preview-logo-img.small {
+  width: 60px;
+  height: 30px;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.option-details {
+  text-align: left;
+}
+
+.radio-label {
   font-weight: 600;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 1.1rem;
+  display: block;
   margin-bottom: 0.25rem;
-  display: inline-block;
-  margin-left: 0.5rem;
 }
 
-.radio-option .help-block {
+.option-details .help-block {
   margin: 0;
-  margin-left: 1.5rem;
   font-size: 0.85rem;
   color: var(--text-secondary);
-}
-
-.radio-option input[type="radio"]:checked + .radio-label {
-  color: var(--unesco-blue);
-}
-
-.radio-option input[type="radio"]:checked ~ .help-block {
-  color: var(--unesco-blue-dark);
 }
 
 /* Responsive Design */
@@ -1198,6 +1320,14 @@ textarea.form-control {
   
   .btn-danger {
     margin-top: 2rem;
+  }
+  
+  .header-options-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-display-preview-container {
+    padding: 1rem;
   }
 }
 
@@ -1462,6 +1592,18 @@ textarea.form-control {
     $('#logo-preview-img').attr('src', url);
     $('#logo-preview').show();
     $('#logo-dropzone').hide();
+    
+    // Update header display preview
+    updateHeaderDisplayPreview(url);
+  }
+  
+  // Update header display preview with logo
+  function updateHeaderDisplayPreview(logoUrl) {
+    if (logoUrl) {
+      $('.preview-logo-img').each(function() {
+        $(this).html('<img src="' + logoUrl + '" style="max-width: 100%; max-height: 100%; object-fit: contain;">');
+      });
+    }
   }
   
   // Remove logo
@@ -1470,6 +1612,15 @@ textarea.form-control {
     $('#header_image').val('');
     $('#logo-preview').hide();
     $('#logo-dropzone').show();
+    
+    // Reset header display preview
+    $('.preview-logo-img').each(function() {
+      if ($(this).hasClass('small')) {
+        $(this).html('<i class="fa fa-image"></i>');
+      } else {
+        $(this).html('<i class="fa fa-image"></i>');
+      }
+    });
   });
   
   // Add uploaded image preview
@@ -1614,6 +1765,12 @@ textarea.form-control {
   }).on('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
+  });
+  
+  // Update title in header preview
+  $('#title').on('input', function() {
+    const title = $(this).val() || 'Software Title';
+    $('.preview-banner h3, .preview-banner h4').text(title);
   });
   
   // Initialize
