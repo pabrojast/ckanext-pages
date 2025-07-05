@@ -21,20 +21,13 @@
   {{ get_software_category_class.get(category, 'category-default') }}
 {% endmacro %}
 
-{% macro count_software_by_category(items) %}
-  {% set category_count = {} %}
-  {% for item in items %}
-    {% if item.software_category %}
-      {% set category = item.software_category %}
-      {% if category in category_count %}
-        {% set _ = category_count.update({category: category_count[category] + 1}) %}
-      {% else %}
-        {% set _ = category_count.update({category: 1}) %}
-      {% endif %}
-    {% endif %}
-  {% endfor %}
-  {{ category_count }}
-{% endmacro %}
+{# Count unique categories #}
+{% set unique_categories = [] %}
+{% for item in c.page.items %}
+  {% if item.software_category and item.software_category not in unique_categories %}
+    {% set _ = unique_categories.append(item.software_category) %}
+  {% endif %}
+{% endfor %}
 
 {% block content %}
 
@@ -109,8 +102,7 @@
                                                   <div class="col-md-2 col-sm-4">
                             <div class="status-metric">
                               <div class="metric-number">
-                                {% set category_count = count_software_by_category(c.page.items) %}
-                                {{ category_count.keys()|length if category_count else 0 }}
+                                {{ unique_categories|length }}
                               </div>
                               <div class="metric-label">{{ _('Categories') }}</div>
                             </div>
