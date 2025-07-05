@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(python -m pytest ckanext/pages/tests/ -v)",
+      "Bash(python3 -m pytest ckanext/pages/tests/ -v)",
+      "Bash(pip3 list:*)",
+      "Bash(find:*)",
+      "Bash(python3:*)"
     ],
     "deny": []
   }

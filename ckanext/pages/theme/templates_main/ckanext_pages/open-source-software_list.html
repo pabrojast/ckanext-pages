@@ -325,7 +325,7 @@
                               {% if page.header_image %}
                                 <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
                               {% elif page.uploaded_images %}
-                                {% set images = page.uploaded_images|from_json if page.uploaded_images else [] %}
+                                {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
                                   <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
                                 {% else %}
