@@ -258,6 +258,37 @@
                             </div>
                           </div>
 
+                          <!-- Member States Section -->
+                          <div class="form-group">
+                            <label class="control-label">{{ _('Member States') }}</label>
+                            <p class="help-block">{{ _('Select the member states associated with this software') }}</p>
+                            
+                            <div class="member-states-container">
+                              <!-- Member states selector -->
+                              <div class="member-state-selector">
+                                <div class="input-group">
+                                  <select id="member-state-select" class="form-control">
+                                    <option value="">{{ _('Select a member state...') }}</option>
+                                    <option value="loading" disabled>{{ _('Loading member states...') }}</option>
+                                  </select>
+                                  <div class="input-group-btn">
+                                    <button type="button" class="btn btn-primary" id="add-member-state">
+                                      <i class="fa fa-plus"></i> {{ _('Add') }}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <!-- Selected member states list -->
+                              <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
+                                <!-- Selected member states will appear here -->
+                              </div>
+                              
+                              <!-- Hidden field to store member states JSON -->
+                              <input type="hidden" id="member-states-data" name="member_states" value="{{ data.get('member_states', '') }}">
+                            </div>
+                          </div>
+
                           <div class="form-group">
                             <label for="private" class="control-label">{{ _('Visibility') }}</label>
                             <select name="private" id="private" class="form-control">
@@ -1275,6 +1306,110 @@ textarea.form-control {
   color: var(--text-secondary);
 }
 
+/* Member States Styling */
+.member-states-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.member-state-selector {
+  margin-bottom: 1.5rem;
+}
+
+.member-state-selector .input-group {
+  width: 100%;
+}
+
+.member-state-selector .form-control {
+  border-radius: 12px 0 0 12px;
+}
+
+.member-state-selector .btn {
+  border-radius: 0 12px 12px 0;
+  padding: 12px 20px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.selected-member-states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-height: 45px;
+  padding: 0.5rem 0;
+}
+
+.member-state-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue);
+  border-radius: 20px;
+  padding: 6px 12px 6px 16px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.member-state-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+}
+
+.member-state-item:hover .member-state-name {
+  color: white;
+}
+
+.member-state-item:hover .remove-member-state {
+  background: white;
+  color: var(--unesco-blue);
+  border-color: white;
+}
+
+.member-state-name {
+  font-weight: 600;
+  color: var(--unesco-blue);
+}
+
+.remove-member-state {
+  background: transparent;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+  min-width: auto;
+}
+
+.remove-member-state:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.05);
+}
+
+.remove-member-state i {
+  font-size: 0.8rem;
+}
+
+/* Empty state for member states */
+.selected-member-states:empty::before {
+  content: "{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}";
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  display: block;
+  text-align: center;
+  padding: 1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .section-title {
@@ -1329,6 +1464,19 @@ textarea.form-control {
   .header-display-preview-container {
     padding: 1rem;
   }
+  
+  .member-states-container {
+    padding: 1rem;
+  }
+  
+  .member-state-selector .btn {
+    padding: 12px 16px;
+  }
+  
+  .member-state-item {
+    font-size: 0.9rem;
+    padding: 5px 10px 5px 14px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1372,6 +1520,7 @@ textarea.form-control {
   // Image Upload Management
   let uploadedImages = [];
   let logoUrl = '';
+  let selectedMemberStates = [];
   
   // Load organizations from API
   function loadOrganizations() {
@@ -1400,6 +1549,119 @@ textarea.form-control {
       }
     });
   }
+  
+  // Load member states from API
+  function loadMemberStates() {
+    $.ajax({
+      url: 'https://data.dev-wins.com/api/3/action/group_show',
+      data: { 
+        id: 'member-states',
+        include_groups: true
+      },
+      dataType: 'json',
+      success: function(response) {
+        if (response.success && response.result && response.result.groups) {
+          const $select = $('#member-state-select');
+          $select.empty();
+          $select.append('<option value="">{{ _("Select a member state...") }}</option>');
+          
+          // Sort member states alphabetically by display name
+          const sortedGroups = response.result.groups.sort((a, b) => 
+            (a.display_name || a.title || a.name).localeCompare(b.display_name || b.title || b.name)
+          );
+          
+          sortedGroups.forEach(function(group) {
+            const displayName = group.display_name || group.title || group.name;
+            $select.append(
+              `<option value="${group.id}" data-name="${group.name}" data-display="${displayName}">${displayName}</option>`
+            );
+          });
+          
+          // Load existing member states
+          loadExistingMemberStates();
+        }
+      },
+      error: function() {
+        $('#member-state-select').html('<option value="">{{ _("Error loading member states") }}</option>');
+      }
+    });
+  }
+  
+  // Load existing member states from data
+  function loadExistingMemberStates() {
+    const memberStatesData = $('#member-states-data').val();
+    if (memberStatesData) {
+      try {
+        selectedMemberStates = JSON.parse(memberStatesData);
+        selectedMemberStates.forEach(state => {
+          addMemberStateToList(state);
+        });
+      } catch (e) {
+        console.error('Error parsing member states data:', e);
+      }
+    }
+  }
+  
+  // Add member state to the list
+  function addMemberStateToList(state) {
+    const stateId = `member-state-${state.id}`;
+    if ($(`#${stateId}`).length) {
+      return; // Already added
+    }
+    
+    const stateHtml = `
+      <div class="member-state-item" id="${stateId}" data-state-id="${state.id}">
+        <span class="member-state-name">${state.display_name}</span>
+        <button type="button" class="btn btn-sm btn-danger remove-member-state" data-state-id="${state.id}">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    `;
+    $('#selected-member-states').append(stateHtml);
+  }
+  
+  // Update member states data
+  function updateMemberStatesData() {
+    $('#member-states-data').val(JSON.stringify(selectedMemberStates));
+  }
+  
+  // Handle add member state button
+  $('#add-member-state').on('click', function() {
+    const $select = $('#member-state-select');
+    const selectedOption = $select.find('option:selected');
+    const stateId = selectedOption.val();
+    
+    if (!stateId) {
+      return;
+    }
+    
+    // Check if already added
+    if (selectedMemberStates.find(s => s.id === stateId)) {
+      alert('{{ _("This member state has already been added") }}');
+      return;
+    }
+    
+    const state = {
+      id: stateId,
+      name: selectedOption.data('name'),
+      display_name: selectedOption.data('display')
+    };
+    
+    selectedMemberStates.push(state);
+    addMemberStateToList(state);
+    updateMemberStatesData();
+    
+    // Reset select
+    $select.val('');
+  });
+  
+  // Handle remove member state
+  $(document).on('click', '.remove-member-state', function() {
+    const stateId = $(this).data('state-id');
+    $(`#member-state-${stateId}`).remove();
+    selectedMemberStates = selectedMemberStates.filter(s => s.id !== stateId);
+    updateMemberStatesData();
+  });
   
   // Load existing uploaded images
   function loadUploadedImages() {
@@ -1776,6 +2038,7 @@ textarea.form-control {
   // Initialize
   loadUploadedImages();
   loadOrganizations();
+  loadMemberStates();
   }); // Close waitForJQuery function
 })();
 </script>

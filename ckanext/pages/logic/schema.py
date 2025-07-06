@@ -84,6 +84,7 @@ def default_pages_schema():
         'attribution': [ignore_missing, unicode_safe],      # Attribution requirements
         'organization_id': [ignore_missing, unicode_safe],  # CKAN organization
         'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
+        'member_states': [ignore_missing, unicode_safe],    # Member states JSON array
     }
 
 
