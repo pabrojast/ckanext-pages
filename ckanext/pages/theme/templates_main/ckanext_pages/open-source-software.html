@@ -690,10 +690,6 @@
   line-height: 50px;
   text-align: center;
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
-  background-image: url('/openlearning.png');
-  background-size: 35px 35px;
-  background-repeat: no-repeat;
-  background-position: center;
   color: white;
   border-radius: 12px;
   font-size: 1.5rem;
@@ -702,6 +698,24 @@
   vertical-align: top;
   border: 2px solid var(--unesco-blue);
   box-shadow: 0 2px 8px rgba(0, 114, 188, 0.2);
+}
+
+/* Cuando la imagen del logo está disponible */
+.learning-resources-content a[href*="openlearning.unesco.org"].has-logo:before {
+  content: "";
+  background-image: url('/openlearning.png');
+  background-size: 35px 35px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Cuando la imagen del logo no está disponible */
+.learning-resources-content a[href*="openlearning.unesco.org"]:not(.has-logo):before {
+  content: "\f19d";
+  font-family: FontAwesome;
+  font-size: 1.5rem;
+  color: white;
+  line-height: 50px;
 }
 
 /* Style for installation blog links */
@@ -1476,6 +1490,16 @@
         var $link = $(this);
         if (!$link.hasClass('resource-card')) {
           $link.addClass('openlearning-link');
+          
+          // Verificar si la imagen del logo está disponible
+          var img = new Image();
+          img.onload = function() {
+            $link.addClass('has-logo');
+          };
+          img.onerror = function() {
+            $link.removeClass('has-logo');
+          };
+          img.src = '/openlearning.png';
         }
       });
       
