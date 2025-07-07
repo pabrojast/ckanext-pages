@@ -41,6 +41,7 @@ def default_pages_schema():
         'impact_assessment': [ignore_missing, unicode_safe],  # Impact assessment for rapid response
         'activity_status': [ignore_missing, unicode_safe],   # Activity status phase
         'country': [ignore_missing, unicode_safe],           # Country/countries affected
+        'countries_affected': [ignore_missing, unicode_safe], # Countries affected (JSON array)
         'priority': [ignore_missing, unicode_safe],          # Priority level
         'severity': [ignore_missing, unicode_safe],          # Severity level
         # Water News specific fields
