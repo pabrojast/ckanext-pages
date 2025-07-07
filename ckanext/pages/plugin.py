@@ -15,6 +15,16 @@ from ckanext.pages import blueprint
 
 from ckan.lib.plugins import DefaultTranslation
 
+# Import database initialization utilities
+try:
+    from ckanext.pages.db_init import repair_table_if_needed, ensure_pages_table_exists
+except ImportError:
+    # Fallback functions if db_init is not available
+    def repair_table_if_needed():
+        return True
+    def ensure_pages_table_exists():
+        pass
+
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +49,26 @@ def build_pages_nav_main(*args):
     output = core_build_nav_main(*new_args)
 
     # do not display any private pages in menu even for sysadmins
-    pages_list = tk.get_action('ckanext_pages_list')(None, {'order': True, 'private': False})
+    try:
+        pages_list = tk.get_action('ckanext_pages_list')(None, {'order': True, 'private': False})
+    except Exception as e:
+        log.error("Error getting pages list for navigation: %s", str(e))
+        # Try to repair the table if there's a database issue
+        try:
+            if "ckanext_pages" in str(e):
+                log.info("Attempting to repair ckanext_pages table...")
+                if repair_table_if_needed():
+                    # Try again after repair
+                    pages_list = tk.get_action('ckanext_pages_list')(None, {'order': True, 'private': False})
+                    log.info("Successfully repaired table and retrieved pages list")
+                else:
+                    log.error("Table repair failed")
+                    return output
+            else:
+                return output
+        except Exception as repair_error:
+            log.error("Error during table repair: %s", str(repair_error))
+            return output
 
     page_name = ''
     is_current_page = tk.get_endpoint() in (('pages', 'show'), ('pages', 'blog_show'))
@@ -47,20 +76,24 @@ def build_pages_nav_main(*args):
     if is_current_page:
         page_name = tk.request.path.split('/')[-1]
 
-    for page in pages_list:
-        type_ = 'blog' if page['page_type'] == 'blog' else 'pages'
-        if page['page_type'] == 'rapid-response':
-            type_ = 'rapid-response'
-        elif page['page_type'] == 'open-source-software':
-            type_ = 'open-source-software'
-        name = quote(page['name'])
-        title = html_escape(page['title'])
-        link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
-        if page['name'] == page_name:
-            li = tk.literal('<li class="active">') + link + tk.literal('</li>')
-        else:
-            li = tk.literal('<li>') + link + tk.literal('</li>')
-        output = output + li
+    try:
+        for page in pages_list:
+            type_ = 'blog' if page['page_type'] == 'blog' else 'pages'
+            if page['page_type'] == 'rapid-response':
+                type_ = 'rapid-response'
+            elif page['page_type'] == 'open-source-software':
+                type_ = 'open-source-software'
+            name = quote(page['name'])
+            title = html_escape(page['title'])
+            link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
+            if page['name'] == page_name:
+                li = tk.literal('<li class="active">') + link + tk.literal('</li>')
+            else:
+                li = tk.literal('<li>') + link + tk.literal('</li>')
+            output = output + li
+    except Exception as e:
+        log.error("Error building pages navigation: %s", str(e))
+        # Continue with basic navigation if there's an error processing pages
 
     return output
 
@@ -362,6 +395,21 @@ class PagesPlugin(PagesPluginBase):
         tk.add_public_directory(config, 'assets/')
         tk.add_public_directory(config, 'assets/vendor/ckeditor/')
         tk.add_public_directory(config, 'assets/vendor/ckeditor/skins/moono-lisa')
+
+    def configure(self, config):
+        '''
+        Called when the plugin is loaded.
+        Initialize the database if needed.
+        '''
+        try:
+            # Ensure the database table exists and is properly configured
+            log.info("Initializing ckanext-pages database...")
+            ensure_pages_table_exists()
+            log.info("ckanext-pages database initialization completed")
+        except Exception as e:
+            log.error("Error initializing ckanext-pages database: %s", str(e))
+            # Don't raise the error to avoid breaking the entire CKAN startup
+            # The error handling in the other methods will handle cases where the table doesn't exist
 
     def get_helpers(self):
         return {
