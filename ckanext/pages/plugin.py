@@ -262,10 +262,38 @@ def get_event_status_badge_class(status):
 
 
 def count_unique_countries(pages):
-    """Count unique countries from pages' key_info field"""
+    """Count unique countries from pages' countries_affected field and fallback to key_info"""
     countries = set()
     for page in pages:
-        if page.get('key_info'):
+        # First, try new format - countries_affected field with JSON array
+        if page.get('countries_affected'):
+            try:
+                import json
+                countries_data = json.loads(page['countries_affected'])
+                if isinstance(countries_data, list):
+                    for country_obj in countries_data:
+                        if isinstance(country_obj, dict) and 'name' in country_obj:
+                            countries.add(country_obj['name'])
+                        elif isinstance(country_obj, str):
+                            countries.add(country_obj)
+            except (json.JSONDecodeError, TypeError):
+                # If JSON parsing fails, treat as string
+                country_text = str(page['countries_affected'])
+                for country in country_text.split(','):
+                    country = country.strip()
+                    if country:
+                        countries.add(country)
+        
+        # Fallback to legacy country field (comma-separated string)
+        elif page.get('country'):
+            country_text = str(page['country'])
+            for country in country_text.split(','):
+                country = country.strip()
+                if country:
+                    countries.add(country)
+        
+        # Fallback to key_info field (legacy format)
+        elif page.get('key_info'):
             lines = page['key_info'].split('\n')
             for line in lines:
                 line = line.strip()

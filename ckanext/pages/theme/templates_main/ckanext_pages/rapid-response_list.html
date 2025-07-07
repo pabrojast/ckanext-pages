@@ -1255,6 +1255,55 @@ function toggleExcerpt(button) {
     button.classList.remove('expanded');
   }
 }
+
+// Enhanced Country Filter Support
+function initializeCountryFilter() {
+  // Function to check if page matches country filter
+  function pageMatchesCountryFilter(page, selectedCountry) {
+    if (!selectedCountry) return true;
+    
+    // Check in different possible country fields
+    const countryFields = [
+      page.country,           // Legacy single country field
+      page.countries_affected // New multiple countries field
+    ];
+    
+    for (let field of countryFields) {
+      if (!field) continue;
+      
+      // Handle string format (comma-separated)
+      if (typeof field === 'string') {
+        const countries = field.split(',').map(c => c.trim());
+        if (countries.includes(selectedCountry)) {
+          return true;
+        }
+      }
+      
+      // Handle JSON array format
+      if (Array.isArray(field)) {
+        for (let countryObj of field) {
+          if (countryObj.name === selectedCountry || countryObj.display_name === selectedCountry) {
+            return true;
+          }
+        }
+      }
+    }
+    
+    return false;
+  }
+  
+  // Update country filter display (if needed for dynamic filtering)
+  const countrySelect = document.querySelector('select[name="country"]');
+  if (countrySelect) {
+    countrySelect.addEventListener('change', function() {
+      // This would be for client-side filtering if implemented
+      // For now, it will trigger server-side filtering through form submission
+    });
+  }
+}
+
+// Initialize functionality
+initializeCountryFilter();
 </script>
 
 {% endblock %} 

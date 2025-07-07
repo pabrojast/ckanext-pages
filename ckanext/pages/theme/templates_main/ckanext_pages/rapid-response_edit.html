@@ -158,9 +158,35 @@
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="field-country" class="control-label">{{ _('Country/Countries Affected') }}</label>
-                                <input type="text" id="field-country" name="country" value="{{ data.country or '' }}" placeholder="{{ _('e.g., Mozambique, Tanzania') }}" class="rr-form-control">
-                                <div class="help-text">{{ _('Country or countries affected by this emergency (separate multiple countries with commas)') }}</div>
+                                <label class="control-label">{{ _('Countries Affected') }} <span class="text-danger">*</span></label>
+                                <div class="help-text" style="margin-bottom: 1rem;">{{ _('Select the countries affected by this emergency event') }}</div>
+                                
+                                <div class="countries-container">
+                                  <!-- Country selector -->
+                                  <div class="country-selector">
+                                    <div class="input-group">
+                                      <select id="country-select" class="rr-form-control">
+                                        <option value="">{{ _('Select a country...') }}</option>
+                                        <option value="loading" disabled>{{ _('Loading countries...') }}</option>
+                                      </select>
+                                      <div class="input-group-btn">
+                                        <button type="button" class="btn btn-primary" id="add-country">
+                                          <i class="fa fa-plus"></i> {{ _('Add') }}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <!-- Selected countries list -->
+                                  <div id="selected-countries" class="selected-countries" data-empty-text="{{ _('No countries selected yet. Select and add countries from the dropdown above.') }}">
+                                    <!-- Selected countries will appear here -->
+                                  </div>
+                                  
+                                  <!-- Hidden field to store countries JSON -->
+                                  <input type="hidden" id="countries-data" name="countries_affected" value="{{ data.countries_affected or '' }}">
+                                  <!-- Keep backward compatibility -->
+                                  <input type="hidden" name="country" value="" id="country-backward-compat">
+                                </div>
                                 {% if errors.country %}<span class="error-block">{{ errors.country }}</span>{% endif %}
                               </div>
                             </div>
@@ -741,16 +767,16 @@ textarea.rr-form-control {
 
 .btn-default {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  color: var(--text-primary);
   border: 2px solid #e9ecef;
+  color: var(--text-primary);
   box-shadow: var(--shadow-light);
 }
 
 .btn-default:hover {
-  transform: translateY(-1px);
+  background: var(--unesco-blue-pale);
   border-color: var(--unesco-blue);
   color: var(--unesco-blue);
-  background: var(--unesco-blue-pale);
+  transform: translateY(-1px);
 }
 
 /* Timeline Events Styling */
@@ -1068,6 +1094,19 @@ textarea.rr-form-control {
   .uploaded-images-grid {
     grid-template-columns: 1fr;
   }
+  
+  .countries-container {
+    padding: 1rem;
+  }
+  
+  .country-selector .btn {
+    padding: 12px 16px;
+  }
+  
+  .country-item {
+    font-size: 0.9rem;
+    padding: 5px 10px 5px 14px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1082,6 +1121,24 @@ textarea.rr-form-control {
 
   .upload-dropzone {
     padding: 2rem 1rem;
+  }
+  
+  .countries-container {
+    padding: 0.75rem;
+  }
+  
+  .country-selector .rr-form-control {
+    font-size: 0.95rem;
+  }
+  
+  .country-item {
+    font-size: 0.85rem;
+    padding: 4px 8px 4px 12px;
+  }
+  
+  .country-item .remove-country {
+    padding: 1px 6px;
+    font-size: 0.7rem;
   }
 }
 
@@ -1181,6 +1238,112 @@ textarea.rr-form-control {
   color: var(--unesco-blue-dark);
   font-weight: 700;
 }
+
+/* Countries Selection Styling */
+.countries-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.country-selector {
+  margin-bottom: 1.5rem;
+}
+
+.country-selector .input-group {
+  width: 100%;
+}
+
+.country-selector .rr-form-control {
+  border-radius: 12px 0 0 12px;
+  margin-bottom: 0;
+}
+
+.country-selector .btn {
+  border-radius: 0 12px 12px 0;
+  padding: 12px 20px;
+  font-weight: 600;
+  text-transform: none;
+  height: 3.2em;
+}
+
+.selected-countries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-height: 45px;
+  padding: 0.5rem 0;
+}
+
+.country-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue);
+  border-radius: 20px;
+  padding: 6px 12px 6px 16px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.country-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+}
+
+.country-item:hover .country-name {
+  color: white;
+}
+
+.country-item:hover .remove-country {
+  background: white;
+  color: var(--unesco-blue);
+  border-color: white;
+}
+
+.country-name {
+  font-weight: 600;
+  color: var(--unesco-blue);
+}
+
+.remove-country {
+  background: transparent;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+  min-width: auto;
+}
+
+.remove-country:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.05);
+}
+
+.remove-country i {
+  font-size: 0.8rem;
+}
+
+/* Empty state for countries */
+.selected-countries:empty::before {
+  content: "{{ _('No countries selected yet. Select and add countries from the dropdown above.') }}";
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  display: block;
+  text-align: center;
+  padding: 1rem;
+}
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
@@ -1223,6 +1386,139 @@ textarea.rr-form-control {
   
   // Timeline Events Management
   let timelineEventCounter = 0;
+  let selectedCountries = [];
+  
+  // Countries list (based on rapid-response_list.html)
+  const countriesList = [
+    'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+    'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
+    'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Cook Islands', 'Costa Rica', "Côte d'Ivoire", 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
+    'Democratic Republic of the Congo', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia',
+    'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+    'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jordan',
+    'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg',
+    'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar',
+    'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'North Korea', 'North Macedonia', 'Norway',
+    'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar',
+    'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'São Tomé and Príncipe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria',
+    'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu',
+    'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+  ];
+  
+  // Load countries into select dropdown
+  function loadCountries() {
+    const $select = $('#country-select');
+    $select.empty();
+    $select.append('<option value="">{{ _("Select a country...") }}</option>');
+    
+    // Sort countries alphabetically and add to select
+    countriesList.sort().forEach(function(country) {
+      $select.append(`<option value="${country}">${country}</option>`);
+    });
+    
+    // Load existing countries
+    loadExistingCountries();
+  }
+  
+  // Load existing countries from data
+  function loadExistingCountries() {
+    // Try new format first (JSON array)
+    const countriesData = $('#countries-data').val();
+    if (countriesData) {
+      try {
+        selectedCountries = JSON.parse(countriesData);
+        selectedCountries.forEach(country => {
+          addCountryToList(country);
+        });
+        updateBackwardCompatibility();
+        return;
+      } catch (e) {
+        console.log('Could not parse countries JSON, trying legacy format');
+      }
+    }
+    
+    // Fallback to legacy format (comma-separated string)
+    const legacyCountryData = $('input[name="country"]').val();
+    if (legacyCountryData) {
+      const countries = legacyCountryData.split(',').map(c => c.trim()).filter(c => c);
+      selectedCountries = countries.map(country => ({
+        name: country,
+        display_name: country
+      }));
+      selectedCountries.forEach(country => {
+        addCountryToList(country);
+      });
+      updateCountriesData();
+    }
+  }
+  
+  // Add country to the list
+  function addCountryToList(country) {
+    const countryId = `country-${country.name.replace(/\s+/g, '-').toLowerCase()}`;
+    if ($(`#${countryId}`).length) {
+      return; // Already added
+    }
+    
+    const countryHtml = `
+      <div class="country-item" id="${countryId}" data-country-name="${country.name}">
+        <span class="country-name">${country.display_name || country.name}</span>
+        <button type="button" class="btn btn-sm btn-danger remove-country" data-country-name="${country.name}">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    `;
+    $('#selected-countries').append(countryHtml);
+  }
+  
+  // Update countries data
+  function updateCountriesData() {
+    $('#countries-data').val(JSON.stringify(selectedCountries));
+    updateBackwardCompatibility();
+  }
+  
+  // Update backward compatibility field
+  function updateBackwardCompatibility() {
+    const countryNames = selectedCountries.map(c => c.name).join(', ');
+    $('#country-backward-compat').val(countryNames);
+    $('input[name="country"]').val(countryNames);
+  }
+  
+  // Handle add country button
+  $('#add-country').on('click', function() {
+    const $select = $('#country-select');
+    const countryName = $select.val();
+    
+    if (!countryName) {
+      return;
+    }
+    
+    // Check if already added
+    if (selectedCountries.find(c => c.name === countryName)) {
+      alert('{{ _("This country has already been added") }}');
+      return;
+    }
+    
+    const country = {
+      name: countryName,
+      display_name: countryName
+    };
+    
+    selectedCountries.push(country);
+    addCountryToList(country);
+    updateCountriesData();
+    
+    // Reset select
+    $select.val('');
+  });
+  
+  // Handle remove country
+  $(document).on('click', '.remove-country', function() {
+    const countryName = $(this).data('country-name');
+    const countryId = `country-${countryName.replace(/\s+/g, '-').toLowerCase()}`;
+    $(`#${countryId}`).remove();
+    selectedCountries = selectedCountries.filter(c => c.name !== countryName);
+    updateCountriesData();
+  });
   
   // Load existing timeline events
   function loadTimelineEvents() {
@@ -1613,6 +1909,7 @@ textarea.rr-form-control {
   // Initialize
   loadTimelineEvents();
   loadUploadedImages();
+  loadCountries();
   }); // Close waitForJQuery function
 })(); // Close main function
 </script>

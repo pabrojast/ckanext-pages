@@ -363,7 +363,13 @@
                                 
                                 {% if content_text %}
                                   <p class="software-excerpt-modern">
-                                    {{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}
+                                    <span class="excerpt-preview">{{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}</span>
+                                    {% if content_text|length > 200 %}
+                                      <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleSoftwareExcerpt(this)">
+                                        <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                      </button>
+                                    {% endif %}
                                   </p>
                                 {% endif %}
                               </div>
@@ -825,11 +831,37 @@
   font-weight: 600;
 }
 
-.has-courses-badge i {
-  font-size: 0.75rem;
-}
+  .has-courses-badge i {
+    font-size: 0.75rem;
+  }
+  
+  /* Read More Button Styling */
+  .read-more-btn {
+    color: var(--unesco-blue) !important;
+    padding: 2px 6px !important;
+    font-size: 0.85rem !important;
+    text-decoration: none !important;
+    border: none !important;
+    background: none !important;
+    transition: all 0.3s ease;
+  }
 
-/* Responsive Design */
+  .read-more-btn:hover {
+    color: var(--unesco-blue-dark) !important;
+    background: var(--unesco-blue-pale) !important;
+    border-radius: 4px;
+  }
+
+  .read-more-btn i {
+    margin-right: 4px;
+    transition: transform 0.3s ease;
+  }
+
+  .read-more-btn.expanded i {
+    transform: rotate(45deg);
+  }
+  
+  /* Responsive Design */
 @media (max-width: 768px) {
   .software-card-content {
     padding: 1rem;
@@ -986,6 +1018,28 @@ waitForJQuery(function($) {
     }
   });
 });
+
+// Software Read More functionality
+function toggleSoftwareExcerpt(button) {
+  const softwareExcerpt = button.parentElement;
+  const preview = softwareExcerpt.querySelector('.excerpt-preview');
+  const full = softwareExcerpt.querySelector('.excerpt-full');
+  const icon = button.querySelector('i');
+  
+  if (full.style.display === 'none') {
+    // Show full text
+    preview.style.display = 'none';
+    full.style.display = 'inline';
+    button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
+    button.classList.add('expanded');
+  } else {
+    // Show preview text
+    preview.style.display = 'inline';
+    full.style.display = 'none';
+    button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
+    button.classList.remove('expanded');
+  }
+}
 </script>
 
 <!-- Professional Open Source Software CSS -->
