@@ -1379,102 +1379,87 @@
 <!-- JavaScript for Enhanced Functionality -->
 <script>
 (function() {
-  // Wait for DOM to be ready
-  $(document).ready(function() {
-    
-    // Image modal functionality - Enhanced version from rapid-response.html
-    function initImageModal() {
-      // Handle clicks on gallery images
-      $(document).on('click', '.gallery-image, .image-container', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var $clickedElement = $(this);
-        var $img = $clickedElement.is('img') ? $clickedElement : $clickedElement.find('.gallery-image, img').first();
-        
-        if ($img.length === 0) {
-          return;
-        }
-        
-        var imageUrl = $img.attr('src') || $img.data('src');
-        var caption = $img.attr('alt') || $img.data('caption') || $img.siblings('.image-caption').text() || 'Image';
-        
-        if (imageUrl) {
-          $('#modalImage').attr('src', imageUrl).attr('alt', caption);
-          $('#modalCaption').text(caption);
-          $('#imageModalTitle').text(caption);
-          
-          // Show modal with Bootstrap or fallback
-          if (typeof $.fn.modal !== 'undefined') {
-            $('#imageModal').modal('show');
-          } else {
-            // Fallback for when Bootstrap modal is not available
-            $('#imageModal').fadeIn(300);
-          }
-        }
-      });
-      
-      // Handle clicks on images within markdown content
-      $(document).on('click', '.software-content-body img, .learning-resources-content img, .installation-content img', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var $img = $(this);
-        var imageUrl = $img.attr('src');
-        var caption = $img.attr('alt') || $img.attr('title') || 'Image';
-        
-        if (imageUrl) {
-          $('#modalImage').attr('src', imageUrl).attr('alt', caption);
-          $('#modalCaption').text(caption);
-          $('#imageModalTitle').text(caption);
-          
-          if (typeof $.fn.modal !== 'undefined') {
-            $('#imageModal').modal('show');
-          } else {
-            $('#imageModal').fadeIn(300);
-          }
-        }
-      });
+  // Wait for jQuery to be available
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
     }
+  }
+  
+  waitForJQuery(function($) {
+    
+    // Image modal functionality
+    $('.image-container, .gallery-image').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      var $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
+      var imageUrl = $img.attr('src');
+      var caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
+      
+      if (imageUrl) {
+        $('#modalImage').attr('src', imageUrl);
+        $('#modalImage').attr('alt', caption);
+        $('#modalCaption').text(caption);
+        $('#imageModalTitle').text(caption);
+        
+        // Use Bootstrap modal if available, otherwise custom modal
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('show');
+        } else {
+          $('#imageModal').css('display', 'block').addClass('show');
+        }
+      }
+    });
+    
+    // Handle clicks on images within markdown content
+    $('.software-content-body img, .learning-resources-content img, .installation-content img').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      var $img = $(this);
+      var imageUrl = $img.attr('src');
+      var caption = $img.attr('alt') || $img.attr('title') || 'Image';
+      
+      if (imageUrl) {
+        $('#modalImage').attr('src', imageUrl);
+        $('#modalImage').attr('alt', caption);
+        $('#modalCaption').text(caption);
+        $('#imageModalTitle').text(caption);
+        
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('show');
+        } else {
+          $('#imageModal').css('display', 'block').addClass('show');
+        }
+      }
+    });
     
     // Close modal functionality
-    function initModalClose() {
-      // Close button
-      $(document).on('click', '.modal .close', function(e) {
-        e.preventDefault();
+    $('.close, .modal').on('click', function(e) {
+      if (e.target === this) {
         if (typeof $.fn.modal !== 'undefined') {
           $('#imageModal').modal('hide');
         } else {
-          $('#imageModal').fadeOut(300);
+          $('#imageModal').css('display', 'none').removeClass('show');
         }
-      });
-      
-      // Click outside modal
-      $(document).on('click', '.modal', function(e) {
-        if (e.target === this) {
-          if (typeof $.fn.modal !== 'undefined') {
-            $('#imageModal').modal('hide');
-          } else {
-            $('#imageModal').fadeOut(300);
-          }
-        }
-      });
-      
-      // Escape key
-      $(document).on('keyup', function(e) {
-        if (e.keyCode === 27) { // ESC key
-          if (typeof $.fn.modal !== 'undefined') {
-            $('#imageModal').modal('hide');
-          } else {
-            $('#imageModal').fadeOut(300);
-          }
-        }
-      });
-    }
+      }
+    });
     
-    // Initialize functionality
-    initImageModal();
-    initModalClose();
+    // Escape key to close modal
+    $(document).on('keyup', function(e) {
+      if (e.keyCode === 27) { // ESC key
+        if (typeof $.fn.modal !== 'undefined') {
+          $('#imageModal').modal('hide');
+        } else {
+          $('#imageModal').css('display', 'none').removeClass('show');
+        }
+      }
+    });
     
     // Enhanced link styling for YouTube, OpenLearning and external resources
     function enhanceResourceLinks() {
@@ -1503,13 +1488,36 @@
       });
     }
     
+    // Add loading animation for images
+    $('.gallery-image').on('load', function() {
+      $(this).addClass('loaded').css('opacity', '1');
+    });
+    
+    // Ensure images are clickable
+    $('.gallery-image').css('cursor', 'pointer');
+    
+    // Add hover effects
+    $('.gallery-image-item').hover(
+      function() {
+        $(this).find('.image-overlay').css('opacity', '1');
+      },
+      function() {
+        $(this).find('.image-overlay').css('opacity', '0');
+      }
+    );
+    
     // Run enhancement
     enhanceResourceLinks();
     
     // Re-run enhancement if content is dynamically loaded
     setTimeout(enhanceResourceLinks, 1000);
-  });
-})();
+    
+    // Debug info
+    console.log('Open Source Software gallery initialized');
+    console.log('Gallery images found:', $('.gallery-image').length);
+    
+  }); // Close waitForJQuery function
+})(); // Close main function
 </script>
 
 {% endblock %} 
