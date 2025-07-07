@@ -31,7 +31,7 @@
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ _('Rapid Response & Recovery') }}</h1>
-                  <p class="section-title-description">{{ _('Emergency mapping and response events') }}</p>
+                  <p class="section-title-description">{{ _('Post-Disaster Rapid Assessments and Recovery Responses to Water-related Disasters') }}</p>
                 </div>
               </div>
             </section>
@@ -129,6 +129,207 @@
                               <option value="flood" {% if request.args.event_type == 'flood' %}selected{% endif %}>{{ _('Floods') }}</option>
                               <option value="fire" {% if request.args.event_type == 'fire' %}selected{% endif %}>{{ _('Fires') }}</option>
                               <option value="conflict" {% if request.args.event_type == 'conflict' %}selected{% endif %}>{{ _('Conflicts') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <select name="country" class="form-control">
+                              <option value="">{{ _('All Countries') }}</option>
+                              <option value="Afghanistan" {% if request.args.country == 'Afghanistan' %}selected{% endif %}>Afghanistan</option>
+                              <option value="Albania" {% if request.args.country == 'Albania' %}selected{% endif %}>Albania</option>
+                              <option value="Algeria" {% if request.args.country == 'Algeria' %}selected{% endif %}>Algeria</option>
+                              <option value="Andorra" {% if request.args.country == 'Andorra' %}selected{% endif %}>Andorra</option>
+                              <option value="Angola" {% if request.args.country == 'Angola' %}selected{% endif %}>Angola</option>
+                              <option value="Antigua and Barbuda" {% if request.args.country == 'Antigua and Barbuda' %}selected{% endif %}>Antigua and Barbuda</option>
+                              <option value="Argentina" {% if request.args.country == 'Argentina' %}selected{% endif %}>Argentina</option>
+                              <option value="Armenia" {% if request.args.country == 'Armenia' %}selected{% endif %}>Armenia</option>
+                              <option value="Australia" {% if request.args.country == 'Australia' %}selected{% endif %}>Australia</option>
+                              <option value="Austria" {% if request.args.country == 'Austria' %}selected{% endif %}>Austria</option>
+                              <option value="Azerbaijan" {% if request.args.country == 'Azerbaijan' %}selected{% endif %}>Azerbaijan</option>
+                              <option value="Bahamas" {% if request.args.country == 'Bahamas' %}selected{% endif %}>Bahamas</option>
+                              <option value="Bahrain" {% if request.args.country == 'Bahrain' %}selected{% endif %}>Bahrain</option>
+                              <option value="Bangladesh" {% if request.args.country == 'Bangladesh' %}selected{% endif %}>Bangladesh</option>
+                              <option value="Barbados" {% if request.args.country == 'Barbados' %}selected{% endif %}>Barbados</option>
+                              <option value="Belarus" {% if request.args.country == 'Belarus' %}selected{% endif %}>Belarus</option>
+                              <option value="Belgium" {% if request.args.country == 'Belgium' %}selected{% endif %}>Belgium</option>
+                              <option value="Belize" {% if request.args.country == 'Belize' %}selected{% endif %}>Belize</option>
+                              <option value="Benin" {% if request.args.country == 'Benin' %}selected{% endif %}>Benin</option>
+                              <option value="Bhutan" {% if request.args.country == 'Bhutan' %}selected{% endif %}>Bhutan</option>
+                              <option value="Bolivia" {% if request.args.country == 'Bolivia' %}selected{% endif %}>Bolivia</option>
+                              <option value="Bosnia and Herzegovina" {% if request.args.country == 'Bosnia and Herzegovina' %}selected{% endif %}>Bosnia and Herzegovina</option>
+                              <option value="Botswana" {% if request.args.country == 'Botswana' %}selected{% endif %}>Botswana</option>
+                              <option value="Brazil" {% if request.args.country == 'Brazil' %}selected{% endif %}>Brazil</option>
+                              <option value="Brunei" {% if request.args.country == 'Brunei' %}selected{% endif %}>Brunei</option>
+                              <option value="Bulgaria" {% if request.args.country == 'Bulgaria' %}selected{% endif %}>Bulgaria</option>
+                              <option value="Burkina Faso" {% if request.args.country == 'Burkina Faso' %}selected{% endif %}>Burkina Faso</option>
+                              <option value="Burundi" {% if request.args.country == 'Burundi' %}selected{% endif %}>Burundi</option>
+                              <option value="Cabo Verde" {% if request.args.country == 'Cabo Verde' %}selected{% endif %}>Cabo Verde</option>
+                              <option value="Cambodia" {% if request.args.country == 'Cambodia' %}selected{% endif %}>Cambodia</option>
+                              <option value="Cameroon" {% if request.args.country == 'Cameroon' %}selected{% endif %}>Cameroon</option>
+                              <option value="Canada" {% if request.args.country == 'Canada' %}selected{% endif %}>Canada</option>
+                              <option value="Central African Republic" {% if request.args.country == 'Central African Republic' %}selected{% endif %}>Central African Republic</option>
+                              <option value="Chad" {% if request.args.country == 'Chad' %}selected{% endif %}>Chad</option>
+                              <option value="Chile" {% if request.args.country == 'Chile' %}selected{% endif %}>Chile</option>
+                              <option value="China" {% if request.args.country == 'China' %}selected{% endif %}>China</option>
+                              <option value="Colombia" {% if request.args.country == 'Colombia' %}selected{% endif %}>Colombia</option>
+                              <option value="Comoros" {% if request.args.country == 'Comoros' %}selected{% endif %}>Comoros</option>
+                              <option value="Congo" {% if request.args.country == 'Congo' %}selected{% endif %}>Congo</option>
+                              <option value="Cook Islands" {% if request.args.country == 'Cook Islands' %}selected{% endif %}>Cook Islands</option>
+                              <option value="Costa Rica" {% if request.args.country == 'Costa Rica' %}selected{% endif %}>Costa Rica</option>
+                              <option value="Côte d'Ivoire" {% if request.args.country == "Côte d'Ivoire" %}selected{% endif %}>Côte d'Ivoire</option>
+                              <option value="Croatia" {% if request.args.country == 'Croatia' %}selected{% endif %}>Croatia</option>
+                              <option value="Cuba" {% if request.args.country == 'Cuba' %}selected{% endif %}>Cuba</option>
+                              <option value="Cyprus" {% if request.args.country == 'Cyprus' %}selected{% endif %}>Cyprus</option>
+                              <option value="Czech Republic" {% if request.args.country == 'Czech Republic' %}selected{% endif %}>Czech Republic</option>
+                              <option value="Democratic Republic of the Congo" {% if request.args.country == 'Democratic Republic of the Congo' %}selected{% endif %}>Democratic Republic of the Congo</option>
+                              <option value="Denmark" {% if request.args.country == 'Denmark' %}selected{% endif %}>Denmark</option>
+                              <option value="Djibouti" {% if request.args.country == 'Djibouti' %}selected{% endif %}>Djibouti</option>
+                              <option value="Dominica" {% if request.args.country == 'Dominica' %}selected{% endif %}>Dominica</option>
+                              <option value="Dominican Republic" {% if request.args.country == 'Dominican Republic' %}selected{% endif %}>Dominican Republic</option>
+                              <option value="Ecuador" {% if request.args.country == 'Ecuador' %}selected{% endif %}>Ecuador</option>
+                              <option value="Egypt" {% if request.args.country == 'Egypt' %}selected{% endif %}>Egypt</option>
+                              <option value="El Salvador" {% if request.args.country == 'El Salvador' %}selected{% endif %}>El Salvador</option>
+                              <option value="Equatorial Guinea" {% if request.args.country == 'Equatorial Guinea' %}selected{% endif %}>Equatorial Guinea</option>
+                              <option value="Eritrea" {% if request.args.country == 'Eritrea' %}selected{% endif %}>Eritrea</option>
+                              <option value="Estonia" {% if request.args.country == 'Estonia' %}selected{% endif %}>Estonia</option>
+                              <option value="Eswatini" {% if request.args.country == 'Eswatini' %}selected{% endif %}>Eswatini</option>
+                              <option value="Ethiopia" {% if request.args.country == 'Ethiopia' %}selected{% endif %}>Ethiopia</option>
+                              <option value="Fiji" {% if request.args.country == 'Fiji' %}selected{% endif %}>Fiji</option>
+                              <option value="Finland" {% if request.args.country == 'Finland' %}selected{% endif %}>Finland</option>
+                              <option value="France" {% if request.args.country == 'France' %}selected{% endif %}>France</option>
+                              <option value="Gabon" {% if request.args.country == 'Gabon' %}selected{% endif %}>Gabon</option>
+                              <option value="Gambia" {% if request.args.country == 'Gambia' %}selected{% endif %}>Gambia</option>
+                              <option value="Georgia" {% if request.args.country == 'Georgia' %}selected{% endif %}>Georgia</option>
+                              <option value="Germany" {% if request.args.country == 'Germany' %}selected{% endif %}>Germany</option>
+                              <option value="Ghana" {% if request.args.country == 'Ghana' %}selected{% endif %}>Ghana</option>
+                              <option value="Greece" {% if request.args.country == 'Greece' %}selected{% endif %}>Greece</option>
+                              <option value="Grenada" {% if request.args.country == 'Grenada' %}selected{% endif %}>Grenada</option>
+                              <option value="Guatemala" {% if request.args.country == 'Guatemala' %}selected{% endif %}>Guatemala</option>
+                              <option value="Guinea" {% if request.args.country == 'Guinea' %}selected{% endif %}>Guinea</option>
+                              <option value="Guinea-Bissau" {% if request.args.country == 'Guinea-Bissau' %}selected{% endif %}>Guinea-Bissau</option>
+                              <option value="Guyana" {% if request.args.country == 'Guyana' %}selected{% endif %}>Guyana</option>
+                              <option value="Haiti" {% if request.args.country == 'Haiti' %}selected{% endif %}>Haiti</option>
+                              <option value="Honduras" {% if request.args.country == 'Honduras' %}selected{% endif %}>Honduras</option>
+                              <option value="Hungary" {% if request.args.country == 'Hungary' %}selected{% endif %}>Hungary</option>
+                              <option value="Iceland" {% if request.args.country == 'Iceland' %}selected{% endif %}>Iceland</option>
+                              <option value="India" {% if request.args.country == 'India' %}selected{% endif %}>India</option>
+                              <option value="Indonesia" {% if request.args.country == 'Indonesia' %}selected{% endif %}>Indonesia</option>
+                              <option value="Iran" {% if request.args.country == 'Iran' %}selected{% endif %}>Iran</option>
+                              <option value="Iraq" {% if request.args.country == 'Iraq' %}selected{% endif %}>Iraq</option>
+                              <option value="Ireland" {% if request.args.country == 'Ireland' %}selected{% endif %}>Ireland</option>
+                              <option value="Israel" {% if request.args.country == 'Israel' %}selected{% endif %}>Israel</option>
+                              <option value="Italy" {% if request.args.country == 'Italy' %}selected{% endif %}>Italy</option>
+                              <option value="Jamaica" {% if request.args.country == 'Jamaica' %}selected{% endif %}>Jamaica</option>
+                              <option value="Japan" {% if request.args.country == 'Japan' %}selected{% endif %}>Japan</option>
+                              <option value="Jordan" {% if request.args.country == 'Jordan' %}selected{% endif %}>Jordan</option>
+                              <option value="Kazakhstan" {% if request.args.country == 'Kazakhstan' %}selected{% endif %}>Kazakhstan</option>
+                              <option value="Kenya" {% if request.args.country == 'Kenya' %}selected{% endif %}>Kenya</option>
+                              <option value="Kiribati" {% if request.args.country == 'Kiribati' %}selected{% endif %}>Kiribati</option>
+                              <option value="Kuwait" {% if request.args.country == 'Kuwait' %}selected{% endif %}>Kuwait</option>
+                              <option value="Kyrgyzstan" {% if request.args.country == 'Kyrgyzstan' %}selected{% endif %}>Kyrgyzstan</option>
+                              <option value="Laos" {% if request.args.country == 'Laos' %}selected{% endif %}>Laos</option>
+                              <option value="Latvia" {% if request.args.country == 'Latvia' %}selected{% endif %}>Latvia</option>
+                              <option value="Lebanon" {% if request.args.country == 'Lebanon' %}selected{% endif %}>Lebanon</option>
+                              <option value="Lesotho" {% if request.args.country == 'Lesotho' %}selected{% endif %}>Lesotho</option>
+                              <option value="Liberia" {% if request.args.country == 'Liberia' %}selected{% endif %}>Liberia</option>
+                              <option value="Libya" {% if request.args.country == 'Libya' %}selected{% endif %}>Libya</option>
+                              <option value="Lithuania" {% if request.args.country == 'Lithuania' %}selected{% endif %}>Lithuania</option>
+                              <option value="Luxembourg" {% if request.args.country == 'Luxembourg' %}selected{% endif %}>Luxembourg</option>
+                              <option value="Madagascar" {% if request.args.country == 'Madagascar' %}selected{% endif %}>Madagascar</option>
+                              <option value="Malawi" {% if request.args.country == 'Malawi' %}selected{% endif %}>Malawi</option>
+                              <option value="Malaysia" {% if request.args.country == 'Malaysia' %}selected{% endif %}>Malaysia</option>
+                              <option value="Maldives" {% if request.args.country == 'Maldives' %}selected{% endif %}>Maldives</option>
+                              <option value="Mali" {% if request.args.country == 'Mali' %}selected{% endif %}>Mali</option>
+                              <option value="Malta" {% if request.args.country == 'Malta' %}selected{% endif %}>Malta</option>
+                              <option value="Marshall Islands" {% if request.args.country == 'Marshall Islands' %}selected{% endif %}>Marshall Islands</option>
+                              <option value="Mauritania" {% if request.args.country == 'Mauritania' %}selected{% endif %}>Mauritania</option>
+                              <option value="Mauritius" {% if request.args.country == 'Mauritius' %}selected{% endif %}>Mauritius</option>
+                              <option value="Mexico" {% if request.args.country == 'Mexico' %}selected{% endif %}>Mexico</option>
+                              <option value="Micronesia" {% if request.args.country == 'Micronesia' %}selected{% endif %}>Micronesia</option>
+                              <option value="Moldova" {% if request.args.country == 'Moldova' %}selected{% endif %}>Moldova</option>
+                              <option value="Monaco" {% if request.args.country == 'Monaco' %}selected{% endif %}>Monaco</option>
+                              <option value="Mongolia" {% if request.args.country == 'Mongolia' %}selected{% endif %}>Mongolia</option>
+                              <option value="Montenegro" {% if request.args.country == 'Montenegro' %}selected{% endif %}>Montenegro</option>
+                              <option value="Morocco" {% if request.args.country == 'Morocco' %}selected{% endif %}>Morocco</option>
+                              <option value="Mozambique" {% if request.args.country == 'Mozambique' %}selected{% endif %}>Mozambique</option>
+                              <option value="Myanmar" {% if request.args.country == 'Myanmar' %}selected{% endif %}>Myanmar</option>
+                              <option value="Namibia" {% if request.args.country == 'Namibia' %}selected{% endif %}>Namibia</option>
+                              <option value="Nauru" {% if request.args.country == 'Nauru' %}selected{% endif %}>Nauru</option>
+                              <option value="Nepal" {% if request.args.country == 'Nepal' %}selected{% endif %}>Nepal</option>
+                              <option value="Netherlands" {% if request.args.country == 'Netherlands' %}selected{% endif %}>Netherlands</option>
+                              <option value="New Zealand" {% if request.args.country == 'New Zealand' %}selected{% endif %}>New Zealand</option>
+                              <option value="Nicaragua" {% if request.args.country == 'Nicaragua' %}selected{% endif %}>Nicaragua</option>
+                              <option value="Niger" {% if request.args.country == 'Niger' %}selected{% endif %}>Niger</option>
+                              <option value="Nigeria" {% if request.args.country == 'Nigeria' %}selected{% endif %}>Nigeria</option>
+                              <option value="Niue" {% if request.args.country == 'Niue' %}selected{% endif %}>Niue</option>
+                              <option value="North Korea" {% if request.args.country == 'North Korea' %}selected{% endif %}>North Korea</option>
+                              <option value="North Macedonia" {% if request.args.country == 'North Macedonia' %}selected{% endif %}>North Macedonia</option>
+                              <option value="Norway" {% if request.args.country == 'Norway' %}selected{% endif %}>Norway</option>
+                              <option value="Oman" {% if request.args.country == 'Oman' %}selected{% endif %}>Oman</option>
+                              <option value="Pakistan" {% if request.args.country == 'Pakistan' %}selected{% endif %}>Pakistan</option>
+                              <option value="Palau" {% if request.args.country == 'Palau' %}selected{% endif %}>Palau</option>
+                              <option value="Palestine" {% if request.args.country == 'Palestine' %}selected{% endif %}>Palestine</option>
+                              <option value="Panama" {% if request.args.country == 'Panama' %}selected{% endif %}>Panama</option>
+                              <option value="Papua New Guinea" {% if request.args.country == 'Papua New Guinea' %}selected{% endif %}>Papua New Guinea</option>
+                              <option value="Paraguay" {% if request.args.country == 'Paraguay' %}selected{% endif %}>Paraguay</option>
+                              <option value="Peru" {% if request.args.country == 'Peru' %}selected{% endif %}>Peru</option>
+                              <option value="Philippines" {% if request.args.country == 'Philippines' %}selected{% endif %}>Philippines</option>
+                              <option value="Poland" {% if request.args.country == 'Poland' %}selected{% endif %}>Poland</option>
+                              <option value="Portugal" {% if request.args.country == 'Portugal' %}selected{% endif %}>Portugal</option>
+                              <option value="Qatar" {% if request.args.country == 'Qatar' %}selected{% endif %}>Qatar</option>
+                              <option value="Romania" {% if request.args.country == 'Romania' %}selected{% endif %}>Romania</option>
+                              <option value="Russia" {% if request.args.country == 'Russia' %}selected{% endif %}>Russia</option>
+                              <option value="Rwanda" {% if request.args.country == 'Rwanda' %}selected{% endif %}>Rwanda</option>
+                              <option value="Saint Kitts and Nevis" {% if request.args.country == 'Saint Kitts and Nevis' %}selected{% endif %}>Saint Kitts and Nevis</option>
+                              <option value="Saint Lucia" {% if request.args.country == 'Saint Lucia' %}selected{% endif %}>Saint Lucia</option>
+                              <option value="Saint Vincent and the Grenadines" {% if request.args.country == 'Saint Vincent and the Grenadines' %}selected{% endif %}>Saint Vincent and the Grenadines</option>
+                              <option value="Samoa" {% if request.args.country == 'Samoa' %}selected{% endif %}>Samoa</option>
+                              <option value="San Marino" {% if request.args.country == 'San Marino' %}selected{% endif %}>San Marino</option>
+                              <option value="São Tomé and Príncipe" {% if request.args.country == 'São Tomé and Príncipe' %}selected{% endif %}>São Tomé and Príncipe</option>
+                              <option value="Saudi Arabia" {% if request.args.country == 'Saudi Arabia' %}selected{% endif %}>Saudi Arabia</option>
+                              <option value="Senegal" {% if request.args.country == 'Senegal' %}selected{% endif %}>Senegal</option>
+                              <option value="Serbia" {% if request.args.country == 'Serbia' %}selected{% endif %}>Serbia</option>
+                              <option value="Seychelles" {% if request.args.country == 'Seychelles' %}selected{% endif %}>Seychelles</option>
+                              <option value="Sierra Leone" {% if request.args.country == 'Sierra Leone' %}selected{% endif %}>Sierra Leone</option>
+                              <option value="Singapore" {% if request.args.country == 'Singapore' %}selected{% endif %}>Singapore</option>
+                              <option value="Slovakia" {% if request.args.country == 'Slovakia' %}selected{% endif %}>Slovakia</option>
+                              <option value="Slovenia" {% if request.args.country == 'Slovenia' %}selected{% endif %}>Slovenia</option>
+                              <option value="Solomon Islands" {% if request.args.country == 'Solomon Islands' %}selected{% endif %}>Solomon Islands</option>
+                              <option value="Somalia" {% if request.args.country == 'Somalia' %}selected{% endif %}>Somalia</option>
+                              <option value="South Africa" {% if request.args.country == 'South Africa' %}selected{% endif %}>South Africa</option>
+                              <option value="South Korea" {% if request.args.country == 'South Korea' %}selected{% endif %}>South Korea</option>
+                              <option value="South Sudan" {% if request.args.country == 'South Sudan' %}selected{% endif %}>South Sudan</option>
+                              <option value="Spain" {% if request.args.country == 'Spain' %}selected{% endif %}>Spain</option>
+                              <option value="Sri Lanka" {% if request.args.country == 'Sri Lanka' %}selected{% endif %}>Sri Lanka</option>
+                              <option value="Sudan" {% if request.args.country == 'Sudan' %}selected{% endif %}>Sudan</option>
+                              <option value="Suriname" {% if request.args.country == 'Suriname' %}selected{% endif %}>Suriname</option>
+                              <option value="Sweden" {% if request.args.country == 'Sweden' %}selected{% endif %}>Sweden</option>
+                              <option value="Switzerland" {% if request.args.country == 'Switzerland' %}selected{% endif %}>Switzerland</option>
+                              <option value="Syria" {% if request.args.country == 'Syria' %}selected{% endif %}>Syria</option>
+                              <option value="Tajikistan" {% if request.args.country == 'Tajikistan' %}selected{% endif %}>Tajikistan</option>
+                              <option value="Tanzania" {% if request.args.country == 'Tanzania' %}selected{% endif %}>Tanzania</option>
+                              <option value="Thailand" {% if request.args.country == 'Thailand' %}selected{% endif %}>Thailand</option>
+                              <option value="Timor-Leste" {% if request.args.country == 'Timor-Leste' %}selected{% endif %}>Timor-Leste</option>
+                              <option value="Togo" {% if request.args.country == 'Togo' %}selected{% endif %}>Togo</option>
+                              <option value="Tonga" {% if request.args.country == 'Tonga' %}selected{% endif %}>Tonga</option>
+                              <option value="Trinidad and Tobago" {% if request.args.country == 'Trinidad and Tobago' %}selected{% endif %}>Trinidad and Tobago</option>
+                              <option value="Tunisia" {% if request.args.country == 'Tunisia' %}selected{% endif %}>Tunisia</option>
+                              <option value="Turkey" {% if request.args.country == 'Turkey' %}selected{% endif %}>Turkey</option>
+                              <option value="Turkmenistan" {% if request.args.country == 'Turkmenistan' %}selected{% endif %}>Turkmenistan</option>
+                              <option value="Tuvalu" {% if request.args.country == 'Tuvalu' %}selected{% endif %}>Tuvalu</option>
+                              <option value="Uganda" {% if request.args.country == 'Uganda' %}selected{% endif %}>Uganda</option>
+                              <option value="Ukraine" {% if request.args.country == 'Ukraine' %}selected{% endif %}>Ukraine</option>
+                              <option value="United Arab Emirates" {% if request.args.country == 'United Arab Emirates' %}selected{% endif %}>United Arab Emirates</option>
+                              <option value="United Kingdom" {% if request.args.country == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
+                              <option value="United States" {% if request.args.country == 'United States' %}selected{% endif %}>United States</option>
+                              <option value="Uruguay" {% if request.args.country == 'Uruguay' %}selected{% endif %}>Uruguay</option>
+                              <option value="Uzbekistan" {% if request.args.country == 'Uzbekistan' %}selected{% endif %}>Uzbekistan</option>
+                              <option value="Vanuatu" {% if request.args.country == 'Vanuatu' %}selected{% endif %}>Vanuatu</option>
+                              <option value="Vatican City" {% if request.args.country == 'Vatican City' %}selected{% endif %}>Vatican City</option>
+                              <option value="Venezuela" {% if request.args.country == 'Venezuela' %}selected{% endif %}>Venezuela</option>
+                              <option value="Vietnam" {% if request.args.country == 'Vietnam' %}selected{% endif %}>Vietnam</option>
+                              <option value="Yemen" {% if request.args.country == 'Yemen' %}selected{% endif %}>Yemen</option>
+                              <option value="Zambia" {% if request.args.country == 'Zambia' %}selected{% endif %}>Zambia</option>
+                              <option value="Zimbabwe" {% if request.args.country == 'Zimbabwe' %}selected{% endif %}>Zimbabwe</option>
                             </select>
                           </div>
                           <div class="col-md-2">
@@ -287,9 +488,25 @@
                             {% endif %}
                             
                             {% if page.excerpt %}
-                              <p class="event-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
+                              <p class="event-excerpt">
+                                <span class="excerpt-preview">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</span>
+                                {% if page.excerpt|length > 200 %}
+                                  <span class="excerpt-full" style="display: none;">{{ page.excerpt }}</span>
+                                  <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleExcerpt(this)">
+                                    <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                  </button>
+                                {% endif %}
+                              </p>
                             {% elif page.content %}
-                              <p class="event-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
+                              <p class="event-excerpt">
+                                <span class="excerpt-preview">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</span>
+                                {% if page.content|length > 200 %}
+                                  <span class="excerpt-full" style="display: none;">{{ page.content|striptags }}</span>
+                                  <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleExcerpt(this)">
+                                    <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                  </button>
+                                {% endif %}
+                              </p>
                             {% endif %}
                             
                             <!-- Event Actions -->
@@ -858,11 +1075,37 @@
   opacity: 0.7;
 }
 
-.rapid-response-empty-state h3 {
-  color: var(--text-primary);
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
+  .rapid-response-empty-state h3 {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  /* Read More Button Styling */
+  .read-more-btn {
+    color: var(--unesco-blue) !important;
+    padding: 2px 6px !important;
+    font-size: 0.85rem !important;
+    text-decoration: none !important;
+    border: none !important;
+    background: none !important;
+    transition: all 0.3s ease;
+  }
+
+  .read-more-btn:hover {
+    color: var(--unesco-blue-dark) !important;
+    background: var(--unesco-blue-pale) !important;
+    border-radius: 4px;
+  }
+
+  .read-more-btn i {
+    margin-right: 4px;
+    transition: transform 0.3s ease;
+  }
+
+  .read-more-btn.expanded i {
+    transform: rotate(45deg);
+  }
 
 /* Enhanced Button Styles */
 .btn-primary {
@@ -989,5 +1232,29 @@
   }
 }
 </style>
+
+<!-- JavaScript for Read More functionality -->
+<script>
+function toggleExcerpt(button) {
+  const eventExcerpt = button.parentElement;
+  const preview = eventExcerpt.querySelector('.excerpt-preview');
+  const full = eventExcerpt.querySelector('.excerpt-full');
+  const icon = button.querySelector('i');
+  
+  if (full.style.display === 'none') {
+    // Show full text
+    preview.style.display = 'none';
+    full.style.display = 'inline';
+    button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
+    button.classList.add('expanded');
+  } else {
+    // Show preview text
+    preview.style.display = 'inline';
+    full.style.display = 'none';
+    button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
+    button.classList.remove('expanded');
+  }
+}
+</script>
 
 {% endblock %} 

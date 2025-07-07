@@ -39,6 +39,10 @@ def default_pages_schema():
         'image_gallery': [ignore_missing, unicode_safe],     # Enhanced image gallery
         'response_activities': [ignore_missing, unicode_safe], # Response activities for rapid response
         'impact_assessment': [ignore_missing, unicode_safe],  # Impact assessment for rapid response
+        'activity_status': [ignore_missing, unicode_safe],   # Activity status phase
+        'country': [ignore_missing, unicode_safe],           # Country/countries affected
+        'priority': [ignore_missing, unicode_safe],          # Priority level
+        'severity': [ignore_missing, unicode_safe],          # Severity level
         # Water News specific fields
         'source': [ignore_missing, unicode_safe],           # Original source URL
         'external_links': [ignore_missing, unicode_safe],   # Related links

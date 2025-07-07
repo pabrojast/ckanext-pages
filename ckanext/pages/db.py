@@ -81,6 +81,7 @@ class Page(DomainObject, BaseModel):
             q = kw.pop('q', None)
             event_type = kw.pop('event_type', None) 
             priority = kw.pop('priority', None)
+            country = kw.pop('country', None)
             order_by = kw.pop('order_by', None)
 
             # Base query - explicitly select all columns to avoid column mapping issues
@@ -108,6 +109,12 @@ class Page(DomainObject, BaseModel):
             if priority:
                 query = query.filter(
                     cls.extras.ilike('%"priority": "' + priority + '"%')
+                )
+            
+            # Apply country filter (stored in extras JSON)
+            if country:
+                query = query.filter(
+                    cls.extras.ilike('%"country": "%' + country + '%"%')
                 )
             
             # Apply ordering - simplified to avoid complex CASE statements that might cause issues

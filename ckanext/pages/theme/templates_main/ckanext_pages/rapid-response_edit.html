@@ -42,10 +42,10 @@
                 <div class="section-title-content">
                   {% if page %}
                     <h1>{{ _('Update Emergency Event') }}</h1>
-                    <p class="section-title-description">{{ _('Update emergency response event information') }}</p>
+                    <p class="section-title-description">{{ _('Post-Disaster Rapid Assessments and Recovery Responses to Water-related Disasters') }}</p>
                   {% else %}
                     <h1>{{ _('Report New Emergency Event') }}</h1>
-                    <p class="section-title-description">{{ _('Report and track emergency events affecting UNESCO heritage sites and communities') }}</p>
+                    <p class="section-title-description">{{ _('Post-Disaster Rapid Assessments and Recovery Responses to Water-related Disasters') }}</p>
                   {% endif %}
                 </div>
               </div>
@@ -130,13 +130,38 @@
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="field-private" class="control-label">{{ _('Event Status') }}</label>
-                                <select id="field-private" name="private" class="rr-form-control">
-                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - Active Event') }}</option>
-                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Internal - Under Review') }}</option>
+                                <label for="field-activity-status" class="control-label">{{ _('Activity Status') }}</label>
+                                <select id="field-activity-status" name="activity_status" class="rr-form-control">
+                                  <option value="impact_assessment" {% if data.activity_status == 'impact_assessment' %}selected{% endif %}>{{ _('Impact Assessment Phase') }}</option>
+                                  <option value="response" {% if data.activity_status == 'response' or not data.activity_status %}selected{% endif %}>{{ _('Response Phase') }}</option>
+                                  <option value="recovery" {% if data.activity_status == 'recovery' %}selected{% endif %}>{{ _('Recovery Phase') }}</option>
+                                  <option value="resilience" {% if data.activity_status == 'resilience' %}selected{% endif %}>{{ _('Resilience Phase') }}</option>
                                 </select>
-                                <div class="help-text">{{ _('Whether this event should be visible to the public') }}</div>
+                                <div class="help-text">{{ _('Current phase of the emergency response activity') }}</div>
+                                {% if errors.activity_status %}<span class="error-block">{{ errors.activity_status }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-activity-visibility" class="control-label">{{ _('Activity Visibility') }}</label>
+                                <select id="field-activity-visibility" name="private" class="rr-form-control">
+                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - visible') }}</option>
+                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Draft - not visible') }}</option>
+                                  <option value="review" {% if data.private == 'review' %}selected{% endif %}>{{ _('Under Review - not visible') }}</option>
+                                </select>
+                                <div class="help-text">{{ _('Visibility status of this emergency event') }}</div>
                                 {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-country" class="control-label">{{ _('Country/Countries Affected') }}</label>
+                                <input type="text" id="field-country" name="country" value="{{ data.country or '' }}" placeholder="{{ _('e.g., Mozambique, Tanzania') }}" class="rr-form-control">
+                                <div class="help-text">{{ _('Country or countries affected by this emergency (separate multiple countries with commas)') }}</div>
+                                {% if errors.country %}<span class="error-block">{{ errors.country }}</span>{% endif %}
                               </div>
                             </div>
                           </div>
@@ -230,22 +255,7 @@
                           </div>
                         </fieldset>
 
-                        <!-- 4. Response Activities -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Response Activities') }}</legend>
-                          <div class="form-section-content">
-                          <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
-                          <div class="form-group">
-                            <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
-                            <textarea id="field-response-activities" name="response_activities" rows="10" class="rr-form-control"
-                                      placeholder="{{ _('Detail the immediate response efforts, agencies involved, and current status.\n\nInclude:\n- Emergency response protocols activated\n- Agencies and organizations involved\n- Coordination efforts\n- Current response status') }}">{{ data.response_activities or '' }}</textarea>
-                            <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
-                            {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
-                          </div>
-                          </div>
-                        </fieldset>
-
-                        <!-- 5. Impact Assessment -->
+                        <!-- 4. Impact Assessment -->
                         <fieldset class="form-section">
                           <legend>{{ _('Impact Assessment') }}</legend>
                           <div class="form-section-content">
@@ -260,13 +270,28 @@
                           </div>
                         </fieldset>
 
-                        <!-- 6. Map Stories -->
+                        <!-- 5. Response Activities -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Map Stories') }}</legend>
+                          <legend>{{ _('Response Activities') }}</legend>
+                          <div class="form-section-content">
+                          <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
+                          <div class="form-group">
+                            <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
+                            <textarea id="field-response-activities" name="response_activities" rows="10" class="rr-form-control"
+                                      placeholder="{{ _('Detail the immediate response efforts, agencies involved, and current status.\n\nInclude:\n- Emergency response protocols activated\n- Agencies and organizations involved\n- Coordination efforts\n- Current response status') }}">{{ data.response_activities or '' }}</textarea>
+                            <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
+                            {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- 6. Spatial Data and Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Spatial Data and Information') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
                           <div class="form-group">
-                            <label for="field-map-stories" class="control-label">{{ _('Map Stories') }}</label>
+                            <label for="field-map-stories" class="control-label">{{ _('Spatial Data and Information') }}</label>
                             <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>

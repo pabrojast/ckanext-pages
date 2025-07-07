@@ -190,26 +190,7 @@
                 </div>
                 {% endif %}
 
-                <!-- 4. Response Activities -->
-                {% if c.page.response_activities %}
-                <div class="rapid-response-activities" style="margin-bottom: 3rem;">
-                  <section class="module module-narrow rr-module-response">
-                    <div class="module-content">
-                      <div class="rr-section-header">
-                        <div class="rr-section-icon">
-                          <i class="fa fa-users"></i>
-                        </div>
-                        <h2>{{ _('Response Activities') }}</h2>
-                      </div>
-                      <div class="rr-content-body">
-                        {{ h.render_markdown(c.page.response_activities, allow_html=True) | safe }}
-                      </div>
-                    </div>
-                  </section>
-                </div>
-                {% endif %}
-
-                <!-- 5. Impact Assessment -->
+                <!-- 4. Impact Assessment -->
                 {% if c.page.impact_assessment %}
                 <div class="rapid-response-impact" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-impact">
@@ -228,7 +209,26 @@
                 </div>
                 {% endif %}
 
-                <!-- 6. Map Stories Section -->
+                <!-- 5. Response Activities -->
+                {% if c.page.response_activities %}
+                <div class="rapid-response-activities" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow rr-module-response">
+                    <div class="module-content">
+                      <div class="rr-section-header">
+                        <div class="rr-section-icon">
+                          <i class="fa fa-users"></i>
+                        </div>
+                        <h2>{{ _('Response Activities') }}</h2>
+                      </div>
+                      <div class="rr-content-body">
+                        {{ h.render_markdown(c.page.response_activities, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 6. Spatial Data and Information Section -->
                 {% if c.page.map_stories %}
                 <div class="rapid-response-map-stories" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-maps">
@@ -237,7 +237,7 @@
                         <div class="rr-section-icon">
                           <i class="fa fa-map"></i>
                         </div>
-                        <h2>{{ _('Map Stories') }}</h2>
+                        <h2>{{ _('Spatial Data and Information') }}</h2>
                       </div>
                       <div class="rr-content-body map-stories-content">
                         {{ h.render_markdown(c.page.map_stories, allow_html=True) | safe }}
