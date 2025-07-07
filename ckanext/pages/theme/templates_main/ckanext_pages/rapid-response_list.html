@@ -124,11 +124,14 @@
                           <div class="col-md-2">
                             <select name="event_type" class="form-control">
                               <option value="">{{ _('All Types') }}</option>
-                              <option value="cyclone" {% if request.args.event_type == 'cyclone' %}selected{% endif %}>{{ _('Cyclones') }}</option>
+                              <option value="cyclone" {% if request.args.event_type == 'cyclone' %}selected{% endif %}>{{ _('Tropical Cyclones') }}</option>
                               <option value="earthquake" {% if request.args.event_type == 'earthquake' %}selected{% endif %}>{{ _('Earthquakes') }}</option>
+                              <option value="tsunami" {% if request.args.event_type == 'tsunami' %}selected{% endif %}>{{ _('Tsunamis') }}</option>
                               <option value="flood" {% if request.args.event_type == 'flood' %}selected{% endif %}>{{ _('Floods') }}</option>
-                              <option value="fire" {% if request.args.event_type == 'fire' %}selected{% endif %}>{{ _('Fires') }}</option>
-                              <option value="conflict" {% if request.args.event_type == 'conflict' %}selected{% endif %}>{{ _('Conflicts') }}</option>
+                              <option value="fire" {% if request.args.event_type == 'fire' %}selected{% endif %}>{{ _('Wildfires') }}</option>
+                              <option value="volcano" {% if request.args.event_type == 'volcano' %}selected{% endif %}>{{ _('Volcanic Eruptions') }}</option>
+                              <option value="drought" {% if request.args.event_type == 'drought' %}selected{% endif %}>{{ _('Droughts') }}</option>
+                              <option value="conflict" {% if request.args.event_type == 'conflict' %}selected{% endif %}>{{ _('Armed Conflicts') }}</option>
                             </select>
                           </div>
                           <div class="col-md-2">
@@ -840,6 +843,8 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  flex-direction: column;
+  text-align: center;
 }
 
 .severity-indicator {
@@ -897,11 +902,16 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: #212529 !important;
+  margin-top: 0.3rem;
 }
 
 .impact-level {
   margin-top: 0.5rem;
   font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
 /* Event Image */
@@ -1178,8 +1188,10 @@
   }
   
   .event-severity {
-    justify-content: flex-start;
+    justify-content: center;
     margin-top: 0.5rem;
+    flex-direction: column;
+    text-align: center;
   }
   
   .event-image {

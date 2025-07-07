@@ -99,10 +99,22 @@ class Page(DomainObject, BaseModel):
                 )
                 query = query.filter(search_filter)
             
-            # Apply event type filter (stored in extras JSON)
+            # Apply event type filter (stored in subtitle field in extras JSON)
             if event_type:
+                # Map filter values to actual subtitle values
+                event_type_mapping = {
+                    'cyclone': 'Tropical Cyclone',
+                    'earthquake': 'Earthquake', 
+                    'tsunami': 'Tsunami',
+                    'flood': 'Flood',
+                    'fire': 'Wildfire',
+                    'conflict': 'Armed Conflict',
+                    'volcano': 'Volcanic Eruption',
+                    'drought': 'Drought'
+                }
+                actual_subtitle = event_type_mapping.get(event_type.lower(), event_type)
                 query = query.filter(
-                    cls.extras.ilike('%"event_type": "' + event_type + '"%')
+                    cls.extras.ilike('%"subtitle": "' + actual_subtitle + '"%')
                 )
             
             # Apply priority filter (stored in extras JSON)
@@ -113,9 +125,16 @@ class Page(DomainObject, BaseModel):
             
             # Apply country filter (stored in extras JSON)
             if country:
-                query = query.filter(
-                    cls.extras.ilike('%"country": "%' + country + '%"%')
+                # Support both new countries_affected format and legacy country format
+                country_filter = sa.or_(
+                    # New format: countries_affected with JSON array
+                    cls.extras.ilike('%"countries_affected": %' + country + '%'),
+                    # Legacy format: country field
+                    cls.extras.ilike('%"country": "%' + country + '%"%'),
+                    # Also check if it's in the backward compatibility field in new format
+                    cls.extras.ilike('%' + country + '%')
                 )
+                query = query.filter(country_filter)
             
             # Apply ordering - simplified to avoid complex CASE statements that might cause issues
             if order_by == 'recent':

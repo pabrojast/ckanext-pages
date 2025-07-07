@@ -197,10 +197,10 @@
                               <div class="form-group">
                                 <label for="field-priority" class="control-label">{{ _('Priority Level') }}</label>
                                 <select id="field-priority" name="priority" class="rr-form-control">
+                                  <option value="urgent" {% if data.priority == 'urgent' %}selected{% endif %}>{{ _('Urgent') }}</option>
                                   <option value="high" {% if data.priority == 'high' or not data.priority %}selected{% endif %}>{{ _('High Priority') }}</option>
                                   <option value="medium" {% if data.priority == 'medium' %}selected{% endif %}>{{ _('Medium Priority') }}</option>
                                   <option value="low" {% if data.priority == 'low' %}selected{% endif %}>{{ _('Low Priority') }}</option>
-                                  <option value="urgent" {% if data.priority == 'urgent' %}selected{% endif %}>{{ _('Urgent') }}</option>
                                 </select>
                                 <div class="help-text">{{ _('Priority level of the emergency event for display and sorting') }}</div>
                                 {% if errors.priority %}<span class="error-block">{{ errors.priority }}</span>{% endif %}
