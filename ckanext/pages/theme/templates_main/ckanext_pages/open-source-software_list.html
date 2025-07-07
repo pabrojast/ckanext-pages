@@ -264,149 +264,151 @@
                 {% if c.page.items %}
                 <div class="software-catalog">
                   {% for page in c.page.items %}
-                  <div class="software-card" style="margin-bottom: 1rem;">
-                    <article class="module">
-                      <!-- Software Header with Title -->
-                      <div class="software-header">
+                  <div class="software-card-modern" style="margin-bottom: 1.5rem;">
+                    <article class="module-modern">
+                      <div class="software-card-content">
                         <div class="row">
-                          <div class="col-md-8">
-                            <h3 class="software-title-header">
-                              <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">
-                                {{ page.title or page.name }}
-                              </a>
-                            </h3>
-                            {% if page.subtitle %}
-                              <p class="software-subtitle-header">{{ page.subtitle }}</p>
-                            {% endif %}
-                          </div>
-                          <div class="col-md-4 text-right">
-                            <div class="software-header-meta">
-                              <div class="software-contributor">
-                                {% if page.user_id %}
-                                  <small class="contributor-info">
-                                    <i class="fa fa-user"></i> 
-                                    {{ _('Anonymous') }}
-                                    {% if page.modified %}
-                                      • {{ h.time_ago_in_words_from_str(page.modified) }}
-                                    {% endif %}
-                                  </small>
-                                {% else %}
-                                  <small class="contributor-info">
-                                    <i class="fa fa-user"></i> {{ _('Anonymous') }}
-                                  </small>
-                                {% endif %}
-                              </div>
-                              <div class="software-metadata">
-                                {% if page.software_category %}
-                                  <span class="software-category-badge {{ get_category_class(page.software_category) }}">
-                                    {{ page.software_category.replace('-', ' ').title() }}
-                                  </span>
-                                {% endif %}
-                                {% if page.software_license %}
-                                  <span class="license-badge">
-                                    <i class="fa fa-certificate"></i> {{ page.software_license }}
-                                  </span>
-                                {% endif %}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <!-- Software Content -->
-                      <div class="module-content software-compact">
-                        <div class="row">
-                          <!-- Software Logo/Screenshot -->
-                          <div class="col-md-2">
-                            <div class="software-image-compact">
+                          <!-- Software Logo/Image -->
+                          <div class="col-md-3 col-sm-4">
+                            <div class="software-image-container">
                               {% if page.header_image %}
-                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="software-image">
                               {% elif page.uploaded_images %}
                                 {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
-                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="software-image">
                                 {% else %}
-                                  <div class="placeholder-image-compact">
-                                    <i class="fa fa-code fa-2x"></i>
+                                  <div class="software-placeholder">
+                                    <i class="fa fa-code fa-3x"></i>
+                                    <span>{{ _('No Image') }}</span>
                                   </div>
                                 {% endif %}
                               {% else %}
-                                <div class="placeholder-image-compact">
-                                  <i class="fa fa-code fa-2x"></i>
+                                <div class="software-placeholder">
+                                  <i class="fa fa-code fa-3x"></i>
+                                  <span>{{ _('No Image') }}</span>
                                 </div>
                               {% endif %}
                             </div>
                           </div>
                           
                           <!-- Software Details -->
-                          <div class="col-md-10">
-                            <!-- Software Description with Read More -->
-                            <div class="software-description">
-                              {% if page.excerpt %}
-                                {% set content_text = page.excerpt %}
-                              {% elif page.content %}
-                                {% set content_text = page.content %}
-                              {% else %}
-                                {% set content_text = '' %}
-                              {% endif %}
-                              
-                              {% if content_text %}
-                                <p class="software-excerpt">
-                                  <span class="excerpt-short">
-                                    {{ content_text[:150] }}{% if content_text|length > 150 %}...{% endif %}
-                                  </span>
-                                  {% if content_text|length > 150 %}
-                                    <span class="excerpt-full" style="display: none;">
-                                      {{ content_text }}
-                                    </span>
-                                    <a href="javascript:void(0);" class="read-more-toggle" data-more-text="{{ _('Read more') }}" data-less-text="{{ _('Read less') }}">
-                                      {{ _('Read more') }}
+                          <div class="col-md-9 col-sm-8">
+                            <div class="software-info">
+                              <!-- Header with Title and Meta -->
+                              <div class="software-header-compact">
+                                <div class="software-title-row">
+                                  <h3 class="software-title-modern">
+                                    <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">
+                                      {{ page.title or page.name }}
                                     </a>
+                                  </h3>
+                                  <div class="software-badges">
+                                    {% if page.software_category %}
+                                      <span class="badge-category {{ get_category_class(page.software_category) }}">
+                                        {{ page.software_category.replace('-', ' ').title() }}
+                                      </span>
+                                    {% endif %}
+                                    {% if page.access_type == 'open-access' %}
+                                      <span class="badge-access">{{ _('Open Access') }}</span>
+                                    {% else %}
+                                      <span class="badge-access badge-open-source">{{ _('Open Source') }}</span>
+                                    {% endif %}
+                                  </div>
+                                </div>
+                                
+                                {% if page.subtitle %}
+                                  <p class="software-subtitle-modern">{{ page.subtitle }}</p>
+                                {% endif %}
+
+                                <!-- Compact Meta Info -->
+                                <div class="software-meta-compact">
+                                  {% if page.software_license %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-certificate"></i> {{ page.software_license }}
+                                    </span>
                                   {% endif %}
-                                </p>
-                              {% endif %}
-                            </div>
-                            
-                            <!-- Quick Links and Actions Row -->
-                            <div class="software-bottom-row">
-                              <!-- Quick Links -->
-                              {% if page.repository_url or page.website_url or page.documentation_url %}
-                              <div class="quick-links">
-                                {% if page.repository_url %}
-                                  <a href="{{ page.repository_url }}" target="_blank" class="quick-link">
-                                    <i class="fa fa-github"></i> {{ _('Repository') }}
-                                  </a>
+                                  {% if page.programming_language %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-code"></i> {{ page.programming_language }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.platform %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-desktop"></i> {{ page.platform }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.user_id %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-clock-o"></i> 
+                                      {% if page.modified %}
+                                        {{ h.time_ago_in_words_from_str(page.modified) }}
+                                      {% else %}
+                                        {{ _('Recently added') }}
+                                      {% endif %}
+                                    </span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                              
+                              <!-- Software Description -->
+                              <div class="software-description-modern">
+                                {% if page.excerpt %}
+                                  {% set content_text = page.excerpt %}
+                                {% elif page.content %}
+                                  {% set content_text = page.content %}
+                                {% else %}
+                                  {% set content_text = '' %}
                                 {% endif %}
-                                {% if page.website_url %}
-                                  <a href="{{ page.website_url }}" target="_blank" class="quick-link">
-                                    <i class="fa fa-external-link"></i> {{ _('Website') }}
-                                  </a>
-                                {% endif %}
-                                {% if page.documentation_url %}
-                                  <a href="{{ page.documentation_url }}" target="_blank" class="quick-link">
-                                    <i class="fa fa-book"></i> {{ _('Docs') }}
-                                  </a>
+                                
+                                {% if content_text %}
+                                  <p class="software-excerpt-modern">
+                                    {{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}
+                                  </p>
                                 {% endif %}
                               </div>
-                              {% endif %}
                               
-                              <!-- Software Actions -->
-                              <div class="software-actions">
-                                <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" 
-                                   class="btn btn-primary btn-sm">
-                                  <i class="fa fa-eye"></i> {{ _('View Details') }}
-                                </a>
-                                {% if h.check_access('ckanext_pages_update') %}
-                                  <a href="{{ h.url_for('pages.open_source_software_edit', page=page.name) }}" 
-                                     class="btn btn-default btn-sm">
-                                    <i class="fa fa-edit"></i> {{ _('Edit') }}
+                              <!-- Action Row -->
+                              <div class="software-actions-modern">
+                                <!-- Quick Links -->
+                                <div class="quick-links-modern">
+                                  {% if page.repository_url %}
+                                    <a href="{{ page.repository_url }}" target="_blank" class="quick-link-modern">
+                                      <i class="fa fa-github"></i> {{ _('Repository') }}
+                                    </a>
+                                  {% endif %}
+                                  {% if page.website_url %}
+                                    <a href="{{ page.website_url }}" target="_blank" class="quick-link-modern">
+                                      <i class="fa fa-external-link"></i> {{ _('Website') }}
+                                    </a>
+                                  {% endif %}
+                                  {% if page.documentation_url %}
+                                    <a href="{{ page.documentation_url }}" target="_blank" class="quick-link-modern">
+                                      <i class="fa fa-book"></i> {{ _('Docs') }}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="action-buttons-modern">
+                                  {% if page.learning_resources %}
+                                    <span class="has-courses-badge">
+                                      <i class="fa fa-graduation-cap"></i> {{ _('Has Courses') }}
+                                    </span>
+                                  {% endif %}
+                                  
+                                  <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" 
+                                     class="btn btn-primary btn-sm btn-modern">
+                                    <i class="fa fa-eye"></i> {{ _('View Details') }}
                                   </a>
-                                {% endif %}
-                                {% if page.learning_resources %}
-                                  <span class="has-courses-indicator">
-                                    <i class="fa fa-graduation-cap"></i> {{ _('Includes Courses') }}
-                                  </span>
-                                {% endif %}
+                                  
+                                  {% if h.check_access('ckanext_pages_update') %}
+                                    <a href="{{ h.url_for('pages.open_source_software_edit', page=page.name) }}" 
+                                       class="btn btn-default btn-sm btn-modern">
+                                      <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                    </a>
+                                  {% endif %}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -533,321 +535,383 @@
 </div>
 {% endif %}
 
-<!-- Compact Software List Styles -->
+<!-- Modern Compact Software List Styles -->
 <style>
-/* Compact software cards */
-.software-compact {
-  padding: 1rem !important;
+/* Modern Software Cards */
+.software-card-modern {
+  transition: all 0.3s ease;
 }
 
-.software-image-compact {
-  width: 100%;
-  max-width: 200px;
-  height: 80px;
+.module-modern {
+  background: #fff;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 114, 188, 0.08);
+  transition: all 0.3s ease;
   overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.module-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16);
+  border-color: var(--unesco-blue-pale);
+}
+
+.software-card-content {
+  padding: 1.5rem;
+}
+
+/* Modern Image Container */
+.software-image-container {
+  width: 100%;
+  height: 120px;
   border-radius: 12px;
-  background: #ffffff;
+  overflow: hidden;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #e9ecef;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
-  margin: 0 auto;
 }
 
-.software-image-compact:hover {
+.software-image-container:hover {
   border-color: var(--unesco-blue);
-  box-shadow: 0 4px 8px rgba(0, 114, 188, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.2);
 }
 
-.software-image-compact img {
+.software-image {
   width: 100%;
   height: 100%;
   object-fit: contain;
   padding: 8px;
   transition: transform 0.3s ease;
+  background: white;
 }
 
-.software-image-compact:hover img {
+.software-image-container:hover .software-image {
   transform: scale(1.05);
 }
 
-.placeholder-image-compact {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+.software-placeholder {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #6c757d;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-.placeholder-image-compact:hover {
-  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #e9ecef 100%);
-  color: var(--unesco-blue);
+.software-placeholder i {
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
 }
 
-/* Title in header styling */
-.software-title-header {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.3;
+.software-placeholder span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
 }
 
-.software-title-header a {
-  color: #ffffff;
-  text-decoration: none;
-  transition: opacity 0.3s ease;
+/* Modern Header Layout */
+.software-header-compact {
+  margin-bottom: 1rem;
 }
 
-.software-title-header a:hover {
-  opacity: 0.9;
-  text-decoration: underline;
-}
-
-.software-subtitle-header {
-  margin: 0;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-style: italic;
-}
-
-.software-header-meta {
+.software-title-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.software-excerpt {
+.software-title-modern {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.software-title-modern a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.software-title-modern a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: none;
+}
+
+.software-subtitle-modern {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Modern Badges */
+.software-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badge-category,
+.badge-access {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  color: white;
+}
+
+.badge-access {
+  background: var(--unesco-blue);
+}
+
+.badge-open-source {
+  background: #28a745;
+}
+
+/* Compact Meta Information */
+.software-meta-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.meta-item i {
+  color: var(--unesco-blue);
+  font-size: 0.8rem;
+  width: 14px;
+  text-align: center;
+}
+
+/* Modern Description */
+.software-description-modern {
   margin-bottom: 1rem;
+}
+
+.software-excerpt-modern {
+  margin: 0;
   line-height: 1.6;
-  color: #495057;
+  color: var(--text-primary);
   font-size: 0.95rem;
 }
 
-.read-more-toggle {
-  color: #0072BC;
-  text-decoration: none;
-  font-weight: 500;
-  margin-left: 0.5rem;
-}
-
-.read-more-toggle:hover {
-  color: #005A9C;
-  text-decoration: underline;
-}
-
-/* Contributor info styling */
-.software-contributor {
-  text-align: right;
-}
-
-.contributor-info {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.85rem;
-  line-height: 1.2;
-}
-
-.contributor-info i {
-  margin-right: 0.3rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* Bottom row layout */
-.software-bottom-row {
+/* Modern Action Row */
+.software-actions-modern {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
 }
 
-/* Quick links compact */
-.quick-links {
+/* Modern Quick Links */
+.quick-links-modern {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
-}
-
-.quick-link {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  background: #f8f9fa;
-  color: #0072BC;
-  text-decoration: none;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  border: 1px solid #e9ecef;
-  transition: all 0.2s ease;
-}
-
-.quick-link:hover {
-  background: #0072BC;
-  color: white;
-  text-decoration: none;
-}
-
-.quick-link i {
-  margin-right: 0.3rem;
-  font-size: 0.75rem;
-}
-
-/* Software actions compact */
-.software-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.software-actions .btn {
-  padding: 0.3rem 0.8rem;
-  font-size: 0.85rem;
-}
-
-.has-courses-indicator {
-  display: inline-block;
-  background: #28a745;
-  color: white;
-  padding: 0.25rem 0.6rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
-}
-
-.has-courses-indicator i {
-  margin-right: 0.3rem;
-}
-
-/* Metadata badges in header */
-.software-metadata {
-  display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  align-items: center;
-  justify-content: flex-end;
 }
 
-.software-category-badge,
-.license-badge {
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
+.quick-link-modern {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--unesco-blue-pale);
+  transition: all 0.3s ease;
 }
 
-.license-badge {
-  background: rgba(255, 255, 255, 0.2);
+.quick-link-modern:hover {
+  background: var(--unesco-blue);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
 }
 
-/* Modal styles */
-.badge-list {
+.quick-link-modern i {
+  font-size: 0.75rem;
+}
+
+/* Modern Action Buttons */
+.action-buttons-modern {
   display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
 }
 
-.badge {
+.btn-modern {
+  border-radius: 20px;
   padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
 }
 
-/* Remove difficulty badges from metadata since we're removing levels */
-.difficulty-badge {
-  display: none;
+.btn-primary.btn-modern {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
 }
 
-/* Responsive adjustments */
+.btn-primary.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+}
+
+.btn-default.btn-modern {
+  background: white;
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.btn-default.btn-modern:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+.has-courses-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #28a745;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.has-courses-badge i {
+  font-size: 0.75rem;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .software-compact {
-    padding: 0.75rem !important;
+  .software-card-content {
+    padding: 1rem;
   }
   
-  .software-image-compact {
-    width: 120px;
-    height: 60px;
-    margin: 0 auto;
+  .software-image-container {
+    height: 100px;
+    margin-bottom: 1rem;
   }
   
-  .software-title-header {
-    font-size: 1.1rem;
-  }
-  
-  .software-subtitle-header {
-    font-size: 0.85rem;
-  }
-  
-  .software-header {
-    padding: 0.75rem 1rem;
-  }
-  
-  .software-header-meta {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 0.5rem;
-  }
-  
-  .software-bottom-row {
+  .software-title-row {
     flex-direction: column;
     align-items: flex-start;
   }
   
-  .quick-link {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.75rem;
+  .software-title-modern {
+    font-size: 1.2rem;
   }
   
-  .software-actions {
+  .software-meta-compact {
+    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .meta-item {
+    font-size: 0.8rem;
+  }
+  
+  .software-actions-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .quick-links-modern {
+    order: 2;
+    width: 100%;
+  }
+  
+  .action-buttons-modern {
+    order: 1;
     width: 100%;
     justify-content: flex-start;
   }
   
-  .software-actions .btn {
-    padding: 0.25rem 0.6rem;
+  .btn-modern {
+    padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
-  }
-  
-  .contributor-info {
-    font-size: 0.75rem;
-  }
-  
-  .software-metadata {
-    justify-content: flex-start;
-  }
-  
-  .software-category-badge,
-  .license-badge {
-    font-size: 0.7rem;
-    padding: 0.15rem 0.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .software-image-compact {
-    width: 80px;
-    height: 40px;
+  .software-image-container {
+    height: 80px;
   }
   
-  .software-header .row {
-    flex-direction: column;
+  .software-title-modern {
+    font-size: 1.1rem;
   }
   
-  .software-header .col-md-4 {
-    text-align: left !important;
-  }
-  
-  .software-excerpt {
+  .software-excerpt-modern {
     font-size: 0.9rem;
+  }
+  
+  .quick-links-modern {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .quick-link-modern {
+    justify-content: center;
+  }
+  
+  .action-buttons-modern {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-modern {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>
@@ -1058,6 +1122,158 @@ waitForJQuery(function($) {
   color: var(--unesco-blue);
 }
 
+/* Modern Software Cards */
+.software-card-modern {
+  transition: all 0.3s ease;
+}
+
+.module-modern {
+  background: #fff;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 114, 188, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.module-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16);
+  border-color: var(--unesco-blue-pale);
+}
+
+.software-card-content {
+  padding: 1.5rem;
+}
+
+/* Modern Image Container */
+.software-image-container {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.software-image-container:hover {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.2);
+}
+
+.software-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  transition: transform 0.3s ease;
+  background: white;
+}
+
+.software-image-container:hover .software-image {
+  transform: scale(1.05);
+}
+
+.software-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.software-placeholder i {
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
+.software-placeholder span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Modern Header Layout */
+.software-header-compact {
+  margin-bottom: 1rem;
+}
+
+.software-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.software-title-modern {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.software-title-modern a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.software-title-modern a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: none;
+}
+
+.software-subtitle-modern {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Modern Badges */
+.software-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badge-category,
+.badge-access {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  color: white;
+}
+
+.badge-access {
+  background: var(--unesco-blue);
+}
+
+.badge-open-source {
+  background: #28a745;
+}
+
 /* Professional Module Styling */
 .module {
   background: #fff;
@@ -1080,6 +1296,146 @@ waitForJQuery(function($) {
 
 .software-compact {
   padding: 1rem !important;
+}
+
+/* Compact Meta Information */
+.software-meta-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.meta-item i {
+  color: var(--unesco-blue);
+  font-size: 0.8rem;
+  width: 14px;
+  text-align: center;
+}
+
+/* Modern Description */
+.software-description-modern {
+  margin-bottom: 1rem;
+}
+
+.software-excerpt-modern {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+/* Modern Action Row */
+.software-actions-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Modern Quick Links */
+.quick-links-modern {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.quick-link-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--unesco-blue-pale);
+  transition: all 0.3s ease;
+}
+
+.quick-link-modern:hover {
+  background: var(--unesco-blue);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
+}
+
+.quick-link-modern i {
+  font-size: 0.75rem;
+}
+
+/* Modern Action Buttons */
+.action-buttons-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-modern {
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-primary.btn-modern {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
+}
+
+.btn-primary.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+}
+
+.btn-default.btn-modern {
+  background: white;
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.btn-default.btn-modern:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+.has-courses-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #28a745;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.has-courses-badge i {
+  font-size: 0.75rem;
 }
 
 /* Software Summary */
@@ -1448,7 +1804,7 @@ waitForJQuery(function($) {
   transform: translateY(-1px);
 }
 
-/* Responsive Design */
+/* Modern Responsive Design */
 @media (max-width: 768px) {
   .section-title {
     height: 250px;
@@ -1465,6 +1821,56 @@ waitForJQuery(function($) {
   
   .module-content {
     padding: 1.5rem;
+  }
+  
+  .software-card-content {
+    padding: 1rem;
+  }
+  
+  .software-image-container {
+    height: 100px;
+    margin-bottom: 1rem;
+  }
+  
+  .software-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .software-title-modern {
+    font-size: 1.2rem;
+  }
+  
+  .software-meta-compact {
+    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .meta-item {
+    font-size: 0.8rem;
+  }
+  
+  .software-actions-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .quick-links-modern {
+    order: 2;
+    width: 100%;
+  }
+  
+  .action-buttons-modern {
+    order: 1;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .btn-modern {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
   
   .software-actions-bar .col-md-4 {
@@ -1534,6 +1940,37 @@ waitForJQuery(function($) {
   
   .module-content {
     padding: 1rem;
+  }
+  
+  .software-image-container {
+    height: 80px;
+  }
+  
+  .software-title-modern {
+    font-size: 1.1rem;
+  }
+  
+  .software-excerpt-modern {
+    font-size: 0.9rem;
+  }
+  
+  .quick-links-modern {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .quick-link-modern {
+    justify-content: center;
+  }
+  
+  .action-buttons-modern {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-modern {
+    width: 100%;
+    text-align: center;
   }
   
   .software-image {
