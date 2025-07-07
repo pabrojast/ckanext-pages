@@ -513,17 +513,21 @@
                                 </div>
                               </div>
                               <div class="logo-options" style="margin-top: 1rem;">
-                                <label class="checkbox-inline">
+                                <div class="checkbox-option">
                                   <input type="checkbox" id="add-background" name="add_background" value="true">
-                                  <span class="checkbox-label">{{ _('Add white background to logo') }}</span>
-                                  <small class="help-inline">{{ _('Check this for logos with transparency that need a white background') }}</small>
-                                </label>
-                                <label class="checkbox-inline" style="margin-top: 0.5rem;">
+                                  <label for="add-background">
+                                    <span class="checkbox-label">{{ _('Add white background to logo') }}</span>
+                                    <small class="help-inline">{{ _('Check this for logos with transparency that need a white background') }}</small>
+                                  </label>
+                                </div>
+                                <div class="checkbox-option">
                                   <input type="checkbox" id="include-logo-in-gallery" name="include_logo_in_gallery" value="true" 
                                          {% if data.get('include_logo_in_gallery') == 'true' %}checked{% endif %}>
-                                  <span class="checkbox-label">{{ _('Include logo in image gallery') }}</span>
-                                  <small class="help-inline">{{ _('Show the logo image in the screenshots gallery section') }}</small>
-                                </label>
+                                  <label for="include-logo-in-gallery">
+                                    <span class="checkbox-label">{{ _('Include logo in image gallery') }}</span>
+                                    <small class="help-inline">{{ _('Show the logo image in the screenshots gallery section') }}</small>
+                                  </label>
+                                </div>
                               </div>
                               <div id="logo-preview" class="logo-preview-container" style="display: none;">
                                 <img id="logo-preview-img" src="" alt="Logo Preview" class="logo-preview-img">
@@ -1351,34 +1355,52 @@ textarea.form-control {
 /* Logo Options Styling */
 .logo-options {
   background: var(--unesco-blue-pale);
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.5rem;
+  border-radius: 12px;
   border: 1px solid var(--unesco-blue);
+  box-shadow: var(--shadow-light);
 }
 
-.checkbox-inline {
+.checkbox-option {
   display: flex;
-  align-items: center;
-  margin: 0;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
 }
 
-.checkbox-inline input[type="checkbox"] {
-  margin-right: 0.5rem;
+.checkbox-option:last-child {
+  margin-bottom: 0;
+}
+
+.checkbox-option input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--unesco-blue);
+}
+
+.checkbox-option label {
+  cursor: pointer;
+  margin: 0;
+  flex: 1;
 }
 
 .checkbox-label {
   font-weight: 600;
   color: var(--text-primary);
-  margin-right: 0.5rem;
+  display: block;
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
 }
 
 .help-inline {
   font-size: 0.85rem;
   color: var(--text-secondary);
   font-style: italic;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* Header Options Styling */
@@ -1435,6 +1457,16 @@ textarea.form-control {
 .header-display-option input[type="radio"]:checked ~ .option-content .radio-label {
   color: var(--unesco-blue);
   font-weight: 700;
+}
+
+.header-display-option.selected {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.2);
+  transform: translateY(-2px);
+}
+
+.header-display-option.selected .option-content {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
 }
 
 .option-content {
@@ -2243,10 +2275,54 @@ textarea.form-control {
     $('.preview-banner h3, .preview-banner h4').text(title);
   });
   
+  // Header display mode change handler
+  $('input[name="header_display_mode"]').on('change', function() {
+    const selectedMode = $(this).val();
+    const logoUrl = $('#header_image').val() || logoUrl;
+    
+    // Update all preview banners based on selected mode
+    $('.header-display-option').each(function() {
+      const $option = $(this);
+      const isSelected = $option.find('input').is(':checked');
+      
+      if (isSelected) {
+        // Add visual indication for selected option
+        $option.addClass('selected');
+      } else {
+        $option.removeClass('selected');
+      }
+    });
+    
+    // Update logo preview images if logo exists
+    if (logoUrl) {
+      updateHeaderDisplayPreview(logoUrl);
+    }
+  });
+  
+  // Update upload count
+  function updateUploadCount() {
+    const count = $('.uploaded-image-item').length;
+    $('.upload-count').text(count);
+  }
+  
+  // Update count when images are added or removed
+  $(document).on('DOMNodeInserted DOMNodeRemoved', '#uploaded-images-preview', function() {
+    setTimeout(updateUploadCount, 100);
+  });
+  
+  // Initialize header display mode selection
+  function initializeHeaderDisplayMode() {
+    const selectedOption = $('input[name="header_display_mode"]:checked');
+    if (selectedOption.length) {
+      selectedOption.closest('.header-display-option').addClass('selected');
+    }
+  }
+  
   // Initialize
   loadUploadedImages();
   loadOrganizations();
   loadMemberStates();
+  initializeHeaderDisplayMode();
   }); // Close waitForJQuery function
 })();
 </script>

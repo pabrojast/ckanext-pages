@@ -52,6 +52,13 @@
                   {% if c.page.subtitle and display_mode != 'logo' %}
                     <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
+                  
+                  <!-- Debug info (remove in production) -->
+                  {% if h.check_access('sysadmin') %}
+                    <small style="opacity: 0.7; font-size: 0.8rem;">
+                      Display Mode: {{ display_mode }}{% if c.page.header_image %} | Has Image: Yes{% else %} | Has Image: No{% endif %}
+                    </small>
+                  {% endif %}
                   {% if c.page.software_category %}
                     <div class="section-title-meta-category">
                       <i class="fa fa-tag"></i> {{ _('Category:') }} {{ c.page.software_category.replace('-', ' ').title() }}

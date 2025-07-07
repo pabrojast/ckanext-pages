@@ -85,6 +85,8 @@ def default_pages_schema():
         'organization_id': [ignore_missing, unicode_safe],  # CKAN organization
         'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
         'member_states': [ignore_missing, unicode_safe],    # Member states JSON array
+        'header_display_mode': [ignore_missing, unicode_safe], # Header display mode (text, logo, logo_text)
+        'include_logo_in_gallery': [ignore_missing, unicode_safe], # Include logo in gallery option
     }
 
 
