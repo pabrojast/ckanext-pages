@@ -1790,6 +1790,28 @@ textarea.form-control {
     });
   }
   
+  // Function to format member state name for display
+  function formatMemberStateName(name) {
+    if (!name) return name;
+    
+    // Replace hyphens with spaces and capitalize each word
+    return name
+      .split('-')
+      .map(word => {
+        // Handle special cases for better formatting
+        if (word.toLowerCase() === 'of' || word.toLowerCase() === 'and' || 
+            word.toLowerCase() === 'the' || word.toLowerCase() === 'de' ||
+            word.toLowerCase() === 'da' || word.toLowerCase() === 'du') {
+          return word.toLowerCase();
+        }
+        // Capitalize first letter of each word
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ')
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
+  }
+
   // Load member states from API
   function loadMemberStates() {
     $.ajax({
@@ -1805,15 +1827,20 @@ textarea.form-control {
           $select.empty();
           $select.append('<option value="">{{ _("Select a member state...") }}</option>');
           
-          // Sort member states alphabetically by display name
-          const sortedGroups = response.result.groups.sort((a, b) => 
-            (a.display_name || a.title || a.name).localeCompare(b.display_name || b.title || b.name)
+          // Process and sort member states alphabetically by formatted display name
+          const processedGroups = response.result.groups.map(group => {
+            const formattedName = formatMemberStateName(group.name);
+            return {
+              ...group,
+              formatted_display_name: formattedName
+            };
+          }).sort((a, b) => 
+            a.formatted_display_name.localeCompare(b.formatted_display_name)
           );
           
-          sortedGroups.forEach(function(group) {
-            const displayName = group.display_name || group.title || group.name;
+          processedGroups.forEach(function(group) {
             $select.append(
-              `<option value="${group.id}" data-name="${group.name}" data-display="${displayName}">${displayName}</option>`
+              `<option value="${group.name}" data-name="${group.name}" data-display="${group.formatted_display_name}">${group.formatted_display_name}</option>`
             );
           });
           
@@ -1834,6 +1861,10 @@ textarea.form-control {
       try {
         selectedMemberStates = JSON.parse(memberStatesData);
         selectedMemberStates.forEach(state => {
+          // Ensure display_name is properly formatted
+          if (!state.display_name && state.name) {
+            state.display_name = formatMemberStateName(state.name);
+          }
           addMemberStateToList(state);
         });
       } catch (e) {
@@ -1844,15 +1875,15 @@ textarea.form-control {
   
   // Add member state to the list
   function addMemberStateToList(state) {
-    const stateId = `member-state-${state.id}`;
+    const stateId = `member-state-${state.name}`;
     if ($(`#${stateId}`).length) {
       return; // Already added
     }
     
     const stateHtml = `
-      <div class="member-state-item" id="${stateId}" data-state-id="${state.id}">
+      <div class="member-state-item" id="${stateId}" data-state-name="${state.name}">
         <span class="member-state-name">${state.display_name}</span>
-        <button type="button" class="btn btn-sm btn-danger remove-member-state" data-state-id="${state.id}">
+        <button type="button" class="btn btn-sm btn-danger remove-member-state" data-state-name="${state.name}">
           <i class="fa fa-times"></i>
         </button>
       </div>
@@ -1869,21 +1900,21 @@ textarea.form-control {
   $('#add-member-state').on('click', function() {
     const $select = $('#member-state-select');
     const selectedOption = $select.find('option:selected');
-    const stateId = selectedOption.val();
+    const stateName = selectedOption.val();
     
-    if (!stateId) {
+    if (!stateName) {
       return;
     }
     
     // Check if already added
-    if (selectedMemberStates.find(s => s.id === stateId)) {
+    if (selectedMemberStates.find(s => s.name === stateName)) {
       alert('{{ _("This member state has already been added") }}');
       return;
     }
     
     const state = {
-      id: stateId,
-      name: selectedOption.data('name'),
+      id: stateName, // Keep id for compatibility
+      name: stateName,
       display_name: selectedOption.data('display')
     };
     
@@ -1897,9 +1928,9 @@ textarea.form-control {
   
   // Handle remove member state
   $(document).on('click', '.remove-member-state', function() {
-    const stateId = $(this).data('state-id');
-    $(`#member-state-${stateId}`).remove();
-    selectedMemberStates = selectedMemberStates.filter(s => s.id !== stateId);
+    const stateName = $(this).data('state-name');
+    $(`#member-state-${stateName}`).remove();
+    selectedMemberStates = selectedMemberStates.filter(s => s.name !== stateName);
     updateMemberStatesData();
   });
   
