@@ -392,7 +392,14 @@
                             <label for="learning_resources" class="control-label">{{ _('Learning Resources') }}</label>
                             <textarea name="learning_resources" id="learning_resources" rows="10" class="form-control ckeditor" 
                                       placeholder="{{ _('List learning resources, tutorials, courses, and training materials...') }}">{{ data.get('learning_resources', '') }}</textarea>
-                            <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials. Supports Markdown and HTML.') }}</p>
+                            <p class="help-block">
+                              {{ _('Include links to tutorials, courses, documentation, and other learning materials. Supports Markdown and HTML.') }}
+                              <br><br>
+                              <strong>{{ _('Platform-specific styling:') }}</strong><br>
+                              • {{ _('YouTube links (youtube.com, youtu.be) are automatically styled with red YouTube branding') }}<br>
+                              • {{ _('OpenLearning links (openlearning.unesco.org) are automatically styled with UNESCO branding') }}<br>
+                              • {{ _('Other tutorial and blog links receive appropriate styling automatically') }}
+                            </p>
                           </div>
 
                           <div class="form-group">

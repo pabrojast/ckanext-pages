@@ -395,6 +395,7 @@ class PagesPlugin(PagesPluginBase):
         tk.add_public_directory(config, 'assets/')
         tk.add_public_directory(config, 'assets/vendor/ckeditor/')
         tk.add_public_directory(config, 'assets/vendor/ckeditor/skins/moono-lisa')
+        tk.add_public_directory(config, 'public/')
 
     def configure(self, config):
         '''
