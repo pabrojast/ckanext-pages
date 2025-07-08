@@ -2,9 +2,9 @@
 
 {% block title %}
 {% if page %}
-  {{ _('Edit Software Entry') }} - {{ page.title or page.name }}
+  {{ _('Edit Tool Entry') }} - {{ page.title or page.name }}
 {% else %}
-  {{ _('Add New Software Entry') }}
+  {{ _('Add New Tool Entry') }}
 {% endif %}
 - {{ super() }}
 {% endblock %}
@@ -25,12 +25,12 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Water Management Tools') }}</a></li>
                     {% if page %}
                       <li><a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
                       <li class="active">{{ _('Edit') }}</li>
                     {% else %}
-                      <li class="active">{{ _('Add Software Entry') }}</li>
+                      <li class="active">{{ _('Add Tool Entry') }}</li>
                     {% endif %}
                 </ol>
             </div>
@@ -42,11 +42,11 @@
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   {% if page %}
-                    <h1>{{ _('Edit Software Entry') }}</h1>
-                    <p class="section-title-description">{{ _('Update software information, features, and learning resources') }}</p>
+                    <h1>{{ _('Edit Tool Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Update tool information, features, and learning resources') }}</p>
                   {% else %}
-                    <h1>{{ _('Add New Software Entry') }}</h1>
-                    <p class="section-title-description">{{ _('Add a new open-source software, application, or learning resource') }}</p>
+                    <h1>{{ _('Add New Tool Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Add a new water management tool, application, or learning resource') }}</p>
                   {% endif %}
                 </div>
               </div>
@@ -79,10 +79,10 @@
                           </h3>
                           
                           <div class="form-group">
-                            <label for="title" class="control-label">{{ _('Software Title') }} <span class="required">*</span></label>
+                            <label for="title" class="control-label">{{ _('Tool Title') }} <span class="required">*</span></label>
                             <input type="text" name="title" id="title" class="form-control" 
                                    value="{{ data.get('title', '') }}" 
-                                   placeholder="{{ _('e.g., QGIS - Geographic Information System') }}">
+                                   placeholder="{{ _('e.g., QGIS - Geographic Information System for Water Management') }}">
                             {% if errors.title %}
                               <div class="error-block">{{ errors.title[0] }}</div>
                             {% endif %}
@@ -111,7 +111,7 @@
                             <label for="subtitle" class="control-label">{{ _('Subtitle/Short Description') }}</label>
                             <input type="text" name="subtitle" id="subtitle" class="form-control" 
                                    value="{{ data.get('subtitle', '') }}" 
-                                   placeholder="{{ _('Brief description of the software') }}">
+                                   placeholder="{{ _('Brief description of the tool and its water management applications') }}">
                           </div>
 
                           <div class="form-group">
@@ -124,18 +124,18 @@
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="software_category" class="control-label">{{ _('Category') }}</label>
-                                <select name="software_category" id="software_category" class="form-control">
-                                  <option value="">{{ _('Select Category') }}</option>
-                                  <option value="gis" {% if data.get('software_category') == 'gis' %}selected{% endif %}>{{ _('GIS Software') }}</option>
-                                  <option value="data-processing" {% if data.get('software_category') == 'data-processing' %}selected{% endif %}>{{ _('Data Processing') }}</option>
-                                  <option value="visualization" {% if data.get('software_category') == 'visualization' %}selected{% endif %}>{{ _('Visualization') }}</option>
-                                  <option value="web-platform" {% if data.get('software_category') == 'web-platform' %}selected{% endif %}>{{ _('Web Platform') }}</option>
-                                  <option value="desktop-app" {% if data.get('software_category') == 'desktop-app' %}selected{% endif %}>{{ _('Desktop Application') }}</option>
-                                  <option value="mobile-app" {% if data.get('software_category') == 'mobile-app' %}selected{% endif %}>{{ _('Mobile Application') }}</option>
-                                  <option value="library" {% if data.get('software_category') == 'library' %}selected{% endif %}>{{ _('Library/Framework') }}</option>
-                                  <option value="api" {% if data.get('software_category') == 'api' %}selected{% endif %}>{{ _('API/Service') }}</option>
-                                  <option value="tool" {% if data.get('software_category') == 'tool' %}selected{% endif %}>{{ _('Tool/Utility') }}</option>
+                                <label for="software_category" class="control-label">{{ _('Categories') }}</label>
+                                <p class="help-block">{{ _('Select multiple categories that best describe this tool (hold Ctrl/Cmd to select multiple)') }}</p>
+                                <select name="software_category" id="software_category" class="form-control" multiple>
+                                  <option value="programming" {% if 'programming' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Programming') }}</option>
+                                  <option value="collaboration-platforms" {% if 'collaboration-platforms' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>
+                                  <option value="geographic-information-systems" {% if 'geographic-information-systems' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Geographic Information Systems') }}</option>
+                                  <option value="modeling" {% if 'modeling' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Modeling') }}</option>
+                                  <option value="data-collection" {% if 'data-collection' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Data Collection') }}</option>
+                                  <option value="data-processing" {% if 'data-processing' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Data Processing') }}</option>
+                                  <option value="data-visualization" {% if 'data-visualization' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Data Visualization') }}</option>
+                                  <option value="mobile-application" {% if 'mobile-application' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Mobile Application') }}</option>
+                                  <option value="desktop-application" {% if 'desktop-application' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Desktop Application') }}</option>
                                 </select>
                               </div>
                             </div>
@@ -153,44 +153,84 @@
 
                           <!-- New Technical Information Row -->
                           <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                               <div class="form-group">
-                                <label for="programming_language" class="control-label">{{ _('Programming Language') }}</label>
-                                <select name="programming_language" id="programming_language" class="form-control">
-                                  <option value="">{{ _('Select Language') }}</option>
-                                  <option value="Python" {% if data.get('programming_language') == 'Python' %}selected{% endif %}>Python</option>
-                                  <option value="JavaScript" {% if data.get('programming_language') == 'JavaScript' %}selected{% endif %}>JavaScript</option>
-                                  <option value="R" {% if data.get('programming_language') == 'R' %}selected{% endif %}>R</option>
-                                  <option value="Java" {% if data.get('programming_language') == 'Java' %}selected{% endif %}>Java</option>
-                                  <option value="C++" {% if data.get('programming_language') == 'C++' %}selected{% endif %}>C++</option>
-                                  <option value="C" {% if data.get('programming_language') == 'C' %}selected{% endif %}>C</option>
-                                  <option value="PHP" {% if data.get('programming_language') == 'PHP' %}selected{% endif %}>PHP</option>
-                                  <option value="Go" {% if data.get('programming_language') == 'Go' %}selected{% endif %}>Go</option>
-                                  <option value="Rust" {% if data.get('programming_language') == 'Rust' %}selected{% endif %}>Rust</option>
-                                  <option value="Other" {% if data.get('programming_language') == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
+                                <label for="programming_language" class="control-label">{{ _('Programming Languages') }}</label>
+                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple languages') }}</p>
+                                <select name="programming_language" id="programming_language" class="form-control" multiple>
+                                  <option value="Python" {% if 'Python' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Python</option>
+                                  <option value="JavaScript" {% if 'JavaScript' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>JavaScript</option>
+                                  <option value="R" {% if 'R' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>R</option>
+                                  <option value="Java" {% if 'Java' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Java</option>
+                                  <option value="C++" {% if 'C++' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>C++</option>
+                                  <option value="C" {% if 'C' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>C</option>
+                                  <option value="PHP" {% if 'PHP' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>PHP</option>
+                                  <option value="Go" {% if 'Go' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Go</option>
+                                  <option value="Rust" {% if 'Rust' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Rust</option>
+                                  <option value="MATLAB" {% if 'MATLAB' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>MATLAB</option>
+                                  <option value="Fortran" {% if 'Fortran' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Fortran</option>
+                                  <option value="Other" {% if 'Other' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>{{ _('Other') }}</option>
                                 </select>
                               </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                               <div class="form-group">
-                                <label for="platform" class="control-label">{{ _('Platform') }}</label>
-                                <select name="platform" id="platform" class="form-control">
-                                  <option value="">{{ _('Select Platform') }}</option>
-                                  <option value="Web" {% if data.get('platform') == 'Web' %}selected{% endif %}>{{ _('Web') }}</option>
-                                  <option value="Windows" {% if data.get('platform') == 'Windows' %}selected{% endif %}>Windows</option>
-                                  <option value="macOS" {% if data.get('platform') == 'macOS' %}selected{% endif %}>macOS</option>
-                                  <option value="Linux" {% if data.get('platform') == 'Linux' %}selected{% endif %}>Linux</option>
-                                  <option value="Cross-platform" {% if data.get('platform') == 'Cross-platform' %}selected{% endif %}>{{ _('Cross-platform') }}</option>
-                                  <option value="Mobile" {% if data.get('platform') == 'Mobile' %}selected{% endif %}>{{ _('Mobile') }}</option>
+                                <label for="platform" class="control-label">{{ _('Platforms') }}</label>
+                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple platforms') }}</p>
+                                <select name="platform" id="platform" class="form-control" multiple>
+                                  <option value="Windows" {% if 'Windows' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Windows</option>
+                                  <option value="Linux" {% if 'Linux' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Linux</option>
+                                  <option value="macOS" {% if 'macOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>macOS</option>
+                                  <option value="Android" {% if 'Android' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Android</option>
+                                  <option value="iOS" {% if 'iOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>iOS</option>
+                                  <option value="BSD" {% if 'BSD' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>BSD</option>
+                                  <option value="Web" {% if 'Web' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>{{ _('Web') }}</option>
+                                  <option value="Cross-platform" {% if 'Cross-platform' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>{{ _('Cross-platform') }}</option>
                                 </select>
                               </div>
                             </div>
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="development_status" class="control-label">{{ _('Development Status') }}</label>
+                                <select name="development_status" id="development_status" class="form-control">
+                                  <option value="">{{ _('Select Status') }}</option>
+                                  <option value="active" {% if data.get('development_status') == 'active' %}selected{% endif %}>{{ _('Active') }}</option>
+                                  <option value="beta" {% if data.get('development_status') == 'beta' %}selected{% endif %}>{{ _('Beta') }}</option>
+                                  <option value="stable" {% if data.get('development_status') == 'stable' %}selected{% endif %}>{{ _('Stable') }}</option>
+                                  <option value="maintained" {% if data.get('development_status') == 'maintained' %}selected{% endif %}>{{ _('Maintained') }}</option>
+                                  <option value="deprecated" {% if data.get('development_status') == 'deprecated' %}selected{% endif %}>{{ _('Deprecated') }}</option>
+                                  <option value="archived" {% if data.get('development_status') == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="release_date" class="control-label">{{ _('Release Date') }}</label>
+                                <input type="text" name="release_date" id="release_date" class="form-control" 
+                                       value="{{ data.get('release_date', '') }}" 
+                                       placeholder="{{ _('e.g., 2024, January 2024, 2024-01-15') }}">
+                                <p class="help-block">{{ _('Original release date or latest major version') }}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Version and Additional Languages Row -->
+                          <div class="row">
                             <div class="col-md-4">
                               <div class="form-group">
                                 <label for="version" class="control-label">{{ _('Current Version') }}</label>
                                 <input type="text" name="version" id="version" class="form-control" 
                                        value="{{ data.get('version', '') }}" 
                                        placeholder="{{ _('e.g., 3.2.1, v2.0, beta') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-8">
+                              <div class="form-group">
+                                <label for="additional_languages" class="control-label">{{ _('Additional Languages') }}</label>
+                                <input type="text" name="additional_languages" id="additional_languages" class="form-control" 
+                                       value="{{ data.get('additional_languages', '') }}" 
+                                       placeholder="{{ _('Languages not in the list above (comma-separated)') }}">
+                                <p class="help-block">{{ _('Add other programming languages not listed above, separated by commas') }}</p>
                               </div>
                             </div>
                           </div>
@@ -308,15 +348,15 @@
                           <div class="form-group">
                             <label for="excerpt" class="control-label">{{ _('Excerpt/Summary') }}</label>
                             <textarea name="excerpt" id="excerpt" rows="3" class="form-control" 
-                                      placeholder="{{ _('Brief summary that appears in listings...') }}">{{ data.get('excerpt', '') }}</textarea>
-                            <p class="help-block">{{ _('Short summary shown in software listings (200 characters recommended)') }}</p>
+                                      placeholder="{{ _('Brief summary that appears in tool listings...') }}">{{ data.get('excerpt', '') }}</textarea>
+                            <p class="help-block">{{ _('Short summary shown in tool listings (200 characters recommended)') }}</p>
                           </div>
 
                           <div class="form-group">
-                            <label for="content" class="control-label">{{ _('Software Overview') }}</label>
+                            <label for="content" class="control-label">{{ _('Tool Overview') }}</label>
                             <textarea name="content" id="content" rows="10" class="form-control ckeditor" 
-                                      placeholder="{{ _('Detailed description of the software, its purpose, and main capabilities...') }}">{{ data.get('content', '') }}</textarea>
-                            <p class="help-block">{{ _('Detailed description of the software. Supports Markdown and HTML.') }}</p>
+                                      placeholder="{{ _('Detailed description of the tool, its purpose, and main water management capabilities...') }}">{{ data.get('content', '') }}</textarea>
+                            <p class="help-block">{{ _('Detailed description of the tool and its applications in water management. Supports Markdown and HTML.') }}</p>
                           </div>
 
                           <div class="form-group">
@@ -495,6 +535,10 @@
                             <div class="form-group">
                               <label class="control-label">{{ _('Upload Screenshots & Images') }}</label>
                               <p class="help-block">{{ _('Upload images that will be displayed in the software gallery. You can crop and adjust each image.') }}</p>
+                              <div class="alert alert-info" style="margin-bottom: 1rem;">
+                                <i class="fa fa-info-circle"></i> 
+                                <strong>{{ _('Important:') }}</strong> {{ _('Each uploaded image requires a descriptive name. Please avoid using file names with numbers or technical codes. Use clear, meaningful descriptions like "Login interface", "Data visualization dashboard", or "Water flow analysis results".') }}
+                              </div>
                               <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
                               <div class="upload-dropzone modern-dropzone" id="image-dropzone">
                                 <div class="dropzone-content">
@@ -569,19 +613,19 @@
                           <input type="hidden" name="page_type" value="open-source-software">
                           {% if page %}
                             <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-save"></i> {{ _('Update Software Entry') }}
+                              <i class="fa fa-save"></i> {{ _('Update Tool Entry') }}
                             </button>
                             <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" class="btn btn-default">
                               <i class="fa fa-times"></i> {{ _('Cancel') }}
                             </a>
                             {% if h.check_access('ckanext_pages_delete') %}
-                              <a href="{{ h.url_for('pages.open_source_software_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this software entry?') }}">
+                              <a href="{{ h.url_for('pages.open_source_software_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this tool entry?') }}">
                                 <i class="fa fa-trash"></i> {{ _('Delete Entry') }}
                               </a>
                             {% endif %}
                           {% else %}
                             <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('Add Software Entry') }}
+                              <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}
                             </button>
                             <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-default">
                               <i class="fa fa-times"></i> {{ _('Cancel') }}
@@ -1240,6 +1284,24 @@ textarea.form-control {
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
   height: auto;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.uploaded-image-info input.required-field {
+  border: 2px solid #dc3545;
+  background: #fff5f5;
+  box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25);
+}
+
+.uploaded-image-info input.required-field:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  outline: none;
+}
+
+.uploaded-image-info input.required-field::placeholder {
+  color: #dc3545;
+  font-weight: 600;
 }
 
 .uploaded-image-actions {
@@ -2106,12 +2168,12 @@ textarea.form-control {
             $('#header_image').val(response.url);
             showLogoPreview(response.url);
           } else {
-            const imageData = {
-              url: response.url,
-              fileName: response.fileName,
-              alt: file.name.replace(/\.[^/.]+$/, ""),
-              caption: ''
-            };
+                      const imageData = {
+            url: response.url,
+            fileName: response.fileName,
+            alt: '', // Dejar vacío para que el usuario proporcione un nombre descriptivo
+            caption: ''
+          };
             uploadedImages.push(imageData);
             addUploadedImagePreview(imageData);
             updateUploadedImagesData();
@@ -2166,11 +2228,12 @@ textarea.form-control {
   // Add uploaded image preview
   function addUploadedImagePreview(imageData) {
     const imageId = `uploaded-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const altRequired = imageData.alt ? '' : 'required-field';
     const imageHtml = `
       <div class="uploaded-image-item" data-image-id="${imageId}">
         <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
         <div class="uploaded-image-info">
-          <input type="text" class="image-alt" value="${imageData.alt}" placeholder="{{ _('Alt text') }}">
+          <input type="text" class="image-alt ${altRequired}" value="${imageData.alt}" placeholder="{{ _('Enter descriptive name (required)') }}" title="{{ _('Please provide a descriptive name for this image') }}">
           <input type="text" class="image-caption" value="${imageData.caption}" placeholder="{{ _('Caption (optional)') }}">
           <div class="uploaded-image-actions">
             <button type="button" class="image-copy-url" onclick="copyImageUrl('${imageData.url}')">
@@ -2184,6 +2247,13 @@ textarea.form-control {
       </div>
     `;
     $('#uploaded-images-preview').append(imageHtml);
+    
+    // Focus on the alt text field if it's empty to encourage immediate naming
+    if (!imageData.alt) {
+      setTimeout(() => {
+        $(`[data-image-id="${imageId}"] .image-alt`).focus();
+      }, 100);
+    }
   }
   
   // Copy image URL to clipboard
@@ -2234,6 +2304,12 @@ textarea.form-control {
   
   // Update image data when alt text or caption changes
   $(document).on('change input', '.image-alt, .image-caption', function() {
+    // Remove required-field class when alt text is provided
+    if ($(this).hasClass('image-alt') && $(this).val().trim()) {
+      $(this).removeClass('required-field');
+    } else if ($(this).hasClass('image-alt') && !$(this).val().trim()) {
+      $(this).addClass('required-field');
+    }
     updateUploadedImagesData();
   });
   
@@ -2267,6 +2343,39 @@ textarea.form-control {
     }
   });
   
+  // Handle multiple selects - convert arrays to comma-separated strings
+  function handleMultipleSelects() {
+    // Handle categories
+    const categories = $('#software_category').val();
+    if (categories && Array.isArray(categories)) {
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'software_category_list',
+        value: categories.join(',')
+      }).appendTo('form');
+    }
+    
+    // Handle programming languages
+    const languages = $('#programming_language').val();
+    if (languages && Array.isArray(languages)) {
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'programming_language_list',
+        value: languages.join(',')
+      }).appendTo('form');
+    }
+    
+    // Handle platforms
+    const platforms = $('#platform').val();
+    if (platforms && Array.isArray(platforms)) {
+      $('<input>').attr({
+        type: 'hidden',
+        name: 'platform_list',
+        value: platforms.join(',')
+      }).appendTo('form');
+    }
+  }
+
   // Form validation
   $('form').on('submit', function(e) {
     var isValid = true;
@@ -2285,9 +2394,21 @@ textarea.form-control {
       isValid = false;
     }
     
+    // Validate that all uploaded images have descriptive names
+    var emptyAltFields = $('.image-alt').filter(function() {
+      return !$(this).val().trim();
+    });
+    
+    if (emptyAltFields.length > 0) {
+      alert('{{ _("Please provide descriptive names for all uploaded images before submitting.") }}');
+      emptyAltFields.first().focus();
+      isValid = false;
+    }
+    
     if (!isValid) {
       e.preventDefault();
     } else {
+      handleMultipleSelects();
       updateUploadedImagesData();
       updateMemberStatesData();
     }

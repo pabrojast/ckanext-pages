@@ -1,8 +1,146 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ c.page.title or c.page.name }} - {{ _('Open Source Software') }} - {{ super() }}
+{{ c.page.title or c.page.name }} - {{ _('Water Management Tools') }} - {{ super() }}
 {% endblock %}
+
+{# Macro for creating resource cards from text content #}
+{% macro render_resource_cards(content, title="") %}
+  {% if content and content.strip() %}
+    {% set lines = content.split('\n') %}
+    {% set resource_cards = [] %}
+    {% set regular_content = [] %}
+    
+    {% for line in lines %}
+      {% set line_stripped = line.strip() %}
+      {% if line_stripped %}
+        {% if 'youtube.com' in line_stripped or 'youtu.be' in line_stripped %}
+          {# Extract YouTube links #}
+          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
+          {% if url_match %}
+            {% set youtube_url = url_match[0] %}
+            {% set title_text = line_stripped.replace(youtube_url, '').strip('- []()') %}
+            {% if not title_text %}
+              {% set title_text = _('YouTube Video') %}
+            {% endif %}
+            {% set _ = resource_cards.append({
+              'type': 'youtube',
+              'url': youtube_url,
+              'title': title_text,
+              'description': _('Watch this tutorial video'),
+              'icon': 'fa-youtube-play'
+            }) %}
+          {% endif %}
+        {% elif 'openlearning.unesco.org' in line_stripped %}
+          {# Extract OpenLearning links #}
+          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
+          {% if url_match %}
+            {% set openlearning_url = url_match[0] %}
+            {% set title_text = line_stripped.replace(openlearning_url, '').strip('- []()') %}
+            {% if not title_text %}
+              {% set title_text = _('UNESCO OpenLearning Course') %}
+            {% endif %}
+            {% set _ = resource_cards.append({
+              'type': 'openlearning',
+              'url': openlearning_url,
+              'title': title_text,
+              'description': _('Access this UNESCO learning course'),
+              'icon': 'fa-graduation-cap'
+            }) %}
+          {% endif %}
+        {% elif ('http' in line_stripped and any(ext in line_stripped.lower() for ext in ['.pdf', '.doc', '.docx', 'manual', 'guide', 'documentation'])) %}
+          {# Extract Manual/Document links #}
+          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
+          {% if url_match %}
+            {% set doc_url = url_match[0] %}
+            {% set title_text = line_stripped.replace(doc_url, '').strip('- []()') %}
+            {% if not title_text %}
+              {% set title_text = _('Documentation') %}
+            {% endif %}
+            {% set _ = resource_cards.append({
+              'type': 'document',
+              'url': doc_url,
+              'title': title_text,
+              'description': _('Read the documentation'),
+              'icon': 'fa-file-text-o'
+            }) %}
+          {% endif %}
+        {% elif ('http' in line_stripped and 'github.com' in line_stripped) %}
+          {# Extract GitHub links #}
+          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
+          {% if url_match %}
+            {% set github_url = url_match[0] %}
+            {% set title_text = line_stripped.replace(github_url, '').strip('- []()') %}
+            {% if not title_text %}
+              {% set title_text = _('GitHub Repository') %}
+            {% endif %}
+            {% set _ = resource_cards.append({
+              'type': 'github',
+              'url': github_url,
+              'title': title_text,
+              'description': _('View source code and examples'),
+              'icon': 'fa-github'
+            }) %}
+          {% endif %}
+        {% elif 'http' in line_stripped %}
+          {# Extract other web links #}
+          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
+          {% if url_match %}
+            {% set web_url = url_match[0] %}
+            {% set title_text = line_stripped.replace(web_url, '').strip('- []()') %}
+            {% if not title_text %}
+              {% set title_text = _('External Resource') %}
+            {% endif %}
+            {% set _ = resource_cards.append({
+              'type': 'web',
+              'url': web_url,
+              'title': title_text,
+              'description': _('Visit external resource'),
+              'icon': 'fa-external-link'
+            }) %}
+          {% endif %}
+        {% else %}
+          {# Regular content line #}
+          {% set _ = regular_content.append(line) %}
+        {% endif %}
+      {% else %}
+        {% set _ = regular_content.append(line) %}
+      {% endif %}
+    {% endfor %}
+    
+    {# Render resource cards if any found #}
+    {% if resource_cards %}
+      <div class="resource-cards-section" style="margin-bottom: 2rem;">
+        {% if title %}
+          <h4 class="resource-cards-title">{{ title }}</h4>
+        {% endif %}
+        <div class="resource-cards-grid">
+          {% for card in resource_cards %}
+            <a href="{{ card.url }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
+              <div class="resource-card-icon">
+                <i class="fa {{ card.icon }}"></i>
+              </div>
+              <div class="resource-card-content">
+                <h5 class="resource-card-title">{{ card.title }}</h5>
+                <p class="resource-card-description">{{ card.description }}</p>
+              </div>
+              <div class="resource-card-arrow">
+                <i class="fa fa-chevron-right"></i>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    
+    {# Render remaining regular content #}
+    {% if regular_content %}
+      <div class="regular-content">
+        {{ h.render_markdown('\n'.join(regular_content), allow_html=True) | safe }}
+      </div>
+    {% endif %}
+  {% endif %}
+{% endmacro %}
 
 {% block content %}
 
@@ -20,7 +158,7 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Water Management Tools') }}</a></li>
                     <li class="active"><a href="{{ h.url_for('pages.open_source_software_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
                 </ol>
             </div>
@@ -61,7 +199,11 @@
                   {% endif %}
                   {% if c.page.software_category %}
                     <div class="section-title-meta-category">
-                      <i class="fa fa-tag"></i> {{ _('Category:') }} {{ c.page.software_category.replace('-', ' ').title() }}
+                      <i class="fa fa-tags"></i> {{ _('Categories:') }} 
+                      {% set categories = c.page.software_category.split(',') if c.page.software_category else [] %}
+                      {% for category in categories %}
+                        <span class="category-tag">{{ category.strip().replace('-', ' ').title() }}</span>{% if not loop.last %}, {% endif %}
+                      {% endfor %}
                     </div>
                   {% endif %}
                 </div>
@@ -85,7 +227,7 @@
                         <h2>{{ _('Software Overview') }}</h2>
                       </div>
                       <div class="software-content-body">
-                        {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                        {{ render_resource_cards(c.page.content) }}
                       </div>
                     </div>
                   </section>
@@ -124,7 +266,7 @@
                 {% endif %}
 
                 <!-- 3. Technical Information -->
-                {% if c.page.technical_requirements or c.page.software_license or c.page.software_difficulty %}
+                {% if c.page.technical_requirements or c.page.software_license or c.page.development_status or c.page.programming_language or c.page.platform or c.page.release_date %}
                 <div class="software-technical-info" style="margin-bottom: 3rem;">
                   <section class="module module-narrow software-module-tech">
                     <div class="module-content">
@@ -136,6 +278,19 @@
                       </div>
                       <div class="tech-info-content">
                         <div class="tech-info-grid">
+                          {% if c.page.development_status %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-heartbeat"></i>
+                              {{ _('Development Status') }}
+                            </div>
+                            <div class="tech-info-value">
+                              <span class="status-indicator status-{{ c.page.development_status.lower() }}"></span>
+                              {{ c.page.development_status.title() }}
+                            </div>
+                          </div>
+                          {% endif %}
+
                           {% if c.page.software_license %}
                           <div class="tech-info-item">
                             <div class="tech-info-label">
@@ -147,30 +302,76 @@
                             </div>
                           </div>
                           {% endif %}
-                          
-                          {% if c.page.software_difficulty %}
+
+                          {% if c.page.release_date %}
                           <div class="tech-info-item">
                             <div class="tech-info-label">
-                              <i class="fa fa-signal"></i>
-                              {{ _('Difficulty Level') }}
+                              <i class="fa fa-calendar"></i>
+                              {{ _('Release Date') }}
                             </div>
                             <div class="tech-info-value">
-                              <span class="difficulty-badge {{ h.get_software_difficulty_class(c.page.software_difficulty) }}">
-                                {{ c.page.software_difficulty.title() }}
-                              </span>
+                              {{ c.page.release_date }}
                             </div>
                           </div>
                           {% endif %}
-                          
-                          {% if c.page.project_status %}
+
+                          {% if c.page.version %}
                           <div class="tech-info-item">
                             <div class="tech-info-label">
-                              <i class="fa fa-heartbeat"></i>
-                              {{ _('Project Status') }}
+                              <i class="fa fa-tag"></i>
+                              {{ _('Current Version') }}
                             </div>
                             <div class="tech-info-value">
-                              <span class="status-indicator status-{{ c.page.project_status.lower() }}"></span>
-                              {{ c.page.project_status.title() }}
+                              {{ c.page.version }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.programming_language %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-code"></i>
+                              {{ _('Programming Languages') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set languages = c.page.programming_language.split(',') if c.page.programming_language else [] %}
+                              {% for language in languages %}
+                                <span class="tech-tag">{{ language.strip() }}</span>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                              {% if c.page.additional_languages %}
+                                {% if languages %}, {% endif %}
+                                {% set additional_langs = c.page.additional_languages.split(',') if c.page.additional_languages else [] %}
+                                {% for lang in additional_langs %}
+                                  <span class="tech-tag additional">{{ lang.strip() }}</span>{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                              {% endif %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.platform %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-desktop"></i>
+                              {{ _('Platforms') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set platforms = c.page.platform.split(',') if c.page.platform else [] %}
+                              {% for platform in platforms %}
+                                <span class="tech-tag">{{ platform.strip() }}</span>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.attribution %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-info-circle"></i>
+                              {{ _('Attribution') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.attribution }}
                             </div>
                           </div>
                           {% endif %}
@@ -180,7 +381,7 @@
                         <div class="requirements-section">
                           <h4>{{ _('Technical Requirements') }}</h4>
                           <div class="requirements-content">
-                            {{ h.render_markdown(c.page.technical_requirements, allow_html=True) | safe }}
+                            {{ render_resource_cards(c.page.technical_requirements, _('Technical Resources')) }}
                           </div>
                         </div>
                         {% endif %}
@@ -202,7 +403,7 @@
                         <h2>{{ _('Installation & Usage') }}</h2>
                       </div>
                       <div class="installation-content">
-                        {{ h.render_markdown(c.page.installation_instructions, allow_html=True) | safe }}
+                        {{ render_resource_cards(c.page.installation_instructions, _('Installation Resources')) }}
                       </div>
                     </div>
                   </section>
@@ -221,7 +422,7 @@
                         <h2>{{ _('Learning Resources & Courses') }}</h2>
                       </div>
                       <div class="learning-resources-content">
-                        {{ h.render_markdown(c.page.learning_resources, allow_html=True) | safe }}
+                        {{ render_resource_cards(c.page.learning_resources, _('Learning Resources')) }}
                       </div>
                     </div>
                   </section>
@@ -240,7 +441,7 @@
                         <h2>{{ _('Examples & Use Cases') }}</h2>
                       </div>
                       <div class="software-content-body">
-                        {{ h.render_markdown(c.page.example_applications, allow_html=True) | safe }}
+                        {{ render_resource_cards(c.page.example_applications, _('Example Resources')) }}
                       </div>
                     </div>
                   </section>
@@ -301,7 +502,7 @@
                       {% if c.page.image_carousel %}
                       <div class="external-images-gallery">
                         <div class="image-gallery-content">
-                          {{ h.render_markdown(c.page.image_carousel, allow_html=True) | safe }}
+                          {{ render_resource_cards(c.page.image_carousel, _('External Images & Media')) }}
                         </div>
                       </div>
                       {% endif %}
@@ -1062,8 +1263,56 @@
   animation: pulse-green 2s infinite;
 }
 
-.status-maintained { background: #17a2b8; }
-.status-archived { background: #6c757d; }
+.status-beta { 
+  background: #ffc107; 
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+}
+
+.status-stable { 
+  background: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+}
+
+.status-maintained { 
+  background: #17a2b8; 
+  box-shadow: 0 0 8px rgba(23, 162, 184, 0.6);
+}
+
+.status-deprecated { 
+  background: #fd7e14;
+  box-shadow: 0 0 8px rgba(253, 126, 20, 0.6);
+}
+
+.status-archived { 
+  background: #6c757d; 
+}
+
+/* Category and Tech Tags */
+.category-tag,
+.tech-tag {
+  display: inline-block;
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 2px;
+  border: 1px solid var(--unesco-blue);
+}
+
+.tech-tag.additional {
+  background: #fff3cd;
+  color: #856404;
+  border-color: #ffeaa7;
+}
+
+.section-title-meta-category .category-tag {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(5px);
+}
 
 @keyframes pulse-green {
   0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
@@ -1163,6 +1412,230 @@
 .resource-link:hover .link-arrow {
   opacity: 1;
   transform: translateX(4px);
+}
+
+/* Resource Cards System */
+.resource-cards-section {
+  margin-bottom: 2rem;
+}
+
+.resource-cards-title {
+  color: var(--unesco-blue);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+  position: relative;
+}
+
+.resource-cards-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--unesco-blue);
+  border-radius: 1px;
+}
+
+.resource-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.resource-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.resource-card:hover {
+  text-decoration: none;
+  color: inherit;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-strong);
+  border-color: var(--unesco-blue);
+}
+
+.resource-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--unesco-blue);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+  transform-origin: bottom;
+}
+
+.resource-card:hover::before {
+  transform: scaleY(1);
+}
+
+.resource-card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: white;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.resource-card:hover .resource-card-icon {
+  transform: scale(1.1);
+}
+
+.resource-card-youtube .resource-card-icon {
+  background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+}
+
+.resource-card-openlearning .resource-card-icon {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+}
+
+.resource-card-document .resource-card-icon {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.resource-card-github .resource-card-icon {
+  background: linear-gradient(135deg, #333 0%, #24292e 100%);
+}
+
+.resource-card-web .resource-card-icon {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+}
+
+.resource-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.resource-card-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.resource-card-description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.resource-card-arrow {
+  color: var(--unesco-blue);
+  font-size: 1rem;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.resource-card:hover .resource-card-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.regular-content {
+  margin-top: 1rem;
+}
+
+.regular-content h1,
+.regular-content h2,
+.regular-content h3,
+.regular-content h4,
+.regular-content h5,
+.regular-content h6 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.regular-content h1 { font-size: 1.8rem; }
+.regular-content h2 { font-size: 1.6rem; }
+.regular-content h3 { font-size: 1.4rem; }
+.regular-content h4 { font-size: 1.2rem; }
+.regular-content h5 { font-size: 1.1rem; }
+.regular-content h6 { font-size: 1rem; }
+
+.regular-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.regular-content ul,
+.regular-content ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.regular-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.regular-content blockquote {
+  border-left: 4px solid var(--unesco-blue);
+  background: var(--unesco-blue-pale);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.regular-content code {
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #e83e8c;
+}
+
+.regular-content pre {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.regular-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
 }
 
 /* Enhanced Image Gallery */
@@ -1394,6 +1867,22 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
   
+  /* Resource cards responsive for tablets */
+  .resource-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .resource-card {
+    padding: 1.25rem;
+  }
+  
+  .resource-card-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.3rem;
+  }
+  
   .action-buttons {
     flex-direction: column;
     align-items: stretch;
@@ -1435,6 +1924,30 @@
   
   .image-container {
     height: 180px;
+  }
+  
+  /* Resource cards responsive */
+  .resource-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .resource-card {
+    padding: 1rem;
+  }
+  
+  .resource-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .resource-card-title {
+    font-size: 1rem;
+  }
+  
+  .resource-card-description {
+    font-size: 0.85rem;
   }
   
   /* Modal responsive adjustments */

@@ -1,31 +1,31 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ _('Open Source Software & Learning Resources') }} - {{ super() }}
+{{ _('Open-Source Tools for Water Management') }} - {{ super() }}
 {% endblock %}
 
 {# Helper functions for software categories #}
 {% set get_software_category_class = {
-  'gis': 'category-gis',
-  'data-processing': 'category-data',
-  'visualization': 'category-viz',
-  'web-platform': 'category-web',
-  'desktop-app': 'category-desktop',
-  'mobile-app': 'category-desktop',
-  'library': 'category-library',
-  'api': 'category-library',
-  'tool': 'category-library'
+  'programming': 'category-programming',
+  'collaboration-platforms': 'category-collaboration',
+  'geographic-information-systems': 'category-gis',
+  'modeling': 'category-modeling',
+  'data-collection': 'category-data-collection',
+  'data-processing': 'category-data-processing',
+  'data-visualization': 'category-viz',
+  'mobile-application': 'category-mobile',
+  'desktop-application': 'category-desktop'
 } %}
 
 {% macro get_category_class(category) %}
   {{ get_software_category_class.get(category, 'category-default') }}
 {% endmacro %}
 
-{# Count unique categories #}
-{% set unique_categories = [] %}
+{# Count learning resources properly #}
+{% set learning_count = 0 %}
 {% for item in c.page.items %}
-  {% if item.software_category and item.software_category not in unique_categories %}
-    {% set _ = unique_categories.append(item.software_category) %}
+  {% if item.learning_resources and item.learning_resources.strip() %}
+    {% set learning_count = learning_count + 1 %}
   {% endif %}
 {% endfor %}
 
@@ -45,7 +45,7 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li class="active"><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software & Learning') }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open-Source Tools for Water Management') }}</a></li>
                 </ol>
             </div>
 
@@ -55,8 +55,15 @@
                 <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
-                  <h1>{{ _('Open Source Software & Learning Resources') }}</h1>
-                  <p class="section-title-description">{{ _('Discover powerful open-source tools, applications and learning courses for geospatial analysis and data management') }}</p>
+                  <h1>{{ _('Open-Source Tools for Water Management') }}</h1>
+                  <p class="section-title-description">{{ _('Repository for Open Access Hydrological Modeling and Geospatial Tools for Water Management') }}</p>
+                  {% if h.check_access('ckanext_pages_update') %}
+                    <div class="header-action" style="margin-top: 2rem;">
+                      <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-light btn-lg">
+                        <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}
+                      </a>
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </section>
@@ -65,27 +72,6 @@
           <div class="container">
             <div class="row">
               <div class="col-md-12">
-                
-                <!-- Action Bar -->
-                <div class="software-actions-bar" style="margin-bottom: 3rem;">
-                  <section class="module module-narrow">
-                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
-                      <div class="row">
-                        <div class="col-md-8">
-                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Software Catalog & Learning Resources') }}</h2>
-                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Curated collection of open-source software, example applications, and associated learning courses') }}</p>
-                        </div>
-                        <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
-                            <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('Add Software Entry') }}
-                            </a>
-                          {% endif %}
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                </div>
 
                 <!-- Software Summary -->
                 {% if c.page.items %}
@@ -93,32 +79,10 @@
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1rem 2.5rem;">
                       <div class="row text-center">
-                        <div class="col-md-2 col-sm-4">
+                        <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
                             <div class="metric-number">{{ c.page.items|length }}</div>
-                            <div class="metric-label">{{ _('Total Entries') }}</div>
-                          </div>
-                        </div>
-                                                  <div class="col-md-2 col-sm-4">
-                            <div class="status-metric">
-                              <div class="metric-number">
-                                {{ unique_categories|length }}
-                              </div>
-                              <div class="metric-label">{{ _('Categories') }}</div>
-                            </div>
-                          </div>
-                        <div class="col-md-2 col-sm-4">
-                          <div class="status-metric">
-                            <div class="metric-number">
-                              {% set course_count = 0 %}
-                              {% for item in c.page.items %}
-                                {% if item.learning_resources %}
-                                  {% set course_count = course_count + 1 %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ course_count }}
-                            </div>
-                            <div class="metric-label">{{ _('With Courses') }}</div>
+                            <div class="metric-label">{{ _('Total Tools') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
@@ -149,6 +113,12 @@
                             <div class="metric-label">{{ _('Open Access') }}</div>
                           </div>
                         </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ learning_count }}</div>
+                            <div class="metric-label">{{ _('With Learning Resources') }}</div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </section>
@@ -166,32 +136,25 @@
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
                               <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
-                                     placeholder="{{ _('Search software and tools...') }}" 
+                                     placeholder="{{ _('Search water management tools...') }}" 
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
-                          <div class="col-md-2">
+                          <div class="col-md-3">
                             <select name="category" class="form-control">
                               <option value="">{{ _('All Categories') }}</option>
-                              <option value="gis" {% if request.args.category == 'gis' %}selected{% endif %}>{{ _('GIS Software') }}</option>
+                              <option value="programming" {% if request.args.category == 'programming' %}selected{% endif %}>{{ _('Programming') }}</option>
+                              <option value="collaboration-platforms" {% if request.args.category == 'collaboration-platforms' %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>
+                              <option value="geographic-information-systems" {% if request.args.category == 'geographic-information-systems' %}selected{% endif %}>{{ _('Geographic Information Systems') }}</option>
+                              <option value="modeling" {% if request.args.category == 'modeling' %}selected{% endif %}>{{ _('Modeling') }}</option>
+                              <option value="data-collection" {% if request.args.category == 'data-collection' %}selected{% endif %}>{{ _('Data Collection') }}</option>
                               <option value="data-processing" {% if request.args.category == 'data-processing' %}selected{% endif %}>{{ _('Data Processing') }}</option>
-                              <option value="visualization" {% if request.args.category == 'visualization' %}selected{% endif %}>{{ _('Visualization') }}</option>
-                              <option value="web-platform" {% if request.args.category == 'web-platform' %}selected{% endif %}>{{ _('Web Platforms') }}</option>
-                              <option value="desktop-app" {% if request.args.category == 'desktop-app' %}selected{% endif %}>{{ _('Desktop Apps') }}</option>
-                              <option value="library" {% if request.args.category == 'library' %}selected{% endif %}>{{ _('Libraries') }}</option>
-                              <option value="framework" {% if request.args.category == 'framework' %}selected{% endif %}>{{ _('Frameworks') }}</option>
-                              <option value="api" {% if request.args.category == 'api' %}selected{% endif %}>{{ _('APIs') }}</option>
-                              <option value="tool" {% if request.args.category == 'tool' %}selected{% endif %}>{{ _('Tools') }}</option>
+                              <option value="data-visualization" {% if request.args.category == 'data-visualization' %}selected{% endif %}>{{ _('Data Visualization') }}</option>
+                              <option value="mobile-application" {% if request.args.category == 'mobile-application' %}selected{% endif %}>{{ _('Mobile Application') }}</option>
+                              <option value="desktop-application" {% if request.args.category == 'desktop-application' %}selected{% endif %}>{{ _('Desktop Application') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
-                            <select name="access_type" class="form-control">
-                              <option value="">{{ _('All Types') }}</option>
-                              <option value="open-source" {% if request.args.access_type == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
-                              <option value="open-access" {% if request.args.access_type == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
-                            </select>
-                          </div>
-                          <div class="col-md-2">
+                          <div class="col-md-3">
                             <button type="submit" class="btn btn-default btn-block">
                               <i class="fa fa-search"></i> {{ _('Filter') }}
                             </button>
@@ -200,6 +163,24 @@
                         
                         <!-- Advanced Filters Row -->
                         <div class="row" style="margin-top: 1rem;">
+                          <div class="col-md-2">
+                            <select name="access_type" class="form-control">
+                              <option value="">{{ _('All Types') }}</option>
+                              <option value="open-source" {% if request.args.access_type == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
+                              <option value="open-access" {% if request.args.access_type == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <select name="development_status" class="form-control">
+                              <option value="">{{ _('All Status') }}</option>
+                              <option value="active" {% if request.args.development_status == 'active' %}selected{% endif %}>{{ _('Active') }}</option>
+                              <option value="beta" {% if request.args.development_status == 'beta' %}selected{% endif %}>{{ _('Beta') }}</option>
+                              <option value="stable" {% if request.args.development_status == 'stable' %}selected{% endif %}>{{ _('Stable') }}</option>
+                              <option value="maintained" {% if request.args.development_status == 'maintained' %}selected{% endif %}>{{ _('Maintained') }}</option>
+                              <option value="deprecated" {% if request.args.development_status == 'deprecated' %}selected{% endif %}>{{ _('Deprecated') }}</option>
+                              <option value="archived" {% if request.args.development_status == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
+                            </select>
+                          </div>
                           <div class="col-md-2">
                             <select name="license" class="form-control">
                               <option value="">{{ _('All Licenses') }}</option>
@@ -228,12 +209,14 @@
                           <div class="col-md-2">
                             <select name="platform" class="form-control">
                               <option value="">{{ _('All Platforms') }}</option>
-                              <option value="Web" {% if request.args.platform == 'Web' %}selected{% endif %}>{{ _('Web') }}</option>
                               <option value="Windows" {% if request.args.platform == 'Windows' %}selected{% endif %}>Windows</option>
-                              <option value="macOS" {% if request.args.platform == 'macOS' %}selected{% endif %}>macOS</option>
                               <option value="Linux" {% if request.args.platform == 'Linux' %}selected{% endif %}>Linux</option>
+                              <option value="macOS" {% if request.args.platform == 'macOS' %}selected{% endif %}>macOS</option>
+                              <option value="Android" {% if request.args.platform == 'Android' %}selected{% endif %}>Android</option>
+                              <option value="iOS" {% if request.args.platform == 'iOS' %}selected{% endif %}>iOS</option>
+                              <option value="BSD" {% if request.args.platform == 'BSD' %}selected{% endif %}>BSD</option>
+                              <option value="Web" {% if request.args.platform == 'Web' %}selected{% endif %}>{{ _('Web') }}</option>
                               <option value="Cross-platform" {% if request.args.platform == 'Cross-platform' %}selected{% endif %}>{{ _('Cross-platform') }}</option>
-                              <option value="Mobile" {% if request.args.platform == 'Mobile' %}selected{% endif %}>{{ _('Mobile') }}</option>
                             </select>
                           </div>
                           <div class="col-md-2">
@@ -243,15 +226,6 @@
                               <option value="Optional" {% if request.args.attribution == 'Optional' %}selected{% endif %}>{{ _('Optional') }}</option>
                               <option value="None" {% if request.args.attribution == 'None' %}selected{% endif %}>{{ _('None') }}</option>
                             </select>
-                          </div>
-                          <div class="col-md-4">
-                            {% if h.check_access('sysadmin') %}
-                            <div class="btn-group" style="width: 100%;">
-                              <button type="button" class="btn btn-info" data-toggle="modal" data-target="#admin-categories-modal" style="width: 100%;">
-                                <i class="fa fa-cogs"></i> {{ _('Manage Categories') }}
-                              </button>
-                            </div>
-                            {% endif %}
                           </div>
                         </div>
                       </form>
@@ -323,6 +297,11 @@
 
                                 <!-- Compact Meta Info -->
                                 <div class="software-meta-compact">
+                                  {% if page.development_status %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-heartbeat"></i> {{ page.development_status.title() }}
+                                    </span>
+                                  {% endif %}
                                   {% if page.software_license %}
                                     <span class="meta-item">
                                       <i class="fa fa-certificate"></i> {{ page.software_license }}
@@ -338,7 +317,11 @@
                                       <i class="fa fa-desktop"></i> {{ page.platform }}
                                     </span>
                                   {% endif %}
-                                  {% if page.user_id %}
+                                  {% if page.release_date %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-calendar"></i> {{ _('Released:') }} {{ page.release_date }}
+                                    </span>
+                                  {% elif page.user_id %}
                                     <span class="meta-item">
                                       <i class="fa fa-clock-o"></i> 
                                       {% if page.modified %}
@@ -397,9 +380,9 @@
                                 
                                 <!-- Action Buttons -->
                                 <div class="action-buttons-modern">
-                                  {% if page.learning_resources %}
+                                  {% if page.learning_resources and page.learning_resources.strip() %}
                                     <span class="has-courses-badge">
-                                      <i class="fa fa-graduation-cap"></i> {{ _('Has Courses') }}
+                                      <i class="fa fa-graduation-cap"></i> {{ _('Has Learning Resources') }}
                                     </span>
                                   {% endif %}
                                   
@@ -444,19 +427,19 @@
                       <div class="empty-state-icon">
                         <i class="fa fa-code fa-4x" style="color: var(--unesco-blue); margin-bottom: 2rem;"></i>
                       </div>
-                      <h3>{{ _('No Software Entries') }}</h3>
+                      <h3>{{ _('No Water Management Tools') }}</h3>
                       <p class="text-muted" style="margin-bottom: 2rem;">
                         {% if request.args.q %}
-                          {{ _('No software entries match your search criteria.') }}
+                          {{ _('No water management tools match your search criteria.') }}
                           <br>
-                          <a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('View all entries') }}</a>
+                          <a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('View all tools') }}</a>
                         {% else %}
-                          {{ _('No software entries available at this time.') }}
+                          {{ _('No water management tools available at this time.') }}
                         {% endif %}
                       </p>
                       {% if h.check_access('ckanext_pages_update') %}
                         <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-primary btn-lg">
-                          <i class="fa fa-plus"></i> {{ _('Add Software Entry') }}
+                          <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}
                         </a>
                       {% endif %}
                     </div>
@@ -472,74 +455,7 @@
     {% endblock %}
 </div>
 
-<!-- Admin Categories Management Modal -->
-{% if h.check_access('sysadmin') %}
-<div class="modal fade" id="admin-categories-modal" tabindex="-1" role="dialog" aria-labelledby="adminCategoriesModalLabel">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="adminCategoriesModalLabel">{{ _('Manage Software Categories') }}</h4>
-      </div>
-      <div class="modal-body">
-        <p class="help-text">{{ _('Add new categories to the software catalog. Categories help users filter and find relevant software.') }}</p>
-        
-        <form id="add-category-form">
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="category-value">{{ _('Category Value') }}</label>
-                <input type="text" class="form-control" id="category-value" placeholder="e.g., machine-learning">
-                <small class="help-block">{{ _('URL-friendly value (lowercase, hyphenated)') }}</small>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="category-display">{{ _('Display Name') }}</label>
-                <input type="text" class="form-control" id="category-display" placeholder="e.g., Machine Learning">
-                <small class="help-block">{{ _('Human-readable name') }}</small>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label>&nbsp;</label>
-                <button type="submit" class="btn btn-primary form-control">
-                  <i class="fa fa-plus"></i> {{ _('Add Category') }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-        
-        <hr>
-        
-        <h5>{{ _('Current Categories') }}</h5>
-        <div class="category-list">
-          <div class="badge-list">
-            <span class="badge badge-info">GIS Software</span>
-            <span class="badge badge-info">Data Processing</span>
-            <span class="badge badge-info">Visualization</span>
-            <span class="badge badge-info">Web Platforms</span>
-            <span class="badge badge-info">Desktop Apps</span>
-            <span class="badge badge-info">Libraries</span>
-            <span class="badge badge-info">Frameworks</span>
-            <span class="badge badge-info">APIs</span>
-            <span class="badge badge-info">Tools</span>
-          </div>
-        </div>
-        
-        <div class="alert alert-info" style="margin-top: 1rem;">
-          <i class="fa fa-info-circle"></i>
-          {{ _('Note: To modify existing categories or remove them, please contact a system administrator or edit the template directly.') }}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Close') }}</button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
+
 
 <!-- Modern Compact Software List Styles -->
 <style>
@@ -988,29 +904,7 @@ waitForJQuery(function($) {
       return false;
     });
     
-    // Add category form submission
-    $('#add-category-form').on('submit', function(e) {
-      e.preventDefault();
-      
-      const categoryValue = $('#category-value').val().trim();
-      const categoryDisplay = $('#category-display').val().trim();
-      
-      if (!categoryValue || !categoryDisplay) {
-        alert('{{ _("Please fill in both category value and display name.") }}');
-        return;
-      }
-      
-      // Create new badge
-      const newBadge = $('<span class="badge badge-success">' + categoryDisplay + '</span>');
-      $('.badge-list').append(newBadge);
-      
-      // Clear form
-      $('#category-value').val('');
-      $('#category-display').val('');
-      
-      // Show success message
-      alert('{{ _("Category added successfully! Note: This is a preview. To permanently add categories, modify the template file.") }}');
-    });
+
     
     // Initialize tooltips if Bootstrap is available
     if (typeof $().tooltip === 'function') {
@@ -1058,12 +952,15 @@ function toggleSoftwareExcerpt(button) {
   --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
   
   /* Category colors */
+  --category-programming: #6f42c1;
+  --category-collaboration: #17a2b8;
   --category-gis: #28a745;
-  --category-data: #17a2b8;
-  --category-viz: #fd7e14;
-  --category-web: #6f42c1;
-  --category-desktop: #20c997;
-  --category-library: #6c757d;
+  --category-modeling: #fd7e14;
+  --category-data-collection: #20c997;
+  --category-data-processing: #007bff;
+  --category-viz: #dc3545;
+  --category-mobile: #ffc107;
+  --category-desktop: #6c757d;
 }
 .homepage .row {
   border-radius: 25px;
@@ -1556,12 +1453,15 @@ function toggleSoftwareExcerpt(button) {
   color: white;
 }
 
+.category-programming { background: var(--category-programming); }
+.category-collaboration { background: var(--category-collaboration); }
 .category-gis { background: var(--category-gis); }
-.category-data { background: var(--category-data); }
+.category-modeling { background: var(--category-modeling); }
+.category-data-collection { background: var(--category-data-collection); }
+.category-data-processing { background: var(--category-data-processing); }
 .category-viz { background: var(--category-viz); }
-.category-web { background: var(--category-web); }
+.category-mobile { background: var(--category-mobile); color: #212529; }
 .category-desktop { background: var(--category-desktop); }
-.category-library { background: var(--category-library); }
 .category-default { background: var(--text-secondary); }
 
 .license-badge {
@@ -1856,6 +1756,23 @@ function toggleSoftwareExcerpt(button) {
   border-color: var(--unesco-blue);
   color: var(--unesco-blue);
   transform: translateY(-1px);
+}
+
+.btn-light {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  color: var(--unesco-blue);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.btn-light:hover {
+  background: white;
+  border-color: white;
+  color: var(--unesco-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Modern Responsive Design */

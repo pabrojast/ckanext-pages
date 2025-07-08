@@ -70,7 +70,7 @@ def default_pages_schema():
         'issue': [ignore_missing, unicode_safe],            # Issue number
         'pages': [ignore_missing, unicode_safe],            # Page numbers
         'abstract': [ignore_missing, unicode_safe],         # Publication abstract
-        # Open Source Software specific fields
+        # Water Management Tools specific fields (formerly Open Source Software)
         'key_features': [ignore_missing, unicode_safe],     # Key features list
         'technical_requirements': [ignore_missing, unicode_safe], # Technical requirements
         'installation_instructions': [ignore_missing, unicode_safe], # Installation instructions
@@ -79,13 +79,16 @@ def default_pages_schema():
         'documentation_url': [ignore_missing, unicode_safe], # Documentation URL
         'learning_resources': [ignore_missing, unicode_safe], # Learning resources
         'example_applications': [ignore_missing, unicode_safe], # Example applications
-        'software_category': [ignore_missing, unicode_safe], # Software category
+        'software_category': [ignore_missing, unicode_safe], # Software categories (comma-separated for multiple)
         'software_license': [ignore_missing, unicode_safe], # Software license
-        'project_status': [ignore_missing, unicode_safe],   # Project status
+        'development_status': [ignore_missing, unicode_safe], # Development status (Active, Beta, Stable, Maintained, Deprecated, Archived)
+        'project_status': [ignore_missing, unicode_safe],   # Project status (legacy field, use development_status instead)
         'access_type': [ignore_missing, unicode_safe],      # Open Source or Open Access
-        'programming_language': [ignore_missing, unicode_safe], # Programming language
-        'platform': [ignore_missing, unicode_safe],         # Platform compatibility
+        'programming_language': [ignore_missing, unicode_safe], # Programming languages (comma-separated for multiple)
+        'additional_languages': [ignore_missing, unicode_safe], # Additional programming languages not in the main list
+        'platform': [ignore_missing, unicode_safe],         # Platform compatibility (comma-separated for multiple)
         'version': [ignore_missing, unicode_safe],          # Current version
+        'release_date': [ignore_missing, unicode_safe],     # Release date (open text field)
         'attribution': [ignore_missing, unicode_safe],      # Attribution requirements
         'organization_id': [ignore_missing, unicode_safe],  # CKAN organization
         'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
