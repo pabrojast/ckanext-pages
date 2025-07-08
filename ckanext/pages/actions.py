@@ -16,6 +16,18 @@ import ckan.authz as authz
 
 from ckanext.pages import db
 
+# Import database utilities for better error handling
+try:
+    from ckanext.pages.db_utils import with_db_retry, ensure_valid_session
+except ImportError:
+    # Fallback if db_utils is not available
+    def with_db_retry(max_retries=3, delay=0.5):
+        def decorator(func):
+            return func
+        return decorator
+    def ensure_valid_session():
+        pass
+
 # Nuevas importaciones para el procesamiento de imágenes
 from PIL import Image, ImageOps
 import os
@@ -84,25 +96,47 @@ def _pages_list(context, data_dict):
         search['group_id'] = org_id
         if not member:
             search['private'] = False
-    out = db.Page.pages(**search)
+    
+    try:
+        # Ensure valid database session before query
+        ensure_valid_session()
+        out = db.Page.pages(**search)
+    except Exception as e:
+        # Log the error and return empty list as fallback
+        import logging
+        log = logging.getLogger(__name__)
+        log.error("Error fetching pages list: %s", str(e))
+        return []
+    
     out_list = []
     for pg in out:
-        parser = HTMLFirstImage()
-        parser.feed(pg.content)
-        img = parser.first_image
-        pg_row = {'title': pg.title,
-                  'content': pg.content,
-                  'name': pg.name,
-                  'publish_date': pg.publish_date.isoformat() if pg.publish_date else None,
-                  'group_id': pg.group_id,
-                  'page_type': pg.page_type,
-                  }
-        if img:
-            pg_row['image'] = img
-        extras = pg.extras
-        if extras:
-            pg_row.update(json.loads(pg.extras))
-        out_list.append(pg_row)
+        try:
+            parser = HTMLFirstImage()
+            if pg.content:
+                parser.feed(pg.content)
+            img = parser.first_image
+            pg_row = {'title': pg.title,
+                      'content': pg.content,
+                      'name': pg.name,
+                      'publish_date': pg.publish_date.isoformat() if pg.publish_date else None,
+                      'group_id': pg.group_id,
+                      'page_type': pg.page_type,
+                      }
+            if img:
+                pg_row['image'] = img
+            extras = pg.extras
+            if extras:
+                try:
+                    pg_row.update(json.loads(pg.extras))
+                except (ValueError, TypeError):
+                    pass
+            out_list.append(pg_row)
+        except Exception as e:
+            # Skip problematic pages but continue with others
+            import logging
+            log = logging.getLogger(__name__)
+            log.warning("Error processing page %s: %s", getattr(pg, 'name', 'unknown'), str(e))
+            continue
     return out_list
 
 

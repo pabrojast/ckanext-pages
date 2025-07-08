@@ -11,6 +11,24 @@ from sqlalchemy.orm import class_mapper
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import JSONB
 
+# Import database utilities for connection management
+try:
+    from ckanext.pages.db_utils import with_db_retry, ensure_valid_session, safe_rollback
+except ImportError:
+    # Fallback if db_utils is not available
+    def with_db_retry(max_retries=3, delay=0.5):
+        def decorator(func):
+            return func
+        return decorator
+    def ensure_valid_session():
+        pass
+    def safe_rollback():
+        try:
+            from ckan import model
+            model.Session.rollback()
+        except:
+            pass
+
 try:
     from sqlalchemy.engine import Row
 except ImportError:
@@ -61,19 +79,25 @@ class Page(DomainObject, BaseModel):
     revisions = Column(MutableDict.as_mutable(JSONB), default=u'{}')
 
     @classmethod
+    @with_db_retry(max_retries=3, delay=0.5)
     def get(cls, **kw):
         '''Finds a single entity in the register.'''
         try:
+            ensure_valid_session()
             query = model.Session.query(cls).autoflush(False)
             return query.filter_by(**kw).first()
         except Exception as e:
             log.error("Error in Page.get: %s", str(e))
+            # Rollback on error to prevent connection pool issues
+            safe_rollback()
             return None
 
     @classmethod
+    @with_db_retry(max_retries=3, delay=0.5)
     def pages(cls, **kw):
         '''Finds a single entity in the register.'''
         try:
+            ensure_valid_session()
             order = kw.pop('order', False)
             order_publish_date = kw.pop('order_publish_date', False)
             
@@ -171,12 +195,17 @@ class Page(DomainObject, BaseModel):
             except Exception as e:
                 log.error("Error executing query in Page.pages: %s", str(e))
                 log.error("Query filters: %s", kw)
-                # Return empty list as fallback
-                return []
+                # Rollback on error to prevent connection pool issues
+                safe_rollback()
+                # Re-raise to trigger retry
+                raise
                 
         except Exception as e:
             log.error("Error in Page.pages: %s", str(e))
-            return []
+            # Rollback on error to prevent connection pool issues
+            safe_rollback()
+            # Re-raise to trigger retry
+            raise
 
     @classmethod
     def _sort_by_severity(cls, pages):
