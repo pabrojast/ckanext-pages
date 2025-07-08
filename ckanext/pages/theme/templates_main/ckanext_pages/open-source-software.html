@@ -53,38 +53,51 @@
 {% macro strip_html_tags(text) %}
   {% if text %}
     {% set clean_text = text %}
-    {# Remove common HTML tags #}
-    {% set clean_text = clean_text | replace('<p>', '') | replace('</p>', '\n') %}
+    {# 1. Convert line breaks #}
     {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
-    {% set clean_text = clean_text | replace('<div>', '') | replace('</div>', '\n') %}
-    {% set clean_text = clean_text | replace('<span>', '') | replace('</span>', '') %}
-    {% set clean_text = clean_text | replace('<strong>', '') | replace('</strong>', '') %}
-    {% set clean_text = clean_text | replace('<em>', '') | replace('</em>', '') %}
-    {% set clean_text = clean_text | replace('<u>', '') | replace('</u>', '') %}
-    {% set clean_text = clean_text | replace('<i>', '') | replace('</i>', '') %}
-    {% set clean_text = clean_text | replace('<b>', '') | replace('</b>', '') %}
-    {# Remove style attributes #}
-    {% set lines = clean_text.split('\n') %}
+    {# 2. Eliminar simples tags de bloque #}
+    {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>'] %}
+      {% set clean_text = clean_text | replace(tag, '') %}
+    {% endfor %}
+
+    {# 3. Remover cualquier <span ...> ... </span> #}
+    {% set working = clean_text %}
+    {% set loop_guard = 0 %}
+    {% while '<span' in working and loop_guard < 20 %}
+      {% set start = working.find('<span') %}
+      {% if start == -1 %}
+        {% break %}
+      {% endif %}
+      {% set end = working.find('>', start) %}
+      {% if end == -1 %}
+        {# Etiqueta rota, eliminar hasta el final #}
+        {% set working = working[:start] %}
+        {% break %}
+      {% endif %}
+      {% set working = working[:start] + working[end+1:] %}
+      {% set loop_guard = loop_guard + 1 %}
+    {% endwhile %}
+    {% set working = working | replace('</span>', '') %}
+
+    {# 4. Eliminar cualquier atributo style="..." #}
+    {% set lines = working.split('\n') %}
     {% set clean_lines = [] %}
     {% for line in lines %}
-      {% set clean_line = line.strip() %}
-      {% if 'style=' in clean_line %}
-        {# Remove everything between style=" and the closing " #}
-        {% set style_start = clean_line.find('style=') %}
-        {% if style_start >= 0 %}
-          {% set quote_start = clean_line.find('"', style_start) %}
-          {% if quote_start >= 0 %}
-            {% set quote_end = clean_line.find('"', quote_start + 1) %}
-            {% if quote_end >= 0 %}
-              {% set clean_line = clean_line[:style_start] + clean_line[quote_end + 1:] %}
-            {% endif %}
-          {% endif %}
+      {% set temp_line = line %}
+      {% if 'style=' in temp_line %}
+        {% set sidx = temp_line.find('style=') %}
+        {% set q1 = temp_line.find('"', sidx) %}
+        {% set q2 = temp_line.find('"', q1+1) if q1 != -1 else -1 %}
+        {% if q1 != -1 and q2 != -1 %}
+          {% set temp_line = temp_line[:sidx] + temp_line[q2+1:] %}
         {% endif %}
       {% endif %}
-      {% if clean_line %}
-        {% set _ = clean_lines.append(clean_line) %}
+      {% set temp_line = temp_line.replace('>', '') %}
+      {% if temp_line.strip() %}
+        {% set _ = clean_lines.append(temp_line) %}
       {% endif %}
     {% endfor %}
+
     {{ '\n'.join(clean_lines) }}
   {% endif %}
 {% endmacro %}
