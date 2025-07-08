@@ -25,6 +25,8 @@
     {% set bracket_pos = url_start.find(']') %}
     {% set newline_pos = url_start.find('\n') %}
     {% set tab_pos = url_start.find('\t') %}
+    {% set gt_pos = url_start.find('>') %}
+    {% set quote_pos = url_start.find('"') %}
     
     {% set end_positions = [] %}
     {% if space_pos > 0 %}{% set _ = end_positions.append(space_pos) %}{% endif %}
@@ -32,6 +34,8 @@
     {% if bracket_pos > 0 %}{% set _ = end_positions.append(bracket_pos) %}{% endif %}
     {% if newline_pos > 0 %}{% set _ = end_positions.append(newline_pos) %}{% endif %}
     {% if tab_pos > 0 %}{% set _ = end_positions.append(tab_pos) %}{% endif %}
+    {% if gt_pos > 0 %}{% set _ = end_positions.append(gt_pos) %}{% endif %}
+    {% if quote_pos > 0 %}{% set _ = end_positions.append(quote_pos) %}{% endif %}
     
     {% if end_positions %}
       {% set min_pos = end_positions[0] %}
@@ -45,23 +49,95 @@
   {% endif %}
 {% endmacro %}
 
-{# Macro for creating resource cards from text content #}
+{# Helper macro to strip HTML tags from text #}
+{% macro strip_html_tags(text) %}
+  {% if text %}
+    {% set clean_text = text %}
+    {# Remove common HTML tags #}
+    {% set clean_text = clean_text | replace('<p>', '') | replace('</p>', '\n') %}
+    {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
+    {% set clean_text = clean_text | replace('<div>', '') | replace('</div>', '\n') %}
+    {% set clean_text = clean_text | replace('<span>', '') | replace('</span>', '') %}
+    {% set clean_text = clean_text | replace('<strong>', '') | replace('</strong>', '') %}
+    {% set clean_text = clean_text | replace('<em>', '') | replace('</em>', '') %}
+    {% set clean_text = clean_text | replace('<u>', '') | replace('</u>', '') %}
+    {% set clean_text = clean_text | replace('<i>', '') | replace('</i>', '') %}
+    {% set clean_text = clean_text | replace('<b>', '') | replace('</b>', '') %}
+    {# Remove style attributes #}
+    {% set lines = clean_text.split('\n') %}
+    {% set clean_lines = [] %}
+    {% for line in lines %}
+      {% set clean_line = line.strip() %}
+      {% if 'style=' in clean_line %}
+        {# Remove everything between style=" and the closing " #}
+        {% set style_start = clean_line.find('style=') %}
+        {% if style_start >= 0 %}
+          {% set quote_start = clean_line.find('"', style_start) %}
+          {% if quote_start >= 0 %}
+            {% set quote_end = clean_line.find('"', quote_start + 1) %}
+            {% if quote_end >= 0 %}
+              {% set clean_line = clean_line[:style_start] + clean_line[quote_end + 1:] %}
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      {% endif %}
+      {% if clean_line %}
+        {% set _ = clean_lines.append(clean_line) %}
+      {% endif %}
+    {% endfor %}
+    {{ '\n'.join(clean_lines) }}
+  {% endif %}
+{% endmacro %}
+
+{# Improved macro for creating resource cards from text content #}
 {% macro render_resource_cards(content, title="") %}
   {% if content and content.strip() %}
-    {% set lines = content.split('\n') %}
+    {# First strip HTML tags and get clean text #}
+    {% set clean_content = strip_html_tags(content) %}
+    {% set lines = clean_content.split('\n') %}
     {% set resource_cards = [] %}
     {% set regular_content = [] %}
     
     {% for line in lines %}
       {% set line_stripped = line.strip() %}
       {% if line_stripped %}
-        {% if 'youtube.com' in line_stripped or 'youtu.be' in line_stripped %}
-          {# Extract YouTube links #}
+        {# Check for RESOURCE tag format: [RESOURCE:type:url:title:description] #}
+        {% if line_stripped.startswith('[RESOURCE:') and line_stripped.endswith(']') %}
+          {% set resource_data = line_stripped[10:-1].split(':') %}
+          {% if resource_data|length >= 3 %}
+            {% set resource_type = resource_data[0].strip() %}
+            {% set resource_url = resource_data[1].strip() %}
+            {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
+            {% set resource_desc = resource_data[3].strip() if resource_data|length > 3 else 'Click to access resource' %}
+            
+            {% set icon_map = {
+              'youtube': 'fa-youtube-play',
+              'openlearning': 'fa-graduation-cap', 
+              'documentation': 'fa-file-text-o',
+              'guide': 'fa-book',
+              'tutorial': 'fa-play-circle',
+              'manual': 'fa-file-text',
+              'github': 'fa-github',
+              'website': 'fa-globe',
+              'download': 'fa-download',
+              'course': 'fa-graduation-cap'
+            } %}
+            
+            {% set _ = resource_cards.append({
+              'type': resource_type,
+              'url': resource_url,
+              'title': resource_title,
+              'description': resource_desc,
+              'icon': icon_map.get(resource_type, 'fa-external-link')
+            }) %}
+          {% endif %}
+        {% elif 'youtube.com' in line_stripped or 'youtu.be' in line_stripped %}
+          {# Auto-detect YouTube links #}
           {% set extracted_url = extract_url(line_stripped) %}
           {% if extracted_url %}
             {% set youtube_url = extracted_url %}
             {% set title_text = line_stripped.replace(youtube_url, '').strip('- []()') %}
-            {% if not title_text %}
+            {% if not title_text or title_text == youtube_url %}
               {% set title_text = _('YouTube Video') %}
             {% endif %}
             {% set _ = resource_cards.append({
@@ -73,12 +149,12 @@
             }) %}
           {% endif %}
         {% elif 'openlearning.unesco.org' in line_stripped %}
-          {# Extract OpenLearning links #}
+          {# Auto-detect OpenLearning links #}
           {% set extracted_url = extract_url(line_stripped) %}
           {% if extracted_url %}
             {% set openlearning_url = extracted_url %}
             {% set title_text = line_stripped.replace(openlearning_url, '').strip('- []()') %}
-            {% if not title_text %}
+            {% if not title_text or title_text == openlearning_url %}
               {% set title_text = _('UNESCO OpenLearning Course') %}
             {% endif %}
             {% set _ = resource_cards.append({
@@ -89,17 +165,17 @@
               'icon': 'fa-graduation-cap'
             }) %}
           {% endif %}
-        {% elif ('http' in line_stripped and ('.pdf' in line_stripped.lower() or '.doc' in line_stripped.lower() or '.docx' in line_stripped.lower() or 'manual' in line_stripped.lower() or 'guide' in line_stripped.lower() or 'documentation' in line_stripped.lower())) %}
-          {# Extract Manual/Document links #}
+        {% elif ('http' in line_stripped and ('.pdf' in line_stripped.lower() or '.doc' in line_stripped.lower() or '.docx' in line_stripped.lower() or 'manual' in line_stripped.lower() or 'guide' in line_stripped.lower() or 'documentation' in line_stripped.lower() or 'readthedocs' in line_stripped.lower())) %}
+          {# Auto-detect Documentation links #}
           {% set extracted_url = extract_url(line_stripped) %}
           {% if extracted_url %}
             {% set doc_url = extracted_url %}
             {% set title_text = line_stripped.replace(doc_url, '').strip('- []()') %}
-            {% if not title_text %}
+            {% if not title_text or title_text == doc_url %}
               {% set title_text = _('Documentation') %}
             {% endif %}
             {% set _ = resource_cards.append({
-              'type': 'document',
+              'type': 'documentation',
               'url': doc_url,
               'title': title_text,
               'description': _('Read the documentation'),
@@ -107,12 +183,12 @@
             }) %}
           {% endif %}
         {% elif ('http' in line_stripped and 'github.com' in line_stripped) %}
-          {# Extract GitHub links #}
+          {# Auto-detect GitHub links #}
           {% set extracted_url = extract_url(line_stripped) %}
           {% if extracted_url %}
             {% set github_url = extracted_url %}
             {% set title_text = line_stripped.replace(github_url, '').strip('- []()') %}
-            {% if not title_text %}
+            {% if not title_text or title_text == github_url %}
               {% set title_text = _('GitHub Repository') %}
             {% endif %}
             {% set _ = resource_cards.append({
@@ -124,12 +200,12 @@
             }) %}
           {% endif %}
         {% elif 'http' in line_stripped %}
-          {# Extract other web links #}
+          {# Auto-detect other web links #}
           {% set extracted_url = extract_url(line_stripped) %}
           {% if extracted_url %}
             {% set web_url = extracted_url %}
             {% set title_text = line_stripped.replace(web_url, '').strip('- []()') %}
-            {% if not title_text %}
+            {% if not title_text or title_text == web_url %}
               {% set title_text = _('External Resource') %}
             {% endif %}
             {% set _ = resource_cards.append({
@@ -211,16 +287,17 @@
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   {% set display_mode = c.page.header_display_mode or 'text' %}
+                  {% set logo_url = c.page.header_image %}
                   
-                  {% if display_mode == 'logo' and c.page.header_image %}
+                  {% if display_mode == 'logo' and logo_url %}
                     <!-- Logo Only Mode -->
                     <div class="header-logo-only">
-                      <img src="{{ c.page.header_image }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
+                      <img src="{{ logo_url }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
                     </div>
-                  {% elif display_mode == 'logo_text' and c.page.header_image %}
+                  {% elif display_mode == 'logo_text' and logo_url %}
                     <!-- Logo Above Text Mode -->
                     <div class="header-logo-text">
-                      <img src="{{ c.page.header_image }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
+                      <img src="{{ logo_url }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
                       <h1>{{ c.page.title or c.page.name }}</h1>
                     </div>
                   {% else %}

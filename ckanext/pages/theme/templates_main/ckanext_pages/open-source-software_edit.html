@@ -366,7 +366,19 @@
                               <div id="content-editor" class="quill-editor"></div>
                               <textarea name="content" id="content" style="display: none;">{{ data.get('content', '') }}</textarea>
                             </div>
-                            <p class="help-block">{{ _('Detailed description of the tool and its applications in water management. Use the rich text editor to format your content.') }}</p>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Detailed description of the tool and its applications in water management. Use the rich text editor to format your content.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Pro Tip: Create Resource Cards') }}</strong>
+                                <p>{{ _('Use special tags to create beautiful resource cards automatically:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:documentation:https://docs.example.com:User Guide:Complete documentation and tutorials]</code><br>
+                                  <code>[RESOURCE:github:https://github.com/user/repo:Source Code:View and contribute to the project]</code><br>
+                                  <code>[RESOURCE:youtube:https://youtube.com/watch?v=xyz:Tutorial Video:Learn how to use this tool]</code>
+                                </div>
+                                <p><small>{{ _('Available types: documentation, github, youtube, openlearning, website, tutorial, guide, manual, course, download') }}</small></p>
+                              </div>
+                            </div>
                           </div>
 
                           <div class="form-group">
@@ -397,6 +409,18 @@
                             <div class="quill-wrapper">
                               <div id="installation-instructions-editor" class="quill-editor"></div>
                               <textarea name="installation_instructions" id="installation_instructions" style="display: none;">{{ data.get('installation_instructions', '') }}</textarea>
+                            </div>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Step-by-step installation and basic usage instructions.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Installation Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:documentation:https://docs.example.com/install:Installation Guide:Complete setup instructions]</code><br>
+                                  <code>[RESOURCE:download:https://github.com/user/repo/releases:Download:Get the latest version]</code><br>
+                                  <code>[RESOURCE:tutorial:https://blog.example.com/how-to-install:Setup Tutorial:Follow this step-by-step guide]</code>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -448,14 +472,20 @@
                               <div id="learning-resources-editor" class="quill-editor"></div>
                               <textarea name="learning_resources" id="learning_resources" style="display: none;">{{ data.get('learning_resources', '') }}</textarea>
                             </div>
-                            <p class="help-block">
-                              {{ _('Include links to tutorials, courses, documentation, and other learning materials.') }}
-                              <br><br>
-                              <strong>{{ _('Platform-specific styling:') }}</strong><br>
-                              • {{ _('YouTube links (youtube.com, youtu.be) are automatically styled with red YouTube branding') }}<br>
-                              • {{ _('OpenLearning links (openlearning.unesco.org) are automatically styled with UNESCO branding') }}<br>
-                              • {{ _('Other tutorial and blog links receive appropriate styling automatically') }}
-                            </p>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Learning Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:youtube:https://youtube.com/watch?v=abc123:Tutorial Video:Learn the basics in 10 minutes]</code><br>
+                                  <code>[RESOURCE:openlearning:https://openlearning.unesco.org/course:UNESCO Course:Complete online training program]</code><br>
+                                  <code>[RESOURCE:course:https://coursera.org/course/xyz:Online Course:Comprehensive training course]</code><br>
+                                  <code>[RESOURCE:documentation:https://docs.example.com:User Manual:Complete documentation and guides]</code>
+                                </div>
+                                <p><small>{{ _('YouTube and OpenLearning links are automatically detected and styled with special branding') }}</small></p>
+                              </div>
+                            </div>
                           </div>
 
                           <div class="form-group">
@@ -463,6 +493,18 @@
                             <div class="quill-wrapper">
                               <div id="example-applications-editor" class="quill-editor quill-compact"></div>
                               <textarea name="example_applications" id="example_applications" style="display: none;">{{ data.get('example_applications', '') }}</textarea>
+                            </div>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Describe real-world examples and use cases where this tool has been applied.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Example Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:website:https://project.example.com:Case Study:Real-world water management project]</code><br>
+                                  <code>[RESOURCE:documentation:https://docs.example.com/cases:Use Cases:Detailed application examples]</code><br>
+                                  <code>[RESOURCE:github:https://github.com/user/examples:Example Code:Sample implementations and scripts]</code>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1379,6 +1421,69 @@ textarea.form-control {
 .ql-toolbar button:focus {
   outline: 2px solid var(--unesco-blue) !important;
   outline-offset: 2px !important;
+}
+
+/* Enhanced Help Blocks with Resource Tags */
+.help-block-enhanced {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 1px solid var(--unesco-blue);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.resource-tags-help {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border-left: 4px solid var(--unesco-blue);
+}
+
+.resource-tags-help strong {
+  color: var(--unesco-blue);
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.tag-examples {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 0.75rem 0;
+  font-family: monospace;
+  line-height: 1.6;
+}
+
+.tag-examples code {
+  background: none;
+  color: var(--unesco-blue);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0;
+  border: none;
+  word-break: break-all;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.tag-examples code:hover {
+  background: var(--unesco-blue-pale);
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.resource-tags-help p:last-child {
+  margin-bottom: 0;
+}
+
+.resource-tags-help small {
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 /* Modern Image Upload Styling */
@@ -3457,6 +3562,8 @@ textarea.form-control {
         quill.on('text-change', function() {
           if (textarea) {
             textarea.value = quill.root.innerHTML;
+            // Trigger change event to ensure the form knows the field has changed
+            $(textarea).trigger('change');
           }
         });
         
@@ -3484,16 +3591,26 @@ textarea.form-control {
     });
     
     // Form submission handler - ensure all content is synced
-    $('form').on('submit', function() {
+    $('form').on('submit', function(e) {
+      console.log('Form submitting, syncing Quill editors...');
       Object.keys(quillEditors).forEach(editorId => {
         const quill = quillEditors[editorId];
         const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
         const textarea = document.getElementById(textareaId);
         
         if (quill && textarea) {
-          textarea.value = quill.root.innerHTML;
+          const content = quill.root.innerHTML;
+          textarea.value = content;
+          console.log(`Synced ${textareaId}: ${content.length} characters`);
+          // Trigger change event
+          $(textarea).trigger('change');
         }
       });
+      
+      // Also ensure manual sync before form validation
+      if (window.syncAllQuillEditors) {
+        window.syncAllQuillEditors();
+      }
     });
     
     // Keyboard shortcuts
@@ -3573,6 +3690,21 @@ textarea.form-control {
     
     // Return editors object for external access if needed
     window.quillEditors = quillEditors;
+    
+    // Create a global sync function
+    window.syncAllQuillEditors = function() {
+      Object.keys(quillEditors).forEach(editorId => {
+        const quill = quillEditors[editorId];
+        const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        const textarea = document.getElementById(textareaId);
+        
+        if (quill && textarea) {
+          const content = quill.root.innerHTML;
+          textarea.value = content;
+          $(textarea).trigger('change');
+        }
+      });
+    };
   }
   
   // Initialize
