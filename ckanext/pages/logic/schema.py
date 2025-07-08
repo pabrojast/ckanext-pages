@@ -45,10 +45,11 @@ def default_pages_schema():
         'priority': [ignore_missing, unicode_safe],          # Priority level
         'severity': [ignore_missing, unicode_safe],          # Severity level
         'event_type': [ignore_missing, unicode_safe],        # Event type (references dynamic event types)
+        # Common fields for all content types
+        'author': [ignore_missing, unicode_safe],           # Author/Source name for all content
         # Water News specific fields
         'source': [ignore_missing, unicode_safe],           # Original source URL
         'external_links': [ignore_missing, unicode_safe],   # Related links
-        'author': [ignore_missing, unicode_safe],           # Author/Source name
         # Water Events specific fields
         'location': [ignore_missing, unicode_safe],         # Event location
         'organization': [ignore_missing, unicode_safe],     # Organizing institution

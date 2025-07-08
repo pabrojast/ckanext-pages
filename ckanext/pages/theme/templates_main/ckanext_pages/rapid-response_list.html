@@ -435,16 +435,14 @@
                                       <i class="fa fa-map-marker"></i> {{ page.country }}
                                     </span>
                                   {% endif %}
-                                  {% if page.user_id %}
-                                    <span class="meta-item">
-                                      <i class="fa fa-user"></i> 
-                                      {% if page.modified %}
-                                        {{ h.time_ago_in_words_from_str(page.modified) }}
-                                      {% else %}
-                                        {{ _('Recently reported') }}
-                                      {% endif %}
-                                    </span>
-                                  {% endif %}
+                                  <span class="meta-item">
+                                    <i class="fa fa-user"></i> 
+                                    {% if page.author %}
+                                      {{ _('Reported by') }} {{ page.author }}
+                                    {% else %}
+                                      {{ _('Reported by') }} IHP-WINS
+                                    {% endif %}
+                                  </span>
                                 </div>
                               </div>
                               

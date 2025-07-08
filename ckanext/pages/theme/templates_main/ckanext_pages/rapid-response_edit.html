@@ -221,6 +221,13 @@
                             <div class="help-text">{{ _('Expected or assessed impact level of the emergency') }}</div>
                             {% if errors.severity %}<span class="error-block">{{ errors.severity }}</span>{% endif %}
                           </div>
+                          
+                          <div class="form-group">
+                            <label for="field-author" class="control-label">{{ _('Reported by') }}</label>
+                            <input type="text" id="field-author" name="author" value="{{ data.author or 'IHP-WINS' }}" placeholder="{{ _('Name of organization or person reporting') }}" class="rr-form-control">
+                            <div class="help-text">{{ _('Organization or person reporting this emergency event') }}</div>
+                            {% if errors.author %}<span class="error-block">{{ errors.author }}</span>{% endif %}
+                          </div>
                           </div>
                         </fieldset>
 
@@ -1907,12 +1914,19 @@ textarea.rr-form-control {
     // Ensure title field is editable on load
   $('#field-title').prop('readonly', false).prop('disabled', false);
   
+  // Set default author if field is empty
+  if (!$('#field-author').val() || $('#field-author').val().trim() === '') {
+    $('#field-author').val('IHP-WINS');
+  }
+  
   // Debug info
   console.log('Title field properties:', {
     readonly: $('#field-title').prop('readonly'),
     disabled: $('#field-title').prop('disabled'),
     value: $('#field-title').val()
   });
+  
+  console.log('Author field value:', $('#field-author').val());
   
   // Debug date field
   const publishDateValue = $('#field-publish-date').val();

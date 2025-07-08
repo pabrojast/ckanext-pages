@@ -315,6 +315,11 @@
                                 {% if c.page.modified %}
                                   | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
                                 {% endif %}
+                                {% if c.page.author %}
+                                  | <i class="fa fa-user"></i> {{ _('Reported by:') }} {{ c.page.author }}
+                                {% else %}
+                                  | <i class="fa fa-user"></i> {{ _('Reported by:') }} IHP-WINS
+                                {% endif %}
                               </small>
                             </p>
                           {% endif %}
