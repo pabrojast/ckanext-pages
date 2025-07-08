@@ -53,48 +53,47 @@
 {% macro strip_html_tags(text) %}
   {% if text %}
     {% set clean_text = text %}
-    {# 1. Convert line breaks #}
+    {# 1. Convertir <br> en saltos de línea #}
     {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
-    {# 2. Eliminar simples tags de bloque #}
-    {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>'] %}
+
+    {# 2. Eliminar tags sencillos #}
+    {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>', '</span>'] %}
       {% set clean_text = clean_text | replace(tag, '') %}
     {% endfor %}
 
-    {# 3. Remover cualquier <span ...> ... </span> #}
-    {% set working = clean_text %}
-    {% set loop_guard = 0 %}
-    {% while '<span' in working and loop_guard < 20 %}
-      {% set start = working.find('<span') %}
-      {% if start == -1 %}
-        {% break %}
-      {% endif %}
-      {% set end = working.find('>', start) %}
-      {% if end == -1 %}
-        {# Etiqueta rota, eliminar hasta el final #}
-        {% set working = working[:start] %}
-        {% break %}
-      {% endif %}
-      {% set working = working[:start] + working[end+1:] %}
-      {% set loop_guard = loop_guard + 1 %}
-    {% endwhile %}
-    {% set working = working | replace('</span>', '') %}
-
-    {# 4. Eliminar cualquier atributo style="..." #}
-    {% set lines = working.split('\n') %}
-    {% set clean_lines = [] %}
-    {% for line in lines %}
-      {% set temp_line = line %}
-      {% if 'style=' in temp_line %}
-        {% set sidx = temp_line.find('style=') %}
-        {% set q1 = temp_line.find('"', sidx) %}
-        {% set q2 = temp_line.find('"', q1+1) if q1 != -1 else -1 %}
-        {% if q1 != -1 and q2 != -1 %}
-          {% set temp_line = temp_line[:sidx] + temp_line[q2+1:] %}
+    {# 3. Eliminar cualquier fragmento que comience con "<span" hasta el carácter '>' #}
+    {% set parts = clean_text.split('<span') %}
+    {% set rebuilt = [] %}
+    {% for part in parts %}
+      {% if loop.first %}
+        {# El primer fragmento es previo al primer <span #}
+        {% set _ = rebuilt.append(part) %}
+      {% else %}
+        {% set close_idx = part.find('>') %}
+        {% if close_idx == -1 %}
+          {# Si no hay cierre, descartar todo el fragmento #}
+          {% set _ = rebuilt.append('') %}
+        {% else %}
+          {% set _ = rebuilt.append(part[close_idx+1:]) %}
         {% endif %}
       {% endif %}
-      {% set temp_line = temp_line.replace('>', '') %}
-      {% if temp_line.strip() %}
-        {% set _ = clean_lines.append(temp_line) %}
+    {% endfor %}
+    {% set clean_text = ''.join(rebuilt) %}
+
+    {# 4. Sustituir cualquier '>' residual #}
+    {% set clean_text = clean_text | replace('>', '') %}
+
+    {# 5. Eliminar atributos style="..." muy básicos #}
+    {% set lines = clean_text.split('\n') %}
+    {% set clean_lines = [] %}
+    {% for line in lines %}
+      {% set work = line %}
+      {% if 'style=' in work %}
+        {% set idx = work.find('style=') %}
+        {% set work = work[:idx] %}
+      {% endif %}
+      {% if work.strip() %}
+        {% set _ = clean_lines.append(work.strip()) %}
       {% endif %}
     {% endfor %}
 
