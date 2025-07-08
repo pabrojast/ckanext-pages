@@ -48,7 +48,7 @@
               'icon': 'fa-graduation-cap'
             }) %}
           {% endif %}
-        {% elif ('http' in line_stripped and any(ext in line_stripped.lower() for ext in ['.pdf', '.doc', '.docx', 'manual', 'guide', 'documentation'])) %}
+        {% elif ('http' in line_stripped and ('.pdf' in line_stripped.lower() or '.doc' in line_stripped.lower() or '.docx' in line_stripped.lower() or 'manual' in line_stripped.lower() or 'guide' in line_stripped.lower() or 'documentation' in line_stripped.lower())) %}
           {# Extract Manual/Document links #}
           {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
           {% if url_match %}
