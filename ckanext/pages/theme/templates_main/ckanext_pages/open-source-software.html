@@ -4,6 +4,47 @@
 {{ c.page.title or c.page.name }} - {{ _('Water Management Tools') }} - {{ super() }}
 {% endblock %}
 
+{# Helper macro to extract URL from text without regex #}
+{% macro extract_url(line_text) %}
+  {% set http_pos = line_text.find('http://') %}
+  {% set https_pos = line_text.find('https://') %}
+  {% set start_pos = -1 %}
+  
+  {% if http_pos >= 0 and https_pos >= 0 %}
+    {% set start_pos = http_pos if http_pos < https_pos else https_pos %}
+  {% elif http_pos >= 0 %}
+    {% set start_pos = http_pos %}
+  {% elif https_pos >= 0 %}
+    {% set start_pos = https_pos %}
+  {% endif %}
+  
+  {% if start_pos >= 0 %}
+    {% set url_start = line_text[start_pos:] %}
+    {% set space_pos = url_start.find(' ') %}
+    {% set paren_pos = url_start.find(')') %}
+    {% set bracket_pos = url_start.find(']') %}
+    {% set newline_pos = url_start.find('\n') %}
+    {% set tab_pos = url_start.find('\t') %}
+    
+    {% set end_positions = [] %}
+    {% if space_pos > 0 %}{% set _ = end_positions.append(space_pos) %}{% endif %}
+    {% if paren_pos > 0 %}{% set _ = end_positions.append(paren_pos) %}{% endif %}
+    {% if bracket_pos > 0 %}{% set _ = end_positions.append(bracket_pos) %}{% endif %}
+    {% if newline_pos > 0 %}{% set _ = end_positions.append(newline_pos) %}{% endif %}
+    {% if tab_pos > 0 %}{% set _ = end_positions.append(tab_pos) %}{% endif %}
+    
+    {% if end_positions %}
+      {% set min_pos = end_positions[0] %}
+      {% for pos in end_positions %}
+        {% if pos < min_pos %}{% set min_pos = pos %}{% endif %}
+      {% endfor %}
+      {{ url_start[:min_pos] }}
+    {% else %}
+      {{ url_start.strip() }}
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
 {# Macro for creating resource cards from text content #}
 {% macro render_resource_cards(content, title="") %}
   {% if content and content.strip() %}
@@ -16,9 +57,9 @@
       {% if line_stripped %}
         {% if 'youtube.com' in line_stripped or 'youtu.be' in line_stripped %}
           {# Extract YouTube links #}
-          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
-          {% if url_match %}
-            {% set youtube_url = url_match[0] %}
+          {% set extracted_url = extract_url(line_stripped) %}
+          {% if extracted_url %}
+            {% set youtube_url = extracted_url %}
             {% set title_text = line_stripped.replace(youtube_url, '').strip('- []()') %}
             {% if not title_text %}
               {% set title_text = _('YouTube Video') %}
@@ -33,9 +74,9 @@
           {% endif %}
         {% elif 'openlearning.unesco.org' in line_stripped %}
           {# Extract OpenLearning links #}
-          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
-          {% if url_match %}
-            {% set openlearning_url = url_match[0] %}
+          {% set extracted_url = extract_url(line_stripped) %}
+          {% if extracted_url %}
+            {% set openlearning_url = extracted_url %}
             {% set title_text = line_stripped.replace(openlearning_url, '').strip('- []()') %}
             {% if not title_text %}
               {% set title_text = _('UNESCO OpenLearning Course') %}
@@ -50,9 +91,9 @@
           {% endif %}
         {% elif ('http' in line_stripped and ('.pdf' in line_stripped.lower() or '.doc' in line_stripped.lower() or '.docx' in line_stripped.lower() or 'manual' in line_stripped.lower() or 'guide' in line_stripped.lower() or 'documentation' in line_stripped.lower())) %}
           {# Extract Manual/Document links #}
-          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
-          {% if url_match %}
-            {% set doc_url = url_match[0] %}
+          {% set extracted_url = extract_url(line_stripped) %}
+          {% if extracted_url %}
+            {% set doc_url = extracted_url %}
             {% set title_text = line_stripped.replace(doc_url, '').strip('- []()') %}
             {% if not title_text %}
               {% set title_text = _('Documentation') %}
@@ -67,9 +108,9 @@
           {% endif %}
         {% elif ('http' in line_stripped and 'github.com' in line_stripped) %}
           {# Extract GitHub links #}
-          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
-          {% if url_match %}
-            {% set github_url = url_match[0] %}
+          {% set extracted_url = extract_url(line_stripped) %}
+          {% if extracted_url %}
+            {% set github_url = extracted_url %}
             {% set title_text = line_stripped.replace(github_url, '').strip('- []()') %}
             {% if not title_text %}
               {% set title_text = _('GitHub Repository') %}
@@ -84,9 +125,9 @@
           {% endif %}
         {% elif 'http' in line_stripped %}
           {# Extract other web links #}
-          {% set url_match = line_stripped | regex_findall('https?://[^\\s]+') %}
-          {% if url_match %}
-            {% set web_url = url_match[0] %}
+          {% set extracted_url = extract_url(line_stripped) %}
+          {% if extracted_url %}
+            {% set web_url = extracted_url %}
             {% set title_text = line_stripped.replace(web_url, '').strip('- []()') %}
             {% if not title_text %}
               {% set title_text = _('External Resource') %}
