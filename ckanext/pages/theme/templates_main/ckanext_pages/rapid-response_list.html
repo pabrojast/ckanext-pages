@@ -369,161 +369,179 @@
                 <div class="emergency-events-feed">
                   {% for page in c.page.items %}
                   {% set event_status = h.get_event_status(page) %}
-                  <div class="event-card {% if event_status == 'closed' %}event-closed{% endif %}" style="margin-bottom: 2rem;">
-                    <article class="module">
-                      <!-- Event Status Header -->
-                      <div class="event-status-header">
-                        <div class="row">
-                          <div class="col-md-8">
-                            <div class="event-metadata">
-                              {% if page.publish_date %}
-                                <span class="event-date">
-                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
-                                </span>
-                              {% endif %}
-                              {% set status_class = h.get_event_status_badge_class(event_status) %}
-                              <span class="event-status-badge {{ status_class }}">
-                                {% if event_status == 'closed' %}
-                                  {{ _('CLOSED') }}
-                                {% else %}
-                                  {{ _('ACTIVE') }}
-                                {% endif %}
-                              </span>
-                              {% if page.timeline_events %}
-                                {% set timeline = h.json_loads(page.timeline_events) or [] %}
-                                {% if timeline %}
-                                  <span class="event-updates-count">
-                                    <i class="fa fa-clock-o"></i> {{ timeline|length }} {{ _('updates') }}
-                                  </span>
-                                {% endif %}
-                              {% endif %}
-                            </div>
-                          </div>
-                          <div class="col-md-4 text-right">
-                            <div class="event-severity">
-                              {% set priority_level = page.priority or 'high' %}
-                              {% set severity_level = page.severity or '' %}
-                              
-                              {% if priority_level == 'urgent' %}
-                                <span class="severity-indicator severity-urgent"></span>
-                                <span class="severity-label">{{ _('URGENT') }}</span>
-                              {% elif priority_level == 'high' %}
-                                <span class="severity-indicator severity-high"></span>
-                                <span class="severity-label">{{ _('High Priority') }}</span>
-                              {% elif priority_level == 'medium' %}
-                                <span class="severity-indicator severity-medium"></span>
-                                <span class="severity-label">{{ _('Medium Priority') }}</span>
-                              {% elif priority_level == 'low' %}
-                                <span class="severity-indicator severity-low"></span>
-                                <span class="severity-label">{{ _('Low Priority') }}</span>
-                              {% else %}
-                                <span class="severity-indicator severity-high"></span>
-                                <span class="severity-label">{{ _('High Priority') }}</span>
-                              {% endif %}
-                              
-                              {% if severity_level %}
-                                <div class="impact-level">
-                                  <small class="text-muted">
-                                    {% if severity_level == 'critical' %}
-                                      <i class="fa fa-exclamation-triangle" style="color: #dc3545;"></i> {{ _('Critical Impact') }}
-                                    {% elif severity_level == 'high' %}
-                                      <i class="fa fa-exclamation-triangle" style="color: #fd7e14;"></i> {{ _('High Impact') }}
-                                    {% elif severity_level == 'moderate' %}
-                                      <i class="fa fa-info-circle" style="color: #ffc107;"></i> {{ _('Moderate Impact') }}
-                                    {% elif severity_level == 'low' %}
-                                      <i class="fa fa-info-circle" style="color: #28a745;"></i> {{ _('Low Impact') }}
-                                    {% endif %}
-                                  </small>
-                                </div>
-                              {% endif %}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <!-- Event Content -->
-                      <div class="module-content">
+                  <div class="event-card-modern {% if event_status == 'closed' %}event-closed{% endif %}" style="margin-bottom: 1.5rem;">
+                    <article class="module-modern">
+                      <div class="event-card-content">
                         <div class="row">
                           <!-- Event Image -->
-                          <div class="col-md-4">
-                            <div class="event-image">
+                          <div class="col-md-3 col-sm-4">
+                            <div class="event-image-container">
                               {% if page.header_image %}
-                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="event-image">
                               {% elif page.uploaded_images %}
                                 {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
-                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="event-image">
                                 {% else %}
-                                  <div class="placeholder-image">
-                                    <i class="fa fa-map-marker fa-3x"></i>
+                                  <div class="event-placeholder">
+                                    <i class="fa fa-exclamation-triangle fa-3x"></i>
+                                    <span>{{ _('Emergency Event') }}</span>
                                   </div>
                                 {% endif %}
                               {% else %}
-                                <div class="placeholder-image">
-                                  <i class="fa fa-map-marker fa-3x"></i>
+                                <div class="event-placeholder">
+                                  <i class="fa fa-exclamation-triangle fa-3x"></i>
+                                  <span>{{ _('Emergency Event') }}</span>
                                 </div>
                               {% endif %}
                             </div>
                           </div>
                           
                           <!-- Event Details -->
-                          <div class="col-md-8">
-                            <h3 class="event-title">
-                              <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">
-                                {{ page.title or page.name }}
-                              </a>
-                            </h3>
-                            
-                            {% if page.subtitle %}
-                              <p class="event-subtitle">{{ page.subtitle }}</p>
-                            {% endif %}
-                            
-                            <!-- Key Information Quick View -->
-                            {% if page.key_info %}
-                            <div class="key-info-preview">
-                              {% set key_lines = page.key_info.split('\n')[:3] %}
-                              {% for line in key_lines %}
-                                {% if line.strip() %}
-                                  <div class="key-info-item">{{ line.strip() }}</div>
+                          <div class="col-md-9 col-sm-8">
+                            <div class="event-info">
+                              <!-- Header with Title and Meta -->
+                              <div class="event-header-compact">
+                                <div class="event-title-row">
+                                  <h3 class="event-title-modern">
+                                    <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">
+                                      {{ page.title or page.name }}
+                                    </a>
+                                  </h3>
+                                  <div class="event-badges">
+                                    {% set status_class = h.get_event_status_badge_class(event_status) %}
+                                    {% if event_status == 'closed' %}
+                                      <span class="badge-status badge-closed">{{ _('CLOSED') }}</span>
+                                    {% else %}
+                                      <span class="badge-status badge-active">{{ _('ACTIVE') }}</span>
+                                    {% endif %}
+                                    
+                                    {% set priority_level = page.priority or 'high' %}
+                                    {% if priority_level == 'urgent' %}
+                                      <span class="badge-priority badge-urgent">{{ _('URGENT') }}</span>
+                                    {% elif priority_level == 'high' %}
+                                      <span class="badge-priority badge-high">{{ _('High Priority') }}</span>
+                                    {% elif priority_level == 'medium' %}
+                                      <span class="badge-priority badge-medium">{{ _('Medium') }}</span>
+                                    {% elif priority_level == 'low' %}
+                                      <span class="badge-priority badge-low">{{ _('Low') }}</span>
+                                    {% endif %}
+                                  </div>
+                                </div>
+                                
+                                {% if page.subtitle %}
+                                  <p class="event-subtitle-modern">{{ page.subtitle }}</p>
                                 {% endif %}
-                              {% endfor %}
-                            </div>
-                            {% endif %}
-                            
-                            {% if page.excerpt %}
-                              <p class="event-excerpt">
-                                <span class="excerpt-preview">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</span>
-                                {% if page.excerpt|length > 200 %}
-                                  <span class="excerpt-full" style="display: none;">{{ page.excerpt }}</span>
-                                  <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleExcerpt(this)">
-                                    <i class="fa fa-plus"></i> {{ _('Read more') }}
-                                  </button>
+
+                                <!-- Compact Meta Info -->
+                                <div class="event-meta-compact">
+                                  {% if page.publish_date %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.timeline_events %}
+                                    {% set timeline = h.json_loads(page.timeline_events) or [] %}
+                                    {% if timeline %}
+                                      <span class="meta-item">
+                                        <i class="fa fa-clock-o"></i> {{ timeline|length }} {{ _('updates') }}
+                                      </span>
+                                    {% endif %}
+                                  {% endif %}
+                                  {% if page.country %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-map-marker"></i> {{ page.country }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.user_id %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-user"></i> 
+                                      {% if page.modified %}
+                                        {{ h.time_ago_in_words_from_str(page.modified) }}
+                                      {% else %}
+                                        {{ _('Recently reported') }}
+                                      {% endif %}
+                                    </span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                              
+                              <!-- Event Description -->
+                              <div class="event-description-modern">
+                                <!-- Key Information Quick View -->
+                                {% if page.key_info %}
+                                <div class="key-info-compact">
+                                  {% set key_lines = page.key_info.split('\n')[:2] %}
+                                  {% for line in key_lines %}
+                                    {% if line.strip() %}
+                                      <div class="key-info-item">{{ line.strip() }}</div>
+                                    {% endif %}
+                                  {% endfor %}
+                                </div>
                                 {% endif %}
-                              </p>
-                            {% elif page.content %}
-                              <p class="event-excerpt">
-                                <span class="excerpt-preview">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</span>
-                                {% if page.content|length > 200 %}
-                                  <span class="excerpt-full" style="display: none;">{{ page.content|striptags }}</span>
-                                  <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleExcerpt(this)">
-                                    <i class="fa fa-plus"></i> {{ _('Read more') }}
-                                  </button>
+                                
+                                {% if page.excerpt %}
+                                  {% set content_text = page.excerpt %}
+                                {% elif page.content %}
+                                  {% set content_text = page.content %}
+                                {% else %}
+                                  {% set content_text = '' %}
                                 {% endif %}
-                              </p>
-                            {% endif %}
-                            
-                            <!-- Event Actions -->
-                            <div class="event-actions">
-                              <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" 
-                                 class="btn btn-primary">
-                                <i class="fa fa-eye"></i> {{ _('View Event Details') }}
-                              </a>
-                              {% if h.check_access('ckanext_pages_update') %}
-                                <a href="{{ h.url_for('pages.rapid_response_edit', page=page.name) }}" 
-                                   class="btn btn-default">
-                                  <i class="fa fa-edit"></i> {{ _('Update') }}
-                                </a>
-                              {% endif %}
+                                
+                                {% if content_text %}
+                                  <p class="event-excerpt-modern">
+                                    <span class="excerpt-preview">{{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}</span>
+                                    {% if content_text|length > 200 %}
+                                      <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleEventExcerpt(this)">
+                                        <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                      </button>
+                                    {% endif %}
+                                  </p>
+                                {% endif %}
+                              </div>
+                              
+                              <!-- Action Row -->
+                              <div class="event-actions-modern">
+                                <!-- Impact Level -->
+                                <div class="impact-info-modern">
+                                  {% set severity_level = page.severity or '' %}
+                                  {% if severity_level %}
+                                    {% if severity_level == 'critical' %}
+                                      <span class="impact-badge impact-critical">
+                                        <i class="fa fa-exclamation-triangle"></i> {{ _('Critical Impact') }}
+                                      </span>
+                                    {% elif severity_level == 'high' %}
+                                      <span class="impact-badge impact-high">
+                                        <i class="fa fa-exclamation-triangle"></i> {{ _('High Impact') }}
+                                      </span>
+                                    {% elif severity_level == 'moderate' %}
+                                      <span class="impact-badge impact-moderate">
+                                        <i class="fa fa-info-circle"></i> {{ _('Moderate Impact') }}
+                                      </span>
+                                    {% elif severity_level == 'low' %}
+                                      <span class="impact-badge impact-low">
+                                        <i class="fa fa-info-circle"></i> {{ _('Low Impact') }}
+                                      </span>
+                                    {% endif %}
+                                  {% endif %}
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="action-buttons-modern">
+                                  <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}" 
+                                     class="btn btn-primary btn-sm btn-modern">
+                                    <i class="fa fa-eye"></i> {{ _('View Details') }}
+                                  </a>
+                                  
+                                  {% if h.check_access('ckanext_pages_update') %}
+                                    <a href="{{ h.url_for('pages.rapid_response_edit', page=page.name) }}" 
+                                       class="btn btn-default btn-sm btn-modern">
+                                      <i class="fa fa-edit"></i> {{ _('Update') }}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -752,78 +770,206 @@
   font-weight: 600;
 }
 
-/* Event Cards */
-.event-card .module {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
+/* Modern Event Cards */
+.event-card-modern {
+  transition: all 0.3s ease;
 }
 
-.event-card .module:hover {
+.module-modern {
+  background: #fff;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 114, 188, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.module-modern:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-strong);
+  box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16);
+  border-color: var(--unesco-blue-pale);
+}
+
+.event-card-content {
+  padding: 1.5rem;
 }
 
 /* Event Card - Closed State */
-.event-card.event-closed .module {
+.event-card-modern.event-closed .module-modern {
   opacity: 0.8;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-.event-card.event-closed .module:hover {
+.event-card-modern.event-closed .module-modern:hover {
   opacity: 1;
 }
 
-.event-status-header {
-  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
-  color: white;
-  padding: 1.5rem 2rem;
-  margin: 0;
-}
-
-.event-metadata {
+/* Modern Event Image Container */
+.event-image-container {
+  width: 100%;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.event-image-container:hover {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.2);
+}
+
+.event-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  transition: transform 0.3s ease;
+  background: white;
+}
+
+.event-image-container:hover .event-image {
+  transform: scale(1.05);
+}
+
+.event-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #dc3545;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.event-placeholder i {
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.event-placeholder span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* Modern Event Header Layout */
+.event-header-compact {
+  margin-bottom: 1rem;
+}
+
+.event-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
   flex-wrap: wrap;
-  color: #212529 !important;
-}
-
-.event-date {
-  font-size: 0.95rem;
-  opacity: 0.95;
-  display: flex;
-  align-items: center;
   gap: 0.5rem;
 }
 
-.event-status-badge {
-  background: #28a745;
-  color: white;
-  padding: 4px 12px;
+.event-title-modern {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.event-title-modern a {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.event-title-modern a:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: none;
+}
+
+.event-subtitle-modern {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Modern Event Badges */
+.event-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badge-status,
+.badge-priority {
+  padding: 0.25rem 0.75rem;
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: var(--shadow-light);
+  border: none;
+  color: white;
 }
 
-.status-active {
+.badge-active {
   background: #28a745;
   animation: pulse-green 2s infinite;
 }
 
-.status-closed {
+.badge-closed {
   background: #6c757d;
-  animation: none;
-  box-shadow: var(--shadow-light);
 }
 
-.status-unknown {
-  background: #ffc107;
-  color: #212529;
-  animation: none;
-  box-shadow: var(--shadow-light);
+.badge-urgent {
+  background: #8b0000;
+  animation: pulse-urgent 1.5s infinite;
+}
+
+.badge-high {
+  background: #dc3545;
+  animation: pulse-red 2s infinite;
+}
+
+.badge-medium {
+  background: #fd7e14;
+}
+
+.badge-low {
+  background: #28a745;
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+}
+
+@keyframes pulse-urgent {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(139, 0, 0, 1);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.8); }
 }
 
 @keyframes pulse-green {
@@ -896,6 +1042,164 @@
 @keyframes pulse-orange {
   0%, 100% { box-shadow: 0 0 3px rgba(253, 126, 20, 0.3); }
   50% { box-shadow: 0 0 10px rgba(253, 126, 20, 0.6); }
+}
+
+/* Compact Meta Information */
+.event-meta-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.meta-item i {
+  color: var(--unesco-blue);
+  font-size: 0.8rem;
+  width: 14px;
+  text-align: center;
+}
+
+/* Modern Event Description */
+.event-description-modern {
+  margin-bottom: 1rem;
+}
+
+.event-excerpt-modern {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.key-info-compact {
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.05) 0%, rgba(227, 242, 253, 0.3) 100%);
+  border-left: 4px solid var(--unesco-blue);
+  padding: 0.8rem;
+  margin: 1rem 0;
+  border-radius: 0 8px 8px 0;
+  box-shadow: var(--shadow-light);
+}
+
+.key-info-compact .key-info-item {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.key-info-compact .key-info-item:before {
+  content: "▸";
+  color: var(--unesco-blue);
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.key-info-compact .key-info-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Modern Event Actions */
+.event-actions-modern {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.impact-info-modern {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.impact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.impact-critical {
+  background: #8b0000;
+  animation: pulse-urgent 1.5s infinite;
+}
+
+.impact-high {
+  background: #dc3545;
+  animation: pulse-red 2s infinite;
+}
+
+.impact-moderate {
+  background: #fd7e14;
+}
+
+.impact-low {
+  background: #28a745;
+}
+
+.impact-badge i {
+  font-size: 0.75rem;
+}
+
+.action-buttons-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-modern {
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-primary.btn-modern {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
+}
+
+.btn-primary.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+}
+
+.btn-default.btn-modern {
+  background: white;
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.btn-default.btn-modern:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
 }
 
 .severity-label {
@@ -1146,7 +1450,7 @@
   transform: translateY(-1px);
 }
 
-/* Responsive Design */
+/* Modern Responsive Design */
 @media (max-width: 768px) {
   .section-title {
     height: 250px;
@@ -1165,6 +1469,56 @@
     padding: 1.5rem;
   }
   
+  .event-card-content {
+    padding: 1rem;
+  }
+  
+  .event-image-container {
+    height: 100px;
+    margin-bottom: 1rem;
+  }
+  
+  .event-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .event-title-modern {
+    font-size: 1.2rem;
+  }
+  
+  .event-meta-compact {
+    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .meta-item {
+    font-size: 0.8rem;
+  }
+  
+  .event-actions-modern {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .impact-info-modern {
+    order: 2;
+    width: 100%;
+  }
+  
+  .action-buttons-modern {
+    order: 1;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .btn-modern {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
   .rapid-response-actions-bar .col-md-4 {
     text-align: center !important;
     margin-top: 1rem;
@@ -1174,29 +1528,6 @@
   .rapid-response-filters .col-md-4,
   .rapid-response-filters .col-md-2 {
     margin-bottom: 10px;
-  }
-  
-  .event-status-header {
-    padding: 1rem;
-  }
-  
-  .event-metadata {
-    gap: 0.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-    color: #212529 !important;
-  }
-  
-  .event-severity {
-    justify-content: center;
-    margin-top: 0.5rem;
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .event-image {
-    height: 150px;
-    margin-bottom: 1rem;
   }
   
   .metric-number {
@@ -1227,8 +1558,39 @@
     padding: 1rem;
   }
   
-  .event-image {
-    height: 120px;
+  .event-card-content {
+    padding: 0.75rem;
+  }
+  
+  .event-image-container {
+    height: 80px;
+  }
+  
+  .event-title-modern {
+    font-size: 1.1rem;
+  }
+  
+  .event-excerpt-modern {
+    font-size: 0.9rem;
+  }
+  
+  .impact-info-modern {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .impact-badge {
+    justify-content: center;
+  }
+  
+  .action-buttons-modern {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-modern {
+    width: 100%;
+    text-align: center;
   }
   
   .event-title {
@@ -1248,6 +1610,28 @@
 <!-- JavaScript for Read More functionality -->
 <script>
 function toggleExcerpt(button) {
+  const eventExcerpt = button.parentElement;
+  const preview = eventExcerpt.querySelector('.excerpt-preview');
+  const full = eventExcerpt.querySelector('.excerpt-full');
+  const icon = button.querySelector('i');
+  
+  if (full.style.display === 'none') {
+    // Show full text
+    preview.style.display = 'none';
+    full.style.display = 'inline';
+    button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
+    button.classList.add('expanded');
+  } else {
+    // Show preview text
+    preview.style.display = 'inline';
+    full.style.display = 'none';
+    button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
+    button.classList.remove('expanded');
+  }
+}
+
+// Modern Event Read More functionality
+function toggleEventExcerpt(button) {
   const eventExcerpt = button.parentElement;
   const preview = eventExcerpt.querySelector('.excerpt-preview');
   const full = eventExcerpt.querySelector('.excerpt-full');
