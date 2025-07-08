@@ -793,8 +793,8 @@ def water_admin_approve(page, page_type):
 
 
 def water_admin_reject(page, page_type):
-    """Reject a water family content item (delete it)"""
-    
+    """Reject water family content (admin only)"""
+    # Check admin access
     try:
         tk.check_access('sysadmin', {'user': tk.g.user})
     except tk.NotAuthorized:
@@ -802,9 +802,180 @@ def water_admin_reject(page, page_type):
     
     if tk.request.method == 'POST':
         try:
-            tk.get_action('ckanext_pages_delete')({}, {'page': page})
+            # Get the page first
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            
+            if not page_dict:
+                tk.h.flash_error(_('Content not found'))
+                return tk.redirect_to('pages.water_admin_dashboard')
+            
+            # Delete the rejected content
+            tk.get_action('ckanext_pages_delete')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            
             tk.h.flash_success(_('Content rejected and deleted successfully'))
+            
         except Exception as e:
             tk.h.flash_error(_('Error rejecting content: %s') % str(e))
+        
+        return tk.redirect_to('pages.water_admin_dashboard')
     
+    # GET request - should not happen normally
     return tk.redirect_to('pages.water_admin_dashboard')
+
+
+# Event Types Management Functions
+
+def event_types_admin():
+    """Admin page for managing event types (sysadmin only)"""
+    try:
+        tk.check_access('ckanext_event_types_list', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to access event types administration'))
+    
+    # Check if user is sysadmin for edit/delete actions
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+        tk.c.is_sysadmin = True
+    except tk.NotAuthorized:
+        tk.c.is_sysadmin = False
+    
+    # Get all event types
+    try:
+        event_types = tk.get_action('ckanext_event_types_list')(
+            context={}, data_dict={'active_only': False}
+        )
+        tk.c.event_types = event_types
+    except Exception as e:
+        tk.h.flash_error(_('Error loading event types: %s') % str(e))
+        tk.c.event_types = []
+    
+    return tk.render('ckanext_pages/admin/event_types_admin.html')
+
+
+def event_types_edit(event_type_id=None, data=None, errors=None, error_summary=None):
+    """Create or edit event type (sysadmin only)"""
+    # Check access
+    if event_type_id:
+        try:
+            tk.check_access('ckanext_event_types_update', {'user': tk.g.user})
+        except tk.NotAuthorized:
+            return tk.abort(401, _('Unauthorized to edit event types'))
+    else:
+        try:
+            tk.check_access('ckanext_event_types_create', {'user': tk.g.user})
+        except tk.NotAuthorized:
+            return tk.abort(401, _('Unauthorized to create event types'))
+    
+    # Get existing event type if editing
+    event_type_dict = {}
+    if event_type_id:
+        try:
+            event_type_dict = tk.get_action('ckanext_event_types_show')(
+                context={}, data_dict={'id': event_type_id}
+            )
+        except tk.ObjectNotFound:
+            tk.h.flash_error(_('Event type not found'))
+            return tk.redirect_to('pages.event_types_admin')
+        except Exception as e:
+            tk.h.flash_error(_('Error loading event type: %s') % str(e))
+            return tk.redirect_to('pages.event_types_admin')
+    
+    if tk.request.method == 'POST' and not data:
+        data = _parse_form_data(tk.request)
+        
+        # Prepare data for action
+        data_dict = event_type_dict.copy()
+        data_dict.update(data)
+        
+        if event_type_id:
+            data_dict['id'] = event_type_id
+        
+        try:
+            if event_type_id:
+                result = tk.get_action('ckanext_event_types_update')(
+                    context={}, data_dict=data_dict
+                )
+                tk.h.flash_success(_('Event type updated successfully'))
+            else:
+                result = tk.get_action('ckanext_event_types_create')(
+                    context={}, data_dict=data_dict
+                )
+                tk.h.flash_success(_('Event type created successfully'))
+            
+            return tk.redirect_to('pages.event_types_admin')
+            
+        except tk.ValidationError as e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            tk.h.flash_error(error_summary)
+            return event_types_edit(event_type_id, data, errors, error_summary)
+        except Exception as e:
+            tk.h.flash_error(_('Error saving event type: %s') % str(e))
+            return event_types_edit(event_type_id, data, errors, error_summary)
+    
+    if not data:
+        data = event_type_dict
+    
+    errors = errors or {}
+    error_summary = error_summary or {}
+    
+    vars = {
+        'data': data, 
+        'errors': errors,
+        'error_summary': error_summary, 
+        'event_type_id': event_type_id,
+        'is_edit': bool(event_type_id)
+    }
+    
+    return tk.render('ckanext_pages/admin/event_types_edit.html', extra_vars=vars)
+
+
+def event_types_delete(event_type_id):
+    """Delete event type (sysadmin only)"""
+    try:
+        tk.check_access('ckanext_event_types_delete', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to delete event types'))
+    
+    # Get event type info for confirmation
+    try:
+        event_type_dict = tk.get_action('ckanext_event_types_show')(
+            context={}, data_dict={'id': event_type_id}
+        )
+    except tk.ObjectNotFound:
+        tk.h.flash_error(_('Event type not found'))
+        return tk.redirect_to('pages.event_types_admin')
+    except Exception as e:
+        tk.h.flash_error(_('Error loading event type: %s') % str(e))
+        return tk.redirect_to('pages.event_types_admin')
+    
+    if 'cancel' in tk.request.args:
+        return tk.redirect_to('pages.event_types_admin')
+    
+    if tk.request.method == 'POST':
+        try:
+            tk.get_action('ckanext_event_types_delete')(
+                context={}, data_dict={'id': event_type_id}
+            )
+            tk.h.flash_success(_('Event type "%s" deleted successfully') % event_type_dict.get('title', event_type_id))
+            
+        except tk.ValidationError as e:
+            # Handle business logic errors (like "cannot delete because in use")
+            for field, messages in e.error_dict.items():
+                for message in messages:
+                    tk.h.flash_error(message)
+        except Exception as e:
+            tk.h.flash_error(_('Error deleting event type: %s') % str(e))
+        
+        return tk.redirect_to('pages.event_types_admin')
+    else:
+        # GET request - show confirmation page
+        return tk.render('ckanext_pages/admin/event_types_delete.html', extra_vars={
+            'event_type': event_type_dict,
+            'event_type_id': event_type_id,
+            'delete_url': tk.h.url_for('pages.event_types_delete', event_type_id=event_type_id)
+        })

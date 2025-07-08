@@ -393,6 +393,48 @@ def get_severity_class(severity):
     return severity_classes.get(severity, '')
 
 
+def get_event_types(active_only=True):
+    """Get list of event types for templates"""
+    try:
+        event_types = tk.get_action('ckanext_event_types_list')(
+            {}, {'active_only': active_only}
+        )
+        return event_types
+    except:
+        # Fallback to default types
+        return [
+            {'id': 'tropical-cyclone', 'name': 'tropical-cyclone', 'title': 'Tropical Cyclone', 'title_plural': 'Tropical Cyclones'},
+            {'id': 'earthquake', 'name': 'earthquake', 'title': 'Earthquake', 'title_plural': 'Earthquakes'},
+            {'id': 'tsunami', 'name': 'tsunami', 'title': 'Tsunami', 'title_plural': 'Tsunamis'},
+            {'id': 'flood', 'name': 'flood', 'title': 'Flood', 'title_plural': 'Floods'},
+            {'id': 'wildfire', 'name': 'wildfire', 'title': 'Wildfire', 'title_plural': 'Wildfires'},
+            {'id': 'volcanic-eruption', 'name': 'volcanic-eruption', 'title': 'Volcanic Eruption', 'title_plural': 'Volcanic Eruptions'},
+            {'id': 'drought', 'name': 'drought', 'title': 'Drought', 'title_plural': 'Droughts'},
+            {'id': 'armed-conflict', 'name': 'armed-conflict', 'title': 'Armed Conflict', 'title_plural': 'Armed Conflicts'}
+        ]
+
+
+def get_event_type_by_id(event_type_id):
+    """Get a specific event type by ID"""
+    try:
+        event_type = tk.get_action('ckanext_event_types_show')(
+            {}, {'id': event_type_id}
+        )
+        return event_type
+    except:
+        # Fallback to default types
+        default_types = get_event_types(active_only=False)
+        return next((et for et in default_types if et['id'] == event_type_id), None)
+
+
+def is_sysadmin():
+    """Check if current user is sysadmin"""
+    try:
+        return tk.check_access('sysadmin')
+    except:
+        return False
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -462,6 +504,9 @@ class PagesPlugin(PagesPluginBase):
             'get_severity_sort_key': get_severity_sort_key,
             'get_priority_class': get_priority_class,
             'get_severity_class': get_severity_class,
+            'get_event_types': get_event_types,
+            'get_event_type_by_id': get_event_type_by_id,
+            'is_sysadmin': is_sysadmin,
         }
 
     def get_actions(self):
@@ -472,6 +517,12 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_pages_delete': actions.pages_delete,
             'ckanext_pages_list': actions.pages_list,
             'ckanext_pages_upload': actions.pages_upload,
+            # Event Types Management
+            'ckanext_event_types_list': actions.event_types_list,
+            'ckanext_event_types_show': actions.event_types_show,
+            'ckanext_event_types_create': actions.event_types_create,
+            'ckanext_event_types_update': actions.event_types_update,
+            'ckanext_event_types_delete': actions.event_types_delete,
         }
         if self.organization_pages:
             org_actions = {
@@ -513,6 +564,12 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_water_events_delete': auth.water_events_delete,
             'ckanext_water_publications_update': auth.water_publications_update,
             'ckanext_water_publications_delete': auth.water_publications_delete,
+            # Event Types Management
+            'ckanext_event_types_list': auth.event_types_list,
+            'ckanext_event_types_show': auth.event_types_show,
+            'ckanext_event_types_create': auth.event_types_create,
+            'ckanext_event_types_update': auth.event_types_update,
+            'ckanext_event_types_delete': auth.event_types_delete,
         }
 
 

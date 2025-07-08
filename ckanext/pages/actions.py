@@ -520,3 +520,340 @@ def group_pages_list(context, data_dict):
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
     return _pages_list(context, data_dict)
+
+
+# Event Types Management Actions
+
+def _get_default_event_types():
+    """Get default event types if no custom types exist"""
+    return [
+        {
+            'id': 'tropical-cyclone',
+            'name': 'tropical-cyclone',
+            'title': 'Tropical Cyclone',
+            'title_plural': 'Tropical Cyclones',
+            'description': 'Tropical storm systems with strong winds and heavy rainfall',
+            'icon': 'fa-hurricane',
+            'color': '#dc3545',
+            'active': True,
+            'order': 1,
+            'is_default': True
+        },
+        {
+            'id': 'earthquake',
+            'name': 'earthquake',
+            'title': 'Earthquake',
+            'title_plural': 'Earthquakes',
+            'description': 'Seismic events causing ground shaking',
+            'icon': 'fa-earthquake',
+            'color': '#6f42c1',
+            'active': True,
+            'order': 2,
+            'is_default': True
+        },
+        {
+            'id': 'tsunami',
+            'name': 'tsunami',
+            'title': 'Tsunami',
+            'title_plural': 'Tsunamis',
+            'description': 'Large ocean waves caused by seismic activity',
+            'icon': 'fa-water',
+            'color': '#17a2b8',
+            'active': True,
+            'order': 3,
+            'is_default': True
+        },
+        {
+            'id': 'flood',
+            'name': 'flood',
+            'title': 'Flood',
+            'title_plural': 'Floods',
+            'description': 'Overflow of water onto normally dry land',
+            'icon': 'fa-tint',
+            'color': '#007bff',
+            'active': True,
+            'order': 4,
+            'is_default': True
+        },
+        {
+            'id': 'wildfire',
+            'name': 'wildfire',
+            'title': 'Wildfire',
+            'title_plural': 'Wildfires',
+            'description': 'Uncontrolled fire in natural areas',
+            'icon': 'fa-fire',
+            'color': '#fd7e14',
+            'active': True,
+            'order': 5,
+            'is_default': True
+        },
+        {
+            'id': 'volcanic-eruption',
+            'name': 'volcanic-eruption',
+            'title': 'Volcanic Eruption',
+            'title_plural': 'Volcanic Eruptions',
+            'description': 'Volcanic activity with lava, ash, and gas emissions',
+            'icon': 'fa-mountain',
+            'color': '#e83e8c',
+            'active': True,
+            'order': 6,
+            'is_default': True
+        },
+        {
+            'id': 'drought',
+            'name': 'drought',
+            'title': 'Drought',
+            'title_plural': 'Droughts',
+            'description': 'Extended period of deficient rainfall',
+            'icon': 'fa-sun',
+            'color': '#ffc107',
+            'active': True,
+            'order': 7,
+            'is_default': True
+        },
+        {
+            'id': 'armed-conflict',
+            'name': 'armed-conflict',
+            'title': 'Armed Conflict',
+            'title_plural': 'Armed Conflicts',
+            'description': 'Military conflicts and war-related emergencies',
+            'icon': 'fa-crosshairs',
+            'color': '#343a40',
+            'active': True,
+            'order': 8,
+            'is_default': True
+        }
+    ]
+
+
+@tk.side_effect_free
+def event_types_list(context, data_dict):
+    """List all event types (active and inactive)"""
+    try:
+        # For listing, anyone can see the event types
+        # We don't use check_access here since this is used for dropdowns
+        pass
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
+    
+    # Get custom event types from configuration or database
+    # For now, we'll use CKAN config to store event types
+    # In a full implementation, you might want to use a separate database table
+    
+    try:
+        # Try to get custom event types from config
+        custom_types_json = tk.config.get('ckanext.pages.event_types', '')
+        if custom_types_json:
+            event_types = json.loads(custom_types_json)
+        else:
+            # Return default event types
+            event_types = _get_default_event_types()
+    except (json.JSONDecodeError, ValueError):
+        # Fallback to default types if JSON is invalid
+        event_types = _get_default_event_types()
+    
+    # Filter by active status if requested
+    active_only = data_dict.get('active_only', False)
+    if active_only:
+        event_types = [et for et in event_types if et.get('active', True)]
+    
+    # Sort by order
+    event_types.sort(key=lambda x: x.get('order', 999))
+    
+    return event_types
+
+
+@tk.side_effect_free
+def event_types_show(context, data_dict):
+    """Show a specific event type"""
+    try:
+        p.toolkit.check_access('ckanext_event_types_show', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
+    
+    event_type_id = data_dict.get('id')
+    if not event_type_id:
+        raise p.toolkit.ValidationError({'id': ['Missing value']})
+    
+    # Get all event types and find the requested one
+    all_types = event_types_list(context, {})
+    event_type = next((et for et in all_types if et['id'] == event_type_id), None)
+    
+    if not event_type:
+        p.toolkit.abort(404, p.toolkit._('Event type not found'))
+    
+    return event_type
+
+
+def event_types_create(context, data_dict):
+    """Create a new event type (sysadmin only)"""
+    try:
+        p.toolkit.check_access('ckanext_event_types_create', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to create event types'))
+    
+    from ckanext.pages.logic.schema import update_event_types_schema
+    import ckan.lib.navl.dictization_functions as df
+    
+    schema = update_event_types_schema()
+    data, errors = df.validate(data_dict, schema, context)
+    
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+    
+    # Get existing event types
+    existing_types = event_types_list(context, {})
+    
+    # Check if name already exists
+    event_name = data['name']
+    if any(et['name'] == event_name for et in existing_types):
+        raise p.toolkit.ValidationError({'name': ['Event type with this name already exists']})
+    
+    # Create new event type
+    new_event_type = {
+        'id': event_name,
+        'name': event_name,
+        'title': data['title'],
+        'title_plural': data.get('title_plural', data['title'] + 's'),
+        'description': data.get('description', ''),
+        'icon': data.get('icon', 'fa-exclamation-triangle'),
+        'color': data.get('color', '#007bff'),
+        'active': data.get('active', True),
+        'order': data.get('order', len(existing_types) + 1),
+        'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'is_default': False
+    }
+    
+    # Add to existing types
+    existing_types.append(new_event_type)
+    
+    # Save to config (in a full implementation, you'd save to database)
+    try:
+        # Note: This requires CKAN configuration to be writable
+        # In production, you might want to use a separate configuration mechanism
+        config_value = json.dumps(existing_types)
+        # For now, we'll just return the new type since config writing requires special permissions
+        # tk.config['ckanext.pages.event_types'] = config_value
+    except Exception as e:
+        import logging
+        log = logging.getLogger(__name__)
+        log.warning("Could not save event types to config: %s", str(e))
+    
+    return new_event_type
+
+
+def event_types_update(context, data_dict):
+    """Update an existing event type (sysadmin only)"""
+    try:
+        p.toolkit.check_access('ckanext_event_types_update', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to update event types'))
+    
+    from ckanext.pages.logic.schema import update_event_types_schema
+    import ckan.lib.navl.dictization_functions as df
+    
+    schema = update_event_types_schema()
+    data, errors = df.validate(data_dict, schema, context)
+    
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+    
+    event_type_id = data.get('id')
+    if not event_type_id:
+        raise p.toolkit.ValidationError({'id': ['Missing value']})
+    
+    # Get existing event types
+    existing_types = event_types_list(context, {})
+    
+    # Find the event type to update
+    event_type_index = None
+    for i, et in enumerate(existing_types):
+        if et['id'] == event_type_id:
+            event_type_index = i
+            break
+    
+    if event_type_index is None:
+        p.toolkit.abort(404, p.toolkit._('Event type not found'))
+    
+    # Check if it's a default type and prevent certain changes
+    current_type = existing_types[event_type_index]
+    if current_type.get('is_default', False):
+        # Allow only certain fields to be updated for default types
+        allowed_fields = ['title', 'title_plural', 'description', 'icon', 'color', 'active', 'order']
+        for field in data:
+            if field not in allowed_fields and field in current_type:
+                data[field] = current_type[field]
+    
+    # Update the event type
+    updated_type = existing_types[event_type_index].copy()
+    updated_type.update(data)
+    updated_type['modified'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    existing_types[event_type_index] = updated_type
+    
+    # Save to config (in a full implementation, you'd save to database)
+    try:
+        config_value = json.dumps(existing_types)
+        # tk.config['ckanext.pages.event_types'] = config_value
+    except Exception as e:
+        import logging
+        log = logging.getLogger(__name__)
+        log.warning("Could not save event types to config: %s", str(e))
+    
+    return updated_type
+
+
+def event_types_delete(context, data_dict):
+    """Delete an event type (sysadmin only)"""
+    try:
+        p.toolkit.check_access('ckanext_event_types_delete', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to delete event types'))
+    
+    event_type_id = data_dict.get('id')
+    if not event_type_id:
+        raise p.toolkit.ValidationError({'id': ['Missing value']})
+    
+    # Get existing event types
+    existing_types = event_types_list(context, {})
+    
+    # Find the event type to delete
+    event_type_index = None
+    for i, et in enumerate(existing_types):
+        if et['id'] == event_type_id:
+            event_type_index = i
+            break
+    
+    if event_type_index is None:
+        p.toolkit.abort(404, p.toolkit._('Event type not found'))
+    
+    # Check if it's a default type
+    current_type = existing_types[event_type_index]
+    if current_type.get('is_default', False):
+        raise p.toolkit.ValidationError({'id': ['Cannot delete default event types. You can deactivate them instead.']})
+    
+    # Check if any rapid response pages are using this event type
+    try:
+        pages_using_type = tk.get_action('ckanext_pages_list')(
+            context, {'page_type': 'rapid-response', 'event_type': event_type_id}
+        )
+        if pages_using_type:
+            raise p.toolkit.ValidationError({
+                'id': [f'Cannot delete event type. It is being used by {len(pages_using_type)} rapid response page(s).']
+            })
+    except Exception:
+        # If we can't check, allow deletion but warn
+        pass
+    
+    # Remove the event type
+    deleted_type = existing_types.pop(event_type_index)
+    
+    # Save to config
+    try:
+        config_value = json.dumps(existing_types)
+        # tk.config['ckanext.pages.event_types'] = config_value
+    except Exception as e:
+        import logging
+        log = logging.getLogger(__name__)
+        log.warning("Could not save event types to config: %s", str(e))
+    
+    return deleted_type

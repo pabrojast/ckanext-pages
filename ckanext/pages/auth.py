@@ -128,3 +128,31 @@ water_events_delete = sysadmin
 
 water_publications_update = water_content_create
 water_publications_delete = sysadmin
+
+
+# Event Types Management Authorization (sysadmin only)
+@p.toolkit.auth_allow_anonymous_access
+def event_types_show(context, data_dict):
+    '''Anyone can view event types (used for dropdowns)'''
+    return {'success': True}
+
+
+@p.toolkit.auth_allow_anonymous_access  
+def event_types_list(context, data_dict):
+    '''Anyone can list event types (used for filters and dropdowns)'''
+    return {'success': True}
+
+
+def event_types_create(context, data_dict):
+    '''Only sysadmin can create event types'''
+    return sysadmin(context, data_dict)
+
+
+def event_types_update(context, data_dict):
+    '''Only sysadmin can update event types'''
+    return sysadmin(context, data_dict)
+
+
+def event_types_delete(context, data_dict):
+    '''Only sysadmin can delete event types'''
+    return sysadmin(context, data_dict)

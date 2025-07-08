@@ -44,6 +44,7 @@ def default_pages_schema():
         'countries_affected': [ignore_missing, unicode_safe], # Countries affected (JSON array)
         'priority': [ignore_missing, unicode_safe],          # Priority level
         'severity': [ignore_missing, unicode_safe],          # Severity level
+        'event_type': [ignore_missing, unicode_safe],        # Event type (references dynamic event types)
         # Water News specific fields
         'source': [ignore_missing, unicode_safe],           # Original source URL
         'external_links': [ignore_missing, unicode_safe],   # Related links
@@ -98,6 +99,29 @@ def default_pages_schema():
     }
 
 
+def default_event_types_schema():
+    """Schema for event types management"""
+    ignore_empty = p.toolkit.get_validator('ignore_empty')
+    ignore_missing = p.toolkit.get_validator('ignore_missing')
+    not_empty = p.toolkit.get_validator('not_empty')
+    name_validator = p.toolkit.get_validator('name_validator')
+    unicode_safe = p.toolkit.get_validator('unicode_safe')
+
+    return {
+        'id': [ignore_empty, unicode_safe],
+        'name': [not_empty, unicode_safe, name_validator],  # Internal name (e.g., 'tropical-cyclone')
+        'title': [not_empty, unicode_safe],                 # Display title (e.g., 'Tropical Cyclone')
+        'title_plural': [ignore_missing, unicode_safe],     # Plural form (e.g., 'Tropical Cyclones')
+        'description': [ignore_missing, unicode_safe],      # Description of the event type
+        'icon': [ignore_missing, unicode_safe],             # Icon class (e.g., 'fa-hurricane')
+        'color': [ignore_missing, unicode_safe],            # Color code for the event type
+        'active': [ignore_missing, p.toolkit.get_validator('boolean_validator')], # Whether active
+        'order': [ignore_missing, unicode_safe],            # Display order
+        'created': [ignore_missing, p.toolkit.get_validator('isodate')],
+        'modified': [ignore_missing, p.toolkit.get_validator('isodate')],
+    }
+
+
 def update_pages_schema():
     '''
     Returns the schema for the pages fields that can be added by other
@@ -118,5 +142,23 @@ def update_pages_schema():
     for plugin in p.PluginImplementations(IPagesSchema):
         if hasattr(plugin, 'update_pages_schema'):
             schema = plugin.update_pages_schema(schema)
+
+    return schema
+
+
+def update_event_types_schema():
+    '''
+    Returns the schema for the event types fields that can be added by other
+    extensions.
+
+    :returns: a dictionary mapping fields keys to lists of validator and
+    converter functions to be applied to those fields
+    :rtype: dictionary
+    '''
+
+    schema = default_event_types_schema()
+    for plugin in p.PluginImplementations(IPagesSchema):
+        if hasattr(plugin, 'update_event_types_schema'):
+            schema = plugin.update_event_types_schema(schema)
 
     return schema

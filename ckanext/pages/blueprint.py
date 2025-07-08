@@ -247,6 +247,27 @@ def group_edit(id, page=None, data=None, errors=None, error_summary=None):
     return utils.group_edit(id, 'group', page, data, errors, error_summary)
 
 
+# Event Types Management Functions
+def event_types_admin():
+    """Admin page for managing event types"""
+    return utils.event_types_admin()
+
+
+def event_types_new(data=None, errors=None, error_summary=None):
+    """Create new event type"""
+    return utils.event_types_edit(None, data, errors, error_summary)
+
+
+def event_types_edit(event_type_id=None, data=None, errors=None, error_summary=None):
+    """Edit existing event type"""
+    return utils.event_types_edit(event_type_id, data, errors, error_summary)
+
+
+def event_types_delete(event_type_id):
+    """Delete event type"""
+    return utils.event_types_delete(event_type_id)
+
+
 pages.add_url_rule("/pages", view_func=index, endpoint="pages_index")
 pages.add_url_rule("/pages/<page>", view_func=show)
 pages.add_url_rule("/pages/<page>/revisions", view_func=pages_revisions)
@@ -354,3 +375,9 @@ pages.add_url_rule("/open-source-software_edit", view_func=open_source_software_
 pages.add_url_rule("/open-source-software_edit/", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_edit/<page>", view_func=open_source_software_edit, endpoint='open_source_software_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_delete/<page>", view_func=open_source_software_delete, endpoint='open_source_software_delete', methods=['GET', 'POST'])
+
+# Event Types Administration URLs (Sysadmin only)
+pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='event_types_admin')
+pages.add_url_rule("/admin/event-types/new", view_func=event_types_new, endpoint='event_types_new', methods=['GET', 'POST'])
+pages.add_url_rule("/admin/event-types/edit/<event_type_id>", view_func=event_types_edit, endpoint='event_types_edit', methods=['GET', 'POST'])
+pages.add_url_rule("/admin/event-types/delete/<event_type_id>", view_func=event_types_delete, endpoint='event_types_delete', methods=['GET', 'POST'])

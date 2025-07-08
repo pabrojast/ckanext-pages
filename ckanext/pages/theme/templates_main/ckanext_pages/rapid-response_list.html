@@ -124,14 +124,16 @@
                           <div class="col-md-2">
                             <select name="event_type" class="form-control">
                               <option value="">{{ _('All Types') }}</option>
-                              <option value="cyclone" {% if request.args.event_type == 'cyclone' %}selected{% endif %}>{{ _('Tropical Cyclones') }}</option>
-                              <option value="earthquake" {% if request.args.event_type == 'earthquake' %}selected{% endif %}>{{ _('Earthquakes') }}</option>
-                              <option value="tsunami" {% if request.args.event_type == 'tsunami' %}selected{% endif %}>{{ _('Tsunamis') }}</option>
-                              <option value="flood" {% if request.args.event_type == 'flood' %}selected{% endif %}>{{ _('Floods') }}</option>
-                              <option value="fire" {% if request.args.event_type == 'fire' %}selected{% endif %}>{{ _('Wildfires') }}</option>
-                              <option value="volcano" {% if request.args.event_type == 'volcano' %}selected{% endif %}>{{ _('Volcanic Eruptions') }}</option>
-                              <option value="drought" {% if request.args.event_type == 'drought' %}selected{% endif %}>{{ _('Droughts') }}</option>
-                              <option value="conflict" {% if request.args.event_type == 'conflict' %}selected{% endif %}>{{ _('Armed Conflicts') }}</option>
+                              {% for event_type in h.get_event_types() %}
+                                <option value="{{ event_type.id }}" 
+                                        {% if request.args.event_type == event_type.id %}selected{% endif %}>
+                                  {{ _(event_type.title_plural or event_type.title) }}
+                                </option>
+                              {% endfor %}
+                              {% if h.is_sysadmin() %}
+                                <option disabled>──────────</option>
+                                <option value="_manage" style="font-style: italic;">{{ _('⚙️ Manage Event Types') }}</option>
+                              {% endif %}
                             </select>
                           </div>
                           <div class="col-md-2">
@@ -1637,6 +1639,15 @@ function initializeCountryFilter() {
     });
   }
 }
+
+// Event Type Management for Sysadmin
+$('select[name="event_type"]').on('change', function() {
+  if ($(this).val() === '_manage') {
+    // Reset the select to empty and redirect to event types management
+    $(this).val('');
+    window.open('/admin/event-types', '_blank');
+  }
+});
 
 // Initialize functionality
 initializeCountryFilter();

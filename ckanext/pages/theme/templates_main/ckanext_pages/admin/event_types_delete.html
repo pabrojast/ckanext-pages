@@ -1,0 +1,554 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Delete Event Type') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.event_types_admin') }}">{{ _('Manage Event Types') }}</a></li>
+                    <li class="active">{{ _('Delete Event Type') }}</li>
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title-danger" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay-danger"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Delete Event Type') }}</h1>
+                  <p class="section-title-description">{{ _('Permanently remove an event type from the system') }}</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-8 col-md-offset-2">
+                
+                <!-- Confirmation Form -->
+                <div class="event-type-delete-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      
+                      <!-- Warning Icon -->
+                      <div class="text-center" style="margin-bottom: 2rem;">
+                        <div class="warning-icon">
+                          <i class="fa fa-exclamation-triangle fa-4x"></i>
+                        </div>
+                      </div>
+                      
+                      <h2 class="text-center">{{ _('Confirm Event Type Deletion') }}</h2>
+                      <p class="text-center text-muted" style="margin-bottom: 2rem;">
+                        {{ _('This action cannot be undone. Please confirm that you want to delete this event type.') }}
+                      </p>
+                      
+                      <!-- Event Type Details -->
+                      <div class="event-type-details">
+                        <div class="event-type-card">
+                          <div class="row">
+                            <div class="col-md-3 text-center">
+                              <div class="event-type-icon" style="background-color: {{ event_type.color or '#007bff' }};">
+                                <i class="fa {{ event_type.icon or 'fa-exclamation-triangle' }}"></i>
+                              </div>
+                            </div>
+                            <div class="col-md-9">
+                              <h3>{{ event_type.title }}</h3>
+                              {% if event_type.title_plural %}
+                                <p class="text-muted">{{ _('Plural:') }} {{ event_type.title_plural }}</p>
+                              {% endif %}
+                              {% if event_type.description %}
+                                <p>{{ event_type.description }}</p>
+                              {% endif %}
+                              <div class="event-type-meta">
+                                <span class="meta-item">
+                                  <strong>{{ _('ID:') }}</strong> {{ event_type.id }}
+                                </span>
+                                {% if event_type.is_default %}
+                                  <span class="badge badge-default">{{ _('Default') }}</span>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Warnings -->
+                      <div class="deletion-warnings">
+                        <div class="alert alert-warning">
+                          <h4><i class="fa fa-warning"></i> {{ _('Important Notes') }}</h4>
+                          <ul class="warning-list">
+                            {% if event_type.is_default %}
+                              <li>{{ _('This is a default event type provided by the system.') }}</li>
+                              <li>{{ _('Deleting default types is not recommended as it may affect system functionality.') }}</li>
+                            {% else %}
+                              <li>{{ _('This is a custom event type.') }}</li>
+                            {% endif %}
+                            <li>{{ _('Existing rapid response pages using this event type will not be deleted.') }}</li>
+                            <li>{{ _('The event type will no longer be available for new rapid response pages.') }}</li>
+                            <li>{{ _('This action cannot be undone.') }}</li>
+                          </ul>
+                        </div>
+                        
+                        {% if event_type.is_default %}
+                          <div class="alert alert-danger">
+                            <h4><i class="fa fa-exclamation-triangle"></i> {{ _('Warning: Default Event Type') }}</h4>
+                            <p>{{ _('You are about to delete a default event type. This may cause issues with existing rapid response pages and system functionality. Consider deactivating it instead of deleting it.') }}</p>
+                          </div>
+                        {% endif %}
+                      </div>
+                      
+                      <!-- Confirmation Form -->
+                      <form method="post" action="{{ delete_url }}" style="margin-top: 2rem;">
+                        <div class="form-actions text-center">
+                          <button type="submit" class="btn btn-danger btn-lg" 
+                                  onclick="return confirm('{{ _('Are you absolutely sure you want to delete this event type? This action cannot be undone.') }}')">
+                            <i class="fa fa-trash"></i> {{ _('Yes, Delete Event Type') }}
+                          </button>
+                          <a href="{{ h.url_for('pages.event_types_admin') }}" class="btn btn-default btn-lg">
+                            <i class="fa fa-times"></i> {{ _('Cancel') }}
+                          </a>
+                        </div>
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Event Types Delete CSS -->
+<style>
+/* UNESCO Color Palette */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+}
+
+/* Danger-themed Banner Section */
+.section-title-danger {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.6) sepia(1) saturate(2) hue-rotate(340deg);
+  transition: transform 0.3s ease;
+}
+
+.section-title-overlay-danger {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.9) 0%, rgba(139, 0, 0, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 600px;
+}
+
+.section-title-content h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.1rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--unesco-blue);
+}
+
+/* Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border-left: 6px solid var(--danger-color);
+}
+
+.module-content {
+  padding: 3rem;
+}
+
+/* Warning Icon */
+.warning-icon {
+  color: var(--danger-color);
+  margin-bottom: 1rem;
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+/* Page Headers */
+h2 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+/* Event Type Details Card */
+.event-type-details {
+  margin: 2rem 0;
+}
+
+.event-type-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+.event-type-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: var(--shadow-medium);
+}
+
+.event-type-icon i {
+  font-size: 2rem;
+  color: white;
+}
+
+.event-type-card h3 {
+  color: var(--unesco-blue);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.event-type-card p {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.event-type-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+}
+
+.badge-default {
+  background: var(--unesco-blue);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+/* Warning Alerts */
+.deletion-warnings {
+  margin: 2rem 0;
+}
+
+.alert {
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: none;
+  box-shadow: var(--shadow-light);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border-left: 6px solid var(--warning-color);
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border-left: 6px solid var(--danger-color);
+}
+
+.alert h4 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert h4 i {
+  color: var(--warning-color);
+}
+
+.alert-danger h4 i {
+  color: var(--danger-color);
+}
+
+.warning-list {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.warning-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* Action Buttons */
+.form-actions {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.btn {
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  margin: 0 0.5rem;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--danger-color) 0%, #c82333 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+  background: linear-gradient(135deg, #c82333 0%, var(--danger-color) 100%);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title-danger {
+    height: 200px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .section-title-description {
+    font-size: 1rem;
+  }
+  
+  .module-content {
+    padding: 2rem;
+  }
+  
+  .event-type-card {
+    padding: 1.5rem;
+  }
+  
+  .event-type-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .event-type-icon i {
+    font-size: 1.5rem;
+  }
+  
+  .form-actions .btn {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+  
+  .alert {
+    padding: 1rem;
+  }
+  
+  .event-type-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title-danger {
+    height: 180px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.6rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .event-type-card {
+    padding: 1rem;
+  }
+  
+  .event-type-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .event-type-icon i {
+    font-size: 1.2rem;
+  }
+  
+  .warning-icon {
+    font-size: 3rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+</style>
+
+{% endblock %} 
