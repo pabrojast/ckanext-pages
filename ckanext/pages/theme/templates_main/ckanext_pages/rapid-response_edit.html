@@ -192,34 +192,17 @@
                             </div>
                           </div>
                           
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="field-priority" class="control-label">{{ _('Priority Level') }}</label>
-                                <select id="field-priority" name="priority" class="rr-form-control">
-                                  <option value="urgent" {% if data.priority == 'urgent' %}selected{% endif %}>{{ _('Urgent') }}</option>
-                                  <option value="high" {% if data.priority == 'high' or not data.priority %}selected{% endif %}>{{ _('High Priority') }}</option>
-                                  <option value="medium" {% if data.priority == 'medium' %}selected{% endif %}>{{ _('Medium Priority') }}</option>
-                                  <option value="low" {% if data.priority == 'low' %}selected{% endif %}>{{ _('Low Priority') }}</option>
-                                </select>
-                                <div class="help-text">{{ _('Priority level of the emergency event for display and sorting') }}</div>
-                                {% if errors.priority %}<span class="error-block">{{ errors.priority }}</span>{% endif %}
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="field-severity" class="control-label">{{ _('Severity Level') }}</label>
-                                <select id="field-severity" name="severity" class="rr-form-control">
-                                  <option value="">{{ _('Select severity...') }}</option>
-                                  <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact') }}</option>
-                                  <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact') }}</option>
-                                  <option value="high" {% if data.severity == 'high' %}selected{% endif %}>{{ _('High Impact') }}</option>
-                                  <option value="critical" {% if data.severity == 'critical' %}selected{% endif %}>{{ _('Critical Impact') }}</option>
-                                </select>
-                                <div class="help-text">{{ _('Expected or assessed impact level of the emergency') }}</div>
-                                {% if errors.severity %}<span class="error-block">{{ errors.severity }}</span>{% endif %}
-                              </div>
-                            </div>
+                          <div class="form-group">
+                            <label for="field-severity" class="control-label">{{ _('Severity Level') }}</label>
+                            <select id="field-severity" name="severity" class="rr-form-control">
+                              <option value="">{{ _('Select severity...') }}</option>
+                              <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact') }}</option>
+                              <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact') }}</option>
+                              <option value="high" {% if data.severity == 'high' %}selected{% endif %}>{{ _('High Impact') }}</option>
+                              <option value="critical" {% if data.severity == 'critical' %}selected{% endif %}>{{ _('Critical Impact') }}</option>
+                            </select>
+                            <div class="help-text">{{ _('Expected or assessed impact level of the emergency') }}</div>
+                            {% if errors.severity %}<span class="error-block">{{ errors.severity }}</span>{% endif %}
                           </div>
                           </div>
                         </fieldset>

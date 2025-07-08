@@ -336,19 +336,10 @@
                             </select>
                           </div>
                           <div class="col-md-2">
-                            <select name="priority" class="form-control">
-                              <option value="">{{ _('All Priorities') }}</option>
-                              <option value="urgent" {% if request.args.priority == 'urgent' %}selected{% endif %}>{{ _('Urgent') }}</option>
-                              <option value="high" {% if request.args.priority == 'high' %}selected{% endif %}>{{ _('High') }}</option>
-                              <option value="medium" {% if request.args.priority == 'medium' %}selected{% endif %}>{{ _('Medium') }}</option>
-                              <option value="low" {% if request.args.priority == 'low' %}selected{% endif %}>{{ _('Low') }}</option>
-                            </select>
-                          </div>
-                          <div class="col-md-2">
                             <select name="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
                               <option value="recent" {% if request.args.order_by == 'recent' or not request.args.order_by %}selected{% endif %}>{{ _('Most Recent') }}</option>
-                              <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Priority & Severity') }}</option>
+                              <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Severity') }}</option>
                               <option value="country" {% if request.args.order_by == 'country' %}selected{% endif %}>{{ _('Country') }}</option>
                             </select>
                           </div>
@@ -414,17 +405,6 @@
                                       <span class="badge-status badge-closed">{{ _('CLOSED') }}</span>
                                     {% else %}
                                       <span class="badge-status badge-active">{{ _('ACTIVE') }}</span>
-                                    {% endif %}
-                                    
-                                    {% set priority_level = page.priority or 'high' %}
-                                    {% if priority_level == 'urgent' %}
-                                      <span class="badge-priority badge-urgent">{{ _('URGENT') }}</span>
-                                    {% elif priority_level == 'high' %}
-                                      <span class="badge-priority badge-high">{{ _('High Priority') }}</span>
-                                    {% elif priority_level == 'medium' %}
-                                      <span class="badge-priority badge-medium">{{ _('Medium') }}</span>
-                                    {% elif priority_level == 'low' %}
-                                      <span class="badge-priority badge-low">{{ _('Low') }}</span>
                                     {% endif %}
                                   </div>
                                 </div>
@@ -912,8 +892,7 @@
   align-items: center;
 }
 
-.badge-status,
-.badge-priority {
+.badge-status {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.75rem;
@@ -931,45 +910,6 @@
 
 .badge-closed {
   background: #6c757d;
-}
-
-.badge-urgent {
-  background: #8b0000;
-  animation: pulse-urgent 1.5s infinite;
-}
-
-.badge-high {
-  background: #dc3545;
-  animation: pulse-red 2s infinite;
-}
-
-.badge-medium {
-  background: #fd7e14;
-}
-
-.badge-low {
-  background: #28a745;
-}
-
-@keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
-  50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
-}
-
-@keyframes pulse-urgent {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
-    transform: scale(1);
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(139, 0, 0, 1);
-    transform: scale(1.1);
-  }
-}
-
-@keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 5px rgba(220, 53, 69, 0.5); }
-  50% { box-shadow: 0 0 15px rgba(220, 53, 69, 0.8); }
 }
 
 @keyframes pulse-green {

@@ -41,28 +41,9 @@
                     </div>
                   {% endif %}
                   
-                  <!-- Priority and Severity Indicators -->
+                  <!-- Severity Indicators -->
                   <div class="event-priority-indicator">
-                    {% set priority_level = c.page.priority or 'high' %}
                     {% set severity_level = c.page.severity or '' %}
-                    
-                    {% if priority_level == 'urgent' %}
-                      <span class="priority-badge priority-urgent">
-                        <i class="fa fa-exclamation-triangle"></i> {{ _('URGENT PRIORITY') }}
-                      </span>
-                    {% elif priority_level == 'high' %}
-                      <span class="priority-badge priority-high">
-                        <i class="fa fa-exclamation-circle"></i> {{ _('HIGH PRIORITY') }}
-                      </span>
-                    {% elif priority_level == 'medium' %}
-                      <span class="priority-badge priority-medium">
-                        <i class="fa fa-info-circle"></i> {{ _('MEDIUM PRIORITY') }}
-                      </span>
-                    {% elif priority_level == 'low' %}
-                      <span class="priority-badge priority-low">
-                        <i class="fa fa-info"></i> {{ _('LOW PRIORITY') }}
-                      </span>
-                    {% endif %}
                     
                     {% if severity_level %}
                       <span class="severity-badge severity-{{ severity_level }}">
@@ -482,7 +463,7 @@
   letter-spacing: 0.3px;
 }
 
-/* Event Priority and Severity Indicators */
+/* Event Severity Indicators */
 .event-priority-indicator {
   margin-top: 1.5rem;
   display: flex;
@@ -491,7 +472,6 @@
   justify-content: center;
 }
 
-.priority-badge,
 .severity-badge {
   display: inline-flex;
   align-items: center;
@@ -506,24 +486,6 @@
   backdrop-filter: blur(10px);
   color: white;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-}
-
-.priority-urgent {
-  background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
-  animation: pulse-urgent-banner 1.5s infinite;
-}
-
-.priority-high {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  animation: pulse-high-banner 2s infinite;
-}
-
-.priority-medium {
-  background: linear-gradient(135deg, #fd7e14 0%, #e8610e 100%);
-}
-
-.priority-low {
-  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
 }
 
 .severity-critical {
@@ -542,25 +504,7 @@
   background: linear-gradient(135deg, #28a745 0%, #20783a 100%);
 }
 
-@keyframes pulse-urgent-banner {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
-    transform: scale(1);
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(139, 0, 0, 1);
-    transform: scale(1.05);
-  }
-}
 
-@keyframes pulse-high-banner {
-  0%, 100% { 
-    box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
-  }
-  50% { 
-    box-shadow: 0 0 16px rgba(220, 53, 69, 0.8);
-  }
-}
 
 /* Professional Breadcrumb */
 .toolbar {
