@@ -6,7 +6,9 @@
       "Bash(python3 -m pytest ckanext/pages/tests/ -v)",
       "Bash(pip3 list:*)",
       "Bash(find:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(msgfmt:*)",
+      "Bash(python:*)"
     ],
     "deny": []
   }
