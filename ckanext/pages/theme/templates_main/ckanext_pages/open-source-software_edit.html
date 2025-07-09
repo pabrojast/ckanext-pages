@@ -349,7 +349,7 @@
                             <label for="excerpt" class="control-label">{{ _('Excerpt/Summary') }}</label>
                             <div class="quill-wrapper">
                               <div id="excerpt-editor" class="quill-editor quill-excerpt"></div>
-                              <textarea name="excerpt" id="excerpt" style="display: none;">{{ data.get('excerpt', '') }}</textarea>
+                              <textarea name="excerpt" id="excerpt" style="display: none !important; visibility: hidden !important; position: absolute !important; left: -9999px !important;">{{ data.get('excerpt', '') }}</textarea>
                             </div>
                             <div class="excerpt-info">
                               <div class="character-counter">
@@ -2699,6 +2699,25 @@ textarea.form-control {
   padding: 8px 12px !important;
 }
 
+/* Force hide all Quill textareas */
+.quill-wrapper textarea,
+textarea[id="excerpt"],
+textarea[id="content"],
+textarea[id="technical_requirements"],
+textarea[id="installation_instructions"], 
+textarea[id="learning_resources"],
+textarea[id="example_applications"] {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
+}
+
 /* Character Counter Styles */
 .excerpt-info {
   margin-top: 0.5rem;
@@ -3570,6 +3589,21 @@ textarea.form-control {
           }
         }
         
+        // Force hide the textarea after initialization
+        if (textarea) {
+          $(textarea).css({
+            'display': 'none',
+            'visibility': 'hidden',
+            'position': 'absolute',
+            'left': '-9999px',
+            'top': '-9999px',
+            'width': '1px',
+            'height': '1px',
+            'opacity': '0',
+            'z-index': '-9999'
+          });
+        }
+        
         // Sync content back to textarea on changes
         quill.on('text-change', function() {
           if (textarea) {
@@ -3585,6 +3619,7 @@ textarea.form-control {
         // Remove loading state
         setTimeout(() => {
           $(editorElement).removeClass('quill-loading');
+          console.log(`Quill editor ${editorId} initialized successfully`);
         }, 500);
         
         // Add focus/blur effects
@@ -3719,6 +3754,23 @@ textarea.form-control {
     };
   }
   
+  // Function to ensure all Quill textareas are hidden
+  function forceHideQuillTextareas() {
+    $('.quill-wrapper textarea, textarea[id="excerpt"], textarea[id="content"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
+      $(this).css({
+        'display': 'none !important',
+        'visibility': 'hidden !important',
+        'position': 'absolute !important',
+        'left': '-9999px !important',
+        'top': '-9999px !important',
+        'width': '1px !important',
+        'height': '1px !important',
+        'opacity': '0 !important',
+        'z-index': '-9999 !important'
+      }).hide();
+    });
+  }
+  
   // Initialize
   loadUploadedImages();
   loadOrganizations();
@@ -3727,6 +3779,10 @@ textarea.form-control {
   
   // Initialize Quill editors after a short delay to ensure DOM is ready
   setTimeout(initializeQuillEditors, 100);
+  
+  // Force hide textareas after a delay to ensure they don't show
+  setTimeout(forceHideQuillTextareas, 200);
+  setTimeout(forceHideQuillTextareas, 1000);
   }); // Close waitForJQuery function
 })();
 </script>
