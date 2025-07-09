@@ -1076,7 +1076,8 @@
   color: inherit;
 }
 
-.installation-content a[href*="blog"]:before {
+.installation-content a[href*="blog"]:before,
+.installation-content a[href*="tutorial"]:before {
   content: "\f1ea";
   font-family: FontAwesome;
   display: inline-block;
@@ -1085,23 +1086,6 @@
   line-height: 50px;
   text-align: center;
   background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
-  color: white;
-  border-radius: 12px;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-  margin-bottom: 1rem;
-  vertical-align: top;
-}
-
-.installation-content a[href*="tutorial"]:before {
-  content: "\f02d";
-  font-family: FontAwesome;
-  display: inline-block;
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
   color: white;
   border-radius: 12px;
   font-size: 1.5rem;
@@ -2150,6 +2134,18 @@
     font-size: 0.95rem;
     margin-top: 1rem;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Eliminamos pseudo-iconos heredados en resource-card para evitar  */
+/* duplicar logos cuando anchor contiene href con youtube, etc.    */
+/* ------------------------------------------------------------------ */
+.learning-resources-content .resource-card[href*="youtube.com"]:before,
+.learning-resources-content .resource-card[href*="youtu.be"]:before,
+.learning-resources-content .resource-card[href*="openlearning.unesco.org"]:before,
+.installation-content .resource-card[href*="blog"]:before,
+.installation-content .resource-card[href*="tutorial"]:before {
+  content: none !important;
 }
 </style>
 
