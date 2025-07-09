@@ -29,13 +29,13 @@
     {% set quote_pos = url_start.find('"') %}
     
     {% set end_positions = [] %}
-    {% if space_pos > 0 %}{% set _ = end_positions.append(space_pos) %}{% endif %}
-    {% if paren_pos > 0 %}{% set _ = end_positions.append(paren_pos) %}{% endif %}
-    {% if bracket_pos > 0 %}{% set _ = end_positions.append(bracket_pos) %}{% endif %}
-    {% if newline_pos > 0 %}{% set _ = end_positions.append(newline_pos) %}{% endif %}
-    {% if tab_pos > 0 %}{% set _ = end_positions.append(tab_pos) %}{% endif %}
-    {% if gt_pos > 0 %}{% set _ = end_positions.append(gt_pos) %}{% endif %}
-    {% if quote_pos > 0 %}{% set _ = end_positions.append(quote_pos) %}{% endif %}
+    {% if space_pos > 0 %}{% set dummy = end_positions.append(space_pos) %}{% endif %}
+    {% if paren_pos > 0 %}{% set dummy = end_positions.append(paren_pos) %}{% endif %}
+    {% if bracket_pos > 0 %}{% set dummy = end_positions.append(bracket_pos) %}{% endif %}
+    {% if newline_pos > 0 %}{% set dummy = end_positions.append(newline_pos) %}{% endif %}
+    {% if tab_pos > 0 %}{% set dummy = end_positions.append(tab_pos) %}{% endif %}
+    {% if gt_pos > 0 %}{% set dummy = end_positions.append(gt_pos) %}{% endif %}
+    {% if quote_pos > 0 %}{% set dummy = end_positions.append(quote_pos) %}{% endif %}
     
     {% if end_positions %}
       {% set min_pos = end_positions[0] %}
@@ -67,14 +67,14 @@
     {% for part in parts %}
       {% if loop.first %}
         {# El primer fragmento es previo al primer <span #}
-        {% set _ = rebuilt.append(part) %}
+        {% set dummy = rebuilt.append(part) %}
       {% else %}
         {% set close_idx = part.find('>') %}
         {% if close_idx == -1 %}
           {# Si no hay cierre, descartar todo el fragmento #}
-          {% set _ = rebuilt.append('') %}
+          {% set dummy = rebuilt.append('') %}
         {% else %}
-          {% set _ = rebuilt.append(part[close_idx+1:]) %}
+          {% set dummy = rebuilt.append(part[close_idx+1:]) %}
         {% endif %}
       {% endif %}
     {% endfor %}
@@ -93,7 +93,7 @@
         {% set work = work[:idx] %}
       {% endif %}
       {% if work.strip() %}
-        {% set _ = clean_lines.append(work.strip()) %}
+        {% set dummy = clean_lines.append(work.strip()) %}
       {% endif %}
     {% endfor %}
 
@@ -135,7 +135,7 @@
               'course': 'fa-graduation-cap'
             } %}
             
-            {% set _ = resource_cards.append({
+            {% set dummy = resource_cards.append({
               'type': resource_type,
               'url': resource_url,
               'title': resource_title,
@@ -150,13 +150,13 @@
             {% set youtube_url = extracted_url %}
             {% set title_text = line_stripped.replace(youtube_url, '').strip('- []()') %}
             {% if not title_text or title_text == youtube_url %}
-              {% set title_text = _('YouTube Video') %}
+              {% set title_text = 'YouTube Video' %}
             {% endif %}
-            {% set _ = resource_cards.append({
+            {% set dummy = resource_cards.append({
               'type': 'youtube',
               'url': youtube_url,
               'title': title_text,
-              'description': _('Watch this tutorial video'),
+              'description': 'Watch this tutorial video',
               'icon': 'fa-youtube-play'
             }) %}
           {% endif %}
@@ -167,13 +167,13 @@
             {% set openlearning_url = extracted_url %}
             {% set title_text = line_stripped.replace(openlearning_url, '').strip('- []()') %}
             {% if not title_text or title_text == openlearning_url %}
-              {% set title_text = _('UNESCO OpenLearning Course') %}
+              {% set title_text = 'UNESCO OpenLearning Course' %}
             {% endif %}
-            {% set _ = resource_cards.append({
+            {% set dummy = resource_cards.append({
               'type': 'openlearning',
               'url': openlearning_url,
               'title': title_text,
-              'description': _('Access this UNESCO learning course'),
+              'description': 'Access this UNESCO learning course',
               'icon': 'fa-graduation-cap'
             }) %}
           {% endif %}
@@ -184,13 +184,13 @@
             {% set doc_url = extracted_url %}
             {% set title_text = line_stripped.replace(doc_url, '').strip('- []()') %}
             {% if not title_text or title_text == doc_url %}
-              {% set title_text = _('Documentation') %}
+              {% set title_text = 'Documentation' %}
             {% endif %}
-            {% set _ = resource_cards.append({
+            {% set dummy = resource_cards.append({
               'type': 'documentation',
               'url': doc_url,
               'title': title_text,
-              'description': _('Read the documentation'),
+              'description': 'Read the documentation',
               'icon': 'fa-file-text-o'
             }) %}
           {% endif %}
@@ -201,13 +201,13 @@
             {% set github_url = extracted_url %}
             {% set title_text = line_stripped.replace(github_url, '').strip('- []()') %}
             {% if not title_text or title_text == github_url %}
-              {% set title_text = _('GitHub Repository') %}
+              {% set title_text = 'GitHub Repository' %}
             {% endif %}
-            {% set _ = resource_cards.append({
+            {% set dummy = resource_cards.append({
               'type': 'github',
               'url': github_url,
               'title': title_text,
-              'description': _('View source code and examples'),
+              'description': 'View source code and examples',
               'icon': 'fa-github'
             }) %}
           {% endif %}
@@ -218,22 +218,22 @@
             {% set web_url = extracted_url %}
             {% set title_text = line_stripped.replace(web_url, '').strip('- []()') %}
             {% if not title_text or title_text == web_url %}
-              {% set title_text = _('External Resource') %}
+              {% set title_text = 'External Resource' %}
             {% endif %}
-            {% set _ = resource_cards.append({
+            {% set dummy = resource_cards.append({
               'type': 'web',
               'url': web_url,
               'title': title_text,
-              'description': _('Visit external resource'),
+              'description': 'Visit external resource',
               'icon': 'fa-external-link'
             }) %}
           {% endif %}
         {% else %}
           {# Regular content line #}
-          {% set _ = regular_content.append(line) %}
+          {% set dummy = regular_content.append(line) %}
         {% endif %}
       {% else %}
-        {% set _ = regular_content.append(line) %}
+        {% set dummy = regular_content.append(line) %}
       {% endif %}
     {% endfor %}
     
@@ -603,12 +603,12 @@
                         
                         {# Add logo to gallery if option is enabled #}
                         {% if c.page.header_image and c.page.include_logo_in_gallery == 'true' %}
-                          {% set _ = all_images.append({'url': c.page.header_image, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
+                          {% set dummy = all_images.append({'url': c.page.header_image, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
                         {% endif %}
                         
                         {# Add uploaded images #}
                         {% for img in uploaded_images %}
-                          {% set _ = all_images.append(img) %}
+                          {% set dummy = all_images.append(img) %}
                         {% endfor %}
                         
                         {% if all_images %}
