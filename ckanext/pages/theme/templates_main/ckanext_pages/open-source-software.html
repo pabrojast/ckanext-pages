@@ -265,7 +265,7 @@
     {# Render remaining regular content #}
     {% if regular_content %}
       <div class="regular-content">
-        {{ h.render_markdown('\n'.join(regular_content), allow_html=True) | safe }}
+        {{ h.render_content('\n'.join(regular_content)) | safe }}
       </div>
     {% endif %}
   {% endif %}
@@ -312,22 +312,28 @@
                       <img src="{{ logo_url }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
                       <h1>{{ c.page.title or c.page.name }}</h1>
                     </div>
+                  {% elif display_mode == 'logo' and not logo_url %}
+                    <!-- Logo Only Mode but no image - fallback to text -->
+                    <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% elif display_mode == 'logo_text' and not logo_url %}
+                    <!-- Logo Above Text Mode but no image - fallback to text -->
+                    <h1>{{ c.page.title or c.page.name }}</h1>
                   {% else %}
                     <!-- Text Only Mode (default) -->
                     <h1>{{ c.page.title or c.page.name }}</h1>
                   {% endif %}
                   
-                  {% if c.page.subtitle and display_mode != 'logo' %}
+                  {% if c.page.subtitle and display_mode != 'logo' and display_mode != 'logo_text' %}
                     <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
                   
                   <!-- Debug info (remove in production) -->
                   {% if h.check_access('sysadmin') %}
                     <small style="opacity: 0.7; font-size: 0.8rem;">
-                      Display Mode: {{ display_mode }}{% if c.page.header_image %} | Has Image: Yes{% else %} | Has Image: No{% endif %}
+                      Display Mode: {{ display_mode }} | Logo URL: {{ logo_url or 'None' }}
                     </small>
                   {% endif %}
-                  {% if c.page.software_category %}
+                  {% if c.page.software_category and display_mode != 'logo' %}
                     <div class="section-title-meta-category">
                       <i class="fa fa-tags"></i> {{ _('Categories:') }} 
                       {% set categories = c.page.software_category.split(',') if c.page.software_category else [] %}

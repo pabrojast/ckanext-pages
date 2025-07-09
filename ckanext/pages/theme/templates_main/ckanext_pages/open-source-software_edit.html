@@ -561,6 +561,7 @@
                                     <div class="option-details">
                                       <span class="radio-label">{{ _('Logo Only') }}</span>
                                       <small class="help-block">{{ _('Display only the logo image, no text') }}</small>
+                                      <small class="help-block text-warning"><i class="fa fa-exclamation-triangle"></i> {{ _('Requires logo image to be uploaded') }}</small>
                                     </div>
                                   </div>
                                 </label>
@@ -579,6 +580,7 @@
                                     <div class="option-details">
                                       <span class="radio-label">{{ _('Logo Above Text') }}</span>
                                       <small class="help-block">{{ _('Display logo image above the title text') }}</small>
+                                      <small class="help-block text-warning"><i class="fa fa-exclamation-triangle"></i> {{ _('Requires logo image to be uploaded') }}</small>
                                     </div>
                                   </div>
                                 </label>
@@ -2781,6 +2783,16 @@ textarea.form-control {
 .header-display-option .radio-label:after {
   content: none !important;
   display: none !important;
+}
+
+/* Warning text styling */
+.text-warning {
+  color: #f39c12 !important;
+  font-weight: 600;
+}
+
+.text-warning i {
+  margin-right: 0.25rem;
 }
 </style>
 
