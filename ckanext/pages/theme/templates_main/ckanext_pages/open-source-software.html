@@ -49,175 +49,55 @@
   {% endif %}
 {% endmacro %}
 
-{# Advanced HTML cleaning macro specifically designed for Quill Editor corruption #}
+{# Helper macro to strip HTML tags from text #}
 {% macro strip_html_tags(text) %}
   {% if text %}
     {% set clean_text = text %}
-    
-    {# Step 1: Decode HTML entities #}
-    {% set clean_text = clean_text | replace('&lt;', '<') | replace('&gt;', '>') | replace('&amp;', '&') | replace('&quot;', '"') | replace('&nbsp;', ' ') %}
-    
-    {# Step 2: Fix malformed HTML tags from Quill (like <p without >) #}
-    {% set clean_text = clean_text | replace('<p[', '<p>[') | replace('<strong', '<strong>') | replace('</strong', '</strong>') %}
-    {% set clean_text = clean_text | replace('strong>', 'strong>') | replace('p>', 'p>') %}
-    
-    {# Step 3: Extract and clean RESOURCE tags if present #}
-    {% if '[RESOURCE:' in clean_text %}
-      {% set resource_patterns = [] %}
-      {% set remaining_text = [] %}
-      
-      {# Split by potential RESOURCE patterns and process each piece #}
-      {% set segments = clean_text.split('[RESOURCE:') %}
-      {% set dummy = remaining_text.append(segments[0]) %}
-      
-      {% for i in range(1, segments|length) %}
-        {% set segment = segments[i] %}
-        {% set close_bracket = segment.find(']') %}
-        
-        {% if close_bracket > 0 %}
-          {# Extract the RESOURCE tag content #}
-          {% set resource_content = segment[:close_bracket] %}
-          {% set after_resource = segment[close_bracket+1:] %}
-          
-          {# Clean the resource content from HTML corruption #}
-          {% set resource_content = resource_content | replace('<p>', '') | replace('</p>', '') %}
-          {% set resource_content = resource_content | replace('<strong>', '') | replace('</strong>', '') %}
-          {% set resource_content = resource_content | replace('<span', '') | replace('</span>', '') %}
-          {% set resource_content = resource_content | replace('&lt;/span', '') | replace('&gt;', '') %}
-          {% set resource_content = resource_content | replace('</', '') | replace('/>', '') %}
-          
-          {# Remove any remaining HTML fragments #}
-          {% set parts = resource_content.split('<') %}
-          {% set clean_parts = [] %}
-          {% for part in parts %}
-            {% if '>' in part %}
-              {% set after_tag = part.split('>', 1) %}
-              {% if after_tag|length > 1 %}
-                {% set dummy = clean_parts.append(after_tag[1]) %}
-              {% endif %}
-            {% else %}
-              {% set dummy = clean_parts.append(part) %}
-            {% endif %}
-          {% endfor %}
-          {% set resource_content = ''.join(clean_parts) %}
-          
-          {# Clean up any remaining corruption patterns #}
-          {% set resource_content = resource_content | replace('span:', ':') | replace(':span', ':') %}
-          {% set resource_content = resource_content | replace('&', '') | replace('#', '') %}
-          
-          {# Build clean RESOURCE tag #}
-          {% set clean_resource = '[RESOURCE:' + resource_content + ']' %}
-          {% set dummy = resource_patterns.append(clean_resource) %}
-          
-          {# Clean the text after the resource tag #}
-          {% set clean_after = after_resource %}
-          {% set clean_after = clean_after | replace('<p>', '') | replace('</p>', '') %}
-          {% set clean_after = clean_after | replace('<strong>', '') | replace('</strong>', '') %}
-          {% set clean_after = clean_after | replace('<span>', '') | replace('</span>', '') %}
-          {% set clean_after = clean_after | replace('</', '') | replace('/>', '') %}
-          {% set clean_after = clean_after | replace('&lt;', '') | replace('&gt;', '') %}
-          
-          {# Remove any remaining HTML tags #}
-          {% set tag_cleaned = clean_after %}
-          {% set while_counter = 0 %}
-          {% for j in range(10) %}
-            {% set start_tag = tag_cleaned.find('<') %}
-            {% set end_tag = tag_cleaned.find('>') %}
-            {% if start_tag >= 0 and end_tag > start_tag %}
-              {% set tag_cleaned = tag_cleaned[:start_tag] + tag_cleaned[end_tag+1:] %}
-            {% else %}
-              {% set j = 10 %}
-            {% endif %}
-          {% endfor %}
-          
-          {% if tag_cleaned.strip() %}
-            {% set dummy = remaining_text.append(tag_cleaned.strip()) %}
-          {% endif %}
+    {# 1. Convertir <br> en saltos de línea #}
+    {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
+
+    {# 2. Eliminar tags sencillos #}
+    {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>', '</span>'] %}
+      {% set clean_text = clean_text | replace(tag, '') %}
+    {% endfor %}
+
+    {# 3. Eliminar cualquier fragmento que comience con "<span" hasta el carácter '>' #}
+    {% set parts = clean_text.split('<span') %}
+    {% set rebuilt = [] %}
+    {% for part in parts %}
+      {% if loop.first %}
+        {# El primer fragmento es previo al primer <span #}
+        {% set dummy = rebuilt.append(part) %}
+      {% else %}
+        {% set close_idx = part.find('>') %}
+        {% if close_idx == -1 %}
+          {# Si no hay cierre, descartar todo el fragmento #}
+          {% set dummy = rebuilt.append('') %}
         {% else %}
-          {# Malformed RESOURCE tag, clean as regular text #}
-          {% set clean_segment = segment %}
-          {% set clean_segment = clean_segment | replace('<p>', '') | replace('</p>', '') %}
-          {% set clean_segment = clean_segment | replace('<strong>', '') | replace('</strong>', '') %}
-          {% set clean_segment = clean_segment | replace('<span>', '') | replace('</span>', '') %}
-          {% if clean_segment.strip() %}
-            {% set dummy = remaining_text.append(clean_segment.strip()) %}
-          {% endif %}
+          {% set dummy = rebuilt.append(part[close_idx+1:]) %}
         {% endif %}
-      {% endfor %}
-      
-      {# Combine cleaned RESOURCE tags and remaining text #}
-      {% set final_lines = [] %}
-      {% for resource in resource_patterns %}
-        {% set dummy = final_lines.append(resource) %}
-      {% endfor %}
-      {% for text_part in remaining_text %}
-        {% if text_part.strip() %}
-          {# Check if this text part might contain multiple RESOURCE tags concatenated #}
-          {% if '[RESOURCE:' in text_part %}
-            {# Split by RESOURCE pattern and process separately #}
-            {% set sub_parts = text_part.split('[RESOURCE:') %}
-            {% if sub_parts[0].strip() %}
-              {% set dummy = final_lines.append(sub_parts[0].strip()) %}
-            {% endif %}
-            {% for j in range(1, sub_parts|length) %}
-              {% set sub_part = sub_parts[j] %}
-              {% if ']' in sub_part %}
-                {% set sub_close = sub_part.find(']') %}
-                {% set sub_resource = '[RESOURCE:' + sub_part[:sub_close+1] %}
-                {% set dummy = final_lines.append(sub_resource) %}
-                {% set sub_after = sub_part[sub_close+1:].strip() %}
-                {% if sub_after %}
-                  {% set dummy = final_lines.append(sub_after) %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-          {% else %}
-            {% set dummy = final_lines.append(text_part.strip()) %}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
-      
-      {% set clean_text = '\n'.join(final_lines) %}
-    
-    {% else %}
-      {# Regular text cleaning when no RESOURCE tags present #}
-      
-      {# Remove all HTML tags systematically #}
-      {% set tag_cleaned = clean_text %}
-      {% for i in range(20) %}
-        {% set start_tag = tag_cleaned.find('<') %}
-        {% set end_tag = tag_cleaned.find('>') %}
-        {% if start_tag >= 0 and end_tag > start_tag %}
-          {% set tag_cleaned = tag_cleaned[:start_tag] + ' ' + tag_cleaned[end_tag+1:] %}
-        {% else %}
-          {% set i = 20 %}
-        {% endif %}
-      {% endfor %}
-      
-      {# Clean up extra whitespace and line breaks #}
-      {% set lines = tag_cleaned.split('\n') %}
-      {% set clean_lines = [] %}
-      {% for line in lines %}
-        {% set cleaned_line = line.strip() %}
-        {# Remove any remaining HTML artifacts #}
-        {% set cleaned_line = cleaned_line | replace('&', '') | replace('>', '') | replace('<', '') %}
-        {% set cleaned_line = cleaned_line | replace('style=', '') | replace('class=', '') %}
-        {# Clean up multiple spaces #}
-        {% set words = cleaned_line.split() %}
-        {% set cleaned_line = ' '.join(words) %}
-        {% if cleaned_line and cleaned_line != ' ' %}
-          {% set dummy = clean_lines.append(cleaned_line) %}
-        {% endif %}
-      {% endfor %}
-      
-      {% set clean_text = '\n'.join(clean_lines) %}
-    {% endif %}
-    
-    {# Final cleanup #}
-    {% set clean_text = clean_text | replace('\n\n\n', '\n\n') | replace('\n\n\n', '\n\n') %}
-    {% set clean_text = clean_text.strip() %}
-    
-    {{ clean_text }}
+      {% endif %}
+    {% endfor %}
+    {% set clean_text = ''.join(rebuilt) %}
+
+    {# 4. Sustituir cualquier '>' residual #}
+    {% set clean_text = clean_text | replace('>', '') %}
+
+    {# 5. Eliminar atributos style="..." muy básicos #}
+    {% set lines = clean_text.split('\n') %}
+    {% set clean_lines = [] %}
+    {% for line in lines %}
+      {% set work = line %}
+      {% if 'style=' in work %}
+        {% set idx = work.find('style=') %}
+        {% set work = work[:idx] %}
+      {% endif %}
+      {% if work.strip() %}
+        {% set dummy = clean_lines.append(work.strip()) %}
+      {% endif %}
+    {% endfor %}
+
+    {{ '\n'.join(clean_lines) }}
   {% endif %}
 {% endmacro %}
 
@@ -226,33 +106,7 @@
   {% if content and content.strip() %}
     {# First strip HTML tags and get clean text #}
     {% set clean_content = strip_html_tags(content) %}
-    
-    {# Handle multiple RESOURCE tags that might be on the same line #}
-    {% set lines = [] %}
-    {% for line in clean_content.split('\n') %}
-      {% if '[RESOURCE:' in line %}
-        {# Split multiple RESOURCE tags on the same line #}
-        {% set resource_parts = line.split('[RESOURCE:') %}
-        {% if resource_parts[0].strip() %}
-          {% set dummy = lines.append(resource_parts[0].strip()) %}
-        {% endif %}
-        {% for i in range(1, resource_parts|length) %}
-          {% set part = resource_parts[i] %}
-          {% if ']' in part %}
-            {% set end_bracket = part.find(']') %}
-            {% set resource_tag = '[RESOURCE:' + part[:end_bracket+1] %}
-            {% set dummy = lines.append(resource_tag) %}
-            {% set after_resource = part[end_bracket+1:].strip() %}
-            {% if after_resource %}
-              {% set dummy = lines.append(after_resource) %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-      {% else %}
-        {% set dummy = lines.append(line) %}
-      {% endif %}
-    {% endfor %}
-    
+    {% set lines = clean_content.split('\n') %}
     {% set resource_cards = [] %}
     {% set regular_content = [] %}
     
@@ -265,27 +119,8 @@
           {% if resource_data|length >= 3 %}
             {% set resource_type = resource_data[0].strip() %}
             {% set resource_url = resource_data[1].strip() %}
-            {# Handle URLs that might contain colons #}
-            {% if resource_data|length >= 4 and (resource_url.startswith('http') or resource_url.startswith('www')) %}
-              {# If URL contains protocol, rejoin the URL parts #}
-              {% if '://' in line_stripped %}
-                {% set url_start = line_stripped.find('://') %}
-                {% set before_url = line_stripped[:url_start-4] %}
-                {% set after_url_start = line_stripped[url_start-4:] %}
-                {% set parts_after_url = after_url_start.split(':') %}
-                {% if parts_after_url|length >= 4 %}
-                  {% set resource_url = parts_after_url[0] + ':' + parts_after_url[1] %}
-                  {% set resource_title = parts_after_url[2] if parts_after_url|length > 2 else 'Resource' %}
-                  {% set resource_desc = ':'.join(parts_after_url[3:]) if parts_after_url|length > 3 else 'Click to access resource' %}
-                {% endif %}
-              {% else %}
-                {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
-                {% set resource_desc = ':'.join(resource_data[3:]).strip() if resource_data|length > 3 else 'Click to access resource' %}
-              {% endif %}
-            {% else %}
-              {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
-              {% set resource_desc = ':'.join(resource_data[3:]).strip() if resource_data|length > 3 else 'Click to access resource' %}
-            {% endif %}
+            {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
+            {% set resource_desc = resource_data[3].strip() if resource_data|length > 3 else 'Click to access resource' %}
             
             {% set icon_map = {
               'youtube': 'fa-youtube-play',
@@ -2318,43 +2153,6 @@
 .installation-content .resource-card[href*="tutorial"]:before {
   content: none !important;
 }
-
-/* ------------------------------------------------------------------ */
-/* Read More Functionality Styling                                   */
-/* ------------------------------------------------------------------ */
-.read-more-link {
-  color: var(--unesco-blue) !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  transition: color 0.3s ease;
-  cursor: pointer;
-}
-
-.read-more-link:hover {
-  color: var(--unesco-blue-dark) !important;
-  text-decoration: underline !important;
-}
-
-.hidden-content {
-  display: none;
-}
-
-.expandable-content {
-  overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-}
-
-/* Ensure resource card descriptions can expand properly */
-.resource-card-description {
-  transition: max-height 0.3s ease;
-  overflow: hidden;
-}
-
-.resource-card-description.expanded {
-  max-height: none !important;
-  -webkit-line-clamp: unset !important;
-  overflow: visible !important;
-}
 </style>
 
 <!-- JavaScript for Enhanced Functionality -->
@@ -2495,100 +2293,9 @@
     // Re-run enhancement if content is dynamically loaded
     setTimeout(enhanceResourceLinks, 1000);
     
-    // Handle "Read more" functionality with proper event delegation
-    function setupReadMoreFunctionality() {
-      // Use event delegation to handle dynamically added content
-      $(document).on('click', 'a[href="#"]', function(e) {
-        e.preventDefault();
-        
-        var $link = $(this);
-        var linkText = $link.text().toLowerCase().trim();
-        
-        // Check if it's a "read more" or "read less" link
-        if (linkText.includes('read more') || linkText.includes('leer más') || linkText.includes('más información')) {
-          var $content = $link.closest('.resource-card-content, .card-content, .description, p').find('.expandable-content, .hidden-content');
-          
-          if ($content.length === 0) {
-            // Try to find expandable content in siblings
-            $content = $link.siblings('.expandable-content, .hidden-content');
-          }
-          
-          if ($content.length > 0) {
-            $content.slideDown(300);
-            $link.text($link.text().replace(/read more|leer más|más información/i, 'Read less'));
-          } else {
-            // If no specific expandable content found, try to expand the parent
-            var $parent = $link.closest('.resource-card-description, .card-description, p');
-            if ($parent.length > 0) {
-              $parent.css({
-                'max-height': 'none',
-                '-webkit-line-clamp': 'unset',
-                'overflow': 'visible'
-              });
-              $link.text('Read less');
-            }
-          }
-        } else if (linkText.includes('read less') || linkText.includes('leer menos') || linkText.includes('menos información')) {
-          var $content = $link.closest('.resource-card-content, .card-content, .description, p').find('.expandable-content, .hidden-content');
-          
-          if ($content.length === 0) {
-            $content = $link.siblings('.expandable-content, .hidden-content');
-          }
-          
-          if ($content.length > 0) {
-            $content.slideUp(300);
-            $link.text($link.text().replace(/read less|leer menos|menos información/i, 'Read more'));
-          } else {
-            // Collapse the parent back
-            var $parent = $link.closest('.resource-card-description, .card-description, p');
-            if ($parent.length > 0) {
-              $parent.css({
-                'max-height': '',
-                '-webkit-line-clamp': '2',
-                'overflow': 'hidden'
-              });
-              $link.text('Read more');
-            }
-          }
-        }
-      });
-    }
-    
-    // Process content to add "Read more" functionality to long descriptions
-    function processLongContent() {
-      $('.resource-card-description, .card-description').each(function() {
-        var $desc = $(this);
-        var text = $desc.text().trim();
-        
-        // If description is longer than 100 characters, add read more
-        if (text.length > 100 && !$desc.find('a[href="#"]').length) {
-          var shortText = text.substring(0, 100);
-          var longText = text.substring(100);
-          
-          if (longText.trim()) {
-            $desc.html(
-              shortText + 
-              '<span class="hidden-content" style="display: none;">' + longText + '</span>' +
-              ' <a href="#" class="read-more-link" style="color: var(--unesco-blue); font-weight: 600;">... Read more</a>'
-            );
-          }
-        }
-      });
-    }
-    
-    // Initialize read more functionality
-    setupReadMoreFunctionality();
-    processLongContent();
-    
-    // Re-process content after potential dynamic updates
-    setTimeout(function() {
-      processLongContent();
-    }, 1000);
-    
     // Debug info
     console.log('Open Source Software gallery initialized');
     console.log('Gallery images found:', $('.gallery-image').length);
-    console.log('Resource cards found:', $('.resource-card').length);
     
   }); // Close waitForJQuery function
 })(); // Close main function
