@@ -53,6 +53,8 @@
 {% macro strip_html_tags(text) %}
   {% if text %}
     {% set clean_text = text %}
+    {# 0. Decodificar entidades HTML comunes para volver a los caracteres originales #}
+    {% set clean_text = clean_text | replace('&amp;lt;', '<') | replace('&amp;gt;', '>') | replace('&lt;', '<') | replace('&gt;', '>') | replace('&nbsp;', ' ') %}
     {# 1. Convertir <br> en saltos de línea #}
     {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
 
@@ -113,35 +115,44 @@
     {% for line in lines %}
       {% set line_stripped = line.strip() %}
       {% if line_stripped %}
-        {# Check for RESOURCE tag format: [RESOURCE:type:url:title:description] #}
-        {% if line_stripped.startswith('[RESOURCE:') and line_stripped.endswith(']') %}
-          {% set resource_data = line_stripped[10:-1].split(':') %}
-          {% if resource_data|length >= 3 %}
-            {% set resource_type = resource_data[0].strip() %}
-            {% set resource_url = resource_data[1].strip() %}
-            {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
-            {% set resource_desc = resource_data[3].strip() if resource_data|length > 3 else 'Click to access resource' %}
-            
-            {% set icon_map = {
-              'youtube': 'fa-youtube-play',
-              'openlearning': 'fa-graduation-cap', 
-              'documentation': 'fa-file-text-o',
-              'guide': 'fa-book',
-              'tutorial': 'fa-play-circle',
-              'manual': 'fa-file-text',
-              'github': 'fa-github',
-              'website': 'fa-globe',
-              'download': 'fa-download',
-              'course': 'fa-graduation-cap'
-            } %}
-            
-            {% set dummy = resource_cards.append({
-              'type': resource_type,
-              'url': resource_url,
-              'title': resource_title,
-              'description': resource_desc,
-              'icon': icon_map.get(resource_type, 'fa-external-link')
-            }) %}
+        {# Buscar un tag RESOURCE incluso si viene envuelto por etiquetas o caracteres extra #}
+        {% if '[RESOURCE:' in line_stripped %}
+          {% set res_start = line_stripped.find('[RESOURCE:') %}
+          {% set res_sub = line_stripped[res_start:] %}
+          {% set res_end = res_sub.find(']') %}
+          {% if res_end > 0 %}
+            {% set res_tag = res_sub[:res_end+1] %}
+            {% set resource_data = res_tag[10:-1].split(':') %}
+            {% if resource_data|length >= 3 %}
+              {% set resource_type = resource_data[0].strip() %}
+              {% set resource_url = resource_data[1].strip() %}
+              {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
+              {% set resource_desc = resource_data[3].strip() if resource_data|length > 3 else 'Click to access resource' %}
+
+              {% set icon_map = {
+                'youtube': 'fa-youtube-play',
+                'openlearning': 'fa-graduation-cap', 
+                'documentation': 'fa-file-text-o',
+                'guide': 'fa-book',
+                'tutorial': 'fa-play-circle',
+                'manual': 'fa-file-text',
+                'github': 'fa-github',
+                'website': 'fa-globe',
+                'download': 'fa-download',
+                'course': 'fa-graduation-cap'
+              } %}
+
+              {% set dummy = resource_cards.append({
+                'type': resource_type,
+                'url': resource_url,
+                'title': resource_title,
+                'description': resource_desc,
+                'icon': icon_map.get(resource_type, 'fa-external-link')
+              }) %}
+            {% endif %}
+          {% else %}
+            {# Si no hay cierre ']', considerar línea regular #}
+            {% set dummy = regular_content.append(line) %}
           {% endif %}
         {% elif 'youtube.com' in line_stripped or 'youtu.be' in line_stripped %}
           {# Auto-detect YouTube links #}
