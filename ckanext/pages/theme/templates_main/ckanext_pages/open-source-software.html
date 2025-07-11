@@ -53,51 +53,81 @@
 {% macro strip_html_tags(text) %}
   {% if text %}
     {% set clean_text = text %}
-    {# 1. Convertir <br> en saltos de línea #}
-    {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
-
-    {# 2. Eliminar tags sencillos #}
-    {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>', '</span>'] %}
-      {% set clean_text = clean_text | replace(tag, '') %}
-    {% endfor %}
-
-    {# 3. Eliminar cualquier fragmento que comience con "<span" hasta el carácter '>' #}
-    {% set parts = clean_text.split('<span') %}
-    {% set rebuilt = [] %}
-    {% for part in parts %}
-      {% if loop.first %}
-        {# El primer fragmento es previo al primer <span #}
-        {% set dummy = rebuilt.append(part) %}
-      {% else %}
-        {% set close_idx = part.find('>') %}
-        {% if close_idx == -1 %}
-          {# Si no hay cierre, descartar todo el fragmento #}
-          {% set dummy = rebuilt.append('') %}
-        {% else %}
-          {% set dummy = rebuilt.append(part[close_idx+1:]) %}
+    
+    {# First, decode HTML entities that might be corrupting RESOURCE tags #}
+    {% set clean_text = clean_text | replace('&lt;', '<') | replace('&gt;', '>') | replace('&amp;', '&') | replace('&quot;', '"') %}
+    
+    {# Fix malformed RESOURCE tags that might have been corrupted by editor #}
+    {# Pattern: &lt;p[RESOURCE:... becomes [RESOURCE:... #}
+    {% if '[RESOURCE:' in clean_text %}
+      {# Find and clean malformed RESOURCE patterns #}
+      {% set lines = clean_text.split('\n') %}
+      {% set clean_lines = [] %}
+      {% for line in lines %}
+        {% set work = line.strip() %}
+        {% if '[RESOURCE:' in work and ']' in work %}
+          {# Extract just the RESOURCE tag part #}
+          {% set start_idx = work.find('[RESOURCE:') %}
+          {% set end_idx = work.find(']', start_idx) %}
+          {% if start_idx >= 0 and end_idx > start_idx %}
+            {% set resource_tag = work[start_idx:end_idx+1] %}
+            {# Clean up any HTML remnants from the resource tag #}
+            {% set resource_tag = resource_tag | replace('<p', '') | replace('</p>', '') | replace('&lt;/span', '') | replace('&lt;/span>', '') | replace('<span', '') | replace('</span>', '') %}
+            {% set dummy = clean_lines.append(resource_tag) %}
+          {% endif %}
+        {% elif work and not ('<' in work and '>' in work) %}
+          {# Keep non-HTML lines #}
+          {% set dummy = clean_lines.append(work) %}
         {% endif %}
-      {% endif %}
-    {% endfor %}
-    {% set clean_text = ''.join(rebuilt) %}
+      {% endfor %}
+      {% set clean_text = '\n'.join(clean_lines) %}
+    {% else %}
+      {# Normal HTML cleaning if no RESOURCE tags #}
+      {# 1. Convert <br> to line breaks #}
+      {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
 
-    {# 4. Sustituir cualquier '>' residual #}
-    {% set clean_text = clean_text | replace('>', '') %}
+      {# 2. Remove common HTML tags #}
+      {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>', '</span>'] %}
+        {% set clean_text = clean_text | replace(tag, '') %}
+      {% endfor %}
 
-    {# 5. Eliminar atributos style="..." muy básicos #}
-    {% set lines = clean_text.split('\n') %}
-    {% set clean_lines = [] %}
-    {% for line in lines %}
-      {% set work = line %}
-      {% if 'style=' in work %}
-        {% set idx = work.find('style=') %}
-        {% set work = work[:idx] %}
-      {% endif %}
-      {% if work.strip() %}
-        {% set dummy = clean_lines.append(work.strip()) %}
-      {% endif %}
-    {% endfor %}
+      {# 3. Remove span tags with attributes #}
+      {% set parts = clean_text.split('<span') %}
+      {% set rebuilt = [] %}
+      {% for part in parts %}
+        {% if loop.first %}
+          {% set dummy = rebuilt.append(part) %}
+        {% else %}
+          {% set close_idx = part.find('>') %}
+          {% if close_idx == -1 %}
+            {% set dummy = rebuilt.append('') %}
+          {% else %}
+            {% set dummy = rebuilt.append(part[close_idx+1:]) %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      {% set clean_text = ''.join(rebuilt) %}
 
-    {{ '\n'.join(clean_lines) }}
+      {# 4. Remove remaining angle brackets #}
+      {% set clean_text = clean_text | replace('>', '') | replace('<', '') %}
+
+      {# 5. Clean up style attributes #}
+      {% set lines = clean_text.split('\n') %}
+      {% set clean_lines = [] %}
+      {% for line in lines %}
+        {% set work = line %}
+        {% if 'style=' in work %}
+          {% set idx = work.find('style=') %}
+          {% set work = work[:idx] %}
+        {% endif %}
+        {% if work.strip() %}
+          {% set dummy = clean_lines.append(work.strip()) %}
+        {% endif %}
+      {% endfor %}
+      {% set clean_text = '\n'.join(clean_lines) %}
+    {% endif %}
+
+    {{ clean_text }}
   {% endif %}
 {% endmacro %}
 
@@ -2153,6 +2183,43 @@
 .installation-content .resource-card[href*="tutorial"]:before {
   content: none !important;
 }
+
+/* ------------------------------------------------------------------ */
+/* Read More Functionality Styling                                   */
+/* ------------------------------------------------------------------ */
+.read-more-link {
+  color: var(--unesco-blue) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.read-more-link:hover {
+  color: var(--unesco-blue-dark) !important;
+  text-decoration: underline !important;
+}
+
+.hidden-content {
+  display: none;
+}
+
+.expandable-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+/* Ensure resource card descriptions can expand properly */
+.resource-card-description {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.resource-card-description.expanded {
+  max-height: none !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
 </style>
 
 <!-- JavaScript for Enhanced Functionality -->
@@ -2293,9 +2360,100 @@
     // Re-run enhancement if content is dynamically loaded
     setTimeout(enhanceResourceLinks, 1000);
     
+    // Handle "Read more" functionality with proper event delegation
+    function setupReadMoreFunctionality() {
+      // Use event delegation to handle dynamically added content
+      $(document).on('click', 'a[href="#"]', function(e) {
+        e.preventDefault();
+        
+        var $link = $(this);
+        var linkText = $link.text().toLowerCase().trim();
+        
+        // Check if it's a "read more" or "read less" link
+        if (linkText.includes('read more') || linkText.includes('leer más') || linkText.includes('más información')) {
+          var $content = $link.closest('.resource-card-content, .card-content, .description, p').find('.expandable-content, .hidden-content');
+          
+          if ($content.length === 0) {
+            // Try to find expandable content in siblings
+            $content = $link.siblings('.expandable-content, .hidden-content');
+          }
+          
+          if ($content.length > 0) {
+            $content.slideDown(300);
+            $link.text($link.text().replace(/read more|leer más|más información/i, 'Read less'));
+          } else {
+            // If no specific expandable content found, try to expand the parent
+            var $parent = $link.closest('.resource-card-description, .card-description, p');
+            if ($parent.length > 0) {
+              $parent.css({
+                'max-height': 'none',
+                '-webkit-line-clamp': 'unset',
+                'overflow': 'visible'
+              });
+              $link.text('Read less');
+            }
+          }
+        } else if (linkText.includes('read less') || linkText.includes('leer menos') || linkText.includes('menos información')) {
+          var $content = $link.closest('.resource-card-content, .card-content, .description, p').find('.expandable-content, .hidden-content');
+          
+          if ($content.length === 0) {
+            $content = $link.siblings('.expandable-content, .hidden-content');
+          }
+          
+          if ($content.length > 0) {
+            $content.slideUp(300);
+            $link.text($link.text().replace(/read less|leer menos|menos información/i, 'Read more'));
+          } else {
+            // Collapse the parent back
+            var $parent = $link.closest('.resource-card-description, .card-description, p');
+            if ($parent.length > 0) {
+              $parent.css({
+                'max-height': '',
+                '-webkit-line-clamp': '2',
+                'overflow': 'hidden'
+              });
+              $link.text('Read more');
+            }
+          }
+        }
+      });
+    }
+    
+    // Process content to add "Read more" functionality to long descriptions
+    function processLongContent() {
+      $('.resource-card-description, .card-description').each(function() {
+        var $desc = $(this);
+        var text = $desc.text().trim();
+        
+        // If description is longer than 100 characters, add read more
+        if (text.length > 100 && !$desc.find('a[href="#"]').length) {
+          var shortText = text.substring(0, 100);
+          var longText = text.substring(100);
+          
+          if (longText.trim()) {
+            $desc.html(
+              shortText + 
+              '<span class="hidden-content" style="display: none;">' + longText + '</span>' +
+              ' <a href="#" class="read-more-link" style="color: var(--unesco-blue); font-weight: 600;">... Read more</a>'
+            );
+          }
+        }
+      });
+    }
+    
+    // Initialize read more functionality
+    setupReadMoreFunctionality();
+    processLongContent();
+    
+    // Re-process content after potential dynamic updates
+    setTimeout(function() {
+      processLongContent();
+    }, 1000);
+    
     // Debug info
     console.log('Open Source Software gallery initialized');
     console.log('Gallery images found:', $('.gallery-image').length);
+    console.log('Resource cards found:', $('.resource-card').length);
     
   }); // Close waitForJQuery function
 })(); // Close main function
