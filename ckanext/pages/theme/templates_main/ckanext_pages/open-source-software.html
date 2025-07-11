@@ -49,84 +49,174 @@
   {% endif %}
 {% endmacro %}
 
-{# Helper macro to strip HTML tags from text #}
+{# Advanced HTML cleaning macro specifically designed for Quill Editor corruption #}
 {% macro strip_html_tags(text) %}
   {% if text %}
     {% set clean_text = text %}
     
-    {# First, decode HTML entities that might be corrupting RESOURCE tags #}
-    {% set clean_text = clean_text | replace('&lt;', '<') | replace('&gt;', '>') | replace('&amp;', '&') | replace('&quot;', '"') %}
+    {# Step 1: Decode HTML entities #}
+    {% set clean_text = clean_text | replace('&lt;', '<') | replace('&gt;', '>') | replace('&amp;', '&') | replace('&quot;', '"') | replace('&nbsp;', ' ') %}
     
-    {# Fix malformed RESOURCE tags that might have been corrupted by editor #}
-    {# Pattern: &lt;p[RESOURCE:... becomes [RESOURCE:... #}
+    {# Step 2: Fix malformed HTML tags from Quill (like <p without >) #}
+    {% set clean_text = clean_text | replace('<p[', '<p>[') | replace('<strong', '<strong>') | replace('</strong', '</strong>') %}
+    {% set clean_text = clean_text | replace('strong>', 'strong>') | replace('p>', 'p>') %}
+    
+    {# Step 3: Extract and clean RESOURCE tags if present #}
     {% if '[RESOURCE:' in clean_text %}
-      {# Find and clean malformed RESOURCE patterns #}
-      {% set lines = clean_text.split('\n') %}
-      {% set clean_lines = [] %}
-      {% for line in lines %}
-        {% set work = line.strip() %}
-        {% if '[RESOURCE:' in work and ']' in work %}
-          {# Extract just the RESOURCE tag part #}
-          {% set start_idx = work.find('[RESOURCE:') %}
-          {% set end_idx = work.find(']', start_idx) %}
-          {% if start_idx >= 0 and end_idx > start_idx %}
-            {% set resource_tag = work[start_idx:end_idx+1] %}
-            {# Clean up any HTML remnants from the resource tag #}
-            {% set resource_tag = resource_tag | replace('<p', '') | replace('</p>', '') | replace('&lt;/span', '') | replace('&lt;/span>', '') | replace('<span', '') | replace('</span>', '') %}
-            {% set dummy = clean_lines.append(resource_tag) %}
+      {% set resource_patterns = [] %}
+      {% set remaining_text = [] %}
+      
+      {# Split by potential RESOURCE patterns and process each piece #}
+      {% set segments = clean_text.split('[RESOURCE:') %}
+      {% set dummy = remaining_text.append(segments[0]) %}
+      
+      {% for i in range(1, segments|length) %}
+        {% set segment = segments[i] %}
+        {% set close_bracket = segment.find(']') %}
+        
+        {% if close_bracket > 0 %}
+          {# Extract the RESOURCE tag content #}
+          {% set resource_content = segment[:close_bracket] %}
+          {% set after_resource = segment[close_bracket+1:] %}
+          
+          {# Clean the resource content from HTML corruption #}
+          {% set resource_content = resource_content | replace('<p>', '') | replace('</p>', '') %}
+          {% set resource_content = resource_content | replace('<strong>', '') | replace('</strong>', '') %}
+          {% set resource_content = resource_content | replace('<span', '') | replace('</span>', '') %}
+          {% set resource_content = resource_content | replace('&lt;/span', '') | replace('&gt;', '') %}
+          {% set resource_content = resource_content | replace('</', '') | replace('/>', '') %}
+          
+          {# Remove any remaining HTML fragments #}
+          {% set parts = resource_content.split('<') %}
+          {% set clean_parts = [] %}
+          {% for part in parts %}
+            {% if '>' in part %}
+              {% set after_tag = part.split('>', 1) %}
+              {% if after_tag|length > 1 %}
+                {% set dummy = clean_parts.append(after_tag[1]) %}
+              {% endif %}
+            {% else %}
+              {% set dummy = clean_parts.append(part) %}
+            {% endif %}
+          {% endfor %}
+          {% set resource_content = ''.join(clean_parts) %}
+          
+          {# Clean up any remaining corruption patterns #}
+          {% set resource_content = resource_content | replace('span:', ':') | replace(':span', ':') %}
+          {% set resource_content = resource_content | replace('&', '') | replace('#', '') %}
+          
+          {# Build clean RESOURCE tag #}
+          {% set clean_resource = '[RESOURCE:' + resource_content + ']' %}
+          {% set dummy = resource_patterns.append(clean_resource) %}
+          
+          {# Clean the text after the resource tag #}
+          {% set clean_after = after_resource %}
+          {% set clean_after = clean_after | replace('<p>', '') | replace('</p>', '') %}
+          {% set clean_after = clean_after | replace('<strong>', '') | replace('</strong>', '') %}
+          {% set clean_after = clean_after | replace('<span>', '') | replace('</span>', '') %}
+          {% set clean_after = clean_after | replace('</', '') | replace('/>', '') %}
+          {% set clean_after = clean_after | replace('&lt;', '') | replace('&gt;', '') %}
+          
+          {# Remove any remaining HTML tags #}
+          {% set tag_cleaned = clean_after %}
+          {% set while_counter = 0 %}
+          {% for j in range(10) %}
+            {% set start_tag = tag_cleaned.find('<') %}
+            {% set end_tag = tag_cleaned.find('>') %}
+            {% if start_tag >= 0 and end_tag > start_tag %}
+              {% set tag_cleaned = tag_cleaned[:start_tag] + tag_cleaned[end_tag+1:] %}
+            {% else %}
+              {% set j = 10 %}
+            {% endif %}
+          {% endfor %}
+          
+          {% if tag_cleaned.strip() %}
+            {% set dummy = remaining_text.append(tag_cleaned.strip()) %}
           {% endif %}
-        {% elif work and not ('<' in work and '>' in work) %}
-          {# Keep non-HTML lines #}
-          {% set dummy = clean_lines.append(work) %}
-        {% endif %}
-      {% endfor %}
-      {% set clean_text = '\n'.join(clean_lines) %}
-    {% else %}
-      {# Normal HTML cleaning if no RESOURCE tags #}
-      {# 1. Convert <br> to line breaks #}
-      {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
-
-      {# 2. Remove common HTML tags #}
-      {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>', '</span>'] %}
-        {% set clean_text = clean_text | replace(tag, '') %}
-      {% endfor %}
-
-      {# 3. Remove span tags with attributes #}
-      {% set parts = clean_text.split('<span') %}
-      {% set rebuilt = [] %}
-      {% for part in parts %}
-        {% if loop.first %}
-          {% set dummy = rebuilt.append(part) %}
         {% else %}
-          {% set close_idx = part.find('>') %}
-          {% if close_idx == -1 %}
-            {% set dummy = rebuilt.append('') %}
-          {% else %}
-            {% set dummy = rebuilt.append(part[close_idx+1:]) %}
+          {# Malformed RESOURCE tag, clean as regular text #}
+          {% set clean_segment = segment %}
+          {% set clean_segment = clean_segment | replace('<p>', '') | replace('</p>', '') %}
+          {% set clean_segment = clean_segment | replace('<strong>', '') | replace('</strong>', '') %}
+          {% set clean_segment = clean_segment | replace('<span>', '') | replace('</span>', '') %}
+          {% if clean_segment.strip() %}
+            {% set dummy = remaining_text.append(clean_segment.strip()) %}
           {% endif %}
         {% endif %}
       {% endfor %}
-      {% set clean_text = ''.join(rebuilt) %}
-
-      {# 4. Remove remaining angle brackets #}
-      {% set clean_text = clean_text | replace('>', '') | replace('<', '') %}
-
-      {# 5. Clean up style attributes #}
-      {% set lines = clean_text.split('\n') %}
-      {% set clean_lines = [] %}
-      {% for line in lines %}
-        {% set work = line %}
-        {% if 'style=' in work %}
-          {% set idx = work.find('style=') %}
-          {% set work = work[:idx] %}
-        {% endif %}
-        {% if work.strip() %}
-          {% set dummy = clean_lines.append(work.strip()) %}
+      
+      {# Combine cleaned RESOURCE tags and remaining text #}
+      {% set final_lines = [] %}
+      {% for resource in resource_patterns %}
+        {% set dummy = final_lines.append(resource) %}
+      {% endfor %}
+      {% for text_part in remaining_text %}
+        {% if text_part.strip() %}
+          {# Check if this text part might contain multiple RESOURCE tags concatenated #}
+          {% if '[RESOURCE:' in text_part %}
+            {# Split by RESOURCE pattern and process separately #}
+            {% set sub_parts = text_part.split('[RESOURCE:') %}
+            {% if sub_parts[0].strip() %}
+              {% set dummy = final_lines.append(sub_parts[0].strip()) %}
+            {% endif %}
+            {% for j in range(1, sub_parts|length) %}
+              {% set sub_part = sub_parts[j] %}
+              {% if ']' in sub_part %}
+                {% set sub_close = sub_part.find(']') %}
+                {% set sub_resource = '[RESOURCE:' + sub_part[:sub_close+1] %}
+                {% set dummy = final_lines.append(sub_resource) %}
+                {% set sub_after = sub_part[sub_close+1:].strip() %}
+                {% if sub_after %}
+                  {% set dummy = final_lines.append(sub_after) %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% set dummy = final_lines.append(text_part.strip()) %}
+          {% endif %}
         {% endif %}
       {% endfor %}
+      
+      {% set clean_text = '\n'.join(final_lines) %}
+    
+    {% else %}
+      {# Regular text cleaning when no RESOURCE tags present #}
+      
+      {# Remove all HTML tags systematically #}
+      {% set tag_cleaned = clean_text %}
+      {% for i in range(20) %}
+        {% set start_tag = tag_cleaned.find('<') %}
+        {% set end_tag = tag_cleaned.find('>') %}
+        {% if start_tag >= 0 and end_tag > start_tag %}
+          {% set tag_cleaned = tag_cleaned[:start_tag] + ' ' + tag_cleaned[end_tag+1:] %}
+        {% else %}
+          {% set i = 20 %}
+        {% endif %}
+      {% endfor %}
+      
+      {# Clean up extra whitespace and line breaks #}
+      {% set lines = tag_cleaned.split('\n') %}
+      {% set clean_lines = [] %}
+      {% for line in lines %}
+        {% set cleaned_line = line.strip() %}
+        {# Remove any remaining HTML artifacts #}
+        {% set cleaned_line = cleaned_line | replace('&', '') | replace('>', '') | replace('<', '') %}
+        {% set cleaned_line = cleaned_line | replace('style=', '') | replace('class=', '') %}
+        {# Clean up multiple spaces #}
+        {% set words = cleaned_line.split() %}
+        {% set cleaned_line = ' '.join(words) %}
+        {% if cleaned_line and cleaned_line != ' ' %}
+          {% set dummy = clean_lines.append(cleaned_line) %}
+        {% endif %}
+      {% endfor %}
+      
       {% set clean_text = '\n'.join(clean_lines) %}
     {% endif %}
-
+    
+    {# Final cleanup #}
+    {% set clean_text = clean_text | replace('\n\n\n', '\n\n') | replace('\n\n\n', '\n\n') %}
+    {% set clean_text = clean_text.strip() %}
+    
     {{ clean_text }}
   {% endif %}
 {% endmacro %}
@@ -136,7 +226,33 @@
   {% if content and content.strip() %}
     {# First strip HTML tags and get clean text #}
     {% set clean_content = strip_html_tags(content) %}
-    {% set lines = clean_content.split('\n') %}
+    
+    {# Handle multiple RESOURCE tags that might be on the same line #}
+    {% set lines = [] %}
+    {% for line in clean_content.split('\n') %}
+      {% if '[RESOURCE:' in line %}
+        {# Split multiple RESOURCE tags on the same line #}
+        {% set resource_parts = line.split('[RESOURCE:') %}
+        {% if resource_parts[0].strip() %}
+          {% set dummy = lines.append(resource_parts[0].strip()) %}
+        {% endif %}
+        {% for i in range(1, resource_parts|length) %}
+          {% set part = resource_parts[i] %}
+          {% if ']' in part %}
+            {% set end_bracket = part.find(']') %}
+            {% set resource_tag = '[RESOURCE:' + part[:end_bracket+1] %}
+            {% set dummy = lines.append(resource_tag) %}
+            {% set after_resource = part[end_bracket+1:].strip() %}
+            {% if after_resource %}
+              {% set dummy = lines.append(after_resource) %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        {% set dummy = lines.append(line) %}
+      {% endif %}
+    {% endfor %}
+    
     {% set resource_cards = [] %}
     {% set regular_content = [] %}
     
@@ -149,8 +265,27 @@
           {% if resource_data|length >= 3 %}
             {% set resource_type = resource_data[0].strip() %}
             {% set resource_url = resource_data[1].strip() %}
-            {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
-            {% set resource_desc = resource_data[3].strip() if resource_data|length > 3 else 'Click to access resource' %}
+            {# Handle URLs that might contain colons #}
+            {% if resource_data|length >= 4 and (resource_url.startswith('http') or resource_url.startswith('www')) %}
+              {# If URL contains protocol, rejoin the URL parts #}
+              {% if '://' in line_stripped %}
+                {% set url_start = line_stripped.find('://') %}
+                {% set before_url = line_stripped[:url_start-4] %}
+                {% set after_url_start = line_stripped[url_start-4:] %}
+                {% set parts_after_url = after_url_start.split(':') %}
+                {% if parts_after_url|length >= 4 %}
+                  {% set resource_url = parts_after_url[0] + ':' + parts_after_url[1] %}
+                  {% set resource_title = parts_after_url[2] if parts_after_url|length > 2 else 'Resource' %}
+                  {% set resource_desc = ':'.join(parts_after_url[3:]) if parts_after_url|length > 3 else 'Click to access resource' %}
+                {% endif %}
+              {% else %}
+                {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
+                {% set resource_desc = ':'.join(resource_data[3:]).strip() if resource_data|length > 3 else 'Click to access resource' %}
+              {% endif %}
+            {% else %}
+              {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
+              {% set resource_desc = ':'.join(resource_data[3:]).strip() if resource_data|length > 3 else 'Click to access resource' %}
+            {% endif %}
             
             {% set icon_map = {
               'youtube': 'fa-youtube-play',
