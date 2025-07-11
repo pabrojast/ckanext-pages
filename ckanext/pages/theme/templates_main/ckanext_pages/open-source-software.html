@@ -107,7 +107,7 @@
 {% macro render_resource_cards(content, title="") %}
   {% if content and content.strip() %}
     {# First strip HTML tags and get clean text #}
-    {% set clean_content = strip_html_tags(content) %}
+    {% set clean_content = h.strip_html_tags(content) | replace('&amp;lt;', '<') | replace('&amp;gt;', '>') | replace('&lt;', '<') | replace('&gt;', '>') %}
     {% set lines = clean_content.split('\n') %}
     {% set resource_cards = [] %}
     {% set regular_content = [] %}
