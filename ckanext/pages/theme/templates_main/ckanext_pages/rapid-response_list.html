@@ -461,9 +461,9 @@
                                 {% endif %}
                                 
                                 {% if page.excerpt %}
-                                  {% set content_text = page.excerpt %}
+                                  {% set content_text = h.strip_html_tags(page.excerpt) %}
                                 {% elif page.content %}
-                                  {% set content_text = page.content %}
+                                  {% set content_text = h.strip_html_tags(page.content) %}
                                 {% else %}
                                   {% set content_text = '' %}
                                 {% endif %}

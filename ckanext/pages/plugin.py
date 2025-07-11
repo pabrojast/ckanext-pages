@@ -1,5 +1,6 @@
 import logging
 import json
+import re
 from html import escape as html_escape
 
 from six.moves.urllib.parse import quote
@@ -101,6 +102,18 @@ def build_pages_nav_main(*args):
 def render_content(content):
     allow_html = tk.asbool(tk.config.get('ckanext.pages.allow_html', False))
     return tk.h.render_markdown(content, allow_html=allow_html)
+
+
+def strip_html_tags(content):
+    """Remove HTML tags from content for plain text display"""
+    if not content:
+        return ''
+    # Remove HTML tags
+    clean_text = re.sub('<[^<]+?>', '', content)
+    # Replace multiple spaces/newlines with single spaces
+    clean_text = re.sub(r'\s+', ' ', clean_text)
+    # Strip leading/trailing whitespace
+    return clean_text.strip()
 
 
 def get_wysiwyg_editor():
@@ -486,6 +499,7 @@ class PagesPlugin(PagesPluginBase):
         return {
             'build_nav_main': build_pages_nav_main,
             'render_content': render_content,
+            'strip_html_tags': strip_html_tags,
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,
             'get_recent_rapid_response_posts': get_recent_rapid_response_posts,
