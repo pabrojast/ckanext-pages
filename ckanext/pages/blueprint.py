@@ -207,11 +207,6 @@ def open_source_software_edit(page=None, data=None, errors=None, error_summary=N
     return utils.pages_edit(page, data, errors, error_summary, 'open-source-software')
 
 
-def open_source_software_edit_modular(page=None, data=None, errors=None, error_summary=None):
-    """Modular version of the open source software edit form"""
-    return utils.pages_edit_modular(page, data, errors, error_summary, 'open-source-software')
-
-
 def open_source_software_revisions(page):
     return utils.pages_revisions(page, page_type='open-source-software')
 
@@ -380,11 +375,6 @@ pages.add_url_rule("/open-source-software_edit", view_func=open_source_software_
 pages.add_url_rule("/open-source-software_edit/", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_edit/<page>", view_func=open_source_software_edit, endpoint='open_source_software_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_delete/<page>", view_func=open_source_software_delete, endpoint='open_source_software_delete', methods=['GET', 'POST'])
-
-# Open Source Software Modular URLs (New modular version)
-pages.add_url_rule("/open-source-software-modular_edit", view_func=open_source_software_edit_modular, endpoint='open_source_software_modular_new', methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-software-modular_edit/", view_func=open_source_software_edit_modular, endpoint='open_source_software_modular_new', methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-software-modular_edit/<page>", view_func=open_source_software_edit_modular, endpoint='open_source_software_modular_edit', methods=['GET', 'POST'])
 
 # Event Types Administration URLs (Sysadmin only)
 pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='event_types_admin')

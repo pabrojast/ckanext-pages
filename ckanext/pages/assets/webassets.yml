@@ -52,23 +52,3 @@ rapid-response-css:
   contents:
     - css/rapid-response.css
 
-open-source-software-edit-css:
-  output: ckanext-pages/%(version)s_open-source-software-edit.css
-  filters: cssrewrite
-  contents:
-    - css/open-source-software-edit.css
-
-open-source-software-edit-js:
-  filters: rjsmin
-  output: ckanext-pages/%(version)s_open-source-software-edit.js
-  extra:
-    preload:
-      - base/main
-  contents:
-    - js/data-initialization.js
-    - js/open-source-software-edit.js
-    - js/organization-loader.js
-    - js/member-states.js
-    - js/image-upload.js
-    - js/quill-editor-manager.js
-
