@@ -1,0 +1,543 @@
+{% extends "page.html" %}
+
+{% block title %}
+{% if page %}
+  {{ _('Edit Tool Entry') }} - {{ page.title or page.name }}
+{% else %}
+  {{ _('Add New Tool Entry') }}
+{% endif %}
+- {{ super() }}
+{% endblock %}
+
+{# Include CSS and JS assets #}
+{% block styles %}
+{{ super() }}
+{% asset 'ckanext-pages/open-source-software-edit-css' %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% asset 'ckanext-pages/open-source-software-edit-js' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Water Management Tools') }}</a></li>
+                    {% if page %}
+                      <li><a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li class="active">{{ _('Edit') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Add Tool Entry') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+
+            <!-- Form Header -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if page %}
+                    <h1>{{ _('Edit Tool Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Update tool information, features, and learning resources') }}</p>
+                  {% else %}
+                    <h1>{{ _('Add New Tool Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Add a new water management tool, application, or learning resource') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+
+            <!-- Main Form Content -->
+            <section class="module">
+              <div class="module-content">
+                
+                <!-- Form Start -->
+                <form method="post" action="{{ request.url }}" enctype="multipart/form-data">
+                  
+                  <!-- CSRF Token -->
+                  {{ h.csrf_input() if h.csrf_input }}
+
+                  <!-- Basic Information Section -->
+                  <div class="form-section">
+                    <h2 class="form-section-title">
+                      <i class="fa fa-info-circle"></i>
+                      {{ _('Basic Information') }}
+                    </h2>
+
+                    <div class="control-group">
+                      <label class="control-label" for="title">{{ _('Tool Title') }} <span class="control-required">*</span></label>
+                      <div class="controls">
+                        <input type="text" name="title" id="title" value="{{ data.get('title', '') }}" class="form-control input-xxlarge" placeholder="{{ _('e.g., Advanced Water Quality Monitor') }}" required>
+                        <div class="help-block-enhanced">
+                          <strong>{{ _('Tip:') }}</strong> {{ _('Use a clear, descriptive name that highlights the tool\'s main purpose and distinguishes it from similar tools.') }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="name">{{ _('URL') }} <span class="control-required">*</span></label>
+                      <div class="controls">
+                        <div class="input-group">
+                          <input type="text" name="name" id="name" value="{{ data.get('name', '') }}" class="form-control input-xlarge" readonly>
+                          <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
+                              <i class="fa fa-edit"></i>
+                            </button>
+                          </span>
+                        </div>
+                        <p class="help-block">{{ _('URL is auto-generated from the title. Click the edit button to customize.') }}</p>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="organization_id">{{ _('Organization') }}</label>
+                      <div class="controls organization-selector">
+                        <select name="organization_id" id="organization_id" class="form-control" data-current-value="{{ data.get('organization_id', '') }}">
+                          <option value="">{{ _('Loading organizations...') }}</option>
+                        </select>
+                        <div class="organization-help">
+                          <p class="help-block">
+                            <i class="fa fa-info-circle"></i>
+                            {{ _('Select the organization responsible for this tool.') }}
+                            <a href="/organization" target="_blank">{{ _('Create new organization') }}</a>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="excerpt-editor">{{ _('Brief Summary') }}</label>
+                      <div class="controls">
+                        <div class="quill-wrapper">
+                          <div id="excerpt-editor" class="quill-editor quill-excerpt"></div>
+                          <textarea name="excerpt" id="excerpt" style="display: none;">{{ data.get('excerpt', '') }}</textarea>
+                        </div>
+                        <div class="excerpt-info">
+                          <div class="character-counter">
+                            <span>{{ _('Characters:') }}</span>
+                            <span class="current-count">0</span>
+                            <span>/</span>
+                            <span class="max-count">200</span>
+                            <span class="counter-status"></span>
+                          </div>
+                          <div class="help-block-enhanced">
+                            <strong>{{ _('Summary Guidelines:') }}</strong> {{ _('Write a concise description (150-200 characters) that explains what the tool does and its main benefits. This appears in search results and listings.') }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Detailed Content Section -->
+                  <div class="form-section">
+                    <h2 class="form-section-title">
+                      <i class="fa fa-file-text-o"></i>
+                      {{ _('Detailed Content') }}
+                    </h2>
+
+                    <div class="control-group">
+                      <label class="control-label" for="content-editor">{{ _('Detailed Description') }}</label>
+                      <div class="controls">
+                        <div class="quill-wrapper">
+                          <div id="content-editor" class="quill-editor"></div>
+                          <textarea name="content" id="content" style="display: none;">{{ data.get('content', '') }}</textarea>
+                        </div>
+                        <div class="help-block-enhanced">
+                          <strong>{{ _('Content Guidelines:') }}</strong> {{ _('Provide comprehensive information about the tool including its purpose, key features, water management capabilities, target users, and benefits. Use headings, lists, and formatting to improve readability.') }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Technical Information Section -->
+                  <div class="form-section">
+                    <h2 class="form-section-title">
+                      <i class="fa fa-cogs"></i>
+                      {{ _('Technical Information') }}
+                    </h2>
+
+                    <div class="control-group">
+                      <label class="control-label" for="technical-requirements-editor">{{ _('System Requirements') }}</label>
+                      <div class="controls">
+                        <div class="quill-wrapper">
+                          <div id="technical-requirements-editor" class="quill-editor quill-compact"></div>
+                          <textarea name="technical_requirements" id="technical_requirements" style="display: none;">{{ data.get('technical_requirements', '') }}</textarea>
+                        </div>
+                        <div class="help-block-enhanced">
+                          {{ _('List minimum system requirements, supported operating systems, hardware specifications, and any dependencies.') }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="installation-instructions-editor">{{ _('Installation & Usage') }}</label>
+                      <div class="controls">
+                        <div class="quill-wrapper">
+                          <div id="installation-instructions-editor" class="quill-editor"></div>
+                          <textarea name="installation_instructions" id="installation_instructions" style="display: none;">{{ data.get('installation_instructions', '') }}</textarea>
+                        </div>
+                        <div class="help-block-enhanced">
+                          {{ _('Provide step-by-step installation instructions and basic usage guidelines. Include any setup requirements or configuration steps.') }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Categories and Classification -->
+                    <div class="control-group">
+                      <label class="control-label" for="software_category">{{ _('Software Category') }}</label>
+                      <div class="controls">
+                        <select name="software_category" id="software_category" class="form-control" multiple>
+                          {% set categories = [
+                            ('monitoring', _('Water Quality Monitoring')),
+                            ('modeling', _('Hydrological Modeling')),
+                            ('management', _('Water Resource Management')),
+                            ('analysis', _('Data Analysis & Visualization')),
+                            ('simulation', _('Flow Simulation')),
+                            ('planning', _('Water System Planning')),
+                            ('treatment', _('Water Treatment Design')),
+                            ('distribution', _('Distribution Network')),
+                            ('irrigation', _('Irrigation Management')),
+                            ('flood', _('Flood Management')),
+                            ('gis', _('GIS & Mapping')),
+                            ('mobile', _('Mobile Applications')),
+                            ('iot', _('IoT & Sensors')),
+                            ('decision-support', _('Decision Support Systems'))
+                          ] %}
+                          {% for value, label in categories %}
+                            <option value="{{ value }}" {% if value in data.get('software_category', '').split(',') %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                        <div class="resource-tags-help">
+                          <strong>{{ _('Category Selection:') }}</strong> {{ _('Choose one or more categories that best describe the tool\'s functionality. Hold Ctrl/Cmd to select multiple categories.') }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="programming_language">{{ _('Programming Language') }}</label>
+                      <div class="controls">
+                        <select name="programming_language" id="programming_language" class="form-control" multiple>
+                          {% set languages = [
+                            ('python', 'Python'),
+                            ('r', 'R'),
+                            ('java', 'Java'),
+                            ('cpp', 'C++'),
+                            ('c', 'C'),
+                            ('javascript', 'JavaScript'),
+                            ('matlab', 'MATLAB'),
+                            ('fortran', 'Fortran'),
+                            ('csharp', 'C#'),
+                            ('php', 'PHP'),
+                            ('go', 'Go'),
+                            ('rust', 'Rust'),
+                            ('scala', 'Scala'),
+                            ('kotlin', 'Kotlin'),
+                            ('swift', 'Swift'),
+                            ('other', _('Other'))
+                          ] %}
+                          {% for value, label in languages %}
+                            <option value="{{ value }}" {% if value in data.get('programming_language', '').split(',') %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                        <p class="help-block">{{ _('Select the programming languages used to develop this tool.') }}</p>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="platform">{{ _('Supported Platforms') }}</label>
+                      <div class="controls">
+                        <select name="platform" id="platform" class="form-control" multiple>
+                          {% set platforms = [
+                            ('windows', 'Windows'),
+                            ('macos', 'macOS'),
+                            ('linux', 'Linux'),
+                            ('web', _('Web Browser')),
+                            ('mobile', _('Mobile (iOS/Android)')),
+                            ('cloud', _('Cloud Platform')),
+                            ('cross-platform', _('Cross-platform')),
+                            ('docker', 'Docker'),
+                            ('other', _('Other'))
+                          ] %}
+                          {% for value, label in platforms %}
+                            <option value="{{ value }}" {% if value in data.get('platform', '').split(',') %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                        <p class="help-block">{{ _('Select all platforms where this tool can run.') }}</p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- Learning Resources Section -->
+                  <div class="form-section">
+                    <h2 class="form-section-title">
+                      <i class="fa fa-graduation-cap"></i>
+                      {{ _('Learning & Training') }}
+                    </h2>
+
+                    <div class="control-group">
+                      <label class="control-label" for="learning-resources-editor">{{ _('Learning Resources') }}</label>
+                      <div class="controls">
+                        <div class="quill-wrapper">
+                          <div id="learning-resources-editor" class="quill-editor"></div>
+                          <textarea name="learning_resources" id="learning_resources" style="display: none;">{{ data.get('learning_resources', '') }}</textarea>
+                        </div>
+                        <div class="help-block-enhanced">
+                          {{ _('List available tutorials, documentation, training courses, webinars, user guides, and other educational materials. Include links where possible.') }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="control-group">
+                      <label class="control-label" for="example-applications-editor">{{ _('Example Applications') }}</label>
+                      <div class="controls">
+                        <div class="quill-wrapper">
+                          <div id="example-applications-editor" class="quill-editor quill-compact"></div>
+                          <textarea name="example_applications" id="example_applications" style="display: none;">{{ data.get('example_applications', '') }}</textarea>
+                        </div>
+                        <div class="help-block-enhanced">
+                          {{ _('Describe real-world use cases, case studies, successful implementations, and practical examples of how the tool has been used in water management projects.') }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Visual Content Section -->
+                  <div class="form-section">
+                    <h2 class="form-section-title">
+                      <i class="fa fa-image"></i>
+                      {{ _('Visual Content') }}
+                    </h2>
+
+                    <!-- Logo Upload Section -->
+                    <div class="control-group">
+                      <label class="control-label">{{ _('Tool Logo') }}</label>
+                      <div class="controls">
+                        <div class="logo-options">
+                          <div class="checkbox-option">
+                            <input type="checkbox" id="add-background" name="add_background" value="1" {% if data.get('add_background') %}checked{% endif %}>
+                            <label for="add-background">
+                              <span class="checkbox-label">{{ _('Add white background to logo') }}</span>
+                              <p class="help-inline">{{ _('Adds padding and white background behind the logo for better visibility on dark headers') }}</p>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div id="logo-dropzone" class="logo-dropzone">
+                          <div class="dropzone-content">
+                            <i class="fa fa-upload"></i>
+                            <p>{{ _('Click or drag to upload tool logo') }}</p>
+                            <p class="text-muted">{{ _('Recommended: PNG format, transparent background, max 2MB') }}</p>
+                          </div>
+                        </div>
+
+                        <div id="logo-preview" class="logo-preview-container" style="display: none;">
+                          <img id="logo-preview-img" class="logo-preview-img">
+                          <div class="logo-preview-actions">
+                            <button type="button" id="remove-logo" class="btn btn-danger">
+                              <i class="fa fa-trash"></i> {{ _('Remove Logo') }}
+                            </button>
+                          </div>
+                        </div>
+
+                        <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+                        <input type="hidden" name="header_image" id="header_image" value="{{ data.get('header_image', '') }}">
+                      </div>
+                    </div>
+
+                    <!-- Header Display Options -->
+                    <div class="control-group">
+                      <label class="control-label">{{ _('Header Display Mode') }}</label>
+                      <div class="controls">
+                        <div class="header-display-preview-container">
+                          <div class="header-options-container">
+                            
+                            <!-- Logo Only Option -->
+                            <label class="header-display-option">
+                              <input type="radio" name="header_display_mode" value="logo_only" {% if data.get('header_display_mode', 'logo_only') == 'logo_only' %}checked{% endif %}>
+                              <div class="option-content">
+                                <div class="option-preview">
+                                  <div class="preview-banner">
+                                    <div class="preview-logo-img">
+                                      <i class="fa fa-image"></i>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="option-details">
+                                  <span class="radio-label">{{ _('Logo Only') }}</span>
+                                  <p class="help-block">{{ _('Display only the logo in the header banner') }}</p>
+                                </div>
+                              </div>
+                            </label>
+
+                            <!-- Logo with Title Option -->
+                            <label class="header-display-option">
+                              <input type="radio" name="header_display_mode" value="logo_with_title" {% if data.get('header_display_mode') == 'logo_with_title' %}checked{% endif %}>
+                              <div class="option-content">
+                                <div class="option-preview">
+                                  <div class="preview-banner">
+                                    <div class="preview-logo-img small">
+                                      <i class="fa fa-image"></i>
+                                    </div>
+                                    <h4>Software Title</h4>
+                                  </div>
+                                </div>
+                                <div class="option-details">
+                                  <span class="radio-label">{{ _('Logo with Title') }}</span>
+                                  <p class="help-block">{{ _('Show logo above the tool title') }}</p>
+                                </div>
+                              </div>
+                            </label>
+
+                            <!-- Title Only Option -->
+                            <label class="header-display-option">
+                              <input type="radio" name="header_display_mode" value="title_only" {% if data.get('header_display_mode') == 'title_only' %}checked{% endif %}>
+                              <div class="option-content">
+                                <div class="option-preview">
+                                  <div class="preview-banner">
+                                    <h3>Software Title</h3>
+                                  </div>
+                                </div>
+                                <div class="option-details">
+                                  <span class="radio-label">{{ _('Title Only') }}</span>
+                                  <p class="help-block">{{ _('Display only the tool title without logo') }}</p>
+                                </div>
+                              </div>
+                            </label>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Image Gallery Section -->
+                    <div class="control-group">
+                      <label class="control-label">{{ _('Image Gallery') }}</label>
+                      <div class="controls">
+                        <div class="image-upload-section">
+                          <div id="image-dropzone" class="modern-dropzone">
+                            <div class="dropzone-content">
+                              <i class="fa fa-images"></i>
+                              <p>{{ _('Click or drag images here to upload') }}</p>
+                              <p class="text-muted">{{ _('Add screenshots, diagrams, or photos related to the tool') }}</p>
+                            </div>
+                          </div>
+
+                          <div class="upload-stats">
+                            <span>{{ _('Uploaded Images:') }} <span class="upload-count">0</span></span>
+                            <small class="text-muted">{{ _('JPG, PNG, GIF supported. Max 5MB per image.') }}</small>
+                          </div>
+
+                          <div id="uploaded-images-preview" class="uploaded-images-grid">
+                            <!-- Uploaded images will be displayed here -->
+                          </div>
+                        </div>
+
+                        <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+                        <input type="hidden" name="uploaded_images" id="uploaded-images-data" value="{{ data.get('uploaded_images', '[]') }}">
+                        <input type="hidden" name="image_gallery" id="image-gallery-data" value="{{ data.get('image_gallery', '[]') }}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Member States Section -->
+                  <div class="form-section">
+                    <h2 class="form-section-title">
+                      <i class="fa fa-globe"></i>
+                      {{ _('Regional Relevance') }}
+                    </h2>
+
+                    <div class="control-group">
+                      <label class="control-label">{{ _('Relevant Member States') }}</label>
+                      <div class="controls">
+                        <div class="member-states-container">
+                          <div class="member-state-selector">
+                            <div class="input-group">
+                              <select id="member-state-select" class="form-control">
+                                <option value="">{{ _('Loading member states...') }}</option>
+                              </select>
+                              <span class="input-group-btn">
+                                <button type="button" id="add-member-state" class="btn btn-primary">
+                                  <i class="fa fa-plus"></i> {{ _('Add') }}
+                                </button>
+                              </span>
+                            </div>
+                          </div>
+
+                          <div id="selected-member-states" class="selected-member-states">
+                            <!-- Selected member states will appear here -->
+                          </div>
+
+                          <div class="help-block-enhanced">
+                            <strong>{{ _('Regional Relevance:') }}</strong> {{ _('Select UNESCO IHP member states where this tool is particularly relevant, has been used, or could provide significant benefits for water management challenges.') }}
+                          </div>
+                        </div>
+
+                        <input type="hidden" name="member_states" id="member-states-data" value="{{ data.get('member_states', '[]') }}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Form Actions -->
+                  <div class="form-actions">
+                    <button type="submit" name="save" class="btn btn-primary btn-large">
+                      <i class="fa fa-save"></i>
+                      {% if page %}
+                        {{ _('Update Tool Entry') }}
+                      {% else %}
+                        {{ _('Create Tool Entry') }}
+                      {% endif %}
+                    </button>
+                    
+                    <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-default btn-large">
+                      <i class="fa fa-times"></i>
+                      {{ _('Cancel') }}
+                    </a>
+
+                    {% if page %}
+                      <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" class="btn btn-info btn-large">
+                        <i class="fa fa-eye"></i>
+                        {{ _('View Tool') }}
+                      </a>
+                      
+                      <a href="{{ h.url_for('pages.pages_delete', page=page.name, page_type='open-source-software') }}" 
+                         class="btn btn-danger btn-large" 
+                         data-confirm="{{ _('Are you sure you want to delete this tool entry?') }}">
+                        <i class="fa fa-trash"></i>
+                        {{ _('Delete') }}
+                      </a>
+                    {% endif %}
+                  </div>
+
+                </form>
+                <!-- Form End -->
+
+              </div>
+            </section>
+
+        </div>
+    </div>
+    {% endblock primary_content %}
+</div>
+
+<!-- Quill Editor CDN -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+{% endblock %}
