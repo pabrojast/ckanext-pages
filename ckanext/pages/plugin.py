@@ -96,7 +96,7 @@ def build_pages_nav_main(*args):
     try:
         # Safely check if pages_list is valid before processing
         if not pages_list or not isinstance(pages_list, list):
-            log.warning("Pages list is empty or invalid, skipping navigation menu")
+            log.debug("Pages list is empty or invalid, skipping navigation menu")
             return output
             
         for page in pages_list:
