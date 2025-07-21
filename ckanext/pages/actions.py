@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 from ckan.model.types import make_uuid
 from ckan import model
@@ -48,10 +49,35 @@ class HTMLFirstImage(HTMLParser):
 def _pages_show(context, data_dict):
     org_id = data_dict.get('org_id')
     page = data_dict.get('page')
-    out = db.Page.get(group_id=org_id, name=page)
-    if out:
-        out = db.table_dictize(out, context)
-    return out
+    
+    try:
+        # Ensure valid database session before query
+        if not ensure_valid_session():
+            log = logging.getLogger(__name__)
+            log.error("Database session is invalid, cannot fetch page")
+            return None
+            
+        out = db.Page.get(group_id=org_id, name=page)
+        if out:
+            out = db.table_dictize(out, context)
+        return out
+    except Exception as e:
+        log = logging.getLogger(__name__)
+        error_str = str(e).lower()
+        
+        # Different logging based on error type
+        if any(keyword in error_str for keyword in [
+            'server closed the connection',
+            'connection unexpectedly',
+            'nonetype',
+            'cursor',
+            'connection refused',
+            'no connection to the server'
+        ]):
+            log.warning("Database connection error fetching page: %s", str(e))
+        else:
+            log.error("Error fetching page: %s", str(e))
+        return None
 
 
 def _pages_list(context, data_dict):
@@ -99,13 +125,28 @@ def _pages_list(context, data_dict):
     
     try:
         # Ensure valid database session before query
-        ensure_valid_session()
+        if not ensure_valid_session():
+            log.error("Database session is invalid, returning empty list")
+            return []
+            
         out = db.Page.pages(**search)
     except Exception as e:
         # Log the error and return empty list as fallback
-        import logging
         log = logging.getLogger(__name__)
-        log.error("Error fetching pages list: %s", str(e))
+        error_str = str(e).lower()
+        
+        # Different logging based on error type
+        if any(keyword in error_str for keyword in [
+            'server closed the connection',
+            'connection unexpectedly',
+            'nonetype',
+            'cursor',
+            'connection refused',
+            'no connection to the server'
+        ]):
+            log.warning("Database connection error fetching pages list: %s", str(e))
+        else:
+            log.error("Error fetching pages list: %s", str(e))
         return []
     
     out_list = []
@@ -287,7 +328,8 @@ def pages_upload(context, data_dict):
                     
         except Exception as e:
             # Log el error pero continúa con la imagen original
-            logging.error(f"Error processing logo image: {str(e)}")
+            log = logging.getLogger(__name__)
+            log.error(f"Error processing logo image: {str(e)}")
     
     # Generar URL final
     if image_url and image_url[0:6] not in {'http:/', 'https:'}:
@@ -393,7 +435,8 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
             return processed_path
             
     except Exception as e:
-        logging.error(f"Error processing logo image: {str(e)}")
+        log = logging.getLogger(__name__)
+        log.error(f"Error processing logo image: {str(e)}")
         return None
 
 

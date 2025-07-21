@@ -30,11 +30,15 @@ def with_db_retry(max_retries=3, delay=0.5):
                     error_msg = str(e)
                     
                     # Handle specific connection pool errors
-                    if any(msg in error_msg for msg in [
+                    if any(msg in error_msg.lower() for msg in [
                         "server closed the connection unexpectedly",
                         "connection pool exhausted",
-                        "Can't reconnect until invalid transaction is rolled back",
-                        "error with status PGRES_TUPLES_OK"
+                        "can't reconnect until invalid transaction is rolled back",
+                        "error with status pgres_tuples_ok",
+                        "'nonetype' object has no attribute 'cursor'",
+                        "connection refused",
+                        "no connection to the server",
+                        "database is locked"
                     ]):
                         log.warning(f"Database connection error on attempt {attempt + 1}/{max_retries}: {error_msg}")
                         
@@ -76,14 +80,36 @@ def ensure_valid_session():
         # Test the connection with a simple query
         model.Session.execute("SELECT 1")
         model.Session.commit()
+        return True
     except Exception as e:
+        error_str = str(e).lower()
         log.warning(f"Invalid session detected: {str(e)}")
+        
+        # Check for specific connection issues
+        if any(keyword in error_str for keyword in [
+            'server closed the connection',
+            'connection unexpectedly',
+            'nonetype',
+            'cursor',
+            'connection refused',
+            'no connection to the server',
+            'database is locked'
+        ]):
+            log.warning("Connection-related session issue detected")
+            
         try:
             model.Session.rollback()
             model.Session.remove()
             model.Session.configure(bind=model.meta.engine)
-        except:
-            pass
+            
+            # Test the new session
+            model.Session.execute("SELECT 1")
+            model.Session.commit()
+            log.info("Successfully recreated database session")
+            return True
+        except Exception as recreate_error:
+            log.error(f"Failed to recreate session: {str(recreate_error)}")
+            return False
 
 
 def safe_commit():

@@ -162,6 +162,12 @@ def check_table_health():
     try:
         from ckanext.pages.db import Page
         
+        # First check basic connectivity
+        engine = model.meta.engine
+        with engine.connect() as conn:
+            # Simple connectivity test
+            conn.execute(sa.text("SELECT 1"))
+        
         # Try to query the table
         query = model.Session.query(Page).limit(1)
         result = query.first()
@@ -170,13 +176,50 @@ def check_table_health():
         return True
         
     except Exception as e:
-        log.error("Table health check failed: %s", str(e))
+        error_str = str(e).lower()
+        
+        # Log different types of errors differently
+        if any(keyword in error_str for keyword in [
+            'server closed the connection',
+            'connection unexpectedly',
+            'nonetype',
+            'cursor',
+            'connection refused',
+            'no connection to the server'
+        ]):
+            log.warning("Table health check failed due to database connection issue: %s", str(e))
+        elif 'does not exist' in error_str or 'no such table' in error_str:
+            log.warning("Table health check failed - table does not exist: %s", str(e))
+        else:
+            log.error("Table health check failed: %s", str(e))
+            
         return False
 
 
 def repair_table_if_needed():
     """Attempt to repair the table if there are issues"""
     try:
+        # First, check if we have basic database connectivity
+        try:
+            engine = model.meta.engine
+            with engine.connect() as conn:
+                # Simple connectivity test
+                conn.execute(sa.text("SELECT 1"))
+        except Exception as conn_error:
+            log.error("Database connection test failed: %s", str(conn_error))
+            # If we can't connect to the database at all, don't attempt repair
+            error_str = str(conn_error).lower()
+            if any(keyword in error_str for keyword in [
+                'server closed the connection',
+                'connection unexpectedly',
+                'nonetype',
+                'cursor',
+                'connection refused',
+                'no connection to the server'
+            ]):
+                log.warning("Database connection issue detected. Cannot repair table while connection is unstable.")
+                return False
+            
         if not check_table_health():
             log.info("Attempting to repair ckanext_pages table...")
             ensure_pages_table_exists()
@@ -194,4 +237,16 @@ def repair_table_if_needed():
             
     except Exception as e:
         log.error("Error during table repair: %s", str(e))
+        error_str = str(e).lower()
+        
+        # Don't attempt repair for connection issues
+        if any(keyword in error_str for keyword in [
+            'server closed the connection',
+            'connection unexpectedly',
+            'nonetype',
+            'cursor',
+            'connection refused'
+        ]):
+            log.warning("Skipping table repair due to database connection issues")
+            return False
         return False 

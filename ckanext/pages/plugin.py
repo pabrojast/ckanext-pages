@@ -54,9 +54,25 @@ def build_pages_nav_main(*args):
         pages_list = tk.get_action('ckanext_pages_list')(None, {'order': True, 'private': False})
     except Exception as e:
         log.error("Error getting pages list for navigation: %s", str(e))
-        # Try to repair the table if there's a database issue
+        error_str = str(e).lower()
+        
+        # Check for database connection issues
+        if any(keyword in error_str for keyword in [
+            'server closed the connection',
+            'connection unexpectedly',
+            'nonetype',
+            'cursor',
+            'connection refused',
+            'no connection to the server',
+            'database is locked',
+            'connection timeout'
+        ]):
+            log.warning("Database connection issue detected in navigation. Skipping pages menu to prevent cascading errors.")
+            return output
+        
+        # Try to repair the table if there's a table-specific database issue
         try:
-            if "ckanext_pages" in str(e):
+            if "ckanext_pages" in error_str:
                 log.info("Attempting to repair ckanext_pages table...")
                 if repair_table_if_needed():
                     # Try again after repair
@@ -78,20 +94,43 @@ def build_pages_nav_main(*args):
         page_name = tk.request.path.split('/')[-1]
 
     try:
+        # Safely check if pages_list is valid before processing
+        if not pages_list or not isinstance(pages_list, list):
+            log.warning("Pages list is empty or invalid, skipping navigation menu")
+            return output
+            
         for page in pages_list:
-            type_ = 'blog' if page['page_type'] == 'blog' else 'pages'
-            if page['page_type'] == 'rapid-response':
-                type_ = 'rapid-response'
-            elif page['page_type'] == 'open-source-software':
-                type_ = 'open-source-software'
-            name = quote(page['name'])
-            title = html_escape(page['title'])
-            link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
-            if page['name'] == page_name:
-                li = tk.literal('<li class="active">') + link + tk.literal('</li>')
-            else:
-                li = tk.literal('<li>') + link + tk.literal('</li>')
-            output = output + li
+            try:
+                # Safely extract page data with defaults
+                page_type = page.get('page_type', 'pages')
+                page_name_raw = page.get('name', '')
+                page_title = page.get('title', '')
+                
+                # Skip pages with missing essential data
+                if not page_name_raw or not page_title:
+                    log.warning("Skipping page with missing name or title: %s", page)
+                    continue
+                
+                type_ = 'blog' if page_type == 'blog' else 'pages'
+                if page_type == 'rapid-response':
+                    type_ = 'rapid-response'
+                elif page_type == 'open-source-software':
+                    type_ = 'open-source-software'
+                    
+                name = quote(page_name_raw)
+                title = html_escape(page_title)
+                link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
+                
+                if page_name_raw == page_name:
+                    li = tk.literal('<li class="active">') + link + tk.literal('</li>')
+                else:
+                    li = tk.literal('<li>') + link + tk.literal('</li>')
+                output = output + li
+            except Exception as page_error:
+                log.warning("Error processing individual page for navigation: %s. Page data: %s", 
+                          str(page_error), page)
+                continue
+                
     except Exception as e:
         log.error("Error building pages navigation: %s", str(e))
         # Continue with basic navigation if there's an error processing pages
@@ -121,13 +160,18 @@ def get_wysiwyg_editor():
 
 
 def get_recent_blog_posts(number=5, exclude=None):
-    blog_list = tk.get_action('ckanext_pages_list')(
-        None, {'order_publish_date': True, 'private': False,
-               'page_type': 'blog'}
-    )
+    try:
+        blog_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'blog'}
+        )
+    except Exception as e:
+        log.error("Error getting blog posts list: %s", str(e))
+        return []
+        
     new_list = []
     for blog in blog_list:
-        if exclude and blog['name'] == exclude:
+        if exclude and blog.get('name') == exclude:
             continue
         new_list.append(blog)
         if len(new_list) == number:
@@ -137,13 +181,18 @@ def get_recent_blog_posts(number=5, exclude=None):
 
 
 def get_recent_rapid_response_posts(number=5, exclude=None):
-    rapid_response_list = tk.get_action('ckanext_pages_list')(
-        None, {'order_publish_date': True, 'private': False,
-               'page_type': 'rapid-response'}
-    )
+    try:
+        rapid_response_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'rapid-response'}
+        )
+    except Exception as e:
+        log.error("Error getting rapid response posts list: %s", str(e))
+        return []
+        
     new_list = []
     for rr_post in rapid_response_list:
-        if exclude and rr_post['name'] == exclude:
+        if exclude and rr_post.get('name') == exclude:
             continue
         new_list.append(rr_post)
         if len(new_list) == number:
@@ -161,13 +210,14 @@ def get_recent_water_news(number=5, exclude=None):
         )
         new_list = []
         for news_post in news_list:
-            if exclude and news_post['name'] == exclude:
+            if exclude and news_post.get('name') == exclude:
                 continue
             new_list.append(news_post)
             if len(new_list) == number:
                 break
         return new_list
-    except:
+    except Exception as e:
+        log.error("Error getting water news list: %s", str(e))
         return []
 
 
@@ -180,13 +230,14 @@ def get_recent_water_events(number=5, exclude=None):
         )
         new_list = []
         for event_post in events_list:
-            if exclude and event_post['name'] == exclude:
+            if exclude and event_post.get('name') == exclude:
                 continue
             new_list.append(event_post)
             if len(new_list) == number:
                 break
         return new_list
-    except:
+    except Exception as e:
+        log.error("Error getting water events list: %s", str(e))
         return []
 
 
@@ -199,13 +250,14 @@ def get_recent_water_publications(number=5, exclude=None):
         )
         new_list = []
         for pub_post in publications_list:
-            if exclude and pub_post['name'] == exclude:
+            if exclude and pub_post.get('name') == exclude:
                 continue
             new_list.append(pub_post)
             if len(new_list) == number:
                 break
         return new_list
-    except:
+    except Exception as e:
+        log.error("Error getting water publications list: %s", str(e))
         return []
 
 
@@ -218,13 +270,14 @@ def get_recent_open_source_software(number=5, exclude=None):
         )
         new_list = []
         for software_post in software_list:
-            if exclude and software_post['name'] == exclude:
+            if exclude and software_post.get('name') == exclude:
                 continue
             new_list.append(software_post)
             if len(new_list) == number:
                 break
         return new_list
-    except:
+    except Exception as e:
+        log.error("Error getting open source software list: %s", str(e))
         return []
 
 
