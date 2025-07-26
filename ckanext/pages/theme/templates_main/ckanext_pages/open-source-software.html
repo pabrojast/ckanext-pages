@@ -123,12 +123,27 @@
           {% set res_end = res_sub.find(']') %}
           {% if res_end > 0 %}
             {% set res_tag = res_sub[:res_end+1] %}
-            {% set resource_data = res_tag[10:-1].split(':') %}
-            {% if resource_data|length >= 3 %}
-              {% set resource_type = resource_data[0].strip() %}
-              {% set resource_url = resource_data[1].strip() %}
-              {% set resource_title = resource_data[2].strip() if resource_data|length > 2 else 'Resource' %}
-              {% set resource_desc = resource_data[3].strip() if resource_data|length > 3 else 'Click to access resource' %}
+            {% set resource_content = res_tag[10:-1] %}
+            {% set first_colon = resource_content.find(':') %}
+            {% if first_colon > 0 %}
+              {% set resource_type = resource_content[:first_colon].strip() %}
+              {% set remaining = resource_content[first_colon+1:] %}
+              
+              {# Find the URL by looking for the second colon after http:// or https:// #}
+              {% set url_end = -1 %}
+              {% set next_colon = remaining.find(':', 8) %}
+              {% if next_colon > 0 %}
+                {% set resource_url = remaining[:next_colon].strip() %}
+                {% set after_url = remaining[next_colon+1:] %}
+                {% set title_desc_parts = after_url.split(':', 1) %}
+                {% set resource_title = title_desc_parts[0].strip() if title_desc_parts else 'Resource' %}
+                {% set resource_desc = title_desc_parts[1].strip() if title_desc_parts|length > 1 else 'Click to access resource' %}
+              {% else %}
+                {# No more colons, so the rest is the URL #}
+                {% set resource_url = remaining.strip() %}
+                {% set resource_title = 'Resource' %}
+                {% set resource_desc = 'Click to access resource' %}
+              {% endif %}
 
               {% set icon_map = {
                 'youtube': 'fa-youtube-play',
@@ -150,6 +165,7 @@
                 'description': resource_desc,
                 'icon': icon_map.get(resource_type, 'fa-external-link')
               }) %}
+            {% endif %}
             {% endif %}
           {% else %}
             {# Tag malformado, tratar como contenido regular (preservamos HTML) #}
