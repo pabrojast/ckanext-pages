@@ -166,7 +166,6 @@
                 'icon': icon_map.get(resource_type, 'fa-external-link')
               }) %}
             {% endif %}
-            {% endif %}
           {% else %}
             {# Tag malformado, tratar como contenido regular (preservamos HTML) #}
             {% set dummy = regular_content.append(original_line) %}
