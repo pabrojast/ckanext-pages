@@ -103,222 +103,90 @@
   {% endif %}
 {% endmacro %}
 
-{# Improved macro for creating resource cards from text content #}
-{% macro render_resource_cards(content, title="") %}
-  {% if content and content.strip() %}
-    {# First, decode common HTML entities that might be double-encoded #}
-    {% set decoded_content = content | replace('&amp;lt;', '&lt;') | replace('&amp;gt;', '&gt;') | replace('&amp;amp;', '&amp;') | replace('&amp;quot;', '&quot;') | replace('&amp;#39;', '&#39;') | replace('&amp;nbsp;', '&nbsp;') %}
-    
-    {# Check if content contains HTML tags that need to be processed #}
-    {% set has_html = '<p>' in decoded_content or '<div>' in decoded_content or '<br' in decoded_content %}
-    
-    {# Trabajamos con las líneas crudas para no perder formateo (strong, em, etc.) #}
-    {% set raw_lines = decoded_content.split('\n') %}
-    {% set resource_cards = [] %}
-    {% set regular_content = [] %}
-    
-    {% for line in raw_lines %}
-      {% set original_line = line.rstrip() %}
-      {% set detect_line = original_line | replace('&lt;', '<') | replace('&gt;', '>') | replace('&nbsp;', ' ') | replace('&quot;', '"') | replace('&#39;', "'") | striptags %}
-      {% set line_stripped = detect_line.strip() %}
-      {% if line_stripped %}
-        {# Skip empty HTML paragraphs from Quill #}
-        {% set is_empty_html = original_line.strip() in ['<p></p>', '<p>&nbsp;</p>', '<p><br></p>', '<p><br/></p>', '<div></div>', '<div>&nbsp;</div>', '<div><br></div>', '<div><br/></div>'] %}
-        {% if not is_empty_html %}
-        {# Buscar un tag RESOURCE incluso si viene envuelto por etiquetas o caracteres extra #}
-        {% if '[RESOURCE:' in line_stripped %}
-          {% set res_start = line_stripped.find('[RESOURCE:') %}
-          {% set res_sub = line_stripped[res_start:] %}
-          {% set res_end = res_sub.find(']') %}
-          {% if res_end > 0 %}
-            {% set res_tag = res_sub[:res_end+1] %}
-            {% set resource_content = res_tag[10:-1] %}
-            {% set first_colon = resource_content.find(':') %}
-            {% if first_colon > 0 %}
-              {% set resource_type = resource_content[:first_colon].strip() %}
-              {% set remaining = resource_content[first_colon+1:] %}
+{# Macro for creating resource cards from text content #}
+{%- macro render_resource_cards(content, title="") -%}
+{%- if content and content.strip() -%}
+  {%- set clean_content = content | replace('&amp;', '&') | replace('&lt;', '<') | replace('&gt;', '>') | replace('&quot;', '"') | replace('&#39;', "'") | replace('&nbsp;', ' ') -%}
+  {%- set text_content = clean_content | striptags -%}
+  {%- set resource_cards = [] -%}
+  {%- set regular_lines = [] -%}
+  
+  {# Process line by line #}
+  {%- for line in text_content.split('\n') -%}
+    {%- set line_clean = line.strip() -%}
+    {%- if line_clean -%}
+      {%- if '[RESOURCE:' in line_clean -%}
+        {%- set start = line_clean.find('[RESOURCE:') -%}
+        {%- set end = line_clean.find(']', start) -%}
+        {%- if end > start -%}
+          {%- set tag = line_clean[start+10:end] -%}
+          {%- set parts = tag.split(':', 1) -%}
+          {%- if parts|length == 2 -%}
+            {%- set rtype = parts[0].strip() -%}
+            {%- set rest = parts[1] -%}
+            {# Extract URL and metadata #}
+            {%- if 'http' in rest -%}
+              {%- set idx = 8 if rest.startswith('https://') else 7 -%}
+              {%- set next_colon = rest.find(':', idx) -%}
+              {%- if next_colon > 0 -%}
+                {%- set url = rest[:next_colon] -%}
+                {%- set meta = rest[next_colon+1:].split(':', 1) -%}
+                {%- set rtitle = meta[0] if meta else 'Resource' -%}
+                {%- set rdesc = meta[1] if meta|length > 1 else '' -%}
+              {%- else -%}
+                {%- set url = rest -%}
+                {%- set rtitle = 'Resource' -%}
+                {%- set rdesc = '' -%}
+              {%- endif -%}
               
-              {# Find the URL by looking for the second colon after http:// or https:// #}
-              {% set url_end = -1 %}
-              {% set next_colon = remaining.find(':', 8) %}
-              {% if next_colon > 0 %}
-                {% set resource_url = remaining[:next_colon].strip() %}
-                {% set after_url = remaining[next_colon+1:] %}
-                {% set title_desc_parts = after_url.split(':', 1) %}
-                {% set resource_title = title_desc_parts[0].strip() if title_desc_parts else 'Resource' %}
-                {% set resource_desc = title_desc_parts[1].strip() if title_desc_parts|length > 1 else 'Click to access resource' %}
-              {% else %}
-                {# No more colons, so the rest is the URL #}
-                {% set resource_url = remaining.strip() %}
-                {% set resource_title = 'Resource' %}
-                {% set resource_desc = 'Click to access resource' %}
-              {% endif %}
-
-              {% set icon_map = {
+              {%- set icons = {
                 'youtube': 'fa-youtube-play',
-                'openlearning': 'fa-graduation-cap', 
+                'openlearning': 'fa-graduation-cap',
                 'documentation': 'fa-file-text-o',
-                'guide': 'fa-book',
-                'tutorial': 'fa-play-circle',
-                'manual': 'fa-file-text',
-                'github': 'fa-github',
-                'website': 'fa-globe',
-                'download': 'fa-download',
-                'course': 'fa-graduation-cap'
-              } %}
-
-              {% set dummy = resource_cards.append({
-                'type': resource_type,
-                'url': resource_url,
-                'title': resource_title,
-                'description': resource_desc,
-                'icon': icon_map.get(resource_type, 'fa-external-link')
-              }) %}
-            {% endif %}
-          {% else %}
-            {# Tag malformado, tratar como contenido regular (preservamos HTML) #}
-            {% set dummy = regular_content.append(original_line) %}
-          {% endif %}
-        {% elif 'youtube.com' in line_stripped or 'youtu.be' in line_stripped %}
-          {# Auto-detect YouTube links #}
-          {% set extracted_url = extract_url(line_stripped) %}
-          {% if extracted_url %}
-            {% set youtube_url = extracted_url %}
-            {% set title_text = line_stripped.replace(youtube_url, '').strip('- []()') %}
-            {% if not title_text or title_text == youtube_url %}
-              {% set title_text = 'YouTube Video' %}
-            {% endif %}
-            {% set dummy = resource_cards.append({
-              'type': 'youtube',
-              'url': youtube_url,
-              'title': title_text,
-              'description': 'Watch this tutorial video',
-              'icon': 'fa-youtube-play'
-            }) %}
-          {% endif %}
-        {% elif 'openlearning.unesco.org' in line_stripped %}
-          {# Auto-detect OpenLearning links #}
-          {% set extracted_url = extract_url(line_stripped) %}
-          {% if extracted_url %}
-            {% set openlearning_url = extracted_url %}
-            {% set title_text = line_stripped.replace(openlearning_url, '').strip('- []()') %}
-            {% if not title_text or title_text == openlearning_url %}
-              {% set title_text = 'UNESCO OpenLearning Course' %}
-            {% endif %}
-            {% set dummy = resource_cards.append({
-              'type': 'openlearning',
-              'url': openlearning_url,
-              'title': title_text,
-              'description': 'Access this UNESCO learning course',
-              'icon': 'fa-graduation-cap'
-            }) %}
-          {% endif %}
-        {% elif ('http' in line_stripped and ('.pdf' in line_stripped.lower() or '.doc' in line_stripped.lower() or '.docx' in line_stripped.lower() or 'manual' in line_stripped.lower() or 'guide' in line_stripped.lower() or 'documentation' in line_stripped.lower() or 'readthedocs' in line_stripped.lower())) %}
-          {# Auto-detect Documentation links #}
-          {% set extracted_url = extract_url(line_stripped) %}
-          {% if extracted_url %}
-            {% set doc_url = extracted_url %}
-            {% set title_text = line_stripped.replace(doc_url, '').strip('- []()') %}
-            {% if not title_text or title_text == doc_url %}
-              {% set title_text = 'Documentation' %}
-            {% endif %}
-            {% set dummy = resource_cards.append({
-              'type': 'documentation',
-              'url': doc_url,
-              'title': title_text,
-              'description': 'Read the documentation',
-              'icon': 'fa-file-text-o'
-            }) %}
-          {% endif %}
-        {% elif ('http' in line_stripped and 'github.com' in line_stripped) %}
-          {# Auto-detect GitHub links #}
-          {% set extracted_url = extract_url(line_stripped) %}
-          {% if extracted_url %}
-            {% set github_url = extracted_url %}
-            {% set title_text = line_stripped.replace(github_url, '').strip('- []()') %}
-            {% if not title_text or title_text == github_url %}
-              {% set title_text = 'GitHub Repository' %}
-            {% endif %}
-            {% set dummy = resource_cards.append({
-              'type': 'github',
-              'url': github_url,
-              'title': title_text,
-              'description': 'View source code and examples',
-              'icon': 'fa-github'
-            }) %}
-          {% endif %}
-        {% elif 'http' in line_stripped %}
-          {# Auto-detect other web links #}
-          {% set extracted_url = extract_url(line_stripped) %}
-          {% if extracted_url %}
-            {% set web_url = extracted_url %}
-            {% set title_text = line_stripped.replace(web_url, '').strip('- []()') %}
-            {% if not title_text or title_text == web_url %}
-              {% set title_text = 'External Resource' %}
-            {% endif %}
-            {% set dummy = resource_cards.append({
-              'type': 'web',
-              'url': web_url,
-              'title': title_text,
-              'description': 'Visit external resource',
-              'icon': 'fa-external-link'
-            }) %}
-          {% endif %}
-        {% else %}
-          {# Línea regular con HTML preservado #}
-          {% set dummy = regular_content.append(original_line) %}
-        {% endif %}
-        {% endif %}{# Close is_empty_html check #}
-      {% else %}
-        {# Empty line but check if it's not an empty HTML tag #}
-        {% set is_empty_html = original_line.strip() in ['<p></p>', '<p>&nbsp;</p>', '<p><br></p>', '<p><br/></p>', '<div></div>', '<div>&nbsp;</div>', '<div><br></div>', '<div><br/></div>'] %}
-        {% if not is_empty_html %}
-          {% set dummy = regular_content.append(original_line) %}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-    
-    {# Render resource cards if any found #}
-    {% if resource_cards %}
-      <!-- Debug: {{ resource_cards|length }} resources found -->
-      <div class="resource-cards-section" style="margin-bottom: 2rem;">
-        {% if title %}
-          <h4 class="resource-cards-title">{{ title }}</h4>
-        {% endif %}
-        <div class="resource-cards-grid">
-          {% for card in resource_cards %}
-            <a href="{{ card.url|e }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
-              <div class="resource-card-icon">
-                <i class="fa {{ card.icon }}"></i>
-              </div>
-              <div class="resource-card-content">
-                <h5 class="resource-card-title">{{ card.title|e }}</h5>
-                <p class="resource-card-description">{{ card.description|e }}</p>
-              </div>
-              <div class="resource-card-arrow">
-                <i class="fa fa-chevron-right"></i>
-              </div>
-            </a>
-          {% endfor %}
-        </div>
+                'course': 'fa-graduation-cap',
+                'github': 'fa-github'
+              } -%}
+              
+              {%- set dummy = resource_cards.append({
+                'type': rtype,
+                'url': url,
+                'title': rtitle,
+                'description': rdesc,
+                'icon': icons.get(rtype, 'fa-external-link')
+              }) -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- set dummy = regular_lines.append(line_clean) -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  
+  {# Render cards #}
+  {%- if resource_cards -%}
+<div class="resource-cards-section" style="margin-bottom: 2rem;">
+  {%- if title -%}<h4 class="resource-cards-title">{{ title }}</h4>{%- endif -%}
+  <div class="resource-cards-grid">
+    {%- for card in resource_cards -%}
+    <a href="{{ card.url|e }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
+      <div class="resource-card-icon"><i class="fa {{ card.icon }}"></i></div>
+      <div class="resource-card-content">
+        <h5 class="resource-card-title">{{ card.title|e }}</h5>
+        <p class="resource-card-description">{{ card.description|e }}</p>
       </div>
-    {% endif %}
-    
-    {# Render remaining regular content #}
-    {% if regular_content %}
-      <div class="regular-content">
-        {# Since content from Quill is already HTML, render it directly #}
-        {% set joined_content = '\n'.join(regular_content) %}
-        {# Check if content looks like HTML (has tags) or is plain text/markdown #}
-        {% if '<p>' in joined_content or '<div>' in joined_content or '<br' in joined_content %}
-          {{ joined_content | safe }}
-        {% else %}
-          {{ h.render_content(joined_content) | safe }}
-        {% endif %}
-      </div>
-    {% endif %}
-  {% endif %}
-{% endmacro %}
+      <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+    </a>
+    {%- endfor -%}
+  </div>
+</div>
+  {%- endif -%}
+  
+  {%- if regular_lines -%}
+<div class="regular-content">{{ h.render_content('\n'.join(regular_lines)) | safe }}</div>
+  {%- endif -%}
+{%- endif -%}
+{%- endmacro -%}
 
 {% block content %}
 
