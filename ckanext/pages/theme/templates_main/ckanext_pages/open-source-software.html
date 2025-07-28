@@ -106,16 +106,25 @@
 {# Improved macro for creating resource cards from text content #}
 {% macro render_resource_cards(content, title="") %}
   {% if content and content.strip() %}
+    {# First, decode common HTML entities that might be double-encoded #}
+    {% set decoded_content = content | replace('&amp;lt;', '&lt;') | replace('&amp;gt;', '&gt;') | replace('&amp;amp;', '&amp;') | replace('&amp;quot;', '&quot;') | replace('&amp;#39;', '&#39;') | replace('&amp;nbsp;', '&nbsp;') %}
+    
+    {# Check if content contains HTML tags that need to be processed #}
+    {% set has_html = '<p>' in decoded_content or '<div>' in decoded_content or '<br' in decoded_content %}
+    
     {# Trabajamos con las líneas crudas para no perder formateo (strong, em, etc.) #}
-    {% set raw_lines = content.split('\n') %}
+    {% set raw_lines = decoded_content.split('\n') %}
     {% set resource_cards = [] %}
     {% set regular_content = [] %}
     
     {% for line in raw_lines %}
       {% set original_line = line.rstrip() %}
-      {% set detect_line = strip_html_tags(original_line) | replace('&amp;lt;', '<') | replace('&amp;gt;', '>') | replace('&lt;', '<') | replace('&gt;', '>') %}
+      {% set detect_line = original_line | replace('&lt;', '<') | replace('&gt;', '>') | replace('&nbsp;', ' ') | replace('&quot;', '"') | replace('&#39;', "'") | striptags %}
       {% set line_stripped = detect_line.strip() %}
       {% if line_stripped %}
+        {# Skip empty HTML paragraphs from Quill #}
+        {% set is_empty_html = original_line.strip() in ['<p></p>', '<p>&nbsp;</p>', '<p><br></p>', '<p><br/></p>', '<div></div>', '<div>&nbsp;</div>', '<div><br></div>', '<div><br/></div>'] %}
+        {% if not is_empty_html %}
         {# Buscar un tag RESOURCE incluso si viene envuelto por etiquetas o caracteres extra #}
         {% if '[RESOURCE:' in line_stripped %}
           {% set res_start = line_stripped.find('[RESOURCE:') %}
@@ -259,26 +268,32 @@
           {# Línea regular con HTML preservado #}
           {% set dummy = regular_content.append(original_line) %}
         {% endif %}
+        {% endif %}{# Close is_empty_html check #}
       {% else %}
-        {% set dummy = regular_content.append(original_line) %}
+        {# Empty line but check if it's not an empty HTML tag #}
+        {% set is_empty_html = original_line.strip() in ['<p></p>', '<p>&nbsp;</p>', '<p><br></p>', '<p><br/></p>', '<div></div>', '<div>&nbsp;</div>', '<div><br></div>', '<div><br/></div>'] %}
+        {% if not is_empty_html %}
+          {% set dummy = regular_content.append(original_line) %}
+        {% endif %}
       {% endif %}
     {% endfor %}
     
     {# Render resource cards if any found #}
     {% if resource_cards %}
+      <!-- Debug: {{ resource_cards|length }} resources found -->
       <div class="resource-cards-section" style="margin-bottom: 2rem;">
         {% if title %}
           <h4 class="resource-cards-title">{{ title }}</h4>
         {% endif %}
         <div class="resource-cards-grid">
           {% for card in resource_cards %}
-            <a href="{{ card.url }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
+            <a href="{{ card.url|e }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
               <div class="resource-card-icon">
                 <i class="fa {{ card.icon }}"></i>
               </div>
               <div class="resource-card-content">
-                <h5 class="resource-card-title">{{ card.title }}</h5>
-                <p class="resource-card-description">{{ card.description }}</p>
+                <h5 class="resource-card-title">{{ card.title|e }}</h5>
+                <p class="resource-card-description">{{ card.description|e }}</p>
               </div>
               <div class="resource-card-arrow">
                 <i class="fa fa-chevron-right"></i>
@@ -292,7 +307,14 @@
     {# Render remaining regular content #}
     {% if regular_content %}
       <div class="regular-content">
-        {{ h.render_content('\n'.join(regular_content)) | safe }}
+        {# Since content from Quill is already HTML, render it directly #}
+        {% set joined_content = '\n'.join(regular_content) %}
+        {# Check if content looks like HTML (has tags) or is plain text/markdown #}
+        {% if '<p>' in joined_content or '<div>' in joined_content or '<br' in joined_content %}
+          {{ joined_content | safe }}
+        {% else %}
+          {{ h.render_content(joined_content) | safe }}
+        {% endif %}
       </div>
     {% endif %}
   {% endif %}
