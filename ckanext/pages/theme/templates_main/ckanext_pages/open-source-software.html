@@ -108,16 +108,18 @@
 {%- if content and content.strip() -%}
   <!-- DEBUG: Original content length: {{ content|length }} -->
   {%- set clean_content = content | replace('&amp;', '&') | replace('&lt;', '<') | replace('&gt;', '>') | replace('&quot;', '"') | replace('&#39;', "'") | replace('&nbsp;', ' ') -%}
-  {%- set text_content = clean_content | striptags -%}
-  <!-- DEBUG: Text content length after striptags: {{ text_content|length }} -->
+  <!-- DEBUG: Clean content first 200 chars: {{ clean_content[:200] }} -->
+  <!-- DEBUG: Number of newlines in content: {{ clean_content.count('\n') }} -->
   {%- set resource_cards = [] -%}
   {%- set regular_lines = [] -%}
   {%- set line_count = 0 -%}
   
-  {# Process line by line #}
-  {%- for line in text_content.split('\n') -%}
+  {# Process line by line WITHOUT striptags first #}
+  {%- for line in clean_content.split('\n') -%}
     {%- set line_count = line_count + 1 -%}
-    {%- set line_clean = line.strip() -%}
+    {# Strip HTML tags from this specific line for processing #}
+    {%- set line_no_tags = line | striptags -%}
+    {%- set line_clean = line_no_tags.strip() -%}
     {%- if line_clean -%}
       <!-- DEBUG Line {{ line_count }}: {{ line_clean[:50] }}... -->
       {%- if '[RESOURCE:' in line_clean -%}

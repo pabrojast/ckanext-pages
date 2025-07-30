@@ -162,9 +162,99 @@ Configure your [plugin assets](https://docs.ckan.org/en/2.9/theming/webassets.ht
 
     ```
 
+## Dataset Repair Tools
+
+This extension includes utilities to fix broken datasets in your CKAN instance. These tools can automatically repair common issues like missing metadata, broken resources, and encoding problems.
+
+### Quick Start
+
+The simplest way to fix broken datasets is using the standalone script:
+
+```bash
+python fix_broken_datasets_simple.py postgresql://user:password@localhost/ckan
+```
+
+### What Gets Fixed
+
+The repair tools automatically fix these common issues:
+
+1. **Missing Titles**: Replaces empty titles with "Dataset [dataset-name]"
+2. **Missing Metadata**: 
+   - Empty author → "Unknown"
+   - Empty maintainer → "Unknown"
+   - Empty email → "no-email@example.com"
+   - Empty description → "No description available"
+3. **Invalid Extras**: Removes extras with empty or "None" values
+4. **Broken Resources**:
+   - Relative URLs → Converts to absolute URLs
+   - Empty URLs → Removes the resource
+5. **Encoding Issues**: Fixes malformed characters (�) in text fields
+
+### Available Tools
+
+#### 1. Simple Script
+```bash
+# Fix all broken datasets
+python fix_broken_datasets_simple.py postgresql://user:password@localhost/ckan
+```
+
+#### 2. Advanced Script with Options
+```bash
+# Preview what would be fixed (dry run)
+python fix_broken_datasets.py -d postgresql://user:pass@localhost/ckan --dry-run
+
+# Fix only 10 datasets
+python fix_broken_datasets.py -d postgresql://user:pass@localhost/ckan --limit 10
+
+# Fix a specific dataset
+python fix_broken_datasets.py -d postgresql://user:pass@localhost/ckan --dataset my-dataset-name
+```
+
+#### 3. CKAN Command (if plugin is installed)
+```bash
+# Preview broken datasets
+ckan -c /etc/ckan/default/ckan.ini pages fix-datasets --dry-run
+
+# Fix all broken datasets
+ckan -c /etc/ckan/default/ckan.ini pages fix-datasets
+
+# Fix with limit
+ckan -c /etc/ckan/default/ckan.ini pages fix-datasets --limit 10
+
+# Fix specific dataset
+ckan -c /etc/ckan/default/ckan.ini pages fix-datasets --dataset my-dataset-name
+```
+
+### After Running Repairs
+
+After fixing datasets, rebuild the search index:
+
+```bash
+ckan -c /etc/ckan/default/ckan.ini search-index rebuild
+```
+
+### Output
+
+The tools generate a JSON report with details about:
+- Number of datasets processed
+- Number of successful fixes
+- Any errors encountered
+- Timestamp of the operation
+
+Example report: `dataset_fix_report_20250127_143022.json`
+
+### Safety Features
+
+- **Dry Run Mode**: Preview changes without modifying data
+- **Selective Fixing**: Fix specific datasets or limit the number
+- **Transaction Safety**: All changes are atomic (all succeed or all fail)
+- **Detailed Logging**: Track what was changed in each dataset
+- **Backup Recommended**: Always backup your database before running repairs
+
 ## Dependencies
 
 * lxml (optional, only used for injecting resource views into pages)
+* psycopg2 (optional, only needed for dataset repair tools)
 
 
 ## License
