@@ -5,6 +5,9 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckan.logic as logic
 import ckan.lib.helpers as helpers
+from ckan import model
+
+from datetime import datetime
 
 from ckanext.pages.db import Page
 
@@ -133,7 +136,16 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             tk.get_action('ckanext_pages_update')(
                 context={}, data_dict=page_dict
             )
-            
+
+            # If this is a Water Publication creation and dataset creation info was provided,
+            # create a CKAN dataset of type 'documents' with an optional resource
+            if page_type == 'water-publications' and not page:
+                try:
+                    _maybe_create_documents_dataset(page_dict)
+                except Exception as e:
+                    # Do not block page creation on dataset errors; show a warning
+                    tk.h.flash_error(_('Dataset creation warning: %s') % str(e))
+
             # Show different messages based on user type and page status
             if page_type in ['water-news', 'water-events', 'water-publications']:
                 try:
@@ -144,7 +156,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                         tk.h.flash_success(_('Content published successfully'))
                 except tk.NotAuthorized:
                     tk.h.flash_success(_('Content submitted for review. It will be published after admin approval.'))
-            
+
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -193,6 +205,205 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     return tk.render(
         'ckanext_pages/%s_edit.html' % page_type, extra_vars=vars)
+
+
+def _maybe_create_documents_dataset(form_data):
+    """Create a CKAN dataset of type 'documents' from publication form data
+    if the user provided upload/link metadata. Runs only on create (not edit).
+
+    Expected form fields (all optional, best-effort):
+      - create_documents_dataset: 'on'|'true' (checkbox)
+      - dataset_title: str
+      - dataset_description: str
+      - dataset_language: str (GeoDCAT language URI). Defaults to ENG
+      - dataset_visibility: 'public'|'private'
+      - organization_id: CKAN org id
+      - contact_name, contact_email: if missing, auto from current user
+      - graphic_overview: url
+      - creation_date: YYYY-MM-DD (resource.created)
+      - country_groups: JSON array of group names
+      - initiative_groups: JSON array of group names
+      - document_format: short code like PDF, DOCX, PNG (resource.format)
+      - document_mimetype: optional mimetype (resource.mimetype)
+      - dataset_url: external URL for resource (alternative to upload)
+      - dataset_resource_title: optional resource title
+    And request.files may include:
+      - dataset_upload: uploaded file for the resource
+    """
+    req = tk.request
+
+    create_flag = (form_data.get('create_documents_dataset') in ('on', 'true', '1', True))
+    has_file = bool(getattr(req, 'files', None) and req.files.get('dataset_upload'))
+    has_link = bool(form_data.get('dataset_url'))
+    if not (create_flag or has_file or has_link):
+        return  # nothing to do
+
+    # Build package (dataset) payload
+    dataset_title = (form_data.get('dataset_title') or form_data.get('title') or '').strip()
+    if not dataset_title and has_file:
+        # Try to use file name without extension
+        filename = req.files.get('dataset_upload').filename or ''
+        dataset_title = filename.rsplit('.', 1)[0]
+    if not dataset_title and has_link:
+        dataset_title = form_data.get('dataset_url').rstrip('/').rsplit('/', 1)[-1]
+        dataset_title = dataset_title.rsplit('.', 1)[0]
+    if not dataset_title:
+        raise Exception(_('Dataset title is required to create the document'))
+
+    def _slugify(text):
+        import re
+        value = (text or '').lower()
+        value = re.sub(r'[^a-z0-9\-\_\s]+', '', value)
+        value = re.sub(r'\s+', '-', value).strip('-')
+        return value or 'document'
+
+    identifier = 'document-' + _slugify(dataset_title)
+
+    # Language default
+    language = form_data.get('dataset_language') or \
+        'http://publications.europa.eu/resource/authority/language/ENG'
+
+    # Contact defaults from current user if missing
+    contact_name = form_data.get('contact_name')
+    contact_email = form_data.get('contact_email')
+    if not (contact_name and contact_email):
+        try:
+            user = model.User.get(tk.g.user) if tk.g.user else None
+            if user:
+                contact_name = contact_name or (user.fullname or user.name)
+                contact_email = contact_email or user.email
+            else:
+                # Fallback to site settings
+                contact_name = contact_name or tk.config.get('ckan.site_title', 'contact')
+                contact_email = contact_email or tk.config.get('email_to', '')
+        except Exception:
+            pass
+
+    # Visibility and license
+    visibility = (form_data.get('dataset_visibility') or 'public').lower()
+    is_private = False if visibility == 'public' else True
+    license_id = 'cc-by-sa' if not is_private else None
+
+    # Owner org
+    owner_org = form_data.get('organization_id') or None
+    if not owner_org:
+      try:
+          orgs = tk.get_action('organization_list_for_user')(
+              {'user': tk.g.user} if getattr(tk.g, 'user', None) else {},
+              {'permission': 'create_dataset'}
+          )
+          if orgs:
+              owner_org = orgs[0].get('id') or orgs[0].get('name')
+      except Exception:
+          pass
+
+    # Notes/Abstract
+    dataset_notes = (form_data.get('dataset_description') or form_data.get('content') or '').strip()
+
+    # Groups (countries, initiatives)
+    import json
+    groups_payload = []
+    for key in ('country_groups', 'initiative_groups'):
+        raw = form_data.get(key)
+        if not raw:
+            continue
+        try:
+            arr = json.loads(raw)
+            for g in arr:
+                # accept dicts with name/id or plain names
+                if isinstance(g, dict):
+                    name = g.get('name') or g.get('id')
+                else:
+                    name = g
+                if name:
+                    groups_payload.append({'name': name})
+        except Exception:
+            # ignore parsing errors silently
+            continue
+
+    package_dict = {
+        'type': 'documents',
+        'title_translated': {
+            'en': dataset_title,
+            'es': '',
+            'fr': ''
+        },
+        'notes_translated': {
+            'en': dataset_notes or '',
+            'es': '',
+            'fr': ''
+        },
+        'dataset_scope': 'non_spatial_dataset',
+        'language': language,
+        'identifier': identifier,
+        'name': identifier,
+        'private': is_private,
+        'contact_name': contact_name,
+        'contact_email': contact_email,
+    }
+    if license_id:
+        package_dict['license_id'] = license_id
+    if owner_org:
+        package_dict['owner_org'] = owner_org
+    graphic_overview = form_data.get('graphic_overview') or form_data.get('header_image')
+    if graphic_overview:
+        package_dict['graphic_overview'] = graphic_overview
+    if groups_payload:
+        package_dict['groups'] = groups_payload
+
+    # Create package
+    context = {'user': tk.g.user} if getattr(tk.g, 'user', None) else {}
+    package = tk.get_action('package_create')(context, package_dict)
+
+    # Create resource if provided
+    resource_dict = {
+        'package_id': package['id'],
+    }
+
+    # Title for resource
+    resource_title = (form_data.get('dataset_resource_title') or dataset_title).strip()
+    if resource_title:
+        resource_dict['name'] = resource_title
+
+    # Dates
+    today = datetime.utcnow().date().isoformat()
+    created_date = (form_data.get('creation_date') or today)
+    resource_dict['created'] = created_date
+    resource_dict['modified'] = today
+
+    # Format/mimetype
+    doc_format = (form_data.get('document_format') or '').strip()
+    if doc_format:
+        resource_dict['format'] = doc_format.upper()
+    doc_mimetype = (form_data.get('document_mimetype') or '').strip()
+    if doc_mimetype:
+        resource_dict['mimetype'] = doc_mimetype
+
+    # Availability/status optional defaults
+    # resource_dict['availability'] = ''
+    # resource_dict['status'] = ''
+
+    upload_file = req.files.get('dataset_upload') if getattr(req, 'files', None) else None
+    dataset_url = form_data.get('dataset_url')
+
+    if upload_file and getattr(upload_file, 'filename', None):
+        # File upload resource
+        files_context = context.copy()
+        files_context['allow_partial_update'] = False
+        resource_dict['upload'] = upload_file
+        tk.get_action('resource_create')(files_context, resource_dict)
+    elif dataset_url:
+        resource_dict['url'] = dataset_url
+        # url_type left default; CKAN will set appropriately
+        tk.get_action('resource_create')(context, resource_dict)
+
+    # Optional: attempt DOI generation if an action is available
+    try:
+        if tk.get_action('package_doi_create'):
+            tk.get_action('package_doi_create')(context, {'id': package['id']})
+    except Exception:
+        # ignore if action not available or fails
+        pass
 
 
 def _inject_views_into_page(_page):
