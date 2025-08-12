@@ -991,7 +991,10 @@
 /* Style for installation blog links */
 .installation-content a[href*="blog"],
 .installation-content a[href*="tutorial"] {
-  display: inline-block;
+  /* Presentación similar a las tarjetas de Learning */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border: 2px solid #e9ecef;
   border-radius: 16px;
@@ -1031,6 +1034,24 @@
   margin-right: 1rem;
   margin-bottom: 1rem;
   vertical-align: top;
+}
+
+/* Flecha a la derecha para enlaces de Installation simulando las tarjetas */
+.installation-content a[href*="blog"]:after,
+.installation-content a[href*="tutorial"]:after {
+  content: "\f054"; /* fa-chevron-right */
+  font-family: FontAwesome;
+  color: var(--unesco-blue);
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-left: 1rem;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.installation-content a[href*="blog"]:hover:after,
+.installation-content a[href*="tutorial"]:hover:after {
+  transform: translateX(4px);
+  opacity: 1;
 }
 
 /* Banner Section */
@@ -1568,7 +1589,9 @@
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
 }
 
-.resource-card-document .resource-card-icon {
+/* Cobertura de tipos adicionales usados por las tarjetas */
+.resource-card-document .resource-card-icon,
+.resource-card-documentation .resource-card-icon {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 }
 
@@ -1576,8 +1599,22 @@
   background: linear-gradient(135deg, #333 0%, #24292e 100%);
 }
 
-.resource-card-web .resource-card-icon {
+.resource-card-web .resource-card-icon,
+.resource-card-website .resource-card-icon {
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+}
+
+.resource-card-download .resource-card-icon {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+.resource-card-course .resource-card-icon {
+  background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+}
+
+.resource-card-blog .resource-card-icon,
+.resource-card-guide .resource-card-icon {
+  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
 }
 
 .resource-card-content {
