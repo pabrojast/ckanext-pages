@@ -262,12 +262,7 @@
                     <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
                   
-                  <!-- Debug info (remove in production) -->
-                  {% if h.check_access('sysadmin') %}
-                    <small style="opacity: 0.7; font-size: 0.8rem;">
-                      Display Mode: {{ display_mode }} | Logo URL: {{ logo_url or 'None' }}
-                    </small>
-                  {% endif %}
+
                   {% if c.page.software_category and display_mode != 'logo' %}
                     <div class="section-title-meta-category">
                       <i class="fa fa-tags"></i> {{ _('Categories:') }} 
