@@ -182,7 +182,6 @@
   {# Render cards #}
   {%- if resource_cards -%}
 <div class="resource-cards-section" style="margin-bottom: 2rem;">
-  {%- if title -%}<h4 class="resource-cards-title">{{ title }}</h4>{%- endif -%}
   <div class="resource-cards-grid">
     {%- for card in resource_cards -%}
     <a href="{{ card.url|e }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
@@ -769,7 +768,10 @@
 
 .learning-resources-content .resource-card,
 .installation-content .resource-card {
-  display: inline-block;
+  /* Igualar el comportamiento de las tarjetas generales para mantener la flecha a la derecha */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border: 2px solid #e9ecef;
   border-radius: 16px;
@@ -2088,6 +2090,21 @@
 .installation-content .resource-card[href*="blog"]:before,
 .installation-content .resource-card[href*="tutorial"]:before {
   content: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Asegurar que los enlaces detectados por atributo (youtube, blogs,   */
+/* openlearning, etc.) que además usan la clase `resource-card`         */
+/* mantengan layout horizontal (flecha al lado derecho).               */
+/* ------------------------------------------------------------------ */
+.learning-resources-content a.resource-card[href*="youtube.com"],
+.learning-resources-content a.resource-card[href*="youtu.be"],
+.learning-resources-content a.resource-card[href*="openlearning.unesco.org"],
+.installation-content a.resource-card[href*="blog"],
+.installation-content a.resource-card[href*="tutorial"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
 
