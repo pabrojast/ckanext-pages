@@ -174,44 +174,24 @@
 
                         <!-- CKAN Dataset (Documents) -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Dataset en CKAN (Documentos)') }}</legend>
+                          <legend>{{ _('CKAN Dataset (Documents)') }}</legend>
                           <div class="form-section-content">
-                            <p class="help-block">{{ _('- Al guardar la publicación se creará un Dataset de tipo "documents" en CKAN con el archivo o enlace que subas a continuación.') }}</p>
+                            <p class="help-block">{{ _('When saving this publication a CKAN dataset of type "documents" will be created using the file or link below.') }}</p>
 
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="create_documents_dataset">{{ _('Crear automáticamente el Dataset') }}</label>
-                                  <div>
-                                    <label class="checkbox-inline">
-                                      <input type="checkbox" id="create_documents_dataset" name="create_documents_dataset" checked>
-                                      {{ _('Sí, crear Dataset tipo "documents"') }}
-                                    </label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-md-6">
-                                <div class="form-group">
-                                  <label class="control-label" for="dataset_visibility">{{ _('Visibilidad') }}</label>
+                                  <label class="control-label" for="dataset_visibility">{{ _('Visibility') }}</label>
                                   <select id="dataset_visibility" name="dataset_visibility" class="form-control">
-                                    <option value="public" selected>{{ _('Pública (licencia CC-BY-SA)') }}</option>
-                                    <option value="private">{{ _('Privada') }}</option>
+                                    <option value="public" selected>{{ _('Public (CC-BY-SA license)') }}</option>
+                                    <option value="private">{{ _('Private') }}</option>
                                   </select>
                                 </div>
                               </div>
-                            </div>
-
-                            <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_title">{{ _('Título del Dataset') }}</label>
-                                  <input type="text" id="dataset_title" name="dataset_title" class="form-control" value="" placeholder="{{ _('Se autocompleta desde el archivo/enlace') }}">
-                                </div>
-                              </div>
-                              <div class="col-md-6">
-                                <div class="form-group">
-                                  <label class="control-label" for="dataset_resource_title">{{ _('Título del Documento (recurso)') }}</label>
-                                  <input type="text" id="dataset_resource_title" name="dataset_resource_title" class="form-control" value="" placeholder="{{ _('Se autocompleta desde el archivo/enlace') }}">
+                                  <label class="control-label" for="dataset_title">{{ _('Dataset Title') }}</label>
+                                  <input type="text" id="dataset_title" name="dataset_title" class="form-control" value="" placeholder="{{ _('Auto-filled from file/link') }}">
                                 </div>
                               </div>
                             </div>
@@ -219,14 +199,14 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label">{{ _('1) Agregar Archivo') }}</label>
+                                  <label class="control-label">{{ _('Add File') }}</label>
                                   <input type="file" id="dataset_upload" name="dataset_upload" class="form-control">
-                                  <div class="help-text">{{ _('Al seleccionar un archivo se limpiará el enlace (y viceversa). Detectaremos la extensión y el tipo automáticamente.') }}</div>
+                                  <div class="help-text">{{ _('Selecting a file will clear the link (and vice versa). Type and extension are detected automatically.') }}</div>
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_url">{{ _('1) Agregar Enlace') }}</label>
+                                  <label class="control-label" for="dataset_url">{{ _('Add Link') }}</label>
                                   <input type="url" id="dataset_url" name="dataset_url" class="form-control" placeholder="https://example.com/document.pdf">
                                 </div>
                               </div>
@@ -235,9 +215,9 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="document_format">{{ _('2) Tipo de documento (extensión)') }}</label>
+                                  <label class="control-label" for="document_format">{{ _('Document type (extension)') }}</label>
                                   <select id="document_format" name="document_format" class="form-control">
-                                    <option value="">{{ _('Selecciona tipo...') }}</option>
+                                    <option value="">{{ _('Select a type...') }}</option>
                                     <option>txt</option><option>log</option><option>doc</option><option>docx</option>
                                     <option>ods</option><option>odt</option><option>sld</option><option>qml</option>
                                     <option>xls</option><option>xlsx</option><option>xml</option><option>bm</option>
@@ -254,16 +234,16 @@
                                     <option>vdo</option><option>glb</option><option>pcd</option><option>gltf</option>
                                   </select>
                                   <input type="hidden" id="document_mimetype" name="document_mimetype" value="">
-                                  <div class="help-text">{{ _('Detectamos automáticamente según el archivo o la URL.') }}</div>
+                                  <div class="help-text">{{ _('Automatically detected from file or URL.') }}</div>
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="organization_id">{{ _('5) Organización') }}</label>
+                                  <label class="control-label" for="organization_id">{{ _('Organization') }}</label>
                                   <select id="organization_id" name="organization_id" class="form-control">
-                                    <option value="">{{ _('Cargando organizaciones...') }}</option>
+                                    <option value="">{{ _('Loading organizations...') }}</option>
                                   </select>
-                                  <div class="help-text">{{ _('Restringiremos a tus organizaciones si es posible') }}</div>
+                                  <div class="help-text">{{ _('We will try to restrict to your organizations if possible') }}</div>
                                 </div>
                               </div>
                             </div>
@@ -271,13 +251,13 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="contact_name">{{ _('6) Nombre de contacto') }}</label>
+                                  <label class="control-label" for="contact_name">{{ _('Contact name') }}</label>
                                   <input type="text" id="contact_name" name="contact_name" class="form-control" value="">
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="contact_email">{{ _('6) Email de contacto') }}</label>
+                                  <label class="control-label" for="contact_email">{{ _('Contact email') }}</label>
                                   <input type="email" id="contact_email" name="contact_email" class="form-control" value="">
                                 </div>
                               </div>
@@ -286,13 +266,13 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_description">{{ _('8) Descripción (opcional)') }}</label>
-                                  <textarea id="dataset_description" name="dataset_description" rows="4" class="form-control" placeholder="{{ _('Resumen del dataset') }}"></textarea>
+                                  <label class="control-label" for="dataset_description">{{ _('Dataset Description (optional)') }}</label>
+                                  <textarea id="dataset_description" name="dataset_description" rows="4" class="form-control" placeholder="{{ _('Dataset abstract') }}"></textarea>
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="graphic_overview">{{ _('9) Descripción gráfica (opcional)') }}</label>
+                                  <label class="control-label" for="graphic_overview">{{ _('Graphic overview (optional)') }}</label>
                                   <input type="url" id="graphic_overview" name="graphic_overview" class="form-control" placeholder="https://example.com/preview.jpg">
                                 </div>
                               </div>
@@ -301,7 +281,7 @@
                             <div class="row">
                               <div class="col-md-4">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_language">{{ _('10) Idioma') }}</label>
+                                  <label class="control-label" for="dataset_language">{{ _('Language') }}</label>
                                   <select id="dataset_language" name="dataset_language" class="form-control">
                                     <option value="http://publications.europa.eu/resource/authority/language/ENG" selected>English</option>
                                     <option value="http://publications.europa.eu/resource/authority/language/SPA">Español</option>
@@ -311,16 +291,8 @@
                               </div>
                               <div class="col-md-4">
                                 <div class="form-group">
-                                  <label class="control-label" for="creation_date">{{ _('11) Fecha de creación') }}</label>
+                                  <label class="control-label" for="creation_date">{{ _('Date of creation') }}</label>
                                   <input type="date" id="creation_date" name="creation_date" class="form-control">
-                                </div>
-                              </div>
-                              <div class="col-md-4">
-                                <div class="form-group">
-                                  <label class="control-label">{{ _('14) Metadatos adicionales') }}</label>
-                                  <div>
-                                    <button type="button" id="toggle-advanced-metadata" class="btn btn-default">{{ _('Sí, mostrar (opcional)') }}</button>
-                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -328,14 +300,14 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="country-groups-select">{{ _('12) País(es) (opcional)') }}</label>
+                                  <label class="control-label" for="country-groups-select">{{ _('Country(ies) (optional)') }}</label>
                                   <select id="country-groups-select" class="form-control" multiple></select>
                                   <input type="hidden" id="country_groups" name="country_groups" value="">
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="initiative-groups-select">{{ _('13) Iniciativa(s) (opcional)') }}</label>
+                                  <label class="control-label" for="initiative-groups-select">{{ _('Initiative(s) (optional)') }}</label>
                                   <select id="initiative-groups-select" class="form-control" multiple></select>
                                   <input type="hidden" id="initiative_groups" name="initiative_groups" value="">
                                 </div>
@@ -344,7 +316,7 @@
 
                             <div class="alert alert-info" style="margin-top: 10px;">
                               <i class="fa fa-info-circle"></i>
-                              {{ _('15) Al guardar se subirá el dato y se creará el Dataset. Si hay servicio de DOI disponible se intentará generar automáticamente.') }}
+                              {{ _('On save, data will be uploaded and the Dataset created. If DOI service is available a DOI and link will be generated.') }}
                             </div>
 
                           </div>
@@ -1309,26 +1281,51 @@ select.form-control option:selected {
     }
 
     // Países (grupos) e Iniciativas (grupos) opcionales
-    function loadGroups(selectId, hiddenId, groupName) {
+    function populateGroups(selectId, groups) {
+      const $sel = $(selectId);
+      if (!$sel.length) return;
+      $sel.empty();
+      groups.sort(function(a,b){
+        const A = (a.display_name||a.title||a.name||'').toLowerCase();
+        const B = (b.display_name||b.title||b.name||'').toLowerCase();
+        return A.localeCompare(B);
+      });
+      groups.forEach(function(g){
+        $sel.append('<option value="'+g.name+'">'+(g.display_name||g.title||g.name)+'</option>');
+      });
+    }
+
+    function fetchGroup(name, callback) {
       $.ajax({
-        url: 'https://data.dev-wins.com/api/3/action/group_list',
-        data: { all_fields: true },
+        url: 'https://data.dev-wins.com/api/3/action/group_show',
+        data: { id: name, include_groups: true },
         dataType: 'json',
         success: function(resp){
-          const $sel = $(selectId);
-          if (!$sel.length) return;
-          $sel.empty();
-          if (resp.success && resp.result) {
-            resp.result.forEach(function(g){
-              $sel.append('<option value="'+g.name+'">'+(g.display_name||g.title||g.name)+'</option>');
-            });
-          }
-        }
+          if (resp.success && resp.result && resp.result.groups) {
+            callback(resp.result.groups);
+          } else { callback([]); }
+        },
+        error: function(){ callback([]); }
       });
-      // sincronizar a hidden JSON
-      $(selectId).on('change', function(){
+    }
+
+    function initCountriesAndInitiatives() {
+      // Countries from parent group "member-states"
+      fetchGroup('member-states', function(countryGroups){
+        populateGroups('#country-groups-select', countryGroups);
+      });
+      // Initiatives from parent group "initiatives" (ensure separation)
+      fetchGroup('initiatives', function(initiativeGroups){
+        populateGroups('#initiative-groups-select', initiativeGroups);
+      });
+      // sync to hidden JSON
+      $('#country-groups-select').on('change', function(){
         const arr = ($(this).val()||[]).map(function(name){ return {name:name}; });
-        $(hiddenId).val(JSON.stringify(arr));
+        $('#country_groups').val(JSON.stringify(arr));
+      });
+      $('#initiative-groups-select').on('change', function(){
+        const arr = ($(this).val()||[]).map(function(name){ return {name:name}; });
+        $('#initiative_groups').val(JSON.stringify(arr));
       });
     }
 
@@ -1347,8 +1344,7 @@ select.form-control option:selected {
     loadUploadedImages();
     preventSelectReset();
     loadOrganizations();
-    loadGroups('#country-groups-select', '#country_groups', 'countries');
-    loadGroups('#initiative-groups-select', '#initiative_groups', 'initiatives');
+    initCountriesAndInitiatives();
 
     console.log('Water Publications edit form initialized with documents dataset support');
     
