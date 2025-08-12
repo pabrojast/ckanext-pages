@@ -76,101 +76,7 @@
                           </div>
                         {% endif %}
                         
-                        <!-- Publication Information -->
-                        <fieldset class="form-section" id="ckan-documents-section">
-                          <legend>{{ _('Publication Information') }}</legend>
-                          <div class="form-section-content">
-
-                          <div class="form-group">
-                            <label for="field-title" class="control-label">{{ _('Publication Title') }} <span class="text-danger">*</span></label>
-                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" placeholder="{{ _('Example: Sustainable Water Management in Urban Areas') }}" class="form-control" required>
-                            <div class="help-text">{{ _('Full title of the publication') }}</div>
-                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
-                          </div>
-
-                          <div class="form-group">
-                            <label for="field-name" class="control-label">{{ _('Publication URL') }}</label>
-                            <div class="input-group">
-                              <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" placeholder="{{ _('generated-from-title') }}" class="form-control" data-module="slug-preview-target" readonly>
-                              <div class="input-group-btn">
-                                <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
-                                  <i class="fa fa-edit"></i>
-                                </button>
-                              </div>
-                            </div>
-                            <div class="help-text">{{ _('Auto-generated from publication title. Click edit button to modify manually.') }}</div>
-                            {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
-                          </div>
-                                                    
-                          <div class="form-group">
-                            <label for="field-subtitle" class="control-label">{{ _('Publication Type') }}</label>
-                            <select id="field-publication-type" name="subtitle" class="form-control">
-                              <option value="">{{ _('Select publication type...') }}</option>
-                              <option value="Research Paper" {% if data.subtitle == 'Research Paper' %}selected{% endif %}>{{ _('Research Paper') }}</option>
-                              <option value="Report" {% if data.subtitle == 'Report' %}selected{% endif %}>{{ _('Report') }}</option>
-                              <option value="Book" {% if data.subtitle == 'Book' %}selected{% endif %}>{{ _('Book') }}</option>
-                              <option value="Book Chapter" {% if data.subtitle == 'Book Chapter' %}selected{% endif %}>{{ _('Book Chapter') }}</option>
-                              <option value="Thesis" {% if data.subtitle == 'Thesis' %}selected{% endif %}>{{ _('Thesis') }}</option>
-                              <option value="Policy Brief" {% if data.subtitle == 'Policy Brief' %}selected{% endif %}>{{ _('Policy Brief') }}</option>
-                              <option value="Technical Document" {% if data.subtitle == 'Technical Document' %}selected{% endif %}>{{ _('Technical Document') }}</option>
-                              <option value="Other" {% if data.subtitle and data.subtitle not in ['Research Paper', 'Report', 'Book', 'Book Chapter', 'Thesis', 'Policy Brief', 'Technical Document'] %}selected{% endif %}>{{ _('Other') }}</option>
-                            </select>
-                            <div class="help-text">{{ _('Type of academic or technical publication') }}</div>
-                            {% if errors.subtitle %}<span class="error-block">{{ errors.subtitle }}</span>{% endif %}
-                          </div>
-                          
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="field-publish-date" class="control-label">{{ _('Publication Date') }} <span class="text-danger">*</span></label>
-                                <input type="date" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}" class="form-control" required>
-                                <div class="help-text">{{ _('When was this publication released?') }}</div>
-                                {% if errors.publish_date %}<span class="error-block">{{ errors.publish_date }}</span>{% endif %}
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-                                <select id="field-private" name="private" class="form-control">
-                                  {% if h.check_access('sysadmin') %}
-                                    <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - Visible to everyone') }}</option>
-                                    <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Internal - Under review') }}</option>
-                                  {% else %}
-                                    <option value="True" selected>{{ _('Pending approval - Will be reviewed by administrators') }}</option>
-                                  {% endif %}
-                                </select>
-                                <div class="help-text">
-                                  {% if h.check_access('sysadmin') %}
-                                    {{ _('Whether this publication should be visible to the public') }}
-                                  {% else %}
-                                    {{ _('Your publication will be reviewed by administrators before being published') }}
-                                  {% endif %}
-                                </div>
-                                {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="field-author" class="control-label">{{ _('Primary Author') }}</label>
-                                <input type="text" id="field-author" name="author" value="{{ data.author or '' }}" placeholder="{{ _('Dr. Jane Smith') }}" class="form-control">
-                                <div class="help-text">{{ _('Main or corresponding author') }}</div>
-                                {% if errors.author %}<span class="error-block">{{ errors.author }}</span>{% endif %}
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="field-journal" class="control-label">{{ _('Journal/Publisher') }}</label>
-                                <input type="text" id="field-journal" name="journal" value="{{ data.journal or '' }}" placeholder="{{ _('Water Resources Research, UNESCO, etc.') }}" class="form-control">
-                                <div class="help-text">{{ _('Where was this published?') }}</div>
-                                {% if errors.journal %}<span class="error-block">{{ errors.journal }}</span>{% endif %}
-                              </div>
-                            </div>
-                          </div>
-                          </div>
-                        </fieldset>
+                        <!-- Publication Information removed: CKAN Dataset section below drives creation -->
 
                         <!-- Hidden fields required by pages backend (auto-filled from CKAN section) -->
                         <input type="hidden" id="field-title" name="title" value="">
@@ -253,7 +159,7 @@
                                   <select id="organization_id" name="organization_id" class="form-control">
                                     <option value="">{{ _('Loading organizations...') }}</option>
                                   </select>
-                                  <div class="help-text">{{ _('We will try to restrict to your organizations if possible') }}</div>
+                                  <div class="help-text">{{ _('Only your organizations are listed (those where you can create datasets)') }}</div>
                                 </div>
                               </div>
                             </div>
@@ -1096,6 +1002,40 @@ select.form-control option:selected {
       if (el.length && !el.val()) el.val(value);
     }
 
+    function slugify(text) {
+      return (text || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-') || 'document';
+    }
+
+    function syncHiddenFromDatasetForm() {
+      const title = ($('#dataset_title').val() || '').trim();
+      const slug = slugify(title);
+      $('#field-title').val(title || 'Untitled Document');
+      $('#field-name').val(slug);
+
+      const vis = $('#dataset_visibility').val();
+      $('#field-private').val(vis === 'private' ? 'True' : 'False');
+
+      const date = $('#creation_date').val();
+      if (date) $('#field-publish-date').val(date);
+
+      const desc = ($('#dataset_description').val() || '').trim();
+      $('#field-content').val(desc || title || '');
+
+      const header = ($('#graphic_overview').val() || '').trim();
+      if (header) $('#field-header-image').val(header);
+
+      const link = ($('#dataset_url').val() || '').trim();
+      if (link) {
+        $('#field-publication-url').val(link);
+        $('#field-download-url').val(link);
+      }
+    }
+
     function guessFromFilename(filename) {
       if (!filename) return;
       const base = filename.split('?')[0].split('#')[0];
@@ -1114,32 +1054,44 @@ select.form-control option:selected {
 
     $('#dataset_url').on('change blur', function(){
       guessFromFilename($(this).val());
+      syncHiddenFromDatasetForm();
     });
     $('#dataset_upload').on('change', function(){
       const f = this.files && this.files[0];
       if (f) {
         $('#dataset_url').val('');
         guessFromFilename(f.name);
+        syncHiddenFromDatasetForm();
       }
     });
 
-    // Cargar organizaciones (misma lógica que OSS)
+    // Load only organizations the user belongs to (with create_dataset permission)
     function loadOrganizations() {
       const tSelectOrganization = '{{ _("Select Organization") }}';
       const tErrorLoadingOrganizations = '{{ _("Error loading organizations") }}';
+      const tNoOrganizations = '{{ _("No organizations available for your account") }}';
       $.ajax({
-        url: 'https://data.dev-wins.com/api/3/action/organization_list',
-        data: { all_fields: true },
+        url: '/api/3/action/organization_list_for_user',
+        data: { permission: 'create_dataset', all_fields: true },
         dataType: 'json',
         success: function(resp){
           const $sel = $('#organization_id');
           if (!$sel.length) return;
           $sel.empty();
-          $sel.append('<option value="">'+ tSelectOrganization +'</option>');
-          if (resp.success && resp.result) {
+          if (resp.success && Array.isArray(resp.result) && resp.result.length > 0) {
+            if (resp.result.length > 1) {
+              $sel.append('<option value="">'+ tSelectOrganization +'</option>');
+            }
             resp.result.forEach(function(org){
-              $sel.append('<option value="'+org.id+'">'+(org.display_name||org.title)+' - '+org.name+'</option>');
+              const id = org.id || org.name;
+              const label = (org.display_name||org.title||org.name);
+              $sel.append('<option value="'+id+'">'+label+'</option>');
             });
+            if (resp.result.length === 1) {
+              $sel.val(resp.result[0].id || resp.result[0].name);
+            }
+          } else {
+            $sel.append('<option value="">'+ tNoOrganizations +'</option>');
           }
         },
         error: function(){
@@ -1208,6 +1160,10 @@ select.form-control option:selected {
       }
     })();
 
+    // Sincronizar ocultos cuando cambian campos de CKAN Dataset
+    $('#dataset_title, #dataset_description, #graphic_overview, #dataset_url').on('input change', syncHiddenFromDatasetForm);
+    $('#dataset_visibility, #creation_date').on('change', syncHiddenFromDatasetForm);
+
     // Inicializar
     loadUploadedImages();
     preventSelectReset();
@@ -1215,6 +1171,8 @@ select.form-control option:selected {
     initCountriesAndInitiatives();
 
     console.log('Water Publications edit form initialized with documents dataset support');
+    // Primera sincronización
+    syncHiddenFromDatasetForm();
     
   });
 })();
