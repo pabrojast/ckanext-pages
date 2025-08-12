@@ -152,8 +152,6 @@
               {%- set resource_title = meta_parts[0].strip() if meta_parts else 'Resource' -%}
               {%- set resource_desc = meta_parts[1].strip() if meta_parts|length > 1 else '' -%}
             {%- endif -%}
-          {%- endif -%}
-          
             {%- set icons = {
               'youtube': 'fa-youtube-play',
               'openlearning': 'fa-graduation-cap',
@@ -163,7 +161,6 @@
               'website': 'fa-globe',
               'download': 'fa-download'
             } -%}
-            
             {%- set dummy = resource_cards.append({
               'type': resource_type,
               'url': resource_url.strip(),
@@ -173,6 +170,8 @@
             }) -%}
             {%- set found_count = found_count + 1 -%}
           {%- endif -%}
+          
+          
         {%- endif -%}
       {%- endif -%}
     {%- endif -%}
