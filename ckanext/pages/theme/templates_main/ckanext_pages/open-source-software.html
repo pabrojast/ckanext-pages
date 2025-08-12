@@ -106,72 +106,80 @@
 {# Macro for creating resource cards from text content #}
 {%- macro render_resource_cards(content, title="") -%}
 {%- if content and content.strip() -%}
-  <!-- DEBUG: Original content length: {{ content|length }} -->
+  {# Clean the content #}
   {%- set clean_content = content | replace('&amp;', '&') | replace('&lt;', '<') | replace('&gt;', '>') | replace('&quot;', '"') | replace('&#39;', "'") | replace('&nbsp;', ' ') -%}
-  <!-- DEBUG: Clean content first 200 chars: {{ clean_content[:200] }} -->
-  <!-- DEBUG: Number of newlines in content: {{ clean_content.count('\n') }} -->
-  {%- set resource_cards = [] -%}
-  {%- set regular_lines = [] -%}
-  {%- set line_count = 0 -%}
   
-  {# Process line by line WITHOUT striptags first #}
-  {%- for line in clean_content.split('\n') -%}
-    {%- set line_count = line_count + 1 -%}
-    {# Strip HTML tags from this specific line for processing #}
-    {%- set line_no_tags = line | striptags -%}
-    {%- set line_clean = line_no_tags.strip() -%}
-    {%- if line_clean -%}
-      <!-- DEBUG Line {{ line_count }}: {{ line_clean[:50] }}... -->
-      {%- if '[RESOURCE:' in line_clean -%}
-        {%- set start = line_clean.find('[RESOURCE:') -%}
-        {%- set end = line_clean.find(']', start) -%}
-        {%- if end > start -%}
-          {%- set tag = line_clean[start+10:end] -%}
-          {%- set parts = tag.split(':', 1) -%}
-          {%- if parts|length == 2 -%}
-            {%- set rtype = parts[0].strip() -%}
-            {%- set rest = parts[1] -%}
-            {# Extract URL and metadata #}
-            {%- if 'http' in rest -%}
-              {%- set idx = 8 if rest.startswith('https://') else 7 -%}
-              {%- set next_colon = rest.find(':', idx) -%}
-              {%- if next_colon > 0 -%}
-                {%- set url = rest[:next_colon] -%}
-                {%- set meta = rest[next_colon+1:].split(':', 1) -%}
-                {%- set rtitle = meta[0] if meta else 'Resource' -%}
-                {%- set rdesc = meta[1] if meta|length > 1 else '' -%}
-              {%- else -%}
-                {%- set url = rest -%}
-                {%- set rtitle = 'Resource' -%}
-                {%- set rdesc = '' -%}
-              {%- endif -%}
-              
-              {%- set icons = {
-                'youtube': 'fa-youtube-play',
-                'openlearning': 'fa-graduation-cap',
-                'documentation': 'fa-file-text-o',
-                'course': 'fa-graduation-cap',
-                'github': 'fa-github'
-              } -%}
-              
-              {%- set dummy = resource_cards.append({
-                'type': rtype,
-                'url': url,
-                'title': rtitle,
-                'description': rdesc,
-                'icon': icons.get(rtype, 'fa-external-link')
-              }) -%}
-              <!-- DEBUG: Added resource {{ resource_cards|length }}: {{ rtype }} - {{ url }} -->
+  {# Strip all HTML tags to get plain text #}
+  {%- set text_content = clean_content | striptags -%}
+  
+  {# Find all resources using a different approach #}
+  {%- set resource_cards = [] -%}
+  {%- set processed_content = text_content -%}
+  
+  {# Keep searching for resources until none are found #}
+  {%- set search_pos = 0 -%}
+  {%- set found_count = 0 -%}
+  
+  {# Split by [RESOURCE: to find all instances #}
+  {%- set parts = text_content.split('[RESOURCE:') -%}
+  
+  {%- for part in parts -%}
+    {%- if not loop.first -%}
+      {# This part starts with a resource definition #}
+      {%- set end_pos = part.find(']') -%}
+      {%- if end_pos > 0 -%}
+        {%- set resource_def = part[:end_pos] -%}
+        
+        {# Parse the resource definition #}
+        {%- set first_colon = resource_def.find(':') -%}
+        {%- if first_colon > 0 -%}
+          {%- set resource_type = resource_def[:first_colon].strip() -%}
+          {%- set remaining = resource_def[first_colon+1:] -%}
+          
+          {# Parse URL safely: look for :// to skip protocol colon #}
+          {%- set scheme_pos = remaining.find('://') -%}
+          {%- if scheme_pos >= 0 -%}
+            {%- set after_scheme = scheme_pos + 3 -%}
+            {%- set url_end = remaining.find(':', after_scheme) -%}
+            {%- if url_end == -1 -%}
+              {%- set resource_url = remaining.strip() -%}
+              {%- set resource_title = 'Resource' -%}
+              {%- set resource_desc = '' -%}
+            {%- else -%}
+              {%- set resource_url = remaining[:url_end].strip() -%}
+              {%- set after_url = remaining[url_end + 1:] -%}
+              {%- set meta_parts = after_url.split(':', 1) -%}
+              {%- set resource_title = meta_parts[0].strip() if meta_parts else 'Resource' -%}
+              {%- set resource_desc = meta_parts[1].strip() if meta_parts|length > 1 else '' -%}
             {%- endif -%}
           {%- endif -%}
+          
+            {%- set icons = {
+              'youtube': 'fa-youtube-play',
+              'openlearning': 'fa-graduation-cap',
+              'documentation': 'fa-file-text-o',
+              'course': 'fa-graduation-cap',
+              'github': 'fa-github',
+              'website': 'fa-globe',
+              'download': 'fa-download'
+            } -%}
+            
+            {%- set dummy = resource_cards.append({
+              'type': resource_type,
+              'url': resource_url.strip(),
+              'title': resource_title,
+              'description': resource_desc,
+              'icon': icons.get(resource_type, 'fa-external-link')
+            }) -%}
+            {%- set found_count = found_count + 1 -%}
+          {%- endif -%}
         {%- endif -%}
-      {%- else -%}
-        {%- set dummy = regular_lines.append(line_clean) -%}
       {%- endif -%}
     {%- endif -%}
   {%- endfor -%}
   
-  <!-- DEBUG: Total lines processed: {{ line_count }}, Total resources found: {{ resource_cards|length }} -->
+  <!-- DEBUG: Found {{ found_count }} resources total -->
+  
   {# Render cards #}
   {%- if resource_cards -%}
 <div class="resource-cards-section" style="margin-bottom: 2rem;">
@@ -191,8 +199,11 @@
 </div>
   {%- endif -%}
   
-  {%- if regular_lines -%}
-<div class="regular-content">{{ h.render_content('\n'.join(regular_lines)) | safe }}</div>
+  {# Check if there's any other content to render #}
+  {%- set has_resources = '[RESOURCE:' in text_content -%}
+  {%- if not has_resources -%}
+    {# No resources, just render the content normally #}
+    <div class="regular-content">{{ clean_content | safe }}</div>
   {%- endif -%}
 {%- endif -%}
 {%- endmacro -%}
