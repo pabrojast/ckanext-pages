@@ -191,13 +191,13 @@
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="contact_name">{{ _('Contact name') }}</label>
-                                  <input type="text" id="contact_name" name="contact_name" class="form-control" value="">
+                                  <input type="text" id="contact_name" name="contact_name" class="form-control" value="" placeholder="{{ _('Auto-filled with your name') }}">
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="contact_email">{{ _('Contact email') }}</label>
-                                  <input type="email" id="contact_email" name="contact_email" class="form-control" value="">
+                                  <input type="email" id="contact_email" name="contact_email" class="form-control" value="" placeholder="{{ _('Auto-filled with your email') }}">
                                 </div>
                               </div>
                             </div>
@@ -1102,6 +1102,29 @@ select.form-control option:selected {
       }
     }
 
+    // Auto-fill contact from current user if available via a lightweight endpoint
+    function autofillContactFromUser() {
+      const $name = $('#contact_name');
+      const $email = $('#contact_email');
+      if (($name.val() && $email.val())) return;
+
+      $.ajax({
+        url: '/api/3/action/user_show',
+        data: { id: '{{ g.user or "" }}' },
+        dataType: 'json'
+      }).done(function(resp){
+        if (resp && resp.success && resp.result) {
+          if (!$name.val()) {
+            $name.val(resp.result.fullname || resp.result.name || '');
+          }
+          if (!$email.val()) {
+            $email.val(resp.result.email || '');
+          }
+          syncHiddenFromDatasetForm();
+        }
+      }).fail(function(){ /* ignore */ });
+    }
+
     function guessFromFilename(filename) {
       if (!filename) return;
       const base = filename.split('?')[0].split('#')[0];
@@ -1284,6 +1307,8 @@ select.form-control option:selected {
     console.log('Water Publications edit form initialized with documents dataset support');
     // Primera sincronización
     syncHiddenFromDatasetForm();
+    // Auto-rellenar contacto
+    autofillContactFromUser();
     
   });
 })();

@@ -257,7 +257,7 @@ def _maybe_create_documents_dataset(form_data):
         value = re.sub(r'\s+', '-', value).strip('-')
         return value or 'document'
 
-    identifier = 'document-' + _slugify(dataset_title)
+    base_name = 'document-' + _slugify(dataset_title)
 
     # Language default
     language = form_data.get('dataset_language') or \
@@ -321,6 +321,9 @@ def _maybe_create_documents_dataset(form_data):
             # ignore parsing errors silently
             continue
 
+    # Ensure unique dataset name before create
+    unique_name = _generate_unique_dataset_name(base_name)
+
     package_dict = {
         'type': 'documents',
         'title_translated': {
@@ -335,8 +338,8 @@ def _maybe_create_documents_dataset(form_data):
         },
         'dataset_scope': 'non_spatial_dataset',
         'language': language,
-        'identifier': identifier,
-        'name': identifier,
+        'identifier': unique_name,
+        'name': unique_name,
         'private': is_private,
         'contact_name': contact_name,
         'contact_email': contact_email,
@@ -353,7 +356,18 @@ def _maybe_create_documents_dataset(form_data):
 
     # Create package
     context = {'user': tk.g.user} if getattr(tk.g, 'user', None) else {}
-    package = tk.get_action('package_create')(context, package_dict)
+    try:
+        package = tk.get_action('package_create')(context, package_dict)
+    except tk.ValidationError as e:
+        # Handle name collision race conditions robustly
+        if isinstance(getattr(e, 'error_dict', None), dict) and 'name' in e.error_dict:
+            import uuid
+            fallback_name = f"{base_name}-{str(uuid.uuid4())[:6]}"
+            package_dict['name'] = fallback_name
+            package_dict['identifier'] = fallback_name
+            package = tk.get_action('package_create')(context, package_dict)
+        else:
+            raise
 
     # Create resource if provided
     resource_dict = {
@@ -404,6 +418,30 @@ def _maybe_create_documents_dataset(form_data):
     except Exception:
         # ignore if action not available or fails
         pass
+
+
+def _generate_unique_dataset_name(base_name):
+    """Return a unique dataset name by testing candidates.
+    Tries base, then appends -1..-20, then a short UUID suffix.
+    """
+    candidate = base_name
+    context = {}
+    # Try base and numeric suffixes
+    for i in range(0, 21):
+        if i > 0:
+            candidate = f"{base_name}-{i}"
+        try:
+            tk.get_action('package_show')(context, {'id': candidate})
+            # exists -> continue
+            continue
+        except tk.ObjectNotFound:
+            return candidate
+        except Exception:
+            # On any other error, prefer returning candidate to avoid blocking
+            return candidate
+    # Fallback with short uuid
+    import uuid
+    return f"{base_name}-{str(uuid.uuid4())[:6]}"
 
 
 def _inject_views_into_page(_page):
