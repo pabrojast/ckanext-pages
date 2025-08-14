@@ -236,8 +236,10 @@
                           <p class="help-block">{{ _('Detailed description of the emergency event, when and where it occurred, and its overall impact.') }}</p>
                           <div class="form-group">
                             <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-content" name="content" rows="15" class="rr-form-control" required
-                                      placeholder="{{ _('Describe the emergency event, when and where it occurred, and its initial impact.\n\nProvide context about the situation, affected areas, population at risk, and immediate concerns.\n\nThis section gives readers the overall picture of what happened.') }}">{{ data.content or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="content-editor" class="quill-editor"></div>
+                              <textarea id="field-content" name="content" style="display: none;">{{ data.content or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('This is the main description that appears first. Focus on what happened, where, and when.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
                           </div>
@@ -293,8 +295,10 @@
                           <p class="help-block">{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
                           <div class="form-group">
                             <label for="field-impact-assessment" class="control-label">{{ _('Impact Assessment') }}</label>
-                            <textarea id="field-impact-assessment" name="impact_assessment" rows="10" class="rr-form-control"
-                                      placeholder="{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.\n\nInclude:\n- Heritage sites impacted\n- Communities affected\n- Infrastructure damage\n- Environmental impact\n- Cultural heritage at risk') }}">{{ data.impact_assessment or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="impact-assessment-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-impact-assessment" name="impact_assessment" style="display: none;">{{ data.impact_assessment or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('Assessment of the damage and impact caused by the emergency event.') }}</div>
                             {% if errors.impact_assessment %}<span class="error-block">{{ errors.impact_assessment }}</span>{% endif %}
                           </div>
@@ -308,8 +312,10 @@
                           <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
                           <div class="form-group">
                             <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
-                            <textarea id="field-response-activities" name="response_activities" rows="10" class="rr-form-control"
-                                      placeholder="{{ _('Detail the immediate response efforts, agencies involved, and current status.\n\nInclude:\n- Emergency response protocols activated\n- Agencies and organizations involved\n- Coordination efforts\n- Current response status') }}">{{ data.response_activities or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="response-activities-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-response-activities" name="response_activities" style="display: none;">{{ data.response_activities or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
                             {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
                           </div>
@@ -323,7 +329,10 @@
                           <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
                           <div class="form-group">
                             <label for="field-map-stories" class="control-label">{{ _('Spatial Data and Information') }}</label>
-                            <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="map-stories-editor" class="quill-editor"></div>
+                              <textarea id="field-map-stories" name="map_stories" style="display: none;">{{ data.map_stories or '' }}</textarea>
+                            </div>
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>
                           </div>
@@ -375,7 +384,10 @@
                           <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
                           <div class="form-group">
                             <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
-                            <textarea id="field-additional-content" name="additional_content" rows="8" class="rr-form-control" placeholder="{{ _('### School Safety Assessment\n\n### Recovery Plans\n\n### Impact Analysis') }}">{{ data.additional_content or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="additional-content-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-additional-content" name="additional_content" style="display: none;">{{ data.additional_content or '' }}</textarea>
+                            </div>
                             {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
                           </div>
                           </div>
@@ -401,7 +413,10 @@
                           <p class="help-block">{{ _('Brief summary for the rapid response list page. If not provided, first 300 characters of content will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Excerpt') }}</label>
-                            <textarea id="field-excerpt" name="excerpt" rows="4" class="rr-form-control" placeholder="{{ _('Brief summary of the disaster and response efforts...') }}">{{ data.excerpt or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="excerpt-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-excerpt" name="excerpt" style="display: none;">{{ data.excerpt or '' }}</textarea>
+                            </div>
                             {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
                           </div>
                           </div>
@@ -1008,6 +1023,54 @@ textarea.rr-form-control {
   color: #6c757d;
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+/* Quill Editor Styling (alineado con open-source) */
+.quill-wrapper { position: relative; margin-bottom: 0.5rem; }
+.quill-editor { background: #fff; border: 2px solid #e9ecef; border-radius: 12px; box-shadow: var(--shadow-light); transition: all 0.3s ease; overflow: hidden; }
+.quill-editor:hover { border-color: var(--unesco-blue-light); transform: translateY(-1px); }
+.quill-editor.ql-focused { border-color: var(--unesco-blue); box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25); transform: translateY(-1px); }
+.ql-toolbar { border: none !important; border-bottom: 2px solid #f8f9fa !important; border-radius: 12px 12px 0 0 !important; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important; padding: 12px 16px !important; box-shadow: 0 2px 4px rgba(0, 114, 188, 0.08); }
+.ql-toolbar .ql-formats { margin-right: 20px; }
+.ql-toolbar .ql-formats:last-child { margin-right: 0; }
+.ql-container { border: none !important; border-radius: 0 0 12px 12px !important; font-family: inherit !important; font-size: 15px !important; line-height: 1.6 !important; }
+.ql-editor { padding: 20px !important; min-height: 150px !important; color: var(--text-primary) !important; line-height: 1.6 !important; }
+.quill-compact .ql-editor { min-height: 120px !important; padding: 16px !important; }
+.quill-compact .ql-toolbar { padding: 8px 12px !important; }
+.ql-toolbar button { border-radius: 6px !important; margin: 2px !important; padding: 6px 8px !important; transition: all 0.2s ease !important; border: 1px solid transparent !important; }
+.ql-toolbar button:hover { background: var(--unesco-blue-pale) !important; border-color: var(--unesco-blue-light) !important; transform: translateY(-1px) !important; }
+.ql-toolbar button.ql-active { background: var(--unesco-blue) !important; color: #fff !important; border-color: var(--unesco-blue) !important; box-shadow: 0 2px 4px rgba(0, 114, 188, 0.3) !important; }
+.ql-toolbar .ql-stroke { stroke: #6c757d !important; }
+.ql-toolbar button:hover .ql-stroke { stroke: var(--unesco-blue) !important; }
+.ql-toolbar button.ql-active .ql-stroke { stroke: #fff !important; }
+.ql-toolbar .ql-fill { fill: #6c757d !important; }
+.ql-toolbar button:hover .ql-fill { fill: var(--unesco-blue) !important; }
+.ql-toolbar button.ql-active .ql-fill { fill: #fff !important; }
+.ql-picker { border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 8px !important; transition: all 0.2s ease !important; }
+.ql-picker:hover { background: var(--unesco-blue-pale) !important; border-color: var(--unesco-blue-light) !important; }
+.ql-picker.ql-expanded { background: var(--unesco-blue) !important; color: #fff !important; border-color: var(--unesco-blue) !important; }
+.ql-picker.ql-expanded .ql-stroke { stroke: #fff !important; }
+.ql-picker.ql-expanded .ql-fill { fill: #fff !important; }
+.ql-picker-options { background: #fff !important; border: 2px solid var(--unesco-blue) !important; border-radius: 8px !important; box-shadow: var(--shadow-medium) !important; padding: 8px 0 !important; margin-top: 4px !important; max-height: 200px !important; overflow-y: auto !important; }
+.ql-picker-item { padding: 8px 16px !important; transition: all 0.2s ease !important; color: var(--text-primary) !important; }
+.ql-picker-item:hover { background: var(--unesco-blue-pale) !important; color: var(--unesco-blue) !important; }
+.ql-picker-item.ql-selected { background: var(--unesco-blue) !important; color: #fff !important; }
+.ql-editor a { color: var(--unesco-blue) !important; text-decoration: none !important; border-bottom: 1px solid var(--unesco-blue-light) !important; transition: all 0.2s ease !important; }
+.ql-editor a:hover { color: var(--unesco-blue-dark) !important; border-bottom-color: var(--unesco-blue-dark) !important; background: var(--unesco-blue-pale) !important; padding: 2px 4px !important; border-radius: 4px !important; margin: -2px -4px !important; }
+.ql-editor h1 { font-size: 1.8rem !important; font-weight: 700 !important; color: var(--unesco-blue) !important; margin: 1.5rem 0 1rem !important; }
+.ql-editor h2 { font-size: 1.5rem !important; font-weight: 600 !important; color: var(--unesco-blue-dark) !important; margin: 1.2rem 0 0.8rem !important; }
+.ql-editor h3 { font-size: 1.3rem !important; font-weight: 600 !important; color: var(--text-primary) !important; margin: 1rem 0 0.6rem !important; }
+.ql-editor ul, .ql-editor ol { margin-bottom: 1rem !important; padding-left: 1.5rem !important; }
+.ql-editor li { margin-bottom: 0.3rem !important; line-height: 1.5 !important; }
+.ql-editor blockquote { border-left: 4px solid var(--unesco-blue) !important; margin: 1rem 0 !important; padding: 0.5rem 0 0.5rem 1rem !important; background: var(--unesco-blue-pale) !important; border-radius: 0 8px 8px 0 !important; font-style: italic !important; color: var(--text-primary) !important; }
+.ql-editor code { background: #f8f9fa !important; border: 1px solid #e9ecef !important; border-radius: 4px !important; padding: 2px 6px !important; font-family: 'Courier New', Courier, monospace !important; font-size: 0.9em !important; color: #e83e8c !important; }
+.ql-editor pre { background: #f8f9fa !important; border: 1px solid #e9ecef !important; border-radius: 8px !important; padding: 1rem !important; margin: 1rem 0 !important; overflow-x: auto !important; font-family: 'Courier New', Courier, monospace !important; font-size: 0.9em !important; line-height: 1.4 !important; }
+
+/* Responsive ajustes para Quill */
+@media (max-width: 768px) {
+  .ql-toolbar { padding: 8px 12px !important; }
+  .ql-editor { padding: 16px !important; min-height: 130px !important; }
+  .quill-compact .ql-editor { min-height: 100px !important; padding: 12px !important; }
 }
 
 /* Error Styling */
@@ -1885,6 +1948,19 @@ textarea.rr-form-control {
       e.preventDefault();
       return false;
     }
+    // Sincronizar Quill antes de validar
+    if (window.syncAllQuillEditors) { window.syncAllQuillEditors(); }
+
+    // Validar contenido requerido (Event Description)
+    if (window.quillEditors && window.quillEditors['content-editor']) {
+      var contentText = window.quillEditors['content-editor'].getText().trim();
+      if (!contentText) {
+        alert('{{ _("Please enter the event description") }}');
+        try { window.quillEditors['content-editor'].focus(); } catch (err) {}
+        e.preventDefault();
+        return false;
+      }
+    }
     
     // Update data before submit
     updateTimelineData();
@@ -1893,12 +1969,149 @@ textarea.rr-form-control {
   });
   
   // WYSIWYG editor integration if available
-  if (typeof CKEDITOR !== 'undefined') {
-    CKEDITOR.replace('field-content');
-    CKEDITOR.replace('field-key-info');
-    CKEDITOR.replace('field-map-stories');
-    CKEDITOR.replace('field-additional-content');
-    CKEDITOR.replace('field-excerpt');
+  // Reemplazamos CKEditor por Quill
+  function waitForQuill(callback) {
+    if (typeof Quill !== 'undefined') {
+      callback();
+    } else {
+      setTimeout(function(){ waitForQuill(callback); }, 50);
+    }
+  }
+
+  function initializeQuillEditors() {
+    var quillEditors = {};
+    // Registrar blot personalizado para iframes (map stories)
+    var BlockEmbed = Quill.import('blots/block/embed');
+    class IframeBlot extends BlockEmbed {
+      static create(value) {
+        const node = super.create();
+        const val = (typeof value === 'string') ? { src: value } : (value || {});
+        if (val.src) node.setAttribute('src', val.src);
+        node.setAttribute('frameborder', '0');
+        node.setAttribute('allowfullscreen', 'true');
+        node.setAttribute('loading', 'lazy');
+        if (val.width) node.setAttribute('width', val.width);
+        if (val.height) node.setAttribute('height', val.height);
+        if (val.scrolling) node.setAttribute('scrolling', val.scrolling);
+        if (val.style) node.setAttribute('style', val.style);
+        return node;
+      }
+      static value(node) {
+        return {
+          src: node.getAttribute('src') || '',
+          width: node.getAttribute('width') || '',
+          height: node.getAttribute('height') || '',
+          scrolling: node.getAttribute('scrolling') || '',
+          style: node.getAttribute('style') || ''
+        };
+      }
+    }
+    IframeBlot.blotName = 'iframe';
+    IframeBlot.tagName = 'iframe';
+    IframeBlot.className = 'ql-custom-iframe';
+    Quill.register(IframeBlot);
+    var fullToolbar = [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      ['blockquote', 'code-block'],
+      ['link', 'video'],
+      ['clean'],
+      [{ 'align': [] }]
+    ];
+    // Toolbar específica para mapas: incluye botón personalizado 'iframe'
+    var mapToolbar = [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      ['blockquote', 'code-block'],
+      ['link', 'video', 'iframe'],
+      ['clean'],
+      [{ 'align': [] }]
+    ];
+    var compactToolbar = [
+      [{ 'header': [2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['link'],
+      ['clean']
+    ];
+
+    var editorConfigs = {
+      'content-editor': { textareaId: 'field-content', toolbar: fullToolbar, placeholder: '{{ _("Detailed description of the emergency event, when and where it occurred, and its overall impact...") }}' },
+      'impact-assessment-editor': { textareaId: 'field-impact-assessment', toolbar: compactToolbar, placeholder: '{{ _("Describe the damage to heritage sites, communities affected, and ongoing concerns...") }}' },
+      'response-activities-editor': { textareaId: 'field-response-activities', toolbar: compactToolbar, placeholder: '{{ _("Detail the immediate response efforts, agencies involved, and current status...") }}' },
+      'map-stories-editor': { textareaId: 'field-map-stories', toolbar: mapToolbar, placeholder: '{{ _("Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.") }}' },
+      'additional-content-editor': { textareaId: 'field-additional-content', toolbar: compactToolbar, placeholder: '{{ _("Any additional content such as School Safety Assessment, Recovery Plans, etc.") }}' },
+      'excerpt-editor': { textareaId: 'field-excerpt', toolbar: [['bold','italic','underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link'], ['clean']], placeholder: '{{ _("Brief summary of the disaster and response efforts...") }}' }
+    };
+
+    Object.keys(editorConfigs).forEach(function(editorId){
+      var cfg = editorConfigs[editorId];
+      var editorEl = document.getElementById(editorId);
+      var textarea = document.getElementById(cfg.textareaId);
+      if (!editorEl || !textarea) return;
+      var quill = new Quill('#' + editorId, { theme: 'snow', modules: { toolbar: cfg.toolbar, history: { delay: 1000, maxStack: 50 } }, placeholder: cfg.placeholder });
+      if (textarea.value) {
+        try { quill.clipboard.dangerouslyPasteHTML(textarea.value); } catch(e) { quill.setText(textarea.value); }
+      }
+      quill.on('text-change', function(){ textarea.value = quill.root.innerHTML; $(textarea).trigger('change'); });
+      $(editorEl).attr('role','textbox').attr('aria-label', cfg.placeholder);
+      quillEditors[editorId] = quill;
+
+      // Configurar botón personalizado de iframe y permitir pegar iframes (solo en map-stories-editor)
+      if (editorId === 'map-stories-editor') {
+        var toolbarModule = quill.getModule('toolbar');
+        if (toolbarModule && toolbarModule.addHandler) {
+          toolbarModule.addHandler('iframe', function() {
+            var url = window.prompt('{{ _("Paste the iframe URL (src)") }}');
+            if (!url) { return; }
+            var width = '100%';
+            var height = window.prompt('{{ _("Height in pixels (default 420)") }}', '420') || '420';
+            var index = (quill.getSelection && quill.getSelection()) ? quill.getSelection().index : quill.getLength();
+            quill.insertEmbed(index, 'iframe', { src: url, width: width, height: height }, Quill.sources.USER);
+            quill.setSelection(index + 1, 0, Quill.sources.SILENT);
+          });
+        }
+        try {
+          var Delta = Quill.import('delta');
+          quill.clipboard.addMatcher('IFRAME', function(node, delta) {
+            var src = node.getAttribute('src');
+            var width = node.getAttribute('width') || '100%';
+            var height = node.getAttribute('height') || '420';
+            return new Delta().insert({ iframe: { src: src, width: width, height: height } });
+          });
+        } catch (err) {
+          console.warn('Delta import or matcher failed, iframes may not paste as embeds', err);
+        }
+      }
+    });
+
+    window.quillEditors = quillEditors;
+    window.syncAllQuillEditors = function(){
+      if (!window.quillEditors) return;
+      Object.keys(window.quillEditors).forEach(function(editorId){
+        var quill = window.quillEditors[editorId];
+        var cfg = editorConfigs[editorId];
+        var textarea = document.getElementById(cfg.textareaId);
+        if (quill && textarea) { textarea.value = quill.root.innerHTML; $(textarea).trigger('change'); }
+      });
+    };
+
+    // Ocultar textareas fuente
+    setTimeout(function(){
+      Object.keys(editorConfigs).forEach(function(editorId){
+        var cfg = editorConfigs[editorId];
+        var textarea = document.getElementById(cfg.textareaId);
+        if (textarea) {
+          $(textarea).css({ 'display':'none', 'visibility':'hidden', 'position':'absolute', 'left':'-9999px', 'top':'-9999px', 'width':'1px', 'height':'1px', 'opacity':'0', 'z-index':'-9999' });
+        }
+      });
+    }, 200);
   }
   
   // Confirmation for delete button
@@ -1936,8 +2149,14 @@ textarea.rr-form-control {
   loadTimelineEvents();
   loadUploadedImages();
   loadCountries();
+  // Cargar Quill y editores
+  waitForQuill(initializeQuillEditors);
   }); // Close waitForJQuery function
 })(); // Close main function
 </script>
+
+<!-- Quill Editor Integration -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 {% endblock %} 
