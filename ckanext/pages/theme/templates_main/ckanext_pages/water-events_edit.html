@@ -179,8 +179,10 @@
                           <p class="help-block">{{ _('Detailed description of the event, its objectives, and who should attend.') }}</p>
                           <div class="form-group">
                             <label for="field-content" class="control-label">{{ _('Event Overview') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-content" name="content" rows="15" class="form-control" required
-                                      placeholder="{{ _('Describe the event, its objectives, target audience, and what participants can expect.\n\nInclude:\n- Event purpose and goals\n- Target audience\n- Expected outcomes\n- Relevance to the water community') }}">{{ data.content or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="events-content-editor" class="quill-editor"></div>
+                              <textarea id="field-content" name="content" style="display: none;">{{ data.content or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('This is the main description that appears first. Focus on what the event is about and why people should attend.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
                           </div>
@@ -194,8 +196,10 @@
                           <p class="help-block">{{ _('Specific details about schedule, format, and logistics. This information will be prominently displayed.') }}</p>
                           <div class="form-group">
                             <label for="field-event-details" class="control-label">{{ _('Event Details') }}</label>
-                            <textarea id="field-event-details" name="event_details" rows="8" class="form-control"
-                                      placeholder="{{ _('Start Date: March 22, 2024\nEnd Date: March 22, 2024\nTime: 09:00 - 17:00 UTC\nFormat: Hybrid (In-person & Online)\nLanguage: English\nParticipants: 200 expected\nRegistration Deadline: March 15, 2024') }}">{{ data.event_details or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="events-details-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-event-details" name="event_details" style="display: none;">{{ data.event_details or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('Enter one detail per line in format "Label: Value". Example: "Time: 09:00 - 17:00 UTC"') }}</div>
                             {% if errors.event_details %}<span class="error-block">{{ errors.event_details }}</span>{% endif %}
                           </div>
@@ -209,9 +213,11 @@
                           <p class="help-block">{{ _('Information about keynote speakers, organizers, and key participants.') }}</p>
                           <div class="form-group">
                             <label for="field-speakers" class="control-label">{{ _('Speakers & Organizers') }}</label>
-                            <textarea id="field-speakers" name="speakers" rows="10" class="form-control"
-                                      placeholder="{{ _('### Keynote Speakers\n\n**Dr. Jane Smith** - UNESCO IHP\n- Director of Water Programs\n- Expert in sustainable water management\n\n### Organizing Committee\n\n**Prof. John Doe** - University of Water Sciences\n\n### Moderators\n\n**Ms. Sarah Johnson** - Water Policy Expert') }}">{{ data.speakers or '' }}</textarea>
-                            <div class="help-text">{{ _('Use markdown formatting. Include names, titles, affiliations, and brief descriptions.') }}</div>
+                            <div class="quill-wrapper">
+                              <div id="events-speakers-editor" class="quill-editor"></div>
+                              <textarea id="field-speakers" name="speakers" style="display: none;">{{ data.speakers or '' }}</textarea>
+                            </div>
+                            <div class="help-text">{{ _('Include names, titles, affiliations, and brief descriptions.') }}</div>
                             {% if errors.speakers %}<span class="error-block">{{ errors.speakers }}</span>{% endif %}
                           </div>
                           </div>
@@ -224,8 +230,10 @@
                           <p class="help-block">{{ _('Registration details, fees, and how to participate.') }}</p>
                           <div class="form-group">
                             <label for="field-registration-info" class="control-label">{{ _('Registration Information') }}</label>
-                            <textarea id="field-registration-info" name="registration_info" rows="8" class="form-control"
-                                      placeholder="{{ _('### Registration\n\n- **Fee:** Free for UNESCO IHP participants, $50 for others\n- **Deadline:** March 15, 2024\n- **Capacity:** 200 participants\n- **Requirements:** Background in water sciences recommended\n\n### How to Register\n\n1. Click the registration link below\n2. Fill out the registration form\n3. Receive confirmation email') }}">{{ data.registration_info or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="events-registration-editor" class="quill-editor"></div>
+                              <textarea id="field-registration-info" name="registration_info" style="display: none;">{{ data.registration_info or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('Include fees, deadlines, requirements, and registration process.') }}</div>
                             {% if errors.registration_info %}<span class="error-block">{{ errors.registration_info }}</span>{% endif %}
                           </div>
@@ -310,7 +318,10 @@
                           <p class="help-block">{{ _('Brief summary for the events list page. If not provided, first 300 characters of content will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Excerpt') }}</label>
-                            <textarea id="field-excerpt" name="excerpt" rows="4" class="form-control" placeholder="{{ _('Brief summary of the event and its relevance to the water community...') }}">{{ data.excerpt or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="events-excerpt-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-excerpt" name="excerpt" style="display: none;">{{ data.excerpt or '' }}</textarea>
+                            </div>
                             {% if errors.excerpt %}<span class="error-block">{{ errors.excerpt }}</span>{% endif %}
                           </div>
                           </div>
@@ -751,6 +762,55 @@ select.form-control option:selected {
     max-width: 150px;
   }
 }
+
+/* Quill Editor Styles (Events) */
+.quill-wrapper {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.quill-editor {
+  background: #ffffff;
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.quill-editor:hover {
+  border-color: var(--unesco-blue-light);
+  transform: translateY(-1px);
+}
+
+.quill-editor.ql-focused {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 158, 224, 0.25);
+}
+
+.ql-toolbar {
+  border: none !important;
+  border-bottom: 2px solid var(--unesco-blue-pale) !important;
+  border-radius: 12px 12px 0 0 !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+  padding: 12px 16px !important;
+  box-shadow: var(--shadow-light) !important;
+}
+
+.ql-container {
+  border: none !important;
+  border-radius: 0 0 12px 12px !important;
+  font-family: inherit !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+}
+
+.ql-editor {
+  padding: 20px !important;
+  min-height: 160px !important;
+  color: var(--text-primary) !important;
+  line-height: 1.6 !important;
+}
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
@@ -767,6 +827,49 @@ select.form-control option:selected {
   }
   
   waitForJQuery(function($) {
+    // Initialize Quill editors for Events
+    function initializeQuillEditors() {
+      function ready() { return typeof Quill !== 'undefined'; }
+      if (!ready()) { setTimeout(initializeQuillEditors, 100); return; }
+
+      try {
+        var configs = [
+          { editorId: 'events-content-editor', textareaId: 'field-content', toolbar: [[{ header: [1,2,3,false] }], ['bold','italic','underline','strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ indent: '-1' }, { indent: '+1' }], ['blockquote','code-block'], ['link'], ['clean'], [{ align: [] }]] },
+          { editorId: 'events-details-editor', textareaId: 'field-event-details', toolbar: [[{ header: [2,3,false] }], ['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] },
+          { editorId: 'events-speakers-editor', textareaId: 'field-speakers', toolbar: [[{ header: [2,3,false] }], ['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] },
+          { editorId: 'events-registration-editor', textareaId: 'field-registration-info', toolbar: [[{ header: [2,3,false] }], ['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] },
+          { editorId: 'events-excerpt-editor', textareaId: 'field-excerpt', toolbar: [['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] }
+        ];
+
+        configs.forEach(function(cfg){
+          var el = document.getElementById(cfg.editorId);
+          var ta = document.getElementById(cfg.textareaId);
+          if (!el || !ta) return;
+          var quill = new Quill('#' + cfg.editorId, { theme: 'snow', modules: { toolbar: cfg.toolbar, history: { delay: 1000, maxStack: 50 } } });
+          if (ta.value) { try { quill.clipboard.dangerouslyPasteHTML(ta.value); } catch(e) { quill.setText(ta.value); } }
+          quill.on('text-change', function(){ ta.value = quill.root.innerHTML; $(ta).trigger('change'); });
+          ta.value = quill.root.innerHTML;
+        });
+      } catch (e) {
+        console.error('Error initializing Quill editors (Events):', e);
+      }
+    }
+    // Ensure Quill assets are present
+    (function ensureQuillAssets(){
+      var hasCss = !!document.querySelector('link[href*="quill.snow.css"]');
+      var hasJs = (typeof Quill !== 'undefined');
+      if (!hasCss) {
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = 'https://cdn.quilljs.com/1.3.7/quill.snow.css';
+        document.head.appendChild(l);
+      }
+      if (!hasJs) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.quilljs.com/1.3.7/quill.min.js';
+        document.head.appendChild(s);
+      }
+    })();
     
     // Auto-generate URL slug from title
     $('#field-title').on('input', function() {
@@ -1032,6 +1135,7 @@ select.form-control option:selected {
     // Initialize
     loadUploadedImages();
     preventSelectReset();
+    initializeQuillEditors();
     
     console.log('Water Events edit form initialized with image upload functionality');
   });

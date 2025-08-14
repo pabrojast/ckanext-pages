@@ -149,8 +149,10 @@
                           
                           <div class="form-group">
                             <label for="field-excerpt" class="control-label">{{ _('Article Summary') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-excerpt" name="excerpt" rows="4" class="wn-form-control" required maxlength="300"
-                                      placeholder="{{ _('Brief summary of the news article (100-300 words)...') }}">{{ data.excerpt or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="news-excerpt-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-excerpt" name="excerpt" style="display: none;">{{ data.excerpt or '' }}</textarea>
+                            </div>
                             <div class="character-counter-wrapper">
                               <div class="help-text">{{ _('This summary will appear in news listings and social media shares') }}</div>
                               <div class="character-counter">
@@ -163,9 +165,11 @@
                           
                           <div class="form-group">
                             <label for="field-content" class="control-label">{{ _('Full Article Content') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-content" name="content" rows="20" class="wn-form-control markdown-editor" required
-                                      placeholder="{{ _('Write the full news article here. Include all relevant details, quotes, and context.\n\nUse markdown formatting for better presentation:\n- **bold text**\n- *italic text*\n- [links](http://example.com)\n- # Headings\n- - Bullet points') }}">{{ data.content or '' }}</textarea>
-                            <div class="help-text">{{ _('Main content of your news article. Use the toolbar above for formatting or write in Markdown.') }}</div>
+                            <div class="quill-wrapper">
+                              <div id="news-content-editor" class="quill-editor"></div>
+                              <textarea id="field-content" name="content" style="display: none;">{{ data.content or '' }}</textarea>
+                            </div>
+                            <div class="help-text">{{ _('Main content of your news article. Use the toolbar above for formatting.') }}</div>
                             {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
                           </div>
                           </div>
@@ -185,16 +189,20 @@
                           
                           <div class="form-group">
                             <label for="field-external-links" class="control-label">{{ _('Related Links') }}</label>
-                            <textarea id="field-external-links" name="external_links" rows="6" class="wn-form-control" 
-                                      placeholder="{{ _('Add related links using markdown format:\n\n- [UNESCO Water Portal](https://unesco.org/water)\n- [Related Article](https://example.com)\n- [Press Release](https://example.com/press)') }}">{{ data.external_links or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="news-external-links-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-external-links" name="external_links" style="display: none;">{{ data.external_links or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('Links to related articles, press releases, or additional resources') }}</div>
                             {% if errors.external_links %}<span class="error-block">{{ errors.external_links }}</span>{% endif %}
                           </div>
 
                           <div class="form-group">
                             <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
-                            <textarea id="field-additional-content" name="additional_content" rows="8" class="wn-form-control" 
-                                      placeholder="{{ _('Any additional information, context, or analysis that supplements the main article...') }}">{{ data.additional_content or '' }}</textarea>
+                            <div class="quill-wrapper">
+                              <div id="news-additional-editor" class="quill-editor quill-compact"></div>
+                              <textarea id="field-additional-content" name="additional_content" style="display: none;">{{ data.additional_content or '' }}</textarea>
+                            </div>
                             <div class="help-text">{{ _('Optional additional content such as background information or analysis') }}</div>
                             {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
                           </div>
@@ -790,209 +798,110 @@ select.wn-form-control option:selected {
   }
 }
 
-/* EasyMDE Markdown Editor Styles */
-.editor-toolbar {
-  border-top: 2px solid var(--unesco-blue-pale) !important;
-  border-left: 2px solid var(--unesco-blue-pale) !important;
-  border-right: 2px solid var(--unesco-blue-pale) !important;
-  border-bottom: none !important;
-  border-radius: 12px 12px 0 0 !important;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
-  box-shadow: var(--shadow-light) !important;
-  padding: 8px 12px !important;
+/* Quill Editor Styles */
+.quill-wrapper {
+  position: relative;
+  margin-bottom: 0.5rem;
 }
 
-.editor-toolbar button {
+.quill-editor {
+  background: #ffffff;
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.quill-editor:hover {
+  border-color: var(--unesco-blue-light);
+  transform: translateY(-1px);
+}
+
+.quill-editor.ql-focused {
+  border-color: var(--unesco-blue-dark);
+  box-shadow: 0 0 0 0.2rem rgba(0, 90, 156, 0.25);
+}
+
+.ql-toolbar {
   border: none !important;
-  border-radius: 6px !important;
-  background: transparent !important;
-  color: var(--unesco-blue-dark) !important;
-  padding: 8px 10px !important;
-  margin: 2px !important;
-  transition: all 0.2s ease !important;
-  font-size: 16px !important;
-  width: auto !important;
-  height: auto !important;
-}
-
-.editor-toolbar button:hover {
-  background: var(--unesco-blue-pale) !important;
-  color: var(--unesco-blue-dark) !important;
-  transform: scale(1.05) !important;
-}
-
-.editor-toolbar button.active {
-  background: var(--unesco-blue) !important;
-  color: white !important;
-}
-
-.editor-toolbar i.separator {
-  border-left: 1px solid var(--unesco-blue-pale) !important;
-  margin: 0 8px !important;
-  height: 20px !important;
-}
-
-.CodeMirror {
-  border-left: 2px solid var(--unesco-blue-pale) !important;
-  border-right: 2px solid var(--unesco-blue-pale) !important;
   border-bottom: 2px solid var(--unesco-blue-pale) !important;
-  border-top: none !important;
+  border-radius: 12px 12px 0 0 !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+  padding: 12px 16px !important;
+  box-shadow: var(--shadow-light) !important;
+}
+
+.ql-container {
+  border: none !important;
   border-radius: 0 0 12px 12px !important;
+  font-family: inherit !important;
   font-size: 15px !important;
   line-height: 1.6 !important;
-  background: #ffffff !important;
-  box-shadow: var(--shadow-light) !important;
-  min-height: 400px !important;
 }
 
-.CodeMirror:focus-within {
-  border-color: var(--unesco-blue-dark) !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 90, 156, 0.25) !important;
-}
-
-.CodeMirror-cursor {
-  border-left: 2px solid var(--unesco-blue-dark) !important;
-}
-
-.CodeMirror-selected {
-  background: rgba(0, 114, 188, 0.15) !important;
-}
-
-.CodeMirror-line {
-  padding: 0 8px !important;
-}
-
-.editor-preview-side {
-  border: 2px solid var(--unesco-blue-pale) !important;
-  border-radius: 12px !important;
-  background: #ffffff !important;
-  box-shadow: var(--shadow-light) !important;
+.ql-editor {
   padding: 20px !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  min-height: 180px !important;
+  color: var(--text-primary) !important;
   line-height: 1.6 !important;
 }
 
-.editor-preview {
-  background: #ffffff !important;
-  border: 2px solid var(--unesco-blue-pale) !important;
-  border-radius: 12px !important;
-  padding: 20px !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  line-height: 1.6 !important;
-  box-shadow: var(--shadow-light) !important;
-}
-
-.editor-preview h1, .editor-preview-side h1 {
-  color: var(--unesco-blue-dark) !important;
-  border-bottom: 2px solid var(--unesco-blue-pale) !important;
-  padding-bottom: 8px !important;
-}
-
-.editor-preview h2, .editor-preview-side h2 {
-  color: var(--unesco-blue) !important;
-  border-bottom: 1px solid var(--unesco-blue-pale) !important;
-  padding-bottom: 6px !important;
-}
-
-.editor-preview a, .editor-preview-side a {
-  color: var(--unesco-blue) !important;
-}
-
-.editor-preview blockquote, .editor-preview-side blockquote {
-  border-left: 4px solid var(--unesco-blue-pale) !important;
-  background: #f8f9fa !important;
-  margin: 0 !important;
-  padding: 16px 20px !important;
-  border-radius: 0 8px 8px 0 !important;
-}
-
-.editor-preview code, .editor-preview-side code {
-  background: var(--unesco-blue-pale) !important;
-  color: var(--unesco-blue-dark) !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-  font-size: 0.9em !important;
-}
-
-.editor-preview pre, .editor-preview-side pre {
-  background: #f8f9fa !important;
-  border: 1px solid var(--unesco-blue-pale) !important;
-  border-radius: 8px !important;
+.quill-compact .ql-editor {
+  min-height: 120px !important;
   padding: 16px !important;
 }
 
-.editor-statusbar {
-  border-left: 2px solid var(--unesco-blue-pale) !important;
-  border-right: 2px solid var(--unesco-blue-pale) !important;
-  border-bottom: 2px solid var(--unesco-blue-pale) !important;
-  border-top: 1px solid var(--unesco-blue-pale) !important;
-  border-radius: 0 0 12px 12px !important;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-  color: var(--text-secondary) !important;
-  font-size: 12px !important;
+.quill-compact .ql-toolbar {
   padding: 8px 12px !important;
 }
 
-/* Fullscreen mode adjustments */
-.editor-toolbar.fullscreen {
-  z-index: 9999 !important;
+.ql-toolbar button {
+  border-radius: 6px !important;
+  margin: 2px !important;
+  padding: 6px 8px !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
 }
 
-.CodeMirror.CodeMirror-fullscreen {
-  z-index: 9999 !important;
-  background: #ffffff !important;
+.ql-toolbar button:hover {
+  background: var(--unesco-blue-pale) !important;
+  border-color: var(--unesco-blue-light) !important;
+  transform: translateY(-1px) !important;
 }
 
-/* Hide the original textarea when editor is active */
-.markdown-editor-container .wn-form-control {
-  display: none;
+.ql-toolbar button.ql-active {
+  background: var(--unesco-blue) !important;
+  color: white !important;
+  border-color: var(--unesco-blue) !important;
+  box-shadow: 0 2px 4px rgba(0, 114, 188, 0.3) !important;
 }
 
-/* Loading state */
-.markdown-editor-loading {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-secondary);
-  background: var(--unesco-blue-pale);
-  border: 2px solid var(--unesco-blue-pale);
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
+.ql-toolbar .ql-stroke { stroke: #6c757d !important; }
+.ql-toolbar button:hover .ql-stroke { stroke: var(--unesco-blue) !important; }
+.ql-toolbar button.ql-active .ql-stroke { stroke: white !important; }
+.ql-toolbar .ql-fill { fill: #6c757d !important; }
+.ql-toolbar button:hover .ql-fill { fill: var(--unesco-blue) !important; }
+.ql-toolbar button.ql-active .ql-fill { fill: white !important; }
 
-.markdown-editor-loading i {
-  animation: fa-spin 1s infinite linear;
-  margin-right: 8px;
-}
-
-/* Mobile responsiveness for editor */
-@media (max-width: 768px) {
-  .editor-toolbar {
-    padding: 6px 8px !important;
-  }
-  
-  .editor-toolbar button {
-    padding: 6px 8px !important;
-    margin: 1px !important;
-    font-size: 14px !important;
-  }
-  
-  .CodeMirror {
-    font-size: 14px !important;
-    min-height: 300px !important;
-  }
-  
-  .editor-preview, .editor-preview-side {
-    padding: 15px !important;
-    font-size: 14px !important;
-  }
+/* Force hide Quill backing textareas */
+.quill-wrapper textarea {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
 }
 </style>
 
-<!-- EasyMDE CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
-
-<!-- EasyMDE JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+<!-- Quill Editor CSS -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <!-- JavaScript for form functionality -->
 <script>
@@ -1275,8 +1184,8 @@ Summarize the implications and next steps.
       }
     }
     
-    // Initialize markdown editor after a short delay to ensure DOM is ready
-    setTimeout(initializeMarkdownEditor, 200);
+    // Disable legacy markdown editor initialization
+    setTimeout(function(){}, 0);
 
     // Image Upload Management
     let uploadedImages = [];
@@ -1493,6 +1402,59 @@ Summarize the implications and next steps.
     
     console.log('Water News edit form initialized with image upload functionality');
   });
+})();
+</script>
+
+<!-- Initialize Quill editors for Water News -->
+<script>
+(function() {
+  function initQuillEditors() {
+    if (typeof Quill === 'undefined' || typeof jQuery === 'undefined') {
+      setTimeout(initQuillEditors, 100);
+      return;
+    }
+
+    try {
+      var editors = [
+        { editorId: 'news-content-editor', textareaId: 'field-content', toolbar: [[{ header: [1,2,3,false] }], ['bold','italic','underline','strike'], [{ color: [] }, { background: [] }], [{ list: 'ordered' }, { list: 'bullet' }], [{ indent: '-1' }, { indent: '+1' }], ['blockquote','code-block'], ['link'], ['clean'], [{ align: [] }]] },
+        { editorId: 'news-additional-editor', textareaId: 'field-additional-content', toolbar: [[{ header: [2,3,false] }], ['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] },
+        { editorId: 'news-excerpt-editor', textareaId: 'field-excerpt', toolbar: [['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] },
+        { editorId: 'news-external-links-editor', textareaId: 'field-external-links', toolbar: [['bold','italic','underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link'], ['clean']] }
+      ];
+
+      editors.forEach(function(cfg){
+        var el = document.getElementById(cfg.editorId);
+        var ta = document.getElementById(cfg.textareaId);
+        if (!el || !ta) return;
+
+        var quill = new Quill('#' + cfg.editorId, {
+          theme: 'snow',
+          placeholder: ta.getAttribute('placeholder') || '',
+          modules: { toolbar: cfg.toolbar, history: { delay: 1000, maxStack: 50 } }
+        });
+
+        if (ta.value) {
+          try { quill.clipboard.dangerouslyPasteHTML(ta.value); } catch(e) { quill.setText(ta.value); }
+        }
+
+        quill.on('text-change', function(){
+          ta.value = quill.root.innerHTML;
+          if (typeof jQuery !== 'undefined') {
+            jQuery(ta).trigger('change');
+          }
+        });
+
+        // Initial sync
+        ta.value = quill.root.innerHTML;
+      });
+      console.log('Quill editors initialized on Water News form');
+    } catch (err) {
+      console.error('Quill initialization error (Water News):', err);
+    }
+  }
+
+  // Kick off after a short delay to ensure DOM is ready
+  setTimeout(initQuillEditors, 200);
 })();
 </script>
 
