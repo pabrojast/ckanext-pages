@@ -329,7 +329,21 @@
                           <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
                           <div class="form-group">
                             <label for="field-map-stories" class="control-label">{{ _('Spatial Data and Information') }}</label>
+                            <div class="map-tools" style="margin-bottom: 0.5rem;">
+                              <button type="button" class="btn btn-default btn-sm" id="insert-iframe">
+                                <i class="fa fa-map"></i> {{ _('Insert iframe') }}
+                              </button>
+                              <button type="button" class="btn btn-default btn-sm" id="toggle-map-preview">
+                                <i class="fa fa-eye"></i> {{ _('Show Preview') }}
+                              </button>
+                            </div>
                             <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
+                            <div id="map-stories-preview-container" class="map-preview-container" style="display: none;">
+                              <div class="map-preview-header">
+                                <i class="fa fa-eye"></i> {{ _('Preview') }}
+                              </div>
+                              <div id="map-stories-preview" class="map-preview-body"></div>
+                            </div>
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>
                           </div>
@@ -1361,6 +1375,42 @@ textarea.rr-form-control {
   text-align: center;
   padding: 1rem;
 }
+
+/* Spatial Data tools and preview */
+.map-tools {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.map-preview-container {
+  margin-top: 0.75rem;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-light);
+}
+
+.map-preview-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+  color: var(--text-secondary);
+  font-weight: 600;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.map-preview-body {
+  padding: 1rem;
+}
+
+.map-preview-body iframe {
+  width: 100%;
+  min-height: 420px;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
@@ -1926,6 +1976,52 @@ textarea.rr-form-control {
       setTimeout(function(){ waitForQuill(callback); }, 50);
     }
   }
+
+  // Spatial Data helpers: toggle preview and insert iframe snippet
+  function sanitizePreviewHtml(html) {
+    // Allow only iframes and basic block elements in preview to avoid script execution
+    var temp = document.createElement('div');
+    temp.innerHTML = html;
+    // Remove script/style tags
+    $(temp).find('script, style').remove();
+    // Remove on* attributes
+    $(temp).find('*').each(function(){
+      $.each(this.attributes || [], function(){
+        if (this && this.name && this.name.toLowerCase().startsWith('on')) {
+          $(this.ownerElement).removeAttr(this.name);
+        }
+      });
+    });
+    return temp.innerHTML;
+  }
+
+  $('#toggle-map-preview').on('click', function(){
+    var $container = $('#map-stories-preview-container');
+    var $btn = $(this);
+    if ($container.is(':visible')) {
+      $container.hide();
+      $btn.html('<i class="fa fa-eye"></i> ' + '{{ _("Show Preview") }}');
+    } else {
+      var raw = $('#field-map-stories').val() || '';
+      $('#map-stories-preview').html(sanitizePreviewHtml(raw));
+      $container.show();
+      $btn.html('<i class="fa fa-eye-slash"></i> ' + '{{ _("Hide Preview") }}');
+    }
+  });
+
+  $('#insert-iframe').on('click', function(){
+    var tpl = '\n\n<iframe src="https://example.com" width="100%" height="420" frameborder="0" allowfullscreen></iframe>\n';
+    var ta = document.getElementById('field-map-stories');
+    if (!ta) return;
+    var start = ta.selectionStart || 0;
+    var end = ta.selectionEnd || 0;
+    var val = ta.value;
+    ta.value = val.substring(0, start) + tpl + val.substring(end);
+    ta.focus();
+    // Move cursor after inserted block
+    var pos = start + tpl.length;
+    ta.setSelectionRange(pos, pos);
+  });
 
   function initializeQuillEditors() {
     var quillEditors = {};
