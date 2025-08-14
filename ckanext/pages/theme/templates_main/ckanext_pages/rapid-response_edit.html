@@ -2001,6 +2001,48 @@ textarea.rr-form-control {
     return temp.innerHTML;
   }
 
+  // Markdown detection and conversion for mixed Markdown + HTML content
+  function isLikelyMarkdown(text) {
+    if (!text) return false;
+    var mdSignals = [
+      /(^|\n)\s{0,3}#{1,6}\s+/,             // headings
+      /\*\*[^\n]+\*\*|__[^\n]+__/,         // bold
+      /(^|\n)\s{0,3}[-*+]\s+/,              // lists
+      /\[[^\]]+\]\([^\)]+\)/,            // links
+      /(^|\n)\s{0,3}>\s+/,                  // blockquote
+    ];
+    return mdSignals.some(function(rx){ return rx.test(text); });
+  }
+
+  function markdownToHtml(md) {
+    if (!md) return '';
+    try {
+      if (window.marked && typeof window.marked.parse === 'function') {
+        // Marked will pass-through raw HTML like iframes
+        var html = window.marked.parse(md, { breaks: true, gfm: true, mangle: false, headerIds: false });
+        return sanitizePreviewHtml(html);
+      }
+    } catch (e) { /* fallback below */ }
+    // Fallback minimal conversion (headings, bold/italic, lists)
+    var htmlFallback = md
+      .replace(/\r\n/g, '\n')
+      .replace(/(^|\n)######\s?(.+)(?=\n|$)/g, '$1<h6>$2</h6>')
+      .replace(/(^|\n)#####\s?(.+)(?=\n|$)/g, '$1<h5>$2</h5>')
+      .replace(/(^|\n)####\s?(.+)(?=\n|$)/g, '$1<h4>$2</h4>')
+      .replace(/(^|\n)###\s?(.+)(?=\n|$)/g, '$1<h3>$2</h3>')
+      .replace(/(^|\n)##\s?(.+)(?=\n|$)/g, '$1<h2>$2</h2>')
+      .replace(/(^|\n)#\s?(.+)(?=\n|$)/g, '$1<h1>$2</h1>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      .replace(/_([^_]+)_/g, '<em>$1</em>')
+      .replace(/\n\n+/g, '</p><p>')
+      .replace(/^/, '<p>')
+      .replace(/$/, '</p>')
+      ;
+    return sanitizePreviewHtml(htmlFallback);
+  }
+
   function extractMapStoriesInner(html) {
     try {
       var container = document.createElement('div');
@@ -2058,6 +2100,11 @@ textarea.rr-form-control {
         $ta.css({ display: 'block', minHeight: '280px' });
       }
       var val = $ta.val() || '';
+      // If looks like Markdown, convert to HTML immediately so editor visual muestre bien
+      if (isLikelyMarkdown(val)) {
+        var converted = markdownToHtml(val);
+        if (converted) { $ta.val(converted); }
+      }
       if (val.indexOf('rapid-response-map-stories') !== -1 || val.indexOf('map-stories-content') !== -1 || val.indexOf('rr-module-maps') !== -1) {
         var extracted = extractMapStoriesInner(val);
         if (extracted && extracted.trim()) {
@@ -2143,7 +2190,12 @@ textarea.rr-form-control {
       var mapQuill = new Quill('#map-stories-editor', { theme: 'snow', modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }, placeholder: '{{ _("Write your text and paste iframes. Use the Source tab if something is stripped.") }}' });
       // Set initial content from textarea
       if (textarea.value) {
-        try { mapQuill.clipboard.dangerouslyPasteHTML(textarea.value); } catch(e) { mapQuill.setText(textarea.value); }
+        var initial = textarea.value;
+        // If it looks like Markdown, convert to HTML before loading, preserving any raw iframes
+        if (isLikelyMarkdown(initial)) {
+          initial = markdownToHtml(initial);
+        }
+        try { mapQuill.clipboard.dangerouslyPasteHTML(initial); } catch(e) { mapQuill.setText(initial); }
       }
       // Sync to textarea: prefer getHTML fallbacks to preserve iframes
       function syncMapStories(){
@@ -2161,6 +2213,7 @@ textarea.rr-form-control {
         if (source.is(':visible')) {
           // Source -> Visual
           var raw = $('#field-map-stories').val() || '';
+          if (isLikelyMarkdown(raw)) { raw = markdownToHtml(raw); }
           try { mapQuill.clipboard.dangerouslyPasteHTML(raw); } catch(e) { mapQuill.setText(raw); }
           source.hide();
           visual.show();
@@ -2220,5 +2273,8 @@ textarea.rr-form-control {
 <!-- Quill Editor Integration -->
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+<!-- Lightweight Markdown parser (Marked) for mixed Markdown + HTML content -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 {% endblock %} 
