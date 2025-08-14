@@ -240,6 +240,15 @@
                                 {% if c.page.modified %}
                                   | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
                                 {% endif %}
+                                {% if c.page.contact_name or c.page.contact_email %}
+                                  | <i class="fa fa-user"></i> {{ _('By:') }}
+                                  {% if c.page.contact_name %} {{ c.page.contact_name }}{% endif %}
+                                  {% if c.page.contact_email %}
+                                    {% if c.page.contact_name %} <span>&lt;{% endif %}<a href="mailto:{{ c.page.contact_email }}">{{ c.page.contact_email }}</a>{% if c.page.contact_name %}&gt;</span>{% endif %}
+                                  {% endif %}
+                                {% elif c.page.user_id %}
+                                  | <i class="fa fa-user"></i> {{ h.linked_user(c.page.user_id, 0, 30) }}
+                                {% endif %}
                               </small>
                             </p>
                           {% endif %}
