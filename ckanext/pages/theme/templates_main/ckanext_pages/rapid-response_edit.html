@@ -337,7 +337,7 @@
                                 <i class="fa fa-eye"></i> {{ _('Show Preview') }}
                               </button>
                             </div>
-                            <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
+                            <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" style="min-height: 280px;" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
                             <div id="map-stories-preview-container" class="map-preview-container" style="display: none;">
                               <div class="map-preview-header">
                                 <i class="fa fa-eye"></i> {{ _('Preview') }}
@@ -1995,6 +1995,18 @@ textarea.rr-form-control {
     return temp.innerHTML;
   }
 
+  function extractMapStoriesInner(html) {
+    try {
+      var container = document.createElement('div');
+      container.innerHTML = html;
+      var inner = container.querySelector('.map-stories-content');
+      if (inner) { return inner.innerHTML; }
+      var rrBody = container.querySelector('.rr-module-maps .rr-content-body');
+      if (rrBody) { return rrBody.innerHTML; }
+    } catch (err) {}
+    return null;
+  }
+
   $('#toggle-map-preview').on('click', function(){
     var $container = $('#map-stories-preview-container');
     var $btn = $(this);
@@ -2003,6 +2015,11 @@ textarea.rr-form-control {
       $btn.html('<i class="fa fa-eye"></i> ' + '{{ _("Show Preview") }}');
     } else {
       var raw = $('#field-map-stories').val() || '';
+      // If user pasted full wrapped page section, extract the inner map content
+      if (raw.indexOf('rapid-response-map-stories') !== -1 || raw.indexOf('map-stories-content') !== -1 || raw.indexOf('rr-module-maps') !== -1) {
+        var extracted = extractMapStoriesInner(raw);
+        if (extracted) { raw = extracted; }
+      }
       $('#map-stories-preview').html(sanitizePreviewHtml(raw));
       $container.show();
       $btn.html('<i class="fa fa-eye-slash"></i> ' + '{{ _("Hide Preview") }}');
@@ -2022,6 +2039,26 @@ textarea.rr-form-control {
     var pos = start + tpl.length;
     ta.setSelectionRange(pos, pos);
   });
+
+  // On load: make sure textarea is visible and clean if wrapped content detected
+  (function(){
+    var $ta = $('#field-map-stories');
+    if ($ta.length) {
+      if (!$ta.is(':visible') || ($ta.height() || 0) < 80) {
+        $ta.css({ display: 'block', minHeight: '280px' });
+      }
+      var val = $ta.val() || '';
+      if (val.indexOf('rapid-response-map-stories') !== -1 || val.indexOf('map-stories-content') !== -1 || val.indexOf('rr-module-maps') !== -1) {
+        var extracted = extractMapStoriesInner(val);
+        if (extracted && extracted.trim()) {
+          $ta.val(extracted.trim());
+          if (!$('#map-stories-clean-notice').length) {
+            $('<div id="map-stories-clean-notice" class="help-text" style="margin-top:6px;"><i class="fa fa-info-circle"></i> ' + '{{ _("We detected wrapped page markup and cleaned it. You can paste only your section text and iframes here.") }}' + '</div>').insertAfter($ta);
+          }
+        }
+      }
+    }
+  })();
 
   function initializeQuillEditors() {
     var quillEditors = {};
@@ -2048,7 +2085,6 @@ textarea.rr-form-control {
       'content-editor': { textareaId: 'field-content', toolbar: fullToolbar, placeholder: '{{ _("Detailed description of the emergency event, when and where it occurred, and its overall impact...") }}' },
       'impact-assessment-editor': { textareaId: 'field-impact-assessment', toolbar: compactToolbar, placeholder: '{{ _("Describe the damage to heritage sites, communities affected, and ongoing concerns...") }}' },
       'response-activities-editor': { textareaId: 'field-response-activities', toolbar: compactToolbar, placeholder: '{{ _("Detail the immediate response efforts, agencies involved, and current status...") }}' },
-      'map-stories-editor': { textareaId: 'field-map-stories', toolbar: fullToolbar, placeholder: '{{ _("Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.") }}' },
       'additional-content-editor': { textareaId: 'field-additional-content', toolbar: compactToolbar, placeholder: '{{ _("Any additional content such as School Safety Assessment, Recovery Plans, etc.") }}' },
       'excerpt-editor': { textareaId: 'field-excerpt', toolbar: [['bold','italic','underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link'], ['clean']], placeholder: '{{ _("Brief summary of the disaster and response efforts...") }}' }
     };
