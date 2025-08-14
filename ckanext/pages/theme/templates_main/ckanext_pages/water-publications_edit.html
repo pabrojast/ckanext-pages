@@ -237,18 +237,31 @@
                             </div>
 
                             <div class="row">
-                              <div class="col-md-6">
+                              <div class="col-md-12">
                                 <div class="form-group">
-                                  <label class="control-label" for="country-groups-select">{{ _('Country(ies) (optional)') }}</label>
-                                  <select id="country-groups-select" class="form-control" multiple></select>
-                                  <input type="hidden" id="country_groups" name="country_groups" value="">
-                                </div>
-                              </div>
-                              <div class="col-md-6">
-                                <div class="form-group">
-                                  <label class="control-label" for="initiative-groups-select">{{ _('Initiative(s) (optional)') }}</label>
-                                  <select id="initiative-groups-select" class="form-control" multiple></select>
-                                  <input type="hidden" id="initiative_groups" name="initiative_groups" value="">
+                                  <label class="control-label">{{ _('Member States') }}</label>
+                                  <p class="help-text">{{ _('Select the member states associated with this publication') }}</p>
+
+                                  <div class="member-states-container">
+                                    <div class="member-state-selector">
+                                      <div class="input-group">
+                                        <select id="member-state-select" class="form-control">
+                                          <option value="">{{ _('Select a member state...') }}</option>
+                                          <option value="loading" disabled>{{ _('Loading member states...') }}</option>
+                                        </select>
+                                        <div class="input-group-btn">
+                                          <button type="button" class="btn btn-primary" id="add-member-state">
+                                            <i class="fa fa-plus"></i> {{ _('Add') }}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
+                                    </div>
+
+                                    <input type="hidden" id="country_groups" name="country_groups" value="">
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -713,6 +726,89 @@ select.form-control option:selected {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 8px;
   border-left: 4px solid var(--unesco-blue);
+}
+
+/* Member States styling (coherent with Open Source Software form) */
+.member-states-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.member-state-selector { margin-bottom: 1.5rem; }
+
+.member-state-selector .input-group { width: 100%; }
+
+.member-state-selector .form-control { border-radius: 12px 0 0 12px; }
+
+.member-state-selector .btn {
+  border-radius: 0 12px 12px 0;
+  padding: 12px 20px;
+  font-weight: 600;
+}
+
+.selected-member-states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-height: 45px;
+  padding: 0.5rem 0;
+}
+
+.member-state-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue);
+  border-radius: 20px;
+  padding: 6px 12px 6px 16px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.member-state-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+}
+
+.member-state-item:hover .member-state-name { color: white; }
+
+.member-state-item:hover .remove-member-state {
+  background: white;
+  color: var(--unesco-blue);
+  border-color: white;
+}
+
+.member-state-name { font-weight: 600; color: var(--unesco-blue); }
+
+.remove-member-state {
+  background: transparent;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+  min-width: auto;
+}
+
+.remove-member-state:hover { background: #dc3545; color: white; transform: scale(1.05); }
+
+.selected-member-states:empty::before {
+  content: "{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}";
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  display: block;
+  text-align: center;
+  padding: 1rem;
 }
 
 /* Breadcrumb styling */
@@ -1235,19 +1331,7 @@ select.form-control option:selected {
     }
 
     // Países (grupos) e Iniciativas (grupos) opcionales
-    function populateGroups(selectId, groups) {
-      const $sel = $(selectId);
-      if (!$sel.length) return;
-      $sel.empty();
-      groups.sort(function(a,b){
-        const A = (a.display_name||a.title||a.name||'').toLowerCase();
-        const B = (b.display_name||b.title||b.name||'').toLowerCase();
-        return A.localeCompare(B);
-      });
-      groups.forEach(function(g){
-        $sel.append('<option value="'+g.name+'">'+(g.display_name||g.title||g.name)+'</option>');
-      });
-    }
+    // (initiatives removed) populateGroups no longer used
 
     function fetchGroup(name, callback) {
       $.ajax({
@@ -1264,24 +1348,115 @@ select.form-control option:selected {
     }
 
     function initCountriesAndInitiatives() {
-      // Countries from parent group "member-states"
-      fetchGroup('member-states', function(countryGroups){
-        populateGroups('#country-groups-select', countryGroups);
-      });
-      // Initiatives from parent group "initiatives" (ensure separation)
-      fetchGroup('initiatives', function(initiativeGroups){
-        populateGroups('#initiative-groups-select', initiativeGroups);
-      });
-      // sync to hidden JSON
-      $('#country-groups-select').on('change', function(){
-        const arr = ($(this).val()||[]).map(function(name){ return {name:name}; });
-        $('#country_groups').val(JSON.stringify(arr));
-      });
-      $('#initiative-groups-select').on('change', function(){
-        const arr = ($(this).val()||[]).map(function(name){ return {name:name}; });
-        $('#initiative_groups').val(JSON.stringify(arr));
+      // Member States (countries) - enhanced selector with chips
+      loadMemberStates();
+      // Initiatives removed from form
+    }
+
+    // --- Member States helpers (reuse OSS behavior) ---
+    let selectedMemberStates = [];
+
+    function formatMemberStateName(name) {
+      if (!name) return name;
+      return name
+        .split('-')
+        .map(function(word){
+          const lower = word.toLowerCase();
+          if (['of','and','the','de','da','du'].indexOf(lower) !== -1) return lower;
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function loadMemberStates() {
+      $.ajax({
+        url: 'https://data.dev-wins.com/api/3/action/group_show',
+        data: { id: 'member-states', include_groups: true },
+        dataType: 'json',
+        success: function(resp){
+          const $select = $('#member-state-select');
+          if (!$select.length) return;
+          $select.empty();
+          $select.append('<option value="">'+ '{{ _("Select a member state...") }}' +'</option>');
+          if (resp && resp.success && resp.result && resp.result.groups) {
+            const processed = resp.result.groups.map(function(g){
+              return {
+                name: g.name,
+                formatted_display_name: formatMemberStateName(g.name)
+              };
+            }).sort(function(a,b){ return a.formatted_display_name.localeCompare(b.formatted_display_name); });
+            processed.forEach(function(g){
+              $select.append('<option value="'+g.name+'" data-display="'+g.formatted_display_name+'">'+g.formatted_display_name+'</option>');
+            });
+            // Load existing from hidden if present
+            loadExistingMemberStates();
+          } else {
+            $select.append('<option value="">'+ '{{ _("Error loading member states") }}' +'</option>');
+          }
+        },
+        error: function(){
+          $('#member-state-select').html('<option value="">'+ '{{ _("Error loading member states") }}' +'</option>');
+        }
       });
     }
+
+    function addMemberStateChip(state) {
+      const stateId = 'member-state-' + state.name;
+      if ($('#'+stateId).length) return;
+      const html = `
+        <div class="member-state-item" id="${stateId}" data-state-name="${state.name}">
+          <span class="member-state-name">${state.display_name||formatMemberStateName(state.name)}</span>
+          <button type="button" class="btn btn-sm btn-danger remove-member-state" data-state-name="${state.name}">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>`;
+      $('#selected-member-states').append(html);
+    }
+
+    function updateCountryGroupsHidden() {
+      $('#country_groups').val(JSON.stringify(selectedMemberStates.map(function(s){
+        return { name: s.name };
+      })));
+    }
+
+    function loadExistingMemberStates() {
+      const current = $('#country_groups').val();
+      if (!current) return;
+      try {
+        const arr = JSON.parse(current);
+        if (Array.isArray(arr)) {
+          selectedMemberStates = arr.map(function(x){
+            return { name: x.name, display_name: formatMemberStateName(x.name) };
+          });
+          selectedMemberStates.forEach(addMemberStateChip);
+        }
+      } catch(e) { /* ignore */ }
+    }
+
+    $(document).on('click', '#add-member-state', function(){
+      const $select = $('#member-state-select');
+      const opt = $select.find('option:selected');
+      const name = opt.val();
+      if (!name) return;
+      if (selectedMemberStates.some(function(s){ return s.name === name; })) {
+        alert('{{ _("This member state has already been added") }}');
+        return;
+      }
+      const state = { name: name, display_name: opt.data('display') };
+      selectedMemberStates.push(state);
+      addMemberStateChip(state);
+      updateCountryGroupsHidden();
+      $select.val('');
+    });
+
+    $(document).on('click', '.remove-member-state', function(){
+      const name = $(this).data('state-name');
+      $('#member-state-' + name).remove();
+      selectedMemberStates = selectedMemberStates.filter(function(s){ return s.name !== name; });
+      updateCountryGroupsHidden();
+    });
 
     // Fecha de creación por defecto (hoy)
     (function(){

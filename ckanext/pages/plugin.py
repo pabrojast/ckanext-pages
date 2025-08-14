@@ -429,8 +429,6 @@ def get_severity_sort_key(page):
     """Get numeric sort key for severity level (higher number = higher severity)"""
     severity = page.get('severity', '').lower()
     severity_weights = {
-        'critical': 4,
-        'high': 3,
         'moderate': 2,
         'low': 1
     }
@@ -451,8 +449,6 @@ def get_priority_class(priority):
 def get_severity_class(severity):
     """Get CSS class for severity level"""
     severity_classes = {
-        'critical': 'severity-critical',
-        'high': 'severity-high', 
         'moderate': 'severity-moderate',
         'low': 'severity-low'
     }

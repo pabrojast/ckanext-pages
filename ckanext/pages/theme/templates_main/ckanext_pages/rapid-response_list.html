@@ -487,15 +487,7 @@
                                 <div class="impact-info-modern">
                                   {% set severity_level = page.severity or '' %}
                                   {% if severity_level %}
-                                    {% if severity_level == 'critical' %}
-                                      <span class="impact-badge impact-critical">
-                                        <i class="fa fa-exclamation-triangle"></i> {{ _('Critical Impact') }}
-                                      </span>
-                                    {% elif severity_level == 'high' %}
-                                      <span class="impact-badge impact-high">
-                                        <i class="fa fa-exclamation-triangle"></i> {{ _('High Impact') }}
-                                      </span>
-                                    {% elif severity_level == 'moderate' %}
+                                    {% if severity_level == 'moderate' %}
                                       <span class="impact-badge impact-moderate">
                                         <i class="fa fa-info-circle"></i> {{ _('Moderate Impact') }}
                                       </span>
@@ -946,11 +938,7 @@
   animation: pulse-urgent 1.5s infinite;
 }
 
-.severity-high {
-  background: #dc3545;
-  box-shadow: 0 0 10px rgba(220, 53, 69, 0.6);
-  animation: pulse-red 2s infinite;
-}
+/* Removed high severity style */
 
 .severity-medium {
   background: #fd7e14;
@@ -1080,15 +1068,7 @@
   color: white;
 }
 
-.impact-critical {
-  background: #8b0000;
-  animation: pulse-urgent 1.5s infinite;
-}
-
-.impact-high {
-  background: #dc3545;
-  animation: pulse-red 2s infinite;
-}
+/* Removed critical/high impact badges */
 
 .impact-moderate {
   background: #fd7e14;

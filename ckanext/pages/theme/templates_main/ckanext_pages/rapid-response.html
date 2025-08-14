@@ -45,12 +45,10 @@
                   <div class="event-priority-indicator">
                     {% set severity_level = c.page.severity or '' %}
                     
-                    {% if severity_level %}
+                    {% if severity_level in ['moderate', 'low'] %}
                       <span class="severity-badge severity-{{ severity_level }}">
-                        <i class="fa fa-impact"></i> 
-                        {% if severity_level == 'critical' %}{{ _('Critical Impact') }}
-                        {% elif severity_level == 'high' %}{{ _('High Impact') }}
-                        {% elif severity_level == 'moderate' %}{{ _('Moderate Impact') }}
+                        <i class="fa fa-info-circle"></i>
+                        {% if severity_level == 'moderate' %}{{ _('Moderate Impact') }}
                         {% elif severity_level == 'low' %}{{ _('Low Impact') }}
                         {% endif %}
                       </span>
@@ -493,13 +491,7 @@
   text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
-.severity-critical {
-  background: linear-gradient(135deg, #8b0000 0%, #660000 100%);
-}
-
-.severity-high {
-  background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
-}
+/* Removed critical/high severity badges */
 
 .severity-moderate {
   background: linear-gradient(135deg, #fd7e14 0%, #ca6a11 100%);

@@ -215,8 +215,6 @@
                               <option value="">{{ _('Select severity...') }}</option>
                               <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact') }}</option>
                               <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact') }}</option>
-                              <option value="high" {% if data.severity == 'high' %}selected{% endif %}>{{ _('High Impact') }}</option>
-                              <option value="critical" {% if data.severity == 'critical' %}selected{% endif %}>{{ _('Critical Impact') }}</option>
                             </select>
                             <div class="help-text">{{ _('Expected or assessed impact level of the emergency') }}</div>
                             {% if errors.severity %}<span class="error-block">{{ errors.severity }}</span>{% endif %}
