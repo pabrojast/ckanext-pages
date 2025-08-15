@@ -338,10 +338,35 @@
                               <div id="map-stories-editor" class="quill-editor"></div>
                             </div>
                             <div id="map-stories-source" style="display: none;">
-                              <div class="map-tools" style="margin-bottom: 0.5rem;">
+                              <div class="map-tools" style="margin-bottom: 0.5rem; display:flex; flex-wrap:wrap; gap:6px;">
                                 <button type="button" class="btn btn-default btn-sm" id="insert-iframe">
                                   <i class="fa fa-map"></i> {{ _('Insert iframe') }}
                                 </button>
+                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe-arcgis">
+                                  <i class="fa fa-map-o"></i> {{ _('ArcGIS iframe') }}
+                                </button>
+                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe-copernicus">
+                                  <i class="fa fa-globe"></i> {{ _('Copernicus iframe') }}
+                                </button>
+                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe-terria">
+                                  <i class="fa fa-compass"></i> {{ _('Terria iframe') }}
+                                </button>
+                                <span style="width:12px;"></span>
+                                <button type="button" class="btn btn-default btn-sm" id="paste-markdown">
+                                  <i class="fa fa-clipboard"></i> {{ _('Paste Markdown') }}
+                                </button>
+                                <button type="button" class="btn btn-default btn-sm" id="convert-markdown">
+                                  <i class="fa fa-exchange"></i> {{ _('Convert Markdown') }}
+                                </button>
+                                <span style="width:12px;"></span>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-h2">H2</button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-h3">H3</button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-ul"><i class="fa fa-list-ul"></i></button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-ol"><i class="fa fa-list-ol"></i></button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-bold"><b>B</b></button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-italic"><i>I</i></button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-link"><i class="fa fa-link"></i></button>
+                                <button type="button" class="btn btn-default btn-sm" id="fmt-image"><i class="fa fa-image"></i></button>
                               </div>
                               <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" style="min-height: 280px;" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
                             </div>
@@ -2090,6 +2115,66 @@ textarea.rr-form-control {
     // Move cursor after inserted block
     var pos = start + tpl.length;
     ta.setSelectionRange(pos, pos);
+  });
+
+  // Iframe templates for common providers
+  function insertAtCursor(textarea, snippet) {
+    var ta = textarea; if (!ta) return;
+    var start = ta.selectionStart || 0; var end = ta.selectionEnd || 0; var val = ta.value;
+    ta.value = val.substring(0, start) + snippet + val.substring(end);
+    ta.focus();
+    var pos = start + snippet.length; ta.setSelectionRange(pos, pos);
+  }
+
+  $('#insert-iframe-arcgis').on('click', function(){
+    var tpl = '\n\n<iframe src="https://www.arcgis.com/apps/mapviewer/index.html?webmap=YOUR_WEBMAP_ID" width="100%" height="600" style="border:none;" allowfullscreen></iframe>\n';
+    insertAtCursor(document.getElementById('field-map-stories'), tpl);
+  });
+
+  $('#insert-iframe-copernicus').on('click', function(){
+    var tpl = '\n\n<iframe src="https://emergency.copernicus.eu/EMSR/?some=params" width="100%" height="600" style="border:none;" allowfullscreen></iframe>\n';
+    insertAtCursor(document.getElementById('field-map-stories'), tpl);
+  });
+
+  $('#insert-iframe-terria').on('click', function(){
+    var tpl = '\n\n<iframe src="https://ihp-wins.unesco.org/terria/#share=YOUR_SHARE_ID" width="100%" height="600" style="border:none;" allowfullscreen mozallowfullscreen webkitallowfullscreen></iframe>\n';
+    insertAtCursor(document.getElementById('field-map-stories'), tpl);
+  });
+
+  // Markdown helpers (Source mode)
+  function surroundSelection(ta, before, after) {
+    var start = ta.selectionStart || 0; var end = ta.selectionEnd || 0; var val = ta.value;
+    var sel = val.substring(start, end);
+    var res = before + sel + (after === undefined ? '' : after);
+    ta.value = val.substring(0, start) + res + val.substring(end);
+    var pos = start + res.length; ta.focus(); ta.setSelectionRange(pos, pos);
+  }
+
+  $('#fmt-h2').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '\n\n## ', '');});
+  $('#fmt-h3').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '\n\n### ', '');});
+  $('#fmt-ul').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '\n\n- ', '');});
+  $('#fmt-ol').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '\n\n1. ', '');});
+  $('#fmt-bold').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '**', '**');});
+  $('#fmt-italic').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '*', '*');});
+  $('#fmt-link').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '[text](', ')');});
+  $('#fmt-image').on('click', function(){ var ta=document.getElementById('field-map-stories'); if(!ta) return; surroundSelection(ta, '![](https://example.com/image.jpg)', '');});
+
+  // Paste as Markdown: limpia HTML pegado y deja solo Markdown
+  $('#paste-markdown').on('click', function(){
+    var ta = document.getElementById('field-map-stories'); if (!ta) return;
+    navigator.clipboard.readText().then(function(txt){
+      if (!txt) return;
+      // Si el portapapeles trae HTML (bloques de la página), solo pégalo tal cual; Marked lo entenderá
+      ta.value += (ta.value ? '\n\n' : '') + txt;
+      ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+    });
+  });
+
+  // Convert Markdown → HTML directamente en Source (útil para revisar en Visual)
+  $('#convert-markdown').on('click', function(){
+    var ta = document.getElementById('field-map-stories'); if (!ta) return;
+    var md = ta.value || '';
+    if (isLikelyMarkdown(md)) { ta.value = markdownToHtml(md); }
   });
 
   // On load: make sure textarea is visible and clean if wrapped content detected
