@@ -151,11 +151,14 @@ class Page(DomainObject, BaseModel):
             if country:
                 # Support both new countries_affected format and legacy country format
                 country_filter = sa.or_(
-                    # New format: countries_affected with JSON array
-                    cls.extras.ilike('%"countries_affected": %' + country + '%'),
+                    # New format: countries_affected with JSON array - check for country name in array
+                    cls.extras.ilike('%"name": "' + country + '"%'),
+                    cls.extras.ilike('%"display_name": "' + country + '"%'),
                     # Legacy format: country field
-                    cls.extras.ilike('%"country": "%' + country + '%"%'),
-                    # Also check if it's in the backward compatibility field in new format
+                    cls.extras.ilike('%"country": "' + country + '"%'),
+                    # Backward compatibility: single country field
+                    cls.extras.ilike('%"countries_affected": "' + country + '"%'),
+                    # General search in case of different JSON structure
                     cls.extras.ilike('%' + country + '%')
                 )
                 query = query.filter(country_filter)

@@ -402,11 +402,17 @@
                                     </a>
                                   </h3>
                                   <div class="event-badges">
-                                    {% set status_class = h.get_event_status_badge_class(event_status) %}
-                                    {% if event_status == 'closed' %}
-                                      <span class="badge-status badge-closed">{{ _('CLOSED') }}</span>
+                                    {% set activity_status = page.activity_status or 'response' %}
+                                    {% if activity_status == 'impact_assessment' %}
+                                      <span class="badge-status badge-impact-assessment">{{ _('Impact Assessment') }}</span>
+                                    {% elif activity_status == 'response' %}
+                                      <span class="badge-status badge-response">{{ _('Response Phase') }}</span>
+                                    {% elif activity_status == 'recovery' %}
+                                      <span class="badge-status badge-recovery">{{ _('Recovery Phase') }}</span>
+                                    {% elif activity_status == 'resilience' %}
+                                      <span class="badge-status badge-resilience">{{ _('Resilience Phase') }}</span>
                                     {% else %}
-                                      <span class="badge-status badge-active">{{ _('ACTIVE') }}</span>
+                                      <span class="badge-status badge-response">{{ _('Response Phase') }}</span>
                                     {% endif %}
                                   </div>
                                 </div>
@@ -430,9 +436,19 @@
                                       </span>
                                     {% endif %}
                                   {% endif %}
-                                  {% if page.country %}
+                                  {% if page.countries_affected or page.country %}
                                     <span class="meta-item">
-                                      <i class="fa fa-map-marker"></i> {{ page.country }}
+                                      <i class="fa fa-map-marker"></i> 
+                                      {% if page.countries_affected %}
+                                        {% set countries_data = h.json_loads(page.countries_affected) or [] %}
+                                        {% if countries_data %}
+                                          {% for country_obj in countries_data %}
+                                            {% if loop.index > 1 %}, {% endif %}{{ country_obj.display_name or country_obj.name }}
+                                          {% endfor %}
+                                        {% endif %}
+                                      {% elif page.country %}
+                                        {{ page.country }}
+                                      {% endif %}
                                     </span>
                                   {% endif %}
                                   <span class="meta-item">
@@ -938,18 +954,41 @@
   color: white;
 }
 
-.badge-active {
-  background: #28a745;
-  animation: pulse-green 2s infinite;
+/* Activity Status Badges */
+.badge-impact-assessment {
+  background: #ffc107;
+  color: #212529;
+  animation: pulse-yellow 3s infinite;
 }
 
-.badge-closed {
-  background: #6c757d;
+.badge-response {
+  background: #dc3545;
+  animation: pulse-red 2s infinite;
+}
+
+.badge-recovery {
+  background: #17a2b8;
+  animation: pulse-blue 2s infinite;
+}
+
+.badge-resilience {
+  background: #28a745;
+  animation: pulse-green 2s infinite;
 }
 
 @keyframes pulse-green {
   0%, 100% { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
   50% { box-shadow: 0 0 15px rgba(40, 167, 69, 0.8); }
+}
+
+@keyframes pulse-yellow {
+  0%, 100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(255, 193, 7, 0.8); }
+}
+
+@keyframes pulse-blue {
+  0%, 100% { box-shadow: 0 0 5px rgba(23, 162, 184, 0.5); }
+  50% { box-shadow: 0 0 15px rgba(23, 162, 184, 0.8); }
 }
 
 .event-updates-count {
