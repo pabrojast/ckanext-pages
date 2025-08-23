@@ -151,7 +151,6 @@ class Page(DomainObject, BaseModel):
             # Apply country filter (stored in extras JSON)
             if country:
                 # Debug logging for country filtering
-                import logging
                 log = logging.getLogger(__name__)
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug(f"Applying country filter: {country}")
@@ -175,7 +174,6 @@ class Page(DomainObject, BaseModel):
             # Apply activity status filter (stored in extras JSON)
             if activity_status:
                 # Debug logging for activity status filtering
-                import logging
                 log = logging.getLogger(__name__)
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug(f"Applying activity_status filter: {activity_status}")
