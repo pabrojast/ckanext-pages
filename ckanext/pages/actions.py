@@ -81,6 +81,7 @@ def _pages_show(context, data_dict):
 
 
 def _pages_list(context, data_dict):
+    log = logging.getLogger(__name__)
     search = {}
     org_id = data_dict.get('org_id')
     ordered = data_dict.get('order')
@@ -154,7 +155,6 @@ def _pages_list(context, data_dict):
         out = db.Page.pages(**search)
     except Exception as e:
         # Log the error and return empty list as fallback
-        log = logging.getLogger(__name__)
         error_str = str(e).lower()
         
         # Different logging based on error type
