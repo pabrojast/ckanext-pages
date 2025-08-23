@@ -1699,57 +1699,84 @@
 
 <!-- JavaScript for Read More functionality -->
 <script>
-// Fixed Read More functionality - using CSS classes instead of inline styles
-function toggleEventExcerpt(button) {
-  try {
-    const eventExcerpt = button.closest('.event-excerpt-modern');
-    const preview = eventExcerpt.querySelector('.excerpt-preview');
-    const full = eventExcerpt.querySelector('.excerpt-full');
-    const icon = button.querySelector('i');
-    
-    if (!preview || !full || !eventExcerpt) {
-      console.error('Read more elements not found');
-      return;
-    }
-    
-    const isExpanded = eventExcerpt.classList.contains('expanded');
-    
-    if (!isExpanded) {
-      // Show full text
-      eventExcerpt.classList.add('expanded');
-      button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
-      button.classList.add('expanded');
+// Wait for jQuery to be available
+(function() {
+  function waitForjQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
     } else {
-      // Show preview text
-      eventExcerpt.classList.remove('expanded');
-      button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
-      button.classList.remove('expanded');
+      setTimeout(function() {
+        waitForjQuery(callback);
+      }, 50);
     }
-  } catch (error) {
-    console.error('Error in toggleEventExcerpt:', error);
   }
-}
-
-// Delegated event listener for dynamic content
-$(document).ready(function() {
-  // Remove any existing handlers first
-  $(document).off('click', '.read-more-btn');
   
-  // Add new delegated event handler
-  $(document).on('click', '.read-more-btn', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleEventExcerpt(this);
+  // Fixed Read More functionality - using CSS classes instead of inline styles
+  function toggleEventExcerpt(button) {
+    try {
+      const eventExcerpt = button.closest('.event-excerpt-modern');
+      const preview = eventExcerpt.querySelector('.excerpt-preview');
+      const full = eventExcerpt.querySelector('.excerpt-full');
+      const icon = button.querySelector('i');
+      
+      if (!preview || !full || !eventExcerpt) {
+        console.error('Read more elements not found');
+        return;
+      }
+      
+      const isExpanded = eventExcerpt.classList.contains('expanded');
+      
+      if (!isExpanded) {
+        // Show full text
+        eventExcerpt.classList.add('expanded');
+        button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
+        button.classList.add('expanded');
+      } else {
+        // Show preview text
+        eventExcerpt.classList.remove('expanded');
+        button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
+        button.classList.remove('expanded');
+      }
+    } catch (error) {
+      console.error('Error in toggleEventExcerpt:', error);
+    }
+  }
+  
+  // Wait for jQuery and initialize
+  waitForjQuery(function($) {
+    $(document).ready(function() {
+      // Remove any existing handlers first
+      $(document).off('click', '.read-more-btn');
+      
+      // Add new delegated event handler
+      $(document).on('click', '.read-more-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleEventExcerpt(this);
+      });
+      
+      console.log('Read more functionality initialized with jQuery');
+    });
   });
-  
-  console.log('Read more functionality initialized');
-});
+})();
 </script>
 
 <!-- Country Filter Support Script -->
 <script>
-// Enhanced Country Filter Support
-function initializeCountryFilter() {
+// Wait for jQuery to be available
+(function() {
+  function waitForjQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForjQuery(callback);
+      }, 50);
+    }
+  }
+
+  // Enhanced Country Filter Support
+  function initializeCountryFilter() {
   // Function to check if page matches country filter
   function pageMatchesCountryFilter(page, selectedCountry) {
     if (!selectedCountry) return true;
@@ -1794,17 +1821,26 @@ function initializeCountryFilter() {
   }
 }
 
-// Event Type Management for Sysadmin
-$('select[name="event_type"]').on('change', function() {
-  if ($(this).val() === '_manage') {
-    // Reset the select to empty and redirect to event types management
-    $(this).val('');
-    window.open('/admin/event-types', '_blank');
-  }
+// Wait for jQuery and initialize all functionality
+waitForjQuery(function($) {
+  $(document).ready(function() {
+    // Event Type Management for Sysadmin
+    $('select[name="event_type"]').on('change', function() {
+      if ($(this).val() === '_manage') {
+        // Reset the select to empty and redirect to event types management
+        $(this).val('');
+        window.open('/admin/event-types', '_blank');
+      }
+    });
+
+    // Initialize functionality
+    initializeCountryFilter();
+    
+    console.log('Country filter and event type management initialized');
+  });
 });
 
-// Initialize functionality
-initializeCountryFilter();
+})();
 </script>
 
 {% endblock %} 
