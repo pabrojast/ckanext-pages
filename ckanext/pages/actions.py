@@ -196,8 +196,6 @@ def _pages_list(context, data_dict):
             out_list.append(pg_row)
         except Exception as e:
             # Skip problematic pages but continue with others
-            import logging
-            log = logging.getLogger(__name__)
             log.warning("Error processing page %s: %s", getattr(pg, 'name', 'unknown'), str(e))
             continue
     return out_list
@@ -800,7 +798,6 @@ def event_types_create(context, data_dict):
         # For now, we'll just return the new type since config writing requires special permissions
         # tk.config['ckanext.pages.event_types'] = config_value
     except Exception as e:
-        import logging
         log = logging.getLogger(__name__)
         log.warning("Could not save event types to config: %s", str(e))
     
@@ -860,7 +857,6 @@ def event_types_update(context, data_dict):
         config_value = json.dumps(existing_types)
         # tk.config['ckanext.pages.event_types'] = config_value
     except Exception as e:
-        import logging
         log = logging.getLogger(__name__)
         log.warning("Could not save event types to config: %s", str(e))
     
@@ -917,7 +913,6 @@ def event_types_delete(context, data_dict):
         config_value = json.dumps(existing_types)
         # tk.config['ckanext.pages.event_types'] = config_value
     except Exception as e:
-        import logging
         log = logging.getLogger(__name__)
         log.warning("Could not save event types to config: %s", str(e))
     
