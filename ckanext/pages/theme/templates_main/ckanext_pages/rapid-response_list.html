@@ -4,6 +4,15 @@
 {{ _('Rapid Response & Recovery') }} - {{ super() }}
 {% endblock %}
 
+{# Macro to decode HTML entities #}
+{% macro decode_html_entities(text) %}
+  {% if text %}
+    {{- text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&#39;', "'") -}}
+  {% else %}
+    {{- text -}}
+  {% endif %}
+{% endmacro %}
+
 {% block content %}
 
 <div class="homepage layout-1">
@@ -412,7 +421,7 @@
                                 <div class="event-title-row">
                                   <h3 class="event-title-modern">
                                     <a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">
-                                      {{ page.title or page.name }}
+                                      {{ decode_html_entities(page.title or page.name) }}
                                     </a>
                                   </h3>
                                   <div class="event-badges">
@@ -499,10 +508,11 @@
                                 {% endif %}
                                 
                                 {% if content_text %}
+                                  {% set clean_content = decode_html_entities(content_text) %}
                                   <div class="event-excerpt-modern">
-                                    <span class="excerpt-preview">{{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}</span>
-                                    {% if content_text|length > 200 %}
-                                      <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
+                                    <span class="excerpt-preview">{{ clean_content[:200] }}{% if clean_content|length > 200 %}...{% endif %}</span>
+                                    {% if clean_content|length > 200 %}
+                                      <span class="excerpt-full" style="display: none;">{{ clean_content }}</span>
                                       <br>
                                       <button type="button" class="btn btn-link btn-sm read-more-btn">
                                         <i class="fa fa-plus"></i> {{ _('Read more') }}
