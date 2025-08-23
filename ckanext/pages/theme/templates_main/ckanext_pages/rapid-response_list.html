@@ -374,6 +374,27 @@
                             </button>
                           </div>
                         </div>
+                        
+                        <!-- Active Filters Indicator -->
+                        {% if request.args.q or request.args.event_type or request.args.country or request.args.activity_status or request.args.order_by %}
+                        <div class="row" style="margin-top: 1rem;">
+                          <div class="col-md-12">
+                            <div class="active-filters-indicator">
+                              <small class="text-muted">
+                                <i class="fa fa-filter"></i> {{ _('Active filters:') }}
+                                {% if request.args.q %}<span class="filter-badge">{{ _('Search') }}: "{{ request.args.q }}"</span>{% endif %}
+                                {% if request.args.event_type %}<span class="filter-badge">{{ _('Type') }}: {{ request.args.event_type }}</span>{% endif %}
+                                {% if request.args.country %}<span class="filter-badge">{{ _('Country') }}: {{ request.args.country }}</span>{% endif %}
+                                {% if request.args.activity_status %}<span class="filter-badge">{{ _('Phase') }}: {{ request.args.activity_status }}</span>{% endif %}
+                                {% if request.args.order_by %}<span class="filter-badge">{{ _('Sort') }}: {{ request.args.order_by }}</span>{% endif %}
+                                <a href="{{ h.url_for('pages.rapid_response_index') }}" class="btn btn-xs btn-link clear-filters-btn">
+                                  <i class="fa fa-times"></i> {{ _('Clear all') }}
+                                </a>
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                        {% endif %}
                       </form>
                     </div>
                   </section>
@@ -1455,6 +1476,40 @@
   box-shadow: var(--shadow-medium);
 }
 
+/* Active Filters Indicator */
+.active-filters-indicator {
+  padding: 0.5rem 0;
+  border-top: 1px solid #e9ecef;
+  background: rgba(0, 114, 188, 0.03);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.filter-badge {
+  display: inline-block;
+  background: var(--unesco-blue);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  margin: 0.1rem 0.25rem;
+  font-weight: 500;
+}
+
+.clear-filters-btn {
+  color: #dc3545 !important;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 12px;
+  margin-left: 0.5rem;
+}
+
+.clear-filters-btn:hover {
+  background: #dc3545;
+  color: white !important;
+  text-decoration: none;
+}
+
 /* Pagination */
 .pagination-wrapper .module {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -1771,85 +1826,128 @@
 })();
 </script>
 
-<!-- Country Filter Support Script -->
+<!-- Enhanced Filter Support Script -->
 <script>
-// Wait for jQuery to be available
+// Wait for jQuery to be available with enhanced checking
 (function() {
-  function waitForjQuery(callback) {
-    if (typeof jQuery !== 'undefined') {
+  function waitForJQuery(callback, attempts) {
+    attempts = attempts || 0;
+    
+    if (typeof jQuery !== 'undefined' && typeof $ !== 'undefined') {
+      try {
+        if (typeof $().jquery !== 'undefined') {
+          callback($);
+          return;
+        }
+      } catch (e) {
+        console.warn('jQuery test failed:', e);
+      }
+    }
+    
+    if (typeof jQuery !== 'undefined' && typeof $ === 'undefined') {
+      window.$ = jQuery;
       callback(jQuery);
-    } else {
-      setTimeout(function() {
-        waitForjQuery(callback);
-      }, 50);
-    }
-  }
-
-  // Enhanced Country Filter Support
-  function initializeCountryFilter() {
-  // Function to check if page matches country filter
-  function pageMatchesCountryFilter(page, selectedCountry) {
-    if (!selectedCountry) return true;
-    
-    // Check in different possible country fields
-    const countryFields = [
-      page.country,           // Legacy single country field
-      page.countries_affected // New multiple countries field
-    ];
-    
-    for (let field of countryFields) {
-      if (!field) continue;
-      
-      // Handle string format (comma-separated)
-      if (typeof field === 'string') {
-        const countries = field.split(',').map(c => c.trim());
-        if (countries.includes(selectedCountry)) {
-          return true;
-        }
-      }
-      
-      // Handle JSON array format
-      if (Array.isArray(field)) {
-        for (let countryObj of field) {
-          if (countryObj.name === selectedCountry || countryObj.display_name === selectedCountry) {
-            return true;
-          }
-        }
-      }
+      return;
     }
     
-    return false;
+    if (attempts > 100) { // 5 seconds max
+      console.error('jQuery failed to load after 5 seconds');
+      return;
+    }
+    
+    setTimeout(function() {
+      waitForJQuery(callback, attempts + 1);
+    }, 50);
   }
-  
-  // Update country filter display (if needed for dynamic filtering)
-  const countrySelect = document.querySelector('select[name="country"]');
-  if (countrySelect) {
-    countrySelect.addEventListener('change', function() {
-      // This would be for client-side filtering if implemented
-      // For now, it will trigger server-side filtering through form submission
-    });
-  }
-}
 
-// Wait for jQuery and initialize all functionality
-waitForjQuery(function($) {
-  $(document).ready(function() {
-    // Event Type Management for Sysadmin
-    $('select[name="event_type"]').on('change', function() {
-      if ($(this).val() === '_manage') {
-        // Reset the select to empty and redirect to event types management
-        $(this).val('');
-        window.open('/admin/event-types', '_blank');
+  // Wait for jQuery and initialize all functionality
+  waitForJQuery(function($) {
+    $(document).ready(function() {
+      console.log('Initializing rapid response filters...');
+      
+      // Get the filter form
+      const $form = $('.rapid-response-filters form');
+      
+      if ($form.length === 0) {
+        console.warn('Filter form not found');
+        return;
+      }
+      
+      // Auto-submit form when any filter changes
+      $form.find('select').on('change', function() {
+        const $this = $(this);
+        const fieldName = $this.attr('name');
+        const fieldValue = $this.val();
+        
+        console.log('Filter changed:', fieldName, '=', fieldValue);
+        
+        // Special handling for event type management
+        if (fieldName === 'event_type' && fieldValue === '_manage') {
+          $this.val('');
+          window.open('/admin/event-types', '_blank');
+          return false;
+        }
+        
+        // Auto-submit the form for filtering
+        console.log('Auto-submitting filter form...');
+        setTimeout(function() {
+          $form.submit();
+        }, 100);
+      });
+      
+      // Handle search input with debouncing
+      $form.find('input[name="q"]').on('input', function() {
+        const $this = $(this);
+        const searchValue = $this.val();
+        
+        // Clear previous timeout
+        clearTimeout($this.data('search-timeout'));
+        
+        // Set new timeout for search
+        $this.data('search-timeout', setTimeout(function() {
+          console.log('Search input changed:', searchValue);
+          console.log('Auto-submitting search form...');
+          $form.submit();
+        }, 800)); // Wait 800ms after user stops typing
+      });
+      
+      // Handle search input with Enter key (immediate)
+      $form.find('input[name="q"]').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+          e.preventDefault();
+          const $this = $(this);
+          clearTimeout($this.data('search-timeout'));
+          console.log('Search submitted via Enter key:', $this.val());
+          $form.submit();
+        }
+      });
+      
+      // Handle explicit search button click
+      $form.find('button[type="submit"]').on('click', function(e) {
+        console.log('Search button clicked');
+        // Let the default form submission happen
+      });
+      
+      console.log('Rapid response filters initialized successfully');
+      
+      // Debug: Show current active filters
+      const activeFilters = {};
+      $form.find('input, select').each(function() {
+        const $field = $(this);
+        const name = $field.attr('name');
+        const value = $field.val();
+        if (name && value) {
+          activeFilters[name] = value;
+        }
+      });
+      
+      if (Object.keys(activeFilters).length > 0) {
+        console.log('Current active filters:', activeFilters);
+      } else {
+        console.log('No active filters - showing all results');
       }
     });
-
-    // Initialize functionality
-    initializeCountryFilter();
-    
-    console.log('Country filter and event type management initialized');
   });
-});
-
 })();
 </script>
 
