@@ -108,56 +108,7 @@
             <div class="row">
               <div class="col-md-12">
                 
-                <!-- Key Information Summary (Above Overview) -->
-                {% if c.page.key_info %}
-                <div class="key-info-summary" style="margin-bottom: 2rem;">
-                  <section class="module module-narrow">
-                    <div class="module-content" style="padding: 1.5rem 2rem;">
-                      {% set key_info_lines = c.page.key_info.split('\n') if c.page.key_info else [] %}
-                      {% set summary_items = [] %}
-                      {% for line in key_info_lines %}
-                        {% if line.strip() and ':' in line %}
-                          {% set parts = line.split(':', 1) %}
-                          {% if parts|length == 2 %}
-                            {% set label = parts[0].strip() %}
-                            {% if label in ['Event Start', 'Activation', 'Estimated number of people affected', 'Estimated number of casualties', 'Cities Affected'] %}
-                              {% set _ = summary_items.append({'label': label, 'value': parts[1].strip()}) %}
-                            {% endif %}
-                          {% endif %}
-                        {% endif %}
-                      {% endfor %}
-                      
-                      {% if summary_items %}
-                      <div class="key-info-summary-content">
-                        <div class="summary-items">
-                          {% for item in summary_items[:3] %}
-                            <div class="summary-item">
-                              <span class="summary-label">{{ item.label }}:</span>
-                              <span class="summary-value">{{ item.value }}</span>
-                            </div>
-                          {% endfor %}
-                        </div>
-                        
-                        {% if summary_items|length > 3 %}
-                        <div class="summary-items-extra" style="display: none;">
-                          {% for item in summary_items[3:] %}
-                            <div class="summary-item">
-                              <span class="summary-label">{{ item.label }}:</span>
-                              <span class="summary-value">{{ item.value }}</span>
-                            </div>
-                          {% endfor %}
-                        </div>
-                        
-                        <button type="button" class="btn btn-link btn-sm key-summary-toggle">
-                          <i class="fa fa-plus"></i> {{ _('Show more details') }}
-                        </button>
-                        {% endif %}
-                      </div>
-                      {% endif %}
-                    </div>
-                  </section>
-                </div>
-                {% endif %}
+                
                 
                 <!-- 1. Event Overview (Main Content) -->
                 {% if c.page.content %}

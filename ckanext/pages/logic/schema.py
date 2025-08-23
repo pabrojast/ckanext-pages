@@ -31,9 +31,20 @@ def default_pages_schema():
         'key_info': [ignore_missing, unicode_safe],
         'image_carousel': [ignore_missing, unicode_safe],
         'map_stories': [ignore_missing, unicode_safe],
+        'spatial_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for spatial content blocks
         'additional_content': [ignore_missing, unicode_safe],
         'header_image': [ignore_missing, unicode_safe],
         'excerpt': [ignore_missing, unicode_safe],
+        # Key Information fields for rapid response
+        'key_event_start': [ignore_missing, unicode_safe],          # Event start date
+        'key_activation': [ignore_missing, unicode_safe],           # Activation date
+        'key_world_heritage_sites': [ignore_missing, unicode_safe], # World Heritage Sites
+        'key_biosphere_reserves': [ignore_missing, unicode_safe],   # Biosphere Reserves
+        'key_geoparks': [ignore_missing, unicode_safe],             # Geoparks
+        'key_people_affected': [ignore_missing, unicode_safe],      # People affected
+        'key_casualties': [ignore_missing, unicode_safe],           # Casualties
+        'key_damage_usd': [ignore_missing, unicode_safe],           # Damage in USD
+        'key_cities_affected': [ignore_missing, unicode_safe],      # Cities affected
         'timeline_events': [ignore_missing, unicode_safe],  # Dynamic timeline events
         'uploaded_images': [ignore_missing, unicode_safe],  # Uploaded images metadata
         'image_gallery': [ignore_missing, unicode_safe],     # Enhanced image gallery

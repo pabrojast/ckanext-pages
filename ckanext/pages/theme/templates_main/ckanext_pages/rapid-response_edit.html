@@ -298,14 +298,14 @@
                                   <div class="form-group">
                                     <label for="key-event-start" class="control-label">{{ _('Event Start') }}</label>
                                     <input type="date" id="key-event-start" name="key_event_start" 
-                                           value="{{ key_info_data.get('Event Start', '') }}" class="rr-form-control">
+                                           value="{{ data.key_event_start or '' }}" class="rr-form-control">
                                   </div>
                                 </div>
                                 <div class="col-md-6">
                                   <div class="form-group">
                                     <label for="key-activation" class="control-label">{{ _('Activation') }}</label>
                                     <input type="date" id="key-activation" name="key_activation" 
-                                           value="{{ key_info_data.get('Activation', '') }}" class="rr-form-control">
+                                           value="{{ data.key_activation or '' }}" class="rr-form-control">
                                   </div>
                                 </div>
                               </div>
@@ -319,7 +319,7 @@
                                   <div class="form-group">
                                     <label for="key-world-heritage" class="control-label">{{ _('World Heritage Sites') }}</label>
                                     <input type="text" id="key-world-heritage" name="key_world_heritage_sites" 
-                                           value="{{ key_info_data.get('World Heritage Sites', '') }}" 
+                                           value="{{ data.key_world_heritage_sites or '' }}" 
                                            placeholder="{{ _('none') }}" class="rr-form-control">
                                   </div>
                                 </div>
@@ -327,7 +327,7 @@
                                   <div class="form-group">
                                     <label for="key-biosphere" class="control-label">{{ _('Biosphere Reserves') }}</label>
                                     <input type="text" id="key-biosphere" name="key_biosphere_reserves" 
-                                           value="{{ key_info_data.get('Biosphere Reserves', '') }}" 
+                                           value="{{ data.key_biosphere_reserves or '' }}" 
                                            placeholder="{{ _('none') }}" class="rr-form-control">
                                   </div>
                                 </div>
@@ -335,7 +335,7 @@
                                   <div class="form-group">
                                     <label for="key-geoparks" class="control-label">{{ _('Geoparks') }}</label>
                                     <input type="text" id="key-geoparks" name="key_geoparks" 
-                                           value="{{ key_info_data.get('Geoparks', '') }}" 
+                                           value="{{ data.key_geoparks or '' }}" 
                                            placeholder="{{ _('none') }}" class="rr-form-control">
                                   </div>
                                 </div>
@@ -350,7 +350,7 @@
                                   <div class="form-group">
                                     <label for="key-people-affected" class="control-label">{{ _('Estimated number of people affected') }}</label>
                                     <input type="text" id="key-people-affected" name="key_people_affected" 
-                                           value="{{ key_info_data.get('Estimated number of people affected', '') }}" 
+                                           value="{{ data.key_people_affected or '' }}" 
                                            placeholder="{{ _('12,000') }}" class="rr-form-control">
                                   </div>
                                 </div>
@@ -358,7 +358,7 @@
                                   <div class="form-group">
                                     <label for="key-casualties" class="control-label">{{ _('Estimated number of casualties') }}</label>
                                     <input type="text" id="key-casualties" name="key_casualties" 
-                                           value="{{ key_info_data.get('Estimated number of casualties', '') }}" 
+                                           value="{{ data.key_casualties or '' }}" 
                                            placeholder="{{ _('9') }}" class="rr-form-control">
                                   </div>
                                 </div>
@@ -366,7 +366,7 @@
                                   <div class="form-group">
                                     <label for="key-damage-usd" class="control-label">{{ _('Estimated Damage (USD)') }}</label>
                                     <input type="text" id="key-damage-usd" name="key_damage_usd" 
-                                           value="{{ key_info_data.get('Estimated Damage (USD)', '') }}" 
+                                           value="{{ data.key_damage_usd or '' }}" 
                                            placeholder="{{ _('To be determined') }}" class="rr-form-control">
                                   </div>
                                 </div>
@@ -376,7 +376,7 @@
                                   <div class="form-group">
                                     <label for="key-cities-affected" class="control-label">{{ _('Cities Affected') }}</label>
                                     <input type="text" id="key-cities-affected" name="key_cities_affected" 
-                                           value="{{ key_info_data.get('Cities Affected', '') }}" 
+                                           value="{{ data.key_cities_affected or '' }}" 
                                            placeholder="{{ _('Mindelo, Porto Novo') }}" class="rr-form-control">
                                     <div class="help-text">{{ _('Separate multiple cities with commas') }}</div>
                                   </div>
