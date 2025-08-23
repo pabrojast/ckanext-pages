@@ -150,6 +150,12 @@ class Page(DomainObject, BaseModel):
             
             # Apply country filter (stored in extras JSON)
             if country:
+                # Debug logging for country filtering
+                import logging
+                log = logging.getLogger(__name__)
+                if log.isEnabledFor(logging.DEBUG):
+                    log.debug(f"Applying country filter: {country}")
+                
                 # Support both new countries_affected format and legacy country format
                 country_filter = sa.or_(
                     # New format: countries_affected with JSON array - check for country name in array
@@ -159,17 +165,27 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%"country": "' + country + '"%'),
                     # Backward compatibility: single country field
                     cls.extras.ilike('%"countries_affected": "' + country + '"%'),
-                    # General search in case of different JSON structure
+                    # Additional patterns for different JSON storage
+                    cls.extras.ilike('%"' + country + '"%'),
+                    # General search in case of different JSON structure (but more specific)
                     cls.extras.ilike('%' + country + '%')
                 )
                 query = query.filter(country_filter)
             
             # Apply activity status filter (stored in extras JSON)
             if activity_status:
+                # Debug logging for activity status filtering
+                import logging
+                log = logging.getLogger(__name__)
+                if log.isEnabledFor(logging.DEBUG):
+                    log.debug(f"Applying activity_status filter: {activity_status}")
+                
                 activity_filter = sa.or_(
-                    # Activity status stored in extras
+                    # Activity status stored in extras JSON - exact match
                     cls.extras.ilike('%"activity_status": "' + activity_status + '"%'),
-                    # Also check if it's stored in different format
+                    # Also check if it's stored without quotes around value
+                    cls.extras.ilike('%"activity_status":' + activity_status + '%'),
+                    # Check for alternative storage format
                     cls.extras.ilike('%activity_status%' + activity_status + '%')
                 )
                 query = query.filter(activity_filter)

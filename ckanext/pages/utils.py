@@ -40,6 +40,13 @@ def pages_list_pages(page_type):
         if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications', 'open-source-software']:
             data_dict['order_by'] = 'recent'  # Default to most recent first
     
+    # Additional filters for rapid-response pages
+    if page_type == 'rapid-response':
+        filter_params = ['country', 'activity_status', 'severity', 'event_status']
+        for param in filter_params:
+            if tk.request.args.get(param):
+                data_dict[param] = tk.request.args.get(param)
+    
     # Additional filters for open-source-software
     if page_type == 'open-source-software':
         filter_params = ['category', 'access_type', 'license', 'language', 'platform', 'attribution']

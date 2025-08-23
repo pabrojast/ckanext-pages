@@ -93,6 +93,12 @@ def _pages_list(context, data_dict):
     event_type = data_dict.get('event_type')  # Event type filter
     order_by = data_dict.get('order_by')  # Custom ordering
     
+    # Additional filters for rapid-response pages
+    country = data_dict.get('country')  # Country filter
+    activity_status = data_dict.get('activity_status')  # Activity status filter
+    severity = data_dict.get('severity')  # Severity filter
+    event_status = data_dict.get('event_status')  # Event status filter
+    
     if ordered:
         search['order'] = True
     if page_type:
@@ -105,6 +111,14 @@ def _pages_list(context, data_dict):
         search['event_type'] = event_type
     if order_by:
         search['order_by'] = order_by
+    if country:
+        search['country'] = country
+    if activity_status:
+        search['activity_status'] = activity_status
+    if severity:
+        search['severity'] = severity
+    if event_status:
+        search['event_status'] = event_status
         
     if not org_id:
         search['group_id'] = None
@@ -128,6 +142,14 @@ def _pages_list(context, data_dict):
         if not ensure_valid_session():
             log.error("Database session is invalid, returning empty list")
             return []
+        
+        # Debug logging for filtering
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug(f"Pages list search parameters: {search}")
+            if country:
+                log.debug(f"Filtering by country: {country}")
+            if activity_status:
+                log.debug(f"Filtering by activity_status: {activity_status}")
             
         out = db.Page.pages(**search)
     except Exception as e:
