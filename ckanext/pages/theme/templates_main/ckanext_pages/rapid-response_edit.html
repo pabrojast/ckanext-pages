@@ -486,6 +486,10 @@
                             
                             <!-- Hidden field to store the final content -->
                             <textarea id="field-map-stories" name="map_stories" style="display: none;">{{ data.map_stories or '' }}</textarea>
+                            
+                            <!-- Hidden field to store spatial blocks metadata -->
+                            <input type="hidden" id="spatial-blocks-metadata" name="spatial_blocks_metadata" value="{{ data.spatial_blocks_metadata or '' }}">
+                            
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>
                         </fieldset>
@@ -2895,14 +2899,67 @@ textarea.rr-form-control {
   }
 
   function loadExistingSpatialContent() {
-    const existingContent = $('#field-map-stories').val();
-    if (existingContent && existingContent.trim()) {
-      // Parse existing content and convert to blocks
-      // For now, create a single text block with existing content
-      addTextBlock(existingContent);
+    // First try to load from blocks metadata
+    const blocksMetadata = $('#spatial-blocks-metadata').val();
+    
+    if (blocksMetadata && blocksMetadata.trim()) {
+      try {
+        const blocks = JSON.parse(blocksMetadata);
+        
+        // Clear existing blocks
+        spatialBlocks = [];
+        spatialBlockCounter = 0;
+        $('#spatial-content-blocks').empty();
+        
+        // Recreate blocks from metadata
+        blocks.forEach(blockData => {
+          if (blockData.type === 'text') {
+            const block = {
+              id: blockData.id || ('spatial-block-' + (++spatialBlockCounter)),
+              type: 'text',
+              content: blockData.content || ''
+            };
+            
+            spatialBlocks.push(block);
+            renderTextBlock(block);
+            
+          } else if (blockData.type === 'iframe') {
+            const block = {
+              id: blockData.id || ('spatial-block-' + (++spatialBlockCounter)),
+              type: 'iframe',
+              title: blockData.title || '',
+              url: blockData.url || '',
+              width: blockData.width || '100%',
+              height: blockData.height || '600'
+            };
+            
+            spatialBlocks.push(block);
+            renderIframeBlock(block);
+          }
+        });
+        
+        // Update counter to avoid conflicts
+        spatialBlockCounter = Math.max(spatialBlockCounter, blocks.length);
+        
+      } catch (e) {
+        console.warn('Error parsing spatial blocks metadata, falling back to HTML content:', e);
+        loadFromHTMLContent();
+      }
+    } else {
+      // Fallback to existing HTML content
+      loadFromHTMLContent();
     }
     
     updateBlocksDisplay();
+  }
+  
+  // Fallback function to load from HTML content (legacy behavior)
+  function loadFromHTMLContent() {
+    const existingContent = $('#field-map-stories').val();
+    if (existingContent && existingContent.trim()) {
+      // Create a single text block with existing content
+      addTextBlock(existingContent);
+    }
   }
 
   function addTextBlock(content = '') {
@@ -3227,6 +3284,7 @@ textarea.rr-form-control {
   function updateSpatialContentField() {
     let finalContent = '';
     
+    // Generate HTML content for display
     spatialBlocks.forEach((block, index) => {
       if (block.type === 'text' && block.content && block.content.trim()) {
         finalContent += block.content;
@@ -3249,7 +3307,21 @@ textarea.rr-form-control {
       }
     });
     
+    // Save final HTML content
     $('#field-map-stories').val(finalContent);
+    
+    // Save blocks metadata for future editing
+    const blocksMetadata = spatialBlocks.map(block => ({
+      id: block.id,
+      type: block.type,
+      content: block.content,
+      title: block.title,
+      url: block.url,
+      width: block.width,
+      height: block.height
+    }));
+    
+    $('#spatial-blocks-metadata').val(JSON.stringify(blocksMetadata));
   }
 
   // Initialize
