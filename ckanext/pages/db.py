@@ -106,6 +106,7 @@ class Page(DomainObject, BaseModel):
             event_type = kw.pop('event_type', None) 
             priority = kw.pop('priority', None)
             country = kw.pop('country', None)
+            activity_status = kw.pop('activity_status', None)
             order_by = kw.pop('order_by', None)
 
             # Base query - explicitly select all columns to avoid column mapping issues
@@ -162,6 +163,16 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%' + country + '%')
                 )
                 query = query.filter(country_filter)
+            
+            # Apply activity status filter (stored in extras JSON)
+            if activity_status:
+                activity_filter = sa.or_(
+                    # Activity status stored in extras
+                    cls.extras.ilike('%"activity_status": "' + activity_status + '"%'),
+                    # Also check if it's stored in different format
+                    cls.extras.ilike('%activity_status%' + activity_status + '%')
+                )
+                query = query.filter(activity_filter)
             
             # Apply ordering - simplified to avoid complex CASE statements that might cause issues
             if order_by == 'recent':

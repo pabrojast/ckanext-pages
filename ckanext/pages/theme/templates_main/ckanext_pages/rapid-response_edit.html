@@ -282,7 +282,7 @@
                               {% if line.strip() and ':' in line %}
                                 {% set parts = line.split(':', 1) %}
                                 {% if parts|length == 2 %}
-                                  {% set key_info_data = key_info_data.update({parts[0].strip(): parts[1].strip()}) or key_info_data %}
+                                  {% do key_info_data.update({parts[0].strip(): parts[1].strip()}) %}
                                 {% endif %}
                               {% endif %}
                             {% endfor %}
