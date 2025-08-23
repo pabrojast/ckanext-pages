@@ -499,15 +499,16 @@
                                 {% endif %}
                                 
                                 {% if content_text %}
-                                  <p class="event-excerpt-modern">
+                                  <div class="event-excerpt-modern">
                                     <span class="excerpt-preview">{{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}</span>
                                     {% if content_text|length > 200 %}
                                       <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
-                                      <button type="button" class="btn btn-link btn-sm read-more-btn" onclick="toggleEventExcerpt(this)">
+                                      <br>
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
                                         <i class="fa fa-plus"></i> {{ _('Read more') }}
                                       </button>
                                     {% endif %}
-                                  </p>
+                                  </div>
                                 {% endif %}
                               </div>
                               
@@ -1497,12 +1498,17 @@
   }
 
   /* When expanded, show full text and hide preview */
-  .read-more-btn.expanded ~ .excerpt-full {
+  .event-excerpt-modern.expanded .excerpt-full {
     display: inline !important;
   }
 
-  .read-more-btn.expanded ~ .excerpt-preview {
+  .event-excerpt-modern.expanded .excerpt-preview {
     display: none !important;
+  }
+
+  /* Animation for smooth transitions */
+  .excerpt-full, .excerpt-preview {
+    transition: opacity 0.3s ease;
   }
 
 /* Enhanced Button Styles */
@@ -1693,51 +1699,29 @@
 
 <!-- JavaScript for Read More functionality -->
 <script>
-function toggleExcerpt(button) {
-  const eventExcerpt = button.parentElement;
-  const preview = eventExcerpt.querySelector('.excerpt-preview');
-  const full = eventExcerpt.querySelector('.excerpt-full');
-  const icon = button.querySelector('i');
-  
-  if (full.style.display === 'none') {
-    // Show full text
-    preview.style.display = 'none';
-    full.style.display = 'inline';
-    button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
-    button.classList.add('expanded');
-  } else {
-    // Show preview text
-    preview.style.display = 'inline';
-    full.style.display = 'none';
-    button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
-    button.classList.remove('expanded');
-  }
-}
-
-// Modern Event Read More functionality with improved error handling
+// Fixed Read More functionality - using CSS classes instead of inline styles
 function toggleEventExcerpt(button) {
   try {
-    const eventExcerpt = button.parentElement;
+    const eventExcerpt = button.closest('.event-excerpt-modern');
     const preview = eventExcerpt.querySelector('.excerpt-preview');
     const full = eventExcerpt.querySelector('.excerpt-full');
+    const icon = button.querySelector('i');
     
-    if (!preview || !full) {
+    if (!preview || !full || !eventExcerpt) {
       console.error('Read more elements not found');
       return;
     }
     
-    const isExpanded = full.style.display !== 'none';
+    const isExpanded = eventExcerpt.classList.contains('expanded');
     
     if (!isExpanded) {
       // Show full text
-      preview.style.display = 'none';
-      full.style.display = 'inline';
+      eventExcerpt.classList.add('expanded');
       button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
       button.classList.add('expanded');
     } else {
       // Show preview text
-      preview.style.display = 'inline';
-      full.style.display = 'none';
+      eventExcerpt.classList.remove('expanded');
       button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
       button.classList.remove('expanded');
     }
@@ -1746,14 +1730,24 @@ function toggleEventExcerpt(button) {
   }
 }
 
-// Also add delegated event listener for better compatibility
+// Delegated event listener for dynamic content
 $(document).ready(function() {
+  // Remove any existing handlers first
+  $(document).off('click', '.read-more-btn');
+  
+  // Add new delegated event handler
   $(document).on('click', '.read-more-btn', function(e) {
     e.preventDefault();
+    e.stopPropagation();
     toggleEventExcerpt(this);
   });
+  
+  console.log('Read more functionality initialized');
 });
+</script>
 
+<!-- Country Filter Support Script -->
+<script>
 // Enhanced Country Filter Support
 function initializeCountryFilter() {
   // Function to check if page matches country filter
