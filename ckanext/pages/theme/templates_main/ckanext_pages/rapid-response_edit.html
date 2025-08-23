@@ -210,13 +210,36 @@
                           </div>
                           
                           <div class="form-group">
-                            <label for="field-severity" class="control-label">{{ _('Severity Level') }}</label>
+                            <label for="field-severity" class="control-label">{{ _('GDACS Alert Level') }}</label>
                             <select id="field-severity" name="severity" class="rr-form-control">
-                              <option value="">{{ _('Select severity...') }}</option>
-                              <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact') }}</option>
-                              <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact') }}</option>
+                              <option value="">{{ _('Select GDACS alert level...') }}</option>
+                              <!-- General Alert Levels -->
+                              <optgroup label="{{ _('General Alerts') }}">
+                                <option value="red_alert" {% if data.severity == 'red_alert' %}selected{% endif %}>{{ _('Red Alert') }}</option>
+                                <option value="orange_alert" {% if data.severity == 'orange_alert' %}selected{% endif %}>{{ _('Orange Alert') }}</option>
+                                <option value="green_alert" {% if data.severity == 'green_alert' %}selected{% endif %}>{{ _('Green Alert') }}</option>
+                              </optgroup>
+                              <!-- Tropical Cyclone Categories -->
+                              <optgroup label="{{ _('Tropical Cyclone Categories') }}">
+                                <option value="category_5" {% if data.severity == 'category_5' %}selected{% endif %}>{{ _('Category 5') }}</option>
+                                <option value="category_4" {% if data.severity == 'category_4' %}selected{% endif %}>{{ _('Category 4') }}</option>
+                                <option value="category_3" {% if data.severity == 'category_3' %}selected{% endif %}>{{ _('Category 3') }}</option>
+                                <option value="category_2" {% if data.severity == 'category_2' %}selected{% endif %}>{{ _('Category 2') }}</option>
+                                <option value="category_1" {% if data.severity == 'category_1' %}selected{% endif %}>{{ _('Category 1') }}</option>
+                                <option value="tropical_storm" {% if data.severity == 'tropical_storm' %}selected{% endif %}>{{ _('Tropical Storm') }}</option>
+                                <option value="tropical_depression" {% if data.severity == 'tropical_depression' %}selected{% endif %}>{{ _('Tropical Depression') }}</option>
+                              </optgroup>
+                              <!-- Legacy compatibility -->
+                              <optgroup label="{{ _('Legacy Levels (deprecated)') }}">
+                                <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact (legacy)') }}</option>
+                                <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact (legacy)') }}</option>
+                              </optgroup>
                             </select>
-                            <div class="help-text">{{ _('Expected or assessed impact level of the emergency') }}</div>
+                            <div class="help-text">
+                              {{ _('Select GDACS alert level based on disaster type:') }}<br>
+                              <strong>{{ _('Floods, Drought, Volcano, Tsunami, Earthquake, Wildfire:') }}</strong> {{ _('Red/Orange/Green Alert') }}<br>
+                              <strong>{{ _('Tropical Cyclones:') }}</strong> {{ _('Category 5/4/3/2/1, Tropical Storm, or Tropical Depression') }}
+                            </div>
                             {% if errors.severity %}<span class="error-block">{{ errors.severity }}</span>{% endif %}
                           </div>
                           

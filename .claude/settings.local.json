@@ -15,7 +15,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(rm:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "WebFetch(domain:www.gdacs.org)",
+      "WebSearch"
     ],
     "deny": []
   }

@@ -483,17 +483,60 @@
                               
                               <!-- Action Row -->
                               <div class="event-actions-modern">
-                                <!-- Impact Level -->
+                                <!-- GDACS Alert Level -->
                                 <div class="impact-info-modern">
                                   {% set severity_level = page.severity or '' %}
                                   {% if severity_level %}
-                                    {% if severity_level == 'moderate' %}
+                                    <!-- GDACS General Alerts -->
+                                    {% if severity_level == 'red_alert' %}
+                                      <span class="impact-badge impact-red-alert">
+                                        <i class="fa fa-exclamation-triangle"></i> {{ _('Red Alert') }}
+                                      </span>
+                                    {% elif severity_level == 'orange_alert' %}
+                                      <span class="impact-badge impact-orange-alert">
+                                        <i class="fa fa-warning"></i> {{ _('Orange Alert') }}
+                                      </span>
+                                    {% elif severity_level == 'green_alert' %}
+                                      <span class="impact-badge impact-green-alert">
+                                        <i class="fa fa-info-circle"></i> {{ _('Green Alert') }}
+                                      </span>
+                                    <!-- Tropical Cyclone Categories -->
+                                    {% elif severity_level == 'category_5' %}
+                                      <span class="impact-badge impact-category-5">
+                                        <i class="fa fa-bolt"></i> {{ _('Category 5') }}
+                                      </span>
+                                    {% elif severity_level == 'category_4' %}
+                                      <span class="impact-badge impact-category-4">
+                                        <i class="fa fa-bolt"></i> {{ _('Category 4') }}
+                                      </span>
+                                    {% elif severity_level == 'category_3' %}
+                                      <span class="impact-badge impact-category-3">
+                                        <i class="fa fa-bolt"></i> {{ _('Category 3') }}
+                                      </span>
+                                    {% elif severity_level == 'category_2' %}
+                                      <span class="impact-badge impact-category-2">
+                                        <i class="fa fa-cloud"></i> {{ _('Category 2') }}
+                                      </span>
+                                    {% elif severity_level == 'category_1' %}
+                                      <span class="impact-badge impact-category-1">
+                                        <i class="fa fa-cloud"></i> {{ _('Category 1') }}
+                                      </span>
+                                    {% elif severity_level == 'tropical_storm' %}
+                                      <span class="impact-badge impact-tropical-storm">
+                                        <i class="fa fa-cloud"></i> {{ _('Tropical Storm') }}
+                                      </span>
+                                    {% elif severity_level == 'tropical_depression' %}
+                                      <span class="impact-badge impact-tropical-depression">
+                                        <i class="fa fa-cloud"></i> {{ _('Tropical Depression') }}
+                                      </span>
+                                    <!-- Legacy compatibility -->
+                                    {% elif severity_level == 'moderate' %}
                                       <span class="impact-badge impact-moderate">
-                                        <i class="fa fa-info-circle"></i> {{ _('Moderate Impact') }}
+                                        <i class="fa fa-info-circle"></i> {{ _('Moderate Impact (legacy)') }}
                                       </span>
                                     {% elif severity_level == 'low' %}
                                       <span class="impact-badge impact-low">
-                                        <i class="fa fa-info-circle"></i> {{ _('Low Impact') }}
+                                        <i class="fa fa-info-circle"></i> {{ _('Low Impact (legacy)') }}
                                       </span>
                                     {% endif %}
                                   {% endif %}
@@ -1068,14 +1111,64 @@
   color: white;
 }
 
-/* Removed critical/high impact badges */
+/* GDACS Alert Level Badges */
 
+/* General GDACS Alerts */
+.impact-red-alert {
+  background: #dc3545;
+  animation: pulse-red 2s infinite;
+}
+
+.impact-orange-alert {
+  background: #fd7e14;
+  animation: pulse-orange 3s infinite;
+}
+
+.impact-green-alert {
+  background: #28a745;
+}
+
+/* Tropical Cyclone Categories */
+.impact-category-5 {
+  background: #8b0000;
+  animation: pulse-urgent 1.5s infinite;
+}
+
+.impact-category-4 {
+  background: #dc3545;
+  animation: pulse-red 2s infinite;
+}
+
+.impact-category-3 {
+  background: #fd7e14;
+  animation: pulse-orange 3s infinite;
+}
+
+.impact-category-2 {
+  background: #ffc107;
+}
+
+.impact-category-1 {
+  background: #17a2b8;
+}
+
+.impact-tropical-storm {
+  background: #6c757d;
+}
+
+.impact-tropical-depression {
+  background: #28a745;
+}
+
+/* Legacy compatibility */
 .impact-moderate {
   background: #fd7e14;
+  opacity: 0.8;
 }
 
 .impact-low {
   background: #28a745;
+  opacity: 0.8;
 }
 
 .impact-badge i {
