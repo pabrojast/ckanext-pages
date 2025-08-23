@@ -341,7 +341,7 @@
                                   <i class="fa fa-text-width"></i> {{ _('Text Block') }}
                                 </button>
                                 <button type="button" class="btn btn-success btn-sm" id="add-iframe-block">
-                                  <i class="fa fa-map"></i> {{ _('Map/Iframe Block') }}
+                                  <i class="fa fa-play-circle"></i> {{ _('Interactive Content Block') }}
                                 </button>
                               </div>
                             </div>
@@ -2537,11 +2537,10 @@ textarea.rr-form-control {
     const block = {
       id: blockId,
       type: 'iframe',
-      iframeType: 'custom',
       url: '',
       width: '100%',
       height: '600',
-      title: 'Interactive Map',
+      title: 'Interactive Content',
       ...iframeData
     };
     
@@ -2586,26 +2585,13 @@ textarea.rr-form-control {
   }
 
   function renderIframeBlock(block) {
-    const iframeTypes = [
-      { id: 'terria', name: '{{ _("Terria") }}', icon: 'fa-compass', template: 'https://ihp-wins.unesco.org/terria/#share=YOUR_SHARE_ID' },
-      { id: 'arcgis', name: '{{ _("ArcGIS") }}', icon: 'fa-map-o', template: 'https://www.arcgis.com/apps/mapviewer/index.html?webmap=YOUR_WEBMAP_ID' },
-      { id: 'copernicus', name: '{{ _("Copernicus") }}', icon: 'fa-globe', template: 'https://emergency.copernicus.eu/EMSR/?some=params' },
-      { id: 'custom', name: '{{ _("Custom URL") }}', icon: 'fa-map', template: '' }
-    ];
-
-    const typeButtonsHtml = iframeTypes.map(type => `
-      <div class="iframe-type-btn ${block.iframeType === type.id ? 'active' : ''}" data-type="${type.id}" data-template="${type.template}">
-        <i class="fa ${type.icon}"></i>
-        ${type.name}
-      </div>
-    `).join('');
 
     const html = `
       <div class="content-block" data-block-id="${block.id}">
         <div class="content-block-header">
           <h5 class="content-block-title">
             <i class="fa fa-map"></i>
-            {{ _('Interactive Map/Iframe') }}
+            {{ _('Interactive Content (Maps, Videos, etc.)') }}
           </h5>
           <div class="content-block-controls">
             <button type="button" class="btn btn-sm btn-default move-up" title="{{ _('Move Up') }}">
@@ -2621,16 +2607,19 @@ textarea.rr-form-control {
         </div>
         <div class="content-block-body">
           <div class="iframe-block-form">
-            <div class="iframe-type-selector">
-              ${typeButtonsHtml}
-            </div>
             <div class="form-group">
               <label>{{ _('Title') }}</label>
-              <input type="text" class="form-control iframe-title" value="${block.title}" placeholder="{{ _('Enter a title for this map') }}">
+              <input type="text" class="form-control iframe-title" value="${block.title}" placeholder="{{ _('Enter a title for this content') }}">
             </div>
             <div class="form-group">
-              <label>{{ _('URL') }}</label>
-              <input type="url" class="form-control iframe-url" value="${block.url}" placeholder="{{ _('Enter the iframe URL') }}">
+              <label>{{ _('Content URL or Embed Code') }}</label>
+              <textarea class="form-control iframe-url" rows="3" placeholder="{{ _('Enter iframe URL, YouTube URL, or paste embed code (iframe/embed tags)') }}">${block.url}</textarea>
+              <small class="form-text text-muted">
+                {{ _('Examples:') }}<br>
+                • {{ _('Map: https://ihp-wins.unesco.org/terria/#share/abc123') }}<br>
+                • {{ _('YouTube: https://www.youtube.com/watch?v=VIDEO_ID') }}<br>
+                • {{ _('Embed code: &lt;iframe src="..." &gt;&lt;/iframe&gt;') }}
+              </small>
             </div>
             <div class="row">
               <div class="col-sm-6">
@@ -2728,23 +2717,6 @@ textarea.rr-form-control {
     const blockEl = $(`[data-block-id="${blockId}"]`);
     const block = spatialBlocks.find(b => b.id === blockId);
     
-    // Type selector
-    blockEl.find('.iframe-type-btn').on('click', function() {
-      const type = $(this).data('type');
-      const template = $(this).data('template');
-      
-      blockEl.find('.iframe-type-btn').removeClass('active');
-      $(this).addClass('active');
-      
-      block.iframeType = type;
-      if (template && !block.url) {
-        block.url = template;
-        blockEl.find('.iframe-url').val(template);
-      }
-      
-      updateSpatialContentField();
-    });
-    
     // Form inputs
     blockEl.find('.iframe-title').on('input', function() {
       block.title = $(this).val();
@@ -2773,13 +2745,35 @@ textarea.rr-form-control {
         previewEl.hide();
       } else {
         if (block.url) {
-          const iframe = `<iframe src="${block.url}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
-          previewEl.html(iframe).show();
+          const processedContent = processContentForEmbed(block.url, '100%', '300');
+          previewEl.html(processedContent).show();
         } else {
-          alert('{{ _("Please enter a URL first") }}');
+          alert('{{ _("Please enter a URL or embed code first") }}');
         }
       }
     });
+  }
+
+  // Process content for embed - handles YouTube URLs, direct embeds, and regular URLs
+  function processContentForEmbed(content, width = '100%', height = '600') {
+    if (!content || !content.trim()) return '';
+    
+    content = content.trim();
+    
+    // Check if it's already an embed code (contains iframe or embed tags)
+    if (content.includes('<iframe') || content.includes('<embed')) {
+      return content;
+    }
+    
+    // Check if it's a YouTube URL
+    const youtubeMatch = content.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+    if (youtubeMatch) {
+      const videoId = youtubeMatch[1];
+      return `<iframe src="https://www.youtube.com/embed/${videoId}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
+    }
+    
+    // For any other URL, create a regular iframe
+    return `<iframe src="${content}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
   }
 
   function moveBlock(blockId, direction) {
@@ -2848,13 +2842,12 @@ textarea.rr-form-control {
       } else if (block.type === 'iframe' && block.url) {
         const height = block.height || '600';
         const width = block.width || '100%';
-        const title = block.title ? ` title="${block.title}"` : '';
         
         if (block.title && block.title.trim()) {
           finalContent += `<h3>${block.title}</h3>\n`;
         }
         
-        finalContent += `<iframe src="${block.url}" width="${width}" height="${height}" frameborder="0" allowfullscreen${title}></iframe>`;
+        finalContent += processContentForEmbed(block.url, width, height);
         
         if (index < spatialBlocks.length - 1) {
           finalContent += '\n\n';

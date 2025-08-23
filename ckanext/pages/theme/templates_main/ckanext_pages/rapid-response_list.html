@@ -1341,6 +1341,24 @@
     transform: rotate(45deg);
   }
 
+  /* Ensure proper display states for excerpt content */
+  .excerpt-full {
+    display: none !important;
+  }
+
+  .excerpt-preview {
+    display: inline !important;
+  }
+
+  /* When expanded, show full text and hide preview */
+  .read-more-btn.expanded ~ .excerpt-full {
+    display: inline !important;
+  }
+
+  .read-more-btn.expanded ~ .excerpt-preview {
+    display: none !important;
+  }
+
 /* Enhanced Button Styles */
 .btn-primary {
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
@@ -1550,27 +1568,45 @@ function toggleExcerpt(button) {
   }
 }
 
-// Modern Event Read More functionality
+// Modern Event Read More functionality with improved error handling
 function toggleEventExcerpt(button) {
-  const eventExcerpt = button.parentElement;
-  const preview = eventExcerpt.querySelector('.excerpt-preview');
-  const full = eventExcerpt.querySelector('.excerpt-full');
-  const icon = button.querySelector('i');
-  
-  if (full.style.display === 'none') {
-    // Show full text
-    preview.style.display = 'none';
-    full.style.display = 'inline';
-    button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
-    button.classList.add('expanded');
-  } else {
-    // Show preview text
-    preview.style.display = 'inline';
-    full.style.display = 'none';
-    button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
-    button.classList.remove('expanded');
+  try {
+    const eventExcerpt = button.parentElement;
+    const preview = eventExcerpt.querySelector('.excerpt-preview');
+    const full = eventExcerpt.querySelector('.excerpt-full');
+    
+    if (!preview || !full) {
+      console.error('Read more elements not found');
+      return;
+    }
+    
+    const isExpanded = full.style.display !== 'none';
+    
+    if (!isExpanded) {
+      // Show full text
+      preview.style.display = 'none';
+      full.style.display = 'inline';
+      button.innerHTML = '<i class="fa fa-minus"></i> {{ _("Read less") }}';
+      button.classList.add('expanded');
+    } else {
+      // Show preview text
+      preview.style.display = 'inline';
+      full.style.display = 'none';
+      button.innerHTML = '<i class="fa fa-plus"></i> {{ _("Read more") }}';
+      button.classList.remove('expanded');
+    }
+  } catch (error) {
+    console.error('Error in toggleEventExcerpt:', error);
   }
 }
+
+// Also add delegated event listener for better compatibility
+$(document).ready(function() {
+  $(document).on('click', '.read-more-btn', function(e) {
+    e.preventDefault();
+    toggleEventExcerpt(this);
+  });
+});
 
 // Enhanced Country Filter Support
 function initializeCountryFilter() {
