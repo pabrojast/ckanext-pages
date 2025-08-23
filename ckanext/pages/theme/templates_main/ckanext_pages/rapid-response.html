@@ -108,6 +108,57 @@
             <div class="row">
               <div class="col-md-12">
                 
+                <!-- Key Information Summary (Above Overview) -->
+                {% if c.page.key_info %}
+                <div class="key-info-summary" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2rem;">
+                      {% set key_info_lines = c.page.key_info.split('\n') if c.page.key_info else [] %}
+                      {% set summary_items = [] %}
+                      {% for line in key_info_lines %}
+                        {% if line.strip() and ':' in line %}
+                          {% set parts = line.split(':', 1) %}
+                          {% if parts|length == 2 %}
+                            {% set label = parts[0].strip() %}
+                            {% if label in ['Event Start', 'Activation', 'Estimated number of people affected', 'Estimated number of casualties', 'Cities Affected'] %}
+                              {% set _ = summary_items.append({'label': label, 'value': parts[1].strip()}) %}
+                            {% endif %}
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                      
+                      {% if summary_items %}
+                      <div class="key-info-summary-content">
+                        <div class="summary-items">
+                          {% for item in summary_items[:3] %}
+                            <div class="summary-item">
+                              <span class="summary-label">{{ item.label }}:</span>
+                              <span class="summary-value">{{ item.value }}</span>
+                            </div>
+                          {% endfor %}
+                        </div>
+                        
+                        {% if summary_items|length > 3 %}
+                        <div class="summary-items-extra" style="display: none;">
+                          {% for item in summary_items[3:] %}
+                            <div class="summary-item">
+                              <span class="summary-label">{{ item.label }}:</span>
+                              <span class="summary-value">{{ item.value }}</span>
+                            </div>
+                          {% endfor %}
+                        </div>
+                        
+                        <button type="button" class="btn btn-link btn-sm key-summary-toggle">
+                          <i class="fa fa-plus"></i> {{ _('Show more details') }}
+                        </button>
+                        {% endif %}
+                      </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+                
                 <!-- 1. Event Overview (Main Content) -->
                 {% if c.page.content %}
                 <div class="rapid-response-main-content" style="margin-bottom: 3rem;">
@@ -142,26 +193,54 @@
                         {% set key_info_lines = c.page.key_info.split('\n') if c.page.key_info else [] %}
                         {% if key_info_lines %}
                           <div class="key-info-table">
+                            {% set visible_rows = [] %}
+                            {% set hidden_rows = [] %}
+                            {% set row_count = 0 %}
+                            
                             {% for line in key_info_lines %}
                               {% if line.strip() and ':' in line %}
                                 {% set parts = line.split(':', 1) %}
                                 {% if parts|length == 2 %}
-                                  <div class="key-info-row">
-                                    <div class="key-info-label">
-                                      <i class="fa fa-info-circle"></i>
-                                      {{ parts[0].strip() }}
-                                    </div>
-                                    <div class="key-info-value">
-                                      {{ parts[1].strip() }}
-                                    </div>
-                                  </div>
+                                  {% set row_count = row_count + 1 %}
+                                  {% set row_html = '<div class="key-info-row"><div class="key-info-label"><i class="fa fa-info-circle"></i>' + parts[0].strip() + '</div><div class="key-info-value">' + parts[1].strip() + '</div></div>' %}
+                                  
+                                  {% if row_count <= 6 %}
+                                    {% set _ = visible_rows.append(row_html) %}
+                                  {% else %}
+                                    {% set _ = hidden_rows.append(row_html) %}
+                                  {% endif %}
                                 {% endif %}
                               {% elif line.strip() and ':' not in line %}
-                                <div class="key-info-note">
-                                  {{ line.strip() }}
-                                </div>
+                                {% set note_html = '<div class="key-info-note">' + line.strip() + '</div>' %}
+                                {% if row_count <= 6 %}
+                                  {% set _ = visible_rows.append(note_html) %}
+                                {% else %}
+                                  {% set _ = hidden_rows.append(note_html) %}
+                                {% endif %}
                               {% endif %}
                             {% endfor %}
+                            
+                            <!-- Always visible rows -->
+                            <div class="key-info-visible">
+                              {% for row in visible_rows %}
+                                {{ row | safe }}
+                              {% endfor %}
+                            </div>
+                            
+                            <!-- Collapsible rows -->
+                            {% if hidden_rows %}
+                            <div class="key-info-hidden" style="display: none;">
+                              {% for row in hidden_rows %}
+                                {{ row | safe }}
+                              {% endfor %}
+                            </div>
+                            
+                            <div class="key-info-toggle-container">
+                              <button type="button" class="btn btn-link key-info-toggle">
+                                <i class="fa fa-plus"></i> {{ _('Show all details') }} ({{ hidden_rows|length }} {{ _('more items') }})
+                              </button>
+                            </div>
+                            {% endif %}
                           </div>
                         {% else %}
                           <div class="key-info-placeholder">
@@ -1242,6 +1321,130 @@
   box-shadow: var(--shadow-medium);
 }
 
+/* Key Information Summary */
+.key-info-summary .module {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--unesco-blue);
+}
+
+.key-info-summary-content {
+  font-size: 0.95rem;
+}
+
+.summary-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid var(--unesco-blue);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.summary-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.summary-label {
+  font-weight: 600;
+  color: var(--unesco-blue);
+  margin-right: 0.5rem;
+  min-width: 120px;
+}
+
+.summary-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.key-summary-toggle {
+  color: var(--unesco-blue) !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.9rem !important;
+  text-decoration: none !important;
+  border: none !important;
+  background: none !important;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.key-summary-toggle:hover {
+  color: var(--unesco-blue-dark) !important;
+  background: var(--unesco-blue-pale) !important;
+  border-radius: 4px;
+}
+
+.key-summary-toggle i {
+  margin-right: 4px;
+  transition: transform 0.3s ease;
+}
+
+.key-summary-toggle.expanded i {
+  transform: rotate(45deg);
+}
+
+/* Key Information Toggle Buttons */
+.key-info-toggle-container {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--unesco-blue-pale);
+}
+
+.key-info-toggle {
+  color: var(--unesco-blue) !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.95rem !important;
+  text-decoration: none !important;
+  border: 2px solid var(--unesco-blue) !important;
+  background: white !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
+}
+
+.key-info-toggle:hover {
+  color: white !important;
+  background: var(--unesco-blue) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.3);
+}
+
+.key-info-toggle i {
+  margin-right: 6px;
+  transition: transform 0.3s ease;
+}
+
+.key-info-toggle.expanded i {
+  transform: rotate(45deg);
+}
+
+.key-info-hidden {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    overflow: visible;
+  }
+}
+
 /* Professional Responsive Design */
 @media (max-width: 1200px) {
   .rr-section-header {
@@ -1274,6 +1477,23 @@
   .section-title-meta {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  /* Key Information Summary responsive */
+  .summary-items {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .summary-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem;
+  }
+  
+  .summary-label {
+    min-width: auto;
+    margin-bottom: 0.25rem;
   }
   
   .module-content {
@@ -1539,9 +1759,52 @@
       }
     });
     
+    // Key Information Toggle Functionality
+    $('.key-summary-toggle').on('click', function(e) {
+      e.preventDefault();
+      const $this = $(this);
+      const $extra = $('.summary-items-extra');
+      const $icon = $this.find('i');
+      
+      if ($extra.is(':visible')) {
+        $extra.slideUp(300);
+        $icon.removeClass('fa-minus').addClass('fa-plus');
+        $this.removeClass('expanded').html('<i class="fa fa-plus"></i> ' + ($this.data('show-text') || 'Show more details'));
+      } else {
+        $extra.slideDown(300);
+        $icon.removeClass('fa-plus').addClass('fa-minus');
+        $this.addClass('expanded').html('<i class="fa fa-minus"></i> ' + ($this.data('hide-text') || 'Show less details'));
+      }
+    });
+    
+    $('.key-info-toggle').on('click', function(e) {
+      e.preventDefault();
+      const $this = $(this);
+      const $hidden = $('.key-info-hidden');
+      const $icon = $this.find('i');
+      
+      if ($hidden.is(':visible')) {
+        $hidden.slideUp(300);
+        $icon.removeClass('fa-minus').addClass('fa-plus');
+        $this.removeClass('expanded');
+        const originalText = $this.data('original-text') || $this.text();
+        $this.html('<i class="fa fa-plus"></i> ' + originalText.replace(/hide|Hide/gi, 'Show').replace(/less/gi, 'all'));
+      } else {
+        // Store original text
+        if (!$this.data('original-text')) {
+          $this.data('original-text', $this.text().trim());
+        }
+        
+        $hidden.slideDown(300);
+        $icon.removeClass('fa-plus').addClass('fa-minus');
+        $this.addClass('expanded').html('<i class="fa fa-minus"></i> Hide details');
+      }
+    });
+    
     // Debug info
     console.log('Rapid Response gallery initialized');
     console.log('Gallery images found:', $('.gallery-image').length);
+    console.log('Key info toggles initialized');
     
   }); // Close waitForJQuery function
 })(); // Close main function

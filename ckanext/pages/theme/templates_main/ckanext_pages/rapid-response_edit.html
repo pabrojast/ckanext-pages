@@ -273,17 +273,132 @@
                         <fieldset class="form-section">
                           <legend>{{ _('Key Information') }}</legend>
                           <div class="form-section-content">
-                          <p class="help-block">{{ _('Key facts about the emergency event. This information will be prominently displayed in a highlighted box.') }}</p>
-                          <div class="form-group">
-                            <label for="field-key-info" class="control-label">{{ _('Key Facts') }} <span class="text-danger">*</span></label>
-                            <textarea id="field-key-info" name="key_info" rows="8" class="rr-form-control" required
-                                      placeholder="{{ _('Activation: 15 December 2024\nEvent Date: 15 December 2024\nCountries Affected: Mozambique\nExposure: 2.5 million people\nUNESCO Sites: Ilha de Moçambique\nStatus: Active monitoring') }}">{{ data.key_info or '' }}</textarea>
-                            <div class="help-text">
-                              <strong>{{ _('Important:') }}</strong> {{ _('Enter one fact per line in format "Label: Value". Lines starting with "Countries Affected:" or "Country Affected:" are automatically counted for the countries summary.') }}
-                              <br><small class="text-muted">{{ _('Example: "Countries Affected: Mozambique, Tanzania" will count as 2 countries in the dashboard summary.') }}</small>
+                          <p class="help-block">{{ _('Structured key facts about the emergency event. Fill in the relevant fields - empty fields will not be displayed.') }}</p>
+                          
+                          <!-- Parse existing key_info data for editing -->
+                          {% set key_info_data = {} %}
+                          {% if data.key_info %}
+                            {% for line in data.key_info.split('\n') %}
+                              {% if line.strip() and ':' in line %}
+                                {% set parts = line.split(':', 1) %}
+                                {% if parts|length == 2 %}
+                                  {% set key_info_data = key_info_data.update({parts[0].strip(): parts[1].strip()}) or key_info_data %}
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                          {% endif %}
+                          
+                          <div class="key-info-structured">
+                            
+                            <!-- Event Timeline Section -->
+                            <div class="key-info-section">
+                              <h4 class="key-info-subtitle">{{ _('Event Timeline') }}</h4>
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="key-event-start" class="control-label">{{ _('Event Start') }}</label>
+                                    <input type="date" id="key-event-start" name="key_event_start" 
+                                           value="{{ key_info_data.get('Event Start', '') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label for="key-activation" class="control-label">{{ _('Activation') }}</label>
+                                    <input type="date" id="key-activation" name="key_activation" 
+                                           value="{{ key_info_data.get('Activation', '') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
+                            
+                            <!-- UNESCO Sites Section -->
+                            <div class="key-info-section">
+                              <h4 class="key-info-subtitle">{{ _('UNESCO Designated Sites Affected') }}</h4>
+                              <div class="row">
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="key-world-heritage" class="control-label">{{ _('World Heritage Sites') }}</label>
+                                    <input type="text" id="key-world-heritage" name="key_world_heritage_sites" 
+                                           value="{{ key_info_data.get('World Heritage Sites', '') }}" 
+                                           placeholder="{{ _('none') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="key-biosphere" class="control-label">{{ _('Biosphere Reserves') }}</label>
+                                    <input type="text" id="key-biosphere" name="key_biosphere_reserves" 
+                                           value="{{ key_info_data.get('Biosphere Reserves', '') }}" 
+                                           placeholder="{{ _('none') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="key-geoparks" class="control-label">{{ _('Geoparks') }}</label>
+                                    <input type="text" id="key-geoparks" name="key_geoparks" 
+                                           value="{{ key_info_data.get('Geoparks', '') }}" 
+                                           placeholder="{{ _('none') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Estimated Impact Section -->
+                            <div class="key-info-section">
+                              <h4 class="key-info-subtitle">{{ _('Estimated Impact') }}</h4>
+                              <div class="row">
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="key-people-affected" class="control-label">{{ _('Estimated number of people affected') }}</label>
+                                    <input type="text" id="key-people-affected" name="key_people_affected" 
+                                           value="{{ key_info_data.get('Estimated number of people affected', '') }}" 
+                                           placeholder="{{ _('12,000') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="key-casualties" class="control-label">{{ _('Estimated number of casualties') }}</label>
+                                    <input type="text" id="key-casualties" name="key_casualties" 
+                                           value="{{ key_info_data.get('Estimated number of casualties', '') }}" 
+                                           placeholder="{{ _('9') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                    <label for="key-damage-usd" class="control-label">{{ _('Estimated Damage (USD)') }}</label>
+                                    <input type="text" id="key-damage-usd" name="key_damage_usd" 
+                                           value="{{ key_info_data.get('Estimated Damage (USD)', '') }}" 
+                                           placeholder="{{ _('To be determined') }}" class="rr-form-control">
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-12">
+                                  <div class="form-group">
+                                    <label for="key-cities-affected" class="control-label">{{ _('Cities Affected') }}</label>
+                                    <input type="text" id="key-cities-affected" name="key_cities_affected" 
+                                           value="{{ key_info_data.get('Cities Affected', '') }}" 
+                                           placeholder="{{ _('Mindelo, Porto Novo') }}" class="rr-form-control">
+                                    <div class="help-text">{{ _('Separate multiple cities with commas') }}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Additional Custom Fields -->
+                            <div class="key-info-section">
+                              <h4 class="key-info-subtitle">{{ _('Additional Information') }}</h4>
+                              <div id="custom-key-info-fields">
+                                <!-- Dynamic custom fields will be added here -->
+                              </div>
+                              <button type="button" class="btn btn-default" id="add-custom-key-info">
+                                <i class="fa fa-plus"></i> {{ _('Add Custom Field') }}
+                              </button>
+                            </div>
                           </div>
+                          
+                          <!-- Hidden field to store compiled key_info -->
+                          <input type="hidden" id="field-key-info" name="key_info" value="{{ data.key_info or '' }}">
+                          {% if errors.key_info %}<span class="error-block">{{ errors.key_info }}</span>{% endif %}
                           </div>
                         </fieldset>
 
@@ -1593,6 +1708,101 @@ textarea.rr-form-control {
     justify-content: center;
   }
 }
+
+/* Key Information Structured Fields */
+.key-info-structured {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.key-info-section {
+  margin-bottom: 2rem;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.key-info-section:last-child {
+  margin-bottom: 0;
+}
+
+.key-info-subtitle {
+  color: var(--unesco-blue);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.custom-key-info-field {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.custom-key-info-field:hover {
+  background: #e9ecef;
+  border-color: var(--unesco-blue);
+}
+
+.remove-custom-field {
+  height: 34px;
+  width: 34px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0 !important;
+  transition: all 0.3s ease;
+}
+
+.remove-custom-field:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  transform: scale(1.1);
+}
+
+#add-custom-key-info {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border: none;
+  color: white;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#add-custom-key-info:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#add-custom-key-info i {
+  margin-right: 0.5rem;
+}
+
+#custom-key-info-fields:empty:before {
+  content: "No additional fields added yet. Click the button above to add custom information.";
+  display: block;
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
@@ -1633,6 +1843,132 @@ textarea.rr-form-control {
     return '';
   }
   
+  // Key Information Management
+  let customKeyInfoCounter = 0;
+  
+  // Function to update the hidden key_info field with structured data
+  function updateKeyInfoData() {
+    const keyInfoLines = [];
+    
+    // Event Timeline
+    const eventStart = $('#key-event-start').val();
+    const activation = $('#key-activation').val();
+    
+    if (eventStart) {
+      keyInfoLines.push('Event Start: ' + new Date(eventStart).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+    }
+    if (activation) {
+      keyInfoLines.push('Activation: ' + new Date(activation).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+    }
+    
+    // UNESCO Sites (add subtitle header)
+    const worldHeritage = $('#key-world-heritage').val();
+    const biosphere = $('#key-biosphere').val();
+    const geoparks = $('#key-geoparks').val();
+    
+    if (worldHeritage || biosphere || geoparks) {
+      keyInfoLines.push('UNESCO Designated Sites Affected');
+      if (worldHeritage) keyInfoLines.push('World Heritage Sites: ' + worldHeritage);
+      if (biosphere) keyInfoLines.push('Biosphere Reserves: ' + biosphere);
+      if (geoparks) keyInfoLines.push('Geoparks: ' + geoparks);
+    }
+    
+    // Estimated Impact (add subtitle header)
+    const peopleAffected = $('#key-people-affected').val();
+    const casualties = $('#key-casualties').val();
+    const damageUsd = $('#key-damage-usd').val();
+    const citiesAffected = $('#key-cities-affected').val();
+    
+    if (peopleAffected || casualties || damageUsd || citiesAffected) {
+      keyInfoLines.push('Estimated Impact');
+      if (peopleAffected) keyInfoLines.push('Estimated number of people affected: ' + peopleAffected);
+      if (casualties) keyInfoLines.push('Estimated number of casualties: ' + casualties);
+      if (damageUsd) keyInfoLines.push('Estimated Damage (USD): ' + damageUsd);
+      if (citiesAffected) keyInfoLines.push('Cities Affected: ' + citiesAffected);
+    }
+    
+    // Custom fields
+    $('.custom-key-info-field').each(function() {
+      const label = $(this).find('.custom-key-label').val();
+      const value = $(this).find('.custom-key-value').val();
+      if (label && value) {
+        keyInfoLines.push(label + ': ' + value);
+      }
+    });
+    
+    $('#field-key-info').val(keyInfoLines.join('\n'));
+  }
+  
+  // Function to add custom key info field
+  function addCustomKeyInfoField(label = '', value = '') {
+    customKeyInfoCounter++;
+    const fieldHtml = `
+      <div class="custom-key-info-field" data-id="${customKeyInfoCounter}">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <input type="text" class="custom-key-label rr-form-control" placeholder="${$('#add-custom-key-info').data('label-placeholder') || 'Label'}" value="${label}">
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="form-group">
+              <input type="text" class="custom-key-value rr-form-control" placeholder="${$('#add-custom-key-info').data('value-placeholder') || 'Value'}" value="${value}">
+            </div>
+          </div>
+          <div class="col-md-1">
+            <button type="button" class="btn btn-danger btn-sm remove-custom-field" style="margin-top: 0;">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    $('#custom-key-info-fields').append(fieldHtml);
+    updateKeyInfoData();
+  }
+  
+  // Load existing custom fields from key_info data
+  function loadExistingCustomFields() {
+    const keyInfoData = $('#field-key-info').val();
+    if (keyInfoData) {
+      const lines = keyInfoData.split('\n');
+      const standardFields = [
+        'Event Start', 'Activation', 'UNESCO Designated Sites Affected',
+        'World Heritage Sites', 'Biosphere Reserves', 'Geoparks',
+        'Estimated Impact', 'Estimated number of people affected',
+        'Estimated number of casualties', 'Estimated Damage (USD)', 'Cities Affected'
+      ];
+      
+      lines.forEach(line => {
+        if (line.trim() && line.includes(':')) {
+          const parts = line.split(':', 1);
+          const label = parts[0].trim();
+          const value = line.substring(line.indexOf(':') + 1).trim();
+          
+          // Check if this is not a standard field and not a subtitle
+          if (!standardFields.includes(label) && 
+              !['UNESCO Designated Sites Affected', 'Estimated Impact'].includes(line.trim())) {
+            addCustomKeyInfoField(label, value);
+          }
+        }
+      });
+    }
+  }
+  
+  // Event listeners for key info fields
+  $(document).on('input change', '#key-event-start, #key-activation, #key-world-heritage, #key-biosphere, #key-geoparks, #key-people-affected, #key-casualties, #key-damage-usd, #key-cities-affected', updateKeyInfoData);
+  
+  $(document).on('input change', '.custom-key-label, .custom-key-value', updateKeyInfoData);
+  
+  $('#add-custom-key-info').click(function() {
+    addCustomKeyInfoField();
+  });
+  
+  $(document).on('click', '.remove-custom-field', function() {
+    $(this).closest('.custom-key-info-field').remove();
+    updateKeyInfoData();
+  });
+
   // Timeline Events Management
   let timelineEventCounter = 0;
   let selectedCountries = [];
@@ -2885,6 +3221,10 @@ textarea.rr-form-control {
   loadTimelineEvents();
   loadUploadedImages();
   loadCountries();
+  
+  // Initialize Key Information structured fields
+  loadExistingCustomFields();
+  updateKeyInfoData();
   
   // Initialize Modular Spatial Content System
   initializeSpatialContentBlocks();
