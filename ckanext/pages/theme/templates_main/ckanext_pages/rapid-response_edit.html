@@ -1808,18 +1808,45 @@ textarea.rr-form-control {
 <!-- JavaScript for Enhanced Form Functionality -->
 <script>
 (function() {
-  // Wait for jQuery to be available
-  function waitForJQuery(callback) {
-    if (typeof jQuery !== 'undefined') {
-      callback(jQuery);
-    } else {
-      setTimeout(function() {
-        waitForJQuery(callback);
-      }, 50);
+  // Enhanced jQuery availability check with fallback handling
+  function waitForJQuery(callback, attempts) {
+    attempts = attempts || 0;
+    
+    // Check for both jQuery and $ availability
+    if (typeof jQuery !== 'undefined' && typeof $ !== 'undefined') {
+      try {
+        // Test basic jQuery functionality
+        if (typeof $().jquery !== 'undefined') {
+          callback($);
+          return;
+        }
+      } catch (e) {
+        console.warn('jQuery test failed:', e);
+      }
     }
+    
+    // If jQuery object exists but $ doesn't, create the alias
+    if (typeof jQuery !== 'undefined' && typeof $ === 'undefined') {
+      window.$ = jQuery;
+      callback(jQuery);
+      return;
+    }
+    
+    // Max attempts to prevent infinite loops
+    if (attempts > 200) { // 10 seconds max
+      console.error('jQuery failed to load after 10 seconds');
+      return;
+    }
+    
+    setTimeout(function() {
+      waitForJQuery(callback, attempts + 1);
+    }, 50);
   }
   
   waitForJQuery(function($) {
+  // Ensure DOM is ready before executing any jQuery operations
+  $(document).ready(function() {
+    
   // Utility function to format date for HTML date input
   function formatDateForInput(dateStr) {
     if (!dateStr) return '';
@@ -2200,9 +2227,13 @@ textarea.rr-form-control {
   });
   
   // Initialize event type ID on page load
-  const initialSelectedOption = $('#field-event-type').find('option:selected');
-  if (initialSelectedOption.length && initialSelectedOption.data('event-id')) {
-    $('#field-event-type-id').val(initialSelectedOption.data('event-id'));
+  try {
+    const initialSelectedOption = $('#field-event-type').find('option:selected');
+    if (initialSelectedOption.length && initialSelectedOption.data('event-id')) {
+      $('#field-event-type-id').val(initialSelectedOption.data('event-id'));
+    }
+  } catch (e) {
+    console.warn('Error initializing event type ID:', e);
   }
 
   // Event listeners
@@ -2264,7 +2295,11 @@ textarea.rr-form-control {
   $('#image-dropzone').on('dragleave', function(e) {
     e.preventDefault();
     e.stopPropagation();
-    $(this).removeClass('dragover');
+    try {
+      $(this).removeClass('dragover');
+    } catch (err) {
+      console.warn('Error handling dragleave:', err);
+    }
   });
   
   $('#image-dropzone').on('drop', function(e) {
@@ -3231,6 +3266,8 @@ textarea.rr-form-control {
   
   // Cargar Quill y editores
   waitForQuill(initializeQuillEditors);
+  
+  }); // Close document.ready
   }); // Close waitForJQuery function
 })(); // Close main function
 </script>
