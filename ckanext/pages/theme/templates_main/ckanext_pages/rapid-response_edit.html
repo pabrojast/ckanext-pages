@@ -322,56 +322,33 @@
                           </div>
                         </fieldset>
 
-                        <!-- 6. Spatial Data and Information -->
+                        <!-- 6. Spatial Data and Information - Modular System -->
                         <fieldset class="form-section">
                           <legend>{{ _('Spatial Data and Information') }}</legend>
                           <div class="form-section-content">
-                          <p class="help-block">{{ _('Interactive maps, GIS content, and spatial analysis. You can embed iframes from ArcGIS, Copernicus, or other mapping platforms.') }}</p>
-                          <div class="form-group">
-                            <label for="field-map-stories" class="control-label">{{ _('Spatial Data and Information') }}</label>
-                            <div class="editor-mode-toggle" style="margin-bottom: 0.5rem;">
-                              <button type="button" class="btn btn-default btn-sm" id="map-stories-toggle-source">
-                                <i class="fa fa-code"></i> {{ _('Source (Markdown/HTML)') }}
-                              </button>
+                            <p class="help-block">{{ _('Add content blocks to build your spatial data section. Mix text, maps, and interactive elements easily.') }}</p>
+                            
+                            <!-- Content Blocks Container -->
+                            <div id="spatial-content-blocks">
+                              <!-- Blocks will be added here -->
                             </div>
-                            <div id="map-stories-visual" class="quill-wrapper">
-                              <div id="map-stories-editor" class="quill-editor"></div>
-                            </div>
-                            <div id="map-stories-source" style="display: none;">
-                              <div class="map-tools" style="margin-bottom: 0.5rem; display:flex; flex-wrap:wrap; gap:6px;">
-                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe">
-                                  <i class="fa fa-map"></i> {{ _('Insert iframe') }}
+                            
+                            <!-- Add Block Controls -->
+                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
+                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new content block:') }}</p>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-text-block">
+                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
                                 </button>
-                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe-arcgis">
-                                  <i class="fa fa-map-o"></i> {{ _('ArcGIS iframe') }}
+                                <button type="button" class="btn btn-success btn-sm" id="add-iframe-block">
+                                  <i class="fa fa-map"></i> {{ _('Map/Iframe Block') }}
                                 </button>
-                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe-copernicus">
-                                  <i class="fa fa-globe"></i> {{ _('Copernicus iframe') }}
-                                </button>
-                                <button type="button" class="btn btn-default btn-sm" id="insert-iframe-terria">
-                                  <i class="fa fa-compass"></i> {{ _('Terria iframe') }}
-                                </button>
-                                <span style="width:12px;"></span>
-                                <button type="button" class="btn btn-default btn-sm" id="paste-markdown">
-                                  <i class="fa fa-clipboard"></i> {{ _('Paste Markdown') }}
-                                </button>
-                                <button type="button" class="btn btn-default btn-sm" id="convert-markdown">
-                                  <i class="fa fa-exchange"></i> {{ _('Convert Markdown') }}
-                                </button>
-                                <span style="width:12px;"></span>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-h2">H2</button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-h3">H3</button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-ul"><i class="fa fa-list-ul"></i></button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-ol"><i class="fa fa-list-ol"></i></button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-bold"><b>B</b></button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-italic"><i>I</i></button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-link"><i class="fa fa-link"></i></button>
-                                <button type="button" class="btn btn-default btn-sm" id="fmt-image"><i class="fa fa-image"></i></button>
                               </div>
-                              <textarea id="field-map-stories" name="map_stories" rows="10" class="rr-form-control" style="min-height: 280px;" placeholder="{{ _('Introduction\n\nIn response to the disaster...\n\nEmbed your interactive maps here using iframe tags.\n\n### Floods\n\n### Landslides') }}">{{ data.map_stories or '' }}</textarea>
                             </div>
+                            
+                            <!-- Hidden field to store the final content -->
+                            <textarea id="field-map-stories" name="map_stories" style="display: none;">{{ data.map_stories or '' }}</textarea>
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
-                          </div>
                           </div>
                         </fieldset>
 
@@ -1442,6 +1419,157 @@ textarea.rr-form-control {
 .editor-mode-toggle .btn {
   border-radius: 12px;
 }
+
+/* Modular Content Blocks System */
+.content-block {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.content-block:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.content-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  border-radius: 7px 7px 0 0;
+}
+
+.content-block-title {
+  font-weight: 600;
+  color: #495057;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content-block-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.content-block-controls .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.content-block-body {
+  padding: 1rem;
+}
+
+.text-block-editor {
+  min-height: 120px;
+}
+
+.iframe-block-form .form-group {
+  margin-bottom: 0.75rem;
+}
+
+.iframe-block-form .form-control {
+  font-size: 0.9rem;
+}
+
+.iframe-type-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.iframe-type-btn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.iframe-type-btn:hover {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.iframe-type-btn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.iframe-preview {
+  margin-top: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.iframe-preview iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+}
+
+.block-drag-handle {
+  cursor: grab;
+  color: #6c757d;
+}
+
+.block-drag-handle:active {
+  cursor: grabbing;
+}
+
+.content-blocks-container {
+  min-height: 60px;
+}
+
+.add-block-controls:hover {
+  background-color: #e9ecef !important;
+  border-color: #adb5bd;
+}
+
+/* Empty state */
+.spatial-blocks-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content-block-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .content-block-controls {
+    justify-content: center;
+  }
+  
+  .iframe-type-selector {
+    flex-direction: column;
+  }
+  
+  .iframe-type-btn {
+    justify-content: center;
+  }
+}
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
@@ -2345,10 +2473,406 @@ textarea.rr-form-control {
     console.log('Publish date field value:', publishDateValue);
   }
 
+  // ========================================
+  // MODULAR SPATIAL CONTENT BLOCKS SYSTEM
+  // ========================================
+  
+  let spatialBlocks = [];
+  let spatialBlockCounter = 0;
+  let spatialQuillEditors = {};
+
+  function initializeSpatialContentBlocks() {
+    // Load existing content if any
+    loadExistingSpatialContent();
+    
+    // Add event listeners for adding new blocks
+    $('#add-text-block').on('click', function() {
+      addTextBlock();
+    });
+    
+    $('#add-iframe-block').on('click', function() {
+      addIframeBlock();
+    });
+    
+    // Update hidden field when form is submitted
+    $('form').on('submit', function() {
+      updateSpatialContentField();
+    });
+  }
+
+  function loadExistingSpatialContent() {
+    const existingContent = $('#field-map-stories').val();
+    if (existingContent && existingContent.trim()) {
+      // Parse existing content and convert to blocks
+      // For now, create a single text block with existing content
+      addTextBlock(existingContent);
+    }
+    
+    updateBlocksDisplay();
+  }
+
+  function addTextBlock(content = '') {
+    const blockId = 'spatial-block-' + (++spatialBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'text',
+      content: content
+    };
+    
+    spatialBlocks.push(block);
+    renderTextBlock(block);
+    updateBlocksDisplay();
+    
+    // Focus on the new editor after it's created
+    setTimeout(function() {
+      const quill = spatialQuillEditors[blockId + '-editor'];
+      if (quill) {
+        quill.focus();
+      }
+    }, 100);
+  }
+
+  function addIframeBlock(iframeData = null) {
+    const blockId = 'spatial-block-' + (++spatialBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'iframe',
+      iframeType: 'custom',
+      url: '',
+      width: '100%',
+      height: '600',
+      title: 'Interactive Map',
+      ...iframeData
+    };
+    
+    spatialBlocks.push(block);
+    renderIframeBlock(block);
+    updateBlocksDisplay();
+  }
+
+  function renderTextBlock(block) {
+    const html = `
+      <div class="content-block" data-block-id="${block.id}">
+        <div class="content-block-header">
+          <h5 class="content-block-title">
+            <i class="fa fa-text-width"></i>
+            {{ _('Text Content') }}
+          </h5>
+          <div class="content-block-controls">
+            <button type="button" class="btn btn-sm btn-default move-up" title="{{ _('Move Up') }}">
+              <i class="fa fa-chevron-up"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-default move-down" title="{{ _('Move Down') }}">
+              <i class="fa fa-chevron-down"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-danger delete-block" title="{{ _('Delete') }}">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="content-block-body">
+          <div class="text-block-editor" id="${block.id}-editor"></div>
+        </div>
+      </div>
+    `;
+    
+    $('#spatial-content-blocks').append(html);
+    
+    // Initialize Quill editor for this block
+    initializeBlockTextEditor(block);
+    
+    // Add event listeners
+    addBlockEventListeners(block.id);
+  }
+
+  function renderIframeBlock(block) {
+    const iframeTypes = [
+      { id: 'terria', name: '{{ _("Terria") }}', icon: 'fa-compass', template: 'https://ihp-wins.unesco.org/terria/#share=YOUR_SHARE_ID' },
+      { id: 'arcgis', name: '{{ _("ArcGIS") }}', icon: 'fa-map-o', template: 'https://www.arcgis.com/apps/mapviewer/index.html?webmap=YOUR_WEBMAP_ID' },
+      { id: 'copernicus', name: '{{ _("Copernicus") }}', icon: 'fa-globe', template: 'https://emergency.copernicus.eu/EMSR/?some=params' },
+      { id: 'custom', name: '{{ _("Custom URL") }}', icon: 'fa-map', template: '' }
+    ];
+
+    const typeButtonsHtml = iframeTypes.map(type => `
+      <div class="iframe-type-btn ${block.iframeType === type.id ? 'active' : ''}" data-type="${type.id}" data-template="${type.template}">
+        <i class="fa ${type.icon}"></i>
+        ${type.name}
+      </div>
+    `).join('');
+
+    const html = `
+      <div class="content-block" data-block-id="${block.id}">
+        <div class="content-block-header">
+          <h5 class="content-block-title">
+            <i class="fa fa-map"></i>
+            {{ _('Interactive Map/Iframe') }}
+          </h5>
+          <div class="content-block-controls">
+            <button type="button" class="btn btn-sm btn-default move-up" title="{{ _('Move Up') }}">
+              <i class="fa fa-chevron-up"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-default move-down" title="{{ _('Move Down') }}">
+              <i class="fa fa-chevron-down"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-danger delete-block" title="{{ _('Delete') }}">
+              <i class="fa fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="content-block-body">
+          <div class="iframe-block-form">
+            <div class="iframe-type-selector">
+              ${typeButtonsHtml}
+            </div>
+            <div class="form-group">
+              <label>{{ _('Title') }}</label>
+              <input type="text" class="form-control iframe-title" value="${block.title}" placeholder="{{ _('Enter a title for this map') }}">
+            </div>
+            <div class="form-group">
+              <label>{{ _('URL') }}</label>
+              <input type="url" class="form-control iframe-url" value="${block.url}" placeholder="{{ _('Enter the iframe URL') }}">
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label>{{ _('Width') }}</label>
+                  <input type="text" class="form-control iframe-width" value="${block.width}" placeholder="100%">
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label>{{ _('Height (px)') }}</label>
+                  <input type="number" class="form-control iframe-height" value="${block.height}" placeholder="600">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-sm btn-info preview-iframe">
+                <i class="fa fa-eye"></i> {{ _('Preview') }}
+              </button>
+            </div>
+            <div class="iframe-preview" style="display: none;">
+              <!-- Preview will be inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    $('#spatial-content-blocks').append(html);
+    
+    // Add event listeners
+    addIframeBlockEventListeners(block.id);
+    addBlockEventListeners(block.id);
+  }
+
+  function initializeBlockTextEditor(block) {
+    const editorId = block.id + '-editor';
+    const editorEl = document.getElementById(editorId);
+    
+    if (!editorEl) return;
+    
+    // Wait for Quill to be available
+    waitForQuill(function() {
+      const quill = new Quill('#' + editorId, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ 'header': [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link', 'image'],
+            ['clean']
+          ]
+        },
+        placeholder: '{{ _("Enter your text content here...") }}'
+      });
+      
+      // Set initial content
+      if (block.content) {
+        quill.clipboard.dangerouslyPasteHTML(block.content);
+      }
+      
+      // Update block data on change
+      quill.on('text-change', function() {
+        block.content = quill.root.innerHTML;
+        updateSpatialContentField();
+      });
+      
+      spatialQuillEditors[editorId] = quill;
+    });
+  }
+
+  function addBlockEventListeners(blockId) {
+    const blockEl = $(`[data-block-id="${blockId}"]`);
+    
+    // Move up
+    blockEl.find('.move-up').on('click', function() {
+      moveBlock(blockId, 'up');
+    });
+    
+    // Move down
+    blockEl.find('.move-down').on('click', function() {
+      moveBlock(blockId, 'down');
+    });
+    
+    // Delete
+    blockEl.find('.delete-block').on('click', function() {
+      if (confirm('{{ _("Are you sure you want to delete this block?") }}')) {
+        deleteBlock(blockId);
+      }
+    });
+  }
+
+  function addIframeBlockEventListeners(blockId) {
+    const blockEl = $(`[data-block-id="${blockId}"]`);
+    const block = spatialBlocks.find(b => b.id === blockId);
+    
+    // Type selector
+    blockEl.find('.iframe-type-btn').on('click', function() {
+      const type = $(this).data('type');
+      const template = $(this).data('template');
+      
+      blockEl.find('.iframe-type-btn').removeClass('active');
+      $(this).addClass('active');
+      
+      block.iframeType = type;
+      if (template && !block.url) {
+        block.url = template;
+        blockEl.find('.iframe-url').val(template);
+      }
+      
+      updateSpatialContentField();
+    });
+    
+    // Form inputs
+    blockEl.find('.iframe-title').on('input', function() {
+      block.title = $(this).val();
+      updateSpatialContentField();
+    });
+    
+    blockEl.find('.iframe-url').on('input', function() {
+      block.url = $(this).val();
+      updateSpatialContentField();
+    });
+    
+    blockEl.find('.iframe-width').on('input', function() {
+      block.width = $(this).val();
+      updateSpatialContentField();
+    });
+    
+    blockEl.find('.iframe-height').on('input', function() {
+      block.height = $(this).val();
+      updateSpatialContentField();
+    });
+    
+    // Preview button
+    blockEl.find('.preview-iframe').on('click', function() {
+      const previewEl = blockEl.find('.iframe-preview');
+      if (previewEl.is(':visible')) {
+        previewEl.hide();
+      } else {
+        if (block.url) {
+          const iframe = `<iframe src="${block.url}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
+          previewEl.html(iframe).show();
+        } else {
+          alert('{{ _("Please enter a URL first") }}');
+        }
+      }
+    });
+  }
+
+  function moveBlock(blockId, direction) {
+    const blockIndex = spatialBlocks.findIndex(b => b.id === blockId);
+    if (blockIndex === -1) return;
+    
+    const newIndex = direction === 'up' ? blockIndex - 1 : blockIndex + 1;
+    if (newIndex < 0 || newIndex >= spatialBlocks.length) return;
+    
+    // Swap blocks
+    [spatialBlocks[blockIndex], spatialBlocks[newIndex]] = [spatialBlocks[newIndex], spatialBlocks[blockIndex]];
+    
+    // Re-render all blocks
+    renderAllBlocks();
+    updateSpatialContentField();
+  }
+
+  function deleteBlock(blockId) {
+    // Remove from array
+    spatialBlocks = spatialBlocks.filter(b => b.id !== blockId);
+    
+    // Remove from DOM
+    $(`[data-block-id="${blockId}"]`).remove();
+    
+    // Clean up editor
+    const editorId = blockId + '-editor';
+    if (spatialQuillEditors[editorId]) {
+      delete spatialQuillEditors[editorId];
+    }
+    
+    updateBlocksDisplay();
+    updateSpatialContentField();
+  }
+
+  function renderAllBlocks() {
+    $('#spatial-content-blocks').empty();
+    spatialBlocks.forEach(block => {
+      if (block.type === 'text') {
+        renderTextBlock(block);
+      } else if (block.type === 'iframe') {
+        renderIframeBlock(block);
+      }
+    });
+  }
+
+  function updateBlocksDisplay() {
+    const container = $('#spatial-content-blocks');
+    if (spatialBlocks.length === 0) {
+      if (!container.find('.spatial-blocks-empty').length) {
+        container.append('<div class="spatial-blocks-empty">{{ _("No content blocks yet. Use the buttons below to add text or iframe blocks.") }}</div>');
+      }
+    } else {
+      container.find('.spatial-blocks-empty').remove();
+    }
+  }
+
+  function updateSpatialContentField() {
+    let finalContent = '';
+    
+    spatialBlocks.forEach((block, index) => {
+      if (block.type === 'text' && block.content && block.content.trim()) {
+        finalContent += block.content;
+        if (index < spatialBlocks.length - 1) {
+          finalContent += '\n\n';
+        }
+      } else if (block.type === 'iframe' && block.url) {
+        const height = block.height || '600';
+        const width = block.width || '100%';
+        const title = block.title ? ` title="${block.title}"` : '';
+        
+        if (block.title && block.title.trim()) {
+          finalContent += `<h3>${block.title}</h3>\n`;
+        }
+        
+        finalContent += `<iframe src="${block.url}" width="${width}" height="${height}" frameborder="0" allowfullscreen${title}></iframe>`;
+        
+        if (index < spatialBlocks.length - 1) {
+          finalContent += '\n\n';
+        }
+      }
+    });
+    
+    $('#field-map-stories').val(finalContent);
+  }
+
   // Initialize
   loadTimelineEvents();
   loadUploadedImages();
   loadCountries();
+  
+  // Initialize Modular Spatial Content System
+  initializeSpatialContentBlocks();
+  
   // Cargar Quill y editores
   waitForQuill(initializeQuillEditors);
   }); // Close waitForJQuery function
