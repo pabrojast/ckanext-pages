@@ -485,6 +485,20 @@
                             <!-- Hidden field to store spatial blocks metadata -->
                             <input type="hidden" id="spatial-blocks-metadata" name="spatial_blocks_metadata" value="{{ data.spatial_blocks_metadata or '' }}">
                             
+                            <!-- Toggle button for generated HTML code -->
+                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
+                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-generated-code" style="border-color: #0072BC; color: #0072BC;">
+                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
+                              </button>
+                              <div id="generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
+                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code') }}</h5>
+                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
+                                  {{ _('This is the HTML code generated from your spatial content blocks. You can copy this code if needed, but it will be automatically generated when you save.') }}
+                                </p>
+                                <pre id="generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                              </div>
+                            </div>
+                            
                             {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
                           </div>
                         </fieldset>
@@ -2778,13 +2792,13 @@ textarea.rr-form-control {
     if (isLikelyMarkdown(md)) { ta.value = markdownToHtml(md); }
   });
 
-  // On load: make sure textarea is visible and clean if wrapped content detected
+  // On load: process textarea content but keep it hidden by default
   (function(){
     var $ta = $('#field-map-stories');
     if ($ta.length) {
-      if (!$ta.is(':visible') || ($ta.height() || 0) < 80) {
-        $ta.css({ display: 'block', minHeight: '280px' });
-      }
+      // Keep textarea hidden by default
+      $ta.css({ display: 'none' });
+      
       var val = $ta.val() || '';
       // If looks like Markdown, convert to HTML immediately so editor visual muestre bien
       if (isLikelyMarkdown(val)) {
@@ -3410,6 +3424,59 @@ textarea.rr-form-control {
   
   // Initialize Modular Spatial Content System
   initializeSpatialContentBlocks();
+  
+  // Initialize generated HTML code toggle functionality
+  $('#toggle-generated-code').on('click', function() {
+    var $button = $(this);
+    var $container = $('#generated-code-container');
+    var $display = $('#generated-code-display');
+    var $icon = $button.find('i');
+    
+    if ($container.is(':visible')) {
+      // Hide code
+      $container.slideUp(300);
+      $button.text(' {{ _("Show Generated HTML Code") }}');
+      $icon.removeClass('fa-eye-slash').addClass('fa-code');
+      $button.prepend($icon);
+    } else {
+      // Show code - get current content from textarea
+      var generatedCode = $('#field-map-stories').val() || '';
+      
+      // Format the code for display
+      if (generatedCode.trim()) {
+        // Clean up the HTML formatting for better readability
+        try {
+          // Simple formatting - add line breaks and indentation
+          var formattedCode = generatedCode
+            .replace(/></g, '>\n<')
+            .replace(/^\s+|\s+$/g, '')
+            .split('\n')
+            .map(function(line, index) {
+              // Simple indentation based on nesting level
+              var indent = '';
+              var openTags = (line.match(/</g) || []).length;
+              var closeTags = (line.match(/>/g) || []).length;
+              if (line.indexOf('</') === -1 && openTags > 0) {
+                indent = '  '.repeat(Math.max(0, index % 4));
+              }
+              return indent + line.trim();
+            })
+            .join('\n');
+          
+          $display.text(formattedCode);
+        } catch (e) {
+          $display.text(generatedCode);
+        }
+      } else {
+        $display.text('{{ _("No content has been generated yet. Add some content blocks above and they will be converted to HTML.") }}');
+      }
+      
+      $container.slideDown(300);
+      $button.text(' {{ _("Hide Generated HTML Code") }}');
+      $icon.removeClass('fa-code').addClass('fa-eye-slash');
+      $button.prepend($icon);
+    }
+  });
   
   // Cargar Quill y editores
   waitForQuill(initializeQuillEditors);
