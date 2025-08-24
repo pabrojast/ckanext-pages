@@ -229,11 +229,6 @@
                                 <option value="tropical_storm" {% if data.severity == 'tropical_storm' %}selected{% endif %}>{{ _('Tropical Storm') }}</option>
                                 <option value="tropical_depression" {% if data.severity == 'tropical_depression' %}selected{% endif %}>{{ _('Tropical Depression') }}</option>
                               </optgroup>
-                              <!-- Legacy compatibility -->
-                              <optgroup label="{{ _('Legacy Levels (deprecated)') }}">
-                                <option value="low" {% if data.severity == 'low' %}selected{% endif %}>{{ _('Low Impact (legacy)') }}</option>
-                                <option value="moderate" {% if data.severity == 'moderate' %}selected{% endif %}>{{ _('Moderate Impact (legacy)') }}</option>
-                              </optgroup>
                             </select>
                             <div class="help-text">
                               {{ _('Select GDACS alert level based on disaster type:') }}<br>
