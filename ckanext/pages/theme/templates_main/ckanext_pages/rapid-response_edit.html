@@ -1741,34 +1741,71 @@ textarea.rr-form-control {
 }
 
 .custom-key-info-field {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
   transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+  position: relative;
 }
 
 .custom-key-info-field:hover {
-  background: #e9ecef;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-color: var(--unesco-blue);
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.custom-key-info-field .form-group {
+  margin-bottom: 0;
+}
+
+.custom-key-info-field .custom-key-label,
+.custom-key-info-field .custom-key-value {
+  margin-bottom: 0 !important;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.custom-key-info-field .custom-key-label:focus,
+.custom-key-info-field .custom-key-value:focus {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.1);
+  background: rgba(255, 255, 255, 1);
+  outline: none;
 }
 
 .remove-custom-field {
-  height: 34px;
-  width: 34px;
-  border-radius: 4px;
+  height: 42px;
+  width: 42px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 0 !important;
   transition: all 0.3s ease;
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border: 2px solid #dc3545;
+  color: #dc3545;
+  font-weight: 600;
 }
 
 .remove-custom-field:hover {
-  background-color: #dc3545;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
   border-color: #dc3545;
-  transform: scale(1.1);
+  color: white;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.remove-custom-field:active {
+  transform: translateY(0) scale(1);
 }
 
 #add-custom-key-info {
@@ -1792,15 +1829,42 @@ textarea.rr-form-control {
 }
 
 #custom-key-info-fields:empty:before {
-  content: "No additional fields added yet. Click the button above to add custom information.";
+  content: "No additional fields added yet. Click the button below to add custom information.";
   display: block;
   color: #6c757d;
   font-style: italic;
   text-align: center;
   padding: 2rem;
   border: 2px dashed #dee2e6;
-  border-radius: 6px;
-  background: #f8f9fa;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  margin-bottom: 1rem;
+}
+
+/* Responsive styles for custom fields */
+@media (max-width: 768px) {
+  .custom-key-info-field {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .custom-key-info-field .custom-key-label,
+  .custom-key-info-field .custom-key-value {
+    margin-bottom: 0.75rem !important;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+  
+  .remove-custom-field {
+    height: 38px;
+    width: 38px;
+    margin-top: 0.75rem !important;
+  }
+  
+  .custom-key-info-field .col-md-1 {
+    text-align: center;
+    margin-top: 0.5rem;
+  }
 }
 </style>
 
@@ -1931,25 +1995,41 @@ textarea.rr-form-control {
     const fieldHtml = `
       <div class="custom-key-info-field" data-id="${customKeyInfoCounter}">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4 col-sm-12">
             <div class="form-group">
-              <input type="text" class="custom-key-label rr-form-control" placeholder="${$('#add-custom-key-info').data('label-placeholder') || 'Label'}" value="${label}">
+              <label class="sr-only">Field Label</label>
+              <input type="text" class="custom-key-label rr-form-control" 
+                     placeholder="${$('#add-custom-key-info').data('label-placeholder') || 'Field Label (e.g., Contact Person)'}" 
+                     value="${label}"
+                     title="Enter a descriptive label for this field">
             </div>
           </div>
-          <div class="col-md-7">
+          <div class="col-md-7 col-sm-12">
             <div class="form-group">
-              <input type="text" class="custom-key-value rr-form-control" placeholder="${$('#add-custom-key-info').data('value-placeholder') || 'Value'}" value="${value}">
+              <label class="sr-only">Field Value</label>
+              <input type="text" class="custom-key-value rr-form-control" 
+                     placeholder="${$('#add-custom-key-info').data('value-placeholder') || 'Field Value (e.g., John Smith, Emergency Coordinator)'}" 
+                     value="${value}"
+                     title="Enter the value or content for this field">
             </div>
           </div>
-          <div class="col-md-1">
-            <button type="button" class="btn btn-danger btn-sm remove-custom-field" style="margin-top: 0;">
-              <i class="fa fa-times"></i>
-            </button>
+          <div class="col-md-1 col-sm-12">
+            <div class="form-group">
+              <button type="button" class="btn btn-danger btn-sm remove-custom-field" 
+                      title="Remove this field">
+                <i class="fa fa-times"></i>
+                <span class="sr-only">Remove field</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     `;
     $('#custom-key-info-fields').append(fieldHtml);
+    
+    // Focus on the label field of the newly added field
+    $(`#custom-key-info-fields .custom-key-info-field[data-id="${customKeyInfoCounter}"] .custom-key-label`).focus();
+    
     updateKeyInfoData();
   }
   
