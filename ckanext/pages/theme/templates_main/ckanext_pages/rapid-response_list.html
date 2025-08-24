@@ -447,9 +447,7 @@
                                   </h3>
                                   <div class="event-badges">
                                     {% set activity_status = page.activity_status or 'response' %}
-                                    {% if activity_status == 'impact_assessment' %}
-                                      <span class="badge-status badge-impact-assessment">{{ _('Impact Assessment') }}</span>
-                                    {% elif activity_status == 'response' %}
+                                    {% if activity_status == 'response' %}
                                       <span class="badge-status badge-response">{{ _('Response Phase') }}</span>
                                     {% elif activity_status == 'recovery' %}
                                       <span class="badge-status badge-recovery">{{ _('Recovery Phase') }}</span>
@@ -545,22 +543,30 @@
                               
                               <!-- Action Row -->
                               <div class="event-actions-modern">
-                                <!-- GDACS Alert Level -->
+                                <!-- GDACS Alert Level and Activity Status -->
                                 <div class="impact-info-modern">
+                                  <!-- Activity Status - Impact Assessment -->
+                                  {% set activity_status = page.activity_status or 'response' %}
+                                  {% if activity_status == 'impact_assessment' %}
+                                    <span class="impact-badge impact-assessment">
+                                      <i class="fa fa-search"></i> {{ _('Impact Assessment') }}
+                                    </span>
+                                  {% endif %}
+                                  
                                   {% set severity_level = page.severity or '' %}
                                   {% if severity_level %}
                                     <!-- GDACS General Alerts -->
                                     {% if severity_level == 'red_alert' %}
-                                      <span class="impact-badge impact-red-alert">
-                                        <i class="fa fa-exclamation-triangle"></i> {{ _('Red Alert') }}
+                                      <span class="impact-badge impact-red-alert" title="{{ _('Based on GDACS (Global Disaster Alert and Coordination System) - UN/EC cooperation framework') }}">
+                                        <i class="fa fa-exclamation-triangle"></i> {{ _('Red Alert') }} <small>(GDACS)</small>
                                       </span>
                                     {% elif severity_level == 'orange_alert' %}
-                                      <span class="impact-badge impact-orange-alert">
-                                        <i class="fa fa-warning"></i> {{ _('Orange Alert') }}
+                                      <span class="impact-badge impact-orange-alert" title="{{ _('Based on GDACS (Global Disaster Alert and Coordination System) - UN/EC cooperation framework') }}">
+                                        <i class="fa fa-warning"></i> {{ _('Orange Alert') }} <small>(GDACS)</small>
                                       </span>
                                     {% elif severity_level == 'green_alert' %}
-                                      <span class="impact-badge impact-green-alert">
-                                        <i class="fa fa-info-circle"></i> {{ _('Green Alert') }}
+                                      <span class="impact-badge impact-green-alert" title="{{ _('Based on GDACS (Global Disaster Alert and Coordination System) - UN/EC cooperation framework') }}">
+                                        <i class="fa fa-info-circle"></i> {{ _('Green Alert') }} <small>(GDACS)</small>
                                       </span>
                                     <!-- Tropical Cyclone Categories -->
                                     {% elif severity_level == 'category_5' %}
@@ -1196,7 +1202,14 @@
   color: white;
 }
 
-/* GDACS Alert Level Badges */
+/* GDACS Alert Level Badges and Activity Status */
+
+/* Activity Status Badges */
+.impact-assessment {
+  background: #ffc107;
+  color: #212529;
+  animation: pulse-yellow 3s infinite;
+}
 
 /* General GDACS Alerts */
 .impact-red-alert {
