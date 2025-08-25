@@ -541,8 +541,8 @@
                                 {% if content_text %}
                                   {% set clean_content = decode_html_entities(content_text) %}
                                   <div class="event-excerpt-modern">
-                                    <span class="excerpt-preview">{{ clean_content[:200] }}{% if clean_content|length > 200 %}...{% endif %}</span>
-                                    {% if clean_content|length > 200 %}
+                                    <span class="excerpt-preview">{{ clean_content[:400] }}{% if clean_content|length > 400 %}...{% endif %}</span>
+                                    {% if clean_content|length > 400 %}
                                       <span class="excerpt-full" style="display: none;">{{ clean_content }}</span>
                                       <br>
                                       <button type="button" class="btn btn-link btn-sm read-more-btn">
