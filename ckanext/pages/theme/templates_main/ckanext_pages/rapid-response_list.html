@@ -127,7 +127,7 @@
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get" class="form-inline">
                         <div class="row">
-                          <div class="col-md-3">
+                          <div class="col-md-2">
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
                               <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
@@ -150,9 +150,9 @@
                               {% endif %}
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="col-md-1">
                             <select name="country" class="form-control">
-                              <option value="">{{ _('All Countries') }}</option>
+                              <option value="">{{ _('Location') }}</option>
                               <option value="Afghanistan" {% if request.args.country == 'Afghanistan' %}selected{% endif %}>Afghanistan</option>
                               <option value="Albania" {% if request.args.country == 'Albania' %}selected{% endif %}>Albania</option>
                               <option value="Algeria" {% if request.args.country == 'Algeria' %}selected{% endif %}>Algeria</option>
@@ -351,21 +351,32 @@
                               <option value="Zimbabwe" {% if request.args.country == 'Zimbabwe' %}selected{% endif %}>Zimbabwe</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="col-md-1">
                             <select name="activity_status" class="form-control">
-                              <option value="">{{ _('All Phases') }}</option>
-                              <option value="impact_assessment" {% if request.args.activity_status == 'impact_assessment' %}selected{% endif %}>{{ _('Impact Assessment') }}</option>
-                              <option value="response" {% if request.args.activity_status == 'response' %}selected{% endif %}>{{ _('Response Phase') }}</option>
-                              <option value="recovery" {% if request.args.activity_status == 'recovery' %}selected{% endif %}>{{ _('Recovery Phase') }}</option>
-                              <option value="resilience" {% if request.args.activity_status == 'resilience' %}selected{% endif %}>{{ _('Resilience Phase') }}</option>
+                              <option value="">{{ _('Phase') }}</option>
+                              <option value="impact_assessment" {% if request.args.activity_status == 'impact_assessment' %}selected{% endif %}>{{ _('Assessment') }}</option>
+                              <option value="response" {% if request.args.activity_status == 'response' %}selected{% endif %}>{{ _('Response') }}</option>
+                              <option value="recovery" {% if request.args.activity_status == 'recovery' %}selected{% endif %}>{{ _('Recovery') }}</option>
+                              <option value="resilience" {% if request.args.activity_status == 'resilience' %}selected{% endif %}>{{ _('Resilience') }}</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2">
+                            <select name="severity" class="form-control">
+                              <option value="">{{ _('Alert Level') }}</option>
+                              <option value="red_alert" {% if request.args.severity == 'red_alert' %}selected{% endif %}>{{ _('🔴 Red Alert') }}</option>
+                              <option value="orange_alert" {% if request.args.severity == 'orange_alert' %}selected{% endif %}>{{ _('🟠 Orange Alert') }}</option>
+                              <option value="green_alert" {% if request.args.severity == 'green_alert' %}selected{% endif %}>{{ _('🟢 Green Alert') }}</option>
+                              <option value="category_5" {% if request.args.severity == 'category_5' %}selected{% endif %}>{{ _('⚡ Category 5') }}</option>
+                              <option value="category_4" {% if request.args.severity == 'category_4' %}selected{% endif %}>{{ _('⚡ Category 4') }}</option>
+                              <option value="category_3" {% if request.args.severity == 'category_3' %}selected{% endif %}>{{ _('⚡ Category 3') }}</option>
                             </select>
                           </div>
                           <div class="col-md-2">
                             <select name="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
                               <option value="recent" {% if request.args.order_by == 'recent' or not request.args.order_by %}selected{% endif %}>{{ _('Most Recent') }}</option>
-                              <option value="severity" {% if request.args.order_by == 'severity' %}selected{% endif %}>{{ _('Severity') }}</option>
-                              <option value="country" {% if request.args.order_by == 'country' %}selected{% endif %}>{{ _('Country') }}</option>
+                              <option value="oldest" {% if request.args.order_by == 'oldest' %}selected{% endif %}>{{ _('Oldest First') }}</option>
+                              <option value="gdacs_alert" {% if request.args.order_by == 'gdacs_alert' %}selected{% endif %}>{{ _('GDACS Alert Level') }}</option>
                             </select>
                           </div>
                           <div class="col-md-1">
@@ -376,7 +387,7 @@
                         </div>
                         
                         <!-- Active Filters Indicator -->
-                        {% if request.args.q or request.args.event_type or request.args.country or request.args.activity_status or request.args.order_by %}
+                        {% if request.args.q or request.args.event_type or request.args.country or request.args.activity_status or request.args.severity or request.args.order_by %}
                         <div class="row" style="margin-top: 1rem;">
                           <div class="col-md-12">
                             <div class="active-filters-indicator">
@@ -384,8 +395,9 @@
                                 <i class="fa fa-filter"></i> {{ _('Active filters:') }}
                                 {% if request.args.q %}<span class="filter-badge">{{ _('Search') }}: "{{ request.args.q }}"</span>{% endif %}
                                 {% if request.args.event_type %}<span class="filter-badge">{{ _('Type') }}: {{ request.args.event_type }}</span>{% endif %}
-                                {% if request.args.country %}<span class="filter-badge">{{ _('Country') }}: {{ request.args.country }}</span>{% endif %}
+                                {% if request.args.country %}<span class="filter-badge">{{ _('Location') }}: {{ request.args.country }}</span>{% endif %}
                                 {% if request.args.activity_status %}<span class="filter-badge">{{ _('Phase') }}: {{ request.args.activity_status }}</span>{% endif %}
+                                {% if request.args.severity %}<span class="filter-badge">{{ _('Alert') }}: {{ request.args.severity }}</span>{% endif %}
                                 {% if request.args.order_by %}<span class="filter-badge">{{ _('Sort') }}: {{ request.args.order_by }}</span>{% endif %}
                                 <a href="{{ h.url_for('pages.rapid_response_index') }}" class="btn btn-xs btn-link clear-filters-btn">
                                   <i class="fa fa-times"></i> {{ _('Clear all') }}

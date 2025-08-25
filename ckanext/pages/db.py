@@ -105,6 +105,7 @@ class Page(DomainObject, BaseModel):
             q = kw.pop('q', None)
             event_type = kw.pop('event_type', None) 
             priority = kw.pop('priority', None)
+            severity = kw.pop('severity', None)  # Added missing severity filter
             country = kw.pop('country', None)
             activity_status = kw.pop('activity_status', None)
             order_by = kw.pop('order_by', None)
@@ -148,6 +149,23 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%"priority": "' + priority + '"%')
                 )
             
+            # Apply severity filter (stored in extras JSON)
+            if severity:
+                # Debug logging for severity filtering
+                log = logging.getLogger(__name__)
+                if log.isEnabledFor(logging.DEBUG):
+                    log.debug(f"Applying severity filter: {severity}")
+                
+                severity_filter = sa.or_(
+                    # Severity stored in extras JSON - exact match
+                    cls.extras.ilike('%"severity": "' + severity + '"%'),
+                    # Also check if it's stored without quotes around value
+                    cls.extras.ilike('%"severity":' + severity + '%'),
+                    # Check for alternative storage format
+                    cls.extras.ilike('%severity%' + severity + '%')
+                )
+                query = query.filter(severity_filter)
+            
             # Apply country filter (stored in extras JSON)
             if country:
                 # Debug logging for country filtering
@@ -188,14 +206,20 @@ class Page(DomainObject, BaseModel):
                 )
                 query = query.filter(activity_filter)
             
-            # Apply ordering - simplified to avoid complex CASE statements that might cause issues
+            # Apply ordering - improved with GDACS Alert Level
             if order_by == 'recent':
                 query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
+            elif order_by == 'oldest':
+                # New: Oldest first option
+                query = query.order_by(cls.publish_date.asc().nullsfirst(), cls.created.asc())
+            elif order_by == 'gdacs_alert':
+                # New: Order by GDACS Alert Level (post-processing for complex logic)
+                query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
             elif order_by == 'severity':
-                # Simplified ordering - order by publish_date and created as fallback
+                # Order by severity using post-processing (kept for backward compatibility)
                 query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
             elif order_by == 'country':
-                # Order by title as fallback
+                # Order alphabetically by title (kept for backward compatibility)  
                 query = query.order_by(cls.title.asc())
             elif order:
                 # Safe ordering by order field
@@ -217,6 +241,8 @@ class Page(DomainObject, BaseModel):
                 # Post-process results for complex sorting if needed
                 if order_by == 'severity':
                     results = cls._sort_by_severity(results)
+                elif order_by == 'gdacs_alert':
+                    results = cls._sort_by_gdacs_alert_level(results)
                     
                 return results
                 
@@ -279,6 +305,83 @@ class Page(DomainObject, BaseModel):
             ), reverse=True)
         except Exception as e:
             log.error("Error sorting by severity: %s", str(e))
+            return pages
+
+    @classmethod
+    def _sort_by_priority(cls, pages):
+        """Sort pages by priority only (simpler and more user-friendly than severity)"""
+        def get_priority_weight(page):
+            try:
+                if hasattr(page, 'extras') and page.extras:
+                    extras = json.loads(page.extras) if isinstance(page.extras, str) else page.extras
+                    priority = extras.get('priority', 'medium').lower()
+                    priority_weights = {
+                        'urgent': 4,
+                        'high': 3,
+                        'medium': 2,
+                        'low': 1
+                    }
+                    return priority_weights.get(priority, 2)  # Default to medium
+                return 2
+            except:
+                return 2
+
+        try:
+            return sorted(pages, key=lambda p: (
+                get_priority_weight(p),
+                p.publish_date.timestamp() if p.publish_date else 0,
+                p.created.timestamp() if p.created else 0
+            ), reverse=True)
+        except Exception as e:
+            log.error("Error sorting by priority: %s", str(e))
+            return pages
+
+    @classmethod
+    def _sort_by_gdacs_alert_level(cls, pages):
+        """Sort pages by GDACS Alert Level - most critical first"""
+        def get_gdacs_alert_weight(page):
+            try:
+                if hasattr(page, 'extras') and page.extras:
+                    extras = json.loads(page.extras) if isinstance(page.extras, str) else page.extras
+                    severity = extras.get('severity', '').lower()
+                    
+                    # GDACS Alert Level weights (highest to lowest priority)
+                    gdacs_weights = {
+                        # General GDACS Alerts (Floods, Drought, Volcano, Tsunami, Earthquake, Wildfire)
+                        'red_alert': 10,        # Most critical
+                        'orange_alert': 8,      # High severity
+                        'green_alert': 6,       # Moderate severity
+                        
+                        # Tropical Cyclone Categories (most severe first)
+                        'category_5': 9,        # Catastrophic damage
+                        'category_4': 8,        # Extreme damage 
+                        'category_3': 7,        # Extensive damage
+                        'category_2': 5,        # Moderate damage
+                        'category_1': 4,        # Light damage
+                        'tropical_storm': 3,    # Minimal hurricane-force winds
+                        'tropical_depression': 2, # Organized low pressure
+                        
+                        # Legacy compatibility
+                        'critical': 9,
+                        'high': 7,
+                        'moderate': 5,
+                        'low': 3
+                    }
+                    
+                    return gdacs_weights.get(severity, 1)  # Default to 1 for unknown levels
+                return 1
+            except Exception as e:
+                log.error("Error getting GDACS alert weight for page: %s", str(e))
+                return 1
+
+        try:
+            return sorted(pages, key=lambda p: (
+                get_gdacs_alert_weight(p),
+                p.publish_date.timestamp() if p.publish_date else 0,
+                p.created.timestamp() if p.created else 0
+            ), reverse=True)
+        except Exception as e:
+            log.error("Error sorting by GDACS alert level: %s", str(e))
             return pages
 
     def get_ordered_revisions(self):
