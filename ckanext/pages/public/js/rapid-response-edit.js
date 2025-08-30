@@ -1083,60 +1083,107 @@
   }
 
   // ========================================
-  // MODULAR SPATIAL CONTENT BLOCKS SYSTEM
+  // MODULAR CONTENT BLOCKS SYSTEMS
   // ========================================
   
-  let spatialBlocks = [];
-  let spatialBlockCounter = 0;
-  let spatialQuillEditors = {};
+  // Impact Assessment Blocks System
+  let impactBlocks = [];
+  let impactBlockCounter = 0;
+  let impactQuillEditors = {};
+  
+  // Response Activities Blocks System
+  let responseBlocks = [];
+  let responseBlockCounter = 0;
+  let responseQuillEditors = {};
+  
+  // Additional Information Blocks System (formerly Spatial Data)
+  let additionalBlocks = [];
+  let additionalBlockCounter = 0;
+  let additionalQuillEditors = {};
 
-  function initializeSpatialContentBlocks() {
-    // Load existing content if any
-    loadExistingSpatialContent();
+  // Initialize Impact Assessment Blocks System
+  function initializeImpactAssessmentBlocks() {
+    loadExistingImpactContent();
     
-    // Add event listeners for adding new blocks
-    $('#add-text-block').on('click', function() {
-      addTextBlock();
+    $('#add-impact-text-block').on('click', function() {
+      addImpactTextBlock();
     });
     
-    $('#add-iframe-block').on('click', function() {
-      addIframeBlock();
+    $('#add-impact-iframe-block').on('click', function() {
+      addImpactIframeBlock();
+    });
+  }
+  
+  // Initialize Response Activities Blocks System
+  function initializeResponseActivitiesBlocks() {
+    loadExistingResponseContent();
+    
+    $('#add-response-text-block').on('click', function() {
+      addResponseTextBlock();
     });
     
-    // Update hidden field when form is submitted
-    $('form').on('submit', function() {
-      updateSpatialContentField();
+    $('#add-response-iframe-block').on('click', function() {
+      addResponseIframeBlock();
+    });
+  }
+  
+  // Initialize Additional Information Blocks System (formerly Spatial)
+  function initializeAdditionalInformationBlocks() {
+    loadExistingAdditionalContent();
+    
+    $('#add-additional-text-block').on('click', function() {
+      addAdditionalTextBlock();
+    });
+    
+    $('#add-additional-iframe-block').on('click', function() {
+      addAdditionalIframeBlock();
     });
   }
 
-  function loadExistingSpatialContent() {
-    // First try to load from blocks metadata
-    const blocksMetadata = $('#spatial-blocks-metadata').val();
-    
+  // Load existing content functions for each block system
+  function loadExistingImpactContent() {
+    const blocksMetadata = $('#impact-assessment-blocks-metadata').val();
+    loadContentBlocks(blocksMetadata, 'impact', impactBlocks, '#impact-assessment-content-blocks', '#field-impact-assessment');
+    updateImpactBlocksDisplay();
+  }
+  
+  function loadExistingResponseContent() {
+    const blocksMetadata = $('#response-activities-blocks-metadata').val();
+    loadContentBlocks(blocksMetadata, 'response', responseBlocks, '#response-activities-content-blocks', '#field-response-activities');
+    updateResponseBlocksDisplay();
+  }
+  
+  function loadExistingAdditionalContent() {
+    const blocksMetadata = $('#additional-info-blocks-metadata').val();
+    loadContentBlocks(blocksMetadata, 'additional', additionalBlocks, '#additional-information-content-blocks', '#field-map-stories');
+    updateAdditionalBlocksDisplay();
+  }
+  
+  // Generic function to load content blocks
+  function loadContentBlocks(blocksMetadata, blockType, blocksArray, containerSelector, fallbackFieldSelector) {
     if (blocksMetadata && blocksMetadata.trim()) {
       try {
         const blocks = JSON.parse(blocksMetadata);
         
         // Clear existing blocks
-        spatialBlocks = [];
-        spatialBlockCounter = 0;
-        $('#spatial-content-blocks').empty();
+        blocksArray.length = 0;
+        $(containerSelector).empty();
         
         // Recreate blocks from metadata
         blocks.forEach(blockData => {
           if (blockData.type === 'text') {
             const block = {
-              id: blockData.id || ('spatial-block-' + (++spatialBlockCounter)),
+              id: blockData.id || (blockType + '-block-' + (++window[blockType + 'BlockCounter'])),
               type: 'text',
               content: blockData.content || ''
             };
             
-            spatialBlocks.push(block);
-            renderTextBlock(block);
+            blocksArray.push(block);
+            renderContentTextBlock(block, blockType, containerSelector);
             
           } else if (blockData.type === 'iframe') {
             const block = {
-              id: blockData.id || ('spatial-block-' + (++spatialBlockCounter)),
+              id: blockData.id || (blockType + '-block-' + (++window[blockType + 'BlockCounter'])),
               type: 'iframe',
               title: blockData.title || '',
               url: blockData.url || '',
@@ -1144,58 +1191,56 @@
               height: blockData.height || '600'
             };
             
-            spatialBlocks.push(block);
-            renderIframeBlock(block);
+            blocksArray.push(block);
+            renderContentIframeBlock(block, blockType, containerSelector);
           }
         });
         
         // Update counter to avoid conflicts
-        spatialBlockCounter = Math.max(spatialBlockCounter, blocks.length);
+        window[blockType + 'BlockCounter'] = Math.max(window[blockType + 'BlockCounter'] || 0, blocks.length);
         
       } catch (e) {
-        console.warn('Error parsing spatial blocks metadata, falling back to HTML content:', e);
-        loadFromHTMLContent();
+        console.warn(`Error parsing ${blockType} blocks metadata, falling back to HTML content:`, e);
+        loadFromHTMLContentFallback(blockType, blocksArray, containerSelector, fallbackFieldSelector);
       }
     } else {
       // Fallback to existing HTML content
-      loadFromHTMLContent();
+      loadFromHTMLContentFallback(blockType, blocksArray, containerSelector, fallbackFieldSelector);
     }
-    
-    updateBlocksDisplay();
   }
   
   // Fallback function to load from HTML content (legacy behavior)
-  function loadFromHTMLContent() {
-    const existingContent = $('#field-map-stories').val();
+  function loadFromHTMLContentFallback(blockType, blocksArray, containerSelector, fallbackFieldSelector) {
+    const existingContent = $(fallbackFieldSelector).val();
     if (existingContent && existingContent.trim()) {
       // Create a single text block with existing content
-      addTextBlock(existingContent);
+      if (blockType === 'impact') {
+        addImpactTextBlock(existingContent);
+      } else if (blockType === 'response') {
+        addResponseTextBlock(existingContent);
+      } else if (blockType === 'additional') {
+        addAdditionalTextBlock(existingContent);
+      }
     }
   }
 
-  function addTextBlock(content = '') {
-    const blockId = 'spatial-block-' + (++spatialBlockCounter);
+  // Impact Assessment Block Functions
+  function addImpactTextBlock(content = '') {
+    const blockId = 'impact-block-' + (++impactBlockCounter);
     const block = {
       id: blockId,
       type: 'text',
       content: content
     };
     
-    spatialBlocks.push(block);
-    renderTextBlock(block);
-    updateBlocksDisplay();
-    
-    // Focus on the new editor after it's created
-    setTimeout(function() {
-      const quill = spatialQuillEditors[blockId + '-editor'];
-      if (quill) {
-        quill.focus();
-      }
-    }, 100);
+    impactBlocks.push(block);
+    renderContentTextBlock(block, 'impact', '#impact-assessment-content-blocks');
+    updateImpactBlocksDisplay();
+    focusOnNewEditor(blockId, impactQuillEditors);
   }
 
-  function addIframeBlock(iframeData = null) {
-    const blockId = 'spatial-block-' + (++spatialBlockCounter);
+  function addImpactIframeBlock(iframeData = null) {
+    const blockId = 'impact-block-' + (++impactBlockCounter);
     const block = {
       id: blockId,
       type: 'iframe',
@@ -1206,12 +1251,87 @@
       ...iframeData
     };
     
-    spatialBlocks.push(block);
-    renderIframeBlock(block);
-    updateBlocksDisplay();
+    impactBlocks.push(block);
+    renderContentIframeBlock(block, 'impact', '#impact-assessment-content-blocks');
+    updateImpactBlocksDisplay();
+  }
+  
+  // Response Activities Block Functions
+  function addResponseTextBlock(content = '') {
+    const blockId = 'response-block-' + (++responseBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'text',
+      content: content
+    };
+    
+    responseBlocks.push(block);
+    renderContentTextBlock(block, 'response', '#response-activities-content-blocks');
+    updateResponseBlocksDisplay();
+    focusOnNewEditor(blockId, responseQuillEditors);
   }
 
-  function renderTextBlock(block) {
+  function addResponseIframeBlock(iframeData = null) {
+    const blockId = 'response-block-' + (++responseBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'iframe',
+      url: '',
+      width: '100%',
+      height: '600',
+      title: 'Interactive Content',
+      ...iframeData
+    };
+    
+    responseBlocks.push(block);
+    renderContentIframeBlock(block, 'response', '#response-activities-content-blocks');
+    updateResponseBlocksDisplay();
+  }
+  
+  // Additional Information Block Functions
+  function addAdditionalTextBlock(content = '') {
+    const blockId = 'additional-block-' + (++additionalBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'text',
+      content: content
+    };
+    
+    additionalBlocks.push(block);
+    renderContentTextBlock(block, 'additional', '#additional-information-content-blocks');
+    updateAdditionalBlocksDisplay();
+    focusOnNewEditor(blockId, additionalQuillEditors);
+  }
+
+  function addAdditionalIframeBlock(iframeData = null) {
+    const blockId = 'additional-block-' + (++additionalBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'iframe',
+      url: '',
+      width: '100%',
+      height: '600',
+      title: 'Interactive Content',
+      ...iframeData
+    };
+    
+    additionalBlocks.push(block);
+    renderContentIframeBlock(block, 'additional', '#additional-information-content-blocks');
+    updateAdditionalBlocksDisplay();
+  }
+  
+  // Helper function to focus on new editor
+  function focusOnNewEditor(blockId, editorsObject) {
+    setTimeout(function() {
+      const quill = editorsObject[blockId + '-editor'];
+      if (quill) {
+        quill.focus();
+      }
+    }, 100);
+  }
+
+  // Generic function to render text blocks
+  function renderContentTextBlock(block, blockType, containerSelector) {
     const html = `
       <div class="content-block" data-block-id="${block.id}">
         <div class="content-block-header">
@@ -1237,17 +1357,17 @@
       </div>
     `;
     
-    $('#spatial-content-blocks').append(html);
+    $(containerSelector).append(html);
     
     // Initialize Quill editor for this block
-    initializeBlockTextEditor(block);
+    initializeBlockTextEditor(block, blockType);
     
     // Add event listeners
-    addBlockEventListeners(block.id);
+    addBlockEventListeners(block.id, blockType);
   }
 
-  function renderIframeBlock(block) {
-
+  // Generic function to render iframe blocks
+  function renderContentIframeBlock(block, blockType, containerSelector) {
     const html = `
       <div class="content-block" data-block-id="${block.id}">
         <div class="content-block-header">
@@ -1310,14 +1430,14 @@
       </div>
     `;
     
-    $('#spatial-content-blocks').append(html);
+    $(containerSelector).append(html);
     
     // Add event listeners
-    addIframeBlockEventListeners(block.id);
-    addBlockEventListeners(block.id);
+    addIframeBlockEventListeners(block.id, blockType);
+    addBlockEventListeners(block.id, blockType);
   }
 
-  function initializeBlockTextEditor(block) {
+  function initializeBlockTextEditor(block, blockType) {
     const editorId = block.id + '-editor';
     const editorEl = document.getElementById(editorId);
     
@@ -1344,60 +1464,85 @@
         quill.clipboard.dangerouslyPasteHTML(block.content);
       }
       
-      // Update block data on change
+      // Update block data on change based on block type
       quill.on('text-change', function() {
         block.content = quill.root.innerHTML;
-        updateSpatialContentField();
+        if (blockType === 'impact') {
+          updateImpactContentField();
+        } else if (blockType === 'response') {
+          updateResponseContentField();
+        } else if (blockType === 'additional') {
+          updateAdditionalContentField();
+        }
       });
       
-      spatialQuillEditors[editorId] = quill;
+      // Store in appropriate editors object
+      if (blockType === 'impact') {
+        impactQuillEditors[editorId] = quill;
+      } else if (blockType === 'response') {
+        responseQuillEditors[editorId] = quill;
+      } else if (blockType === 'additional') {
+        additionalQuillEditors[editorId] = quill;
+      }
     });
   }
 
-  function addBlockEventListeners(blockId) {
+  function addBlockEventListeners(blockId, blockType) {
     const blockEl = $(`[data-block-id="${blockId}"]`);
     
     // Move up
     blockEl.find('.move-up').on('click', function() {
-      moveBlock(blockId, 'up');
+      moveBlock(blockId, 'up', blockType);
     });
     
     // Move down
     blockEl.find('.move-down').on('click', function() {
-      moveBlock(blockId, 'down');
+      moveBlock(blockId, 'down', blockType);
     });
     
     // Delete
     blockEl.find('.delete-block').on('click', function() {
       if (confirm('Are you sure you want to delete this block?')) {
-        deleteBlock(blockId);
+        deleteBlock(blockId, blockType);
       }
     });
   }
 
-  function addIframeBlockEventListeners(blockId) {
+  function addIframeBlockEventListeners(blockId, blockType) {
     const blockEl = $(`[data-block-id="${blockId}"]`);
-    const block = spatialBlocks.find(b => b.id === blockId);
+    
+    // Find block in appropriate array
+    let block, blocksArray;
+    if (blockType === 'impact') {
+      blocksArray = impactBlocks;
+    } else if (blockType === 'response') {
+      blocksArray = responseBlocks;
+    } else if (blockType === 'additional') {
+      blocksArray = additionalBlocks;
+    }
+    
+    block = blocksArray.find(b => b.id === blockId);
+    if (!block) return;
     
     // Form inputs
     blockEl.find('.iframe-title').on('input', function() {
       block.title = $(this).val();
-      updateSpatialContentField();
+      updateContentFieldByType(blockType);
     });
     
     blockEl.find('.iframe-url').on('input', function() {
       block.url = $(this).val();
-      updateSpatialContentField();
+      updateContentFieldByType(blockType);
     });
     
     blockEl.find('.iframe-width').on('input', function() {
       block.width = $(this).val();
-      updateSpatialContentField();
+      updateContentFieldByType(blockType);
     });
     
     blockEl.find('.iframe-height').on('input', function() {
       block.height = $(this).val();
-      updateSpatialContentField();
+      updateContentFieldByType(blockType);
     });
     
     // Preview button
@@ -1438,68 +1583,144 @@
     return `<iframe src="${content}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
   }
 
-  function moveBlock(blockId, direction) {
-    const blockIndex = spatialBlocks.findIndex(b => b.id === blockId);
+  function moveBlock(blockId, direction, blockType) {
+    let blocksArray, containerSelector;
+    
+    if (blockType === 'impact') {
+      blocksArray = impactBlocks;
+      containerSelector = '#impact-assessment-content-blocks';
+    } else if (blockType === 'response') {
+      blocksArray = responseBlocks;
+      containerSelector = '#response-activities-content-blocks';
+    } else if (blockType === 'additional') {
+      blocksArray = additionalBlocks;
+      containerSelector = '#additional-information-content-blocks';
+    }
+    
+    const blockIndex = blocksArray.findIndex(b => b.id === blockId);
     if (blockIndex === -1) return;
     
     const newIndex = direction === 'up' ? blockIndex - 1 : blockIndex + 1;
-    if (newIndex < 0 || newIndex >= spatialBlocks.length) return;
+    if (newIndex < 0 || newIndex >= blocksArray.length) return;
     
     // Swap blocks
-    [spatialBlocks[blockIndex], spatialBlocks[newIndex]] = [spatialBlocks[newIndex], spatialBlocks[blockIndex]];
+    [blocksArray[blockIndex], blocksArray[newIndex]] = [blocksArray[newIndex], blocksArray[blockIndex]];
     
     // Re-render all blocks
-    renderAllBlocks();
-    updateSpatialContentField();
+    renderAllBlocks(blockType, containerSelector);
+    updateContentFieldByType(blockType);
   }
 
-  function deleteBlock(blockId) {
+  function deleteBlock(blockId, blockType) {
+    let blocksArray, editorsObject;
+    
+    if (blockType === 'impact') {
+      blocksArray = impactBlocks;
+      editorsObject = impactQuillEditors;
+    } else if (blockType === 'response') {
+      blocksArray = responseBlocks;
+      editorsObject = responseQuillEditors;
+    } else if (blockType === 'additional') {
+      blocksArray = additionalBlocks;
+      editorsObject = additionalQuillEditors;
+    }
+    
     // Remove from array
-    spatialBlocks = spatialBlocks.filter(b => b.id !== blockId);
+    const blockIndex = blocksArray.findIndex(b => b.id === blockId);
+    if (blockIndex !== -1) {
+      blocksArray.splice(blockIndex, 1);
+    }
     
     // Remove from DOM
     $(`[data-block-id="${blockId}"]`).remove();
     
     // Clean up editor
     const editorId = blockId + '-editor';
-    if (spatialQuillEditors[editorId]) {
-      delete spatialQuillEditors[editorId];
+    if (editorsObject[editorId]) {
+      delete editorsObject[editorId];
     }
     
-    updateBlocksDisplay();
-    updateSpatialContentField();
+    updateBlocksDisplayByType(blockType);
+    updateContentFieldByType(blockType);
   }
 
-  function renderAllBlocks() {
-    $('#spatial-content-blocks').empty();
-    spatialBlocks.forEach(block => {
+  function renderAllBlocks(blockType, containerSelector) {
+    let blocksArray;
+    
+    if (blockType === 'impact') {
+      blocksArray = impactBlocks;
+    } else if (blockType === 'response') {
+      blocksArray = responseBlocks;
+    } else if (blockType === 'additional') {
+      blocksArray = additionalBlocks;
+    }
+    
+    $(containerSelector).empty();
+    blocksArray.forEach(block => {
       if (block.type === 'text') {
-        renderTextBlock(block);
+        renderContentTextBlock(block, blockType, containerSelector);
       } else if (block.type === 'iframe') {
-        renderIframeBlock(block);
+        renderContentIframeBlock(block, blockType, containerSelector);
       }
     });
   }
 
-  function updateBlocksDisplay() {
-    const container = $('#spatial-content-blocks');
-    if (spatialBlocks.length === 0) {
-      if (!container.find('.spatial-blocks-empty').length) {
-        container.append('<div class="spatial-blocks-empty">No content blocks yet. Use the buttons below to add text or iframe blocks.</div>');
+  // Individual display update functions
+  function updateImpactBlocksDisplay() {
+    updateBlocksDisplayByType('impact', impactBlocks, '#impact-assessment-content-blocks');
+  }
+  
+  function updateResponseBlocksDisplay() {
+    updateBlocksDisplayByType('response', responseBlocks, '#response-activities-content-blocks');
+  }
+  
+  function updateAdditionalBlocksDisplay() {
+    updateBlocksDisplayByType('additional', additionalBlocks, '#additional-information-content-blocks');
+  }
+  
+  function updateBlocksDisplayByType(blockType, blocksArray, containerSelector) {
+    const container = $(containerSelector);
+    if (blocksArray.length === 0) {
+      const emptyClass = blockType + '-blocks-empty';
+      if (!container.find('.' + emptyClass).length) {
+        container.append(`<div class="${emptyClass}">No content blocks yet. Use the buttons below to add text or iframe blocks.</div>`);
       }
     } else {
-      container.find('.spatial-blocks-empty').remove();
+      container.find('.' + blockType + '-blocks-empty').remove();
     }
   }
 
-  function updateSpatialContentField() {
+  // Individual content field update functions
+  function updateImpactContentField() {
+    updateContentField(impactBlocks, '#field-impact-assessment', '#impact-assessment-blocks-metadata');
+  }
+  
+  function updateResponseContentField() {
+    updateContentField(responseBlocks, '#field-response-activities', '#response-activities-blocks-metadata');
+  }
+  
+  function updateAdditionalContentField() {
+    updateContentField(additionalBlocks, '#field-map-stories', '#additional-info-blocks-metadata');
+  }
+  
+  function updateContentFieldByType(blockType) {
+    if (blockType === 'impact') {
+      updateImpactContentField();
+    } else if (blockType === 'response') {
+      updateResponseContentField();
+    } else if (blockType === 'additional') {
+      updateAdditionalContentField();
+    }
+  }
+  
+  function updateContentField(blocksArray, contentFieldSelector, metadataFieldSelector) {
     let finalContent = '';
     
     // Generate HTML content for display
-    spatialBlocks.forEach((block, index) => {
+    blocksArray.forEach((block, index) => {
       if (block.type === 'text' && block.content && block.content.trim()) {
         finalContent += block.content;
-        if (index < spatialBlocks.length - 1) {
+        if (index < blocksArray.length - 1) {
           finalContent += '\n\n';
         }
       } else if (block.type === 'iframe' && block.url) {
@@ -1512,17 +1733,17 @@
         
         finalContent += processContentForEmbed(block.url, width, height);
         
-        if (index < spatialBlocks.length - 1) {
+        if (index < blocksArray.length - 1) {
           finalContent += '\n\n';
         }
       }
     });
     
     // Save final HTML content
-    $('#field-map-stories').val(finalContent);
+    $(contentFieldSelector).val(finalContent);
     
     // Save blocks metadata for future editing
-    const blocksMetadata = spatialBlocks.map(block => ({
+    const blocksMetadata = blocksArray.map(block => ({
       id: block.id,
       type: block.type,
       content: block.content,
@@ -1532,10 +1753,10 @@
       height: block.height
     }));
     
-    $('#spatial-blocks-metadata').val(JSON.stringify(blocksMetadata));
+    $(metadataFieldSelector).val(JSON.stringify(blocksMetadata));
   }
 
-  // Initialize
+  // Initialize all systems
   loadTimelineEvents();
   loadUploadedImages();
   loadCountries();
@@ -1544,8 +1765,17 @@
   loadExistingCustomFields();
   updateKeyInfoData();
   
-  // Initialize Modular Spatial Content System
-  initializeSpatialContentBlocks();
+  // Initialize Modular Block Systems
+  initializeImpactAssessmentBlocks();
+  initializeResponseActivitiesBlocks();
+  initializeAdditionalInformationBlocks();
+  
+  // Update form submission to handle all block systems
+  $('form').on('submit', function() {
+    updateImpactContentField();
+    updateResponseContentField();
+    updateAdditionalContentField();
+  });
   
   // Initialize generated HTML code toggle functionality
   $('#toggle-generated-code').on('click', function() {

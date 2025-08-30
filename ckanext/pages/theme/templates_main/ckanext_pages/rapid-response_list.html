@@ -530,13 +530,51 @@
                                 </div>
                                 {% endif %}
                                 
+                                {# Collect content from multiple sources: excerpt, content, and new block fields #}
+                                {% set content_parts = [] %}
+                                
+                                {# Priority 1: Excerpt (if available) #}
                                 {% if page.excerpt %}
-                                  {% set content_text = h.strip_html_tags(page.excerpt) %}
-                                {% elif page.content %}
-                                  {% set content_text = h.strip_html_tags(page.content) %}
-                                {% else %}
-                                  {% set content_text = '' %}
+                                  {% set excerpt_text = h.strip_html_tags(page.excerpt) %}
+                                  {% if excerpt_text and excerpt_text.strip() %}
+                                    {% set content_parts = content_parts + [excerpt_text.strip()] %}
+                                  {% endif %}
                                 {% endif %}
+                                
+                                {# Priority 2: Main event description content #}
+                                {% if page.content and content_parts|length == 0 %}
+                                  {% set main_content_text = h.strip_html_tags(page.content) %}
+                                  {% if main_content_text and main_content_text.strip() %}
+                                    {% set content_parts = content_parts + [main_content_text.strip()] %}
+                                  {% endif %}
+                                {% endif %}
+                                
+                                {# Priority 3: Impact Assessment content #}
+                                {% if page.impact_assessment and content_parts|length < 2 %}
+                                  {% set impact_text = h.strip_html_tags(page.impact_assessment) %}
+                                  {% if impact_text and impact_text.strip() %}
+                                    {% set content_parts = content_parts + ['Assessment: ' + impact_text.strip()[:200]] %}
+                                  {% endif %}
+                                {% endif %}
+                                
+                                {# Priority 4: Response Activities content #}
+                                {% if page.response_activities and content_parts|length < 2 %}
+                                  {% set response_text = h.strip_html_tags(page.response_activities) %}
+                                  {% if response_text and response_text.strip() %}
+                                    {% set content_parts = content_parts + ['Response: ' + response_text.strip()[:200]] %}
+                                  {% endif %}
+                                {% endif %}
+                                
+                                {# Priority 5: Additional Information (formerly Spatial Data) #}
+                                {% if page.map_stories and content_parts|length < 2 %}
+                                  {% set additional_text = h.strip_html_tags(page.map_stories) %}
+                                  {% if additional_text and additional_text.strip() %}
+                                    {% set content_parts = content_parts + ['Additional Info: ' + additional_text.strip()[:150]] %}
+                                  {% endif %}
+                                {% endif %}
+                                
+                                {# Join all content parts #}
+                                {% set content_text = content_parts|join(' • ') %}
                                 
                                 {% if content_text %}
                                   {% set clean_content = decode_html_entities(content_text) %}
@@ -557,11 +595,29 @@
                               <div class="event-actions-modern">
                                 <!-- GDACS Alert Level and Activity Status -->
                                 <div class="impact-info-modern">
-                                  <!-- Activity Status - Impact Assessment -->
+                                  <!-- Activity Status with Enhanced Block Content Indicators -->
                                   {% set activity_status = page.activity_status or 'response' %}
                                   {% if activity_status == 'impact_assessment' %}
-                                    <span class="impact-badge impact-assessment">
+                                    <span class="impact-badge impact-assessment" title="{{ _('Impact Assessment phase with detailed damage and needs analysis') }}">
                                       <i class="fa fa-search"></i> {{ _('Impact Assessment') }}
+                                      {% if page.impact_assessment %}<small class="content-indicator">+</small>{% endif %}
+                                    </span>
+                                  {% elif activity_status == 'response' %}
+                                    <span class="impact-badge impact-response" title="{{ _('Active response phase with ongoing activities') }}">
+                                      <i class="fa fa-bolt"></i> {{ _('Response') }}
+                                      {% if page.response_activities %}<small class="content-indicator">+</small>{% endif %}
+                                    </span>
+                                  {% elif activity_status == 'recovery' %}
+                                    <span class="impact-badge impact-recovery" title="{{ _('Recovery phase with reconstruction efforts') }}">
+                                      <i class="fa fa-refresh"></i> {{ _('Recovery') }}
+                                      {% if page.map_stories %}<small class="content-indicator">+</small>{% endif %}
+                                    </span>
+                                  {% endif %}
+                                  
+                                  {# Show additional content indicators #}
+                                  {% if page.map_stories and activity_status != 'recovery' %}
+                                    <span class="impact-badge impact-additional" title="{{ _('Contains additional maps, videos, and resources') }}">
+                                      <i class="fa fa-map"></i> {{ _('Additional Info') }}
                                     </span>
                                   {% endif %}
                                   
@@ -1283,6 +1339,32 @@
 
 .impact-badge i {
   font-size: 0.75rem;
+}
+
+/* New Activity Status Badges for Block System */
+.impact-response {
+  background: #dc3545;
+  color: white;
+}
+
+.impact-recovery {
+  background: #28a745;
+  color: white;
+}
+
+.impact-additional {
+  background: #17a2b8;
+  color: white;
+}
+
+/* Content indicators - small "+" to show additional content is available */
+.content-indicator {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  padding: 1px 4px;
+  margin-left: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 .action-buttons-modern {

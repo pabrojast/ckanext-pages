@@ -31,7 +31,10 @@ def default_pages_schema():
         'key_info': [ignore_missing, unicode_safe],
         'image_carousel': [ignore_missing, unicode_safe],
         'map_stories': [ignore_missing, unicode_safe],
-        'spatial_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for spatial content blocks
+        'spatial_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for spatial content blocks (legacy)
+        'impact_assessment_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for impact assessment content blocks
+        'response_activities_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for response activities content blocks
+        'additional_info_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for additional information content blocks
         'additional_content': [ignore_missing, unicode_safe],
         'header_image': [ignore_missing, unicode_safe],
         'excerpt': [ignore_missing, unicode_safe],

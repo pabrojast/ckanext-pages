@@ -422,69 +422,123 @@
                           </div>
                         </fieldset>
 
-                        <!-- 4. Impact Assessment -->
+                        <!-- 4. Impact Assessment - Advanced Block System -->
                         <fieldset class="form-section">
                           <legend>{{ _('Impact Assessment') }}</legend>
                           <div class="form-section-content">
-                          <p class="help-block">{{ _('Describe the damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
-                          <div class="form-group">
-                            <label for="field-impact-assessment" class="control-label">{{ _('Impact Assessment') }}</label>
-                            <div class="quill-wrapper">
-                              <div id="impact-assessment-editor" class="quill-editor quill-compact"></div>
-                              <textarea id="field-impact-assessment" name="impact_assessment" style="display: none;">{{ data.impact_assessment or '' }}</textarea>
+                            <p class="help-block">{{ _('Build comprehensive impact assessments with text, maps, videos, and interactive content. Document damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
+                            
+                            <!-- Content Blocks Container for Impact Assessment -->
+                            <div id="impact-assessment-content-blocks">
+                              <!-- Blocks will be added here -->
                             </div>
-                            <div class="help-text">{{ _('Assessment of the damage and impact caused by the emergency event.') }}</div>
+                            
+                            <!-- Add Block Controls for Impact Assessment -->
+                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
+                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new impact assessment content:') }}</p>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-impact-text-block">
+                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" id="add-impact-iframe-block">
+                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <!-- Hidden fields to store Impact Assessment content -->
+                            <textarea id="field-impact-assessment" name="impact_assessment" style="display: none;">{{ data.impact_assessment or '' }}</textarea>
+                            <input type="hidden" id="impact-assessment-blocks-metadata" name="impact_assessment_blocks_metadata" value="{{ data.impact_assessment_blocks_metadata or '' }}">
                             {% if errors.impact_assessment %}<span class="error-block">{{ errors.impact_assessment }}</span>{% endif %}
-                          </div>
+                            
+                            <!-- Toggle button for generated HTML code -->
+                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
+                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-impact-generated-code" style="border-color: #0072BC; color: #0072BC;">
+                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
+                              </button>
+                              <div id="impact-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
+                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Impact Assessment') }}</h5>
+                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
+                                  {{ _('This is the HTML code generated from your impact assessment blocks.') }}
+                                </p>
+                                <pre id="impact-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                              </div>
+                            </div>
                           </div>
                         </fieldset>
 
-                        <!-- 5. Response Activities -->
+                        <!-- 5. Response Activities - Advanced Block System -->
                         <fieldset class="form-section">
                           <legend>{{ _('Response Activities') }}</legend>
                           <div class="form-section-content">
-                          <p class="help-block">{{ _('Detail the immediate response efforts, agencies involved, and current response status.') }}</p>
-                          <div class="form-group">
-                            <label for="field-response-activities" class="control-label">{{ _('Response Activities') }}</label>
-                            <div class="quill-wrapper">
-                              <div id="response-activities-editor" class="quill-editor quill-compact"></div>
-                              <textarea id="field-response-activities" name="response_activities" style="display: none;">{{ data.response_activities or '' }}</textarea>
+                            <p class="help-block">{{ _('Document comprehensive response efforts with text, coordination maps, video reports, and interactive content. Detail immediate response efforts, agencies involved, and current response status.') }}</p>
+                            
+                            <!-- Content Blocks Container for Response Activities -->
+                            <div id="response-activities-content-blocks">
+                              <!-- Blocks will be added here -->
                             </div>
-                            <div class="help-text">{{ _('Describe what actions are being taken in response to the emergency.') }}</div>
+                            
+                            <!-- Add Block Controls for Response Activities -->
+                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
+                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new response activities content:') }}</p>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-response-text-block">
+                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" id="add-response-iframe-block">
+                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <!-- Hidden fields to store Response Activities content -->
+                            <textarea id="field-response-activities" name="response_activities" style="display: none;">{{ data.response_activities or '' }}</textarea>
+                            <input type="hidden" id="response-activities-blocks-metadata" name="response_activities_blocks_metadata" value="{{ data.response_activities_blocks_metadata or '' }}">
                             {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
-                          </div>
+                            
+                            <!-- Toggle button for generated HTML code -->
+                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
+                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-response-generated-code" style="border-color: #0072BC; color: #0072BC;">
+                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
+                              </button>
+                              <div id="response-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
+                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Response Activities') }}</h5>
+                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
+                                  {{ _('This is the HTML code generated from your response activities blocks.') }}
+                                </p>
+                                <pre id="response-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                              </div>
+                            </div>
                           </div>
                         </fieldset>
 
-                        <!-- 6. Spatial Data and Information - Modular System -->
+                        <!-- 6. Additional Information - Advanced Block System -->
                         <fieldset class="form-section">
-                          <legend>{{ _('Spatial Data and Information') }}</legend>
+                          <legend>{{ _('Additional Information') }}</legend>
                           <div class="form-section-content">
-                            <p class="help-block">{{ _('Add content blocks to build your spatial data section. Mix text, maps, and interactive elements easily.') }}</p>
+                            <p class="help-block">{{ _('Add supplementary content blocks with text, spatial data, maps, and interactive elements. Include additional context, recovery plans, or specialized information.') }}</p>
                             
                             <!-- Content Blocks Container -->
                             <div id="spatial-content-blocks">
                               <!-- Blocks will be added here -->
                             </div>
                             
-                            <!-- Add Block Controls -->
+                            <!-- Add Block Controls for Additional Information -->
                             <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
-                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new content block:') }}</p>
+                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new additional information content:') }}</p>
                               <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary btn-sm" id="add-text-block">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-additional-text-block">
                                   <i class="fa fa-text-width"></i> {{ _('Text Block') }}
                                 </button>
-                                <button type="button" class="btn btn-success btn-sm" id="add-iframe-block">
-                                  <i class="fa fa-play-circle"></i> {{ _('Interactive Content Block') }}
+                                <button type="button" class="btn btn-success btn-sm" id="add-additional-iframe-block">
+                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
                                 </button>
                               </div>
                             </div>
                             
-                            <!-- Hidden field to store the final content -->
+                            <!-- Hidden fields to store Additional Information content -->
                             <textarea id="field-map-stories" name="map_stories" style="display: none;">{{ data.map_stories or '' }}</textarea>
-                            
-                            <!-- Hidden field to store spatial blocks metadata -->
-                            <input type="hidden" id="spatial-blocks-metadata" name="spatial_blocks_metadata" value="{{ data.spatial_blocks_metadata or '' }}">
+                            <input type="hidden" id="additional-info-blocks-metadata" name="additional_info_blocks_metadata" value="{{ data.additional_info_blocks_metadata or '' }}">
                             
                             <!-- Toggle button for generated HTML code -->
                             <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
