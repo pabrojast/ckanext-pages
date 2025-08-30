@@ -1,3 +1,4 @@
+# Core functionality JS bundle - CKEditor and basic form functionality
 main-js:
   filters: rjsmin
   output: ckanext-pages/%(version)s_main.js
@@ -9,7 +10,10 @@ main-js:
     - vendor/datepicker/js/bootstrap-datepicker.js
     - js/ckedit.js
     - js/datepicker.js
+    - js/data-initialization.js
+    - js/organization-loader.js
 
+# Core functionality CSS bundle
 main-css:
   output: ckanext-pages/%(version)s_main.css
   filters: cssrewrite
@@ -17,6 +21,7 @@ main-css:
     - vendor/datepicker/css/datepicker.css
     - css/ckedit.css
 
+# Medium editor bundle
 medium-js:
   filters: rjsmin
   output: ckanext-pages/%(version)s_medium.js
@@ -34,6 +39,7 @@ medium-css:
     - vendor/medium/medium-editor.css
     - css/bootstrap.css
 
+# Page-specific CSS bundles
 blog-css:
   output: ckanext-pages/%(version)s_blog.css
   filters: cssrewrite
@@ -51,4 +57,32 @@ rapid-response-css:
   filters: cssrewrite
   contents:
     - css/rapid-response.css
+
+# Open Source Software functionality
+open-source-software-js:
+  filters: rjsmin
+  output: ckanext-pages/%(version)s_open-source-software.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/open-source-software-edit.js
+    - js/image-upload.js
+    - js/member-states.js
+
+open-source-software-css:
+  output: ckanext-pages/%(version)s_open-source-software.css
+  filters: cssrewrite
+  contents:
+    - css/open-source-software-edit.css
+
+# Quill editor functionality
+quill-js:
+  filters: rjsmin
+  output: ckanext-pages/%(version)s_quill.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/quill-editor-manager.js
 
