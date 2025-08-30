@@ -49,8 +49,16 @@ def pages_list_pages(page_type):
     
     # Additional filters for open-source-software
     if page_type == 'open-source-software':
-        filter_params = ['category', 'access_type', 'license', 'language', 'platform', 'attribution']
-        for param in filter_params:
+        # Handle multiple values for category and language filters
+        multi_value_params = ['category', 'language']
+        single_value_params = ['access_type', 'license', 'platform', 'attribution']
+        
+        for param in multi_value_params:
+            param_values = tk.request.args.getlist(param)
+            if param_values and any(v.strip() for v in param_values):
+                data_dict[param] = [v for v in param_values if v.strip()]
+        
+        for param in single_value_params:
             if tk.request.args.get(param):
                 data_dict[param] = tk.request.args.get(param)
     

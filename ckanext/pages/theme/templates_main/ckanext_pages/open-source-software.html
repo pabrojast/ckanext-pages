@@ -443,7 +443,7 @@
                           {% endif %}
                         </div>
                         
-                        {% if c.page.technical_requirements %}
+                        {% if c.page.technical_requirements and c.page.technical_requirements|striptags|trim %}
                         <div class="requirements-section">
                           <h4>{{ _('Technical Requirements') }}</h4>
                           <div class="requirements-content">
@@ -458,7 +458,7 @@
                 {% endif %}
 
                 <!-- 4. Installation & Usage -->
-                {% if c.page.installation_instructions %}
+                {% if c.page.installation_instructions and c.page.installation_instructions|striptags|trim %}
                 <div class="software-installation" style="margin-bottom: 3rem;">
                   <section class="module module-narrow software-module-install">
                     <div class="module-content">
@@ -477,7 +477,7 @@
                 {% endif %}
 
                 <!-- 5. Learning Resources & Courses -->
-                {% if c.page.learning_resources %}
+                {% if c.page.learning_resources and c.page.learning_resources|striptags|trim %}
                 <div class="software-learning" style="margin-bottom: 3rem;">
                   <section class="module module-narrow software-module-learning">
                     <div class="module-content">
@@ -496,7 +496,7 @@
                 {% endif %}
 
                 <!-- 6. Examples & Use Cases -->
-                {% if c.page.example_applications %}
+                {% if c.page.example_applications and c.page.example_applications|striptags|trim %}
                 <div class="software-examples" style="margin-bottom: 3rem;">
                   <section class="module module-narrow software-module-examples">
                     <div class="module-content">

@@ -121,6 +121,38 @@
                                    placeholder="{{ _('Name of the person or organization contributing this entry') }}">
                           </div>
 
+                          <!-- Organization Information Row -->
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="organization_id" class="control-label">{{ _('IHP-WINS Organization') }}</label>
+                                <div class="organization-selector">
+                                  <select name="organization_id" id="organization_id" class="form-control">
+                                    <option value="">{{ _('Select Organization') }}</option>
+                                    <option value="loading" disabled>{{ _('Loading organizations...') }}</option>
+                                  </select>
+                                  <div class="organization-help">
+                                    <p class="help-block">{{ _('Select your IHP-WINS organization from the list') }}</p>
+                                    <p class="help-block">
+                                      <i class="fa fa-info-circle"></i> 
+                                      {{ _('Need to create a new organization?') }} 
+                                      <a href="/colab/organization-request" target="_blank">{{ _('Request new organization') }}</a>
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="credit_organization" class="control-label">{{ _('Credit Organization') }}</label>
+                                <input type="text" name="credit_organization" id="credit_organization" class="form-control" 
+                                       value="{{ data.get('credit_organization', '') }}" 
+                                       placeholder="{{ _('Organization that developed the software') }}">
+                                <p class="help-block">{{ _('Organization that should be credited for developing this software (may differ from user organization)') }}</p>
+                              </div>
+                            </div>
+                          </div>
+
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
@@ -266,37 +298,6 @@
                             </div>
                           </div>
 
-                          <!-- Organization Information Row -->
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="organization_id" class="control-label">{{ _('IHP-WINS Organization') }}</label>
-                                <div class="organization-selector">
-                                  <select name="organization_id" id="organization_id" class="form-control">
-                                    <option value="">{{ _('Select Organization') }}</option>
-                                    <option value="loading" disabled>{{ _('Loading organizations...') }}</option>
-                                  </select>
-                                  <div class="organization-help">
-                                    <p class="help-block">{{ _('Select your IHP-WINS organization from the list') }}</p>
-                                    <p class="help-block">
-                                      <i class="fa fa-info-circle"></i> 
-                                      {{ _('Need to create a new organization?') }} 
-                                      <a href="/colab/organization-request" target="_blank">{{ _('Request new organization') }}</a>
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="credit_organization" class="control-label">{{ _('Credit Organization') }}</label>
-                                <input type="text" name="credit_organization" id="credit_organization" class="form-control" 
-                                       value="{{ data.get('credit_organization', '') }}" 
-                                       placeholder="{{ _('Organization that developed the software') }}">
-                                <p class="help-block">{{ _('Organization that should be credited for developing this software (may differ from user organization)') }}</p>
-                              </div>
-                            </div>
-                          </div>
 
                           <!-- Member States Section -->
                           <div class="form-group">
@@ -634,6 +635,8 @@
                                   </label>
                                 </div>
                                 <div class="checkbox-option">
+                                  <!-- Hidden input to ensure false value is sent when checkbox is unchecked -->
+                                  <input type="hidden" name="include_logo_in_gallery" value="false">
                                   <input type="checkbox" id="include-logo-in-gallery" name="include_logo_in_gallery" value="true" 
                                          {% if data.get('include_logo_in_gallery') == 'true' %}checked{% endif %}>
                                   <label for="include-logo-in-gallery">
@@ -3026,6 +3029,8 @@ textarea[id="example_applications"] {
     if (headerImage) {
       logoUrl = headerImage;
       showLogoPreview(headerImage);
+      // Also update the header display preview
+      updateHeaderDisplayPreview(headerImage);
     }
   }
   
@@ -3442,7 +3447,7 @@ textarea[id="example_applications"] {
   // Header display mode change handler
   $('input[name="header_display_mode"]').on('change', function() {
     const selectedMode = $(this).val();
-    const logoUrl = $('#header_image').val() || logoUrl;
+    const currentLogoUrl = $('#header_image').val() || logoUrl;
     
     // Update all preview banners based on selected mode
     $('.header-display-option').each(function() {
@@ -3458,8 +3463,8 @@ textarea[id="example_applications"] {
     });
     
     // Update logo preview images if logo exists
-    if (logoUrl) {
-      updateHeaderDisplayPreview(logoUrl);
+    if (currentLogoUrl) {
+      updateHeaderDisplayPreview(currentLogoUrl);
     }
   });
   
@@ -3607,9 +3612,20 @@ textarea[id="example_applications"] {
         // Sync content back to textarea on changes
         quill.on('text-change', function() {
           if (textarea) {
-            textarea.value = quill.root.innerHTML;
+            const content = quill.root.innerHTML;
+            textarea.value = content;
             // Trigger change event to ensure the form knows the field has changed
             $(textarea).trigger('change');
+            
+            // Additional validation for content field specifically
+            if (textareaId === 'content') {
+              console.log(`Content field updated: ${content.length} characters`);
+              if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
+                $(textarea).attr('data-content-filled', 'true');
+              } else {
+                $(textarea).removeAttr('data-content-filled');
+              }
+            }
           }
         });
         
@@ -3640,6 +3656,8 @@ textarea[id="example_applications"] {
     // Form submission handler - ensure all content is synced
     $('form').on('submit', function(e) {
       console.log('Form submitting, syncing Quill editors...');
+      
+      // Force sync all editors before submission
       Object.keys(quillEditors).forEach(editorId => {
         const quill = quillEditors[editorId];
         const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
@@ -3651,6 +3669,11 @@ textarea[id="example_applications"] {
           console.log(`Synced ${textareaId}: ${content.length} characters`);
           // Trigger change event
           $(textarea).trigger('change');
+          
+          // Also set the textarea as "required" if editor has content
+          if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
+            $(textarea).attr('data-has-content', 'true');
+          }
         }
       });
       
@@ -3658,6 +3681,11 @@ textarea[id="example_applications"] {
       if (window.syncAllQuillEditors) {
         window.syncAllQuillEditors();
       }
+      
+      // Give the browser a moment to process the sync
+      setTimeout(() => {
+        console.log('Final content check - content field value:', $('#content').val());
+      }, 10);
     });
     
     // Keyboard shortcuts

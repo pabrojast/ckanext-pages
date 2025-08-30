@@ -21,10 +21,27 @@
   {{ get_software_category_class.get(category, 'category-default') }}
 {% endmacro %}
 
-{# Count learning resources properly #}
+{# Count learning resources properly - improved logic #}
 {% set learning_count = 0 %}
 {% for item in c.page.items %}
-  {% if item.learning_resources and item.learning_resources.strip() %}
+  {% set has_learning_resources = false %}
+  
+  {# Check different possible formats for learning_resources #}
+  {% if item.learning_resources %}
+    {% if item.learning_resources is string %}
+      {% if item.learning_resources.strip() %}
+        {% set has_learning_resources = true %}
+      {% endif %}
+    {% else %}
+      {# If it's not a string, assume it's a non-empty value #}
+      {% set has_learning_resources = true %}
+    {% endif %}
+  {% endif %}
+  
+  {# Debug: uncomment the next line to see the actual data structure #}
+  <!-- DEBUG: Item {{ loop.index }}: learning_resources = "{{ item.learning_resources }}" (type: {{ item.learning_resources.__class__.__name__ if item.learning_resources else 'None' }}) -->
+  
+  {% if has_learning_resources %}
     {% set learning_count = learning_count + 1 %}
   {% endif %}
 {% endfor %}
@@ -141,18 +158,55 @@
                             </div>
                           </div>
                           <div class="col-md-3">
-                            <select name="category" class="form-control">
-                              <option value="">{{ _('All Categories') }}</option>
-                              <option value="programming" {% if request.args.category == 'programming' %}selected{% endif %}>{{ _('Programming') }}</option>
-                              <option value="collaboration-platforms" {% if request.args.category == 'collaboration-platforms' %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>
-                              <option value="geographic-information-systems" {% if request.args.category == 'geographic-information-systems' %}selected{% endif %}>{{ _('Geographic Information Systems') }}</option>
-                              <option value="modeling" {% if request.args.category == 'modeling' %}selected{% endif %}>{{ _('Modeling') }}</option>
-                              <option value="data-collection" {% if request.args.category == 'data-collection' %}selected{% endif %}>{{ _('Data Collection') }}</option>
-                              <option value="data-processing" {% if request.args.category == 'data-processing' %}selected{% endif %}>{{ _('Data Processing') }}</option>
-                              <option value="data-visualization" {% if request.args.category == 'data-visualization' %}selected{% endif %}>{{ _('Data Visualization') }}</option>
-                              <option value="mobile-application" {% if request.args.category == 'mobile-application' %}selected{% endif %}>{{ _('Mobile Application') }}</option>
-                              <option value="desktop-application" {% if request.args.category == 'desktop-application' %}selected{% endif %}>{{ _('Desktop Application') }}</option>
-                            </select>
+                            <div class="dropdown multi-select-dropdown">
+                              <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
+                                <span class="multi-select-text">{{ _('All Categories') }}</span>
+                                <span class="caret pull-right"></span>
+                              </button>
+                              <div class="dropdown-menu multi-select-menu">
+                                <div class="multi-select-header">
+                                  <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('Select All') }}</button>
+                                  <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('Clear') }}</button>
+                                </div>
+                                {% set selected_categories = request.args.getlist('category') %}
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="programming" {% if 'programming' in selected_categories %}checked{% endif %}>
+                                  {{ _('Programming') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="collaboration-platforms" {% if 'collaboration-platforms' in selected_categories %}checked{% endif %}>
+                                  {{ _('Collaboration Platforms') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="geographic-information-systems" {% if 'geographic-information-systems' in selected_categories %}checked{% endif %}>
+                                  {{ _('GIS') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="modeling" {% if 'modeling' in selected_categories %}checked{% endif %}>
+                                  {{ _('Modeling') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="data-collection" {% if 'data-collection' in selected_categories %}checked{% endif %}>
+                                  {{ _('Data Collection') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="data-processing" {% if 'data-processing' in selected_categories %}checked{% endif %}>
+                                  {{ _('Data Processing') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="data-visualization" {% if 'data-visualization' in selected_categories %}checked{% endif %}>
+                                  {{ _('Data Visualization') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="mobile-application" {% if 'mobile-application' in selected_categories %}checked{% endif %}>
+                                  {{ _('Mobile Application') }}
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="category" value="desktop-application" {% if 'desktop-application' in selected_categories %}checked{% endif %}>
+                                  {{ _('Desktop Application') }}
+                                </label>
+                              </div>
+                            </div>
                           </div>
                           <div class="col-md-3">
                             <button type="submit" class="btn btn-default btn-block">
@@ -193,18 +247,55 @@
                             </select>
                           </div>
                           <div class="col-md-2">
-                            <select name="language" class="form-control">
-                              <option value="">{{ _('All Languages') }}</option>
-                              <option value="Python" {% if request.args.language == 'Python' %}selected{% endif %}>Python</option>
-                              <option value="JavaScript" {% if request.args.language == 'JavaScript' %}selected{% endif %}>JavaScript</option>
-                              <option value="R" {% if request.args.language == 'R' %}selected{% endif %}>R</option>
-                              <option value="Java" {% if request.args.language == 'Java' %}selected{% endif %}>Java</option>
-                              <option value="C++" {% if request.args.language == 'C++' %}selected{% endif %}>C++</option>
-                              <option value="C" {% if request.args.language == 'C' %}selected{% endif %}>C</option>
-                              <option value="PHP" {% if request.args.language == 'PHP' %}selected{% endif %}>PHP</option>
-                              <option value="Go" {% if request.args.language == 'Go' %}selected{% endif %}>Go</option>
-                              <option value="Rust" {% if request.args.language == 'Rust' %}selected{% endif %}>Rust</option>
-                            </select>
+                            <div class="dropdown multi-select-dropdown">
+                              <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
+                                <span class="multi-select-text">{{ _('All Languages') }}</span>
+                                <span class="caret pull-right"></span>
+                              </button>
+                              <div class="dropdown-menu multi-select-menu">
+                                <div class="multi-select-header">
+                                  <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('Select All') }}</button>
+                                  <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('Clear') }}</button>
+                                </div>
+                                {% set selected_languages = request.args.getlist('language') %}
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Python" {% if 'Python' in selected_languages %}checked{% endif %}>
+                                  Python
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="JavaScript" {% if 'JavaScript' in selected_languages %}checked{% endif %}>
+                                  JavaScript
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="R" {% if 'R' in selected_languages %}checked{% endif %}>
+                                  R
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Java" {% if 'Java' in selected_languages %}checked{% endif %}>
+                                  Java
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="C++" {% if 'C++' in selected_languages %}checked{% endif %}>
+                                  C++
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="C" {% if 'C' in selected_languages %}checked{% endif %}>
+                                  C
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="PHP" {% if 'PHP' in selected_languages %}checked{% endif %}>
+                                  PHP
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Go" {% if 'Go' in selected_languages %}checked{% endif %}>
+                                  Go
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Rust" {% if 'Rust' in selected_languages %}checked{% endif %}>
+                                  Rust
+                                </label>
+                              </div>
+                            </div>
                           </div>
                           <div class="col-md-2">
                             <select name="platform" class="form-control">
@@ -309,12 +400,20 @@
                                   {% endif %}
                                   {% if page.programming_language %}
                                     <span class="meta-item">
-                                      <i class="fa fa-code"></i> {{ page.programming_language }}
+                                      <i class="fa fa-code"></i>
+                                      {% set languages = page.programming_language.split(',') if page.programming_language else [] %}
+                                      {% for language in languages %}
+                                        {{ language.strip() }}{% if not loop.last %}, {% endif %}
+                                      {% endfor %}
                                     </span>
                                   {% endif %}
                                   {% if page.platform %}
                                     <span class="meta-item">
-                                      <i class="fa fa-desktop"></i> {{ page.platform }}
+                                      <i class="fa fa-desktop"></i>
+                                      {% set platforms = page.platform.split(',') if page.platform else [] %}
+                                      {% for platform in platforms %}
+                                        {{ platform.strip() }}{% if not loop.last %}, {% endif %}
+                                      {% endfor %}
                                     </span>
                                   {% endif %}
                                   {% if page.release_date %}
@@ -905,6 +1004,83 @@ waitForJQuery(function($) {
     });
     
 
+    
+    // Multi-Select Dropdown Functionality
+    $('.multi-select-button').on('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      var $dropdown = $(this).closest('.multi-select-dropdown');
+      var $menu = $dropdown.find('.multi-select-menu');
+      
+      // Close all other dropdowns
+      $('.multi-select-dropdown').not($dropdown).removeClass('open');
+      $('.multi-select-menu').not($menu).hide();
+      
+      // Toggle this dropdown
+      $dropdown.toggleClass('open');
+      $menu.toggle();
+    });
+    
+    // Handle checkbox changes
+    $('.multi-select-option input[type="checkbox"]').on('change', function() {
+      var $dropdown = $(this).closest('.multi-select-dropdown');
+      var $button = $dropdown.find('.multi-select-button');
+      var $text = $button.find('.multi-select-text');
+      var $checkboxes = $dropdown.find('input[type="checkbox"]');
+      
+      var selectedOptions = [];
+      $checkboxes.each(function() {
+        if ($(this).is(':checked')) {
+          selectedOptions.push($(this).closest('label').text().trim());
+        }
+      });
+      
+      // Update button text
+      if (selectedOptions.length === 0) {
+        var defaultText = $dropdown.find('.multi-select-option:first label').text().includes('Programming') ? 
+          '{{ _("All Categories") }}' : '{{ _("All Languages") }}';
+        $text.text(defaultText);
+      } else if (selectedOptions.length === 1) {
+        $text.text(selectedOptions[0]);
+      } else if (selectedOptions.length <= 3) {
+        $text.text(selectedOptions.join(', '));
+      } else {
+        $text.text(selectedOptions.length + ' {{ _("selected") }}');
+      }
+    });
+    
+    // Select All functionality
+    $('.select-all-btn').on('click', function(e) {
+      e.preventDefault();
+      var $dropdown = $(this).closest('.multi-select-dropdown');
+      $dropdown.find('input[type="checkbox"]').prop('checked', true).trigger('change');
+    });
+    
+    // Clear All functionality
+    $('.clear-all-btn').on('click', function(e) {
+      e.preventDefault();
+      var $dropdown = $(this).closest('.multi-select-dropdown');
+      $dropdown.find('input[type="checkbox"]').prop('checked', false).trigger('change');
+    });
+    
+    // Close dropdowns when clicking outside
+    $(document).on('click', function(e) {
+      if (!$(e.target).closest('.multi-select-dropdown').length) {
+        $('.multi-select-dropdown').removeClass('open');
+        $('.multi-select-menu').hide();
+      }
+    });
+    
+    // Prevent dropdown from closing when clicking inside menu
+    $('.multi-select-menu').on('click', function(e) {
+      e.stopPropagation();
+    });
+    
+    // Initialize button text on page load
+    $('.multi-select-dropdown').each(function() {
+      $(this).find('input[type="checkbox"]:first').trigger('change');
+    });
     
     // Initialize tooltips if Bootstrap is available
     if (typeof $().tooltip === 'function') {
@@ -1958,6 +2134,120 @@ function toggleSoftwareExcerpt(button) {
   
   .metric-number {
     font-size: 1.5rem;
+  }
+}
+
+/* Multi-Select Dropdown Styles */
+.multi-select-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.multi-select-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 12px 16px;
+  height: 3.3em;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.multi-select-button:hover,
+.multi-select-button:focus {
+  border-color: var(--unesco-blue);
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+}
+
+.multi-select-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 10px;
+}
+
+.multi-select-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0;
+  margin-top: 2px;
+}
+
+.multi-select-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f8f9fa;
+}
+
+.multi-select-header .btn-link {
+  padding: 2px 6px;
+  font-size: 0.85rem;
+  color: var(--unesco-blue);
+  text-decoration: none;
+}
+
+.multi-select-header .btn-link:hover {
+  color: var(--unesco-blue-dark);
+  background: rgba(0, 114, 188, 0.1);
+  border-radius: 4px;
+}
+
+.multi-select-option {
+  display: block;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f8f9fa;
+  transition: background-color 0.2s ease;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+
+.multi-select-option:hover {
+  background-color: var(--unesco-blue-pale);
+}
+
+.multi-select-option:last-child {
+  border-bottom: none;
+}
+
+.multi-select-option input[type="checkbox"] {
+  margin-right: 8px;
+  margin-top: 0;
+  vertical-align: middle;
+}
+
+.multi-select-option input[type="checkbox"]:checked {
+  accent-color: var(--unesco-blue);
+}
+
+/* Keep dropdown open when interacting */
+.multi-select-dropdown.open .dropdown-menu {
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .multi-select-menu {
+    max-height: 250px;
   }
 }
 </style>

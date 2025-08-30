@@ -206,6 +206,68 @@ class Page(DomainObject, BaseModel):
                 )
                 query = query.filter(activity_filter)
             
+            # Open-source-software specific filters (stored in extras JSON)
+            # Handle category filter (can be list or single value)
+            category = kw.pop('category', None)
+            if category:
+                if isinstance(category, list):
+                    # Multiple categories - use OR condition
+                    category_filters = []
+                    for cat in category:
+                        if cat.strip():
+                            cat_filter = sa.or_(
+                                cls.extras.ilike('%"software_category": "' + cat.strip() + '"%'),
+                                cls.extras.ilike('%"software_category":' + cat.strip() + '%')
+                            )
+                            category_filters.append(cat_filter)
+                    if category_filters:
+                        query = query.filter(sa.or_(*category_filters))
+                else:
+                    # Single category
+                    category_filter = sa.or_(
+                        cls.extras.ilike('%"software_category": "' + category + '"%'),
+                        cls.extras.ilike('%"software_category":' + category + '%')
+                    )
+                    query = query.filter(category_filter)
+            
+            # Handle language filter (can be list or single value)
+            language = kw.pop('language', None)
+            if language:
+                if isinstance(language, list):
+                    # Multiple languages - use OR condition
+                    language_filters = []
+                    for lang in language:
+                        if lang.strip():
+                            lang_filter = sa.or_(
+                                cls.extras.ilike('%"programming_language": "' + lang.strip() + '"%'),
+                                cls.extras.ilike('%"programming_language":' + lang.strip() + '%')
+                            )
+                            language_filters.append(lang_filter)
+                    if language_filters:
+                        query = query.filter(sa.or_(*language_filters))
+                else:
+                    # Single language
+                    language_filter = sa.or_(
+                        cls.extras.ilike('%"programming_language": "' + language + '"%'),
+                        cls.extras.ilike('%"programming_language":' + language + '%')
+                    )
+                    query = query.filter(language_filter)
+            
+            # Handle other open-source-software filters
+            for filter_name, field_name in [
+                ('access_type', 'access_type'),
+                ('license', 'software_license'), 
+                ('platform', 'platform'),
+                ('attribution', 'attribution')
+            ]:
+                filter_value = kw.pop(filter_name, None)
+                if filter_value:
+                    filter_condition = sa.or_(
+                        cls.extras.ilike('%"' + field_name + '": "' + filter_value + '"%'),
+                        cls.extras.ilike('%"' + field_name + '":' + filter_value + '%')
+                    )
+                    query = query.filter(filter_condition)
+            
             # Apply ordering - improved with GDACS Alert Level
             if order_by == 'recent':
                 query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
