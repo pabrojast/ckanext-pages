@@ -8,15 +8,6 @@
   {% endif %}
 {% endblock %}
 
-{% block styles %}
-  {{ super() }}
-  {% resource 'ckanext-pages/rapid-response-edit.css' %}
-{% endblock %}
-
-{% block scripts %}
-  {{ super() }}
-  {% resource 'ckanext-pages/rapid-response-edit.js' %}
-{% endblock %}
 
 {% block content %}
 
@@ -636,7 +627,9 @@
     {% endblock %}
 </div>
 
-<!-- All CSS and JavaScript functionality has been moved to external files loaded in the styles and scripts blocks -->
+<!-- Load external CSS and JavaScript files -->
+<link rel="stylesheet" type="text/css" href="/css/rapid-response-edit.css" />
+<script type="text/javascript" src="/js/rapid-response-edit.js"></script>
 
 <!-- External dependencies for Quill editor and Markdown -->
 
