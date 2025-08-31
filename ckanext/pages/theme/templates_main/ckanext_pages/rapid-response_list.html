@@ -1594,7 +1594,7 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   grid-auto-rows: minmax(48px, auto);
   gap: 12px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .rapid-response-filters .filter-cell { grid-column: span 1; }
@@ -1608,6 +1608,16 @@
 /* Large screens - keep tight, balanced layout */
 @media (min-width: 1400px) {
   .rapid-response-filters .filters-grid { gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
+
+/* Desktop: force a tidy single-row layout */
+@media (min-width: 992px) {
+  .rapid-response-filters .filters-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+  }
+  .rapid-response-filters .filter--search { grid-column: auto; }
+  .rapid-response-filters .filter--actions { grid-column: auto; }
+  .rapid-response-filters .filter--actions .btn { width: auto; padding-left: 1.25rem; padding-right: 1.25rem; }
 }
 
 /* Desktops and down: let search grow and keep others compact */
