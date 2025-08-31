@@ -403,11 +403,16 @@
       // Add reset filters function to global scope
       window.resetFilters = function() {
         // Clear all form inputs
-        $('form').find('input[type="text"], input[type="search"]').val('');
-        $('form').find('select').prop('selectedIndex', 0);
-        $('form').find('input[type="checkbox"]').prop('checked', false);
+        var $form = $('form');
+        $form.find('input[type="text"], input[type="search"]').val('');
+        $form.find('select').prop('selectedIndex', 0);
+        $form.find('input[type="checkbox"]').prop('checked', false);
         
-        // Reset multi-select button text
+        // Radios: select the "All" option when available (value="")
+        $form.find('input[type="radio"][value=""]').prop('checked', true);
+        $form.find('input[type="radio"]').not('[value=""]').prop('checked', false);
+        
+        // Reset legacy multi-select button text
         $('.multi-select-dropdown').each(function() {
           var $dropdown = $(this);
           var $text = $dropdown.find('.multi-select-text');
@@ -421,11 +426,24 @@
           }
         });
         
-        // Trigger change event to update displays
+        // Reset unified dropdown button labels to their original text
+        $('.unified-dropdown').each(function() {
+          var $text = $(this).find('.filter-text');
+          var original = $text.data('original') || $text.text();
+          $text.text(original);
+        });
+        
+        // Trigger change events to refresh computed labels
         $('.multi-select-dropdown input[type="checkbox"]:first').trigger('change');
+        $('.unified-dropdown').each(function() {
+          var $checkbox = $(this).find('input[type="checkbox"]').first();
+          var $radio = $(this).find('input[type="radio"][value=""]');
+          if ($checkbox.length) $checkbox.trigger('change');
+          if ($radio.length) $radio.trigger('change');
+        });
         
         // Submit form to apply cleared filters
-        $('form').submit();
+        $form.submit();
       };
       
       // Initialize tooltips if Bootstrap is available
@@ -538,6 +556,19 @@
           $('.unified-dropdown').removeClass('show');
           $('.unified-dropdown-menu').hide();
         }
+      });
+      
+      // Select/Clear all for unified (checkbox-based) dropdowns
+      $(document).on('click', '.unified-dropdown .select-all-btn', function(e) {
+        e.preventDefault();
+        var $dd = $(this).closest('.unified-dropdown');
+        $dd.find('input[type="checkbox"]').prop('checked', true).trigger('change');
+      });
+      
+      $(document).on('click', '.unified-dropdown .clear-all-btn', function(e) {
+        e.preventDefault();
+        var $dd = $(this).closest('.unified-dropdown');
+        $dd.find('input[type="checkbox"]').prop('checked', false).trigger('change');
       });
       
       console.log('Unified dropdown system initialized');

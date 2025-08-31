@@ -186,7 +186,7 @@
                         
                           <!-- Unified Filters Grid -->
                           <div class="filters-grid">
-                            <!-- Categories Filter -->
+                            <!-- Categories Filter (multi-select) -->
                             <div class="filter-item">
                               <div class="dropdown unified-dropdown">
                                 <button type="button" class="unified-filter-btn" data-toggle="dropdown">
@@ -241,168 +241,182 @@
                                 </div>
                               </div>
                             </div>
-                          <div class="col-md-3">
-                            <div class="dropdown multi-select-dropdown">
-                              <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
-                                <span class="multi-select-text">{{ _('All Languages') }}</span>
-                                <span class="caret pull-right"></span>
-                              </button>
-                              <div class="dropdown-menu multi-select-menu">
-                                <div class="multi-select-header">
-                                  <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('Select All') }}</button>
-                                  <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('Clear') }}</button>
+
+                            <!-- Languages Filter (multi-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-code"></i></span>
+                                  <span class="filter-text">{{ _('All Languages') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-header">
+                                    <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
+                                    <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
+                                  </div>
+                                  <div class="unified-dropdown-content">
+                                    {% set selected_languages = request.args.getlist('language') %}
+                                    {% for lang in ['Python','JavaScript','R','Java','C++','C','PHP','Go','Rust'] %}
+                                      <label class="unified-option">
+                                        <input type="checkbox" name="language" value="{{ lang }}" {% if lang in selected_languages %}checked{% endif %}>
+                                        <span>{{ lang }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
                                 </div>
-                                {% set selected_languages = request.args.getlist('language') %}
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Python" {% if 'Python' in selected_languages %}checked{% endif %}>
-                                  Python
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="JavaScript" {% if 'JavaScript' in selected_languages %}checked{% endif %}>
-                                  JavaScript
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="R" {% if 'R' in selected_languages %}checked{% endif %}>
-                                  R
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Java" {% if 'Java' in selected_languages %}checked{% endif %}>
-                                  Java
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="C++" {% if 'C++' in selected_languages %}checked{% endif %}>
-                                  C++
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="C" {% if 'C' in selected_languages %}checked{% endif %}>
-                                  C
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="PHP" {% if 'PHP' in selected_languages %}checked{% endif %}>
-                                  PHP
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Go" {% if 'Go' in selected_languages %}checked{% endif %}>
-                                  Go
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Rust" {% if 'Rust' in selected_languages %}checked{% endif %}>
-                                  Rust
-                                </label>
+                              </div>
+                            </div>
+
+                            <!-- Access Type (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-unlock"></i></span>
+                                  <span class="filter-text">{{ _('All Access Types') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    <label class="unified-option">
+                                      <input type="radio" name="access_type" value="" {% if not request.args.access_type %}checked{% endif %}>
+                                      <span>{{ _('All Access Types') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="radio" name="access_type" value="open-source" {% if request.args.access_type == 'open-source' %}checked{% endif %}>
+                                      <span>{{ _('Open Source') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="radio" name="access_type" value="open-access" {% if request.args.access_type == 'open-access' %}checked{% endif %}>
+                                      <span>{{ _('Open Access') }}</span>
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Development Status (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-heartbeat"></i></span>
+                                  <span class="filter-text">{{ _('All Status') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    {% set status = request.args.development_status %}
+                                    <label class="unified-option">
+                                      <input type="radio" name="development_status" value="" {% if not status %}checked{% endif %}>
+                                      <span>{{ _('All Status') }}</span>
+                                    </label>
+                                    {% for key,label in {
+                                      'active':_('Active'),
+                                      'beta':_('Beta'),
+                                      'stable':_('Stable'),
+                                      'maintained':_('Maintained'),
+                                      'deprecated':_('Deprecated'),
+                                      'archived':_('Archived')
+                                    }.items() %}
+                                      <label class="unified-option">
+                                        <input type="radio" name="development_status" value="{{ key }}" {% if status == key %}checked{% endif %}>
+                                        <span>{{ label }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- License (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-certificate"></i></span>
+                                  <span class="filter-text">{{ _('All Licenses') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    {% set lic = request.args.license %}
+                                    <label class="unified-option">
+                                      <input type="radio" name="license" value="" {% if not lic %}checked{% endif %}>
+                                      <span>{{ _('All Licenses') }}</span>
+                                    </label>
+                                    {% for l in ['MIT','GPL','Apache','BSD','Creative Commons','Other'] %}
+                                      <label class="unified-option">
+                                        <input type="radio" name="license" value="{{ l }}" {% if lic == l %}checked{% endif %}>
+                                        <span>{{ _(l) if l in ['Other'] else l }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Platform (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-desktop"></i></span>
+                                  <span class="filter-text">{{ _('All Platforms') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    {% set plat = request.args.platform %}
+                                    <label class="unified-option">
+                                      <input type="radio" name="platform" value="" {% if not plat %}checked{% endif %}>
+                                      <span>{{ _('All Platforms') }}</span>
+                                    </label>
+                                    {% for p in ['Windows','Linux','macOS','Android','iOS','BSD','Web','Cross-platform'] %}
+                                      <label class="unified-option">
+                                        <input type="radio" name="platform" value="{{ p }}" {% if plat == p %}checked{% endif %}>
+                                        <span>{{ _(p) if p in ['Web','Cross-platform'] else p }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Attribution (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-user-check"></i></span>
+                                  <span class="filter-text">{{ _('All Attribution') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    {% set attr = request.args.attribution %}
+                                    <label class="unified-option">
+                                      <input type="radio" name="attribution" value="" {% if not attr %}checked{% endif %}>
+                                      <span>{{ _('All Attribution') }}</span>
+                                    </label>
+                                    {% for a in ['Required','Optional','None'] %}
+                                      <label class="unified-option">
+                                        <input type="radio" name="attribution" value="{{ a }}" {% if attr == a %}checked{% endif %}>
+                                        <span>{{ _(a) }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                          <div class="col-md-3">
-                            <select name="access_type" class="form-control">
-                              <option value="">{{ _('All Access Types') }}</option>
-                              <option value="open-source" {% if request.args.access_type == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
-                              <option value="open-access" {% if request.args.access_type == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
-                            </select>
-                          </div>
-                          <div class="col-md-3">
-                            <select name="development_status" class="form-control">
-                              <option value="">{{ _('All Status') }}</option>
-                              <option value="active" {% if request.args.development_status == 'active' %}selected{% endif %}>{{ _('Active') }}</option>
-                              <option value="beta" {% if request.args.development_status == 'beta' %}selected{% endif %}>{{ _('Beta') }}</option>
-                              <option value="stable" {% if request.args.development_status == 'stable' %}selected{% endif %}>{{ _('Stable') }}</option>
-                              <option value="maintained" {% if request.args.development_status == 'maintained' %}selected{% endif %}>{{ _('Maintained') }}</option>
-                              <option value="deprecated" {% if request.args.development_status == 'deprecated' %}selected{% endif %}>{{ _('Deprecated') }}</option>
-                              <option value="archived" {% if request.args.development_status == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
-                            </select>
-                          </div>
-                        </div>
-                        
-                        <!-- License and Filter Row -->
-                        <div class="row" style="margin-top: 1rem;">
-                          <div class="col-md-6">
-                            <select name="license" class="form-control">
-                              <option value="">{{ _('All Licenses') }}</option>
-                              <option value="MIT" {% if request.args.license == 'MIT' %}selected{% endif %}>MIT</option>
-                              <option value="GPL" {% if request.args.license == 'GPL' %}selected{% endif %}>GPL</option>
-                              <option value="Apache" {% if request.args.license == 'Apache' %}selected{% endif %}>Apache</option>
-                              <option value="BSD" {% if request.args.license == 'BSD' %}selected{% endif %}>BSD</option>
-                              <option value="Creative Commons" {% if request.args.license == 'Creative Commons' %}selected{% endif %}>Creative Commons</option>
-                              <option value="Other" {% if request.args.license == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
-                            </select>
-                          </div>
-                          <div class="col-md-3">
-                            <button type="button" class="btn btn-default btn-block" onclick="resetFilters()">
+
+                          <!-- Actions -->
+                          <div class="filter-actions">
+                            <button type="button" class="unified-clear-btn" onclick="resetFilters()">
                               <i class="fa fa-times"></i> {{ _('Clear Filters') }}
                             </button>
+                            <button type="submit" class="unified-apply-btn">
+                              <i class="fa fa-filter"></i> {{ _('Apply Filters') }}
+                            </button>
                           </div>
-                          <div class="col-md-3">
-                            <div class="dropdown multi-select-dropdown">
-                              <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
-                                <span class="multi-select-text">{{ _('All Languages') }}</span>
-                                <span class="caret pull-right"></span>
-                              </button>
-                              <div class="dropdown-menu multi-select-menu">
-                                <div class="multi-select-header">
-                                  <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('Select All') }}</button>
-                                  <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('Clear') }}</button>
-                                </div>
-                                {% set selected_languages = request.args.getlist('language') %}
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Python" {% if 'Python' in selected_languages %}checked{% endif %}>
-                                  Python
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="JavaScript" {% if 'JavaScript' in selected_languages %}checked{% endif %}>
-                                  JavaScript
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="R" {% if 'R' in selected_languages %}checked{% endif %}>
-                                  R
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Java" {% if 'Java' in selected_languages %}checked{% endif %}>
-                                  Java
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="C++" {% if 'C++' in selected_languages %}checked{% endif %}>
-                                  C++
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="C" {% if 'C' in selected_languages %}checked{% endif %}>
-                                  C
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="PHP" {% if 'PHP' in selected_languages %}checked{% endif %}>
-                                  PHP
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Go" {% if 'Go' in selected_languages %}checked{% endif %}>
-                                  Go
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="language" value="Rust" {% if 'Rust' in selected_languages %}checked{% endif %}>
-                                  Rust
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-md-2">
-                            <select name="platform" class="form-control">
-                              <option value="">{{ _('All Platforms') }}</option>
-                              <option value="Windows" {% if request.args.platform == 'Windows' %}selected{% endif %}>Windows</option>
-                              <option value="Linux" {% if request.args.platform == 'Linux' %}selected{% endif %}>Linux</option>
-                              <option value="macOS" {% if request.args.platform == 'macOS' %}selected{% endif %}>macOS</option>
-                              <option value="Android" {% if request.args.platform == 'Android' %}selected{% endif %}>Android</option>
-                              <option value="iOS" {% if request.args.platform == 'iOS' %}selected{% endif %}>iOS</option>
-                              <option value="BSD" {% if request.args.platform == 'BSD' %}selected{% endif %}>BSD</option>
-                              <option value="Web" {% if request.args.platform == 'Web' %}selected{% endif %}>{{ _('Web') }}</option>
-                              <option value="Cross-platform" {% if request.args.platform == 'Cross-platform' %}selected{% endif %}>{{ _('Cross-platform') }}</option>
-                            </select>
-                          </div>
-                          <div class="col-md-2">
-                            <select name="attribution" class="form-control">
-                              <option value="">{{ _('All Attribution') }}</option>
-                              <option value="Required" {% if request.args.attribution == 'Required' %}selected{% endif %}>{{ _('Required') }}</option>
-                              <option value="Optional" {% if request.args.attribution == 'Optional' %}selected{% endif %}>{{ _('Optional') }}</option>
-                              <option value="None" {% if request.args.attribution == 'None' %}selected{% endif %}>{{ _('None') }}</option>
-                            </select>
-                          </div>
-                        </div>
+                        
                       </form>
                     </div>
                   </section>
