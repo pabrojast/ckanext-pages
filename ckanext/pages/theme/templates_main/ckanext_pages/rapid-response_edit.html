@@ -687,23 +687,8 @@
                           </div>
                         </fieldset>
 
-                        <!-- 8. Additional Information -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Additional Information') }}</legend>
-                          <div class="form-section-content">
-                          <p class="help-block">{{ _('Any additional content such as School Safety Assessment, Recovery Plans, etc.') }}</p>
-                          <div class="form-group">
-                            <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
-                            <div class="quill-wrapper">
-                              <div id="additional-content-editor" class="quill-editor quill-compact"></div>
-                              <textarea id="field-additional-content" name="additional_content" style="display: none;">{{ data.additional_content or '' }}</textarea>
-                            </div>
-                            {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
-                          </div>
-                          </div>
-                        </fieldset>
 
-                        <!-- 9. Header Image -->
+                        <!-- 8. Header Image -->
                         <fieldset class="form-section">
                           <legend>{{ _('Header Image') }}</legend>
                           <div class="form-section-content">
@@ -716,7 +701,7 @@
                           </div>
                         </fieldset>
 
-                        <!-- 10. Summary/Excerpt -->
+                        <!-- 9. Summary/Excerpt -->
                         <fieldset class="form-section">
                           <legend>{{ _('Summary/Excerpt') }}</legend>
                           <div class="form-section-content">

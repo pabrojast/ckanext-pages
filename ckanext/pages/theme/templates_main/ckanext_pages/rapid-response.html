@@ -476,26 +476,8 @@
                 </div>
                 {% endif %}
 
-                <!-- 8. Additional Information -->
-                {% if c.page.additional_content %}
-                <div class="rapid-response-additional" style="margin-bottom: 3rem;">
-                  <section class="module module-narrow rr-module-additional">
-                    <div class="module-content">
-                      <div class="rr-section-header">
-                        <div class="rr-section-icon">
-                          <i class="fa fa-file-text-o"></i>
-                        </div>
-                        <h2>{{ _('Additional Information') }}</h2>
-                      </div>
-                      <div class="rr-content-body">
-                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
-                      </div>
-                    </div>
-                  </section>
-                </div>
-                {% endif %}
 
-                <!-- 9. Actions and Metadata -->
+                <!-- 8. Actions and Metadata -->
                 <div class="rapid-response-actions" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">

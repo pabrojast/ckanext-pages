@@ -964,7 +964,6 @@
       'content-editor': { textareaId: 'field-content', toolbar: fullToolbar, placeholder: 'Detailed description of the emergency event, when and where it occurred, and its overall impact...' },
       'impact-assessment-editor': { textareaId: 'field-impact-assessment', toolbar: compactToolbar, placeholder: 'Describe the damage to heritage sites, communities affected, and ongoing concerns...' },
       'response-activities-editor': { textareaId: 'field-response-activities', toolbar: compactToolbar, placeholder: 'Detail the immediate response efforts, agencies involved, and current status...' },
-      'additional-content-editor': { textareaId: 'field-additional-content', toolbar: compactToolbar, placeholder: 'Any additional content such as School Safety Assessment, Recovery Plans, etc.' },
       'excerpt-editor': { textareaId: 'field-excerpt', toolbar: [['bold','italic','underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link'], ['clean']], placeholder: 'Brief summary of the disaster and response efforts...' }
     };
 
