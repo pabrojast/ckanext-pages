@@ -168,8 +168,9 @@
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get" class="form-inline">
+                        <!-- Search Row -->
                         <div class="row">
-                          <div class="col-md-6">
+                          <div class="col-md-8">
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
                               <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
@@ -177,6 +178,15 @@
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
+                          <div class="col-md-4">
+                            <button type="submit" class="btn btn-default btn-block">
+                              <i class="fa fa-search"></i> {{ _('Search') }}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <!-- Filters Row -->
+                        <div class="row" style="margin-top: 1rem;">
                           <div class="col-md-3">
                             <div class="dropdown multi-select-dropdown">
                               <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
@@ -229,22 +239,64 @@
                             </div>
                           </div>
                           <div class="col-md-3">
-                            <button type="submit" class="btn btn-default btn-block">
-                              <i class="fa fa-search"></i> {{ _('Filter') }}
-                            </button>
+                            <div class="dropdown multi-select-dropdown">
+                              <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
+                                <span class="multi-select-text">{{ _('All Languages') }}</span>
+                                <span class="caret pull-right"></span>
+                              </button>
+                              <div class="dropdown-menu multi-select-menu">
+                                <div class="multi-select-header">
+                                  <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('Select All') }}</button>
+                                  <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('Clear') }}</button>
+                                </div>
+                                {% set selected_languages = request.args.getlist('language') %}
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Python" {% if 'Python' in selected_languages %}checked{% endif %}>
+                                  Python
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="JavaScript" {% if 'JavaScript' in selected_languages %}checked{% endif %}>
+                                  JavaScript
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="R" {% if 'R' in selected_languages %}checked{% endif %}>
+                                  R
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Java" {% if 'Java' in selected_languages %}checked{% endif %}>
+                                  Java
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="C++" {% if 'C++' in selected_languages %}checked{% endif %}>
+                                  C++
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="C" {% if 'C' in selected_languages %}checked{% endif %}>
+                                  C
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="PHP" {% if 'PHP' in selected_languages %}checked{% endif %}>
+                                  PHP
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Go" {% if 'Go' in selected_languages %}checked{% endif %}>
+                                  Go
+                                </label>
+                                <label class="multi-select-option">
+                                  <input type="checkbox" name="language" value="Rust" {% if 'Rust' in selected_languages %}checked{% endif %}>
+                                  Rust
+                                </label>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        
-                        <!-- Advanced Filters Row -->
-                        <div class="row" style="margin-top: 1rem;">
-                          <div class="col-md-2">
+                          <div class="col-md-3">
                             <select name="access_type" class="form-control">
-                              <option value="">{{ _('All Types') }}</option>
+                              <option value="">{{ _('All Access Types') }}</option>
                               <option value="open-source" {% if request.args.access_type == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
                               <option value="open-access" {% if request.args.access_type == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="col-md-3">
                             <select name="development_status" class="form-control">
                               <option value="">{{ _('All Status') }}</option>
                               <option value="active" {% if request.args.development_status == 'active' %}selected{% endif %}>{{ _('Active') }}</option>
@@ -255,7 +307,11 @@
                               <option value="archived" {% if request.args.development_status == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                        </div>
+                        
+                        <!-- License and Filter Row -->
+                        <div class="row" style="margin-top: 1rem;">
+                          <div class="col-md-6">
                             <select name="license" class="form-control">
                               <option value="">{{ _('All Licenses') }}</option>
                               <option value="MIT" {% if request.args.license == 'MIT' %}selected{% endif %}>MIT</option>
@@ -266,7 +322,12 @@
                               <option value="Other" {% if request.args.license == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="col-md-3">
+                            <button type="button" class="btn btn-default btn-block" onclick="resetFilters()">
+                              <i class="fa fa-times"></i> {{ _('Clear Filters') }}
+                            </button>
+                          </div>
+                          <div class="col-md-3">
                             <div class="dropdown multi-select-dropdown">
                               <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
                                 <span class="multi-select-text">{{ _('All Languages') }}</span>

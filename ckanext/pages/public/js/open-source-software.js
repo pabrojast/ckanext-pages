@@ -396,6 +396,38 @@
       enhanceResourceLinks();
       initializeFileUploads();
       
+      // ================================================================
+      // FILTER RESET FUNCTIONALITY
+      // ================================================================
+      
+      // Add reset filters function to global scope
+      window.resetFilters = function() {
+        // Clear all form inputs
+        $('form').find('input[type="text"], input[type="search"]').val('');
+        $('form').find('select').prop('selectedIndex', 0);
+        $('form').find('input[type="checkbox"]').prop('checked', false);
+        
+        // Reset multi-select button text
+        $('.multi-select-dropdown').each(function() {
+          var $dropdown = $(this);
+          var $text = $dropdown.find('.multi-select-text');
+          var isCategory = $text.text().toLowerCase().includes('categ');
+          var isLanguage = $text.text().toLowerCase().includes('lang');
+          
+          if (isCategory) {
+            $text.text('All Categories');
+          } else if (isLanguage) {
+            $text.text('All Languages');
+          }
+        });
+        
+        // Trigger change event to update displays
+        $('.multi-select-dropdown input[type="checkbox"]:first').trigger('change');
+        
+        // Submit form to apply cleared filters
+        $('form').submit();
+      };
+      
       // Initialize tooltips if Bootstrap is available
       if (typeof $().tooltip === 'function') {
         $('[data-toggle="tooltip"]').tooltip();
