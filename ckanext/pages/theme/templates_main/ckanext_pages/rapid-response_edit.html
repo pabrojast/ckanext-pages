@@ -76,6 +76,27 @@
                           </div>
                         {% endif %}
                         
+                        <!-- Form Progress Overview -->
+                        <div class="form-progress-overview">
+                          <div class="progress-summary">
+                            <div class="progress-title">{{ _('Form Completion Progress') }}</div>
+                            <div class="progress-stats">
+                              <div class="stat-item" data-stat="completed">
+                                <i class="fa fa-check-circle" style="color: #28a745;"></i>
+                                <span class="stat-value">0</span> {{ _('completed') }}
+                              </div>
+                              <div class="stat-item" data-stat="total">
+                                <i class="fa fa-list" style="color: var(--unesco-blue);"></i>
+                                <span class="stat-value">7</span> {{ _('sections') }}
+                              </div>
+                              <div class="stat-item" data-stat="errors">
+                                <i class="fa fa-exclamation-triangle" style="color: #dc3545;"></i>
+                                <span class="stat-value">0</span> {{ _('errors') }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
                         <!-- Event Information -->
                         <fieldset class="form-section">
                           <legend>{{ _('Event Information') }}</legend>
@@ -399,9 +420,27 @@
                         </fieldset>
 
                         <!-- 3. Response Timeline -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Timeline of Events') }}</legend>
-                          <div class="form-section-content">
+                        <fieldset class="form-section collapsible expanded" data-section="timeline">
+                          <div class="collapsible-header">
+                            <div class="collapsible-title">
+                              <div class="section-icon">
+                                <i class="fa fa-clock-o"></i>
+                              </div>
+                              <h3>{{ _('Timeline of Events') }}</h3>
+                            </div>
+                            <div class="collapsible-status">
+                              <div class="collapsible-indicators">
+                                <div class="content-indicator empty">
+                                  <i class="fa fa-circle-o"></i> {{ _('Optional') }}
+                                </div>
+                              </div>
+                              <button type="button" class="collapse-toggle" aria-label="{{ _('Toggle timeline section') }}" aria-expanded="true">
+                                <i class="fa fa-chevron-up"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="collapsible-content">
+                            <div class="form-section-content">
                           <p class="help-block">{{ _('Track key response activities and milestones. Add events like activation, assessment, first reports, etc.') }}</p>
                           
                           <div id="timeline-events-container">
@@ -419,13 +458,32 @@
                           <!-- Hidden field to store timeline data -->
                           <input type="hidden" id="timeline-events-data" name="timeline_events" value="{{ data.timeline_events or '' }}">
                           {% if errors.timeline_events %}<span class="error-block">{{ errors.timeline_events }}</span>{% endif %}
+                            </div>
                           </div>
                         </fieldset>
 
                         <!-- 4. Impact Assessment - Advanced Block System -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Impact Assessment') }}</legend>
-                          <div class="form-section-content">
+                        <fieldset class="form-section collapsible collapsed" data-section="impact-assessment">
+                          <div class="collapsible-header">
+                            <div class="collapsible-title">
+                              <div class="section-icon">
+                                <i class="fa fa-exclamation-triangle"></i>
+                              </div>
+                              <h3>{{ _('Impact Assessment') }}</h3>
+                            </div>
+                            <div class="collapsible-status">
+                              <div class="collapsible-indicators">
+                                <div class="content-indicator empty">
+                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
+                                </div>
+                              </div>
+                              <button type="button" class="collapse-toggle">
+                                <i class="fa fa-chevron-down"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="collapsible-content">
+                            <div class="form-section-content">
                             <p class="help-block">{{ _('Build comprehensive impact assessments with text, maps, videos, and interactive content. Document damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
                             
                             <!-- Content Blocks Container for Impact Assessment -->
@@ -464,13 +522,32 @@
                                 <pre id="impact-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
                               </div>
                             </div>
+                            </div>
                           </div>
                         </fieldset>
 
                         <!-- 5. Response Activities - Advanced Block System -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Response Activities') }}</legend>
-                          <div class="form-section-content">
+                        <fieldset class="form-section collapsible collapsed" data-section="response-activities">
+                          <div class="collapsible-header">
+                            <div class="collapsible-title">
+                              <div class="section-icon">
+                                <i class="fa fa-users"></i>
+                              </div>
+                              <h3>{{ _('Response Activities') }}</h3>
+                            </div>
+                            <div class="collapsible-status">
+                              <div class="collapsible-indicators">
+                                <div class="content-indicator empty">
+                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
+                                </div>
+                              </div>
+                              <button type="button" class="collapse-toggle">
+                                <i class="fa fa-chevron-down"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="collapsible-content">
+                            <div class="form-section-content">
                             <p class="help-block">{{ _('Document comprehensive response efforts with text, coordination maps, video reports, and interactive content. Detail immediate response efforts, agencies involved, and current response status.') }}</p>
                             
                             <!-- Content Blocks Container for Response Activities -->
@@ -509,13 +586,32 @@
                                 <pre id="response-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
                               </div>
                             </div>
+                            </div>
                           </div>
                         </fieldset>
 
                         <!-- 6. Recovery Phase - Advanced Block System -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Recovery Phase') }}</legend>
-                          <div class="form-section-content">
+                        <fieldset class="form-section collapsible collapsed" data-section="recovery-phase">
+                          <div class="collapsible-header">
+                            <div class="collapsible-title">
+                              <div class="section-icon">
+                                <i class="fa fa-refresh"></i>
+                              </div>
+                              <h3>{{ _('Recovery Phase') }}</h3>
+                            </div>
+                            <div class="collapsible-status">
+                              <div class="collapsible-indicators">
+                                <div class="content-indicator empty">
+                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
+                                </div>
+                              </div>
+                              <button type="button" class="collapse-toggle">
+                                <i class="fa fa-chevron-down"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="collapsible-content">
+                            <div class="form-section-content">
                             <p class="help-block">{{ _('Document comprehensive recovery efforts with text, recovery plans, reconstruction activities, and interactive content. Detail long-term recovery strategies, community rebuilding, and restoration progress.') }}</p>
                             
                             <!-- Content Blocks Container for Recovery Phase -->
@@ -554,13 +650,32 @@
                                 <pre id="recovery-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
                               </div>
                             </div>
+                            </div>
                           </div>
                         </fieldset>
 
                         <!-- 7. Resilience Phase - Advanced Block System -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Resilience Phase') }}</legend>
-                          <div class="form-section-content">
+                        <fieldset class="form-section collapsible collapsed" data-section="resilience-phase">
+                          <div class="collapsible-header">
+                            <div class="collapsible-title">
+                              <div class="section-icon">
+                                <i class="fa fa-shield"></i>
+                              </div>
+                              <h3>{{ _('Resilience Phase') }}</h3>
+                            </div>
+                            <div class="collapsible-status">
+                              <div class="collapsible-indicators">
+                                <div class="content-indicator empty">
+                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
+                                </div>
+                              </div>
+                              <button type="button" class="collapse-toggle">
+                                <i class="fa fa-chevron-down"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="collapsible-content">
+                            <div class="form-section-content">
                             <p class="help-block">{{ _('Document resilience building efforts with text, preparedness plans, risk reduction activities, and interactive content. Detail long-term resilience strategies, capacity building, and disaster risk reduction measures.') }}</p>
                             
                             <!-- Content Blocks Container for Resilience Phase -->
@@ -599,13 +714,32 @@
                                 <pre id="resilience-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
                               </div>
                             </div>
+                            </div>
                           </div>
                         </fieldset>
 
                         <!-- 8. Additional Information - Advanced Block System -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Additional Information') }}</legend>
-                          <div class="form-section-content">
+                        <fieldset class="form-section collapsible collapsed" data-section="additional-info">
+                          <div class="collapsible-header">
+                            <div class="collapsible-title">
+                              <div class="section-icon">
+                                <i class="fa fa-info-circle"></i>
+                              </div>
+                              <h3>{{ _('Additional Information') }}</h3>
+                            </div>
+                            <div class="collapsible-status">
+                              <div class="collapsible-indicators">
+                                <div class="content-indicator empty">
+                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
+                                </div>
+                              </div>
+                              <button type="button" class="collapse-toggle">
+                                <i class="fa fa-chevron-down"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="collapsible-content">
+                            <div class="form-section-content">
                             <p class="help-block">{{ _('Add supplementary content blocks with text, spatial data, maps, and interactive elements. Include additional context, recovery plans, or specialized information.') }}</p>
                             
                             <!-- Content Blocks Container -->
@@ -760,6 +894,292 @@
 <link rel="stylesheet" type="text/css" href="/css/rapid-response-edit.css" />
 <script type="text/javascript" src="/js/rapid-response-edit.js"></script>
 
+<!-- Collapsible Form Sections CSS -->
+<style>
+/* Collapsible Form Sections */
+.form-section.collapsible {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.form-section.collapsible.collapsed {
+  border-color: #dee2e6;
+}
+
+.form-section.collapsible.has-errors {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.1);
+}
+
+.collapsible-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  user-select: none;
+  position: relative;
+}
+
+.collapsible-header:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+}
+
+.collapsible.collapsed .collapsible-header {
+  border-bottom: none;
+}
+
+.collapsible-header.has-errors {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-bottom-color: #dc3545;
+}
+
+.collapsible-header.has-errors:hover {
+  background: linear-gradient(135deg, #f5c6cb 0%, #f1b0b7 100%);
+}
+
+.collapsible-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.collapsible-title .section-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.15);
+}
+
+.collapsible-title h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.collapsible-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.collapsible-indicators {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.content-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.content-indicator.has-content {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.content-indicator.empty {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.content-indicator.has-errors {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.error-count {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.collapse-toggle {
+  background: none;
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--unesco-blue);
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.collapse-toggle:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  transform: scale(1.05);
+}
+
+.collapse-toggle:active {
+  transform: scale(0.95);
+}
+
+.collapsible-content {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.collapsible.collapsed .collapsible-content {
+  max-height: 0;
+  padding: 0;
+  border: none;
+}
+
+.collapsible.expanded .collapsible-content {
+  max-height: none;
+  animation: expandSection 0.3s ease-out;
+}
+
+@keyframes expandSection {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-section-content {
+  padding: 1.5rem;
+}
+
+.collapsible.collapsed .form-section-content {
+  display: none;
+}
+
+/* Progress indicators */
+.form-progress-overview {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.progress-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.progress-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--unesco-blue);
+}
+
+.progress-stats {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #dee2e6;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--unesco-blue);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .collapsible-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .collapsible-status {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .collapsible-title h3 {
+    font-size: 1.1rem;
+  }
+  
+  .progress-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .progress-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .collapsible-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .collapsible-title .section-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+  
+  .progress-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+</style>
+
 <!-- External dependencies for Quill editor and Markdown -->
 
 <!-- Quill Editor Integration -->
@@ -768,5 +1188,204 @@
 
 <!-- Lightweight Markdown parser (Marked) for mixed Markdown + HTML content -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Collapsible Form JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Collapsible form sections functionality
+    const CollapsibleForm = {
+        init: function() {
+            this.setupCollapsibleSections();
+            this.updateProgressIndicators();
+            this.setupValidationHandling();
+        },
+
+        setupCollapsibleSections: function() {
+            const collapsibleSections = document.querySelectorAll('.form-section.collapsible');
+            
+            collapsibleSections.forEach(section => {
+                const header = section.querySelector('.collapsible-header');
+                const toggle = section.querySelector('.collapse-toggle');
+                const content = section.querySelector('.collapsible-content');
+                
+                if (header && toggle && content) {
+                    // Click handlers
+                    header.addEventListener('click', (e) => this.toggleSection(section, e));
+                    toggle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleSection(section, e);
+                    });
+                    
+                    // Initialize state
+                    this.updateSectionState(section);
+                }
+            });
+        },
+
+        toggleSection: function(section, event) {
+            event.preventDefault();
+            
+            const isCollapsed = section.classList.contains('collapsed');
+            const content = section.querySelector('.collapsible-content');
+            const toggle = section.querySelector('.collapse-toggle i');
+            
+            if (isCollapsed) {
+                // Expand
+                section.classList.remove('collapsed');
+                section.classList.add('expanded');
+                if (toggle) toggle.className = 'fa fa-chevron-up';
+                
+                // Smooth expand animation
+                if (content) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    setTimeout(() => {
+                        content.style.maxHeight = 'none';
+                    }, 300);
+                }
+            } else {
+                // Collapse
+                if (content) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    setTimeout(() => {
+                        content.style.maxHeight = '0';
+                        section.classList.remove('expanded');
+                        section.classList.add('collapsed');
+                    }, 10);
+                }
+                if (toggle) toggle.className = 'fa fa-chevron-down';
+            }
+            
+            // Update indicators
+            setTimeout(() => this.updateSectionState(section), 350);
+        },
+
+        updateSectionState: function(section) {
+            const sectionId = section.getAttribute('data-section');
+            const hasContent = this.checkSectionContent(section);
+            const hasErrors = this.checkSectionErrors(section);
+            
+            // Update content indicator
+            const indicator = section.querySelector('.content-indicator');
+            if (indicator) {
+                indicator.className = 'content-indicator';
+                if (hasErrors) {
+                    indicator.classList.add('has-errors');
+                    indicator.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Has Errors';
+                } else if (hasContent) {
+                    indicator.classList.add('has-content');
+                    indicator.innerHTML = '<i class="fa fa-check"></i> Has Content';
+                } else {
+                    indicator.classList.add('empty');
+                    indicator.innerHTML = '<i class="fa fa-circle-o"></i> Empty';
+                }
+            }
+            
+            // Update header error state
+            const header = section.querySelector('.collapsible-header');
+            if (header) {
+                if (hasErrors) {
+                    header.classList.add('has-errors');
+                    section.classList.add('has-errors');
+                } else {
+                    header.classList.remove('has-errors');
+                    section.classList.remove('has-errors');
+                }
+            }
+        },
+
+        checkSectionContent: function(section) {
+            // Check various content types
+            const textareas = section.querySelectorAll('textarea');
+            const inputs = section.querySelectorAll('input[type="text"], input[type="url"], input[type="date"]');
+            const selects = section.querySelectorAll('select');
+            
+            // Check textareas (including hidden ones for editors)
+            for (let textarea of textareas) {
+                if (textarea.value && textarea.value.trim().length > 0) {
+                    // For rich text editors, also check for meaningful content
+                    const cleanText = textarea.value.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+                    if (cleanText.length > 0) return true;
+                }
+            }
+            
+            // Check text inputs
+            for (let input of inputs) {
+                if (input.value && input.value.trim().length > 0) return true;
+            }
+            
+            // Check selects
+            for (let select of selects) {
+                if (select.value && select.value.trim().length > 0) return true;
+            }
+            
+            return false;
+        },
+
+        checkSectionErrors: function(section) {
+            const errorBlocks = section.querySelectorAll('.error-block, .alert-danger');
+            return errorBlocks.length > 0;
+        },
+
+        updateProgressIndicators: function() {
+            const progressContainer = document.querySelector('.form-progress-overview');
+            if (!progressContainer) return;
+            
+            const sections = document.querySelectorAll('.form-section.collapsible');
+            let totalSections = sections.length;
+            let completedSections = 0;
+            let sectionsWithErrors = 0;
+            
+            sections.forEach(section => {
+                if (this.checkSectionContent(section)) completedSections++;
+                if (this.checkSectionErrors(section)) sectionsWithErrors++;
+            });
+            
+            // Update stats
+            const completedStat = progressContainer.querySelector('[data-stat="completed"] .stat-value');
+            const errorsStat = progressContainer.querySelector('[data-stat="errors"] .stat-value');
+            const totalStat = progressContainer.querySelector('[data-stat="total"] .stat-value');
+            
+            if (completedStat) completedStat.textContent = completedSections;
+            if (errorsStat) errorsStat.textContent = sectionsWithErrors;
+            if (totalStat) totalStat.textContent = totalSections;
+        },
+
+        setupValidationHandling: function() {
+            // Handle form validation for collapsed sections
+            const form = document.getElementById('rapid-response-form');
+            if (!form) return;
+            
+            form.addEventListener('submit', (e) => {
+                // Expand sections with errors before submit
+                const sectionsWithErrors = document.querySelectorAll('.form-section.collapsible.has-errors');
+                sectionsWithErrors.forEach(section => {
+                    if (section.classList.contains('collapsed')) {
+                        this.toggleSection(section, { preventDefault: () => {} });
+                    }
+                });
+            });
+        }
+    };
+
+    // Initialize collapsible functionality
+    CollapsibleForm.init();
+    
+    // Update indicators when content changes
+    document.addEventListener('input', function() {
+        setTimeout(() => CollapsibleForm.updateProgressIndicators(), 100);
+    });
+    
+    // Update indicators when Quill editors change
+    if (window.QuillInstances) {
+        Object.values(window.QuillInstances).forEach(quill => {
+            quill.on('text-change', function() {
+                setTimeout(() => CollapsibleForm.updateProgressIndicators(), 100);
+            });
+        });
+    }
+    
+    console.log('Collapsible form system initialized');
+});
+</script>
 
 {% endblock %}
