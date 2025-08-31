@@ -125,7 +125,7 @@
                 <div class="rapid-response-filters" style="margin-bottom: 2rem;">
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
-                      <form method="get" class="form-inline">
+                      <form method="get">
                         <div class="row">
                           <div class="col-md-2">
                             <div class="form-group" style="width: 100%;">
@@ -136,7 +136,8 @@
                             </div>
                           </div>
                           <div class="col-md-2">
-                            <select name="event_type" class="form-control">
+                            <label for="event_type" class="sr-only">{{ _('Event Type') }}</label>
+                            <select name="event_type" id="event_type" class="form-control">
                               <option value="">{{ _('All Types') }}</option>
                               {% for event_type in h.get_event_types() %}
                                 <option value="{{ event_type.id }}" 
@@ -151,7 +152,8 @@
                             </select>
                           </div>
                           <div class="col-md-1">
-                            <select name="country" class="form-control">
+                            <label for="country" class="sr-only">{{ _('Country') }}</label>
+                            <select name="country" id="country" class="form-control">
                               <option value="">{{ _('Location') }}</option>
                               <option value="Afghanistan" {% if request.args.country == 'Afghanistan' %}selected{% endif %}>Afghanistan</option>
                               <option value="Albania" {% if request.args.country == 'Albania' %}selected{% endif %}>Albania</option>
@@ -352,7 +354,8 @@
                             </select>
                           </div>
                           <div class="col-md-1">
-                            <select name="activity_status" class="form-control">
+                            <label for="activity_status" class="sr-only">{{ _('Activity Status') }}</label>
+                            <select name="activity_status" id="activity_status" class="form-control">
                               <option value="">{{ _('Phase') }}</option>
                               <option value="impact_assessment" {% if request.args.activity_status == 'impact_assessment' %}selected{% endif %}>{{ _('Assessment') }}</option>
                               <option value="response" {% if request.args.activity_status == 'response' %}selected{% endif %}>{{ _('Response') }}</option>
@@ -361,7 +364,8 @@
                             </select>
                           </div>
                           <div class="col-md-2">
-                            <select name="severity" class="form-control">
+                            <label for="severity" class="sr-only">{{ _('Severity Level') }}</label>
+                            <select name="severity" id="severity" class="form-control">
                               <option value="">{{ _('Alert Level') }}</option>
                               <option value="red_alert" {% if request.args.severity == 'red_alert' %}selected{% endif %}>{{ _('🔴 Red Alert') }}</option>
                               <option value="orange_alert" {% if request.args.severity == 'orange_alert' %}selected{% endif %}>{{ _('🟠 Orange Alert') }}</option>
@@ -372,7 +376,8 @@
                             </select>
                           </div>
                           <div class="col-md-2">
-                            <select name="order_by" class="form-control">
+                            <label for="order_by" class="sr-only">{{ _('Sort Order') }}</label>
+                            <select name="order_by" id="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
                               <option value="recent" {% if request.args.order_by == 'recent' or not request.args.order_by %}selected{% endif %}>{{ _('Most Recent') }}</option>
                               <option value="oldest" {% if request.args.order_by == 'oldest' %}selected{% endif %}>{{ _('Oldest First') }}</option>
@@ -1870,6 +1875,74 @@
   
   .metric-number {
     font-size: 1.5rem;
+  }
+}
+
+/* Filter Layout Fixes */
+.rapid-response-filters .row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.rapid-response-filters .row > div {
+  position: relative;
+  min-height: 1px;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-bottom: 10px;
+}
+
+.rapid-response-filters .col-md-2 {
+  width: 16.66666667%;
+  flex: 0 0 16.66666667%;
+}
+
+.rapid-response-filters .col-md-1 {
+  width: 8.33333333%;
+  flex: 0 0 8.33333333%;
+}
+
+.rapid-response-filters .form-control {
+  width: 100%;
+  height: 38px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.rapid-response-filters select.form-control {
+  background-color: #fff;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+  appearance: menulist;
+}
+
+/* Responsive filter adjustments */
+@media (max-width: 991px) {
+  .rapid-response-filters .col-md-2,
+  .rapid-response-filters .col-md-1 {
+    width: 50%;
+    flex: 0 0 50%;
+  }
+}
+
+@media (max-width: 767px) {
+  .rapid-response-filters .col-md-2,
+  .rapid-response-filters .col-md-1 {
+    width: 100%;
+    flex: 0 0 100%;
+  }
+  
+  .rapid-response-filters .row > div {
+    margin-bottom: 15px;
   }
 }
 </style>
