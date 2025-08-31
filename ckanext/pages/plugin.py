@@ -155,6 +155,26 @@ def strip_html_tags(content):
     return clean_text.strip()
 
 
+def has_meaningful_content(content):
+    """Check if content has meaningful text beyond HTML tags and whitespace"""
+    if not content:
+        return False
+    
+    # Remove HTML tags and decode HTML entities
+    clean_text = re.sub('<[^<]+?>', '', content)
+    clean_text = re.sub(r'&[a-zA-Z0-9#]+;', '', clean_text)
+    
+    # Remove all whitespace characters (spaces, tabs, newlines)
+    clean_text = re.sub(r'\s+', '', clean_text)
+    
+    # Remove common empty content patterns
+    clean_text = re.sub(r'&nbsp;', '', clean_text)
+    clean_text = re.sub(r'<br\s*/?>', '', clean_text)
+    
+    # Check if there's any meaningful content left
+    return len(clean_text) > 0
+
+
 def get_wysiwyg_editor():
     return tk.config.get('ckanext.pages.editor', '')
 
@@ -549,6 +569,7 @@ class PagesPlugin(PagesPluginBase):
             'build_nav_main': build_pages_nav_main,
             'render_content': render_content,
             'strip_html_tags': strip_html_tags,
+            'has_meaningful_content': has_meaningful_content,
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,
             'get_recent_rapid_response_posts': get_recent_rapid_response_posts,

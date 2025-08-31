@@ -110,6 +110,87 @@
                 
                 
                 
+                <!-- Phase Progress Indicator -->
+                {% set has_impact = c.page.impact_assessment and h.has_meaningful_content(c.page.impact_assessment) %}
+                {% set has_response = c.page.response_activities and h.has_meaningful_content(c.page.response_activities) %}
+                {% set has_recovery = c.page.recovery_phase and h.has_meaningful_content(c.page.recovery_phase) %}
+                {% set has_resilience = c.page.resilience_phase and h.has_meaningful_content(c.page.resilience_phase) %}
+                {% set total_phases = [has_impact, has_response, has_recovery, has_resilience] %}
+                {% set completed_phases = total_phases | selectattr | list | length %}
+
+                {% if completed_phases > 0 %}
+                <div class="rapid-response-phase-progress" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="phase-progress-header">
+                        <h3>{{ _('Emergency Response Progress') }}</h3>
+                        <div class="progress-summary">
+                          <span class="phase-count">{{ completed_phases }} {{ _('of') }} 4 {{ _('phases documented') }}</span>
+                        </div>
+                      </div>
+                      
+                      <div class="phase-indicators">
+                        <div class="phase-indicator {{ 'active' if has_impact else 'inactive' }}">
+                          <div class="phase-icon">
+                            <i class="fa fa-exclamation-triangle"></i>
+                          </div>
+                          <div class="phase-label">{{ _('Impact Assessment') }}</div>
+                          <div class="phase-status">
+                            {% if has_impact %}
+                              <i class="fa fa-check-circle text-success"></i> {{ _('Documented') }}
+                            {% else %}
+                              <i class="fa fa-circle-o text-muted"></i> {{ _('Pending') }}
+                            {% endif %}
+                          </div>
+                        </div>
+                        
+                        <div class="phase-indicator {{ 'active' if has_response else 'inactive' }}">
+                          <div class="phase-icon">
+                            <i class="fa fa-users"></i>
+                          </div>
+                          <div class="phase-label">{{ _('Response Activities') }}</div>
+                          <div class="phase-status">
+                            {% if has_response %}
+                              <i class="fa fa-check-circle text-success"></i> {{ _('Documented') }}
+                            {% else %}
+                              <i class="fa fa-circle-o text-muted"></i> {{ _('Pending') }}
+                            {% endif %}
+                          </div>
+                        </div>
+                        
+                        <div class="phase-indicator {{ 'active' if has_recovery else 'inactive' }}">
+                          <div class="phase-icon">
+                            <i class="fa fa-refresh"></i>
+                          </div>
+                          <div class="phase-label">{{ _('Recovery Phase') }}</div>
+                          <div class="phase-status">
+                            {% if has_recovery %}
+                              <i class="fa fa-check-circle text-success"></i> {{ _('Documented') }}
+                            {% else %}
+                              <i class="fa fa-circle-o text-muted"></i> {{ _('Pending') }}
+                            {% endif %}
+                          </div>
+                        </div>
+                        
+                        <div class="phase-indicator {{ 'active' if has_resilience else 'inactive' }}">
+                          <div class="phase-icon">
+                            <i class="fa fa-shield"></i>
+                          </div>
+                          <div class="phase-label">{{ _('Resilience Building') }}</div>
+                          <div class="phase-status">
+                            {% if has_resilience %}
+                              <i class="fa fa-check-circle text-success"></i> {{ _('Documented') }}
+                            {% else %}
+                              <i class="fa fa-circle-o text-muted"></i> {{ _('Pending') }}
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
                 <!-- 1. Event Overview (Main Content) -->
                 {% if c.page.content %}
                 <div class="rapid-response-main-content" style="margin-bottom: 3rem;">
@@ -245,7 +326,7 @@
                 {% endif %}
 
                 <!-- 4. Impact Assessment -->
-                {% if c.page.impact_assessment %}
+                {% if c.page.impact_assessment and h.has_meaningful_content(c.page.impact_assessment) %}
                 <div class="rapid-response-impact" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-impact">
                     <div class="module-content">
@@ -264,7 +345,7 @@
                 {% endif %}
 
                 <!-- 5. Response Activities -->
-                {% if c.page.response_activities %}
+                {% if c.page.response_activities and h.has_meaningful_content(c.page.response_activities) %}
                 <div class="rapid-response-activities" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-response">
                     <div class="module-content">
@@ -283,7 +364,7 @@
                 {% endif %}
 
                 <!-- 6. Recovery Phase -->
-                {% if c.page.recovery_phase %}
+                {% if c.page.recovery_phase and h.has_meaningful_content(c.page.recovery_phase) %}
                 <div class="rapid-response-recovery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-recovery">
                     <div class="module-content">
@@ -302,7 +383,7 @@
                 {% endif %}
 
                 <!-- 7. Resilience Phase -->
-                {% if c.page.resilience_phase %}
+                {% if c.page.resilience_phase and h.has_meaningful_content(c.page.resilience_phase) %}
                 <div class="rapid-response-resilience" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-resilience">
                     <div class="module-content">
@@ -821,6 +902,173 @@
 
 .rr-module-additional {
   border-left: 6px solid var(--text-secondary);
+}
+
+/* Phase Progress Indicator Styling */
+.rapid-response-phase-progress .module {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue-pale);
+  border-left: 6px solid var(--unesco-blue);
+}
+
+.phase-progress-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+}
+
+.phase-progress-header h3 {
+  color: var(--unesco-blue);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-summary {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.phase-count {
+  background: var(--unesco-blue-pale);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.phase-indicators {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.phase-indicator {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.phase-indicator.active {
+  border-color: var(--unesco-blue);
+  background: linear-gradient(135deg, #ffffff 0%, var(--unesco-blue-pale) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.phase-indicator.inactive {
+  border-color: #dee2e6;
+  opacity: 0.7;
+}
+
+.phase-indicator:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+
+.phase-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  transition: all 0.3s ease;
+}
+
+.phase-indicator.active .phase-icon {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.phase-indicator.inactive .phase-icon {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: var(--text-secondary);
+  border: 2px solid #dee2e6;
+}
+
+.phase-label {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.phase-indicator.active .phase-label {
+  color: var(--unesco-blue);
+}
+
+.phase-status {
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.phase-status .text-success {
+  color: #28a745 !important;
+}
+
+.phase-status .text-muted {
+  color: #6c757d !important;
+}
+
+/* Responsive Phase Indicators */
+@media (max-width: 768px) {
+  .phase-indicators {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .phase-indicator {
+    padding: 1rem;
+  }
+  
+  .phase-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .phase-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .phase-status {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .phase-indicators {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .phase-progress-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .progress-summary {
+    font-size: 0.9rem;
+  }
 }
 
 /* Timeline Styling - Enhanced */
