@@ -168,76 +168,79 @@
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get" class="form-inline">
+                        <!-- UNIFIED FILTER SYSTEM - RESPONSIVE DESIGN -->
                         <!-- Search Row -->
-                        <div class="row">
-                          <div class="col-md-8">
-                            <div class="form-group" style="width: 100%;">
+                        <div class="unified-filters-container">
+                          <div class="search-section">
+                            <div class="search-input-group">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
-                              <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
+                              <input type="text" name="q" id="q" class="unified-search-input" 
                                      placeholder="{{ _('Search water management tools...') }}" 
                                      value="{{ request.args.q or '' }}">
+                              <button type="submit" class="unified-search-btn">
+                                <i class="fa fa-search"></i>
+                                <span class="btn-text">{{ _('Search') }}</span>
+                              </button>
                             </div>
                           </div>
-                          <div class="col-md-4">
-                            <button type="submit" class="btn btn-default btn-block">
-                              <i class="fa fa-search"></i> {{ _('Search') }}
-                            </button>
-                          </div>
-                        </div>
                         
-                        <!-- Filters Row -->
-                        <div class="row" style="margin-top: 1rem;">
-                          <div class="col-md-3">
-                            <div class="dropdown multi-select-dropdown">
-                              <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">
-                                <span class="multi-select-text">{{ _('All Categories') }}</span>
-                                <span class="caret pull-right"></span>
-                              </button>
-                              <div class="dropdown-menu multi-select-menu">
-                                <div class="multi-select-header">
-                                  <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('Select All') }}</button>
-                                  <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('Clear') }}</button>
+                          <!-- Unified Filters Grid -->
+                          <div class="filters-grid">
+                            <!-- Categories Filter -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-tags"></i></span>
+                                  <span class="filter-text">{{ _('All Categories') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-header">
+                                    <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
+                                    <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
+                                  </div>
+                                  <div class="unified-dropdown-content">
+                                    {% set selected_categories = request.args.getlist('category') %}
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="programming" {% if 'programming' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Programming') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="collaboration-platforms" {% if 'collaboration-platforms' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Collaboration Platforms') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="geographic-information-systems" {% if 'geographic-information-systems' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('GIS') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="modeling" {% if 'modeling' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Modeling') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="data-collection" {% if 'data-collection' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Data Collection') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="data-processing" {% if 'data-processing' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Data Processing') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="data-visualization" {% if 'data-visualization' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Data Visualization') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="mobile-application" {% if 'mobile-application' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Mobile Application') }}</span>
+                                    </label>
+                                    <label class="unified-option">
+                                      <input type="checkbox" name="category" value="desktop-application" {% if 'desktop-application' in selected_categories %}checked{% endif %}>
+                                      <span>{{ _('Desktop Application') }}</span>
+                                    </label>
+                                  </div>
                                 </div>
-                                {% set selected_categories = request.args.getlist('category') %}
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="programming" {% if 'programming' in selected_categories %}checked{% endif %}>
-                                  {{ _('Programming') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="collaboration-platforms" {% if 'collaboration-platforms' in selected_categories %}checked{% endif %}>
-                                  {{ _('Collaboration Platforms') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="geographic-information-systems" {% if 'geographic-information-systems' in selected_categories %}checked{% endif %}>
-                                  {{ _('GIS') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="modeling" {% if 'modeling' in selected_categories %}checked{% endif %}>
-                                  {{ _('Modeling') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="data-collection" {% if 'data-collection' in selected_categories %}checked{% endif %}>
-                                  {{ _('Data Collection') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="data-processing" {% if 'data-processing' in selected_categories %}checked{% endif %}>
-                                  {{ _('Data Processing') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="data-visualization" {% if 'data-visualization' in selected_categories %}checked{% endif %}>
-                                  {{ _('Data Visualization') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="mobile-application" {% if 'mobile-application' in selected_categories %}checked{% endif %}>
-                                  {{ _('Mobile Application') }}
-                                </label>
-                                <label class="multi-select-option">
-                                  <input type="checkbox" name="category" value="desktop-application" {% if 'desktop-application' in selected_categories %}checked{% endif %}>
-                                  {{ _('Desktop Application') }}
-                                </label>
                               </div>
                             </div>
-                          </div>
                           <div class="col-md-3">
                             <div class="dropdown multi-select-dropdown">
                               <button type="button" class="btn btn-default dropdown-toggle form-control text-left multi-select-button" data-toggle="dropdown">

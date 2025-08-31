@@ -442,6 +442,107 @@
       console.log('Multi-select dropdowns found:', $('.multi-select-dropdown').length);
       console.log('Upload zones found:', $('.upload-zone').length);
       
+      // ================================================================
+      // UNIFIED DROPDOWN SYSTEM HANDLERS
+      // ================================================================
+      
+      // Enhanced handlers for the new unified filter system
+      $('.unified-filter-btn').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var $dropdown = $(this).closest('.unified-dropdown');
+        var $menu = $dropdown.find('.unified-dropdown-menu');
+        
+        // Close all other dropdowns
+        $('.unified-dropdown').not($dropdown).removeClass('show');
+        $('.unified-dropdown-menu').not($menu).hide();
+        
+        // Toggle this dropdown
+        $dropdown.toggleClass('show');
+        $menu.toggle();
+      });
+      
+      // Handle checkbox changes for unified multi-select filters
+      $(document).on('change', '.unified-option input[type="checkbox"]', function() {
+        var $dropdown = $(this).closest('.unified-dropdown');
+        var $button = $dropdown.find('.unified-filter-btn');
+        var $text = $button.find('.filter-text');
+        var $checkboxes = $dropdown.find('input[type="checkbox"]');
+        
+        var selectedOptions = [];
+        $checkboxes.each(function() {
+          if ($(this).is(':checked')) {
+            selectedOptions.push($(this).next('span').text().trim());
+          }
+        });
+        
+        // Update button text
+        var originalText = $text.data('original') || $text.text();
+        if (!$text.data('original')) {
+          $text.data('original', originalText);
+        }
+        
+        if (selectedOptions.length === 0) {
+          $text.text(originalText);
+        } else if (selectedOptions.length === 1) {
+          $text.text(selectedOptions[0]);
+        } else if (selectedOptions.length <= 2) {
+          $text.text(selectedOptions.join(', '));
+        } else {
+          $text.text(selectedOptions.length + ' selected');
+        }
+      });
+      
+      // Handle radio changes for unified single-select filters
+      $(document).on('change', '.unified-option input[type="radio"]', function() {
+        var $dropdown = $(this).closest('.unified-dropdown');
+        var $button = $dropdown.find('.unified-filter-btn');
+        var $text = $button.find('.filter-text');
+        var selectedText = $(this).next('span').text().trim();
+        
+        $text.text(selectedText);
+        
+        // Auto-close for better UX
+        setTimeout(function() {
+          $dropdown.removeClass('show');
+          $dropdown.find('.unified-dropdown-menu').hide();
+        }, 250);
+      });
+      
+      // Initialize unified dropdowns
+      $('.unified-dropdown').each(function() {
+        var $dropdown = $(this);
+        var $text = $dropdown.find('.filter-text');
+        
+        // Store original text
+        if (!$text.data('original')) {
+          $text.data('original', $text.text());
+        }
+        
+        // Initialize displays
+        var $checkboxes = $dropdown.find('input[type="checkbox"]');
+        if ($checkboxes.length > 0) {
+          $checkboxes.first().trigger('change');
+        }
+        
+        var $selectedRadio = $dropdown.find('input[type="radio"]:checked');
+        if ($selectedRadio.length) {
+          $selectedRadio.trigger('change');
+        }
+      });
+      
+      // Close unified dropdowns when clicking outside
+      $(document).on('click', function(e) {
+        if (!$(e.target).closest('.unified-dropdown, .unified-filters-container').length) {
+          $('.unified-dropdown').removeClass('show');
+          $('.unified-dropdown-menu').hide();
+        }
+      });
+      
+      console.log('Unified dropdown system initialized');
+      console.log('Unified dropdowns found:', $('.unified-dropdown').length);
+      
     }); // End document ready
     
   }); // End waitForJQuery
