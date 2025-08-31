@@ -1,5 +1,16 @@
 {% extends "page.html" %}
 
+{# Load external CSS and JS files for open source software functionality #}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
+{% endblock %}
+
 {% block title %}
 {% if page %}
   {{ _('Edit Tool Entry') }} - {{ page.title or page.name }}

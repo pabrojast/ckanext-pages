@@ -1,5 +1,16 @@
 {% extends "page.html" %}
 
+{# Load external CSS and JS files for open source software functionality #}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
+{% endblock %}
+
 {% block title %}
 {{ c.page.title or c.page.name }} - {{ _('Water Management Tools') }} - {{ super() }}
 {% endblock %}
@@ -699,8 +710,8 @@
   </div>
 </div>
 
-<!-- Professional Open Source Software View CSS -->
-<style>
+<!-- Styles moved to external CSS file: /css/open-source-software.css -->
+<!-- <style>
 /* UNESCO Color Palette */
 :root {
   --unesco-blue: #0072BC;
@@ -2141,10 +2152,10 @@
   align-items: center;
   justify-content: space-between;
 }
-</style>
+</style> -->
 
-<!-- JavaScript for Enhanced Functionality -->
-<script>
+<!-- JavaScript moved to external JS file: /js/open-source-software.js -->
+<!-- <script>
 (function() {
   // Wait for jQuery to be available
   function waitForJQuery(callback) {
@@ -2287,6 +2298,6 @@
     
   }); // Close waitForJQuery function
 })(); // Close main function
-</script>
+</script> -->
 
 {% endblock %} 

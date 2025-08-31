@@ -1,5 +1,16 @@
 {% extends "page.html" %}
 
+{# Load external CSS and JS files for open source software functionality #}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
+{% endblock %}
+
 {% block title %}
 {{ _('Open-Source Tools for Water Management') }} - {{ super() }}
 {% endblock %}
@@ -556,8 +567,8 @@
 
 
 
-<!-- Modern Compact Software List Styles -->
-<style>
+<!-- Styles moved to external CSS file: /css/open-source-software.css -->
+<!-- <style>
 /* Modern Software Cards */
 .software-card-modern {
   transition: all 0.3s ease;
@@ -961,10 +972,10 @@
     text-align: center;
   }
 }
-</style>
+</style> -->
 
-<!-- JavaScript for Read More functionality -->
-<script>
+<!-- JavaScript moved to external JS file: /js/open-source-software.js -->
+<!-- <script>
 // Wait for jQuery to be available
 function waitForJQuery(callback) {
   if (typeof jQuery !== 'undefined') {
@@ -1110,10 +1121,10 @@ function toggleSoftwareExcerpt(button) {
     button.classList.remove('expanded');
   }
 }
-</script>
+</script> -->
 
-<!-- Professional Open Source Software CSS -->
-<style>
+<!-- Professional Open Source Software CSS moved to external file -->
+<!-- <style>
 /* UNESCO Color Palette - Consistent with rapid-response design */
 :root {
   --unesco-blue: #0072BC;
@@ -2250,6 +2261,6 @@ function toggleSoftwareExcerpt(button) {
     max-height: 250px;
   }
 }
-</style>
+</style> -->
 
 {% endblock %} 
