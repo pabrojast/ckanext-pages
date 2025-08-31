@@ -959,6 +959,17 @@
   }
 }
 
+/* Ensure dropdowns are not clipped by parent modules */
+.software-filters .module,
+.software-filters .module-content {
+  overflow: visible;
+}
+
+/* Remove any global label decorations (like trailing colons) inside unified options */
+.unified-dropdown .unified-option::after {
+  content: none !important;
+}
+
 .unified-dropdown-header {
   display: flex;
   justify-content: space-between;

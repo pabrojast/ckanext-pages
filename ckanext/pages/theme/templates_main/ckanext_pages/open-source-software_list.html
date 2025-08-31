@@ -257,10 +257,10 @@
                                   </div>
                                   <div class="unified-dropdown-content">
                                     {% set selected_languages = request.args.getlist('language') %}
-                                    {% for lang in ['Python','JavaScript','R','Java','C++','C','PHP','Go','Rust'] %}
+                  {% for lang in ['Python','JavaScript','R','Java','C++','C','PHP','Go','Rust'] %}
                                       <label class="unified-option">
                                         <input type="checkbox" name="language" value="{{ lang }}" {% if lang in selected_languages %}checked{% endif %}>
-                                        <span>{{ lang }}</span>
+                    <span>{{ lang }}</span>
                                       </label>
                                     {% endfor %}
                                   </div>
