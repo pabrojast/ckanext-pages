@@ -18,7 +18,9 @@
       "Bash(chmod:*)",
       "WebFetch(domain:www.gdacs.org)",
       "WebSearch",
-      "Read(/C:\\c\\Users\\pablo\\OneDrive\\Escritorio\\Proyectos/**)"
+      "Read(/C:\\c\\Users\\pablo\\OneDrive\\Escritorio\\Proyectos/**)",
+      "Bash(pytest:*)",
+      "Bash(flake8:*)"
     ],
     "deny": [],
     "additionalDirectories": [

@@ -512,7 +512,97 @@
                           </div>
                         </fieldset>
 
-                        <!-- 6. Additional Information - Advanced Block System -->
+                        <!-- 6. Recovery Phase - Advanced Block System -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Recovery Phase') }}</legend>
+                          <div class="form-section-content">
+                            <p class="help-block">{{ _('Document comprehensive recovery efforts with text, recovery plans, reconstruction activities, and interactive content. Detail long-term recovery strategies, community rebuilding, and restoration progress.') }}</p>
+                            
+                            <!-- Content Blocks Container for Recovery Phase -->
+                            <div id="recovery-phase-content-blocks">
+                              <!-- Blocks will be added here -->
+                            </div>
+                            
+                            <!-- Add Block Controls for Recovery Phase -->
+                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
+                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new recovery phase content:') }}</p>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-recovery-text-block">
+                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" id="add-recovery-iframe-block">
+                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <!-- Hidden fields to store Recovery Phase content -->
+                            <textarea id="field-recovery-phase" name="recovery_phase" style="display: none;">{{ data.recovery_phase or '' }}</textarea>
+                            <input type="hidden" id="recovery-phase-blocks-metadata" name="recovery_phase_blocks_metadata" value="{{ data.recovery_phase_blocks_metadata or '' }}">
+                            {% if errors.recovery_phase %}<span class="error-block">{{ errors.recovery_phase }}</span>{% endif %}
+                            
+                            <!-- Toggle button for generated HTML code -->
+                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
+                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-recovery-generated-code" style="border-color: #0072BC; color: #0072BC;">
+                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
+                              </button>
+                              <div id="recovery-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
+                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Recovery Phase') }}</h5>
+                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
+                                  {{ _('This is the HTML code generated from your recovery phase blocks.') }}
+                                </p>
+                                <pre id="recovery-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                              </div>
+                            </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- 7. Resilience Phase - Advanced Block System -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Resilience Phase') }}</legend>
+                          <div class="form-section-content">
+                            <p class="help-block">{{ _('Document resilience building efforts with text, preparedness plans, risk reduction activities, and interactive content. Detail long-term resilience strategies, capacity building, and disaster risk reduction measures.') }}</p>
+                            
+                            <!-- Content Blocks Container for Resilience Phase -->
+                            <div id="resilience-phase-content-blocks">
+                              <!-- Blocks will be added here -->
+                            </div>
+                            
+                            <!-- Add Block Controls for Resilience Phase -->
+                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
+                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new resilience phase content:') }}</p>
+                              <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" id="add-resilience-text-block">
+                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" id="add-resilience-iframe-block">
+                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <!-- Hidden fields to store Resilience Phase content -->
+                            <textarea id="field-resilience-phase" name="resilience_phase" style="display: none;">{{ data.resilience_phase or '' }}</textarea>
+                            <input type="hidden" id="resilience-phase-blocks-metadata" name="resilience_phase_blocks_metadata" value="{{ data.resilience_phase_blocks_metadata or '' }}">
+                            {% if errors.resilience_phase %}<span class="error-block">{{ errors.resilience_phase }}</span>{% endif %}
+                            
+                            <!-- Toggle button for generated HTML code -->
+                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
+                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-resilience-generated-code" style="border-color: #0072BC; color: #0072BC;">
+                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
+                              </button>
+                              <div id="resilience-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
+                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Resilience Phase') }}</h5>
+                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
+                                  {{ _('This is the HTML code generated from your resilience phase blocks.') }}
+                                </p>
+                                <pre id="resilience-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
+                              </div>
+                            </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- 8. Additional Information - Advanced Block System -->
                         <fieldset class="form-section">
                           <legend>{{ _('Additional Information') }}</legend>
                           <div class="form-section-content">

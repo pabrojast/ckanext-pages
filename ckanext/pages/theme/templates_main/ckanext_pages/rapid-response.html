@@ -282,7 +282,45 @@
                 </div>
                 {% endif %}
 
-                <!-- 6. Additional Information Section (Maps, Videos, Resources) -->
+                <!-- 6. Recovery Phase -->
+                {% if c.page.recovery_phase %}
+                <div class="rapid-response-recovery" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow rr-module-recovery">
+                    <div class="module-content">
+                      <div class="rr-section-header">
+                        <div class="rr-section-icon">
+                          <i class="fa fa-refresh"></i>
+                        </div>
+                        <h2>{{ _('Recovery Phase') }}</h2>
+                      </div>
+                      <div class="rr-content-body">
+                        {{ h.render_markdown(c.page.recovery_phase, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 7. Resilience Phase -->
+                {% if c.page.resilience_phase %}
+                <div class="rapid-response-resilience" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow rr-module-resilience">
+                    <div class="module-content">
+                      <div class="rr-section-header">
+                        <div class="rr-section-icon">
+                          <i class="fa fa-shield"></i>
+                        </div>
+                        <h2>{{ _('Resilience Phase') }}</h2>
+                      </div>
+                      <div class="rr-content-body">
+                        {{ h.render_markdown(c.page.resilience_phase, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- 8. Additional Information Section (Maps, Videos, Resources) -->
                 {% if c.page.map_stories %}
                 <div class="rapid-response-additional-info" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-additional-info">
@@ -763,6 +801,14 @@
 
 .rr-module-impact {
   border-left: 6px solid #dc3545;
+}
+
+.rr-module-recovery {
+  border-left: 6px solid #17a2b8;
+}
+
+.rr-module-resilience {
+  border-left: 6px solid #6f42c1;
 }
 
 .rr-module-maps {

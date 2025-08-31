@@ -34,6 +34,8 @@ def default_pages_schema():
         'spatial_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for spatial content blocks (legacy)
         'impact_assessment_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for impact assessment content blocks
         'response_activities_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for response activities content blocks
+        'recovery_phase_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for recovery phase content blocks
+        'resilience_phase_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for resilience phase content blocks
         'additional_info_blocks_metadata': [ignore_missing, unicode_safe],  # Metadata for additional information content blocks
         'additional_content': [ignore_missing, unicode_safe],
         'header_image': [ignore_missing, unicode_safe],
@@ -53,6 +55,8 @@ def default_pages_schema():
         'image_gallery': [ignore_missing, unicode_safe],     # Enhanced image gallery
         'response_activities': [ignore_missing, unicode_safe], # Response activities for rapid response
         'impact_assessment': [ignore_missing, unicode_safe],  # Impact assessment for rapid response
+        'recovery_phase': [ignore_missing, unicode_safe],     # Recovery phase for rapid response
+        'resilience_phase': [ignore_missing, unicode_safe],   # Resilience phase for rapid response
         'activity_status': [ignore_missing, unicode_safe],   # Activity status phase
         'country': [ignore_missing, unicode_safe],           # Country/countries affected
         'countries_affected': [ignore_missing, unicode_safe], # Countries affected (JSON array)
