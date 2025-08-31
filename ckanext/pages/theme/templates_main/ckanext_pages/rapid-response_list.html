@@ -126,8 +126,8 @@
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get">
-                        <div class="row">
-                          <div class="col-md-2">
+                        <div class="filters-grid">
+                          <div class="filter-cell filter--search">
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
                               <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
@@ -135,7 +135,7 @@
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
-                          <div class="col-md-2">
+                          <div class="filter-cell">
                             <label for="event_type" class="sr-only">{{ _('Event Type') }}</label>
                             <select name="event_type" id="event_type" class="form-control">
                               <option value="">{{ _('All Types') }}</option>
@@ -151,7 +151,7 @@
                               {% endif %}
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="filter-cell">
                             <label for="country" class="sr-only">{{ _('Country') }}</label>
                             <select name="country" id="country" class="form-control">
                               <option value="">{{ _('Location') }}</option>
@@ -353,7 +353,7 @@
                               <option value="Zimbabwe" {% if request.args.country == 'Zimbabwe' %}selected{% endif %}>Zimbabwe</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="filter-cell">
                             <label for="activity_status" class="sr-only">{{ _('Activity Status') }}</label>
                             <select name="activity_status" id="activity_status" class="form-control">
                               <option value="">{{ _('Phase') }}</option>
@@ -363,7 +363,7 @@
                               <option value="resilience" {% if request.args.activity_status == 'resilience' %}selected{% endif %}>{{ _('Resilience') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="filter-cell">
                             <label for="severity" class="sr-only">{{ _('Severity Level') }}</label>
                             <select name="severity" id="severity" class="form-control">
                               <option value="">{{ _('Alert Level') }}</option>
@@ -375,7 +375,7 @@
                               <option value="category_3" {% if request.args.severity == 'category_3' %}selected{% endif %}>{{ _('⚡ Category 3') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-2">
+                          <div class="filter-cell">
                             <label for="order_by" class="sr-only">{{ _('Sort Order') }}</label>
                             <select name="order_by" id="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
@@ -384,8 +384,8 @@
                               <option value="gdacs_alert" {% if request.args.order_by == 'gdacs_alert' %}selected{% endif %}>{{ _('GDACS Alert Level') }}</option>
                             </select>
                           </div>
-                          <div class="col-md-1">
-                            <button type="submit" class="btn btn-default" style="width: 100%; min-width: 38px;">
+                          <div class="filter-cell filter--actions">
+                            <button type="submit" class="btn btn-default" style="width: 100%;">
                               <i class="fa fa-search"></i>
                             </button>
                           </div>
@@ -1588,6 +1588,48 @@
   box-shadow: var(--shadow-medium);
 }
 
+/* New responsive grid for filters */
+.rapid-response-filters .filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-auto-rows: minmax(48px, auto);
+  gap: 12px;
+  align-items: center;
+}
+
+.rapid-response-filters .filter-cell { grid-column: span 1; }
+.rapid-response-filters .filter--search { grid-column: span 2; min-width: 260px; }
+.rapid-response-filters .filter--actions { grid-column: span 1; min-width: 110px; }
+
+/* Make inputs full-width inside grid */
+.rapid-response-filters .filter-cell .form-control,
+.rapid-response-filters .filter-cell .btn { width: 100%; }
+
+/* Large screens - keep tight, balanced layout */
+@media (min-width: 1400px) {
+  .rapid-response-filters .filters-grid { gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
+
+/* Desktops and down: let search grow and keep others compact */
+@media (max-width: 1199px) {
+  .rapid-response-filters .filters-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .rapid-response-filters .filter--search { grid-column: span 2; }
+}
+
+/* Tablets: two per row, search spans full row */
+@media (max-width: 991px) {
+  .rapid-response-filters .filters-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .rapid-response-filters .filter--search { grid-column: 1 / -1; }
+}
+
+/* Mobile: single column, no overlap, natural stacking */
+@media (max-width: 575px) {
+  .rapid-response-filters .filters-grid { grid-template-columns: 1fr; }
+  .rapid-response-filters .filter-cell,
+  .rapid-response-filters .filter--search,
+  .rapid-response-filters .filter--actions { grid-column: 1 / -1; }
+}
+
 /* Active Filters Indicator */
 .active-filters-indicator {
   padding: 0.5rem 0;
@@ -1878,97 +1920,7 @@
   }
 }
 
-/* Filter Layout Fixes */
-.rapid-response-filters .row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -15px;
-  margin-right: -15px;
-}
-
-.rapid-response-filters .row > div {
-  position: relative;
-  min-height: 1px;
-  padding-left: 15px;
-  padding-right: 15px;
-  margin-bottom: 10px;
-}
-
-.rapid-response-filters .col-md-2 {
-  width: 16.66666667%;
-  flex: 0 0 16.66666667%;
-}
-
-.rapid-response-filters .col-md-1 {
-  width: 8.33333333%;
-  flex: 0 0 8.33333333%;
-}
-
-.rapid-response-filters .form-control {
-  width: 100%;
-  height: 38px;
-  padding: 6px 12px;
-  font-size: 14px;
-  line-height: 1.42857143;
-  color: #555;
-  background-color: #fff;
-  background-image: none;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.rapid-response-filters select.form-control {
-  background-color: #fff;
-  -webkit-appearance: menulist;
-  -moz-appearance: menulist;
-  appearance: menulist;
-}
-
-/* Responsive filter adjustments */
-@media (max-width: 1199px) {
-  /* Large desktop adjustments */
-  .rapid-response-filters .col-md-2 {
-    width: 19%;
-    flex: 0 0 19%;
-  }
-  
-  .rapid-response-filters .col-md-1 {
-    width: 10%;
-    flex: 0 0 10%;
-  }
-}
-
-@media (max-width: 991px) {
-  /* Tablet: 2 per row */
-  .rapid-response-filters .col-md-2,
-  .rapid-response-filters .col-md-1 {
-    width: 48%;
-    flex: 0 0 48%;
-    margin-right: 2%;
-  }
-  
-  .rapid-response-filters .col-md-1:last-child {
-    width: 100%;
-    flex: 0 0 100%;
-    margin-right: 0;
-    margin-top: 15px;
-  }
-}
-
-@media (max-width: 767px) {
-  /* Mobile: 1 per row */
-  .rapid-response-filters .col-md-2,
-  .rapid-response-filters .col-md-1 {
-    width: 100%;
-    flex: 0 0 100%;
-    margin-right: 0;
-  }
-  
-  .rapid-response-filters .row > div {
-    margin-bottom: 15px;
-  }
-}
+/* Remove legacy row/col overrides to avoid conflicts */
 </style>
 
 <!-- JavaScript for Read More functionality -->
