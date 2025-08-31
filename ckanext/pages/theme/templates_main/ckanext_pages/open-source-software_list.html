@@ -32,7 +32,7 @@
   {{ get_software_category_class.get(category, 'category-default') }}
 {% endmacro %}
 
-{# Count learning resources properly - improved logic #}
+{# Count learning resources properly - robust detection logic #}
 {% set learning_count = 0 %}
 {% for item in c.page.items %}
   {% set has_learning_resources = false %}
@@ -40,22 +40,31 @@
   {# Check different possible formats for learning_resources #}
   {% if item.learning_resources %}
     {% if item.learning_resources is string %}
-      {% if item.learning_resources.strip() %}
-        {% set has_learning_resources = true %}
+      {# For string values, check if not empty after stripping whitespace and HTML #}
+      {% set clean_content = item.learning_resources.strip() %}
+      {% if clean_content and clean_content|length > 0 %}
+        {# Additional check: remove HTML tags and check if there's actual content #}
+        {% set text_content = clean_content|striptags|trim %}
+        {% if text_content and text_content|length > 0 %}
+          {% set has_learning_resources = true %}
+        {% endif %}
       {% endif %}
     {% else %}
-      {# If it's not a string, assume it's a non-empty value #}
+      {# If it's not a string (could be JSON, list, etc.), assume it's non-empty #}
       {% set has_learning_resources = true %}
     {% endif %}
   {% endif %}
   
-  {# Debug: uncomment the next line to see the actual data structure #}
-  <!-- DEBUG: Item {{ loop.index }}: learning_resources = "{{ item.learning_resources }}" (type: {{ item.learning_resources.__class__.__name__ if item.learning_resources else 'None' }}) -->
+  {# Debug: Enable this line temporarily to debug specific items #}
+  <!-- DEBUG: Item {{ loop.index }} ({{ item.title or item.name }}): learning_resources = "{{ item.learning_resources|truncate(100) }}" | has_content: {{ has_learning_resources }} -->
   
   {% if has_learning_resources %}
     {% set learning_count = learning_count + 1 %}
   {% endif %}
 {% endfor %}
+
+{# Debug summary - enable to troubleshoot counting issues #}
+<!-- DEBUG SUMMARY: Total items: {{ c.page.items|length }}, Learning resources count: {{ learning_count }} -->
 
 {% block content %}
 
@@ -490,7 +499,7 @@
                                 
                                 <!-- Action Buttons -->
                                 <div class="action-buttons-modern">
-                                  {% if page.learning_resources and page.learning_resources.strip() %}
+                                  {% if page.learning_resources and page.learning_resources.strip() and (page.learning_resources|striptags|trim|length > 0) %}
                                     <span class="has-courses-badge">
                                       <i class="fa fa-graduation-cap"></i> {{ _('Has Learning Resources') }}
                                     </span>
