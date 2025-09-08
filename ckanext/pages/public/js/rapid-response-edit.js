@@ -1099,6 +1099,16 @@
   let additionalBlocks = [];
   let additionalBlockCounter = 0;
   let additionalQuillEditors = {};
+  
+  // Recovery Phase Blocks System
+  let recoveryBlocks = [];
+  let recoveryBlockCounter = 0;
+  let recoveryQuillEditors = {};
+  
+  // Resilience Phase Blocks System
+  let resilienceBlocks = [];
+  let resilienceBlockCounter = 0;
+  let resilienceQuillEditors = {};
 
   // Initialize Impact Assessment Blocks System
   function initializeImpactAssessmentBlocks() {
@@ -1138,6 +1148,32 @@
       addAdditionalIframeBlock();
     });
   }
+  
+  // Initialize Recovery Phase Blocks System
+  function initializeRecoveryPhaseBlocks() {
+    loadExistingRecoveryContent();
+    
+    $('#add-recovery-text-block').on('click', function() {
+      addRecoveryTextBlock();
+    });
+    
+    $('#add-recovery-iframe-block').on('click', function() {
+      addRecoveryIframeBlock();
+    });
+  }
+  
+  // Initialize Resilience Phase Blocks System
+  function initializeResiliencePhaseBlocks() {
+    loadExistingResilienceContent();
+    
+    $('#add-resilience-text-block').on('click', function() {
+      addResilienceTextBlock();
+    });
+    
+    $('#add-resilience-iframe-block').on('click', function() {
+      addResilienceIframeBlock();
+    });
+  }
 
   // Load existing content functions for each block system
   function loadExistingImpactContent() {
@@ -1158,6 +1194,18 @@
     updateAdditionalBlocksDisplay();
   }
   
+  function loadExistingRecoveryContent() {
+    const blocksMetadata = $('#recovery-phase-blocks-metadata').val();
+    loadContentBlocks(blocksMetadata, 'recovery', recoveryBlocks, '#recovery-phase-content-blocks', '#field-recovery-phase');
+    updateRecoveryBlocksDisplay();
+  }
+  
+  function loadExistingResilienceContent() {
+    const blocksMetadata = $('#resilience-phase-blocks-metadata').val();
+    loadContentBlocks(blocksMetadata, 'resilience', resilienceBlocks, '#resilience-phase-content-blocks', '#field-resilience-phase');
+    updateResilienceBlocksDisplay();
+  }
+  
   // Generic function to load content blocks
   function loadContentBlocks(blocksMetadata, blockType, blocksArray, containerSelector, fallbackFieldSelector) {
     if (blocksMetadata && blocksMetadata.trim()) {
@@ -1171,8 +1219,21 @@
         // Recreate blocks from metadata
         blocks.forEach(blockData => {
           if (blockData.type === 'text') {
+            let blockId;
+            if (blockType === 'impact') {
+              blockId = blockData.id || (blockType + '-block-' + (++impactBlockCounter));
+            } else if (blockType === 'response') {
+              blockId = blockData.id || (blockType + '-block-' + (++responseBlockCounter));
+            } else if (blockType === 'additional') {
+              blockId = blockData.id || (blockType + '-block-' + (++additionalBlockCounter));
+            } else if (blockType === 'recovery') {
+              blockId = blockData.id || (blockType + '-block-' + (++recoveryBlockCounter));
+            } else if (blockType === 'resilience') {
+              blockId = blockData.id || (blockType + '-block-' + (++resilienceBlockCounter));
+            }
+            
             const block = {
-              id: blockData.id || (blockType + '-block-' + (++window[blockType + 'BlockCounter'])),
+              id: blockId,
               type: 'text',
               content: blockData.content || ''
             };
@@ -1181,8 +1242,21 @@
             renderContentTextBlock(block, blockType, containerSelector);
             
           } else if (blockData.type === 'iframe') {
+            let blockId;
+            if (blockType === 'impact') {
+              blockId = blockData.id || (blockType + '-block-' + (++impactBlockCounter));
+            } else if (blockType === 'response') {
+              blockId = blockData.id || (blockType + '-block-' + (++responseBlockCounter));
+            } else if (blockType === 'additional') {
+              blockId = blockData.id || (blockType + '-block-' + (++additionalBlockCounter));
+            } else if (blockType === 'recovery') {
+              blockId = blockData.id || (blockType + '-block-' + (++recoveryBlockCounter));
+            } else if (blockType === 'resilience') {
+              blockId = blockData.id || (blockType + '-block-' + (++resilienceBlockCounter));
+            }
+            
             const block = {
-              id: blockData.id || (blockType + '-block-' + (++window[blockType + 'BlockCounter'])),
+              id: blockId,
               type: 'iframe',
               title: blockData.title || '',
               url: blockData.url || '',
@@ -1196,7 +1270,17 @@
         });
         
         // Update counter to avoid conflicts
-        window[blockType + 'BlockCounter'] = Math.max(window[blockType + 'BlockCounter'] || 0, blocks.length);
+        if (blockType === 'impact') {
+          impactBlockCounter = Math.max(impactBlockCounter, blocks.length);
+        } else if (blockType === 'response') {
+          responseBlockCounter = Math.max(responseBlockCounter, blocks.length);
+        } else if (blockType === 'additional') {
+          additionalBlockCounter = Math.max(additionalBlockCounter, blocks.length);
+        } else if (blockType === 'recovery') {
+          recoveryBlockCounter = Math.max(recoveryBlockCounter, blocks.length);
+        } else if (blockType === 'resilience') {
+          resilienceBlockCounter = Math.max(resilienceBlockCounter, blocks.length);
+        }
         
       } catch (e) {
         console.warn(`Error parsing ${blockType} blocks metadata, falling back to HTML content:`, e);
@@ -1776,7 +1860,7 @@
     updateAdditionalContentField();
   });
   
-  // Initialize generated HTML code toggle functionality
+  // Initialize generated HTML code toggle functionality for all block systems
   $('#toggle-generated-code').on('click', function() {
     var $button = $(this);
     var $container = $('#generated-code-container');
@@ -1822,6 +1906,110 @@
         $display.text('No content has been generated yet. Add some content blocks above and they will be converted to HTML.');
       }
       
+      $container.slideDown(300);
+      $button.text(' Hide Generated HTML Code');
+      $icon.removeClass('fa-code').addClass('fa-eye-slash');
+      $button.prepend($icon);
+    }
+  });
+  
+  // Initialize toggle functionality for Impact Assessment blocks
+  $('#toggle-impact-generated-code').on('click', function() {
+    var $button = $(this);
+    var $container = $('#impact-generated-code-container');
+    var $display = $('#impact-generated-code-display');
+    var $icon = $button.find('i');
+    
+    if ($container.is(':visible')) {
+      $container.slideUp(300);
+      $button.text(' Show Generated HTML Code');
+      $icon.removeClass('fa-eye-slash').addClass('fa-code');
+      $button.prepend($icon);
+    } else {
+      var generatedCode = $('#field-impact-assessment').val() || '';
+      if (generatedCode.trim()) {
+        $display.text(generatedCode);
+      } else {
+        $display.text('No content has been generated yet. Add some content blocks above and they will be converted to HTML.');
+      }
+      $container.slideDown(300);
+      $button.text(' Hide Generated HTML Code');
+      $icon.removeClass('fa-code').addClass('fa-eye-slash');
+      $button.prepend($icon);
+    }
+  });
+  
+  // Initialize toggle functionality for Response Activities blocks
+  $('#toggle-response-generated-code').on('click', function() {
+    var $button = $(this);
+    var $container = $('#response-generated-code-container');
+    var $display = $('#response-generated-code-display');
+    var $icon = $button.find('i');
+    
+    if ($container.is(':visible')) {
+      $container.slideUp(300);
+      $button.text(' Show Generated HTML Code');
+      $icon.removeClass('fa-eye-slash').addClass('fa-code');
+      $button.prepend($icon);
+    } else {
+      var generatedCode = $('#field-response-activities').val() || '';
+      if (generatedCode.trim()) {
+        $display.text(generatedCode);
+      } else {
+        $display.text('No content has been generated yet. Add some content blocks above and they will be converted to HTML.');
+      }
+      $container.slideDown(300);
+      $button.text(' Hide Generated HTML Code');
+      $icon.removeClass('fa-code').addClass('fa-eye-slash');
+      $button.prepend($icon);
+    }
+  });
+  
+  // Initialize toggle functionality for Recovery Phase blocks
+  $('#toggle-recovery-generated-code').on('click', function() {
+    var $button = $(this);
+    var $container = $('#recovery-generated-code-container');
+    var $display = $('#recovery-generated-code-display');
+    var $icon = $button.find('i');
+    
+    if ($container.is(':visible')) {
+      $container.slideUp(300);
+      $button.text(' Show Generated HTML Code');
+      $icon.removeClass('fa-eye-slash').addClass('fa-code');
+      $button.prepend($icon);
+    } else {
+      var generatedCode = $('#field-recovery-phase').val() || '';
+      if (generatedCode.trim()) {
+        $display.text(generatedCode);
+      } else {
+        $display.text('No content has been generated yet. Add some content blocks above and they will be converted to HTML.');
+      }
+      $container.slideDown(300);
+      $button.text(' Hide Generated HTML Code');
+      $icon.removeClass('fa-code').addClass('fa-eye-slash');
+      $button.prepend($icon);
+    }
+  });
+  
+  // Initialize toggle functionality for Resilience Phase blocks
+  $('#toggle-resilience-generated-code').on('click', function() {
+    var $button = $(this);
+    var $container = $('#resilience-generated-code-container');
+    var $display = $('#resilience-generated-code-display');
+    var $icon = $button.find('i');
+    
+    if ($container.is(':visible')) {
+      $container.slideUp(300);
+      $button.text(' Show Generated HTML Code');
+      $icon.removeClass('fa-eye-slash').addClass('fa-code');
+      $button.prepend($icon);
+    } else {
+      var generatedCode = $('#field-resilience-phase').val() || '';
+      if (generatedCode.trim()) {
+        $display.text(generatedCode);
+      } else {
+        $display.text('No content has been generated yet. Add some content blocks above and they will be converted to HTML.');
+      }
       $container.slideDown(300);
       $button.text(' Hide Generated HTML Code');
       $icon.removeClass('fa-code').addClass('fa-eye-slash');
