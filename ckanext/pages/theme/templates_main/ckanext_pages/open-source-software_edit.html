@@ -3048,13 +3048,15 @@ textarea[id="example_applications"] {
     $('#ihp_organization').val('{{ user_org.id }}');
   {% endif %}
   
-  // Load organizations from API
+  // Load organizations for the current user (clean labels, auto-select user's org)
   function loadOrganizations() {
     const currentOrgId = '{{ data.get("organization_id", "") }}';
+    const defaultOrgId = '{{ (h.get_user_organization().id if h.get_user_organization() else "") | replace("'", "&#39;") }}';
+    const selectedId = currentOrgId || defaultOrgId;
     
     $.ajax({
-      url: 'https://data.dev-wins.com/api/3/action/organization_list',
-      data: { all_fields: true },
+      url: '/api/3/action/organization_list_for_user',
+      data: { permission: 'create_dataset' },
       dataType: 'json',
       success: function(response) {
         if (response.success && response.result) {
@@ -3063,11 +3065,17 @@ textarea[id="example_applications"] {
           $select.append('<option value="">{{ _("Select Organization") }}</option>');
           
           response.result.forEach(function(org) {
-            const selected = org.id === currentOrgId ? 'selected' : '';
-            $select.append(
-              `<option value="${org.id}" ${selected}>${org.display_name || org.title} - ${org.name}</option>`
-            );
+            const label = org.display_name || org.title || org.name;
+            const isSelected = org.id === selectedId ? 'selected' : '';
+            $select.append(`<option value="${org.id}" ${isSelected}>${label}</option>`);
           });
+          
+          // If nothing selected yet but we have a default, set it
+          if (!$select.val() && selectedId) {
+            $select.val(selectedId);
+          }
+        } else {
+          $('#organization_id').html('<option value="">{{ _("No organizations available for your account") }}</option>');
         }
       },
       error: function() {

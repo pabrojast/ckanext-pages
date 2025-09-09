@@ -258,6 +258,14 @@ def _pages_update(context, data_dict):
                     log = logging.getLogger(__name__)
                     log.info(f"Auto-assigned organization {user_org.title or user_org.display_name or user_org.name} to user {context['user']}")
 
+    # Ensure organization is set for open-source-software entries when missing
+    if data.get('page_type') == 'open-source-software' and not data.get('ihp_organization'):
+        user_org = _get_user_organization(context['user'])
+        if user_org:
+            data['ihp_organization'] = user_org.id
+            log = logging.getLogger(__name__)
+            log.info(f"Defaulted organization to {user_org.title or user_org.display_name or user_org.name} for user {context['user']}")
+
     # backward compatible with older version where page_type does not exist
     for item in items:
         if item in ['submitted_at', 'reviewed_at'] and data.get(item):
