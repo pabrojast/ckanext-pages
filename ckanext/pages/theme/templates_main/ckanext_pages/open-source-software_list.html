@@ -32,39 +32,39 @@
   {{ get_software_category_class.get(category, 'category-default') }}
 {% endmacro %}
 
-{# Count learning resources properly - robust detection logic #}
-{% set learning_count = 0 %}
+{# Precompute summary counts using a namespace to avoid loop scoping issues #}
+{% set counts = namespace(total=0, open_source=0, open_access=0, learning=0) %}
 {% for item in c.page.items %}
+  {% set counts.total = counts.total + 1 %}
+  {% if item.access_type == 'open-source' or not item.access_type %}
+    {% set counts.open_source = counts.open_source + 1 %}
+  {% endif %}
+  {% if item.access_type == 'open-access' %}
+    {% set counts.open_access = counts.open_access + 1 %}
+  {% endif %}
+
+  {# Count learning resources properly - robust detection logic #}
   {% set has_learning_resources = false %}
-  
-  {# Check different possible formats for learning_resources #}
   {% if item.learning_resources %}
     {% if item.learning_resources is string %}
-      {# For string values, check if not empty after stripping whitespace and HTML #}
       {% set clean_content = item.learning_resources.strip() %}
       {% if clean_content and clean_content|length > 0 %}
-        {# Additional check: remove HTML tags and check if there's actual content #}
         {% set text_content = clean_content|striptags|trim %}
         {% if text_content and text_content|length > 0 %}
           {% set has_learning_resources = true %}
         {% endif %}
       {% endif %}
     {% else %}
-      {# If it's not a string (could be JSON, list, etc.), assume it's non-empty #}
       {% set has_learning_resources = true %}
     {% endif %}
   {% endif %}
-  
-  {# Debug: Enable this line temporarily to debug specific items #}
-  <!-- DEBUG: Item {{ loop.index }} ({{ item.title or item.name }}): learning_resources = "{{ item.learning_resources|truncate(100) }}" | has_content: {{ has_learning_resources }} -->
-  
   {% if has_learning_resources %}
-    {% set learning_count = learning_count + 1 %}
+    {% set counts.learning = counts.learning + 1 %}
   {% endif %}
 {% endfor %}
 
 {# Debug summary - enable to troubleshoot counting issues #}
-<!-- DEBUG SUMMARY: Total items: {{ c.page.items|length }}, Learning resources count: {{ learning_count }} -->
+<!-- DEBUG SUMMARY: Total items: {{ counts.total }}, Open source: {{ counts.open_source }}, Open access: {{ counts.open_access }}, Learning resources: {{ counts.learning }} -->
 
 {% block content %}
 
@@ -118,41 +118,25 @@
                       <div class="row text-center">
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ c.page.items|length }}</div>
+                            <div class="metric-number">{{ counts.total }}</div>
                             <div class="metric-label">{{ _('Total Tools') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">
-                              {% set open_source_count = 0 %}
-                              {% for item in c.page.items %}
-                                {% if item.access_type == 'open-source' or not item.access_type %}
-                                  {% set open_source_count = open_source_count + 1 %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ open_source_count }}
-                            </div>
+                            <div class="metric-number">{{ counts.open_source }}</div>
                             <div class="metric-label">{{ _('Open Source') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">
-                              {% set open_access_count = 0 %}
-                              {% for item in c.page.items %}
-                                {% if item.access_type == 'open-access' %}
-                                  {% set open_access_count = open_access_count + 1 %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ open_access_count }}
-                            </div>
+                            <div class="metric-number">{{ counts.open_access }}</div>
                             <div class="metric-label">{{ _('Open Access') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ learning_count }}</div>
+                            <div class="metric-number">{{ counts.learning }}</div>
                             <div class="metric-label">{{ _('With Learning Resources') }}</div>
                           </div>
                         </div>
