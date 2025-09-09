@@ -2342,6 +2342,44 @@ function toggleSoftwareExcerpt(button) {
   display: block;
 }
 
+/* Fix z-index issues with dropdowns appearing behind software cards */
+.unified-dropdown {
+  position: relative;
+  z-index: 1090;
+}
+
+.unified-dropdown.show {
+  z-index: 1095;
+}
+
+.unified-dropdown-menu {
+  z-index: 1100 !important;
+  position: absolute;
+}
+
+.multi-select-dropdown {
+  position: relative;
+  z-index: 1090;
+}
+
+.multi-select-dropdown.open {
+  z-index: 1095;
+}
+
+.multi-select-menu {
+  z-index: 1100 !important;
+}
+
+/* Ensure software cards don't interfere with dropdown z-index */
+.software-card-modern {
+  position: relative;
+  z-index: 1;
+}
+
+.software-card-modern:hover {
+  z-index: 2;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .multi-select-menu {
