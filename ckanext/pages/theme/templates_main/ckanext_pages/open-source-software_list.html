@@ -2345,39 +2345,60 @@ function toggleSoftwareExcerpt(button) {
 /* Fix z-index issues with dropdowns appearing behind software cards */
 .unified-dropdown {
   position: relative;
-  z-index: 1090;
+  z-index: 2000;
 }
 
 .unified-dropdown.show {
-  z-index: 1095;
+  z-index: 2100;
 }
 
 .unified-dropdown-menu {
-  z-index: 1100 !important;
+  z-index: 2200 !important;
   position: absolute;
 }
 
 .multi-select-dropdown {
   position: relative;
-  z-index: 1090;
+  z-index: 2000;
 }
 
 .multi-select-dropdown.open {
-  z-index: 1095;
+  z-index: 2100;
 }
 
 .multi-select-menu {
-  z-index: 1100 !important;
+  z-index: 2200 !important;
 }
 
-/* Ensure software cards don't interfere with dropdown z-index */
-.software-card-modern {
+/* Ensure software cards and their content don't interfere with dropdown z-index */
+.software-card-modern,
+.software-card-modern * {
   position: relative;
   z-index: 1;
 }
 
-.software-card-modern:hover {
+.software-card-modern:hover,
+.software-card-modern:hover * {
   z-index: 2;
+}
+
+/* Specifically target titles and text elements that might appear over dropdowns */
+.software-title-modern,
+.software-title-modern a,
+.software-subtitle-modern,
+.software-excerpt-modern,
+.software-info,
+.software-header-compact {
+  z-index: 1 !important;
+}
+
+.software-card-modern:hover .software-title-modern,
+.software-card-modern:hover .software-title-modern a,
+.software-card-modern:hover .software-subtitle-modern,
+.software-card-modern:hover .software-excerpt-modern,
+.software-card-modern:hover .software-info,
+.software-card-modern:hover .software-header-compact {
+  z-index: 2 !important;
 }
 
 /* Responsive adjustments */
