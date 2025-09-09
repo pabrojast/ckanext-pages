@@ -137,20 +137,18 @@
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="organization_id" class="control-label">{{ _('IHP-WINS Organization') }}</label>
-                                <div class="organization-selector">
-                                  <select name="organization_id" id="organization_id" class="form-control">
-                                    <option value="">{{ _('Select Organization') }}</option>
-                                    <option value="loading" disabled>{{ _('Loading organizations...') }}</option>
-                                  </select>
-                                  <div class="organization-help">
-                                    <p class="help-block">{{ _('Select your IHP-WINS organization from the list') }}</p>
-                                    <p class="help-block">
-                                      <i class="fa fa-info-circle"></i> 
-                                      {{ _('Need to create a new organization?') }} 
-                                      <a href="/colab/organization-request" target="_blank">{{ _('Request new organization') }}</a>
-                                    </p>
-                                  </div>
+                                <label for="ihp_organization" class="control-label">{{ _('IHP WINS Organization') }}</label>
+                                <select name="ihp_organization" id="ihp_organization" class="form-control">
+                                  <option value="">{{ _('Select Organization') }}</option>
+                                  <option value="loading" disabled>{{ _('Loading organizations...') }}</option>
+                                </select>
+                                <div class="help-block">
+                                  <i class="fa fa-info-circle"></i>
+                                  {% if h.get_user_organization() %}
+                                    {{ _('Your organization has been automatically selected. Organization members can edit entries from their organization.') }}
+                                  {% else %}
+                                    {{ _('Please select your IHP WINS Organization. If you don\'t see your organization, please contact an administrator.') }}
+                                  {% endif %}
                                 </div>
                               </div>
                             </div>
@@ -342,24 +340,7 @@
                             </div>
                           </div>
 
-                          <div class="form-group">
-                            <label for="ihp_organization" class="control-label">{{ _('IHP WINS Organization') }}</label>
-                            <select name="ihp_organization" id="ihp_organization" class="form-control">
-                              <option value="">{{ _('Select Organization...') }}</option>
-                              {% set orgs = h.get_ihp_organizations() if h.get_ihp_organizations else [] %}
-                              {% for org in orgs %}
-                                <option value="{{ org.id }}" {% if data.get('ihp_organization') == org.id %}selected{% endif %}>{{ org.title or org.display_name or org.name }}</option>
-                              {% endfor %}
-                            </select>
-                            <div class="help-block">
-                              <i class="fa fa-info-circle"></i>
-                              {% if h.get_user_organization() %}
-                                {{ _('Your organization has been automatically selected. Organization members can edit entries from their organization.') }}
-                              {% else %}
-                                {{ _('Please select your IHP WINS Organization. If you don\'t see your organization, please contact an administrator.') }}
-                              {% endif %}
-                            </div>
-                          </div>
+                          {# Removed duplicate IHP WINS Organization selector (populated above via AJAX) #}
                         </div>
 
                         <!-- Content Sections -->
@@ -3050,9 +3031,9 @@ textarea[id="example_applications"] {
   
   // Load organizations for the current user (clean labels, auto-select user's org)
   function loadOrganizations() {
-    const currentOrgId = '{{ data.get("organization_id", "") }}';
+    const currentIhpOrgId = '{{ data.get("ihp_organization", "") }}';
     const defaultOrgId = '{{ (h.get_user_organization().id if h.get_user_organization() else "") | replace("'", "&#39;") }}';
-    const selectedId = currentOrgId || defaultOrgId;
+    const selectedId = currentIhpOrgId || defaultOrgId;
     
     $.ajax({
       url: '/api/3/action/organization_list_for_user',
@@ -3060,7 +3041,7 @@ textarea[id="example_applications"] {
       dataType: 'json',
       success: function(response) {
         if (response.success && response.result) {
-          const $select = $('#organization_id');
+          const $select = $('#ihp_organization');
           $select.empty();
           $select.append('<option value="">{{ _("Select Organization") }}</option>');
           
@@ -3075,11 +3056,11 @@ textarea[id="example_applications"] {
             $select.val(selectedId);
           }
         } else {
-          $('#organization_id').html('<option value="">{{ _("No organizations available for your account") }}</option>');
+          $('#ihp_organization').html('<option value="">{{ _("No organizations available for your account") }}</option>');
         }
       },
       error: function() {
-        $('#organization_id').html('<option value="">{{ _("Error loading organizations") }}</option>');
+        $('#ihp_organization').html('<option value="">{{ _("Error loading organizations") }}</option>');
       }
     });
   }
