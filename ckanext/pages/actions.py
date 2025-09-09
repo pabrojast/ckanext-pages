@@ -245,7 +245,12 @@ def _pages_update(context, data_dict):
     extra_keys = set(schema.keys()) - set(items + ['id', 'created'])
     for key in extra_keys:
         if key in data:
-            extras[key] = data.get(key)
+            value = data.get(key)
+            # Handle datetime objects by converting to ISO format strings
+            if isinstance(value, datetime.datetime):
+                extras[key] = value.isoformat()
+            else:
+                extras[key] = value
     out.extras = json.dumps(extras)
 
     out.modified = datetime.datetime.now(datetime.timezone.utc)
