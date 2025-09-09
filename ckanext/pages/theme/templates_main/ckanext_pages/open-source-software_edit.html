@@ -2833,6 +2833,8 @@ textarea[id="example_applications"] {
 <!-- Enhanced Form JavaScript -->
 <script>
 (function() {
+  if (window.__os_edit_bound) { return; }
+  window.__os_edit_bound = true;
   // Wait for jQuery to be available
   function waitForJQuery(callback) {
     if (typeof jQuery !== 'undefined') {

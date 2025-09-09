@@ -15,6 +15,8 @@
   }
   
   waitForJQuery(function($) {
+    if (window.__os_edit_bound) { return; }
+    window.__os_edit_bound = true;
     $(document).ready(function() {
       
       // ================================================================
