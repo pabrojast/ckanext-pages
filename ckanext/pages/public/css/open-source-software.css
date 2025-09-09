@@ -2132,3 +2132,10 @@
 .software-filters .dropdown-menu {
   z-index: 10020 !important; /* Highest within filters */
 }
+
+/* Ensure the opened dropdown sits above neighboring filter items */
+.software-filters .filters-grid .filter-item { z-index: 0; }
+.software-filters .filters-grid .filter-item .unified-dropdown.show { z-index: 10050; }
+.software-filters .filters-grid .filter-item .unified-dropdown.show .unified-dropdown-menu {
+  z-index: 10100 !important;
+}
