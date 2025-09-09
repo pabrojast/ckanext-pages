@@ -223,6 +223,8 @@
 /* Modern Software Cards for List View */
 .software-card-modern {
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .module-modern {
@@ -233,12 +235,15 @@
   transition: all 0.3s ease;
   overflow: hidden;
   border: 1px solid #f0f0f0;
+  position: relative;
+  z-index: 1;
 }
 
 .module-modern:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16);
   border-color: var(--unesco-blue-pale);
+  z-index: 2;
 }
 
 .software-card-content {
@@ -305,6 +310,8 @@
 /* Modern Header Layout */
 .software-header-compact {
   margin-bottom: 1rem;
+  position: relative;
+  z-index: 1 !important;
 }
 
 .software-title-row {
@@ -314,6 +321,8 @@
   margin-bottom: 0.5rem;
   flex-wrap: wrap;
   gap: 0.5rem;
+  position: relative;
+  z-index: 1 !important;
 }
 
 .software-title-modern {
@@ -323,17 +332,22 @@
   line-height: 1.3;
   flex: 1;
   min-width: 0;
+  position: relative;
+  z-index: 1 !important;
 }
 
 .software-title-modern a {
   color: var(--unesco-blue);
   text-decoration: none;
   transition: color 0.3s ease;
+  position: relative;
+  z-index: 1 !important;
 }
 
 .software-title-modern a:hover {
   color: var(--unesco-blue-dark);
   text-decoration: none;
+  z-index: 2 !important;
 }
 
 .software-subtitle-modern {
@@ -342,6 +356,8 @@
   color: var(--text-secondary);
   font-style: italic;
   line-height: 1.4;
+  position: relative;
+  z-index: 1 !important;
 }
 
 /* Modern Badges */
@@ -679,7 +695,7 @@
 .multi-select-dropdown {
   position: relative;
   width: 100%;
-  z-index: 1050; /* Higher than Bootstrap modals */
+  z-index: 9990 !important; /* Maximum priority for dropdown container */
 }
 
 .multi-select-button {
@@ -718,7 +734,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1060; /* Higher than parent dropdown */
+  z-index: 9999 !important; /* Maximum priority to stay above all content */
   background: white;
   border: 1px solid #e9ecef;
   border-radius: 8px;
@@ -921,10 +937,23 @@
   transform: rotate(180deg);
 }
 
-/* Unified Dropdown Menus */
+/* Ensure all software card elements stay below dropdowns */
+.software-card-modern *,
+.module-modern * {
+  position: relative;
+  z-index: 1 !important;
+}
+
+.software-card-modern:hover *,
+.module-modern:hover * {
+  z-index: 2 !important;
+}
+
+/* Unified Dropdown Menus - Must be higher than any content */
 .unified-dropdown {
   position: relative;
   width: 100%;
+  z-index: 9990 !important;
 }
 
 .unified-dropdown-menu {
@@ -932,7 +961,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1070;
+  z-index: 9999 !important;
   background: white;
   border: 2px solid var(--unesco-blue-pale);
   border-radius: 12px;
