@@ -62,6 +62,61 @@ def page_privacy(context, data_dict):
         return {'success': True}
 
 
+def pages_update_with_org_check(context, data_dict):
+    '''
+    Allow pages update if user is:
+    1. Sysadmin (can edit anything)
+    2. Member of the organization that owns the page (for open-source-software)
+    3. Author of the page (for their own submissions)
+    '''
+    # First check if user is sysadmin
+    if sysadmin(context, data_dict)['success']:
+        return {'success': True}
+    
+    user = context.get('user')
+    if not user:
+        return {'success': False}
+    
+    # Get the page to check its organization and author
+    page_name = data_dict.get('page')
+    if not page_name:
+        return {'success': False}
+        
+    try:
+        from ckanext.pages.db import Page
+        page = Page.get(name=page_name)
+        
+        if not page:
+            return {'success': False}
+        
+        # Check if user is the author of the page
+        import ckan.model as model
+        user_obj = model.User.get(user)
+        if user_obj and page.user_id == user_obj.id:
+            return {'success': True}
+            
+        # For open-source-software, check organization membership
+        if page.page_type == 'open-source-software' and page.ihp_organization:
+            # Check if user is a member of the page's organization
+            member_query = model.Session.query(model.Member).filter(
+                model.Member.table_name == 'user',
+                model.Member.table_id == user_obj.id if user_obj else None,
+                model.Member.group_id == page.ihp_organization,
+                model.Member.state == 'active'
+            )
+            
+            if member_query.first():
+                return {'success': True}
+                
+    except Exception as e:
+        # Log error but don't fail authentication
+        import logging
+        log = logging.getLogger(__name__)
+        log.error("Error in pages_update_with_org_check: %s", str(e))
+        
+    return {'success': False}
+
+
 pages_show = page_privacy
 pages_update = pages_update_with_org_check
 pages_delete = sysadmin
@@ -156,58 +211,3 @@ def event_types_update(context, data_dict):
 def event_types_delete(context, data_dict):
     '''Only sysadmin can delete event types'''
     return sysadmin(context, data_dict)
-
-
-def pages_update_with_org_check(context, data_dict):
-    '''
-    Allow pages update if user is:
-    1. Sysadmin (can edit anything)
-    2. Member of the organization that owns the page (for open-source-software)
-    3. Author of the page (for their own submissions)
-    '''
-    # First check if user is sysadmin
-    if sysadmin(context, data_dict)['success']:
-        return {'success': True}
-    
-    user = context.get('user')
-    if not user:
-        return {'success': False}
-    
-    # Get the page to check its organization and author
-    page_name = data_dict.get('page')
-    if not page_name:
-        return {'success': False}
-        
-    try:
-        from ckanext.pages.db import Page
-        page = Page.get(name=page_name)
-        
-        if not page:
-            return {'success': False}
-        
-        # Check if user is the author of the page
-        import ckan.model as model
-        user_obj = model.User.get(user)
-        if user_obj and page.user_id == user_obj.id:
-            return {'success': True}
-            
-        # For open-source-software, check organization membership
-        if page.page_type == 'open-source-software' and page.ihp_organization:
-            # Check if user is a member of the page's organization
-            member_query = model.Session.query(model.Member).filter(
-                model.Member.table_name == 'user',
-                model.Member.table_id == user_obj.id if user_obj else None,
-                model.Member.group_id == page.ihp_organization,
-                model.Member.state == 'active'
-            )
-            
-            if member_query.first():
-                return {'success': True}
-                
-    except Exception as e:
-        # Log error but don't fail authentication
-        import logging
-        log = logging.getLogger(__name__)
-        log.error("Error in pages_update_with_org_check: %s", str(e))
-        
-    return {'success': False}
