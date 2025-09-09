@@ -2112,3 +2112,23 @@
     max-height: 65vh;
   }
 }
+
+/* --- Z-Index Fixes for Filter Dropdowns (ensure always on top) --- */
+/* Keep filters above any software cards and hovering elements */
+.software-filters,
+.software-filters .module,
+.software-filters .module-content {
+  position: relative;
+  z-index: 10000; /* Above cards and hover states */
+}
+
+/* Local stacking context for each dropdown and its menu */
+.software-filters .unified-dropdown {
+  position: relative;
+  z-index: 10010;
+}
+
+.software-filters .unified-dropdown-menu,
+.software-filters .dropdown-menu {
+  z-index: 10020 !important; /* Highest within filters */
+}
