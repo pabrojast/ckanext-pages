@@ -695,7 +695,7 @@
 .multi-select-dropdown {
   position: relative;
   width: 100%;
-  z-index: 9990 !important; /* Maximum priority for dropdown container */
+  z-index: 100; /* Base dropdown container z-index */
 }
 
 .multi-select-button {
@@ -734,7 +734,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 9999 !important; /* Maximum priority to stay above all content */
+  z-index: 1050 !important; /* Above other elements but below modal overlays */
   background: white;
   border: 1px solid #e9ecef;
   border-radius: 8px;
@@ -953,7 +953,7 @@
 .unified-dropdown {
   position: relative;
   width: 100%;
-  z-index: 9990 !important;
+  z-index: 100;
 }
 
 .unified-dropdown-menu {
@@ -961,7 +961,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 9999 !important;
+  z-index: 1050 !important;
   background: white;
   border: 2px solid var(--unesco-blue-pale);
   border-radius: 12px;
@@ -2125,17 +2125,60 @@
 /* Local stacking context for each dropdown and its menu */
 .software-filters .unified-dropdown {
   position: relative;
-  z-index: 10010;
+  z-index: auto;
 }
 
 .software-filters .unified-dropdown-menu,
 .software-filters .dropdown-menu {
   z-index: 10020 !important; /* Highest within filters */
+  position: absolute !important;
 }
 
 /* Ensure the opened dropdown sits above neighboring filter items */
-.software-filters .filters-grid .filter-item { z-index: 0; }
-.software-filters .filters-grid .filter-item .unified-dropdown.show { z-index: 10050; }
+.software-filters .filters-grid {
+  position: relative;
+}
+
+.software-filters .filters-grid .filter-item { 
+  position: relative;
+  z-index: 1; 
+}
+
+/* When a dropdown is open, elevate its container */
+.software-filters .filters-grid .filter-item:has(.dropdown.show),
+.software-filters .filters-grid .filter-item:has(.unified-dropdown.show) { 
+  z-index: 1000 !important; 
+}
+
+/* Dropdown menus should be above everything in the filter area */
+.software-filters .filters-grid .filter-item .dropdown.show .dropdown-menu,
 .software-filters .filters-grid .filter-item .unified-dropdown.show .unified-dropdown-menu {
-  z-index: 10100 !important;
+  z-index: 1100 !important;
+}
+
+/* Ensure dropdowns don't get covered by adjacent filter items */
+.software-filters .unified-dropdown.show {
+  z-index: 1001 !important;
+}
+
+/* Multi-select dropdowns when open */
+.software-filters .multi-select-dropdown.open {
+  z-index: 1001 !important;
+}
+
+.software-filters .multi-select-dropdown.open .multi-select-menu {
+  z-index: 1100 !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+@supports not selector(:has(*)) {
+  .software-filters .filters-grid .filter-item {
+    z-index: auto;
+  }
+  
+  .software-filters .filters-grid .filter-item .dropdown.show,
+  .software-filters .filters-grid .filter-item .unified-dropdown.show {
+    position: relative;
+    z-index: 1000 !important;
+  }
 }

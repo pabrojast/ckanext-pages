@@ -78,14 +78,27 @@
         
         var $dropdown = $(this).closest('.multi-select-dropdown');
         var $menu = $dropdown.find('.multi-select-menu');
+        var $filterItem = $dropdown.closest('.filter-item');
         
-        // Close all other dropdowns
+        // Close all other dropdowns and reset their z-index
         $('.multi-select-dropdown').not($dropdown).removeClass('open');
         $('.multi-select-menu').not($menu).hide();
+        $('.software-filters .filter-item').not($filterItem).css('z-index', '1');
+        
+        // Also close unified dropdowns
+        $('.unified-dropdown').removeClass('show');
+        $('.unified-dropdown-menu').hide();
         
         // Toggle this dropdown
         $dropdown.toggleClass('open');
         $menu.toggle();
+        
+        // Adjust z-index for the active dropdown's container
+        if ($dropdown.hasClass('open')) {
+          $filterItem.css('z-index', '1000');
+        } else {
+          $filterItem.css('z-index', '1');
+        }
       });
       
       // Handle checkbox changes
@@ -135,6 +148,8 @@
         if (!$(e.target).closest('.multi-select-dropdown').length) {
           $('.multi-select-dropdown').removeClass('open');
           $('.multi-select-menu').hide();
+          // Reset z-index for all filter items
+          $('.software-filters .filter-item').css('z-index', '1');
         }
       });
       
@@ -471,14 +486,27 @@
         
         var $dropdown = $(this).closest('.unified-dropdown');
         var $menu = $dropdown.find('.unified-dropdown-menu');
+        var $filterItem = $dropdown.closest('.filter-item');
         
-        // Close all other dropdowns
-        $('.unified-dropdown').not($dropdown).removeClass('show');
-        $('.unified-dropdown-menu').not($menu).hide();
+        // Close all other dropdowns in the filters area
+        $('.software-filters .unified-dropdown').not($dropdown).removeClass('show');
+        $('.software-filters .unified-dropdown-menu').not($menu).hide();
+        $('.software-filters .filter-item').not($filterItem).css('z-index', '1');
+        
+        // Also close multi-select dropdowns
+        $('.multi-select-dropdown').removeClass('open');
+        $('.multi-select-menu').hide();
         
         // Toggle this dropdown
         $dropdown.toggleClass('show');
         $menu.toggle();
+        
+        // Adjust z-index for the active dropdown's container
+        if ($dropdown.hasClass('show')) {
+          $filterItem.css('z-index', '1000');
+        } else {
+          $filterItem.css('z-index', '1');
+        }
       });
       
       // Handle checkbox changes for unified multi-select filters
@@ -555,6 +583,8 @@
         if (!$(e.target).closest('.unified-dropdown, .unified-filters-container').length) {
           $('.unified-dropdown').removeClass('show');
           $('.unified-dropdown-menu').hide();
+          // Reset z-index for all filter items
+          $('.software-filters .filter-item').css('z-index', '1');
         }
       });
       
