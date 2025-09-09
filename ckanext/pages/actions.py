@@ -255,6 +255,8 @@ def _pages_update(context, data_dict):
                 user_org = _get_user_organization(context['user'])
                 if user_org:
                     data['ihp_organization'] = user_org.id
+                    log = logging.getLogger(__name__)
+                    log.info(f"Auto-assigned organization {user_org.title or user_org.display_name or user_org.name} to user {context['user']}")
 
     # backward compatible with older version where page_type does not exist
     for item in items:

@@ -348,12 +348,16 @@
                               <option value="">{{ _('Select Organization...') }}</option>
                               {% set orgs = h.get_ihp_organizations() if h.get_ihp_organizations else [] %}
                               {% for org in orgs %}
-                                <option value="{{ org.id }}" {% if data.get('ihp_organization') == org.id %}selected{% endif %}>{{ org.display_name or org.name }}</option>
+                                <option value="{{ org.id }}" {% if data.get('ihp_organization') == org.id %}selected{% endif %}>{{ org.title or org.display_name or org.name }}</option>
                               {% endfor %}
                             </select>
                             <div class="help-block">
                               <i class="fa fa-info-circle"></i>
-                              {{ _('Your organization will be automatically set based on your user profile. Organization admins can edit entries from their organization.') }}
+                              {% if h.get_user_organization() %}
+                                {{ _('Your organization has been automatically selected. Organization members can edit entries from their organization.') }}
+                              {% else %}
+                                {{ _('Please select your IHP WINS Organization. If you don\'t see your organization, please contact an administrator.') }}
+                              {% endif %}
                             </div>
                           </div>
                         </div>
@@ -3037,6 +3041,12 @@ textarea[id="example_applications"] {
   let uploadedImages = [];
   let logoUrl = '';
   let selectedMemberStates = [];
+  
+  // Auto-select user's organization if no organization is selected
+  {% set user_org = h.get_user_organization() %}
+  {% if user_org and not data.get('ihp_organization') %}
+    $('#ihp_organization').val('{{ user_org.id }}');
+  {% endif %}
   
   // Load organizations from API
   function loadOrganizations() {

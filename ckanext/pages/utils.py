@@ -1226,7 +1226,7 @@ def open_source_admin_change_org(page):
             # Get organization name for message
             import ckan.model as model
             org = model.Group.get(new_organization)
-            org_name = org.display_name or org.name if org else new_organization
+            org_name = org.title or org.display_name or org.name if org else new_organization
             
             tk.h.flash_success(_('Organization changed to "{0}" successfully.').format(org_name))
             

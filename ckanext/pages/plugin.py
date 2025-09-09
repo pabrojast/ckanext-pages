@@ -550,7 +550,7 @@ def get_user_organization():
         if not user_obj:
             return None
             
-        # Get organizations where user is a member
+        # Get organizations where user is a member (prioritize admin/editor roles)
         member_orgs = model.Session.query(model.Member).filter(
             model.Member.table_name == 'user',
             model.Member.table_id == user_obj.id,
@@ -559,11 +559,15 @@ def get_user_organization():
                     model.Group.type == 'organization',
                     model.Group.state == 'active'
                 )
-            )
+            ),
+            model.Member.state == 'active'
+        ).order_by(
+            # Prioritize admin and editor roles
+            model.Member.capacity.desc()
         ).all()
         
         if member_orgs:
-            # Return the first organization (could be enhanced to handle multiple)
+            # Return the first organization (prioritized by role)
             org_id = member_orgs[0].group_id
             return model.Group.get(org_id)
             

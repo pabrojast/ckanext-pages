@@ -25,16 +25,21 @@
                 </ol>
             </div>
 
-            <!-- Banner -->
+            <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
-              <div class="section-title admin-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg"></div>
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ _('Open Source Software Admin Dashboard') }}</h1>
                   <p class="section-title-description">{{ _('Review and approve community tool submissions') }}</p>
                   <div class="section-title-meta">
                     <i class="fa fa-shield"></i> {{ _('Administrator Panel') }}
+                  </div>
+                  <div class="header-action" style="margin-top: 2rem;">
+                    <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-light btn-lg">
+                      <i class="fa fa-list"></i> {{ _('View Published Tools') }}
+                    </a>
                   </div>
                 </div>
               </div>
@@ -181,7 +186,7 @@
                                       <option value="">{{ _('Change Organization...') }}</option>
                                       {% for org in h.get_ihp_organizations() %}
                                         <option value="{{ org.id }}" {% if item.ihp_organization == org.id %}selected{% endif %}>
-                                          {{ org.display_name or org.name }}
+                                          {{ org.title or org.display_name or org.name }}
                                         </option>
                                       {% endfor %}
                                     </select>
@@ -248,10 +253,130 @@
 </div>
 
 <style>
-/* Admin Dashboard Styles */
-.admin-title .section-title-bg {
-  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+/* UNESCO Color Variables */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.1);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.15);
 }
+
+/* Section Title Styles - matching open-source-software_list.html */
+.section-title {
+  position: relative;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+  padding: 4rem 2.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 3rem;
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.8) 0%, rgba(0, 90, 156, 0.9) 100%);
+  z-index: 2;
+}
+
+.section-title-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+}
+
+.section-title h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
+}
+
+.section-title-description {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  font-weight: 400;
+  line-height: 1.4;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-title-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title-meta i {
+  font-size: 1.2rem;
+}
+
+.header-action {
+  margin-top: 2rem;
+}
+
+.btn-light {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: var(--unesco-blue);
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 25px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.btn-light:hover {
+  background: white;
+  border-color: white;
+  color: var(--unesco-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-light i {
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+/* Admin Dashboard Styles */
 
 .admin-module-summary {
   background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
@@ -486,6 +611,23 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .section-title {
+    padding: 3rem 1.5rem;
+  }
+  
+  .section-title h1 {
+    font-size: 2.2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .btn-light {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+  
   .admin-section-header {
     flex-direction: column;
     text-align: center;
@@ -514,6 +656,25 @@
   
   .admin-actions-right .btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    padding: 2rem 1rem;
+  }
+  
+  .section-title h1 {
+    font-size: 1.8rem;
+  }
+  
+  .section-title-description {
+    font-size: 1rem;
+  }
+  
+  .section-title-meta {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
   }
 }
 </style>
