@@ -343,11 +343,18 @@
                           </div>
 
                           <div class="form-group">
-                            <label for="private" class="control-label">{{ _('Visibility') }}</label>
-                            <select name="private" id="private" class="form-control">
-                              <option value="False" {% if not data.get('private') or data.get('private') == 'False' %}selected{% endif %}>{{ _('Public') }}</option>
-                              <option value="True" {% if data.get('private') == 'True' %}selected{% endif %}>{{ _('Private') }}</option>
+                            <label for="ihp_organization" class="control-label">{{ _('IHP WINS Organization') }}</label>
+                            <select name="ihp_organization" id="ihp_organization" class="form-control">
+                              <option value="">{{ _('Select Organization...') }}</option>
+                              {% set orgs = h.get_ihp_organizations() if h.get_ihp_organizations else [] %}
+                              {% for org in orgs %}
+                                <option value="{{ org.id }}" {% if data.get('ihp_organization') == org.id %}selected{% endif %}>{{ org.display_name or org.name }}</option>
+                              {% endfor %}
                             </select>
+                            <div class="help-block">
+                              <i class="fa fa-info-circle"></i>
+                              {{ _('Your organization will be automatically set based on your user profile. Organization admins can edit entries from their organization.') }}
+                            </div>
                           </div>
                         </div>
 
@@ -685,28 +692,67 @@
                           <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.get('image_gallery', '') }}">
                         </div>
 
-                        <!-- Action Buttons -->
-                        <div class="form-actions">
+                        <!-- Submission Action Buttons -->
+                        <div class="form-actions submission-actions">
                           <input type="hidden" name="page_type" value="open-source-software">
-                          {% if page %}
-                            <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-save"></i> {{ _('Update Tool Entry') }}
-                            </button>
-                            <a href="{{ h.url_for('pages.open_source_software_show', page=page.name) }}" class="btn btn-default">
-                              <i class="fa fa-times"></i> {{ _('Cancel') }}
-                            </a>
-                            {% if h.check_access('ckanext_pages_delete') %}
-                              <a href="{{ h.url_for('pages.open_source_software_delete', page=page.name) }}" class="btn btn-danger pull-right" data-confirm="{{ _('Are you sure you want to delete this tool entry?') }}">
-                                <i class="fa fa-trash"></i> {{ _('Delete Entry') }}
+                          <input type="hidden" name="submission_action" value="" id="submission-action">
+                          
+                          <div class="submission-buttons-grid">
+                            <div class="primary-actions">
+                              <!-- Save Draft Button -->
+                              <button type="button" class="btn btn-default btn-lg submission-btn" data-action="draft">
+                                <i class="fa fa-floppy-o"></i> {{ _('Save Draft') }}
+                                <div class="btn-description">{{ _('Save your work without submitting') }}</div>
+                              </button>
+                              
+                              <!-- Submit for Approval Button -->
+                              <button type="button" class="btn btn-success btn-lg submission-btn" data-action="submit">
+                                <i class="fa fa-paper-plane"></i> {{ _('Submit for Approval') }}
+                                <div class="btn-description">{{ _('Submit to admin for review') }}</div>
+                              </button>
+                            </div>
+                            
+                            <div class="secondary-actions">
+                              <!-- Cancel Button -->
+                              <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-link">
+                                <i class="fa fa-times"></i> {{ _('Cancel') }}
                               </a>
-                            {% endif %}
-                          {% else %}
-                            <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}
-                            </button>
-                            <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-default">
-                              <i class="fa fa-times"></i> {{ _('Cancel') }}
-                            </a>
+                              
+                              <!-- Delete Button (for existing entries) -->
+                              {% if page and h.check_access('ckanext_pages_delete') %}
+                                <a href="{{ h.url_for('pages.open_source_software_delete', page=page.name) }}" 
+                                   class="btn btn-link text-danger" 
+                                   data-confirm="{{ _('Are you sure you want to delete this tool entry?') }}">
+                                  <i class="fa fa-trash"></i> {{ _('Delete Entry') }}
+                                </a>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <!-- Submission Status Display -->
+                          {% if page and page.submission_status %}
+                            <div class="submission-status-display">
+                              <div class="status-indicator status-{{ page.submission_status }}">
+                                {% if page.submission_status == 'draft' %}
+                                  <i class="fa fa-edit"></i> {{ _('Draft') }}
+                                {% elif page.submission_status == 'pending' %}
+                                  <i class="fa fa-clock-o"></i> {{ _('Pending Review') }}
+                                  {% if page.submitted_at %}
+                                    <span class="status-date">{{ _('Submitted:') }} {{ page.submitted_at.strftime('%Y-%m-%d') }}</span>
+                                  {% endif %}
+                                {% elif page.submission_status == 'approved' %}
+                                  <i class="fa fa-check-circle"></i> {{ _('Approved') }}
+                                  {% if page.reviewed_at %}
+                                    <span class="status-date">{{ _('Approved:') }} {{ page.reviewed_at.strftime('%Y-%m-%d') }}</span>
+                                  {% endif %}
+                                {% elif page.submission_status == 'rejected' %}
+                                  <i class="fa fa-times-circle"></i> {{ _('Rejected') }}
+                                  {% if page.reviewed_at %}
+                                    <span class="status-date">{{ _('Reviewed:') }} {{ page.reviewed_at.strftime('%Y-%m-%d') }}</span>
+                                  {% endif %}
+                                {% endif %}
+                              </div>
+                            </div>
                           {% endif %}
                         </div>
 
@@ -997,6 +1043,146 @@ textarea.form-control {
   border-color: var(--unesco-blue);
   color: var(--unesco-blue);
   transform: translateY(-1px);
+}
+
+/* Submission Actions Styling */
+.submission-actions {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-top: 3rem;
+  box-shadow: 0 4px 20px rgba(0, 114, 188, 0.1);
+}
+
+.submission-buttons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.primary-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.submission-btn {
+  position: relative;
+  min-width: 220px;
+  padding: 1.2rem 2rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.4s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submission-btn[data-action="draft"] {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.submission-btn[data-action="draft"]:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 114, 188, 0.2);
+}
+
+.submission-btn[data-action="submit"] {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border-color: #28a745;
+  color: white;
+}
+
+.submission-btn[data-action="submit"]:hover {
+  background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+  border-color: #20c997;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(40, 167, 69, 0.3);
+}
+
+.submission-btn i {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.btn-description {
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+
+/* Submission Status Display */
+.submission-status-display {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--unesco-blue-pale);
+  text-align: center;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.status-draft {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+  color: #212529;
+}
+
+.status-approved {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.status-rejected {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.status-date {
+  font-size: 0.9rem;
+  font-weight: 400;
+  opacity: 0.9;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .btn-danger {
@@ -3434,6 +3620,85 @@ textarea[id="example_applications"] {
       handleMultipleSelects();
       updateUploadedImagesData();
       updateMemberStatesData();
+    }
+  });
+  
+  // Submission button handlers
+  $('.submission-btn').on('click', function(e) {
+    e.preventDefault();
+    
+    var action = $(this).data('action');
+    var form = $('form');
+    var isValid = true;
+    
+    // Set the submission action
+    $('#submission-action').val(action);
+    
+    // Validate form before submission
+    var title = $('#title').val().trim();
+    var name = $('#name').val().trim();
+    
+    if (!title) {
+      alert('{{ _("Please enter a title") }}');
+      $('#title').focus();
+      isValid = false;
+    }
+    
+    if (!name) {
+      alert('{{ _("Please enter a URL") }}');
+      $('#name').focus();
+      isValid = false;
+    }
+    
+    // Additional validation for submission (not for draft)
+    if (action === 'submit') {
+      // Check if organization is selected
+      var organization = $('#ihp_organization').val();
+      if (!organization) {
+        alert('{{ _("Please select an IHP WINS Organization before submitting") }}');
+        $('#ihp_organization').focus();
+        isValid = false;
+      }
+      
+      // Validate that all uploaded images have descriptive names
+      var emptyAltFields = $('.image-alt').filter(function() {
+        return !$(this).val().trim();
+      });
+      
+      if (emptyAltFields.length > 0) {
+        alert('{{ _("Please provide descriptive names for all uploaded images before submitting.") }}');
+        emptyAltFields.first().focus();
+        isValid = false;
+      }
+      
+      // Confirm submission
+      if (isValid && !confirm('{{ _("Are you sure you want to submit this entry for admin approval? You will not be able to edit it until it is reviewed.") }}')) {
+        isValid = false;
+      }
+    }
+    
+    if (isValid) {
+      // Sync all data before submission
+      handleMultipleSelects();
+      updateUploadedImagesData();
+      updateMemberStatesData();
+      
+      // Sync all Quill editors
+      Object.keys(quillEditors).forEach(editorId => {
+        const quill = quillEditors[editorId];
+        if (quill) {
+          const textarea = document.querySelector(`textarea[name="${editorId}"]`);
+          if (textarea) {
+            textarea.value = quill.root.innerHTML;
+          }
+        }
+      });
+      
+      // Show loading state
+      $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ _("Processing...") }}');
+      
+      // Submit the form
+      form.submit();
     }
   });
   

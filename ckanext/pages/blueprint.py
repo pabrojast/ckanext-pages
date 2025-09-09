@@ -194,6 +194,22 @@ def water_admin_reject(page, page_type):
     return utils.water_admin_reject(page, page_type)
 
 
+def open_source_admin_dashboard():
+    return utils.open_source_admin_dashboard()
+
+
+def open_source_admin_approve(page):
+    return utils.open_source_admin_approve(page)
+
+
+def open_source_admin_reject(page):
+    return utils.open_source_admin_reject(page)
+
+
+def open_source_admin_change_org(page):
+    return utils.open_source_admin_change_org(page)
+
+
 # Open Source Software endpoints
 def open_source_software_index():
     return utils.pages_list_pages('open-source-software')
@@ -364,6 +380,12 @@ pages.add_url_rule("/water-publications_delete/<page>", view_func=water_publicat
 pages.add_url_rule("/water-admin", view_func=water_admin_dashboard, endpoint='water_admin_dashboard')
 pages.add_url_rule("/water-admin/approve/<page_type>/<page>", view_func=water_admin_approve, endpoint='water_admin_approve', methods=['POST'])
 pages.add_url_rule("/water-admin/reject/<page_type>/<page>", view_func=water_admin_reject, endpoint='water_admin_reject', methods=['POST'])
+
+# Open Source Software Admin URLs
+pages.add_url_rule("/open-source-admin", view_func=open_source_admin_dashboard, endpoint='open_source_admin_dashboard')
+pages.add_url_rule("/open-source-admin/approve/<page>", view_func=open_source_admin_approve, endpoint='open_source_admin_approve', methods=['POST'])
+pages.add_url_rule("/open-source-admin/reject/<page>", view_func=open_source_admin_reject, endpoint='open_source_admin_reject', methods=['POST'])
+pages.add_url_rule("/open-source-admin/change-org/<page>", view_func=open_source_admin_change_org, endpoint='open_source_admin_change_org', methods=['POST'])
 
 # Open Source Software URLs
 pages.add_url_rule("/open-source-software", view_func=open_source_software_index, endpoint='open_source_software_index')

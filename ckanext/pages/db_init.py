@@ -93,11 +93,23 @@ def ensure_all_columns_exist():
                 
             log.info("Successfully added revisions column")
         
+        # Check for new submission workflow columns
+        new_columns = [
+            'submission_status', 'ihp_organization', 'submitted_at', 
+            'reviewed_at', 'reviewed_by'
+        ]
+        
+        for col_name in new_columns:
+            if col_name not in columns:
+                log.info(f"Adding {col_name} column to ckanext_pages table...")
+                add_missing_column(col_name)
+        
         # Verify all required columns exist
         required_columns = [
             'id', 'title', 'name', 'content', 'lang', 'order', 'private',
             'group_id', 'user_id', 'publish_date', 'page_type', 'created',
-            'modified', 'extras', 'revisions'
+            'modified', 'extras', 'revisions', 'submission_status', 
+            'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by'
         ]
         
         missing_columns = [col for col in required_columns if col not in columns]
@@ -135,7 +147,13 @@ def add_missing_column(column_name):
             'created': 'timestamp without time zone',
             'modified': 'timestamp without time zone',
             'extras': 'text DEFAULT \'{}\'',
-            'revisions': 'jsonb'
+            'revisions': 'jsonb',
+            # New fields for submission workflow
+            'submission_status': 'text DEFAULT \'draft\'',
+            'ihp_organization': 'text DEFAULT NULL',
+            'submitted_at': 'timestamp without time zone DEFAULT NULL',
+            'reviewed_at': 'timestamp without time zone DEFAULT NULL',
+            'reviewed_by': 'text DEFAULT NULL'
         }
         
         if column_name in column_definitions:

@@ -93,6 +93,7 @@ def _pages_list(context, data_dict):
     q = data_dict.get('q')  # Search query
     event_type = data_dict.get('event_type')  # Event type filter
     order_by = data_dict.get('order_by')  # Custom ordering
+    submission_status = data_dict.get('submission_status')  # Submission status filter
     
     # Additional filters for rapid-response pages
     country = data_dict.get('country')  # Country filter
@@ -120,6 +121,8 @@ def _pages_list(context, data_dict):
         search['severity'] = severity
     if event_status:
         search['event_status'] = event_status
+    if submission_status:
+        search['submission_status'] = submission_status
         
     if not org_id:
         search['group_id'] = None
@@ -234,11 +237,38 @@ def _pages_update(context, data_dict):
         out.group_id = org_id
         out.name = page
     items = ['title', 'content', 'name', 'private',
-             'order', 'page_type', 'publish_date']
+             'order', 'page_type', 'publish_date', 'submission_status',
+             'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by']
+
+    # Handle submission workflow for open-source-software
+    submission_action = data_dict.get('submission_action')
+    if submission_action and data.get('page_type') == 'open-source-software':
+        if submission_action == 'draft':
+            data['submission_status'] = 'draft'
+            data['private'] = True  # Keep as private for drafts
+        elif submission_action == 'submit':
+            data['submission_status'] = 'pending'
+            data['private'] = True  # Keep private until approved
+            data['submitted_at'] = datetime.datetime.utcnow()
+            # Auto-set organization from user if not already set
+            if not data.get('ihp_organization'):
+                user_org = _get_user_organization(context['user'])
+                if user_org:
+                    data['ihp_organization'] = user_org.id
 
     # backward compatible with older version where page_type does not exist
     for item in items:
-        setattr(out, item, data.get(item, 'page' if item == 'page_type' else None))
+        if item in ['submitted_at', 'reviewed_at'] and data.get(item):
+            # Handle datetime fields
+            if isinstance(data.get(item), str):
+                try:
+                    setattr(out, item, datetime.datetime.fromisoformat(data.get(item).replace('Z', '+00:00')))
+                except:
+                    setattr(out, item, datetime.datetime.utcnow())
+            else:
+                setattr(out, item, data.get(item))
+        else:
+            setattr(out, item, data.get(item, 'page' if item == 'page_type' else None))
 
     extras = {}
 
@@ -922,3 +952,39 @@ def event_types_delete(context, data_dict):
         log.warning("Could not save event types to config: %s", str(e))
     
     return deleted_type
+
+
+def _get_user_organization(username):
+    """Get the organization associated with the current user"""
+    try:
+        if not username:
+            return None
+            
+        # Get user's organizations (as a member)
+        user_obj = model.User.get(username)
+        if not user_obj:
+            return None
+            
+        # Get organizations where user is a member
+        member_orgs = model.Session.query(model.Member).filter(
+            model.Member.table_name == 'user',
+            model.Member.table_id == user_obj.id,
+            model.Member.group_id.in_(
+                model.Session.query(model.Group.id).filter(
+                    model.Group.type == 'organization',
+                    model.Group.state == 'active'
+                )
+            )
+        ).all()
+        
+        if member_orgs:
+            # Return the first organization (could be enhanced to handle multiple)
+            org_id = member_orgs[0].group_id
+            return model.Group.get(org_id)
+            
+        return None
+        
+    except Exception as e:
+        log = logging.getLogger(__name__)
+        log.error("Error getting user organization: %s", str(e))
+        return None

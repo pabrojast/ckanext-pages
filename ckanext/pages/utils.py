@@ -62,14 +62,18 @@ def pages_list_pages(page_type):
             if tk.request.args.get(param):
                 data_dict[param] = tk.request.args.get(param)
     
-    # For water family content, only show public items to regular users
-    if page_type in ['water-news', 'water-events', 'water-publications']:
-        try:
-            tk.check_access('sysadmin', {'user': tk.g.user})
-            # Admin can see all items including private ones
-        except tk.NotAuthorized:
-            # Regular users only see public items
-            data_dict['private'] = False
+    # Filter content based on user permissions
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+        # Admin can see all items including private ones and pending submissions
+    except tk.NotAuthorized:
+        # Regular users only see public items
+        data_dict['private'] = False
+        # For water family content and open-source-software, also consider submission status
+        if page_type in ['water-news', 'water-events', 'water-publications', 'open-source-software']:
+            # Only show approved content to regular users
+            if page_type == 'open-source-software':
+                data_dict['submission_status'] = 'approved'
     
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
@@ -1089,6 +1093,147 @@ def water_admin_reject(page, page_type):
     
     # GET request - should not happen normally
     return tk.redirect_to('pages.water_admin_dashboard')
+
+
+def open_source_admin_dashboard():
+    """Admin dashboard to approve/reject open source software submissions"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to access admin dashboard'))
+    
+    # Get pending open source software submissions
+    try:
+        pending_software = _filter_pending_open_source_software()
+    except:
+        pending_software = []
+    
+    return tk.render('ckanext_pages/open-source-admin-dashboard.html', extra_vars={
+        'pending_software': pending_software
+    })
+
+
+def open_source_admin_approve(page):
+    """Approve an open source software submission (make it public)"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to approve content'))
+    
+    if tk.request.method == 'POST':
+        try:
+            # Get the page first
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            
+            # Update submission status to approved and make public
+            import datetime
+            page_dict['submission_status'] = 'approved'
+            page_dict['private'] = False
+            page_dict['reviewed_at'] = datetime.datetime.utcnow().isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+            
+            tk.get_action('ckanext_pages_update')(
+                context={'ignore_auth': True}, data_dict=page_dict
+            )
+            
+            tk.h.flash_success(_('Open source software entry approved and published successfully.'))
+        except Exception as e:
+            tk.h.flash_error(_('Error approving entry: {0}').format(str(e)))
+    
+    return tk.redirect_to('pages.open_source_admin_dashboard')
+
+
+def open_source_admin_reject(page):
+    """Reject an open source software submission"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to reject content'))
+    
+    if tk.request.method == 'POST':
+        try:
+            # Get the page first
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            
+            # Update submission status to rejected
+            import datetime
+            page_dict['submission_status'] = 'rejected'
+            page_dict['reviewed_at'] = datetime.datetime.utcnow().isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+            
+            tk.get_action('ckanext_pages_update')(
+                context={'ignore_auth': True}, data_dict=page_dict
+            )
+            
+            tk.h.flash_success(_('Open source software entry rejected.'))
+        except Exception as e:
+            tk.h.flash_error(_('Error rejecting entry: {0}').format(str(e)))
+    
+    return tk.redirect_to('pages.open_source_admin_dashboard')
+
+
+def _filter_pending_open_source_software():
+    """Get pending open source software submissions for admin review"""
+    from ckanext.pages.db import Page
+    from ckan import model
+    
+    # Get all pending open-source-software submissions
+    query = model.Session.query(Page).filter(
+        Page.page_type == 'open-source-software',
+        Page.submission_status == 'pending',
+        Page.group_id == None
+    ).order_by(Page.submitted_at.desc())
+    
+    return query.all()
+
+
+def open_source_admin_change_org(page):
+    """Change the organization of an open source software entry"""
+    
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to change organization'))
+    
+    if tk.request.method == 'POST':
+        try:
+            new_organization = tk.request.form.get('new_organization')
+            
+            if not new_organization:
+                tk.h.flash_error(_('Please select an organization'))
+                return tk.redirect_to('pages.open_source_admin_dashboard')
+            
+            # Get the page first
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            
+            # Update organization
+            page_dict['ihp_organization'] = new_organization
+            page_dict['modified'] = datetime.datetime.utcnow().isoformat()
+            
+            tk.get_action('ckanext_pages_update')(
+                context={'ignore_auth': True}, data_dict=page_dict
+            )
+            
+            # Get organization name for message
+            import ckan.model as model
+            org = model.Group.get(new_organization)
+            org_name = org.display_name or org.name if org else new_organization
+            
+            tk.h.flash_success(_('Organization changed to "{0}" successfully.').format(org_name))
+            
+        except Exception as e:
+            tk.h.flash_error(_('Error changing organization: {0}').format(str(e)))
+    
+    return tk.redirect_to('pages.open_source_admin_dashboard')
 
 
 # Event Types Management Functions

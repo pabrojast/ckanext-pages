@@ -77,6 +77,12 @@ class Page(DomainObject, BaseModel):
     modified = Column(types.DateTime, default=datetime.datetime.utcnow)
     extras = Column(types.UnicodeText, default=u'{}')
     revisions = Column(MutableDict.as_mutable(JSONB), default=u'{}')
+    # New fields for submission workflow and organization management
+    submission_status = Column(types.UnicodeText, default=u'draft')  # 'draft', 'pending', 'approved', 'rejected'
+    ihp_organization = Column(types.UnicodeText, default=None)  # IHP WINS Organization
+    submitted_at = Column(types.DateTime, default=None)  # When submitted for approval
+    reviewed_at = Column(types.DateTime, default=None)  # When reviewed by admin
+    reviewed_by = Column(types.UnicodeText, default=None)  # Admin user who reviewed
 
     @classmethod
     @with_db_retry(max_retries=3, delay=0.5)
@@ -113,8 +119,15 @@ class Page(DomainObject, BaseModel):
             # Base query - explicitly select all columns to avoid column mapping issues
             query = model.Session.query(cls).autoflush(False)
             
+            # Handle submission_status filter
+            submission_status = kw.pop('submission_status', None)
+            
             # Apply basic filters
             query = query.filter_by(**kw)
+            
+            # Apply submission status filter
+            if submission_status:
+                query = query.filter(cls.submission_status == submission_status)
             
             # Apply search query
             if q:

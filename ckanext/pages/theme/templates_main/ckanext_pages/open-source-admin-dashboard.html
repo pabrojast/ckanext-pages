@@ -1,0 +1,521 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Open Source Software - Admin Dashboard') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open Source Software') }}</a></li>
+                    <li class="active">{{ _('Admin Dashboard') }}</li>
+                </ol>
+            </div>
+
+            <!-- Banner -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title admin-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Open Source Software Admin Dashboard') }}</h1>
+                  <p class="section-title-description">{{ _('Review and approve community tool submissions') }}</p>
+                  <div class="section-title-meta">
+                    <i class="fa fa-shield"></i> {{ _('Administrator Panel') }}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Summary Stats -->
+                <div class="admin-summary" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-summary">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-dashboard"></i>
+                        </div>
+                        <h2>{{ _('Pending Approvals Summary') }}</h2>
+                      </div>
+                      <div class="admin-stats-grid">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="admin-stat-card software-stat">
+                              <div class="stat-icon">
+                                <i class="fa fa-code"></i>
+                              </div>
+                              <div class="stat-info">
+                                <div class="stat-number">{{ pending_software|length }}</div>
+                                <div class="stat-label">{{ _('Software Tools') }}</div>
+                                <div class="stat-action">
+                                  {% if pending_software %}
+                                    <a href="#pending-software" class="btn btn-sm btn-primary">{{ _('Review') }}</a>
+                                  {% else %}
+                                    <span class="text-muted">{{ _('All up to date') }}</span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                
+                {% if pending_software %}
+                
+                <!-- Pending Software Tools -->
+                <div id="pending-software" class="admin-section" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-content">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-code"></i>
+                        </div>
+                        <h2>{{ _('Pending Software Tools') }} <span class="badge badge-warning">{{ pending_software|length }}</span></h2>
+                        <p class="admin-section-description">{{ _('Review and approve or reject submitted software tools') }}</p>
+                      </div>
+                      
+                      <div class="admin-items-list">
+                        {% for item in pending_software %}
+                        <div class="admin-item">
+                          <div class="admin-item-header">
+                            <div class="admin-item-meta">
+                              <h3 class="admin-item-title">
+                                <a href="{{ h.url_for('pages.open_source_software_show', page=item.name) }}" target="_blank" class="admin-item-link">
+                                  {{ item.title or item.name }}
+                                  <i class="fa fa-external-link" style="margin-left: 0.5rem; font-size: 0.8rem;"></i>
+                                </a>
+                              </h3>
+                              <div class="admin-item-info">
+                                {% if item.submitted_at %}
+                                  <span class="admin-info-item">
+                                    <i class="fa fa-clock-o"></i>
+                                    {{ _('Submitted:') }} {{ item.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+                                  </span>
+                                {% endif %}
+                                {% if item.user_id %}
+                                  <span class="admin-info-item">
+                                    <i class="fa fa-user"></i>
+                                    {{ _('By:') }} {{ item.user_id }}
+                                  </span>
+                                {% endif %}
+                                {% if item.ihp_organization %}
+                                  <span class="admin-info-item">
+                                    <i class="fa fa-building-o"></i>
+                                    {{ _('Organization:') }} {{ item.ihp_organization }}
+                                  </span>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="admin-item-content">
+                            {% if item.excerpt %}
+                              <p class="admin-item-excerpt">{{ h.strip_html_tags(item.excerpt)[:200] }}{% if item.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif item.content %}
+                              <p class="admin-item-excerpt">{{ h.strip_html_tags(item.content)[:200] }}{% if item.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <!-- Software specific metadata -->
+                            <div class="admin-item-meta-details">
+                              {% set extras = h.json_loads(item.extras) if item.extras else {} %}
+                              {% if extras.get('software_category') %}
+                                <span class="admin-meta-tag">
+                                  <i class="fa fa-tag"></i>
+                                  {{ extras.get('software_category').replace('-', ' ').title() }}
+                                </span>
+                              {% endif %}
+                              {% if extras.get('programming_language') %}
+                                <span class="admin-meta-tag">
+                                  <i class="fa fa-code"></i>
+                                  {{ extras.get('programming_language') }}
+                                </span>
+                              {% endif %}
+                              {% if extras.get('software_license') %}
+                                <span class="admin-meta-tag">
+                                  <i class="fa fa-certificate"></i>
+                                  {{ extras.get('software_license') }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <div class="admin-item-actions">
+                            <div class="admin-actions-left">
+                              <a href="{{ h.url_for('pages.open_source_software_show', page=item.name) }}" 
+                                 class="btn btn-info btn-sm admin-btn-preview" target="_blank">
+                                <i class="fa fa-eye"></i> {{ _('Preview') }}
+                              </a>
+                              <a href="{{ h.url_for('pages.open_source_software_edit', page=item.name) }}" 
+                                 class="btn btn-default btn-sm admin-btn-edit" target="_blank">
+                                <i class="fa fa-edit"></i> {{ _('Edit') }}
+                              </a>
+                            </div>
+                            <div class="admin-actions-right">
+                              <!-- Change Organization (for approved items) -->
+                              {% if item.submission_status == 'approved' %}
+                                <div class="admin-org-change" style="margin-bottom: 0.5rem;">
+                                  <form method="post" action="{{ h.url_for('pages.open_source_admin_change_org', page=item.name) }}" 
+                                        style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <select name="new_organization" class="form-control form-control-sm" style="min-width: 150px;">
+                                      <option value="">{{ _('Change Organization...') }}</option>
+                                      {% for org in h.get_ihp_organizations() %}
+                                        <option value="{{ org.id }}" {% if item.ihp_organization == org.id %}selected{% endif %}>
+                                          {{ org.display_name or org.name }}
+                                        </option>
+                                      {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                      <i class="fa fa-exchange"></i> {{ _('Change') }}
+                                    </button>
+                                  </form>
+                                </div>
+                              {% endif %}
+                              
+                              {% if item.submission_status == 'pending' %}
+                                <form method="post" action="{{ h.url_for('pages.open_source_admin_reject', page=item.name) }}" 
+                                      style="display: inline-block; margin-right: 0.5rem;"
+                                      onsubmit="return confirm('{{ _('Are you sure you want to reject this software tool submission?') }}')">
+                                  <button type="submit" class="btn btn-danger btn-sm admin-btn-reject">
+                                    <i class="fa fa-times"></i> {{ _('Reject') }}
+                                  </button>
+                                </form>
+                                <form method="post" action="{{ h.url_for('pages.open_source_admin_approve', page=item.name) }}" 
+                                      style="display: inline-block;"
+                                      onsubmit="return confirm('{{ _('Are you sure you want to approve and publish this software tool?') }}')">
+                                  <button type="submit" class="btn btn-success btn-sm admin-btn-approve">
+                                    <i class="fa fa-check"></i> {{ _('Approve & Publish') }}
+                                  </button>
+                                </form>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                
+                {% else %}
+                
+                <!-- Empty State -->
+                <div class="admin-empty-state">
+                  <section class="module module-narrow admin-module-empty">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="empty-state-icon">
+                        <i class="fa fa-check-circle fa-4x" style="color: #28a745; margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('All Software Tools Reviewed!') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {{ _('There are no pending software tool submissions requiring review at this time.') }}
+                      </p>
+                      <a href="{{ h.url_for('pages.open_source_software_index') }}" class="btn btn-primary btn-lg">
+                        <i class="fa fa-list"></i> {{ _('View Published Tools') }}
+                      </a>
+                    </div>
+                  </section>
+                </div>
+                
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<style>
+/* Admin Dashboard Styles */
+.admin-title .section-title-bg {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+}
+
+.admin-module-summary {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--unesco-blue);
+  box-shadow: var(--shadow-medium);
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+}
+
+.admin-section-icon {
+  background: var(--unesco-blue);
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.admin-section-header h2 {
+  margin: 0;
+  color: var(--unesco-blue);
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.admin-section-description {
+  margin: 0.5rem 0 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.admin-stats-grid .row {
+  display: flex;
+  justify-content: center;
+}
+
+.admin-stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-light);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.admin-stat-card:hover {
+  border-color: var(--unesco-blue-pale);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.software-stat {
+  border-left: 6px solid #6f42c1;
+}
+
+.stat-icon {
+  background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%);
+  color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #6f42c1;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.stat-action .btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Admin Items List */
+.admin-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-item {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.admin-item:hover {
+  border-color: var(--unesco-blue-pale);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.admin-item-header {
+  margin-bottom: 1.5rem;
+}
+
+.admin-item-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.admin-item-link {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.admin-item-link:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: none;
+}
+
+.admin-item-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.admin-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.admin-info-item i {
+  color: var(--unesco-blue);
+  font-size: 0.8rem;
+  width: 14px;
+  text-align: center;
+}
+
+.admin-item-excerpt {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.admin-item-meta-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--unesco-blue-pale);
+}
+
+.admin-item-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-actions-left,
+.admin-actions-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.admin-btn-preview { background: #17a2b8; border-color: #17a2b8; }
+.admin-btn-edit { background: #6c757d; border-color: #6c757d; color: white; }
+.admin-btn-approve { background: #28a745; border-color: #28a745; }
+.admin-btn-reject { background: #dc3545; border-color: #dc3545; }
+
+.admin-module-empty {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px dashed var(--unesco-blue-pale);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-section-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .admin-stat-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .admin-item-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-actions-left,
+  .admin-actions-right {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .admin-actions-right form {
+    flex: 1;
+  }
+  
+  .admin-actions-right .btn {
+    width: 100%;
+  }
+}
+</style>
+
+{% endblock %}

@@ -517,6 +517,63 @@ def is_sysadmin():
         return False
 
 
+def get_ihp_organizations():
+    """Get all organizations that are marked as IHP WINS organizations"""
+    try:
+        import ckan.model as model
+        
+        # Get all organizations
+        orgs = model.Session.query(model.Group).filter(
+            model.Group.type == 'organization',
+            model.Group.state == 'active'
+        ).order_by(model.Group.display_name, model.Group.name).all()
+        
+        # For now, return all organizations
+        # In the future, you could add a custom field to mark IHP organizations
+        return orgs
+        
+    except Exception as e:
+        log.error("Error getting IHP organizations: %s", str(e))
+        return []
+
+
+def get_user_organization():
+    """Get the organization associated with the current user"""
+    try:
+        if not tk.g.user:
+            return None
+            
+        import ckan.model as model
+        
+        # Get user's organizations (as a member)
+        user_obj = model.User.get(tk.g.user)
+        if not user_obj:
+            return None
+            
+        # Get organizations where user is a member
+        member_orgs = model.Session.query(model.Member).filter(
+            model.Member.table_name == 'user',
+            model.Member.table_id == user_obj.id,
+            model.Member.group_id.in_(
+                model.Session.query(model.Group.id).filter(
+                    model.Group.type == 'organization',
+                    model.Group.state == 'active'
+                )
+            )
+        ).all()
+        
+        if member_orgs:
+            # Return the first organization (could be enhanced to handle multiple)
+            org_id = member_orgs[0].group_id
+            return model.Group.get(org_id)
+            
+        return None
+        
+    except Exception as e:
+        log.error("Error getting user organization: %s", str(e))
+        return None
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -591,6 +648,8 @@ class PagesPlugin(PagesPluginBase):
             'get_event_types': get_event_types,
             'get_event_type_by_id': get_event_type_by_id,
             'is_sysadmin': is_sysadmin,
+            'get_ihp_organizations': get_ihp_organizations,
+            'get_user_organization': get_user_organization,
         }
 
     def get_actions(self):
