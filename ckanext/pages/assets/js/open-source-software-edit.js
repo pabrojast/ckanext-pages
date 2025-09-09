@@ -441,10 +441,66 @@
       });
       
       // ================================================================
+      // HANDLE NATIVE HTML MULTI-SELECT FIELDS
+      // ================================================================
+      
+      // Handle native multi-select fields and convert to comma-separated values
+      function handleNativeMultiSelects() {
+        // Handle software categories
+        var $categorySelect = $('#software_category');
+        if ($categorySelect.length) {
+          var selectedCategories = $categorySelect.val();
+          if (selectedCategories && Array.isArray(selectedCategories)) {
+            // Create hidden field with comma-separated values
+            $('input[name="software_category_hidden"]').remove();
+            $('<input>').attr({
+              type: 'hidden',
+              name: 'software_category',
+              value: selectedCategories.join(',')
+            }).appendTo('form');
+            // Disable original select to prevent double submission
+            $categorySelect.attr('name', 'software_category_original').prop('disabled', true);
+          }
+        }
+        
+        // Handle programming languages
+        var $langSelect = $('#programming_language');
+        if ($langSelect.length) {
+          var selectedLangs = $langSelect.val();
+          if (selectedLangs && Array.isArray(selectedLangs)) {
+            $('input[name="programming_language_hidden"]').remove();
+            $('<input>').attr({
+              type: 'hidden',
+              name: 'programming_language',
+              value: selectedLangs.join(',')
+            }).appendTo('form');
+            $langSelect.attr('name', 'programming_language_original').prop('disabled', true);
+          }
+        }
+        
+        // Handle platforms
+        var $platformSelect = $('#platform');
+        if ($platformSelect.length) {
+          var selectedPlatforms = $platformSelect.val();
+          if (selectedPlatforms && Array.isArray(selectedPlatforms)) {
+            $('input[name="platform_hidden"]').remove();
+            $('<input>').attr({
+              type: 'hidden',
+              name: 'platform',
+              value: selectedPlatforms.join(',')
+            }).appendTo('form');
+            $platformSelect.attr('name', 'platform_original').prop('disabled', true);
+          }
+        }
+      }
+      
+      // ================================================================
       // FORM SUBMISSION HANDLING
       // ================================================================
       
       $('form').on('submit', function(e) {
+        // Handle multi-select fields before validation
+        handleNativeMultiSelects();
         // Validate required fields
         var title = $('#title').val().trim();
         var name = $('#name').val().trim();

@@ -697,43 +697,8 @@
     }
   });
   
-  // Form validation
-  $('form').on('submit', function(e) {
-    var title = $('#field-title').val().trim();
-    var name = $('#field-name').val().trim();
-    
-    if (!title) {
-      alert('Please enter a disaster title');
-      $('#field-title').focus();
-      e.preventDefault();
-      return false;
-    }
-    
-    if (!name) {
-      alert('Please enter a URL name');
-      $('#field-name').focus();
-      e.preventDefault();
-      return false;
-    }
-    // Sync Quill before validation
-    if (window.syncAllQuillEditors) { window.syncAllQuillEditors(); }
-
-    // Validate required content (Event Description)
-    if (window.quillEditors && window.quillEditors['content-editor']) {
-      var contentText = window.quillEditors['content-editor'].getText().trim();
-      if (!contentText) {
-        alert('Please enter the event description');
-        try { window.quillEditors['content-editor'].focus(); } catch (err) {}
-        e.preventDefault();
-        return false;
-      }
-    }
-    
-    // Update data before submit
-    updateTimelineData();
-    updateUploadedImagesData();
-    updateCountriesData();
-  });
+  // Form validation - REMOVED (merged with unified handler below)
+  // Note: Form submission handling has been unified to prevent conflicts
   
   // WYSIWYG editor integration if available
   // Replace CKEditor with Quill
@@ -1854,10 +1819,54 @@
   initializeAdditionalInformationBlocks();
   
   // Update form submission to handle all block systems
-  $('form').on('submit', function() {
+  $('form').on('submit', function(e) {
+    // Update block content fields first
     updateImpactContentField();
     updateResponseContentField();
     updateAdditionalContentField();
+    
+    // Sync Quill editors before validation
+    if (window.syncAllQuillEditors) { 
+      window.syncAllQuillEditors(); 
+    }
+    
+    // Perform validation
+    var title = $('#field-title').val().trim();
+    var name = $('#field-name').val().trim();
+    
+    if (!title) {
+      alert('Please enter a disaster title');
+      $('#field-title').focus();
+      e.preventDefault();
+      return false;
+    }
+    
+    if (!name) {
+      alert('Please enter a name');
+      $('#field-name').focus();
+      e.preventDefault();
+      return false;
+    }
+    
+    // Validate required content (Event Description)
+    if (window.quillEditors && window.quillEditors['content-editor']) {
+      var contentText = window.quillEditors['content-editor'].getText().trim();
+      if (!contentText) {
+        alert('Please enter the event description');
+        try { 
+          window.quillEditors['content-editor'].focus(); 
+        } catch (err) {}
+        e.preventDefault();
+        return false;
+      }
+    }
+    
+    // Update data before submit
+    updateTimelineData();
+    updateUploadedImagesData();
+    updateCountriesData();
+    
+    return true;
   });
   
   // Initialize generated HTML code toggle functionality for all block systems
