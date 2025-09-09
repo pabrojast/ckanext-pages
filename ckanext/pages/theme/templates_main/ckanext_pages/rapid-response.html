@@ -116,7 +116,7 @@
                 {% set has_recovery = c.page.recovery_phase and h.has_meaningful_content(c.page.recovery_phase) %}
                 {% set has_resilience = c.page.resilience_phase and h.has_meaningful_content(c.page.resilience_phase) %}
                 {% set total_phases = [has_impact, has_response, has_recovery, has_resilience] %}
-                {% set completed_phases = total_phases | selectattr | list | length %}
+                {% set completed_phases = total_phases | select | list | length %}
 
                 {% if completed_phases > 0 %}
                 <div class="rapid-response-phase-progress" style="margin-bottom: 3rem;">
