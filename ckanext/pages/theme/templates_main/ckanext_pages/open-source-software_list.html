@@ -461,6 +461,17 @@
                                     {% else %}
                                       <span class="badge-access badge-open-source">{{ _('Open Source') }}</span>
                                     {% endif %}
+                                    {% if h.is_sysadmin() and page.submission_status and page.submission_status != 'approved' %}
+                                      <span class="badge-status {% if page.submission_status == 'pending' %}badge-pending{% elif page.submission_status == 'draft' %}badge-draft{% endif %}">
+                                        {% if page.submission_status == 'pending' %}
+                                          {{ _('Pending Approval') }}
+                                        {% elif page.submission_status == 'draft' %}
+                                          {{ _('Draft') }}
+                                        {% else %}
+                                          {{ page.submission_status.title() }}
+                                        {% endif %}
+                                      </span>
+                                    {% endif %}
                                   </div>
                                 </div>
                                 
@@ -790,6 +801,24 @@
 
 .badge-open-source {
   background: #28a745;
+}
+
+/* Admin-only status badges */
+.badge-status {
+  padding: 0.25rem 0.6rem;
+  border-radius: 14px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #fff;
+  margin-left: 0.4rem;
+}
+.badge-pending {
+  background: #f0ad4e; /* warning/orange */
+}
+.badge-draft {
+  background: #6c757d; /* muted/gray */
 }
 
 /* Compact Meta Information */

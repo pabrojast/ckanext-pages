@@ -77,6 +77,12 @@ class Page(DomainObject, BaseModel):
     modified = Column(types.DateTime, default=datetime.datetime.utcnow)
     extras = Column(types.UnicodeText, default=u'{}')
     revisions = Column(MutableDict.as_mutable(JSONB), default=u'{}')
+    # Submission workflow and organization management
+    submission_status = Column(types.UnicodeText, default=u'draft')
+    ihp_organization = Column(types.UnicodeText, default=None)
+    submitted_at = Column(types.DateTime)
+    reviewed_at = Column(types.DateTime)
+    reviewed_by = Column(types.UnicodeText, default=None)
     # New fields for submission workflow and organization management
     submission_status = Column(types.UnicodeText, default=u'draft')  # 'draft', 'pending', 'approved', 'rejected'
     ihp_organization = Column(types.UnicodeText, default=None)  # IHP WINS Organization
