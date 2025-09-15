@@ -141,28 +141,20 @@
       {%- if end_pos > 0 -%}
         {%- set resource_def = part[:end_pos] -%}
         
-        {# Parse the resource definition #}
+        {# Parse the resource definition robustly (allow colons inside URL) #}
         {%- set first_colon = resource_def.find(':') -%}
         {%- if first_colon > 0 -%}
           {%- set resource_type = resource_def[:first_colon].strip() -%}
-          {%- set remaining = resource_def[first_colon+1:] -%}
-          
-          {# Parse URL safely: look for :// to skip protocol colon #}
-          {%- set scheme_pos = remaining.find('://') -%}
-          {%- if scheme_pos >= 0 -%}
-            {%- set after_scheme = scheme_pos + 3 -%}
-            {%- set url_end = remaining.find(':', after_scheme) -%}
-            {%- if url_end == -1 -%}
-              {%- set resource_url = remaining.strip() -%}
-              {%- set resource_title = 'Resource' -%}
-              {%- set resource_desc = '' -%}
-            {%- else -%}
-              {%- set resource_url = remaining[:url_end].strip() -%}
-              {%- set after_url = remaining[url_end + 1:] -%}
-              {%- set meta_parts = after_url.split(':', 1) -%}
-              {%- set resource_title = meta_parts[0].strip() if meta_parts else 'Resource' -%}
-              {%- set resource_desc = meta_parts[1].strip() if meta_parts|length > 1 else '' -%}
-            {%- endif -%}
+          {%- set rest = resource_def[first_colon+1:] -%}
+          {# Split from the right to extract description, then title, preserving any ':' within URL #}
+          {%- set rest_parts = rest.rsplit(':', 1) -%}
+          {%- set maybe_title = rest_parts[0] -%}
+          {%- set resource_desc = (rest_parts[1].strip() if rest_parts|length > 1 else '') -%}
+          {%- set title_split = maybe_title.rsplit(':', 1) -%}
+          {%- set maybe_url = title_split[0] -%}
+          {%- set resource_title = (title_split[1].strip() if title_split|length > 1 else 'Resource') -%}
+          {%- set resource_url = maybe_url.strip() -%}
+          {%- if resource_url.startswith('http://') or resource_url.startswith('https://') -%}
             {%- set icons = {
               'youtube': 'fa-youtube-play',
               'openlearning': 'fa-graduation-cap',
