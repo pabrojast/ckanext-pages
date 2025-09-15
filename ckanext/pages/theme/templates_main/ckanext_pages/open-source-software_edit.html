@@ -3031,36 +3031,53 @@ textarea[id="example_applications"] {
   
   // Load organizations for the current user (clean labels, auto-select user's org)
   function loadOrganizations() {
+    const isSysadmin = {{ 'true' if h.is_sysadmin() else 'false' }};
     const currentIhpOrgId = '{{ data.get("ihp_organization", "") }}';
     const defaultOrgId = '{{ (h.get_user_organization().id if h.get_user_organization() else "") | replace("'", "&#39;") }}';
     const selectedId = currentIhpOrgId || defaultOrgId;
-    
+
+    const $select = $('#ihp_organization');
+    $select.empty();
+
+    if (!isSysadmin) {
+      // Non-admin: show only the user's primary organization
+      const userOrgId = '{{ (h.get_user_organization().id if h.get_user_organization() else "") | replace("'", "&#39;") }}';
+      const userOrgLabel = '{{ (h.get_user_organization().title if h.get_user_organization() else "") | replace("'", "&#39;") }}' || '{{ (h.get_user_organization().display_name if h.get_user_organization() else "") | replace("'", "&#39;") }}';
+      if (userOrgId) {
+        $select.append(`<option value="${userOrgId}" selected>${userOrgLabel || 'My Organization'}</option>`);
+      } else {
+        $select.append('<option value="">{{ _("No organizations available for your account") }}</option>');
+      }
+      return;
+    }
+
+    // Admins: load all organizations
     $.ajax({
-      url: '/api/3/action/organization_list_for_user',
-      data: { permission: 'create_dataset' },
+      url: '/api/3/action/organization_list',
+      data: { all_fields: true, include_extras: false },
       dataType: 'json',
       success: function(response) {
         if (response.success && response.result) {
-          const $select = $('#ihp_organization');
-          $select.empty();
           $select.append('<option value="">{{ _("Select Organization") }}</option>');
-          
-          response.result.forEach(function(org) {
-            const label = org.display_name || org.title || org.name;
-            const isSelected = org.id === selectedId ? 'selected' : '';
-            $select.append(`<option value="${org.id}" ${isSelected}>${label}</option>`);
-          });
-          
-          // If nothing selected yet but we have a default, set it
-          if (!$select.val() && selectedId) {
-            $select.val(selectedId);
-          }
+          response.result
+            .filter(function(org){ return org.state === 'active'; })
+            .sort(function(a,b){
+              const A = (a.display_name || a.title || a.name || '').toLowerCase();
+              const B = (b.display_name || b.title || b.name || '').toLowerCase();
+              return A.localeCompare(B);
+            })
+            .forEach(function(org) {
+              const label = org.display_name || org.title || org.name;
+              const isSelected = org.id === selectedId ? 'selected' : '';
+              $select.append(`<option value="${org.id}" ${isSelected}>${label}</option>`);
+            });
+          if (!$select.val() && selectedId) { $select.val(selectedId); }
         } else {
-          $('#ihp_organization').html('<option value="">{{ _("No organizations available for your account") }}</option>');
+          $select.html('<option value="">{{ _("Error loading organizations") }}</option>');
         }
       },
       error: function() {
-        $('#ihp_organization').html('<option value="">{{ _("Error loading organizations") }}</option>');
+        $select.html('<option value="">{{ _("Error loading organizations") }}</option>');
       }
     });
   }

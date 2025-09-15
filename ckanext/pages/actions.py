@@ -259,13 +259,30 @@ def _pages_update(context, data_dict):
                     log = logging.getLogger(__name__)
                     log.info(f"Auto-assigned organization {user_org.title or user_org.display_name or user_org.name} to user {context['user']}")
 
-    # Ensure organization is set for open-source-software entries when missing
-    if data.get('page_type') == 'open-source-software' and not data.get('ihp_organization'):
-        user_org = _get_user_organization(context['user'])
-        if user_org:
-            data['ihp_organization'] = user_org.id
-            log = logging.getLogger(__name__)
-            log.info(f"Defaulted organization to {user_org.title or user_org.display_name or user_org.name} for user {context['user']}")
+    # Ensure organization handling for open-source-software
+    if data.get('page_type') == 'open-source-software':
+        # Non-admins: force the organization to the user's primary organization
+        is_admin = False
+        try:
+            is_admin = tk.check_access('sysadmin', context, {})
+        except Exception:
+            is_admin = False
+
+        if not is_admin:
+            user_org = _get_user_organization(context['user'])
+            if user_org:
+                if data.get('ihp_organization') != user_org.id:
+                    data['ihp_organization'] = user_org.id
+                log = logging.getLogger(__name__)
+                log.info(f"Enforced organization to {user_org.title or user_org.display_name or user_org.name} for user {context['user']}")
+        else:
+            # Admins: if missing, try to default to user's org to avoid empty values
+            if not data.get('ihp_organization'):
+                user_org = _get_user_organization(context['user'])
+                if user_org:
+                    data['ihp_organization'] = user_org.id
+                    log = logging.getLogger(__name__)
+                    log.info(f"Defaulted organization to {user_org.title or user_org.display_name or user_org.name} for admin {context['user']}")
 
     # backward compatible with older version where page_type does not exist
     for item in items:

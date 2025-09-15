@@ -322,25 +322,23 @@
                               </a>
                             </div>
                             <div class="admin-actions-right">
-                              <!-- Change Organization (for approved items) -->
-                              {% if item.submission_status == 'approved' %}
-                                <div class="admin-org-change" style="margin-bottom: 0.5rem;">
-                                  <form method="post" action="{{ h.url_for('pages.open_source_admin_change_org', page=item.name) }}" 
-                                        style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <select name="new_organization" class="form-control form-control-sm" style="min-width: 150px;">
-                                      <option value="">{{ _('Change Organization...') }}</option>
-                                      {% for org in h.get_ihp_organizations() %}
-                                        <option value="{{ org.id }}" {% if item.ihp_organization == org.id %}selected{% endif %}>
-                                          {{ org.title or org.display_name or org.name }}
-                                        </option>
-                                      {% endfor %}
-                                    </select>
-                                    <button type="submit" class="btn btn-warning btn-sm">
-                                      <i class="fa fa-exchange"></i> {{ _('Change') }}
-                                    </button>
-                                  </form>
-                                </div>
-                              {% endif %}
+                              <!-- Change Organization (available for pending and approved items) -->
+                              <div class="admin-org-change" style="margin-bottom: 0.5rem;">
+                                <form method="post" action="{{ h.url_for('pages.open_source_admin_change_org', page=item.name) }}" 
+                                      style="display: flex; gap: 0.5rem; align-items: center;">
+                                  <select name="new_organization" class="form-control form-control-sm" style="min-width: 180px;">
+                                    <option value="">{{ _('Change Organization...') }}</option>
+                                    {% for org in h.get_ihp_organizations() %}
+                                      <option value="{{ org.id }}" {% if item.ihp_organization == org.id %}selected{% endif %}>
+                                        {{ org.title or org.display_name or org.name }}
+                                      </option>
+                                    {% endfor %}
+                                  </select>
+                                  <button type="submit" class="btn btn-warning btn-sm">
+                                    <i class="fa fa-exchange"></i> {{ _('Set Organization') }}
+                                  </button>
+                                </form>
+                              </div>
                               
                               {% if item.submission_status == 'pending' %}
                                 <form method="post" action="{{ h.url_for('pages.open_source_admin_reject', page=item.name) }}" 
