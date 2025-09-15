@@ -124,6 +124,90 @@
       });
       
       // ================================================================
+      // RICH TEXT EDITORS (Quill)
+      // ================================================================
+
+      function initializeQuillEditors() {
+        if (typeof Quill === 'undefined') {
+          // Fallback: ensure hidden textareas are visible so content can be edited/saved
+          ['excerpt','content','technical_requirements','installation_instructions','learning_resources','example_applications']
+            .forEach(function(id){ var el = document.getElementById(id); if (el) { el.style.display = 'block'; el.style.visibility='visible'; el.style.position='static'; }});
+          return;
+        }
+
+        var quillEditors = {};
+        var fullToolbar = [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'indent': '-1' }, { 'indent': '+1' }],
+          ['blockquote', 'code-block'],
+          ['link', 'video'],
+          [{ 'align': [] }],
+          ['clean']
+        ];
+        var compactToolbar = [
+          [{ 'header': [2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          ['link'],
+          ['clean']
+        ];
+
+        var editorConfigs = {
+          'excerpt-editor': { textareaId: 'excerpt', toolbar: [['bold','italic','underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link'], ['clean']], placeholder: 'Short summary for listings...' },
+          'content-editor': { textareaId: 'content', toolbar: fullToolbar, placeholder: 'Detailed tool overview and description...' },
+          'technical-requirements-editor': { textareaId: 'technical_requirements', toolbar: compactToolbar, placeholder: 'Technical requirements...' },
+          'installation-instructions-editor': { textareaId: 'installation_instructions', toolbar: fullToolbar, placeholder: 'Installation and usage instructions...' },
+          'learning-resources-editor': { textareaId: 'learning_resources', toolbar: fullToolbar, placeholder: 'Learning resources, links and guides...' },
+          'example-applications-editor': { textareaId: 'example_applications', toolbar: compactToolbar, placeholder: 'Example applications / use cases...' }
+        };
+
+        Object.keys(editorConfigs).forEach(function(editorId){
+          var cfg = editorConfigs[editorId];
+          var editorEl = document.getElementById(editorId);
+          var textarea = document.getElementById(cfg.textareaId);
+          if (!editorEl || !textarea) return;
+          var quill = new Quill('#' + editorId, { theme: 'snow', modules: { toolbar: cfg.toolbar, history: { delay: 1000, maxStack: 50 } }, placeholder: cfg.placeholder });
+          if (textarea.value) {
+            try { quill.clipboard.dangerouslyPasteHTML(textarea.value); } catch(e) { quill.setText(textarea.value); }
+          }
+          quill.on('text-change', function(){ textarea.value = quill.root.innerHTML; $(textarea).trigger('change'); });
+          $(editorEl).attr('role','textbox').attr('aria-label', cfg.placeholder);
+          quillEditors[editorId] = quill;
+        });
+
+        window.quillEditors = quillEditors;
+        window.syncAllQuillEditors = function(){
+          if (!window.quillEditors) return;
+          Object.keys(window.quillEditors).forEach(function(editorId){
+            var quill = window.quillEditors[editorId];
+            var cfg = editorConfigs[editorId];
+            var textarea = document.getElementById(cfg.textareaId);
+            if (quill && textarea) { textarea.value = quill.root.innerHTML; $(textarea).trigger('change'); }
+          });
+        };
+
+        // Hide source textareas (already hidden in template, ensure enforced)
+        setTimeout(function(){
+          Object.keys(editorConfigs).forEach(function(editorId){
+            var cfg = editorConfigs[editorId];
+            var textarea = document.getElementById(cfg.textareaId);
+            if (textarea) {
+              $(textarea).css({ 'display':'none', 'visibility':'hidden', 'position':'absolute', 'left':'-9999px', 'top':'-9999px', 'width':'1px', 'height':'1px', 'opacity':'0', 'z-index':'-9999' });
+            }
+          });
+        }, 200);
+      }
+
+      // Initialize Quill editors on load
+      initializeQuillEditors();
+
+      // Force sync on tab change or before unload (best-effort)
+      $(document).on('visibilitychange', function(){ if (window.syncAllQuillEditors) window.syncAllQuillEditors(); });
+
+      // ================================================================
       // IMAGE UPLOAD SYSTEM
       // ================================================================
       
@@ -497,8 +581,10 @@
       // ================================================================
       // FORM SUBMISSION HANDLING
       // ================================================================
-      
+
       $('form').on('submit', function(e) {
+        // Sync rich text editors before validation/submit
+        if (window.syncAllQuillEditors) { window.syncAllQuillEditors(); }
         // Handle multi-select fields before validation
         handleNativeMultiSelects();
         // Validate required fields
