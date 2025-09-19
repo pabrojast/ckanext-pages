@@ -171,136 +171,163 @@
 
                 <!-- Publications Feed -->
                 {% if c.page.items %}
-                <div class="water-publications-feed wf-feed">
+                <div class="water-publications-feed">
                   {% for page in c.page.items %}
-                  <div class="publication-card wf-card">
-                    <article class="module module-modern">
-                      <!-- Publication Status Header -->
-                      <div class="publication-status-header wf-card-header">
-                        <div class="row">
-                          <div class="col-md-8">
-                            <div class="publication-metadata">
-                              {% if page.publish_date %}
-                                <span class="wf-meta-pill wf-meta-date publication-date">
-                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %Y') }}
-                                </span>
-                              {% endif %}
-                              {% if page.author %}
-                                <span class="publication-author wf-meta-pill wf-meta-muted"
-                                  <i class="fa fa-user"></i> {{ page.author }}
-                                </span>
-                              {% elif page.authors %}
-                                {% set author_text = page.authors.strip() %}
-                                {% if ',' in author_text or 'and' in author_text.lower() or '&' in author_text %}
-                                  {% set first_author = author_text.split(',')[0].split(' and ')[0].split(' & ')[0].strip() %}
-                                  <span class="publication-author wf-meta-pill wf-meta-muted"
-                                    <i class="fa fa-user"></i> {{ first_author }} <em>et al.</em>
-                                  </span>
-                                {% else %}
-                                  <span class="publication-author wf-meta-pill wf-meta-muted"
-                                    <i class="fa fa-user"></i> {{ author_text }}
-                                  </span>
-                                {% endif %}
-                              {% endif %}
-                              {% if page.private == 'True' %}
-                                <span class="publication-status-badge status-pending wf-meta-pill wf-status-pending">
-                                  {{ _('PENDING APPROVAL') }}
-                                </span>
-                              {% else %}
-                                <span class="publication-status-badge status-published wf-meta-pill wf-status-published">
-                                  {{ _('PUBLISHED') }}
-                                </span>
-                              {% endif %}
-                            </div>
-                          </div>
-                          <div class="col-md-4 text-right">
-                            <div class="publication-type wf-meta-group">
-                              <i class="fa fa-file-text"></i>
-                              <span class="wf-meta-pill wf-type-pill type-label">{{ page.subtitle or _('Publication') }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <!-- Publication Content -->
-                      <div class="module-content">
+                  <div class="event-card-modern publication-card-modern" style="margin-bottom: 1.5rem;">
+                    <article class="module-modern">
+                      <div class="event-card-content">
                         <div class="row">
                           <!-- Publication Cover -->
-                          <div class="col-md-4">
-                            <div class="publication-image">
+                          <div class="col-md-3 col-sm-4">
+                            <div class="event-image-container">
                               {% if page.header_image %}
-                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="event-image">
                               {% elif page.uploaded_images %}
                                 {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
-                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="event-image">
                                 {% else %}
-                                  <div class="placeholder-cover">
+                                  <div class="placeholder-image">
                                     <i class="fa fa-file-text-o fa-3x"></i>
                                   </div>
                                 {% endif %}
                               {% else %}
-                                <div class="placeholder-cover">
+                                <div class="placeholder-image">
                                   <i class="fa fa-file-text-o fa-3x"></i>
                                 </div>
                               {% endif %}
                             </div>
                           </div>
-                          
+
                           <!-- Publication Details -->
-                          <div class="col-md-8">
-                            <h3 class="publication-title">
-                              <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">
-                                {{ page.title or page.name }}
-                              </a>
-                            </h3>
-                            
-                            {% if page.journal %}
-                              <p class="publication-journal">
-                                <i class="fa fa-book"></i> {{ page.journal }}
-                              </p>
-                            {% endif %}
-                            
-                            <!-- Publication Info Preview -->
-                            {% if page.publication_details %}
-                              <div class="publication-info-preview">
-                                {% set detail_lines = page.publication_details.split('\n')[:3] %}
-                                {% for line in detail_lines %}
-                                  {% if line.strip() %}
-                                    <div class="publication-detail-item">{{ line.strip() }}</div>
+                          <div class="col-md-9 col-sm-8">
+                            <div class="event-info">
+                              <!-- Header with Title and Meta -->
+                              <div class="event-header-compact">
+                                <div class="event-title-row">
+                                  <h3 class="event-title-modern">
+                                    <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}">
+                                      {{ page.title or page.name }}
+                                    </a>
+                                  </h3>
+                                  <div class="event-badges">
+                                    <span class="badge-status badge-publication">{{ page.subtitle or _('PUBLICATION') }}</span>
+                                    {% if page.private == 'True' %}
+                                      <span class="badge-status badge-pending">{{ _('PENDING APPROVAL') }}</span>
+                                    {% else %}
+                                      <span class="badge-status badge-published">{{ _('PUBLISHED') }}</span>
+                                    {% endif %}
+                                  </div>
+                                </div>
+
+                                <!-- Compact Meta Info -->
+                                <div class="event-meta-compact">
+                                  {% if page.publish_date %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %Y') }}
+                                    </span>
                                   {% endif %}
-                                {% endfor %}
+                                  {% if page.journal %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-book"></i> {{ page.journal }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.author %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-user"></i> {{ _('by') }} {{ page.author }}
+                                    </span>
+                                  {% elif page.authors %}
+                                    {% set author_text = page.authors.strip() %}
+                                    {% if ',' in author_text or 'and' in author_text.lower() or '&' in author_text %}
+                                      {% set first_author = author_text.split(',')[0].split(' and ')[0].split(' & ')[0].strip() %}
+                                      <span class="meta-item">
+                                        <i class="fa fa-user"></i> {{ _('by') }} {{ first_author }} <em>et al.</em>
+                                      </span>
+                                    {% else %}
+                                      <span class="meta-item">
+                                        <i class="fa fa-user"></i> {{ _('by') }} {{ author_text }}
+                                      </span>
+                                    {% endif %}
+                                  {% endif %}
+                                </div>
                               </div>
-                            {% endif %}
-                            
-                            {% if page.excerpt %}
-                              <p class="publication-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
-                            {% elif page.content %}
-                              <p class="publication-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
-                            {% endif %}
-                            
-                            <!-- Publication Actions -->
-                            <div class="publication-actions">
-                              <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}" 
-                                 class="btn btn-primary">
-                                <i class="fa fa-eye"></i> {{ _('View Publication') }}
-                              </a>
-                              {% if h.check_access('ckanext_water_publications_update') %}
-                                <a href="{{ h.url_for('pages.water_publications_edit', page=page.name) }}" 
-                                   class="btn btn-default">
-                                  <i class="fa fa-edit"></i> {{ _('Edit') }}
-                                </a>
-                              {% endif %}
-                              {% if page.publication_url %}
-                                <a href="{{ page.publication_url }}" target="_blank" class="btn btn-success">
-                                  <i class="fa fa-external-link"></i> {{ _('Read Online') }}
-                                </a>
-                              {% endif %}
-                              {% if page.download_url %}
-                                <a href="{{ page.download_url }}" target="_blank" class="btn btn-info">
-                                  <i class="fa fa-download"></i> {{ _('Download') }}
-                                </a>
-                              {% endif %}
+
+                              <!-- Publication Description -->
+                              <div class="event-description-modern">
+                                <!-- Publication Info Preview -->
+                                {% if page.publication_details %}
+                                <div class="key-info-compact">
+                                  {% set detail_lines = page.publication_details.split('\n')[:2] %}
+                                  {% for line in detail_lines %}
+                                    {% if line.strip() %}
+                                      <div class="key-info-item">{{ line.strip() }}</div>
+                                    {% endif %}
+                                  {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                {% set content_text = '' %}
+                                {% if page.excerpt %}
+                                  {% set content_text = page.excerpt %}
+                                {% elif page.content %}
+                                  {% set content_text = (page.content|striptags) %}
+                                {% endif %}
+
+                                {% if content_text %}
+                                  <div class="event-excerpt-modern">
+                                    <span class="excerpt-preview">{{ content_text[:400] }}{% if content_text|length > 400 %}...{% endif %}</span>
+                                    {% if content_text|length > 400 %}
+                                      <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
+                                      <br>
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
+                                        <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                      </button>
+                                    {% endif %}
+                                  </div>
+                                {% endif %}
+                              </div>
+
+                              <!-- Action Row -->
+                              <div class="event-actions-modern">
+                                <div class="impact-info-modern">
+                                  <span class="impact-badge impact-publication">
+                                    <i class="fa fa-file-text-o"></i> {{ _('Water Publication') }}
+                                  </span>
+                                  {% if page.publication_url %}
+                                    <span class="impact-badge impact-online">
+                                      <i class="fa fa-external-link"></i> {{ _('Online Access') }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.download_url %}
+                                    <span class="impact-badge impact-download">
+                                      <i class="fa fa-download"></i> {{ _('Download Available') }}
+                                    </span>
+                                  {% endif %}
+                                </div>
+
+                                <div class="action-buttons-modern">
+                                  <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}"
+                                     class="btn btn-primary btn-sm">
+                                    <i class="fa fa-eye"></i> {{ _('View Publication') }}
+                                  </a>
+                                  {% if page.publication_url %}
+                                    <a href="{{ page.publication_url }}" target="_blank" class="btn btn-success btn-sm">
+                                      <i class="fa fa-external-link"></i> {{ _('Read Online') }}
+                                    </a>
+                                  {% endif %}
+                                  {% if page.download_url %}
+                                    <a href="{{ page.download_url }}" target="_blank" class="btn btn-info btn-sm">
+                                      <i class="fa fa-download"></i> {{ _('Download') }}
+                                    </a>
+                                  {% endif %}
+                                  {% if h.check_access('ckanext_water_publications_update') %}
+                                    <a href="{{ h.url_for('pages.water_publications_edit', page=page.name) }}"
+                                       class="btn btn-default btn-sm">
+                                      <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>

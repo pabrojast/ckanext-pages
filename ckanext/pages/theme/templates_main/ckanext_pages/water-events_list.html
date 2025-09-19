@@ -188,65 +188,24 @@
 
                 <!-- Events Feed -->
                 {% if c.page.items %}
-                <div class="water-events-feed wf-feed">
+                <div class="water-events-feed">
                   {% for page in c.page.items %}
                   {% set _format_value = (page.event_format or '').lower() %}
                   {% set _format_label_map = {'in-person': _('In-person'), 'online': _('Online'), 'hybrid': _('Hybrid')} %}
                   {% set _format_label = _format_label_map.get(_format_value, page.event_format) %}
-                  <div class="event-card wf-card event-card-modern">
-                    <article class="module module-modern">
-                      <!-- Event Status Header -->
-                      <div class="event-status-header wf-card-header">
-                        <div class="row">
-                          <div class="col-md-8">
-                            <div class="event-metadata">
-                              {% if page.publish_date %}
-                                <span class="wf-meta-pill wf-meta-date event-date">
-                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
-                                </span>
-                              {% endif %}
-                              {% if page.location %}
-                                <span class="wf-meta-pill wf-meta-location event-location">
-                                  <i class="fa fa-map-marker"></i> {{ page.location }}
-                                </span>
-                              {% endif %}
-                              {% if _format_label %}
-                                <span class="wf-meta-pill wf-meta-format event-format">
-                                  <i class="fa fa-users"></i> {{ _format_label }}
-                                </span>
-                              {% endif %}
-                              {% if page.private == 'True' %}
-                                <span class="event-status-badge status-pending wf-meta-pill wf-status-pending">
-                                  {{ _('PENDING APPROVAL') }}
-                                </span>
-                              {% else %}
-                                <span class="event-status-badge status-published wf-meta-pill wf-status-published">
-                                  {{ _('PUBLISHED') }}
-                                </span>
-                              {% endif %}
-                            </div>
-                          </div>
-                          <div class="col-md-4 text-right">
-                            <div class="event-type wf-meta-group">
-                              <i class="fa fa-tag"></i>
-                              <span class="wf-meta-pill wf-type-pill type-label">{{ page.subtitle or _('Event') }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <!-- Event Content -->
-                      <div class="module-content">
+                  <div class="event-card-modern event-card-water-events" style="margin-bottom: 1.5rem;">
+                    <article class="module-modern">
+                      <div class="event-card-content">
                         <div class="row">
                           <!-- Event Image -->
-                          <div class="col-md-4">
-                            <div class="event-image">
+                          <div class="col-md-3 col-sm-4">
+                            <div class="event-image-container">
                               {% if page.header_image %}
-                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="event-image">
                               {% elif page.uploaded_images %}
                                 {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
-                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="event-image">
                                 {% else %}
                                   <div class="placeholder-image">
                                     <i class="fa fa-calendar fa-3x"></i>
@@ -259,56 +218,119 @@
                               {% endif %}
                             </div>
                           </div>
-                          
+
                           <!-- Event Details -->
-                          <div class="col-md-8">
-                            <h3 class="event-title">
-                              <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}">
-                                {{ page.title or page.name }}
-                              </a>
-                            </h3>
-                            
-                            {% if page.organization %}
-                              <p class="event-organization">
-                                <i class="fa fa-building"></i> {{ page.organization }}
-                              </p>
-                            {% endif %}
-                            
-                            <!-- Event Info Preview -->
-                            {% if page.event_details %}
-                              <div class="event-info-preview">
-                                {% set detail_lines = page.event_details.split('\n')[:3] %}
-                                {% for line in detail_lines %}
-                                  {% if line.strip() %}
-                                    <div class="event-detail-item">{{ line.strip() }}</div>
+                          <div class="col-md-9 col-sm-8">
+                            <div class="event-info">
+                              <!-- Header with Title and Meta -->
+                              <div class="event-header-compact">
+                                <div class="event-title-row">
+                                  <h3 class="event-title-modern">
+                                    <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}">
+                                      {{ page.title or page.name }}
+                                    </a>
+                                  </h3>
+                                  <div class="event-badges">
+                                    <span class="badge-status badge-event">{{ page.subtitle or _('EVENT') }}</span>
+                                    {% if page.private == 'True' %}
+                                      <span class="badge-status badge-pending">{{ _('PENDING APPROVAL') }}</span>
+                                    {% else %}
+                                      <span class="badge-status badge-published">{{ _('PUBLISHED') }}</span>
+                                    {% endif %}
+                                  </div>
+                                </div>
+
+                                <!-- Compact Meta Info -->
+                                <div class="event-meta-compact">
+                                  {% if page.publish_date %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                    </span>
                                   {% endif %}
-                                {% endfor %}
+                                  {% if page.location %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-map-marker"></i> {{ page.location }}
+                                    </span>
+                                  {% endif %}
+                                  {% if _format_label %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-users"></i> {{ _format_label }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.organization %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-building"></i> {{ page.organization }}
+                                    </span>
+                                  {% endif %}
+                                </div>
                               </div>
-                            {% endif %}
-                            
-                            {% if page.excerpt %}
-                              <p class="event-excerpt">{{ page.excerpt[:200] }}{% if page.excerpt|length > 200 %}...{% endif %}</p>
-                            {% elif page.content %}
-                              <p class="event-excerpt">{{ (page.content|striptags)[:200] }}{% if page.content|length > 200 %}...{% endif %}</p>
-                            {% endif %}
-                            
-                            <!-- Event Actions -->
-                            <div class="event-actions">
-                              <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}" 
-                                 class="btn btn-primary">
-                                <i class="fa fa-eye"></i> {{ _('View Event') }}
-                              </a>
-                              {% if h.check_access('ckanext_water_events_update') %}
-                                <a href="{{ h.url_for('pages.water_events_edit', page=page.name) }}" 
-                                   class="btn btn-default">
-                                  <i class="fa fa-edit"></i> {{ _('Edit') }}
-                                </a>
-                              {% endif %}
-                              {% if page.registration_url %}
-                                <a href="{{ page.registration_url }}" target="_blank" class="btn btn-success">
-                                  <i class="fa fa-external-link"></i> {{ _('Register') }}
-                                </a>
-                              {% endif %}
+
+                              <!-- Event Description -->
+                              <div class="event-description-modern">
+                                <!-- Event Info Preview -->
+                                {% if page.event_details %}
+                                <div class="key-info-compact">
+                                  {% set detail_lines = page.event_details.split('\n')[:2] %}
+                                  {% for line in detail_lines %}
+                                    {% if line.strip() %}
+                                      <div class="key-info-item">{{ line.strip() }}</div>
+                                    {% endif %}
+                                  {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                {% set content_text = '' %}
+                                {% if page.excerpt %}
+                                  {% set content_text = page.excerpt %}
+                                {% elif page.content %}
+                                  {% set content_text = (page.content|striptags) %}
+                                {% endif %}
+
+                                {% if content_text %}
+                                  <div class="event-excerpt-modern">
+                                    <span class="excerpt-preview">{{ content_text[:400] }}{% if content_text|length > 400 %}...{% endif %}</span>
+                                    {% if content_text|length > 400 %}
+                                      <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
+                                      <br>
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
+                                        <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                      </button>
+                                    {% endif %}
+                                  </div>
+                                {% endif %}
+                              </div>
+
+                              <!-- Action Row -->
+                              <div class="event-actions-modern">
+                                <div class="impact-info-modern">
+                                  <span class="impact-badge impact-event">
+                                    <i class="fa fa-calendar"></i> {{ _('Water Event') }}
+                                  </span>
+                                  {% if page.registration_url %}
+                                    <span class="impact-badge impact-registration">
+                                      <i class="fa fa-external-link"></i> {{ _('Registration Available') }}
+                                    </span>
+                                  {% endif %}
+                                </div>
+
+                                <div class="action-buttons-modern">
+                                  <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}"
+                                     class="btn btn-primary btn-sm">
+                                    <i class="fa fa-eye"></i> {{ _('View Event') }}
+                                  </a>
+                                  {% if page.registration_url %}
+                                    <a href="{{ page.registration_url }}" target="_blank" class="btn btn-success btn-sm">
+                                      <i class="fa fa-external-link"></i> {{ _('Register') }}
+                                    </a>
+                                  {% endif %}
+                                  {% if h.check_access('ckanext_water_events_update') %}
+                                    <a href="{{ h.url_for('pages.water_events_edit', page=page.name) }}"
+                                       class="btn btn-default btn-sm">
+                                      <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>

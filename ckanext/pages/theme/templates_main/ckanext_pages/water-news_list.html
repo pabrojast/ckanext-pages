@@ -101,50 +101,21 @@
 
                 <!-- News Items Feed -->
                 {% if c.page.items %}
-                <div class="water-news-feed wf-feed">
+                <div class="water-news-feed">
                   {% for page in c.page.items %}
-                  <div class="news-card wf-card">
-                    <article class="module module-modern">
-                      <!-- News Header -->
-                      <div class="news-header wf-card-header">
-                        <div class="row">
-                          <div class="col-md-8">
-                            <div class="news-metadata">
-                              {% if page.publish_date %}
-                                <span class="wf-meta-pill wf-meta-date news-date">
-                                  <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
-                                </span>
-                              {% endif %}
-                              <span class="wf-meta-pill wf-type-pill news-type-badge">{{ _('NEWS') }}</span>
-                              {% if page.private == 'True' %}
-                                <span class="news-status-badge status-pending wf-meta-pill wf-status-pending">{{ _('PENDING REVIEW') }}</span>
-                              {% else %}
-                                <span class="news-status-badge status-published wf-meta-pill wf-status-published">{{ _('PUBLISHED') }}</span>
-                              {% endif %}
-                            </div>
-                          </div>
-                          <div class="col-md-4 text-right">
-                            {% if page.author %}
-                              <div class="news-author wf-meta-pill wf-meta-muted">
-                                <i class="fa fa-user"></i> {{ page.author }}
-                              </div>
-                            {% endif %}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <!-- News Content -->
-                      <div class="module-content">
+                  <div class="event-card-modern news-card-modern" style="margin-bottom: 1.5rem;">
+                    <article class="module-modern">
+                      <div class="event-card-content">
                         <div class="row">
                           <!-- News Image -->
-                          <div class="col-md-4">
-                            <div class="news-image">
+                          <div class="col-md-3 col-sm-4">
+                            <div class="event-image-container">
                               {% if page.header_image %}
-                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="img-responsive">
+                                <img src="{{ page.header_image }}" alt="{{ page.title }}" class="event-image">
                               {% elif page.uploaded_images %}
                                 {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
-                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="img-responsive">
+                                  <img src="{{ images[0].url }}" alt="{{ page.title }}" class="event-image">
                                 {% else %}
                                   <div class="placeholder-image">
                                     <i class="fa fa-newspaper-o fa-3x"></i>
@@ -157,33 +128,87 @@
                               {% endif %}
                             </div>
                           </div>
-                          
+
                           <!-- News Details -->
-                          <div class="col-md-8">
-                            <h3 class="news-title">
-                              <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}">
-                                {{ page.title or page.name }}
-                              </a>
-                            </h3>
-                            
-                            {% if page.excerpt %}
-                              <p class="news-excerpt">{{ page.excerpt[:300] }}{% if page.excerpt|length > 300 %}...{% endif %}</p>
-                            {% elif page.content %}
-                              <p class="news-excerpt">{{ (page.content|striptags)[:300] }}{% if page.content|length > 300 %}...{% endif %}</p>
-                            {% endif %}
-                            
-                            <!-- News Actions -->
-                            <div class="news-actions">
-                              <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}" 
-                                 class="btn btn-primary">
-                                <i class="fa fa-eye"></i> {{ _('Read Full Article') }}
-                              </a>
-                              {% if h.check_access('ckanext_water_news_update') %}
-                                <a href="{{ h.url_for('pages.water_news_edit', page=page.name) }}" 
-                                   class="btn btn-default">
-                                  <i class="fa fa-edit"></i> {{ _('Edit') }}
-                                </a>
-                              {% endif %}
+                          <div class="col-md-9 col-sm-8">
+                            <div class="event-info">
+                              <!-- Header with Title and Meta -->
+                              <div class="event-header-compact">
+                                <div class="event-title-row">
+                                  <h3 class="event-title-modern">
+                                    <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}">
+                                      {{ page.title or page.name }}
+                                    </a>
+                                  </h3>
+                                  <div class="event-badges">
+                                    <span class="badge-status badge-news">{{ _('NEWS') }}</span>
+                                    {% if page.private == 'True' %}
+                                      <span class="badge-status badge-pending">{{ _('PENDING REVIEW') }}</span>
+                                    {% else %}
+                                      <span class="badge-status badge-published">{{ _('PUBLISHED') }}</span>
+                                    {% endif %}
+                                  </div>
+                                </div>
+
+                                <!-- Compact Meta Info -->
+                                <div class="event-meta-compact">
+                                  {% if page.publish_date %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                    </span>
+                                  {% endif %}
+                                  {% if page.author %}
+                                    <span class="meta-item">
+                                      <i class="fa fa-user"></i> {{ _('by') }} {{ page.author }}
+                                    </span>
+                                  {% endif %}
+                                </div>
+                              </div>
+
+                              <!-- News Description -->
+                              <div class="event-description-modern">
+                                {% set content_text = '' %}
+                                {% if page.excerpt %}
+                                  {% set content_text = page.excerpt %}
+                                {% elif page.content %}
+                                  {% set content_text = (page.content|striptags) %}
+                                {% endif %}
+
+                                {% if content_text %}
+                                  <div class="event-excerpt-modern">
+                                    <span class="excerpt-preview">{{ content_text[:400] }}{% if content_text|length > 400 %}...{% endif %}</span>
+                                    {% if content_text|length > 400 %}
+                                      <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
+                                      <br>
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
+                                        <i class="fa fa-plus"></i> {{ _('Read more') }}
+                                      </button>
+                                    {% endif %}
+                                  </div>
+                                {% endif %}
+                              </div>
+
+                              <!-- Action Row -->
+                              <div class="event-actions-modern">
+                                <div class="impact-info-modern">
+                                  <span class="impact-badge impact-news">
+                                    <i class="fa fa-newspaper-o"></i> {{ _('Water News') }}
+                                  </span>
+                                </div>
+
+                                <div class="action-buttons-modern">
+                                  <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}"
+                                     class="btn btn-primary btn-sm">
+                                    <i class="fa fa-eye"></i> {{ _('Read Article') }}
+                                  </a>
+                                  {% if h.check_access('ckanext_water_news_update') %}
+                                    <a href="{{ h.url_for('pages.water_news_edit', page=page.name) }}"
+                                       class="btn btn-default btn-sm">
+                                      <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                    </a>
+                                  {% endif %}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
