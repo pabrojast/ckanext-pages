@@ -121,7 +121,7 @@ pages_show = page_privacy
 pages_update = pages_update_with_org_check
 pages_delete = sysadmin
 pages_list = anyone
-pages_upload = sysadmin
+pages_upload = pages_upload_auth
 org_pages_show = page_privacy
 org_pages_update = page_group_admin
 org_pages_delete = page_group_admin
@@ -140,6 +140,16 @@ def user_authenticated(context, data_dict):
     else:
         return {'success': False, 'msg': p.toolkit._('You must be logged in')}
 
+
+def pages_upload_auth(context, data_dict):
+    '''Allow sysadmins or authenticated users to upload assets'''
+    try:
+        p.toolkit.check_access('sysadmin', context, data_dict)
+        return {'success': True}
+    except p.toolkit.NotAuthorized:
+        pass
+
+    return user_authenticated(context, data_dict)
 
 def water_content_create(context, data_dict):
     '''Allow authenticated users to create water family content (will be saved as private/pending)'''
@@ -211,3 +221,5 @@ def event_types_update(context, data_dict):
 def event_types_delete(context, data_dict):
     '''Only sysadmin can delete event types'''
     return sysadmin(context, data_dict)
+
+
