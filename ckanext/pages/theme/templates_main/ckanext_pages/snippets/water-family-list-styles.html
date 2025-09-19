@@ -1,0 +1,402 @@
+<style>
+/* Shared Water Family listing styles derived from rapid-response design */
+.water-family-list {
+  --wf-primary: #0072BC;
+  --wf-primary-dark: #005A9C;
+  --wf-primary-light: #009EE0;
+  --wf-accent: #F0F7FD;
+  --wf-accent-strong: #E3F1FB;
+  --wf-muted: #6C757D;
+  --wf-text: #2C3E50;
+  --wf-border: #E1E7EF;
+  --wf-shadow-light: 0 12px 32px rgba(0, 114, 188, 0.12);
+  --wf-shadow-strong: 0 18px 48px rgba(0, 114, 188, 0.18);
+}
+
+.water-family-list .section-title {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--wf-shadow-strong);
+}
+
+.water-family-list .section-title-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8);
+}
+
+.water-family-list .section-title-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.92) 0%, rgba(0, 74, 137, 0.85) 100%);
+}
+
+.water-family-list .section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #fff;
+  z-index: 2;
+  max-width: 820px;
+  padding: 0 1.5rem;
+}
+
+.water-family-list .section-title-content h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.water-family-list .section-title-description {
+  font-size: 1.2rem;
+  opacity: 0.92;
+}
+
+/* Action bar & filters */
+.water-family-list .wf-actions-bar .module,
+.water-family-list .wf-filters .module,
+.water-family-list .wf-status-summary .module,
+.water-family-list .wf-empty-state .module {
+  background: linear-gradient(135deg, rgba(240, 247, 253, 0.95) 0%, rgba(227, 241, 251, 0.95) 100%);
+  border: 1px solid var(--wf-border);
+  border-radius: 20px;
+  box-shadow: var(--wf-shadow-light);
+}
+
+.water-family-list .wf-actions-bar h2,
+.water-family-list .wf-filters h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--wf-text);
+}
+
+.water-family-list .wf-actions-bar p,
+.water-family-list .wf-filters p {
+  margin: 0.5rem 0 0;
+  color: var(--wf-muted);
+}
+
+.water-family-list .wf-filters .form-control,
+.water-family-list .wf-filters input[type="text"],
+.water-family-list .wf-filters select {
+  border-radius: 12px;
+  border: 1px solid var(--wf-border);
+  padding: 0.6rem 0.85rem;
+  box-shadow: none;
+}
+
+.water-family-list .wf-filters .btn {
+  border-radius: 12px;
+}
+
+/* Status metrics */
+.water-family-list .status-metric {
+  padding: 1rem 0.5rem;
+}
+
+.water-family-list .status-metric .metric-number {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--wf-primary);
+}
+
+.water-family-list .status-metric .metric-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: var(--wf-muted);
+}
+
+/* Cards */
+.water-family-list .wf-card {
+  margin-bottom: 2.2rem;
+}
+
+.water-family-list .wf-card .module-modern {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid var(--wf-border);
+  box-shadow: var(--wf-shadow-light);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.water-family-list .wf-card .module-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--wf-shadow-strong);
+}
+
+.water-family-list .wf-card-header {
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.95) 0%, rgba(0, 74, 137, 0.92) 100%);
+  color: #fff;
+  padding: 1.15rem 1.75rem;
+}
+
+.water-family-list .wf-card-header .event-metadata,
+.water-family-list .wf-card-header .news-metadata,
+.water-family-list .wf-card-header .publication-metadata {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-weight: 500;
+}
+
+.water-family-list .wf-card-header .event-type,
+.water-family-list .wf-card-header .news-type,
+.water-family-list .wf-card-header .publication-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.water-family-list .wf-card-header .event-type .type-label,
+.water-family-list .wf-card-header .news-type-badge,
+.water-family-list .wf-card-header .publication-type-badge {
+  color: #fff;
+}
+
+.water-family-list .wf-card .module-content {
+  padding: 1.85rem 1.9rem 1.6rem;
+}
+
+.water-family-list .wf-card .module-content .row {
+  align-items: stretch;
+}
+
+.water-family-list .event-image,
+.water-family-list .news-image,
+.water-family-list .publication-image {
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--wf-accent);
+  height: 210px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(0, 114, 188, 0.05);
+}
+
+.water-family-list .event-image img,
+.water-family-list .news-image img,
+.water-family-list .publication-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.water-family-list .wf-card:hover .event-image img,
+.water-family-list .wf-card:hover .news-image img,
+.water-family-list .wf-card:hover .publication-image img {
+  transform: scale(1.05);
+}
+
+.water-family-list .placeholder-image {
+  color: var(--wf-primary);
+  opacity: 0.6;
+}
+
+.water-family-list .event-title,
+.water-family-list .news-title,
+.water-family-list .publication-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--wf-text);
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.water-family-list .event-excerpt,
+.water-family-list .news-excerpt,
+.water-family-list .publication-excerpt {
+  color: var(--wf-muted);
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+.water-family-list .event-details-list,
+.water-family-list .publication-details-list {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.water-family-list .event-details-list li,
+.water-family-list .publication-details-list li {
+  margin-bottom: 0.35rem;
+  color: var(--wf-muted);
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.water-family-list .event-actions,
+.water-family-list .news-actions,
+.water-family-list .publication-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.water-family-list .wf-card .meta-pill,
+.water-family-list .wf-card .event-status-badge,
+.water-family-list .wf-card .news-status-badge,
+.water-family-list .wf-card .publication-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(0, 114, 188, 0.1);
+  color: var(--wf-primary);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.water-family-list .wf-card .status-pending {
+  background: rgba(255, 193, 7, 0.18);
+  color: #b98900;
+}
+
+.water-family-list .wf-card .status-draft {
+  background: rgba(108, 117, 125, 0.18);
+  color: rgba(44, 62, 80, 0.8);
+}
+
+.water-family-list .wf-card .status-published,
+.water-family-list .wf-card .status-approved {
+  background: rgba(40, 167, 69, 0.18);
+  color: #1b7c36;
+}
+
+/* Buttons */
+.water-family-list .btn-primary {
+  background: linear-gradient(135deg, var(--wf-primary) 0%, var(--wf-primary-dark) 100%);
+  border: none;
+  border-radius: 14px;
+  padding: 0.65rem 1.35rem;
+  box-shadow: 0 10px 24px rgba(0, 114, 188, 0.25);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.water-family-list .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(0, 114, 188, 0.32);
+  color: #fff;
+}
+
+.water-family-list .btn-default {
+  border-radius: 14px;
+  border: 1px solid var(--wf-border);
+  background: #fff;
+  color: var(--wf-text);
+  padding: 0.6rem 1.2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+}
+
+.water-family-list .btn-default:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 114, 188, 0.12);
+  border-color: var(--wf-primary-light);
+  color: var(--wf-primary-dark);
+}
+
+/* Pagination */
+.water-family-list .pagination-wrapper .module {
+  background: linear-gradient(135deg, rgba(240, 247, 253, 0.95) 0%, rgba(227, 241, 251, 0.95) 100%);
+  border: 1px solid var(--wf-border);
+  border-radius: 16px;
+  box-shadow: var(--wf-shadow-light);
+}
+
+/* Empty state */
+.water-family-list .wf-empty-state {
+  text-align: center;
+  color: var(--wf-muted);
+}
+
+.water-family-list .wf-empty-state i {
+  font-size: 3rem;
+  color: var(--wf-primary-light);
+  margin-bottom: 1rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 992px) {
+  .water-family-list .wf-card .module-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .water-family-list .section-title {
+    height: 240px;
+  }
+  .water-family-list .section-title-content h1 {
+    font-size: 2.2rem;
+  }
+  .water-family-list .module-content {
+    padding: 1.35rem;
+  }
+  .water-family-list .wf-card-header,
+  .water-family-list .wf-card .module-content .row {
+    flex-direction: column;
+  }
+  .water-family-list .event-image,
+  .water-family-list .news-image,
+  .water-family-list .publication-image {
+    height: 160px;
+    margin-bottom: 1rem;
+  }
+  .water-family-list .event-actions,
+  .water-family-list .news-actions,
+  .water-family-list .publication-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .water-family-list .section-title {
+    height: 200px;
+  }
+  .water-family-list .section-title-content h1 {
+    font-size: 1.85rem;
+  }
+  .water-family-list .event-title,
+  .water-family-list .news-title,
+  .water-family-list .publication-title {
+    font-size: 1.35rem;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.water-family-list .wf-filters form select').forEach(function (element) {
+    element.addEventListener('change', function () {
+      var form = this.closest('form');
+      if (form) {
+        form.submit();
+      }
+    });
+  });
+});
+</script>
