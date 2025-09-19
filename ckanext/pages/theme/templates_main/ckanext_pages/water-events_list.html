@@ -190,6 +190,9 @@
                 {% if c.page.items %}
                 <div class="water-events-feed wf-feed">
                   {% for page in c.page.items %}
+                  {% set _format_value = (page.event_format or '').lower() %}
+                  {% set _format_label_map = {'in-person': _('In-person'), 'online': _('Online'), 'hybrid': _('Hybrid')} %}
+                  {% set _format_label = _format_label_map.get(_format_value, page.event_format) %}
                   <div class="event-card wf-card event-card-modern">
                     <article class="module module-modern">
                       <!-- Event Status Header -->
@@ -198,30 +201,35 @@
                           <div class="col-md-8">
                             <div class="event-metadata">
                               {% if page.publish_date %}
-                                <span class="event-date">
+                                <span class="wf-meta-pill wf-meta-date event-date">
                                   <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
                                 </span>
                               {% endif %}
                               {% if page.location %}
-                                <span class="event-location">
+                                <span class="wf-meta-pill wf-meta-location event-location">
                                   <i class="fa fa-map-marker"></i> {{ page.location }}
                                 </span>
                               {% endif %}
+                              {% if _format_label %}
+                                <span class="wf-meta-pill wf-meta-format event-format">
+                                  <i class="fa fa-users"></i> {{ _format_label }}
+                                </span>
+                              {% endif %}
                               {% if page.private == 'True' %}
-                                <span class="event-status-badge status-pending">
+                                <span class="event-status-badge status-pending wf-meta-pill wf-status-pending">
                                   {{ _('PENDING APPROVAL') }}
                                 </span>
                               {% else %}
-                                <span class="event-status-badge status-published">
+                                <span class="event-status-badge status-published wf-meta-pill wf-status-published">
                                   {{ _('PUBLISHED') }}
                                 </span>
                               {% endif %}
                             </div>
                           </div>
                           <div class="col-md-4 text-right">
-                            <div class="event-type">
+                            <div class="event-type wf-meta-group">
                               <i class="fa fa-tag"></i>
-                              <span class="type-label">{{ page.subtitle or _('Event') }}</span>
+                              <span class="wf-meta-pill wf-type-pill type-label">{{ page.subtitle or _('Event') }}</span>
                             </div>
                           </div>
                         </div>

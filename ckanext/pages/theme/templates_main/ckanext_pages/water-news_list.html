@@ -111,21 +111,21 @@
                           <div class="col-md-8">
                             <div class="news-metadata">
                               {% if page.publish_date %}
-                                <span class="news-date">
+                                <span class="wf-meta-pill wf-meta-date news-date">
                                   <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
                                 </span>
                               {% endif %}
-                              <span class="news-type-badge">{{ _('NEWS') }}</span>
+                              <span class="wf-meta-pill wf-type-pill news-type-badge">{{ _('NEWS') }}</span>
                               {% if page.private == 'True' %}
-                                <span class="news-status-badge status-pending">{{ _('PENDING REVIEW') }}</span>
+                                <span class="news-status-badge status-pending wf-meta-pill wf-status-pending">{{ _('PENDING REVIEW') }}</span>
                               {% else %}
-                                <span class="news-status-badge status-published">{{ _('PUBLISHED') }}</span>
+                                <span class="news-status-badge status-published wf-meta-pill wf-status-published">{{ _('PUBLISHED') }}</span>
                               {% endif %}
                             </div>
                           </div>
                           <div class="col-md-4 text-right">
                             {% if page.author %}
-                              <div class="news-author">
+                              <div class="news-author wf-meta-pill wf-meta-muted">
                                 <i class="fa fa-user"></i> {{ page.author }}
                               </div>
                             {% endif %}

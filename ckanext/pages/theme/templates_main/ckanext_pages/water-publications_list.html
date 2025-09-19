@@ -181,42 +181,42 @@
                           <div class="col-md-8">
                             <div class="publication-metadata">
                               {% if page.publish_date %}
-                                <span class="publication-date">
+                                <span class="wf-meta-pill wf-meta-date publication-date">
                                   <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %Y') }}
                                 </span>
                               {% endif %}
                               {% if page.author %}
-                                <span class="publication-author">
+                                <span class="publication-author wf-meta-pill wf-meta-muted"
                                   <i class="fa fa-user"></i> {{ page.author }}
                                 </span>
                               {% elif page.authors %}
                                 {% set author_text = page.authors.strip() %}
                                 {% if ',' in author_text or 'and' in author_text.lower() or '&' in author_text %}
                                   {% set first_author = author_text.split(',')[0].split(' and ')[0].split(' & ')[0].strip() %}
-                                  <span class="publication-author">
+                                  <span class="publication-author wf-meta-pill wf-meta-muted"
                                     <i class="fa fa-user"></i> {{ first_author }} <em>et al.</em>
                                   </span>
                                 {% else %}
-                                  <span class="publication-author">
+                                  <span class="publication-author wf-meta-pill wf-meta-muted"
                                     <i class="fa fa-user"></i> {{ author_text }}
                                   </span>
                                 {% endif %}
                               {% endif %}
                               {% if page.private == 'True' %}
-                                <span class="publication-status-badge status-pending">
+                                <span class="publication-status-badge status-pending wf-meta-pill wf-status-pending">
                                   {{ _('PENDING APPROVAL') }}
                                 </span>
                               {% else %}
-                                <span class="publication-status-badge status-published">
+                                <span class="publication-status-badge status-published wf-meta-pill wf-status-published">
                                   {{ _('PUBLISHED') }}
                                 </span>
                               {% endif %}
                             </div>
                           </div>
                           <div class="col-md-4 text-right">
-                            <div class="publication-type">
+                            <div class="publication-type wf-meta-group">
                               <i class="fa fa-file-text"></i>
-                              <span class="type-label">{{ page.subtitle or _('Publication') }}</span>
+                              <span class="wf-meta-pill wf-type-pill type-label">{{ page.subtitle or _('Publication') }}</span>
                             </div>
                           </div>
                         </div>
