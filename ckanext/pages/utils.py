@@ -113,6 +113,14 @@ def pages_list_pages(page_type):
 
 def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type='pages'):
 
+    def _slugify_title(value):
+        import re
+        value = (value or '').strip().lower()
+        value = re.sub(r'[^a-z0-9\s_-]+', '', value)
+        value = re.sub(r'\s+', '-', value)
+        value = re.sub(r'-{2,}', '-', value)
+        return value.strip('-')
+
     page_dict = None
     if page:
         if page.startswith('/'):
@@ -135,12 +143,17 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     if tk.request.method == 'POST' and not data:
         data = _parse_form_data(tk.request)
-
+        submission_action = data.pop('submission_action', None) or tk.request.form.get('submission_action')
         page_dict.update(data)
 
         page_dict['org_id'] = None
         page_dict['page'] = page
         page_dict['page_type'] = 'page' if page_type == 'pages' else page_type
+
+        if not page_dict.get('name') and page_dict.get('title'):
+            generated_name = _slugify_title(page_dict['title'])
+            if generated_name:
+                page_dict['name'] = generated_name
 
         # For water family content, set as private by default for non-admin users
         if page_type in ['water-news', 'water-events', 'water-publications'] and not page:
@@ -150,6 +163,36 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             except tk.NotAuthorized:
                 # Regular users create as private (pending approval)
                 page_dict['private'] = 'True'
+
+        if page_type in ['water-news', 'water-events', 'water-publications']:
+            # Ensure we store the organization id of the submitter when missing
+            if not page_dict.get('ihp_organization'):
+                try:
+                    orgs = tk.get_action('organization_list_for_user')(
+                        {'user': tk.g.user} if tk.g.user else {},
+                        {'permission': 'create_dataset'}
+                    )
+                    if orgs:
+                        primary_org = orgs[0]
+                        page_dict['ihp_organization'] = primary_org.get('id') or primary_org.get('name')
+                        if not page_dict.get('organization'):
+                            page_dict['organization'] = primary_org.get('title') or primary_org.get('display_name') or primary_org.get('name')
+                except Exception:
+                    pass
+
+            if submission_action == 'draft':
+                page_dict['private'] = 'True'
+                page_dict['submission_status'] = 'draft'
+            elif submission_action == 'submit':
+                page_dict.setdefault('private', 'True')
+                page_dict['submission_status'] = 'pending'
+            elif submission_action == 'publish':
+                page_dict['private'] = 'False'
+                page_dict['submission_status'] = 'published'
+
+        # Remove helper fields that should not hit the action layer
+        if 'submission_action' in page_dict:
+            page_dict.pop('submission_action')
 
         try:
             tk.get_action('ckanext_pages_update')(
@@ -200,6 +243,20 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     if not data:
         data = page_dict
+
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        if not data.get('ihp_organization'):
+            try:
+                orgs = tk.get_action('organization_list_for_user')(
+                    {'user': tk.g.user} if tk.g.user else {},
+                    {'permission': 'create_dataset'}
+                )
+                if orgs:
+                    primary_org = orgs[0]
+                    data['ihp_organization'] = primary_org.get('id') or primary_org.get('name')
+                    data.setdefault('organization', primary_org.get('title') or primary_org.get('display_name') or primary_org.get('name'))
+            except Exception:
+                pass
 
     errors = errors or {}
     error_summary = error_summary or {}

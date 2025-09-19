@@ -4,6 +4,16 @@
 {{ c.page.title or c.page.name }} - {{ _('Water Family News') }} - {{ super() }}
 {% endblock %}
 
+{% set news_uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
+{% set news_hero_image = c.page.header_image or (news_uploaded_images[0]['url'] if news_uploaded_images else None) %}
+{% set has_content = h.has_meaningful_content(c.page.content) %}
+{% set has_excerpt = h.has_meaningful_content(c.page.excerpt) %}
+{% set has_gallery = news_uploaded_images and news_uploaded_images|length > 0 %}
+{% set has_external_images = h.has_meaningful_content(c.page.image_gallery) %}
+{% set has_additional = h.has_meaningful_content(c.page.additional_content) or c.page.news_attachment %}
+{% set has_links = h.has_meaningful_content(c.page.external_links) %}
+{% set has_author = h.has_meaningful_content(c.page.author) %}
+
 {% block content %}
 
 <div class="homepage layout-1">
@@ -29,11 +39,11 @@
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
+                <div class="section-title-bg" style="background-image: url('{% if news_hero_image %}{{ news_hero_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ c.page.title or c.page.name }}</h1>
-                  {% if c.page.excerpt %}
+                  {% if has_excerpt %}
                     <p class="section-title-description">{{ c.page.excerpt }}</p>
                   {% endif %}
                   {% if c.page.publish_date %}
@@ -51,7 +61,7 @@
               <div class="col-md-12">
                 
                 <!-- Main News Content -->
-                {% if c.page.content %}
+                {% if has_content %}
                 <div class="news-main-content" style="margin-bottom: 3rem;">
                   <section class="module module-narrow news-module-content">
                     <div class="module-content">
@@ -70,9 +80,9 @@
                 {% endif %}
 
                 <!-- Article Meta Information -->
-                {% if c.page.author or c.page.publish_date or c.page.created or c.page.modified %}
+                {% if has_author or c.page.publish_date or c.page.created or c.page.modified %}
                 <div class="article-meta-info" style="margin-bottom: 3rem;">
-                  {% if c.page.author %}
+                  {% if has_author %}
                   <div class="author-info">
                     <div class="author-container">
                       <div class="author-badge">
@@ -109,7 +119,7 @@
                 {% endif %}
 
                 <!-- Image Gallery Section -->
-                {% if c.page.uploaded_images or c.page.image_gallery %}
+                {% if has_gallery or has_external_images %}
                 <div class="news-gallery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow news-module-gallery">
                     <div class="module-content">
@@ -121,9 +131,8 @@
                       </div>
                       
                       <!-- Uploaded Images Grid -->
-                      {% if c.page.uploaded_images %}
-                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
-                        {% if uploaded_images %}
+                      {% if has_gallery %}
+                        {% set uploaded_images = news_uploaded_images %}
                         <div class="uploaded-images-gallery">
                           <div class="images-grid">
                             {% for image in uploaded_images %}
@@ -147,7 +156,7 @@
                       {% endif %}
 
                       <!-- External Images (Markdown/HTML) -->
-                      {% if c.page.image_gallery %}
+                      {% if has_external_images %}
                       <div class="external-images-gallery">
                         {% if c.page.uploaded_images %}
                           <h3>{{ _('Additional Images') }}</h3>
@@ -163,7 +172,7 @@
                 {% endif %}
 
                 <!-- Additional Information -->
-                {% if c.page.additional_content %}
+                {% if has_additional %}
                 <div class="news-additional" style="margin-bottom: 3rem;">
                   <section class="module module-narrow news-module-additional">
                     <div class="module-content">
@@ -174,7 +183,17 @@
                         <h2>{{ _('Additional Information') }}</h2>
                       </div>
                       <div class="news-content-body">
-                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                        {% if c.page.news_attachment %}
+                          <p>
+                            <i class="fa fa-file-pdf-o"></i>
+                            <a href="{{ c.page.news_attachment }}" target="_blank" rel="noopener" class="btn btn-outline">
+                              <i class="fa fa-download"></i> {{ _('Download attachment') }}
+                            </a>
+                          </p>
+                        {% endif %}
+                        {% if h.has_meaningful_content(c.page.additional_content) %}
+                          {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                        {% endif %}
                       </div>
                     </div>
                   </section>
@@ -182,7 +201,7 @@
                 {% endif %}
 
                 <!-- External Links -->
-                {% if c.page.external_links %}
+                {% if has_links %}
                 <div class="news-links" style="margin-bottom: 3rem;">
                   <section class="module module-narrow news-module-links">
                     <div class="module-content">

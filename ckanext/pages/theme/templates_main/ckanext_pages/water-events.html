@@ -4,6 +4,17 @@
 {{ c.page.title or c.page.name }} - {{ _('Water Family Events') }} - {{ super() }}
 {% endblock %}
 
+{% set event_uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
+{% set hero_image = c.page.header_image or (event_uploaded_images[0]['url'] if event_uploaded_images else None) %}
+{% set has_content = h.has_meaningful_content(c.page.content) %}
+{% set has_details = h.has_meaningful_content(c.page.event_details) %}
+{% set has_speakers = h.has_meaningful_content(c.page.speakers) %}
+{% set has_registration = h.has_meaningful_content(c.page.registration_info) or c.page.registration_url %}
+{% set has_additional = h.has_meaningful_content(c.page.additional_content) or c.page.agenda_document %}
+{% set has_gallery = event_uploaded_images and event_uploaded_images|length > 0 %}
+{% set has_external_images = h.has_meaningful_content(c.page.image_carousel) %}
+{% set has_meta = h.has_meaningful_content(c.page.location) or h.has_meaningful_content(c.page.event_format) or h.has_meaningful_content(c.page.organization) or h.has_meaningful_content(c.page.co_organizers) %}
+
 {% block content %}
 
 <div class="homepage layout-1">
@@ -29,7 +40,7 @@
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
+                <div class="section-title-bg" style="background-image: url('{% if hero_image %}{{ hero_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ c.page.title or c.page.name }}</h1>
@@ -49,9 +60,68 @@
           <div class="container">
             <div class="row">
               <div class="col-md-12">
+                {% if has_meta %}
+                <div class="water-event-meta" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-meta">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-map"></i>
+                        </div>
+                        <h2>{{ _('Event Highlights') }}</h2>
+                      </div>
+                      <div class="row">
+                        {% if h.has_meaningful_content(c.page.location) %}
+                        <div class="col-sm-6 col-lg-3">
+                          <div class="event-meta-item">
+                            <div class="meta-icon"><i class="fa fa-map-marker"></i></div>
+                            <div class="meta-title">{{ _('Location') }}</div>
+                            <div class="meta-value">{{ c.page.location }}</div>
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if h.has_meaningful_content(c.page.event_format) %}
+                        {% set _format_key = (c.page.event_format or '').lower() %}
+                        {% set _format_label_map = {
+                          'in-person': _('In-person'),
+                          'online': _('Online'),
+                          'hybrid': _('Hybrid')
+                        } %}
+                        {% set _format_label = _format_label_map.get(_format_key, c.page.event_format) %}
+                        <div class="col-sm-6 col-lg-3">
+                          <div class="event-meta-item">
+                            <div class="meta-icon"><i class="fa fa-users"></i></div>
+                            <div class="meta-title">{{ _('Format') }}</div>
+                            <div class="meta-value">{{ _format_label }}</div>
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if h.has_meaningful_content(c.page.organization) %}
+                        <div class="col-sm-6 col-lg-3">
+                          <div class="event-meta-item">
+                            <div class="meta-icon"><i class="fa fa-building"></i></div>
+                            <div class="meta-title">{{ _('Organizer') }}</div>
+                            <div class="meta-value">{{ c.page.organization }}</div>
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if h.has_meaningful_content(c.page.co_organizers) %}
+                        <div class="col-sm-6 col-lg-3">
+                          <div class="event-meta-item">
+                            <div class="meta-icon"><i class="fa fa-handshake-o"></i></div>
+                            <div class="meta-title">{{ _('Co-organizers') }}</div>
+                            <div class="meta-value">{{ c.page.co_organizers }}</div>
+                          </div>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
                 
                 <!-- Event Overview -->
-                {% if c.page.content %}
+                {% if has_content %}
                 <div class="water-event-main-content" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-overview">
                     <div class="module-content">
@@ -70,7 +140,7 @@
                 {% endif %}
 
                 <!-- Event Details -->
-                {% if c.page.event_details %}
+                {% if has_details %}
                 <div class="water-event-details" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-details">
                     <div class="module-content">
@@ -81,31 +151,7 @@
                         <h2>{{ _('Event Details') }}</h2>
                       </div>
                       <div class="event-details-content">
-                        {% set detail_lines = c.page.event_details.split('\n') if c.page.event_details else [] %}
-                        {% if detail_lines %}
-                          <div class="event-details-table">
-                            {% for line in detail_lines %}
-                              {% if line.strip() and ':' in line %}
-                                {% set parts = line.split(':', 1) %}
-                                {% if parts|length == 2 %}
-                                  <div class="event-detail-row">
-                                    <div class="event-detail-label">
-                                      <i class="fa fa-calendar"></i>
-                                      {{ parts[0].strip() }}
-                                    </div>
-                                    <div class="event-detail-value">
-                                      {{ parts[1].strip() }}
-                                    </div>
-                                  </div>
-                                {% endif %}
-                              {% elif line.strip() and ':' not in line %}
-                                <div class="event-detail-note">
-                                  {{ line.strip() }}
-                                </div>
-                              {% endif %}
-                            {% endfor %}
-                          </div>
-                        {% endif %}
+                        {{ h.render_markdown(c.page.event_details, allow_html=True) | safe }}
                       </div>
                     </div>
                   </section>
@@ -113,7 +159,7 @@
                 {% endif %}
 
                 <!-- Speakers/Organizers -->
-                {% if c.page.speakers %}
+                {% if has_speakers %}
                 <div class="water-event-speakers" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-speakers">
                     <div class="module-content">
@@ -132,7 +178,7 @@
                 {% endif %}
 
                 <!-- Registration Info -->
-                {% if c.page.registration_info %}
+                {% if has_registration %}
                 <div class="water-event-registration" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-registration">
                     <div class="module-content">
@@ -158,7 +204,7 @@
                 {% endif %}
 
                 <!-- Image Gallery -->
-                {% if c.page.uploaded_images or c.page.image_carousel %}
+                {% if has_gallery or has_external_images %}
                 <div class="water-event-gallery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-gallery">
                     <div class="module-content">
@@ -169,9 +215,8 @@
                         <h2>{{ _('Image Gallery') }}</h2>
                       </div>
                       
-                      {% if c.page.uploaded_images %}
-                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) or [] %}
-                        {% if uploaded_images %}
+                      {% if has_gallery %}
+                        {% set uploaded_images = event_uploaded_images %}
                         <div class="uploaded-images-gallery">
                           <div class="images-grid">
                             {% for image in uploaded_images %}
@@ -194,7 +239,7 @@
                         {% endif %}
                       {% endif %}
 
-                      {% if c.page.image_carousel %}
+                      {% if has_external_images %}
                       <div class="external-images-gallery">
                         <div class="image-gallery-content">
                           {{ h.render_markdown(c.page.image_carousel, allow_html=True) | safe }}
@@ -207,7 +252,7 @@
                 {% endif %}
 
                 <!-- Additional Information -->
-                {% if c.page.additional_content %}
+                {% if has_additional %}
                 <div class="water-event-additional" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-additional">
                     <div class="module-content">
@@ -215,10 +260,20 @@
                         <div class="water-section-icon">
                           <i class="fa fa-file-text-o"></i>
                         </div>
-                        <h2>{{ _('Additional Information') }}</h2>
+                        <h2>{{ _('Agenda & Additional Information') }}</h2>
                       </div>
                       <div class="water-content-body">
-                        {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                        {% if c.page.agenda_document %}
+                          <p>
+                            <i class="fa fa-paperclip"></i>
+                            <a href="{{ c.page.agenda_document }}" target="_blank" rel="noopener" class="btn btn-outline">
+                              <i class="fa fa-download"></i> {{ _('Download agenda / flyer') }}
+                            </a>
+                          </p>
+                        {% endif %}
+                        {% if h.has_meaningful_content(c.page.additional_content) %}
+                          {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                        {% endif %}
                       </div>
                     </div>
                   </section>

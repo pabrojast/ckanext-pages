@@ -64,7 +64,9 @@ def default_pages_schema():
         'resilience_phase_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for resilience phase content blocks
         'additional_info_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for additional information content blocks
         'additional_content': [ignore_missing, unicode_safe],
+        'agenda_document': [ignore_missing, unicode_safe],       # Agenda or flyer document URL
         'header_image': [ignore_missing, unicode_safe],
+        'news_attachment': [ignore_missing, unicode_safe],      # Attachment for news articles
         'excerpt': [ignore_missing, unicode_safe],
         # Key Information fields for rapid response
         'key_event_start': [ignore_missing, isodate],               # Event start date
@@ -97,7 +99,10 @@ def default_pages_schema():
         # Water Events specific fields
         'location': [ignore_missing, unicode_safe],         # Event location
         'organization': [ignore_missing, unicode_safe],     # Organizing institution
+        'ihp_organization': [ignore_missing, unicode_safe], # Primary organization (id)
+        'co_organizers': [ignore_missing, unicode_safe],    # Co-organizers text
         'event_details': [ignore_missing, unicode_safe],    # Event details and schedule
+        'event_format': [ignore_missing, unicode_safe],     # Event format (in-person, online, hybrid)
         'speakers': [ignore_missing, unicode_safe],         # Speakers and organizers
         'registration_info': [ignore_missing, unicode_safe], # Registration information
         'registration_url': [ignore_missing, url_validator, unicode_safe], # Registration URL

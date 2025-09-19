@@ -133,15 +133,35 @@
                           <div class="col-md-3">
                             {% set current_event_type = (request.args.event_type or '') %}
                             {% set normalized_current = current_event_type.lower() %}
+                            {% set default_event_categories = [
+                              {'id': 'conference', 'title': _('Conferences')},
+                              {'id': 'workshop', 'title': _('Workshops')},
+                              {'id': 'meeting', 'title': _('Meetings')},
+                              {'id': 'webinar', 'title': _('Webinars')},
+                              {'id': 'training', 'title': _('Training')},
+                              {'id': 'book-launch', 'title': _('Book Launches')},
+                              {'id': 'celebration', 'title': _('Celebrations')},
+                              {'id': 'prize-award', 'title': _('Prize Awards')},
+                              {'id': 'ceremony', 'title': _('Ceremonies')}
+                            ] %}
+                            {% set event_types = h.get_event_types() %}
                             <select name="event_type" class="form-control">
                               <option value="">{{ _('All Event Types') }}</option>
-                              {% for event_type in h.get_event_types() %}
+                              {% for event_type in event_types %}
                                 {% set option_value = event_type.id %}
                                 {% set normalized_id = (event_type.id or '')|lower %}
                                 {% set normalized_title = (event_type.title or '')|lower %}
                                 {% set normalized_slug = (event_type.title or '')|lower|replace(' ', '-') %}
                                 {% set is_selected = normalized_current == normalized_id or normalized_current == normalized_title or normalized_current == normalized_slug %}
                                 <option value="{{ option_value }}" {% if is_selected %}selected{% endif %}>{{ _(event_type.title_plural or event_type.title) }}</option>
+                              {% endfor %}
+                              {% for default_event in default_event_categories %}
+                                {% set _exists = event_types|selectattr('id', 'equalto', default_event.id)|list %}
+                                {% if not _exists %}
+                                  {% set normalized_id = default_event.id|lower %}
+                                  {% set is_selected = normalized_current == normalized_id %}
+                                  <option value="{{ default_event.id }}" {% if is_selected %}selected{% endif %}>{{ default_event.title }}</option>
+                                {% endif %}
                               {% endfor %}
                             </select>
                           </div>
