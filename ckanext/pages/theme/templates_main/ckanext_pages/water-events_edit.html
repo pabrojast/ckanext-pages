@@ -76,8 +76,37 @@
                           </div>
                         {% endif %}
                         
+                        <div class="water-form-progress" data-water-progress
+                             data-label-pending="{{ _('Pending') }}"
+                             data-label-complete="{{ _('Complete') }}"
+                             data-label-error="{{ _('Needs review') }}">
+                          <div class="progress-summary">
+                            <div class="progress-title">
+                              <i class="fa fa-line-chart"></i> {{ _('Form Completion Progress') }}
+                            </div>
+                            <div class="progress-stats">
+                              <div class="stat-item" data-stat="completed">
+                                <i class="fa fa-check-circle"></i>
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">{{ _('completed') }}</span>
+                              </div>
+                              <div class="stat-item" data-stat="total">
+                                <i class="fa fa-list"></i>
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">{{ _('sections') }}</span>
+                              </div>
+                              <div class="stat-item" data-stat="errors">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">{{ _('with errors') }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="progress-section-list" data-progress-section-list></div>
+                        </div>
+
                         <!-- Event Information -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Event Information') }}</legend>
                           <div class="form-section-content">
 
@@ -104,18 +133,30 @@
                                                     
                           <div class="form-group">
                             <label for="field-event-type" class="control-label">{{ _('Event Type') }}</label>
-                            <select id="field-event-type" name="subtitle" class="form-control">
-                              <option value="">{{ _('Select event type...') }}</option>
-                              <option value="Conference" {% if data.subtitle == 'Conference' %}selected{% endif %}>{{ _('Conference') }}</option>
-                              <option value="Workshop" {% if data.subtitle == 'Workshop' %}selected{% endif %}>{{ _('Workshop') }}</option>
-                              <option value="Meeting" {% if data.subtitle == 'Meeting' %}selected{% endif %}>{{ _('Meeting') }}</option>
-                              <option value="Webinar" {% if data.subtitle == 'Webinar' %}selected{% endif %}>{{ _('Webinar') }}</option>
-                              <option value="Training" {% if data.subtitle == 'Training' %}selected{% endif %}>{{ _('Training') }}</option>
-                              <option value="Seminar" {% if data.subtitle == 'Seminar' %}selected{% endif %}>{{ _('Seminar') }}</option>
-                              <option value="Symposium" {% if data.subtitle == 'Symposium' %}selected{% endif %}>{{ _('Symposium') }}</option>
-                              <option value="Other" {% if data.subtitle and data.subtitle not in ['Conference', 'Workshop', 'Meeting', 'Webinar', 'Training', 'Seminar', 'Symposium'] %}selected{% endif %}>{{ _('Other') }}</option>
-                            </select>
+                            <div class="event-type-container">
+                              <select id="field-event-type" name="subtitle" class="form-control">
+                                <option value="">{{ _('Select event type...') }}</option>
+                                {% for event_type in h.get_event_types() %}
+                                  <option value="{{ event_type.title }}"
+                                          data-event-id="{{ event_type.id }}"
+                                          {% if data.subtitle == event_type.title or data.event_type == event_type.id %}selected{% endif %}>
+                                    {{ _(event_type.title) }}
+                                  </option>
+                                {% endfor %}
+                                {% if data.subtitle and data.subtitle not in h.get_event_types()|map(attribute='title')|list %}
+                                  <option value="{{ data.subtitle }}" selected>{{ data.subtitle }}</option>
+                                {% endif %}
+                              </select>
+                              {% if h.is_sysadmin() %}
+                                <div class="event-type-admin-controls" style="margin-top: 0.5rem;">
+                                  <a href="/admin/event-types" class="btn btn-sm btn-default" target="_blank">
+                                    <i class="fa fa-cog"></i> {{ _('Manage Event Types') }}
+                                  </a>
+                                </div>
+                              {% endif %}
+                            </div>
                             <div class="help-text">{{ _('Type of event or activity') }}</div>
+                            <input type="hidden" id="field-event-type-id" name="event_type" value="{{ data.event_type or '' }}">
                             {% if errors.subtitle %}<span class="error-block">{{ errors.subtitle }}</span>{% endif %}
                           </div>
                           
@@ -173,7 +214,7 @@
                         </fieldset>
 
                         <!-- Event Description -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Event Description') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Detailed description of the event, its objectives, and who should attend.') }}</p>
@@ -190,7 +231,7 @@
                         </fieldset>
 
                         <!-- Event Details -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Event Details') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Specific details about schedule, format, and logistics. This information will be prominently displayed.') }}</p>
@@ -207,7 +248,7 @@
                         </fieldset>
 
                         <!-- Speakers/Organizers -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Speakers & Organizers') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Information about keynote speakers, organizers, and key participants.') }}</p>
@@ -224,7 +265,7 @@
                         </fieldset>
 
                         <!-- Registration Information -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Registration Information') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Registration details, fees, and how to participate.') }}</p>
@@ -248,7 +289,7 @@
                         </fieldset>
 
                         <!-- Image Gallery -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Image Gallery') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Upload images or add external image URLs for the event.') }}</p>
@@ -286,7 +327,7 @@
                         </fieldset>
 
                         <!-- Additional Information -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Additional Information') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Any additional content such as agenda, accommodation info, contact details, etc.') }}</p>
@@ -299,7 +340,7 @@
                         </fieldset>
 
                         <!-- Header Image -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('Header Image') }}</legend>
                           <div class="form-section-content">
                           <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default events header will be used.') }}</p>
@@ -367,6 +408,7 @@
 </div>
 
 <!-- Water Events Edit Form CSS - UNESCO Theme -->
+<link rel="stylesheet" type="text/css" href="/css/water-form-enhancements.css" />
 <style>
 /* Water Events Color Palette - UNESCO Theme */
 :root {
@@ -814,6 +856,7 @@ select.form-control option:selected {
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
+<script type="text/javascript" src="/js/water-form-enhancements.js"></script>
 <script>
 (function() {
   function waitForJQuery(callback) {
@@ -900,7 +943,21 @@ select.form-control option:selected {
         $urlField.val(title);
       }
     });
-    
+
+    // Sync event type identifier with selected option
+    function syncEventTypeIdentifier() {
+      var $selected = $('#field-event-type').find('option:selected');
+      if ($selected.length) {
+        var eventId = $selected.data('event-id');
+        $('#field-event-type-id').val(eventId || '');
+      } else {
+        $('#field-event-type-id').val('');
+      }
+    }
+
+    $('#field-event-type').on('change', syncEventTypeIdentifier);
+    syncEventTypeIdentifier();
+
     // Handle file upload
     $('#image-upload').on('change', function(e) {
       const files = this.files;

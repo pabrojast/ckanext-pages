@@ -10,4 +10,5 @@ dist/
 distribute-*
 /CHANGELOG.html
 /README.html
-/request
+/request.venv/
+.venv/

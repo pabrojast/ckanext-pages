@@ -88,8 +88,37 @@
                         <input type="hidden" id="field-publication-url" name="publication_url" value="">
                         <input type="hidden" id="field-download-url" name="download_url" value="">
 
+                        <div class="water-form-progress" data-water-progress
+                             data-label-pending="{{ _('Pending') }}"
+                             data-label-complete="{{ _('Complete') }}"
+                             data-label-error="{{ _('Needs review') }}">
+                          <div class="progress-summary">
+                            <div class="progress-title">
+                              <i class="fa fa-line-chart"></i> {{ _('Form Completion Progress') }}
+                            </div>
+                            <div class="progress-stats">
+                              <div class="stat-item" data-stat="completed">
+                                <i class="fa fa-check-circle"></i>
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">{{ _('completed') }}</span>
+                              </div>
+                              <div class="stat-item" data-stat="total">
+                                <i class="fa fa-list"></i>
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">{{ _('sections') }}</span>
+                              </div>
+                              <div class="stat-item" data-stat="errors">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                <span class="stat-value">0</span>
+                                <span class="stat-label">{{ _('with errors') }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="progress-section-list" data-progress-section-list></div>
+                        </div>
+
                         <!-- CKAN Dataset (Documents) -->
-                        <fieldset class="form-section">
+                        <fieldset class="form-section water-form-section">
                           <legend>{{ _('CKAN Dataset (Documents)') }}</legend>
                           <div class="form-section-content">
                             <p class="help-block">{{ _('When saving this publication a CKAN dataset of type "documents" will be created using the file or link below.') }}</p>
@@ -316,6 +345,7 @@
 </div>
 
 <!-- Water Publications Edit Form CSS - UNESCO Theme -->
+<link rel="stylesheet" type="text/css" href="/css/water-form-enhancements.css" />
 <style>
 /* Water Publications Color Palette - UNESCO Theme */
 :root {
@@ -871,6 +901,7 @@ select.form-control option:selected {
 </style>
 
 <!-- JavaScript for Enhanced Form Functionality -->
+<script type="text/javascript" src="/js/water-form-enhancements.js"></script>
 <script>
 (function() {
   function waitForJQuery(callback) {

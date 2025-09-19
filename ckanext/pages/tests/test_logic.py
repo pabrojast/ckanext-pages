@@ -189,6 +189,27 @@ class TestPages():
         pages = helpers.call_action('ckanext_pages_list', context)
         assert pages[0]['new_field'] == 'new_field_value'
 
+    def test_water_publication_dataset_fields_in_schema(self):
+        dataset_fields = [
+            'dataset_title',
+            'dataset_visibility',
+            'dataset_url',
+            'document_format',
+            'document_mimetype',
+            'contact_name',
+            'contact_email',
+            'dataset_description',
+            'graphic_overview',
+            'dataset_language',
+            'creation_date',
+            'country_groups',
+        ]
+
+        schema_dict = schema.default_pages_schema()
+        missing = [field for field in dataset_fields if field not in schema_dict]
+
+        assert not missing, f"Missing dataset fields in schema: {missing}"
+
     def test_cannot_create_page_with_same_name(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}

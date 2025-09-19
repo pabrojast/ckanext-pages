@@ -144,12 +144,12 @@ class Page(DomainObject, BaseModel):
                 )
                 query = query.filter(search_filter)
             
-            # Apply event type filter (stored in subtitle field in extras JSON)
+            # Apply event type filter (stored in extras JSON)
             if event_type:
-                # Map filter values to actual subtitle values
+                # Map legacy filter values to descriptive subtitles (rapid response)
                 event_type_mapping = {
                     'cyclone': 'Tropical Cyclone',
-                    'earthquake': 'Earthquake', 
+                    'earthquake': 'Earthquake',
                     'tsunami': 'Tsunami',
                     'flood': 'Flood',
                     'fire': 'Wildfire',
@@ -158,9 +158,23 @@ class Page(DomainObject, BaseModel):
                     'drought': 'Drought'
                 }
                 actual_subtitle = event_type_mapping.get(event_type.lower(), event_type)
-                query = query.filter(
-                    cls.extras.ilike('%"subtitle": "' + actual_subtitle + '"%')
-                )
+
+                # Build a list of candidate titles to support both IDs and human-readable values
+                candidate_titles = {actual_subtitle}
+                candidate_titles.add(event_type)
+                candidate_titles.add(event_type.replace('-', ' ').title())
+
+                event_type_filters = [
+                    cls.extras.ilike('%"event_type": "' + event_type + '"%'),
+                    cls.extras.ilike('%"event_type": "' + actual_subtitle + '"%'),
+                ]
+
+                for title in candidate_titles:
+                    event_type_filters.append(
+                        cls.extras.ilike('%"subtitle": "' + title + '"%')
+                    )
+
+                query = query.filter(sa.or_(*event_type_filters))
             
             # Apply priority filter (stored in extras JSON)
             if priority:

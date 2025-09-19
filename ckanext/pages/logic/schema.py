@@ -13,6 +13,7 @@ def default_pages_schema():
     boolean_validator = p.toolkit.get_validator('boolean_validator')
     url_validator = p.toolkit.get_validator('url_validator')
     int_validator = p.toolkit.get_validator('int_validator')
+    email_validator = p.toolkit.get_validator('email_validator')
     
     def json_validator(key, data, errors, context):
         """Validate and safely handle JSON fields"""
@@ -115,6 +116,18 @@ def default_pages_schema():
         'issue': [ignore_missing, optional_int_validator, unicode_safe],            # Issue number
         'pages': [ignore_missing, unicode_safe],            # Page numbers
         'abstract': [ignore_missing, unicode_safe],         # Publication abstract
+        'dataset_title': [ignore_missing, unicode_safe],    # Documents dataset title
+        'dataset_visibility': [ignore_missing, unicode_safe],  # Visibility for generated dataset
+        'dataset_url': [ignore_missing, url_validator, unicode_safe],  # External dataset URL
+        'document_format': [ignore_missing, unicode_safe],  # Resource format/extension
+        'document_mimetype': [ignore_missing, unicode_safe],  # Resource mimetype
+        'contact_name': [ignore_missing, unicode_safe],     # Dataset contact name
+        'contact_email': [ignore_missing, email_validator, unicode_safe],  # Dataset contact email
+        'dataset_description': [ignore_missing, unicode_safe],  # Dataset description text
+        'graphic_overview': [ignore_missing, url_validator, unicode_safe],  # Dataset graphic overview URL
+        'dataset_language': [ignore_missing, unicode_safe],  # Dataset metadata language
+        'creation_date': [ignore_missing, isodate],         # Dataset/resource creation date
+        'country_groups': [ignore_missing, json_validator, unicode_safe],  # Member states JSON payload
         # Water Management Tools specific fields (formerly Open Source Software)
         'key_features': [ignore_missing, unicode_safe],     # Key features list
         'technical_requirements': [ignore_missing, unicode_safe], # Technical requirements
