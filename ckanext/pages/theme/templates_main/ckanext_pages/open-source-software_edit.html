@@ -3603,6 +3603,9 @@ textarea[id="example_applications"] {
 
   // Form validation
   $('form').on('submit', function(e) {
+    if (window.syncAllQuillEditors) {
+      window.syncAllQuillEditors();
+    }
     var isValid = true;
     var title = $('#title').val().trim();
     var name = $('#name').val().trim();
@@ -3699,16 +3702,10 @@ textarea[id="example_applications"] {
       updateUploadedImagesData();
       updateMemberStatesData();
       
-      // Sync all Quill editors
-      Object.keys(quillEditors).forEach(editorId => {
-        const quill = quillEditors[editorId];
-        if (quill) {
-          const textarea = document.querySelector(`textarea[name="${editorId}"]`);
-          if (textarea) {
-            textarea.value = quill.root.innerHTML;
-          }
-        }
-      });
+      // Sync all Quill editors (ensure hidden textareas stay in sync)
+      if (window.syncAllQuillEditors) {
+        window.syncAllQuillEditors();
+      }
       
       // Show loading state
       $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ _("Processing...") }}');
