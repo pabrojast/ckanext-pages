@@ -260,7 +260,7 @@
                                 {% if item.submitted_at %}
                                   <span class="admin-info-item">
                                     <i class="fa fa-clock-o"></i>
-                                    {{ _('Submitted:') }} {{ item.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+                                    {{ _('Submitted:') }} {{ h.render_datetime(item.submitted_at, '%Y-%m-%d %H:%M') }}
                                   </span>
                                 {% endif %}
                                 {% if item.user_id %}

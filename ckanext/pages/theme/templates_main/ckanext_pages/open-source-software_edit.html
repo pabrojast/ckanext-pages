@@ -723,17 +723,17 @@
                                 {% elif page.submission_status == 'pending' %}
                                   <i class="fa fa-clock-o"></i> {{ _('Pending Review') }}
                                   {% if page.submitted_at %}
-                                    <span class="status-date">{{ _('Submitted:') }} {{ page.submitted_at.strftime('%Y-%m-%d') }}</span>
+                                    <span class="status-date">{{ _('Submitted:') }} {{ h.render_datetime(page.submitted_at, '%Y-%m-%d') }}</span>
                                   {% endif %}
                                 {% elif page.submission_status == 'approved' %}
                                   <i class="fa fa-check-circle"></i> {{ _('Approved') }}
                                   {% if page.reviewed_at %}
-                                    <span class="status-date">{{ _('Approved:') }} {{ page.reviewed_at.strftime('%Y-%m-%d') }}</span>
+                                    <span class="status-date">{{ _('Approved:') }} {{ h.render_datetime(page.reviewed_at, '%Y-%m-%d') }}</span>
                                   {% endif %}
                                 {% elif page.submission_status == 'rejected' %}
                                   <i class="fa fa-times-circle"></i> {{ _('Rejected') }}
                                   {% if page.reviewed_at %}
-                                    <span class="status-date">{{ _('Reviewed:') }} {{ page.reviewed_at.strftime('%Y-%m-%d') }}</span>
+                                    <span class="status-date">{{ _('Reviewed:') }} {{ h.render_datetime(page.reviewed_at, '%Y-%m-%d') }}</span>
                                   {% endif %}
                                 {% endif %}
                               </div>
