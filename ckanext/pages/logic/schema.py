@@ -36,6 +36,30 @@ def default_pages_schema():
             except (ValueError, TypeError):
                 errors[key].append('Must be a valid number')
         return data[key]
+    
+    def safe_boolean_validator(key, data, errors, context):
+        """Safely validate boolean fields that might come as lists from forms"""
+        value = data.get(key)
+        if value is None:
+            return data[key]
+        
+        # Handle lists from multi-value form fields (checkboxes)
+        if isinstance(value, list):
+            if len(value) == 0:
+                value = False
+            else:
+                # Take the first value if it's a list
+                value = value[0]
+        
+        # Convert to string for boolean_validator if needed
+        if isinstance(value, bool):
+            value = 'true' if value else 'false'
+        elif value == '':
+            value = 'false'
+        
+        # Now apply the standard boolean validator
+        data[key] = value
+        return boolean_validator(key, data, errors, context)
 
     return {
         'id': [ignore_empty, unicode_safe],
@@ -156,8 +180,8 @@ def default_pages_schema():
         'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
         'member_states': [ignore_missing, json_validator, unicode_safe],    # Member states JSON array
         'header_display_mode': [ignore_missing, unicode_safe], # Header display mode (text, logo, logo_text)
-        'include_logo_in_gallery': [ignore_missing, boolean_validator], # Include logo in gallery option
-        'add_background': [ignore_missing, boolean_validator], # Add white background to logo
+        'include_logo_in_gallery': [ignore_missing, safe_boolean_validator], # Include logo in gallery option
+        'add_background': [ignore_missing, safe_boolean_validator], # Add white background to logo
     }
 
 
