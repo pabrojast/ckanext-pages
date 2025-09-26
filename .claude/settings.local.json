@@ -20,7 +20,8 @@
       "WebSearch",
       "Read(/C:\\c\\Users\\pablo\\OneDrive\\Escritorio\\Proyectos/**)",
       "Bash(pytest:*)",
-      "Bash(flake8:*)"
+      "Bash(flake8:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "additionalDirectories": [
