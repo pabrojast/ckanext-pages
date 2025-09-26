@@ -38,28 +38,36 @@ def default_pages_schema():
         return data[key]
     
     def safe_boolean_validator(key, data, errors, context):
-        """Safely validate boolean fields that might come as lists from forms"""
+        """Normalise checkbox-style values before boolean validation"""
         value = data.get(key)
+
         if value is None:
-            return data[key]
-        
-        # Handle lists from multi-value form fields (checkboxes)
+            return
+
+        # Handle multi-value form fields (eg, checkbox lists)
         if isinstance(value, list):
-            if len(value) == 0:
-                value = False
+            if not value:
+                value = ''
             else:
-                # Take the first value if it's a list
                 value = value[0]
-        
-        # Convert to string for boolean_validator if needed
+
+        # Ensure booleans are represented as the strings expected by CKAN
         if isinstance(value, bool):
             value = 'true' if value else 'false'
-        elif value == '':
-            value = 'false'
-        
-        # Now apply the standard boolean validator
+        elif isinstance(value, str):
+            normalised = value.strip().lower()
+            if normalised in {'on', 'yes', '1', 'true'}:
+                value = 'true'
+            elif normalised in {'off', 'no', '0', 'false'}:
+                value = 'false'
+            else:
+                value = normalised
+
+        if value == '':
+            # Leave empty for ignore_missing to drop later in the chain
+            return
+
         data[key] = value
-        return boolean_validator(key, data, errors, context)
 
     return {
         'id': [ignore_empty, unicode_safe],
@@ -180,8 +188,8 @@ def default_pages_schema():
         'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
         'member_states': [ignore_missing, json_validator, unicode_safe],    # Member states JSON array
         'header_display_mode': [ignore_missing, unicode_safe], # Header display mode (text, logo, logo_text)
-        'include_logo_in_gallery': [ignore_missing, safe_boolean_validator], # Include logo in gallery option
-        'add_background': [ignore_missing, safe_boolean_validator], # Add white background to logo
+        'include_logo_in_gallery': [safe_boolean_validator, ignore_missing, boolean_validator], # Include logo in gallery option
+        'add_background': [safe_boolean_validator, ignore_missing, boolean_validator], # Add white background to logo
     }
 
 
