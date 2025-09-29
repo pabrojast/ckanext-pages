@@ -3,7 +3,7 @@
 {# Load external CSS and JS files for open source software functionality #}
 {% block styles %}
   {{ super() }}
-  {% asset 'ckanext-pages/open-source-software-css' %}
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
 {% endblock %}
 
 {% block scripts %}
@@ -755,6 +755,8 @@
     {% endblock %}
 </div>
 
+<!-- Professional Software Edit Form CSS - External File -->
+{% asset 'ckanext-pages/open-source-software-css' %}
 
 <!-- Enhanced Form JavaScript -->
 <script>
