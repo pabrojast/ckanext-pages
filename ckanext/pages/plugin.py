@@ -413,6 +413,24 @@ def get_software_category_class(category):
     return category_classes.get(category.lower(), 'category-default')
 
 
+def clean_categories_string(categories_str):
+    """Clean categories string by removing duplicates and empty values"""
+    if not categories_str:
+        return ''
+
+    # Split by comma, strip whitespace, remove duplicates and empty values
+    categories = [cat.strip() for cat in categories_str.split(',') if cat.strip()]
+    # Remove duplicates while preserving order
+    unique_categories = []
+    seen = set()
+    for cat in categories:
+        if cat not in seen:
+            unique_categories.append(cat)
+            seen.add(cat)
+
+    return ','.join(unique_categories)
+
+
 def count_software_by_category(pages):
     """Count software entries by category"""
     categories = {}
@@ -654,6 +672,7 @@ class PagesPlugin(PagesPluginBase):
             'is_sysadmin': is_sysadmin,
             'get_ihp_organizations': get_ihp_organizations,
             'get_user_organization': get_user_organization,
+            'clean_categories_string': clean_categories_string,
         }
 
     def get_actions(self):

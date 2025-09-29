@@ -535,12 +535,23 @@
         if ($categorySelect.length) {
           var selectedCategories = $categorySelect.val();
           if (selectedCategories && Array.isArray(selectedCategories)) {
+            // Clean categories by removing duplicates and empty values
+            var uniqueCategories = [];
+            var seen = new Set();
+            selectedCategories.forEach(function(cat) {
+              var cleanCat = cat.trim();
+              if (cleanCat && !seen.has(cleanCat)) {
+                uniqueCategories.push(cleanCat);
+                seen.add(cleanCat);
+              }
+            });
+
             // Create hidden field with comma-separated values
             $('input[name="software_category_hidden"]').remove();
             $('<input>').attr({
               type: 'hidden',
               name: 'software_category',
-              value: selectedCategories.join(',')
+              value: uniqueCategories.join(',')
             }).appendTo('form');
             // Disable original select to prevent double submission
             $categorySelect.attr('name', 'software_category_original').prop('disabled', true);

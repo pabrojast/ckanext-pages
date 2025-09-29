@@ -168,16 +168,18 @@
                               <div class="form-group">
                                 <label for="software_category" class="control-label">{{ _('Categories') }}</label>
                                 <p class="help-block">{{ _('Select multiple categories that best describe this tool (hold Ctrl/Cmd to select multiple)') }}</p>
+                                {% set clean_categories = h.clean_categories_string(data.get('software_category', '')) %}
+                                {% set selected_categories = clean_categories.split(',') if clean_categories else [] %}
                                 <select name="software_category" id="software_category" class="form-control" multiple>
-                                  <option value="programming" {% if 'programming' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Programming') }}</option>
-                                  <option value="collaboration-platforms" {% if 'collaboration-platforms' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>
-                                  <option value="geographic-information-systems" {% if 'geographic-information-systems' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Geographic Information Systems') }}</option>
-                                  <option value="modeling" {% if 'modeling' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Modeling') }}</option>
-                                  <option value="data-collection" {% if 'data-collection' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Data Collection') }}</option>
-                                  <option value="data-processing" {% if 'data-processing' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Data Processing') }}</option>
-                                  <option value="data-visualization" {% if 'data-visualization' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Data Visualization') }}</option>
-                                  <option value="mobile-application" {% if 'mobile-application' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Mobile Application') }}</option>
-                                  <option value="desktop-application" {% if 'desktop-application' in (data.get('software_category', '') or '').split(',') %}selected{% endif %}>{{ _('Desktop Application') }}</option>
+                                  <option value="programming" {% if 'programming' in selected_categories %}selected{% endif %}>{{ _('Programming') }}</option>
+                                  <option value="collaboration-platforms" {% if 'collaboration-platforms' in selected_categories %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>
+                                  <option value="geographic-information-systems" {% if 'geographic-information-systems' in selected_categories %}selected{% endif %}>{{ _('Geographic Information Systems') }}</option>
+                                  <option value="modeling" {% if 'modeling' in selected_categories %}selected{% endif %}>{{ _('Modeling') }}</option>
+                                  <option value="data-collection" {% if 'data-collection' in selected_categories %}selected{% endif %}>{{ _('Data Collection') }}</option>
+                                  <option value="data-processing" {% if 'data-processing' in selected_categories %}selected{% endif %}>{{ _('Data Processing') }}</option>
+                                  <option value="data-visualization" {% if 'data-visualization' in selected_categories %}selected{% endif %}>{{ _('Data Visualization') }}</option>
+                                  <option value="mobile-application" {% if 'mobile-application' in selected_categories %}selected{% endif %}>{{ _('Mobile Application') }}</option>
+                                  <option value="desktop-application" {% if 'desktop-application' in selected_categories %}selected{% endif %}>{{ _('Desktop Application') }}</option>
                                 </select>
                               </div>
                             </div>
@@ -3584,10 +3586,21 @@ textarea[id="example_applications"] {
     // Handle categories
     const categories = $('#software_category').val();
     if (categories && Array.isArray(categories)) {
+      // Clean categories by removing duplicates and empty values
+      const uniqueCategories = [];
+      const seen = new Set();
+      categories.forEach(function(cat) {
+        const cleanCat = cat.trim();
+        if (cleanCat && !seen.has(cleanCat)) {
+          uniqueCategories.push(cleanCat);
+          seen.add(cleanCat);
+        }
+      });
+
       $('<input>').attr({
         type: 'hidden',
         name: 'software_category_list',
-        value: categories.join(',')
+        value: uniqueCategories.join(',')
       }).appendTo('form');
     }
     

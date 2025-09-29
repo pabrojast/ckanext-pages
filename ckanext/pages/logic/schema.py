@@ -15,6 +15,23 @@ def default_pages_schema():
     int_validator = p.toolkit.get_validator('int_validator')
     email_validator = p.toolkit.get_validator('email_validator')
     
+    def clean_categories_validator(key, data, errors, context):
+        """Clean categories by removing duplicates and empty values"""
+        value = data.get(key)
+        if value and isinstance(value, str):
+            # Split by comma, strip whitespace, remove duplicates and empty values
+            categories = [cat.strip() for cat in value.split(',') if cat.strip()]
+            # Remove duplicates while preserving order
+            unique_categories = []
+            seen = set()
+            for cat in categories:
+                if cat not in seen:
+                    unique_categories.append(cat)
+                    seen.add(cat)
+            data[key] = ','.join(unique_categories)
+
+        return data[key]
+
     def json_validator(key, data, errors, context):
         """Validate and safely handle JSON fields"""
         value = data.get(key)
@@ -174,7 +191,7 @@ def default_pages_schema():
         'documentation_url': [ignore_missing, url_validator, unicode_safe], # Documentation URL
         'learning_resources': [ignore_missing, unicode_safe], # Learning resources
         'example_applications': [ignore_missing, unicode_safe], # Example applications
-        'software_category': [ignore_missing, unicode_safe], # Software categories (comma-separated for multiple)
+        'software_category': [ignore_missing, clean_categories_validator, unicode_safe], # Software categories (comma-separated for multiple)
         'software_license': [ignore_missing, unicode_safe], # Software license
         'development_status': [ignore_missing, unicode_safe], # Development status (Active, Beta, Stable, Maintained, Deprecated, Archived)
         'access_type': [ignore_missing, unicode_safe],      # Open Source or Open Access
