@@ -168,8 +168,7 @@
                               <div class="form-group">
                                 <label for="software_category" class="control-label">{{ _('Categories') }}</label>
                                 <p class="help-block">{{ _('Select multiple categories that best describe this tool (hold Ctrl/Cmd to select multiple)') }}</p>
-                                {% set clean_categories = h.clean_categories_string(data.get('software_category', '')) %}
-                                {% set selected_categories = clean_categories.split(',') if clean_categories else [] %}
+                                {% set selected_categories = h.get_categories_list(data.get('software_category', '')) %}
                                 <select name="software_category" id="software_category" class="form-control" multiple>
                                   <option value="programming" {% if 'programming' in selected_categories %}selected{% endif %}>{{ _('Programming') }}</option>
                                   <option value="collaboration-platforms" {% if 'collaboration-platforms' in selected_categories %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>

@@ -452,15 +452,12 @@
                                   </h3>
                                   <div class="software-badges">
                                     {% if page.software_category %}
-                                      {% set clean_categories = h.clean_categories_string(page.software_category) %}
-                                      {% if clean_categories %}
-                                        {% set categories_list = clean_categories.split(',') %}
-                                        {% for category in categories_list %}
-                                          <span class="badge-category {{ get_category_class(category.strip()) }}">
-                                            {{ category.strip().replace('-', ' ').title() }}
-                                          </span>
-                                        {% endfor %}
-                                      {% endif %}
+                                      {% set categories_list = h.get_categories_list(page.software_category) %}
+                                      {% for category in categories_list %}
+                                        <span class="badge-category {{ get_category_class(category) }}">
+                                          {{ category.replace('-', ' ').title() }}
+                                        </span>
+                                      {% endfor %}
                                     {% endif %}
                                     {% if page.access_type == 'open-access' %}
                                       <span class="badge-access">{{ _('Open Access') }}</span>

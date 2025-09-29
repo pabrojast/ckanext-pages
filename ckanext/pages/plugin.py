@@ -431,6 +431,18 @@ def clean_categories_string(categories_str):
     return ','.join(unique_categories)
 
 
+def get_categories_list(categories_str):
+    """Get categories as a list for template iteration"""
+    if not categories_str:
+        return []
+
+    clean_categories = clean_categories_string(categories_str)
+    if not clean_categories:
+        return []
+
+    return [cat.strip() for cat in clean_categories.split(',') if cat.strip()]
+
+
 def count_software_by_category(pages):
     """Count software entries by category"""
     categories = {}
@@ -673,6 +685,7 @@ class PagesPlugin(PagesPluginBase):
             'get_ihp_organizations': get_ihp_organizations,
             'get_user_organization': get_user_organization,
             'clean_categories_string': clean_categories_string,
+            'get_categories_list': get_categories_list,
         }
 
     def get_actions(self):
