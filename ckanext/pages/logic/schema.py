@@ -18,7 +18,25 @@ def default_pages_schema():
     def clean_categories_validator(key, data, errors, context):
         """Clean categories by removing duplicates and empty values"""
         value = data.get(key)
-        if value and isinstance(value, str):
+
+        if not value:
+            return data[key]
+
+        # Handle list values (from multi-select forms)
+        if isinstance(value, list):
+            # Clean and deduplicate
+            unique_categories = []
+            seen = set()
+            for cat in value:
+                if cat and isinstance(cat, str):
+                    clean_cat = cat.strip()
+                    if clean_cat and clean_cat not in seen:
+                        unique_categories.append(clean_cat)
+                        seen.add(clean_cat)
+            data[key] = ','.join(unique_categories)
+
+        # Handle string values (comma-separated)
+        elif isinstance(value, str):
             # Split by comma, strip whitespace, remove duplicates and empty values
             categories = [cat.strip() for cat in value.split(',') if cat.strip()]
             # Remove duplicates while preserving order
@@ -195,9 +213,9 @@ def default_pages_schema():
         'software_license': [ignore_missing, unicode_safe], # Software license
         'development_status': [ignore_missing, unicode_safe], # Development status (Active, Beta, Stable, Maintained, Deprecated, Archived)
         'access_type': [ignore_missing, unicode_safe],      # Open Source or Open Access
-        'programming_language': [ignore_missing, unicode_safe], # Programming languages (comma-separated for multiple)
+        'programming_language': [ignore_missing, clean_categories_validator, unicode_safe], # Programming languages (comma-separated for multiple)
         'additional_languages': [ignore_missing, unicode_safe], # Additional programming languages not in the main list
-        'platform': [ignore_missing, unicode_safe],         # Platform compatibility (comma-separated for multiple)
+        'platform': [ignore_missing, clean_categories_validator, unicode_safe],         # Platform compatibility (comma-separated for multiple)
         'version': [ignore_missing, unicode_safe],          # Current version
         'release_date': [ignore_missing, unicode_safe],     # Release date (open text field)
         'attribution': [ignore_missing, unicode_safe],      # Attribution requirements

@@ -414,19 +414,52 @@ def get_software_category_class(category):
 
 
 def clean_categories_string(categories_str):
-    """Clean categories string by removing duplicates and empty values"""
+    """Clean categories string by removing duplicates and empty values
+
+    Handles various input formats:
+    - Comma-separated strings: "Python,JavaScript,R"
+    - JSON-like strings: '["Python", "JavaScript"]'
+    - Malformed JSON: '["Python"' or '["Python", "JavaScript"]'
+    """
     if not categories_str:
         return ''
 
-    # Split by comma, strip whitespace, remove duplicates and empty values
-    categories = [cat.strip() for cat in categories_str.split(',') if cat.strip()]
+    # Try to parse as JSON first (handles list format)
+    import json
+    import re
+
+    # Remove leading/trailing whitespace
+    cleaned = categories_str.strip()
+
+    # Check if it looks like a JSON array (starts with '[')
+    if cleaned.startswith('['):
+        # Try to parse as JSON
+        try:
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, list):
+                categories = [str(item).strip() for item in parsed if item]
+            else:
+                categories = [str(parsed).strip()]
+        except (json.JSONDecodeError, ValueError):
+            # If JSON parsing fails, treat as comma-separated
+            # Remove brackets and quotes manually
+            cleaned = re.sub(r'[\[\]"\']', '', cleaned)
+            categories = [cat.strip() for cat in cleaned.split(',') if cat.strip()]
+    else:
+        # Handle comma-separated format
+        # Also clean any quotes that might be present
+        cleaned = re.sub(r'^["\']|["\']$', '', cleaned)
+        categories = [cat.strip() for cat in cleaned.split(',') if cat.strip()]
+
     # Remove duplicates while preserving order
     unique_categories = []
     seen = set()
     for cat in categories:
-        if cat not in seen:
-            unique_categories.append(cat)
-            seen.add(cat)
+        # Remove any remaining quotes
+        cat_clean = cat.strip().strip('"\'')
+        if cat_clean and cat_clean not in seen:
+            unique_categories.append(cat_clean)
+            seen.add(cat_clean)
 
     return ','.join(unique_categories)
 
