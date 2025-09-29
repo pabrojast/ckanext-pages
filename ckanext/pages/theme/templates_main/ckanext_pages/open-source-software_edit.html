@@ -3626,42 +3626,78 @@ textarea[id="example_applications"] {
 
   // Form validation
   $('form').on('submit', function(e) {
+    console.log('Form submission started - syncing Quill editors...');
+
+    // FIRST: Sync all Quill editors to their textareas
     if (window.syncAllQuillEditors) {
       window.syncAllQuillEditors();
     }
+
+    // Force sync all editors before validation
+    Object.keys(quillEditors).forEach(editorId => {
+      const quill = quillEditors[editorId];
+      let textareaId = editorId;
+
+      // Handle different ID mappings
+      if (editorId === 'content-editor') {
+        textareaId = 'content';
+      } else if (editorId.endsWith('-editor')) {
+        textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+      }
+
+      const textarea = document.getElementById(textareaId);
+
+      if (quill && textarea) {
+        const content = quill.root.innerHTML;
+        textarea.value = content;
+        console.log(`Synced ${textareaId}: ${content.length} characters`);
+
+        // Trigger change event to ensure form knows field has changed
+        $(textarea).trigger('change');
+
+        // Mark as having content if not empty
+        if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
+          $(textarea).attr('data-has-content', 'true');
+        }
+      }
+    });
+
     var isValid = true;
     var title = $('#title').val().trim();
     var name = $('#name').val().trim();
-    
+
     if (!title) {
       alert('{{ _("Please enter a software title") }}');
       $('#title').focus();
       isValid = false;
     }
-    
+
     if (!name) {
       alert('{{ _("Please enter a URL") }}');
       $('#name').focus();
       isValid = false;
     }
-    
+
     // Validate that all uploaded images have descriptive names
     var emptyAltFields = $('.image-alt').filter(function() {
       return !$(this).val().trim();
     });
-    
+
     if (emptyAltFields.length > 0) {
       alert('{{ _("Please provide descriptive names for all uploaded images before submitting.") }}');
       emptyAltFields.first().focus();
       isValid = false;
     }
-    
+
     if (!isValid) {
       e.preventDefault();
     } else {
       handleMultipleSelects();
       updateUploadedImagesData();
       updateMemberStatesData();
+
+      // Final content check
+      console.log('Final content field value:', $('#content').val());
     }
   });
   
@@ -3968,41 +4004,6 @@ textarea[id="example_applications"] {
       }
     });
     
-    // Form submission handler - ensure all content is synced
-    $('form').on('submit', function(e) {
-      console.log('Form submitting, syncing Quill editors...');
-      
-      // Force sync all editors before submission
-      Object.keys(quillEditors).forEach(editorId => {
-        const quill = quillEditors[editorId];
-        const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
-        const textarea = document.getElementById(textareaId);
-        
-        if (quill && textarea) {
-          const content = quill.root.innerHTML;
-          textarea.value = content;
-          console.log(`Synced ${textareaId}: ${content.length} characters`);
-          // Trigger change event
-          $(textarea).trigger('change');
-          
-          // Also set the textarea as "required" if editor has content
-          if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
-            $(textarea).attr('data-has-content', 'true');
-          }
-        }
-      });
-      
-      // Also ensure manual sync before form validation
-      if (window.syncAllQuillEditors) {
-        window.syncAllQuillEditors();
-      }
-      
-      // Give the browser a moment to process the sync
-      setTimeout(() => {
-        console.log('Final content check - content field value:', $('#content').val());
-      }, 10);
-    });
-    
     // Keyboard shortcuts
     Object.keys(quillEditors).forEach(editorId => {
       const quill = quillEditors[editorId];
@@ -4013,7 +4014,15 @@ textarea[id="example_applications"] {
         ctrlKey: true
       }, function() {
         // Prevent default save dialog and sync content
-        const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        let textareaId = editorId;
+
+        // Handle different ID mappings
+        if (editorId === 'content-editor') {
+          textareaId = 'content';
+        } else if (editorId.endsWith('-editor')) {
+          textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        }
+
         const textarea = document.getElementById(textareaId);
         if (textarea) {
           textarea.value = quill.root.innerHTML;
@@ -4030,7 +4039,15 @@ textarea[id="example_applications"] {
       quill.on('text-change', function() {
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(() => {
-          const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+          let textareaId = editorId;
+
+          // Handle different ID mappings
+          if (editorId === 'content-editor') {
+            textareaId = 'content';
+          } else if (editorId.endsWith('-editor')) {
+            textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+          }
+
           const textarea = document.getElementById(textareaId);
           if (textarea) {
             textarea.value = quill.root.innerHTML;
