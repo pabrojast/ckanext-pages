@@ -264,7 +264,10 @@
                   {% if c.page.subtitle and display_mode != 'logo' and display_mode != 'logo_text' %}
                     <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
-                  
+
+                  {% if c.page.excerpt and display_mode != 'logo' %}
+                    <p class="section-title-description">{{ c.page.excerpt | safe }}</p>
+                  {% endif %}
 
                   {% if c.page.software_category and display_mode != 'logo' %}
                     <div class="section-title-meta-category">
@@ -296,12 +299,7 @@
                         <h2>{{ _('Software Overview') }}</h2>
                       </div>
                       <div class="software-content-body">
-                        <!-- DEBUG: Content length = {{ c.page.content|length if c.page.content else 0 }} -->
-                        <!-- DEBUG: Content preview = {{ c.page.content[:100] if c.page.content else 'NONE' }} -->
-                        <div class="regular-content">{{ c.page.content | safe }}</div>
-                        <!-- Original macro call (commented for debugging):
                         {{ render_resource_cards(c.page.content) }}
-                        -->
                       </div>
                     </div>
                   </section>
