@@ -355,7 +355,7 @@
                             <label for="excerpt" class="control-label">{{ _('Excerpt/Summary') }}</label>
                             <div class="quill-wrapper">
                               <div id="excerpt-editor" class="quill-editor quill-excerpt"></div>
-                              <textarea name="excerpt" id="excerpt" style="display: none !important; visibility: hidden !important; position: absolute !important; left: -9999px !important;">{{ data.get('excerpt', '') }}</textarea>
+                              <textarea name="excerpt" id="excerpt" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('excerpt', '') }}</textarea>
                             </div>
                             <div class="excerpt-info">
                               <div class="character-counter">
@@ -370,7 +370,7 @@
                             <label for="content" class="control-label">{{ _('Tool Overview') }}</label>
                             <div class="quill-wrapper">
                               <div id="content-editor" class="quill-editor"></div>
-                              <textarea name="content" id="content" style="display: none;">{{ data.get('content', '') }}</textarea>
+                              <textarea name="content" id="content" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('content', '') }}</textarea>
                             </div>
                             <div class="help-block-enhanced">
                               <p class="help-block">{{ _('Detailed description of the tool and its applications in water management. Use the rich text editor to format your content.') }}</p>
@@ -406,7 +406,7 @@
                             <label for="technical_requirements" class="control-label">{{ _('Technical Requirements') }}</label>
                             <div class="quill-wrapper">
                               <div id="technical-requirements-editor" class="quill-editor quill-compact"></div>
-                              <textarea name="technical_requirements" id="technical_requirements" style="display: none;">{{ data.get('technical_requirements', '') }}</textarea>
+                              <textarea name="technical_requirements" id="technical_requirements" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('technical_requirements', '') }}</textarea>
                             </div>
                           </div>
 
@@ -414,7 +414,7 @@
                             <label for="installation_instructions" class="control-label">{{ _('Installation & Usage Instructions') }}</label>
                             <div class="quill-wrapper">
                               <div id="installation-instructions-editor" class="quill-editor"></div>
-                              <textarea name="installation_instructions" id="installation_instructions" style="display: none;">{{ data.get('installation_instructions', '') }}</textarea>
+                              <textarea name="installation_instructions" id="installation_instructions" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('installation_instructions', '') }}</textarea>
                             </div>
                             <div class="help-block-enhanced">
                               <p class="help-block">{{ _('Step-by-step installation and basic usage instructions.') }}</p>
@@ -476,7 +476,7 @@
                             <label for="learning_resources" class="control-label">{{ _('Learning Resources') }}</label>
                             <div class="quill-wrapper">
                               <div id="learning-resources-editor" class="quill-editor"></div>
-                              <textarea name="learning_resources" id="learning_resources" style="display: none;">{{ data.get('learning_resources', '') }}</textarea>
+                              <textarea name="learning_resources" id="learning_resources" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('learning_resources', '') }}</textarea>
                             </div>
                             <div class="help-block-enhanced">
                               <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials.') }}</p>
@@ -498,7 +498,7 @@
                             <label for="example_applications" class="control-label">{{ _('Example Applications & Use Cases') }}</label>
                             <div class="quill-wrapper">
                               <div id="example-applications-editor" class="quill-editor quill-compact"></div>
-                              <textarea name="example_applications" id="example_applications" style="display: none;">{{ data.get('example_applications', '') }}</textarea>
+                              <textarea name="example_applications" id="example_applications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('example_applications', '') }}</textarea>
                             </div>
                             <div class="help-block-enhanced">
                               <p class="help-block">{{ _('Describe real-world examples and use cases where this tool has been applied.') }}</p>
@@ -2886,23 +2886,21 @@ textarea.form-control {
   padding: 8px 12px !important;
 }
 
-/* Force hide all Quill textareas */
+/* Hide all Quill textareas visually but keep them in DOM for form submission */
 .quill-wrapper textarea,
 textarea[id="excerpt"],
 textarea[id="content"],
 textarea[id="technical_requirements"],
-textarea[id="installation_instructions"], 
+textarea[id="installation_instructions"],
 textarea[id="learning_resources"],
 textarea[id="example_applications"] {
-  display: none !important;
-  visibility: hidden !important;
   position: absolute !important;
   left: -9999px !important;
-  top: -9999px !important;
   width: 1px !important;
   height: 1px !important;
   opacity: 0 !important;
   z-index: -9999 !important;
+  pointer-events: none !important;
 }
 
 /* Character Counter Styles */
@@ -3650,7 +3648,7 @@ textarea[id="example_applications"] {
       if (quill && textarea) {
         const content = quill.root.innerHTML;
         textarea.value = content;
-        console.log(`Synced ${textareaId}: ${content.length} characters`);
+        console.log(`✓ Synced ${textareaId}: ${content.length} characters, content preview: ${content.substring(0, 50)}...`);
 
         // Trigger change event to ensure form knows field has changed
         $(textarea).trigger('change');
@@ -3658,7 +3656,10 @@ textarea[id="example_applications"] {
         // Mark as having content if not empty
         if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
           $(textarea).attr('data-has-content', 'true');
+          console.log(`  → ${textareaId} marked as having content`);
         }
+      } else {
+        console.warn(`⚠ Failed to sync ${editorId}: quill=${!!quill}, textarea=${!!textarea}`);
       }
     });
 
@@ -3945,18 +3946,16 @@ textarea[id="example_applications"] {
           }
         }
         
-        // Force hide the textarea after initialization
+        // Force hide the textarea after initialization (but keep it in DOM for form submission)
         if (textarea) {
           $(textarea).css({
-            'display': 'none',
-            'visibility': 'hidden',
             'position': 'absolute',
             'left': '-9999px',
-            'top': '-9999px',
             'width': '1px',
             'height': '1px',
             'opacity': '0',
-            'z-index': '-9999'
+            'z-index': '-9999',
+            'pointer-events': 'none'
           });
         }
         
@@ -4114,20 +4113,18 @@ textarea[id="example_applications"] {
     };
   }
   
-  // Function to ensure all Quill textareas are hidden
+  // Function to ensure all Quill textareas are hidden (but still submitted with form)
   function forceHideQuillTextareas() {
     $('.quill-wrapper textarea, textarea[id="excerpt"], textarea[id="content"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
       $(this).css({
-        'display': 'none !important',
-        'visibility': 'hidden !important',
-        'position': 'absolute !important',
-        'left': '-9999px !important',
-        'top': '-9999px !important',
-        'width': '1px !important',
-        'height': '1px !important',
-        'opacity': '0 !important',
-        'z-index': '-9999 !important'
-      }).hide();
+        'position': 'absolute',
+        'left': '-9999px',
+        'width': '1px',
+        'height': '1px',
+        'opacity': '0',
+        'z-index': '-9999',
+        'pointer-events': 'none'
+      });
     });
   }
   
