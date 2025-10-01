@@ -367,10 +367,10 @@
                           </div>
 
                           <div class="form-group">
-                            <label for="content" class="control-label">{{ _('Tool Overview') }}</label>
+                            <label for="content-textarea" class="control-label">{{ _('Tool Overview') }}</label>
                             <div class="quill-wrapper">
                               <div id="content-editor" class="quill-editor"></div>
-                              <textarea name="content" id="content" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('content', '') }}</textarea>
+                              <textarea name="content" id="content-textarea" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('content', '') }}</textarea>
                             </div>
                             <div class="help-block-enhanced">
                               <p class="help-block">{{ _('Detailed description of the tool and its applications in water management. Use the rich text editor to format your content.') }}</p>
@@ -2889,7 +2889,7 @@ textarea.form-control {
 /* Hide all Quill textareas visually but keep them in DOM for form submission */
 .quill-wrapper textarea,
 textarea[id="excerpt"],
-textarea[id="content"],
+textarea[id="content-textarea"],
 textarea[id="technical_requirements"],
 textarea[id="installation_instructions"],
 textarea[id="learning_resources"],
@@ -3638,7 +3638,7 @@ textarea[id="example_applications"] {
 
       // Handle different ID mappings
       if (editorId === 'content-editor') {
-        textareaId = 'content';
+        textareaId = 'content-textarea';
       } else if (editorId.endsWith('-editor')) {
         textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
       }
@@ -3698,7 +3698,7 @@ textarea[id="example_applications"] {
       updateMemberStatesData();
 
       // Final content check
-      console.log('Final content field value:', $('#content').val());
+      console.log('Final content field value:', $('#content-textarea').val());
     }
   });
   
@@ -3769,7 +3769,7 @@ textarea[id="example_applications"] {
 
       // DEBUG: Log all Quill textarea values before submission
       console.log('=== PRE-SUBMIT DEBUG ===');
-      $('textarea[id="content"], textarea[id="excerpt"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
+      $('textarea[id="content-textarea"], textarea[id="excerpt"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
         const id = $(this).attr('id');
         const name = $(this).attr('name');
         const value = $(this).val();
@@ -3806,7 +3806,7 @@ textarea[id="example_applications"] {
   });
   
   // Enhanced textarea auto-resize (only for non-Quill textareas)
-  $('textarea:not([id="content"], [id="technical_requirements"], [id="installation_instructions"], [id="learning_resources"], [id="example_applications"])').each(function() {
+  $('textarea:not([id="content-textarea"], [id="technical_requirements"], [id="installation_instructions"], [id="learning_resources"], [id="example_applications"])').each(function() {
     this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
   }).on('input', function() {
     this.style.height = 'auto';
@@ -3955,7 +3955,7 @@ textarea[id="example_applications"] {
         // Get the corresponding textarea with proper ID mapping
         let textareaId = editorId;
         if (editorId === 'content-editor') {
-          textareaId = 'content';
+          textareaId = 'content-textarea';
         } else if (editorId.endsWith('-editor')) {
           textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
         }
@@ -4008,7 +4008,7 @@ textarea[id="example_applications"] {
             $(textarea).trigger('change');
 
             // Additional validation for content field specifically
-            if (textareaId === 'content') {
+            if (textareaId === 'content-textarea') {
               if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
                 $(textarea).attr('data-content-filled', 'true');
                 console.log(`  ✓ ${textareaId} marked as filled`);
@@ -4060,7 +4060,7 @@ textarea[id="example_applications"] {
 
         // Handle different ID mappings
         if (editorId === 'content-editor') {
-          textareaId = 'content';
+          textareaId = 'content-textarea';
         } else if (editorId.endsWith('-editor')) {
           textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
         }
@@ -4085,7 +4085,7 @@ textarea[id="example_applications"] {
 
           // Handle different ID mappings
           if (editorId === 'content-editor') {
-            textareaId = 'content';
+            textareaId = 'content-textarea';
           } else if (editorId.endsWith('-editor')) {
             textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
           }
@@ -4149,7 +4149,7 @@ textarea[id="example_applications"] {
 
         // Handle different ID mappings (same as the form submit handler)
         if (editorId === 'content-editor') {
-          textareaId = 'content';
+          textareaId = 'content-textarea';
         } else if (editorId.endsWith('-editor')) {
           textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
         }
@@ -4188,7 +4188,7 @@ textarea[id="example_applications"] {
   
   // Function to ensure all Quill textareas are hidden (but still submitted with form)
   function forceHideQuillTextareas() {
-    $('.quill-wrapper textarea, textarea[id="excerpt"], textarea[id="content"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
+    $('.quill-wrapper textarea, textarea[id="excerpt"], textarea[id="content-textarea"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
       $(this).css({
         'position': 'absolute',
         'left': '-9999px',
