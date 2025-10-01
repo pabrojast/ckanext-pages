@@ -296,7 +296,12 @@
                         <h2>{{ _('Software Overview') }}</h2>
                       </div>
                       <div class="software-content-body">
+                        <!-- DEBUG: Content length = {{ c.page.content|length if c.page.content else 0 }} -->
+                        <!-- DEBUG: Content preview = {{ c.page.content[:100] if c.page.content else 'NONE' }} -->
+                        <div class="regular-content">{{ c.page.content | safe }}</div>
+                        <!-- Original macro call (commented for debugging):
                         {{ render_resource_cards(c.page.content) }}
+                        -->
                       </div>
                     </div>
                   </section>
