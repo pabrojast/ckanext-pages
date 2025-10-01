@@ -3761,15 +3761,38 @@ textarea[id="example_applications"] {
       handleMultipleSelects();
       updateUploadedImagesData();
       updateMemberStatesData();
-      
+
       // Sync all Quill editors (ensure hidden textareas stay in sync)
       if (window.syncAllQuillEditors) {
         window.syncAllQuillEditors();
       }
-      
+
+      // DEBUG: Log all Quill textarea values before submission
+      console.log('=== PRE-SUBMIT DEBUG ===');
+      $('textarea[id="content"], textarea[id="excerpt"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="learning_resources"], textarea[id="example_applications"]').each(function() {
+        const id = $(this).attr('id');
+        const name = $(this).attr('name');
+        const value = $(this).val();
+        const disabled = $(this).prop('disabled');
+        const display = $(this).css('display');
+        console.log(`Textarea #${id}:`);
+        console.log(`  - name: ${name}`);
+        console.log(`  - value length: ${value ? value.length : 0}`);
+        console.log(`  - disabled: ${disabled}`);
+        console.log(`  - display: ${display}`);
+        console.log(`  - value preview: ${value ? value.substring(0, 100) : 'EMPTY'}`);
+
+        if (!value || value.trim() === '' || value.trim() === '<p><br></p>') {
+          console.warn(`  ⚠ WARNING: ${id} is EMPTY or contains only placeholder!`);
+        } else {
+          console.log(`  ✓ ${id} has content`);
+        }
+      });
+      console.log('=== END PRE-SUBMIT DEBUG ===');
+
       // Show loading state
       $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ _("Processing...") }}');
-      
+
       // Submit the form
       form.submit();
     }

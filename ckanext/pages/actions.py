@@ -216,6 +216,7 @@ def _pages_delete(context, data_dict):
 
 
 def _pages_update(context, data_dict):
+    log = logging.getLogger(__name__)
     org_id = data_dict.get('org_id')
     page = data_dict.get('page')
     # we need the page in the context for name validation
@@ -223,11 +224,26 @@ def _pages_update(context, data_dict):
     context['group_id'] = org_id
     schema = update_pages_schema()
 
+    # DEBUG: Log incoming data_dict
+    log.info(f"[PAGES_UPDATE] Processing page '{page}' with data_dict keys: {list(data_dict.keys())}")
+    if 'content' in data_dict:
+        content_preview = data_dict['content'][:100] if data_dict['content'] else 'EMPTY'
+        log.info(f"[PAGES_UPDATE] 'content' field present in data_dict: {len(data_dict['content']) if data_dict['content'] else 0} chars, preview: {content_preview}")
+    else:
+        log.warning(f"[PAGES_UPDATE] 'content' field NOT present in data_dict!")
+
     # +1 is the Current state by default while ckanext.pages.revisions_limit is the amounf of previous states
     revisions_limit = tk.asint(tk.config.get('ckanext.pages.revisions_limit', '3')) + 1
     force_revisions_limit = tk.asbool(tk.config.get('ckanext.pages.revisions_force_limit', False))
 
     data, errors = df.validate(data_dict, schema, context)
+
+    # DEBUG: Log data after validation
+    if 'content' in data:
+        content_preview = data['content'][:100] if data['content'] else 'EMPTY'
+        log.info(f"[PAGES_UPDATE] After validation - 'content' field: {len(data['content']) if data['content'] else 0} chars, preview: {content_preview}")
+    else:
+        log.warning(f"[PAGES_UPDATE] After validation - 'content' field NOT in validated data!")
 
     if errors:
         raise p.toolkit.ValidationError(errors)
@@ -296,7 +312,12 @@ def _pages_update(context, data_dict):
             else:
                 setattr(out, item, data.get(item))
         else:
-            setattr(out, item, data.get(item, 'page' if item == 'page_type' else None))
+            value = data.get(item, 'page' if item == 'page_type' else None)
+            setattr(out, item, value)
+            # DEBUG: Log content field specifically
+            if item == 'content':
+                content_len = len(value) if value else 0
+                log.info(f"[PAGES_UPDATE] Setting 'content' attribute: {content_len} chars")
 
     extras = {}
 
@@ -347,6 +368,9 @@ def _pages_update(context, data_dict):
     session = context['session']
     session.add(out)
     session.commit()
+
+    # DEBUG: Log final saved content
+    log.info(f"[PAGES_UPDATE] Page '{page}' saved successfully. Content length: {len(out.content) if out.content else 0} chars")
 
 
 def _remove_keys_revision_from_dict(data_dict, keys=['current']):
