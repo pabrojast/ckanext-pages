@@ -3951,11 +3951,16 @@ textarea[id="example_applications"] {
       if (editorElement) {
         // Show loading state
         $(editorElement).addClass('quill-loading');
-        
-        // Get the corresponding textarea
-        const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+
+        // Get the corresponding textarea with proper ID mapping
+        let textareaId = editorId;
+        if (editorId === 'content-editor') {
+          textareaId = 'content';
+        } else if (editorId.endsWith('-editor')) {
+          textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        }
         const textarea = document.getElementById(textareaId);
-        
+
         // Initialize Quill
         const quill = new Quill(`#${editorId}`, editorConfigs[editorId]);
 
@@ -4153,8 +4158,25 @@ textarea[id="example_applications"] {
 
         if (quill && textarea) {
           const content = quill.root.innerHTML;
+          const oldValue = textarea.value;
           textarea.value = content;
-          console.log(`[SYNC ALL] ✓ Synced ${textareaId}: ${content.length} chars`);
+
+          // IMMEDIATE verification
+          const newValue = textarea.value;
+          const jqueryValue = $(textarea).val();
+
+          console.log(`[SYNC ALL] ✓ Synced ${textareaId}:`);
+          console.log(`  - Content from Quill: ${content.length} chars`);
+          console.log(`  - Old textarea.value: ${oldValue.length} chars`);
+          console.log(`  - New textarea.value: ${newValue.length} chars`);
+          console.log(`  - jQuery .val(): ${jqueryValue ? jqueryValue.length : 0} chars`);
+
+          if (newValue !== content) {
+            console.error(`  ✗✗✗ MISMATCH! textarea.value was NOT set correctly!`);
+            console.error(`  Expected: ${content.substring(0, 50)}`);
+            console.error(`  Got: ${newValue.substring(0, 50)}`);
+          }
+
           $(textarea).trigger('change');
         } else {
           console.warn(`[SYNC ALL] ✗ Failed to sync ${editorId}: quill=${!!quill}, textarea=${!!textarea}, textareaId=${textareaId}`);
