@@ -265,10 +265,6 @@
                     <p class="section-title-description">{{ c.page.subtitle }}</p>
                   {% endif %}
 
-                  {% if c.page.excerpt and display_mode != 'logo' %}
-                    <p class="section-title-description">{{ c.page.excerpt | safe }}</p>
-                  {% endif %}
-
                   {% if c.page.software_category and display_mode != 'logo' %}
                     <div class="section-title-meta-category">
                       <i class="fa fa-tags"></i> {{ _('Categories:') }} 
@@ -284,23 +280,48 @@
           </div>
 
           <div class="container">
-            <!-- Software Overview as Introduction (if present) -->
-            {% if c.page.content %}
             <div class="row">
               <div class="col-md-12">
-                <div class="software-introduction" style="margin: 2rem 0 3rem 0; padding: 1.5rem 0; border-bottom: 2px solid #e8e8e8;">
-                  <div class="software-intro-content" style="font-size: 1.1rem; line-height: 1.8; color: #333; max-width: 900px;">
-                    {{ c.page.content | safe }}
-                  </div>
+
+                <!-- Summary/Excerpt -->
+                {% if c.page.excerpt %}
+                <div class="software-summary" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-summary">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Summary') }}</h2>
+                      </div>
+                      <div class="software-content-body">
+                        <div class="regular-content">{{ c.page.excerpt | safe }}</div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
-              </div>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <div class="row">
-              <div class="col-md-12">
+                <!-- Software Overview -->
+                {% if c.page.content %}
+                <div class="software-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-overview">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Software Overview') }}</h2>
+                      </div>
+                      <div class="software-content-body">
+                        <div class="regular-content">{{ c.page.content | safe }}</div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
 
-                <!-- Key Features Box -->
+                <!-- Key Features -->
                 {% if c.page.key_features %}
                 <div class="software-key-features" style="margin-bottom: 3rem;">
                   <section class="module module-narrow software-module-features">
