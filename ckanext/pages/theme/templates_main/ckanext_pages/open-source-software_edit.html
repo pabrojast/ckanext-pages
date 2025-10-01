@@ -4137,17 +4137,30 @@ textarea[id="example_applications"] {
     
     // Create a global sync function
     window.syncAllQuillEditors = function() {
+      console.log('[SYNC ALL] Starting global sync of all Quill editors...');
       Object.keys(quillEditors).forEach(editorId => {
         const quill = quillEditors[editorId];
-        const textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        let textareaId = editorId;
+
+        // Handle different ID mappings (same as the form submit handler)
+        if (editorId === 'content-editor') {
+          textareaId = 'content';
+        } else if (editorId.endsWith('-editor')) {
+          textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        }
+
         const textarea = document.getElementById(textareaId);
-        
+
         if (quill && textarea) {
           const content = quill.root.innerHTML;
           textarea.value = content;
+          console.log(`[SYNC ALL] ✓ Synced ${textareaId}: ${content.length} chars`);
           $(textarea).trigger('change');
+        } else {
+          console.warn(`[SYNC ALL] ✗ Failed to sync ${editorId}: quill=${!!quill}, textarea=${!!textarea}, textareaId=${textareaId}`);
         }
       });
+      console.log('[SYNC ALL] Global sync completed');
     };
   }
   
