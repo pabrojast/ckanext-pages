@@ -3958,15 +3958,20 @@ textarea[id="example_applications"] {
         
         // Initialize Quill
         const quill = new Quill(`#${editorId}`, editorConfigs[editorId]);
-        
+
+        console.log(`[QUILL INIT] Initializing editor: ${editorId} for textarea: ${textareaId}`);
+
         // Set initial content from textarea
         if (textarea && textarea.value) {
+          console.log(`[QUILL INIT] ${textareaId} has initial value: ${textarea.value.length} chars`);
           try {
             // Try to parse as HTML first, fallback to plain text
             quill.clipboard.dangerouslyPasteHTML(textarea.value);
           } catch (e) {
             quill.setText(textarea.value);
           }
+        } else {
+          console.log(`[QUILL INIT] ${textareaId} is empty - starting fresh`);
         }
         
         // Force hide the textarea after initialization (but keep it in DOM for form submission)
@@ -3983,22 +3988,32 @@ textarea[id="example_applications"] {
         }
         
         // Sync content back to textarea on changes
-        quill.on('text-change', function() {
+        quill.on('text-change', function(delta, oldDelta, source) {
           if (textarea) {
             const content = quill.root.innerHTML;
+            const previousValue = textarea.value;
             textarea.value = content;
+
+            console.log(`[QUILL SYNC] ${textareaId} updated via ${source}`);
+            console.log(`  - Previous length: ${previousValue ? previousValue.length : 0}`);
+            console.log(`  - New length: ${content.length}`);
+            console.log(`  - Preview: ${content.substring(0, 100)}`);
+
             // Trigger change event to ensure the form knows the field has changed
             $(textarea).trigger('change');
-            
+
             // Additional validation for content field specifically
             if (textareaId === 'content') {
-              console.log(`Content field updated: ${content.length} characters`);
               if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
                 $(textarea).attr('data-content-filled', 'true');
+                console.log(`  ✓ ${textareaId} marked as filled`);
               } else {
                 $(textarea).removeAttr('data-content-filled');
+                console.log(`  ✗ ${textareaId} is empty`);
               }
             }
+          } else {
+            console.warn(`[QUILL SYNC] No textarea found for ${textareaId}!`);
           }
         });
         
