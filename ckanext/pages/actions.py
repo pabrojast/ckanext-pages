@@ -61,9 +61,11 @@ def _pages_show(context, data_dict):
         if out:
             # DEBUG: Log content field before dictize
             log.info(f"[PAGES_SHOW] Page '{page}' found. Content field length: {len(out.content) if out.content else 0}")
+            log.info(f"[PAGES_SHOW] Content preview: {repr(out.content[:200]) if out.content else 'NONE'}")
             out = db.table_dictize(out, context)
             # DEBUG: Log content field after dictize
             log.info(f"[PAGES_SHOW] After dictize - 'content' in dict: {'content' in out}, length: {len(out.get('content', '')) if out.get('content') else 0}")
+            log.info(f"[PAGES_SHOW] Content value repr: {repr(out.get('content', 'KEY_NOT_FOUND')[:200]) if out.get('content') else 'EMPTY_OR_NONE'}")
         return out
     except Exception as e:
         log = logging.getLogger(__name__)
