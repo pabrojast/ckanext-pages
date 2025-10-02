@@ -548,12 +548,12 @@
                       </div>
                       
                       <!-- Uploaded Images Grid -->
-                      {% if c.page.uploaded_images or (c.page.header_image and c.page.include_logo_in_gallery == 'true') %}
+                      {% if c.page.uploaded_images or (c.page.header_image and c.page.include_logo_in_gallery) %}
                         {% set uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
                         {% set all_images = [] %}
-                        
+
                         {# Add logo to gallery if option is enabled #}
-                        {% if c.page.header_image and c.page.include_logo_in_gallery == 'true' %}
+                        {% if c.page.header_image and c.page.include_logo_in_gallery %}
                           {% set dummy = all_images.append({'url': c.page.header_image, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
                         {% endif %}
                         
