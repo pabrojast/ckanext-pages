@@ -272,7 +272,7 @@
                                 {% if item.ihp_organization %}
                                   <span class="admin-info-item">
                                     <i class="fa fa-building-o"></i>
-                                    {{ _('Organization:') }} {{ item.ihp_organization }}
+                                    {{ _('Organization:') }} {{ organization_lookup.get(item.ihp_organization, item.ihp_organization) }}
                                   </span>
                                 {% endif %}
                               </div>
@@ -328,9 +328,9 @@
                                       style="display: flex; gap: 0.5rem; align-items: center;">
                                   <select name="new_organization" class="form-control form-control-sm" style="min-width: 180px;">
                                     <option value="">{{ _('Change Organization...') }}</option>
-                                    {% for org in h.get_ihp_organizations() %}
+                                    {% for org in organization_options %}
                                       <option value="{{ org.id }}" {% if item.ihp_organization == org.id %}selected{% endif %}>
-                                        {{ org.title or org.display_name or org.name }}
+                                        {{ org.label }}
                                       </option>
                                     {% endfor %}
                                   </select>

@@ -1,4 +1,5 @@
 import six
+from types import SimpleNamespace
 
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.plugins as p
@@ -10,6 +11,40 @@ from ckan import model
 from datetime import datetime
 
 from ckanext.pages.db import Page
+
+
+def _get_open_source_admin_organizations():
+    """Return organization options and lookup mapping for admin dashboard."""
+    try:
+        org_query = model.Session.query(model.Group).filter(
+            model.Group.type == 'organization',
+            model.Group.state == 'active'
+        )
+        organizations = org_query.all()
+    except Exception:
+        organizations = []
+
+    options = []
+    lookup = {}
+
+    for org in organizations:
+        org_id = getattr(org, 'id', None) or getattr(org, 'name', None)
+        if not org_id:
+            continue
+
+        label = getattr(org, 'title', None) or getattr(org, 'display_name', None) or getattr(org, 'name', None)
+        if not label:
+            label = org_id
+
+        org_id_text = six.text_type(org_id)
+        label_text = six.text_type(label)
+
+        options.append(SimpleNamespace(id=org_id_text, label=label_text))
+        lookup[org_id_text] = label_text
+
+    options.sort(key=lambda item: item.label.lower())
+
+    return options, lookup
 
 config = tk.config
 _ = tk._
@@ -1169,9 +1204,13 @@ def open_source_admin_dashboard():
         pending_software = _filter_pending_open_source_software()
     except:
         pending_software = []
-    
+
+    org_options, org_lookup = _get_open_source_admin_organizations()
+
     return tk.render('ckanext_pages/open-source-admin-dashboard.html', extra_vars={
-        'pending_software': pending_software
+        'pending_software': pending_software,
+        'organization_options': org_options,
+        'organization_lookup': org_lookup,
     })
 
 

@@ -177,6 +177,34 @@ class TestPages():
         pending_names = [item['name'] for item in pending_entries]
         assert slug in pending_names
 
+    def test_open_source_admin_dashboard_shows_organization_labels(self, app):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': sysadmin['name']},
+            name='pending-admin-view',
+            page='pending-admin-view',
+            title='Pending Admin Entry',
+            content='Pending content awaiting approval.',
+            page_type='open-source-software',
+            submission_status='pending',
+            private=True,
+            ihp_organization=org['id'],
+            submitted_at=datetime.datetime.utcnow().isoformat(),
+        )
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.get(
+            toolkit.url_for('pages.open_source_admin_dashboard'),
+            status=200,
+            extra_environ=env,
+        )
+
+        assert org['title'] in response.body
+        assert f'value="{org["id"]}"' in response.body
+
     def test_unicode(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
