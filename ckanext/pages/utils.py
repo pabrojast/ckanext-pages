@@ -1258,7 +1258,15 @@ def open_source_admin_approve(page):
             page_dict = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            
+
+            if not page_dict:
+                tk.h.flash_error(_('Entry not found.'))
+                return tk.redirect_to('pages.open_source_admin_dashboard')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
+
             # Update submission status to approved and make public
             import datetime
             page_dict['submission_status'] = 'approved'
@@ -1291,7 +1299,15 @@ def open_source_admin_reject(page):
             page_dict = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            
+
+            if not page_dict:
+                tk.h.flash_error(_('Entry not found.'))
+                return tk.redirect_to('pages.open_source_admin_dashboard')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
+
             # Update submission status to rejected
             import datetime
             page_dict['submission_status'] = 'rejected'
@@ -1344,11 +1360,19 @@ def open_source_admin_change_org(page):
             page_dict = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            
+
+            if not page_dict:
+                tk.h.flash_error(_('Entry not found.'))
+                return tk.redirect_to('pages.open_source_admin_dashboard')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
+
             # Update organization
             page_dict['ihp_organization'] = new_organization
             page_dict['modified'] = datetime.datetime.utcnow().isoformat()
-            
+
             tk.get_action('ckanext_pages_update')(
                 context={'ignore_auth': True}, data_dict=page_dict
             )

@@ -211,6 +211,46 @@ class TestPages():
         assert expected_display in response.body
         assert sysadmin_data['id'] not in response.body
 
+    def test_open_source_admin_approve_route_publishes_entry(self, app):
+        sysadmin = factories.Sysadmin()
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': sysadmin['name']},
+            name='approve-route-tool',
+            page='approve-route-tool',
+            title='Pending Admin Route',
+            content='Pending entry for route test.',
+            page_type='open-source-software',
+            submission_status='pending',
+            private=True,
+            ihp_organization=None,
+            submitted_at=datetime.datetime.utcnow().isoformat(),
+        )
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+
+        response = app.post(
+            toolkit.url_for('pages.open_source_admin_approve', page='approve-route-tool'),
+            status=302,
+            extra_environ=env,
+        )
+        assert response.status_code == 302
+
+        page = helpers.call_action('ckanext_pages_show', {}, page='approve-route-tool')
+        assert page['submission_status'] == 'approved'
+        assert page['private'] is False
+        assert page['reviewed_by'] == sysadmin['name']
+
+        pending_entries = helpers.call_action(
+            'ckanext_pages_list',
+            {'user': sysadmin['name']},
+            page_type='open-source-software',
+            submission_status='pending',
+        )
+        names = [item['name'] for item in pending_entries]
+        assert 'approve-route-tool' not in names
+
     def test_unicode(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
