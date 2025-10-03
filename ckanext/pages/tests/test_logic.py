@@ -145,6 +145,38 @@ class TestPages():
         assert '<h1 class="page-heading page-list-header">Pages</h1>' in response.body
         assert 'Add page</a>' in response.body
 
+    def test_open_source_submission_appears_in_pending_list(self, app):
+        submitter = factories.User()
+        env = {'REMOTE_USER': submitter['name'].encode('ascii')}
+        slug = 'pending-tool'
+
+        app.post(
+            toolkit.url_for('pages.open_source_software_new'),
+            params={
+                'title': 'Pending Tool',
+                'name': slug,
+                'content': 'Useful open source entry awaiting review.',
+                'submission_action': 'submit',
+            },
+            extra_environ=env,
+            status=302,
+        )
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {'user': submitter['name']}, page=slug
+        )
+        assert page['submission_status'] == 'pending'
+
+        admin = factories.Sysadmin()
+        pending_entries = helpers.call_action(
+            'ckanext_pages_list',
+            {'user': admin['name']},
+            page_type='open-source-software',
+            submission_status='pending',
+        )
+        pending_names = [item['name'] for item in pending_entries]
+        assert slug in pending_names
+
     def test_unicode(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}

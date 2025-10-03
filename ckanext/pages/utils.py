@@ -195,7 +195,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 page_dict['submission_status'] = 'published'
 
         # Remove helper fields that should not hit the action layer
-        if 'submission_action' in page_dict:
+        if 'submission_action' in page_dict and page_type != 'open-source-software':
             page_dict.pop('submission_action')
 
         try:
