@@ -266,7 +266,7 @@
                                 {% if item.user_id %}
                                   <span class="admin-info-item">
                                     <i class="fa fa-user"></i>
-                                    {{ _('By:') }} {{ item.user_id }}
+                                    {{ _('By:') }} {{ user_lookup.get(item.user_id, item.user_id) }}
                                   </span>
                                 {% endif %}
                                 {% if item.ihp_organization %}

@@ -46,6 +46,34 @@ def _get_open_source_admin_organizations():
 
     return options, lookup
 
+
+def _build_user_display_lookup(pages):
+    """Create a lookup mapping user ids to human-readable names."""
+    lookup = {}
+
+    user_ids = {
+        six.text_type(getattr(page, 'user_id'))
+        for page in pages
+        if getattr(page, 'user_id', None)
+    }
+
+    if not user_ids:
+        return lookup
+
+    try:
+        users = model.Session.query(model.User).filter(
+            model.User.id.in_(user_ids)
+        ).all()
+    except Exception:
+        users = []
+
+    for user in users:
+        display = user.fullname or getattr(user, 'display_name', None) or user.name or user.id
+        user_id_text = six.text_type(user.id)
+        lookup[user_id_text] = six.text_type(display)
+
+    return lookup
+
 config = tk.config
 _ = tk._
 
@@ -1206,11 +1234,13 @@ def open_source_admin_dashboard():
         pending_software = []
 
     org_options, org_lookup = _get_open_source_admin_organizations()
+    user_lookup = _build_user_display_lookup(pending_software)
 
     return tk.render('ckanext_pages/open-source-admin-dashboard.html', extra_vars={
         'pending_software': pending_software,
         'organization_options': org_options,
         'organization_lookup': org_lookup,
+        'user_lookup': user_lookup,
     })
 
 

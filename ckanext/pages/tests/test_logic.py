@@ -205,6 +205,12 @@ class TestPages():
         assert org['title'] in response.body
         assert f'value="{org["id"]}"' in response.body
 
+        sysadmin_data = helpers.call_action('user_show', {'ignore_auth': True}, id=sysadmin['name'])
+        expected_display = sysadmin_data.get('fullname') or sysadmin_data.get('display_name') or sysadmin_data['name']
+
+        assert expected_display in response.body
+        assert sysadmin_data['id'] not in response.body
+
     def test_unicode(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
