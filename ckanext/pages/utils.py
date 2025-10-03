@@ -150,6 +150,10 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         page_dict['page'] = page
         page_dict['page_type'] = 'page' if page_type == 'pages' else page_type
 
+        # Re-add submission_action to page_dict so it reaches actions.py
+        if submission_action:
+            page_dict['submission_action'] = submission_action
+
         if not page_dict.get('name') and page_dict.get('title'):
             generated_name = _slugify_title(page_dict['title'])
             if generated_name:
