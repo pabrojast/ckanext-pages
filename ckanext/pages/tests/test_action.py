@@ -154,3 +154,23 @@ class TestPagesActions:
             "ckanext_pages_list", {"user": user["name"], "ignore_auth": False}
         )
         assert len(results) == 3
+
+    def test_open_source_publish_sets_approved(self, app):
+        sysadmin = factories.Sysadmin()
+
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="publish-tool",
+            title="Publish Tool",
+            content="Tool ready for publication",
+            page_type="open-source-software",
+            submission_action="publish",
+        )
+
+        page = helpers.call_action("ckanext_pages_show", {}, page="publish-tool")
+
+        assert page["submission_status"] == "approved"
+        assert page["private"] is False
+        assert page["reviewed_by"] == sysadmin["name"]
+        assert page["submitted_at"] is not None

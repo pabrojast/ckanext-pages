@@ -274,6 +274,17 @@ def _pages_update(context, data_dict):
                     data['ihp_organization'] = user_org.id
                     log = logging.getLogger(__name__)
                     log.info(f"Auto-assigned organization {user_org.title or user_org.display_name or user_org.name} to user {context['user']}")
+        elif submission_action == 'publish':
+            data['submission_status'] = 'approved'
+            data['private'] = False
+            now = datetime.datetime.utcnow()
+            data['reviewed_at'] = now.isoformat()
+            reviewer = context.get('user') or getattr(tk.g, 'user', None)
+            if reviewer:
+                data['reviewed_by'] = reviewer
+            # Ensure submitted_at populated if never set
+            if not data.get('submitted_at'):
+                data['submitted_at'] = now
 
     # Ensure organization handling for open-source-software
     if data.get('page_type') == 'open-source-software':
