@@ -641,9 +641,9 @@
                                 </div>
                                 <div class="checkbox-option">
                                   <!-- Hidden input to ensure false value is sent when checkbox is unchecked -->
-                                  <input type="hidden" id="include-logo-hidden" name="include_logo_in_gallery" value="{{ 'true' if (data.get('include_logo_in_gallery') or '').lower() == 'true' else 'false' }}">
-                                  <input type="checkbox" id="include-logo-in-gallery" value="true" 
-                                         {% if (data.get('include_logo_in_gallery') or '').lower() == 'true' %}checked{% endif %}>
+                                  <input type="hidden" id="include-logo-hidden" name="include_logo_in_gallery" value="{{ 'true' if data.get('include_logo_in_gallery') else 'false' }}">
+                                  <input type="checkbox" id="include-logo-in-gallery" value="true"
+                                         {% if data.get('include_logo_in_gallery') %}checked{% endif %}>
                                   <label for="include-logo-in-gallery">
                                     <span class="checkbox-label">{{ _('Include logo in image gallery') }}</span>
                                     <small class="help-inline">{{ _('Show the logo image in the screenshots gallery section') }}</small>
