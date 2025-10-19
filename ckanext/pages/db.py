@@ -134,6 +134,9 @@ class Page(DomainObject, BaseModel):
             # Apply submission status filter
             if submission_status:
                 query = query.filter(cls.submission_status == submission_status)
+                # Debug log for submission status filtering
+                if log.isEnabledFor(logging.DEBUG):
+                    log.debug(f"[DB.PAGES] Filtering by submission_status: {submission_status}")
             
             # Apply search query
             if q:

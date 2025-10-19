@@ -1,4 +1,5 @@
 import datetime
+import logging
 import six
 from types import SimpleNamespace
 
@@ -1246,6 +1247,8 @@ def open_source_admin_dashboard():
 def open_source_admin_approve(page):
     """Approve an open source software submission (make it public)"""
     
+    log = logging.getLogger(__name__)
+    
     try:
         tk.check_access('sysadmin', {'user': tk.g.user})
     except tk.NotAuthorized:
@@ -1262,6 +1265,9 @@ def open_source_admin_approve(page):
                 tk.h.flash_error(_('Entry not found.'))
                 return tk.redirect_to('pages.open_source_admin_dashboard')
 
+            # Log current state
+            log.info(f"[APPROVE] Before approval - page: {page}, submission_status: {page_dict.get('submission_status')}, private: {page_dict.get('private')}")
+
             page_dict['page'] = page
             page_dict['org_id'] = None
             page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
@@ -1276,6 +1282,8 @@ def open_source_admin_approve(page):
             if not page_dict.get('publish_date'):
                 page_dict['publish_date'] = now.isoformat()
 
+            log.info(f"[APPROVE] Attempting to update - submission_status: {page_dict['submission_status']}, private: {page_dict['private']}")
+
             tk.get_action('ckanext_pages_update')(
                 context={
                     'ignore_auth': True,
@@ -1286,8 +1294,25 @@ def open_source_admin_approve(page):
                 data_dict=page_dict
             )
             
-            tk.h.flash_success(_('Open source software entry approved and published successfully.'))
+            # Force session flush and commit to ensure database write
+            model.Session.flush()
+            model.Session.commit()
+            
+            # Verify the update was successful
+            verified_page = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            log.info(f"[APPROVE] After approval - submission_status: {verified_page.get('submission_status')}, private: {verified_page.get('private')}")
+            
+            if verified_page.get('submission_status') != 'approved' or verified_page.get('private') != False:
+                log.error(f"[APPROVE] Verification failed - entry not properly approved!")
+                tk.h.flash_error(_('Entry approval may have failed. Please verify the entry status.'))
+            else:
+                tk.h.flash_success(_('Open source software entry approved and published successfully.'))
+                
         except Exception as e:
+            log.error(f"[APPROVE] Error approving entry: {str(e)}", exc_info=True)
+            model.Session.rollback()
             tk.h.flash_error(_('Error approving entry: {0}').format(str(e)))
     
     return tk.redirect_to('pages.open_source_admin_dashboard')
@@ -1357,6 +1382,8 @@ def _filter_pending_open_source_software():
 def open_source_admin_change_org(page):
     """Change the organization of an open source software entry"""
     
+    log = logging.getLogger(__name__)
+    
     try:
         tk.check_access('sysadmin', {'user': tk.g.user})
     except tk.NotAuthorized:
@@ -1379,6 +1406,9 @@ def open_source_admin_change_org(page):
                 tk.h.flash_error(_('Entry not found.'))
                 return tk.redirect_to('pages.open_source_admin_dashboard')
 
+            # Log current state
+            log.info(f"[CHANGE_ORG] Before change - page: {page}, current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}")
+
             page_dict['page'] = page
             page_dict['org_id'] = None
             page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
@@ -1386,6 +1416,8 @@ def open_source_admin_change_org(page):
             # Update organization
             page_dict['ihp_organization'] = new_organization
             page_dict['modified'] = datetime.datetime.utcnow().isoformat()
+
+            log.info(f"[CHANGE_ORG] Attempting to update ihp_organization to: {new_organization}")
 
             tk.get_action('ckanext_pages_update')(
                 context={
@@ -1397,14 +1429,30 @@ def open_source_admin_change_org(page):
                 data_dict=page_dict
             )
             
+            # Force session flush and commit to ensure database write
+            model.Session.flush()
+            model.Session.commit()
+            
+            # Verify the update was successful
+            verified_page = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+            log.info(f"[CHANGE_ORG] After change - ihp_organization: {verified_page.get('ihp_organization')}")
+            
             # Get organization name for message
             import ckan.model as model
             org = model.Group.get(new_organization)
             org_name = org.title or org.display_name or org.name if org else new_organization
             
-            tk.h.flash_success(_('Organization changed to "{0}" successfully.').format(org_name))
+            if verified_page.get('ihp_organization') != new_organization:
+                log.error(f"[CHANGE_ORG] Verification failed - organization not changed! Expected: {new_organization}, Got: {verified_page.get('ihp_organization')}")
+                tk.h.flash_error(_('Organization change may have failed. Please verify the entry.'))
+            else:
+                tk.h.flash_success(_('Organization changed to "{0}" successfully.').format(org_name))
             
         except Exception as e:
+            log.error(f"[CHANGE_ORG] Error changing organization: {str(e)}", exc_info=True)
+            model.Session.rollback()
             tk.h.flash_error(_('Error changing organization: {0}').format(str(e)))
     
     return tk.redirect_to('pages.open_source_admin_dashboard')

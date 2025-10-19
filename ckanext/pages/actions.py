@@ -95,6 +95,10 @@ def _pages_list(context, data_dict):
     order_by = data_dict.get('order_by')  # Custom ordering
     submission_status = data_dict.get('submission_status')  # Submission status filter
     
+    # DEBUG: Log filtering parameters for open-source-software
+    if page_type == 'open-source-software':
+        log.info(f"[PAGES_LIST] Filtering open-source-software - private: {private}, submission_status: {submission_status}")
+    
     # Additional filters for rapid-response pages
     country = data_dict.get('country')  # Country filter
     activity_status = data_dict.get('activity_status')  # Activity status filter
@@ -154,8 +158,16 @@ def _pages_list(context, data_dict):
                 log.debug(f"Filtering by country: {country}")
             if activity_status:
                 log.debug(f"Filtering by activity_status: {activity_status}")
+        
+        # Additional debug for open-source-software
+        if search.get('page_type') == 'open-source-software':
+            log.info(f"[PAGES_LIST] Executing query with search params: {search}")
             
         out = db.Page.pages(**search)
+        
+        # Log results count for open-source-software
+        if search.get('page_type') == 'open-source-software':
+            log.info(f"[PAGES_LIST] Query returned {len(out)} results for open-source-software")
     except Exception as e:
         # Log the error and return empty list as fallback
         error_str = str(e).lower()
@@ -329,6 +341,9 @@ def _pages_update(context, data_dict):
             if item == 'content':
                 content_len = len(value) if value else 0
                 log.info(f"[PAGES_UPDATE] Setting 'content' attribute: {content_len} chars")
+            # DEBUG: Log critical fields for open-source-software
+            if item in ['submission_status', 'ihp_organization', 'private']:
+                log.info(f"[PAGES_UPDATE] Setting '{item}' attribute: {value}")
 
     extras = {}
 
@@ -380,8 +395,9 @@ def _pages_update(context, data_dict):
     session.add(out)
     session.commit()
 
-    # DEBUG: Log final saved content
+    # DEBUG: Log final saved content and critical fields
     log.info(f"[PAGES_UPDATE] Page '{page}' saved successfully. Content length: {len(out.content) if out.content else 0} chars")
+    log.info(f"[PAGES_UPDATE] Final state - submission_status: {out.submission_status}, private: {out.private}, ihp_organization: {out.ihp_organization}")
 
 
 def _remove_keys_revision_from_dict(data_dict, keys=['current']):
