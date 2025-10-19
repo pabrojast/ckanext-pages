@@ -1266,15 +1266,23 @@ def open_source_admin_approve(page):
             page_dict['org_id'] = None
             page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
 
-            # Update submission status to approved and make public
-            import datetime
+            # Update submission metadata and make entry public
+            now = datetime.datetime.utcnow()
             page_dict['submission_status'] = 'approved'
             page_dict['private'] = False
-            page_dict['reviewed_at'] = datetime.datetime.utcnow().isoformat()
+            page_dict['reviewed_at'] = now.isoformat()
             page_dict['reviewed_by'] = tk.g.user
-            
+            page_dict['submitted_at'] = page_dict.get('submitted_at') or now.isoformat()
+            if not page_dict.get('publish_date'):
+                page_dict['publish_date'] = now.isoformat()
+
             tk.get_action('ckanext_pages_update')(
-                context={'ignore_auth': True, 'user': tk.g.user},
+                context={
+                    'ignore_auth': True,
+                    'user': tk.g.user,
+                    'model': model,
+                    'session': model.Session,
+                },
                 data_dict=page_dict
             )
             
@@ -1309,13 +1317,18 @@ def open_source_admin_reject(page):
             page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
 
             # Update submission status to rejected
-            import datetime
+            now = datetime.datetime.utcnow()
             page_dict['submission_status'] = 'rejected'
-            page_dict['reviewed_at'] = datetime.datetime.utcnow().isoformat()
+            page_dict['reviewed_at'] = now.isoformat()
             page_dict['reviewed_by'] = tk.g.user
-            
+
             tk.get_action('ckanext_pages_update')(
-                context={'ignore_auth': True, 'user': tk.g.user},
+                context={
+                    'ignore_auth': True,
+                    'user': tk.g.user,
+                    'model': model,
+                    'session': model.Session,
+                },
                 data_dict=page_dict
             )
             
@@ -1375,7 +1388,12 @@ def open_source_admin_change_org(page):
             page_dict['modified'] = datetime.datetime.utcnow().isoformat()
 
             tk.get_action('ckanext_pages_update')(
-                context={'ignore_auth': True, 'user': tk.g.user},
+                context={
+                    'ignore_auth': True,
+                    'user': tk.g.user,
+                    'model': model,
+                    'session': model.Session,
+                },
                 data_dict=page_dict
             )
             

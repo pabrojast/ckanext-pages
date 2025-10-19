@@ -251,6 +251,16 @@ class TestPages():
         names = [item['name'] for item in pending_entries]
         assert 'approve-route-tool' not in names
 
+        public_entries = helpers.call_action(
+            'ckanext_pages_list',
+            {},
+            page_type='open-source-software',
+            submission_status='approved',
+            private=False,
+        )
+        public_names = [item['name'] for item in public_entries]
+        assert 'approve-route-tool' in public_names
+
     def test_open_source_admin_change_org_updates_page(self, app):
         sysadmin = factories.Sysadmin()
         original_org = factories.Organization()
