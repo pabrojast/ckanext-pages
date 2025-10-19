@@ -1,3 +1,4 @@
+import datetime
 import six
 from types import SimpleNamespace
 
@@ -7,8 +8,6 @@ import ckan.plugins.toolkit as tk
 import ckan.logic as logic
 import ckan.lib.helpers as helpers
 from ckan import model
-
-from datetime import datetime
 
 from ckanext.pages.db import Page
 
@@ -523,7 +522,7 @@ def _maybe_create_documents_dataset(form_data):
         resource_dict['name'] = resource_title
 
     # Dates
-    today = datetime.utcnow().date().isoformat()
+    today = datetime.datetime.utcnow().date().isoformat()
     created_date = (form_data.get('creation_date') or today)
     resource_dict['created'] = created_date
     resource_dict['modified'] = today
@@ -1275,7 +1274,8 @@ def open_source_admin_approve(page):
             page_dict['reviewed_by'] = tk.g.user
             
             tk.get_action('ckanext_pages_update')(
-                context={'ignore_auth': True}, data_dict=page_dict
+                context={'ignore_auth': True, 'user': tk.g.user},
+                data_dict=page_dict
             )
             
             tk.h.flash_success(_('Open source software entry approved and published successfully.'))
@@ -1315,7 +1315,8 @@ def open_source_admin_reject(page):
             page_dict['reviewed_by'] = tk.g.user
             
             tk.get_action('ckanext_pages_update')(
-                context={'ignore_auth': True}, data_dict=page_dict
+                context={'ignore_auth': True, 'user': tk.g.user},
+                data_dict=page_dict
             )
             
             tk.h.flash_success(_('Open source software entry rejected.'))
@@ -1374,7 +1375,8 @@ def open_source_admin_change_org(page):
             page_dict['modified'] = datetime.datetime.utcnow().isoformat()
 
             tk.get_action('ckanext_pages_update')(
-                context={'ignore_auth': True}, data_dict=page_dict
+                context={'ignore_auth': True, 'user': tk.g.user},
+                data_dict=page_dict
             )
             
             # Get organization name for message

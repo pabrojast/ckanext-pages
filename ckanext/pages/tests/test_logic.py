@@ -251,6 +251,40 @@ class TestPages():
         names = [item['name'] for item in pending_entries]
         assert 'approve-route-tool' not in names
 
+    def test_open_source_admin_change_org_updates_page(self, app):
+        sysadmin = factories.Sysadmin()
+        original_org = factories.Organization()
+        replacement_org = factories.Organization()
+        slug = 'change-org-tool'
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': sysadmin['name']},
+            name=slug,
+            page=slug,
+            title='Change Org Entry',
+            content='Entry awaiting organization change.',
+            page_type='open-source-software',
+            submission_status='approved',
+            private=False,
+            ihp_organization=original_org['id'],
+            submitted_at=datetime.datetime.utcnow().isoformat(),
+        )
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.post(
+            toolkit.url_for('pages.open_source_admin_change_org', page=slug),
+            params={'new_organization': replacement_org['id']},
+            status=302,
+            extra_environ=env,
+        )
+        assert response.status_code == 302
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {'ignore_auth': True}, page=slug
+        )
+        assert page['ihp_organization'] == replacement_org['id']
+
     def test_unicode(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
