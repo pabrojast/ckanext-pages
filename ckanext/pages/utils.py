@@ -1314,10 +1314,16 @@ def open_source_admin_approve(page):
             verified_page = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            log.info(f"[APPROVE] After approval - submission_status: {verified_page.get('submission_status')}, private: {verified_page.get('private')}")
-            
-            if verified_page.get('submission_status') != 'approved' or verified_page.get('private') != False:
-                log.error(f"[APPROVE] Verification failed - entry not properly approved!")
+            verified_status = verified_page.get('submission_status')
+            verified_private = verified_page.get('private')
+            log.info(f"[APPROVE] After approval - submission_status: {verified_status} (type: {type(verified_status)}), private: {verified_private} (type: {type(verified_private)})")
+
+            # Check if values are correct (handle both bool and string values)
+            status_ok = verified_status == 'approved'
+            private_ok = verified_private in (False, 'False', '0', 0)
+
+            if not status_ok or not private_ok:
+                log.error(f"[APPROVE] Verification failed - entry not properly approved! status_ok: {status_ok}, private_ok: {private_ok}")
                 tk.h.flash_error(_('Entry approval may have failed. Please verify the entry status.'))
             else:
                 tk.h.flash_success(_('Open source software entry approved and published successfully.'))
