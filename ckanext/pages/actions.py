@@ -257,6 +257,10 @@ def _pages_update(context, data_dict):
     else:
         log.warning(f"[PAGES_UPDATE] After validation - 'content' field NOT in validated data!")
 
+    # DEBUG: Check if submission_status survived validation
+    log.info(f"[PAGES_UPDATE] After validation - submission_status in data: {'submission_status' in data}, value: {data.get('submission_status')}")
+    log.info(f"[PAGES_UPDATE] After validation - submission_status in data_dict: {'submission_status' in data_dict}, value: {data_dict.get('submission_status')}")
+
     if errors:
         raise p.toolkit.ValidationError(errors)
 
@@ -335,7 +339,17 @@ def _pages_update(context, data_dict):
             else:
                 setattr(out, item, data.get(item))
         else:
-            value = data.get(item, 'page' if item == 'page_type' else None)
+            # CRITICAL FIX: For fields that might be lost during validation,
+            # check data_dict first, then data, then use default
+            if item in data:
+                value = data.get(item)
+            elif item in data_dict:
+                # Preserve value from data_dict if it was lost during validation
+                value = data_dict.get(item)
+                log.info(f"[PAGES_UPDATE] Preserving '{item}' from data_dict (lost in validation): {value}")
+            else:
+                value = 'page' if item == 'page_type' else None
+
             setattr(out, item, value)
             # DEBUG: Log content field specifically
             if item == 'content':
