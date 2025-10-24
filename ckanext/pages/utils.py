@@ -1381,9 +1381,10 @@ def _filter_pending_open_source_software():
 
 def open_source_admin_change_org(page):
     """Change the organization of an open source software entry"""
-    
+
+    import ckan.model as model
     log = logging.getLogger(__name__)
-    
+
     try:
         tk.check_access('sysadmin', {'user': tk.g.user})
     except tk.NotAuthorized:
@@ -1438,9 +1439,8 @@ def open_source_admin_change_org(page):
                 context={}, data_dict={'org_id': None, 'page': page}
             )
             log.info(f"[CHANGE_ORG] After change - ihp_organization: {verified_page.get('ihp_organization')}")
-            
+
             # Get organization name for message
-            import ckan.model as model
             org = model.Group.get(new_organization)
             org_name = org.title or org.display_name or org.name if org else new_organization
             
