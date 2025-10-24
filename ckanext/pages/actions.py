@@ -341,12 +341,14 @@ def _pages_update(context, data_dict):
         else:
             # CRITICAL FIX: For fields that might be lost during validation,
             # check data_dict first, then data, then use default
-            if item in data:
-                value = data.get(item)
-            elif item in data_dict:
-                # Preserve value from data_dict if it was lost during validation
+            # Prefer data_dict for critical fields to avoid validation stripping
+            if item in data_dict and data_dict.get(item):
+                # Use data_dict value if it exists and is not empty
                 value = data_dict.get(item)
-                log.info(f"[PAGES_UPDATE] Preserving '{item}' from data_dict (lost in validation): {value}")
+                if item in data and data.get(item) != value:
+                    log.info(f"[PAGES_UPDATE] Using data_dict value for '{item}': {value} (data had: {data.get(item)})")
+            elif item in data:
+                value = data.get(item)
             else:
                 value = 'page' if item == 'page_type' else None
 
@@ -357,7 +359,7 @@ def _pages_update(context, data_dict):
                 log.info(f"[PAGES_UPDATE] Setting 'content' attribute: {content_len} chars")
             # DEBUG: Log critical fields for open-source-software
             if item in ['submission_status', 'ihp_organization', 'private']:
-                log.info(f"[PAGES_UPDATE] Setting '{item}' attribute: {value}")
+                log.info(f"[PAGES_UPDATE] Setting '{item}' attribute: {value} (from data_dict: {data_dict.get(item)}, from data: {data.get(item)})")
 
     extras = {}
 
