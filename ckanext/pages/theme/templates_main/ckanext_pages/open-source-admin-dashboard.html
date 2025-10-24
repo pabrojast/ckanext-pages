@@ -149,6 +149,42 @@
 </style>
 {% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var selectors = document.querySelectorAll('.org-selector');
+  Array.prototype.forEach.call(selectors, function (select) {
+    var itemName = select.getAttribute('data-item-name');
+    if (!itemName) {
+      return;
+    }
+    var hidden = document.getElementById('approve-org-' + itemName);
+    if (!hidden) {
+      return;
+    }
+    function syncHidden() {
+      hidden.value = select.value || '';
+    }
+    syncHidden();
+    select.addEventListener('change', syncHidden);
+    var approveForm = document.getElementById('approve-form-' + itemName);
+    if (approveForm) {
+      approveForm.addEventListener('submit', syncHidden);
+    }
+    if (select.form) {
+      select.form.addEventListener('submit', function (event) {
+        if (!select.value) {
+          event.preventDefault();
+          select.focus();
+        }
+      });
+    }
+  });
+});
+</script>
+{% endblock %}
+
 {% block content %}
 
 <div class="homepage layout-1">
@@ -825,33 +861,3 @@
   }
 }
 </style>
-
-<script>
-// Sync organization selector with approve form hidden field
-document.addEventListener('DOMContentLoaded', function() {
-  // Get all organization selectors
-  const orgSelectors = document.querySelectorAll('.org-selector');
-
-  orgSelectors.forEach(function(selector) {
-    // Get the item name from data attribute
-    const itemName = selector.getAttribute('data-item-name');
-    if (!itemName) return;
-
-    // Find the corresponding hidden field in the approve form
-    const hiddenField = document.getElementById('approve-org-' + itemName);
-    if (!hiddenField) return;
-
-    // Update hidden field when selector changes
-    selector.addEventListener('change', function() {
-      const selectedOrg = this.value;
-      hiddenField.value = selectedOrg;
-      console.log('[ADMIN] Organization changed for ' + itemName + ': ' + selectedOrg);
-    });
-
-    // Initialize with current selection
-    hiddenField.value = selector.value;
-  });
-});
-</script>
-
-{% endblock %}

@@ -439,7 +439,14 @@ def pages_upload(context, data_dict):
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
 
-    upload = uploader.get_uploader('page_images')
+    # Use ResourceUpload directly to avoid plugin conflicts
+    # Some plugins implement IUploader incorrectly which causes get_uploader to fail
+    try:
+        upload = uploader.get_uploader('page_images')
+    except (AttributeError, TypeError):
+        # Fallback to direct ResourceUpload if get_uploader fails
+        from ckan.lib.uploader import ResourceUpload
+        upload = ResourceUpload({'id': 'page_images'})
 
     upload.update_data_dict(data_dict, 'image_url',
                             'upload', 'clear_upload')
