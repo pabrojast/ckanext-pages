@@ -324,9 +324,10 @@
                             <div class="admin-actions-right">
                               <!-- Change Organization (available for pending and approved items) -->
                               <div class="admin-org-change" style="margin-bottom: 0.5rem;">
-                                <form method="post" action="{{ h.url_for('pages.open_source_admin_change_org', page=item.name) }}" 
+                                <form method="post" action="{{ h.url_for('pages.open_source_admin_change_org', page=item.name) }}"
                                       style="display: flex; gap: 0.5rem; align-items: center;">
-                                  <select name="new_organization" class="form-control form-control-sm" style="min-width: 180px;">
+                                  <select name="new_organization" id="org-select-{{ item.name }}" class="form-control form-control-sm org-selector"
+                                          style="min-width: 180px;" data-item-name="{{ item.name }}">
                                     <option value="">{{ _('Change Organization...') }}</option>
                                     {% for org in organization_options %}
                                       <option value="{{ org.id }}" {% if item.ihp_organization == org.id %}selected{% endif %}>
@@ -339,18 +340,21 @@
                                   </button>
                                 </form>
                               </div>
-                              
+
                               {% if item.submission_status == 'pending' %}
-                                <form method="post" action="{{ h.url_for('pages.open_source_admin_reject', page=item.name) }}" 
+                                <form method="post" action="{{ h.url_for('pages.open_source_admin_reject', page=item.name) }}"
                                       style="display: inline-block; margin-right: 0.5rem;"
                                       onsubmit="return confirm('{{ _('Are you sure you want to reject this software tool submission?') }}')">
                                   <button type="submit" class="btn btn-danger btn-sm admin-btn-reject">
                                     <i class="fa fa-times"></i> {{ _('Reject') }}
                                   </button>
                                 </form>
-                                <form method="post" action="{{ h.url_for('pages.open_source_admin_approve', page=item.name) }}" 
+                                <form method="post" action="{{ h.url_for('pages.open_source_admin_approve', page=item.name) }}"
+                                      id="approve-form-{{ item.name }}"
                                       style="display: inline-block;"
                                       onsubmit="return confirm('{{ _('Are you sure you want to approve and publish this software tool?') }}')">
+                                  <!-- Hidden field to capture organization selection -->
+                                  <input type="hidden" name="new_organization" id="approve-org-{{ item.name }}" value="{{ item.ihp_organization or '' }}">
                                   <button type="submit" class="btn btn-success btn-sm admin-btn-approve">
                                     <i class="fa fa-check"></i> {{ _('Approve & Publish') }}
                                   </button>
@@ -821,5 +825,33 @@
   }
 }
 </style>
+
+<script>
+// Sync organization selector with approve form hidden field
+document.addEventListener('DOMContentLoaded', function() {
+  // Get all organization selectors
+  const orgSelectors = document.querySelectorAll('.org-selector');
+
+  orgSelectors.forEach(function(selector) {
+    // Get the item name from data attribute
+    const itemName = selector.getAttribute('data-item-name');
+    if (!itemName) return;
+
+    // Find the corresponding hidden field in the approve form
+    const hiddenField = document.getElementById('approve-org-' + itemName);
+    if (!hiddenField) return;
+
+    // Update hidden field when selector changes
+    selector.addEventListener('change', function() {
+      const selectedOrg = this.value;
+      hiddenField.value = selectedOrg;
+      console.log('[ADMIN] Organization changed for ' + itemName + ': ' + selectedOrg);
+    });
+
+    // Initialize with current selection
+    hiddenField.value = selector.value;
+  });
+});
+</script>
 
 {% endblock %}

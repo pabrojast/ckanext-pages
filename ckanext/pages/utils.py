@@ -1258,14 +1258,14 @@ def open_source_admin_dashboard():
 
 def open_source_admin_approve(page):
     """Approve an open source software submission (make it public)"""
-    
+
     log = logging.getLogger(__name__)
-    
+
     try:
         tk.check_access('sysadmin', {'user': tk.g.user})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to approve content'))
-    
+
     if tk.request.method == 'POST':
         try:
             # Get the page first
@@ -1277,8 +1277,11 @@ def open_source_admin_approve(page):
                 tk.h.flash_error(_('Entry not found.'))
                 return tk.redirect_to('pages.open_source_admin_dashboard')
 
+            # Check if organization was changed during approval
+            new_organization = tk.request.form.get('new_organization')
+
             # Log current state
-            log.info(f"[APPROVE] Before approval - page: {page}, submission_status: {page_dict.get('submission_status')}, private: {page_dict.get('private')}")
+            log.info(f"[APPROVE] Before approval - page: {page}, submission_status: {page_dict.get('submission_status')}, private: {page_dict.get('private')}, current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}")
 
             page_dict['page'] = page
             page_dict['org_id'] = None
@@ -1294,7 +1297,12 @@ def open_source_admin_approve(page):
             if not page_dict.get('publish_date'):
                 page_dict['publish_date'] = now.isoformat()
 
-            log.info(f"[APPROVE] Attempting to update - submission_status: {page_dict['submission_status']}, private: {page_dict['private']}")
+            # Update organization if provided
+            if new_organization:
+                page_dict['ihp_organization'] = new_organization
+                log.info(f"[APPROVE] Organization will be updated to: {new_organization}")
+
+            log.info(f"[APPROVE] Attempting to update - submission_status: {page_dict['submission_status']}, private: {page_dict['private']}, ihp_organization: {page_dict.get('ihp_organization')}")
 
             tk.get_action('ckanext_pages_update')(
                 context={
@@ -1316,17 +1324,29 @@ def open_source_admin_approve(page):
             )
             verified_status = verified_page.get('submission_status')
             verified_private = verified_page.get('private')
-            log.info(f"[APPROVE] After approval - submission_status: {verified_status} (type: {type(verified_status)}), private: {verified_private} (type: {type(verified_private)})")
+            verified_org = verified_page.get('ihp_organization')
+            log.info(f"[APPROVE] After approval - submission_status: {verified_status} (type: {type(verified_status)}), private: {verified_private} (type: {type(verified_private)}), ihp_organization: {verified_org}")
 
             # Check if values are correct (handle both bool and string values)
             status_ok = verified_status == 'approved'
             private_ok = verified_private in (False, 'False', '0', 0)
+            org_ok = True
+            if new_organization:
+                org_ok = verified_org == new_organization
+                if not org_ok:
+                    log.error(f"[APPROVE] Organization not updated! Expected: {new_organization}, Got: {verified_org}")
 
-            if not status_ok or not private_ok:
-                log.error(f"[APPROVE] Verification failed - entry not properly approved! status_ok: {status_ok}, private_ok: {private_ok}")
+            if not status_ok or not private_ok or not org_ok:
+                log.error(f"[APPROVE] Verification failed - entry not properly approved! status_ok: {status_ok}, private_ok: {private_ok}, org_ok: {org_ok}")
                 tk.h.flash_error(_('Entry approval may have failed. Please verify the entry status.'))
             else:
-                tk.h.flash_success(_('Open source software entry approved and published successfully.'))
+                success_msg = _('Open source software entry approved and published successfully.')
+                if new_organization:
+                    # Get organization name for message
+                    org = model.Group.get(new_organization)
+                    org_name = org.title or org.display_name or org.name if org else new_organization
+                    success_msg += ' ' + _('Organization set to "{0}".').format(org_name)
+                tk.h.flash_success(success_msg)
                 
         except Exception as e:
             log.error(f"[APPROVE] Error approving entry: {str(e)}", exc_info=True)
