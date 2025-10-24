@@ -434,33 +434,48 @@ def pages_upload(context, data_dict):
 
     """
 
-    try:
-        p.toolkit.check_access('ckanext_pages_upload', context, data_dict)
-    except p.toolkit.NotAuthorized:
-        p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
-
-    # Use ResourceUpload directly to avoid plugin conflicts
-    # Some plugins implement IUploader incorrectly which causes get_uploader to fail
-    try:
-        upload = uploader.get_uploader('page_images')
-    except (AttributeError, TypeError):
-        # Fallback to direct ResourceUpload if get_uploader fails
-        from ckan.lib.uploader import ResourceUpload
-        upload = ResourceUpload({'id': 'page_images'})
-
-    upload.update_data_dict(data_dict, 'image_url',
-                            'upload', 'clear_upload')
-
-    max_image_size = uploader.get_max_image_size()
+    log = logging.getLogger(__name__)
+    log.info(f"[PAGES_UPLOAD] Starting upload - data_dict keys: {list(data_dict.keys()) if data_dict else 'None'}")
 
     try:
-        upload.upload(max_image_size)
-    except p.toolkit.ValidationError:
-        message = (
-            "Can't upload the file, size is too large. "
-            "(Max allowed is {0}mb)".format(max_image_size)
-        )
-        return {'uploaded': 0, 'error': {'message': message}}
+        try:
+            p.toolkit.check_access('ckanext_pages_upload', context, data_dict)
+        except p.toolkit.NotAuthorized:
+            log.error("[PAGES_UPLOAD] Authorization failed")
+            p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
+
+        # Use ResourceUpload directly to avoid plugin conflicts
+        # Some plugins implement IUploader incorrectly which causes get_uploader to fail
+        try:
+            upload = uploader.get_uploader('page_images')
+            log.info("[PAGES_UPLOAD] Successfully got uploader via get_uploader")
+        except (AttributeError, TypeError) as e:
+            # Fallback to direct ResourceUpload if get_uploader fails
+            log.warning(f"[PAGES_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, using fallback ResourceUpload")
+            from ckan.lib.uploader import ResourceUpload
+            upload = ResourceUpload({'id': 'page_images'})
+
+        log.info("[PAGES_UPLOAD] Updating data_dict with file info")
+        upload.update_data_dict(data_dict, 'image_url',
+                                'upload', 'clear_upload')
+
+        max_image_size = uploader.get_max_image_size()
+        log.info(f"[PAGES_UPLOAD] Attempting upload with max size: {max_image_size}MB")
+
+        try:
+            upload.upload(max_image_size)
+            log.info("[PAGES_UPLOAD] Upload successful")
+        except p.toolkit.ValidationError as e:
+            log.error(f"[PAGES_UPLOAD] Validation error: {str(e)}")
+            message = (
+                "Can't upload the file, size is too large. "
+                "(Max allowed is {0}mb)".format(max_image_size)
+            )
+            return {'uploaded': 0, 'error': {'message': message}}
+
+    except Exception as e:
+        log.error(f"[PAGES_UPLOAD] Unexpected error during upload: {type(e).__name__}: {str(e)}", exc_info=True)
+        return {'uploaded': 0, 'error': {'message': f'Upload failed: {str(e)}'}}
 
     # Procesar la imagen si es un logo
     image_url = data_dict.get('image_url')
