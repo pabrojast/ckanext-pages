@@ -282,17 +282,20 @@ def get_recent_water_publications(number=5, exclude=None):
 
 
 def get_recent_open_source_software(number=5, exclude=None):
-    """Get recent open source software entries"""
+    """Get recent open source software entries - only show approved public entries"""
     try:
         software_list = tk.get_action('ckanext_pages_list')(
             None, {'order_publish_date': True, 'private': False,
-                   'page_type': 'open-source-software'}
+                   'page_type': 'open-source-software',
+                   'submission_status': 'approved'}
         )
         new_list = []
         for software_post in software_list:
             if exclude and software_post.get('name') == exclude:
                 continue
-            new_list.append(software_post)
+            # Double-check that entry is approved and public
+            if software_post.get('submission_status') == 'approved' and not software_post.get('private'):
+                new_list.append(software_post)
             if len(new_list) == number:
                 break
         return new_list

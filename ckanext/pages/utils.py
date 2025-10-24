@@ -849,13 +849,25 @@ def pages_delete(page, page_type='pages'):
 def pages_upload():
     if not tk.request.method == 'POST':
         tk.abort(409, _('Only Posting is availiable'))
-    data_dict = logic.clean_dict(
-        dict_fns.unflatten(
-            logic.tuplize_dict(
-                logic.parse_params(tk.request.files)
+
+    # Process file upload correctly
+    data_dict = {}
+
+    # Get the uploaded file from request
+    if 'upload' in tk.request.files:
+        data_dict['upload'] = tk.request.files['upload']
+
+    # Also process form parameters if they exist
+    if tk.request.form:
+        form_data = logic.clean_dict(
+            dict_fns.unflatten(
+                logic.tuplize_dict(
+                    logic.parse_params(tk.request.form)
+                )
             )
         )
-    )
+        data_dict.update(form_data)
+
     try:
         upload_info = tk.get_action('ckanext_pages_upload')(None, data_dict)
     except tk.NotAuthorized:
@@ -1408,17 +1420,25 @@ def open_source_admin_change_org(page):
                 return tk.redirect_to('pages.open_source_admin_dashboard')
 
             # Log current state
-            log.info(f"[CHANGE_ORG] Before change - page: {page}, current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}")
+            current_submission_status = page_dict.get('submission_status')
+            current_private = page_dict.get('private')
+            log.info(f"[CHANGE_ORG] Before change - page: {page}, current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}, submission_status: {current_submission_status}, private: {current_private}")
 
             page_dict['page'] = page
             page_dict['org_id'] = None
             page_dict['page_type'] = page_dict.get('page_type') or 'open-source-software'
 
-            # Update organization
+            # Update organization - PRESERVE submission_status and private
             page_dict['ihp_organization'] = new_organization
             page_dict['modified'] = datetime.datetime.utcnow().isoformat()
 
-            log.info(f"[CHANGE_ORG] Attempting to update ihp_organization to: {new_organization}")
+            # Explicitly preserve submission_status and private status when changing organization
+            if current_submission_status:
+                page_dict['submission_status'] = current_submission_status
+            if current_private is not None:
+                page_dict['private'] = current_private
+
+            log.info(f"[CHANGE_ORG] Attempting to update - ihp_organization: {new_organization}, preserving submission_status: {page_dict.get('submission_status')}, private: {page_dict.get('private')}")
 
             tk.get_action('ckanext_pages_update')(
                 context={
@@ -1438,7 +1458,7 @@ def open_source_admin_change_org(page):
             verified_page = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            log.info(f"[CHANGE_ORG] After change - ihp_organization: {verified_page.get('ihp_organization')}")
+            log.info(f"[CHANGE_ORG] After change - ihp_organization: {verified_page.get('ihp_organization')}, submission_status: {verified_page.get('submission_status')}, private: {verified_page.get('private')}")
 
             # Get organization name for message
             org = model.Group.get(new_organization)

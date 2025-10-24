@@ -22,7 +22,8 @@
       "Bash(pytest:*)",
       "Bash(flake8:*)",
       "Bash(sqlite3:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "additionalDirectories": [
