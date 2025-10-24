@@ -108,14 +108,15 @@ class Page(DomainObject, BaseModel):
     @with_db_retry(max_retries=3, delay=0.5)
     def pages(cls, **kw):
         '''Finds a single entity in the register.'''
+        log = logging.getLogger(__name__)
         try:
             ensure_valid_session()
             order = kw.pop('order', False)
             order_publish_date = kw.pop('order_publish_date', False)
-            
+
             # New search and filter parameters
             q = kw.pop('q', None)
-            event_type = kw.pop('event_type', None) 
+            event_type = kw.pop('event_type', None)
             priority = kw.pop('priority', None)
             severity = kw.pop('severity', None)  # Added missing severity filter
             country = kw.pop('country', None)
@@ -124,7 +125,7 @@ class Page(DomainObject, BaseModel):
 
             # Base query - explicitly select all columns to avoid column mapping issues
             query = model.Session.query(cls).autoflush(False)
-            
+
             # Handle submission_status filter
             submission_status = kw.pop('submission_status', None)
 
