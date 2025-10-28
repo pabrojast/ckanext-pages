@@ -194,6 +194,15 @@ def water_admin_reject(page, page_type):
     return utils.water_admin_reject(page, page_type)
 
 
+def water_family_upload():
+    """Handle file uploads for water-family content types.
+
+    This endpoint handles uploads for water-news, water-events, and water-publications
+    with specific validation and metadata handling for each content type.
+    """
+    return utils.water_family_upload()
+
+
 def open_source_admin_dashboard():
     return utils.open_source_admin_dashboard()
 
@@ -380,6 +389,9 @@ pages.add_url_rule("/water-publications_delete/<page>", view_func=water_publicat
 pages.add_url_rule("/water-admin", view_func=water_admin_dashboard, endpoint='water_admin_dashboard')
 pages.add_url_rule("/water-admin/approve/<page_type>/<page>", view_func=water_admin_approve, endpoint='water_admin_approve', methods=['POST'])
 pages.add_url_rule("/water-admin/reject/<page_type>/<page>", view_func=water_admin_reject, endpoint='water_admin_reject', methods=['POST'])
+
+# Water Family Upload URL
+pages.add_url_rule("/water_family_upload", view_func=water_family_upload, endpoint='water_family_upload', methods=['POST'])
 
 # Open Source Software Admin URLs
 pages.add_url_rule("/open-source-admin", view_func=open_source_admin_dashboard, endpoint='open_source_admin_dashboard')

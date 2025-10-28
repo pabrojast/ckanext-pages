@@ -1,0 +1,433 @@
+{#
+Base template for water-family content forms (water-news, water-events, water-publications)
+
+This template extends base_form.html and provides common fields and structure for all water-family
+content types. It defines blocks that can be overridden by specific content type templates.
+
+Usage:
+  {% extends "ckanext_pages/water_family_form.html" %}
+  {% block water_family_specific_fields %}
+    <!-- Add content-type specific fields here -->
+  {% endblock %}
+#}
+
+{% extends "ckanext_pages/base_form.html" %}
+{% import 'macros/form.html' as form %}
+
+{# Set water-family specific variables #}
+{% set hide_field_order = true %}
+{% set water_content_type = data.page_type or 'water-news' %}
+
+{# Override form title block #}
+{% block form_basic_fields %}
+  {{ super() }}
+
+  {# Author field - common to all water-family content #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'author',
+      id='field-author',
+      label=_('Author/Source'),
+      placeholder=_('e.g., UNESCO-IHP, John Doe'),
+      value=data.author,
+      error=errors.author,
+      classes=['control-full'],
+      attrs={'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Name of the author or source organization') }}</p>
+  </div>
+
+{% endblock %}
+
+{# Add water-family specific fields before content #}
+{% block extra_pages_form %}
+
+  {# Water Type field #}
+  <div class="form-group control-group">
+    <label for="field-water-type" class="control-label">{{ _('Water Type') }}</label>
+    <div class="controls">
+      <select id="field-water-type" class="form-control" name="water_type">
+        <option value="">{{ _('Select water type...') }}</option>
+        {% set water_types = [
+          ('groundwater', _('Groundwater')),
+          ('surface_water', _('Surface Water')),
+          ('coastal_water', _('Coastal and Marine Waters')),
+          ('wastewater', _('Wastewater and Sanitation')),
+          ('transboundary', _('Transboundary Water Resources')),
+          ('urban_water', _('Urban Water Management')),
+          ('agricultural_water', _('Agricultural Water Use')),
+          ('industrial_water', _('Industrial Water Use')),
+          ('water_quality', _('Water Quality Monitoring')),
+          ('water_governance', _('Water Governance and Policy')),
+          ('climate_water', _('Climate Change and Water')),
+          ('ecosystem', _('Aquatic Ecosystems')),
+          ('other', _('Other'))
+        ] %}
+        {% for value, label in water_types %}
+          <option value="{{ value }}" {% if data.water_type == value %}selected="selected"{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="help-text">{{ _('Specific type of water resource or topic') }}</p>
+    {% if errors.water_type %}<span class="error-block">{{ errors.water_type }}</span>{% endif %}
+  </div>
+
+  {# Water Category field #}
+  <div class="form-group control-group">
+    <label for="field-water-category" class="control-label">{{ _('Water Category') }}</label>
+    <div class="controls">
+      <select id="field-water-category" class="form-control" name="water_category" multiple>
+        {% set water_categories = [
+          ('research', _('Research and Studies')),
+          ('policy', _('Policy and Legislation')),
+          ('technology', _('Technology and Innovation')),
+          ('education', _('Education and Capacity Building')),
+          ('monitoring', _('Monitoring and Assessment')),
+          ('management', _('Water Resources Management')),
+          ('conservation', _('Conservation and Protection')),
+          ('cooperation', _('International Cooperation')),
+          ('community', _('Community Engagement')),
+          ('infrastructure', _('Infrastructure Development'))
+        ] %}
+        {% set selected_categories = (data.water_category or '').split(',') %}
+        {% for value, label in water_categories %}
+          <option value="{{ value }}" {% if value in selected_categories %}selected="selected"{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="help-text">{{ _('Select one or more categories (hold Ctrl/Cmd to select multiple)') }}</p>
+    {% if errors.water_category %}<span class="error-block">{{ errors.water_category }}</span>{% endif %}
+  </div>
+
+  {# IHP Organization field #}
+  <div class="form-group control-group">
+    <label for="field-ihp-organization" class="control-label">{{ _('IHP Organization') }}</label>
+    <div class="controls">
+      <select id="field-ihp-organization" class="form-control" name="ihp_organization">
+        <option value="">{{ _('Select organization...') }}</option>
+        {% for org in h.get_ihp_organizations() %}
+          <option value="{{ org.id }}" {% if data.ihp_organization == org.id %}selected="selected"{% endif %}>
+            {{ org.display_name or org.title or org.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="help-text">{{ _('Primary IHP WINS organization associated with this content') }}</p>
+    {% if errors.ihp_organization %}<span class="error-block">{{ errors.ihp_organization }}</span>{% endif %}
+  </div>
+
+  {# Excerpt field #}
+  <div class="form-group control-group">
+    {{ form.markdown(
+      'excerpt',
+      id='field-excerpt',
+      label=_('Excerpt/Summary'),
+      placeholder=_('Short summary of the content (2-3 sentences)'),
+      value=data.excerpt,
+      error=errors.excerpt,
+      attrs={'rows': 3, 'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Brief summary shown in lists and previews') }}</p>
+  </div>
+
+  {# Header Image Upload Section #}
+  <div class="form-group control-group">
+    <label for="field-header-image" class="control-label">{{ _('Header Image') }}</label>
+    <div class="controls">
+      <input type="hidden" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}">
+
+      {# Upload button and preview #}
+      <div class="water-family-upload-zone" data-field="header_image" data-content-type="{{ water_content_type }}">
+        <div class="upload-controls">
+          <input type="file" id="header-image-upload" accept="image/*" style="display: none;">
+          <button type="button" class="btn btn-default upload-trigger" data-target="header-image-upload">
+            <i class="fa fa-upload"></i> {{ _('Upload Header Image') }}
+          </button>
+          <span class="upload-info">{{ _('Recommended: 1200x400px, max 5MB') }}</span>
+        </div>
+
+        {# Preview area #}
+        <div id="header-image-preview" class="upload-preview">
+          {% if data.header_image %}
+            <div class="preview-item">
+              <img src="{{ data.header_image }}" alt="{{ _('Header image') }}">
+              <button type="button" class="btn btn-sm btn-danger remove-image">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          {% else %}
+            <p class="text-muted">{{ _('No header image uploaded yet') }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <p class="help-text">{{ _('Main header image for the content page') }}</p>
+    {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
+  </div>
+
+  {# Image Gallery Upload Section #}
+  <div class="form-group control-group">
+    <label for="field-uploaded-images" class="control-label">{{ _('Image Gallery') }}</label>
+    <div class="controls">
+      <input type="hidden" id="field-uploaded-images" name="uploaded_images" value="{{ data.uploaded_images or '[]' }}">
+
+      {# Upload zone #}
+      <div class="water-family-upload-zone" data-field="uploaded_images" data-content-type="{{ water_content_type }}">
+        <div class="upload-controls">
+          <input type="file" id="gallery-images-upload" accept="image/*" multiple style="display: none;">
+          <button type="button" class="btn btn-default upload-trigger" data-target="gallery-images-upload">
+            <i class="fa fa-upload"></i> {{ _('Upload Images') }}
+          </button>
+          <span class="upload-info">{{ _('Max 5MB per image, multiple selection allowed') }}</span>
+        </div>
+
+        {# Gallery preview area #}
+        <div id="gallery-images-preview" class="gallery-preview">
+          {# Will be populated by JavaScript #}
+        </div>
+      </div>
+    </div>
+    <p class="help-text">{{ _('Additional images for the content gallery') }}</p>
+    {% if errors.uploaded_images %}<span class="error-block">{{ errors.uploaded_images }}</span>{% endif %}
+  </div>
+
+  {# Content-specific fields block - to be overridden by child templates #}
+  {% block water_family_specific_fields %}
+    {# Override this block in child templates to add content-type specific fields #}
+  {% endblock %}
+
+  {# Additional Content field #}
+  <div class="form-group control-group">
+    <label for="field-additional-content" class="control-label">{{ _('Additional Content') }}</label>
+    <div class="controls">
+      <textarea id="field-additional-content" name="additional_content" rows="4" class="form-control">{{ data.additional_content or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Any additional information or supplementary content') }}</p>
+    {% if errors.additional_content %}<span class="error-block">{{ errors.additional_content }}</span>{% endif %}
+  </div>
+
+  {# Hidden metadata fields #}
+  <input type="hidden" name="water_metadata" id="field-water-metadata" value="{{ data.water_metadata or '{}' }}">
+  <input type="hidden" name="attachments" id="field-attachments" value="{{ data.attachments or '[]' }}">
+  <input type="hidden" name="page_type" value="{{ water_content_type }}">
+
+{% endblock %}
+
+{# JavaScript for upload handling #}
+{% block scripts %}
+  {{ super() }}
+
+  <script>
+  (function() {
+    'use strict';
+
+    // Water family upload handler
+    function initWaterFamilyUploads() {
+      // Upload trigger buttons
+      document.querySelectorAll('.upload-trigger').forEach(function(button) {
+        button.addEventListener('click', function() {
+          var targetId = this.getAttribute('data-target');
+          document.getElementById(targetId).click();
+        });
+      });
+
+      // Header image upload
+      var headerImageInput = document.getElementById('header-image-upload');
+      if (headerImageInput) {
+        headerImageInput.addEventListener('change', function() {
+          if (this.files && this.files[0]) {
+            uploadWaterFamilyFile(this.files[0], 'header_image', function(response) {
+              document.getElementById('field-header-image').value = response.url;
+              updateHeaderImagePreview(response.url);
+            });
+          }
+        });
+      }
+
+      // Gallery images upload
+      var galleryInput = document.getElementById('gallery-images-upload');
+      if (galleryInput) {
+        galleryInput.addEventListener('change', function() {
+          if (this.files && this.files.length > 0) {
+            Array.from(this.files).forEach(function(file) {
+              uploadWaterFamilyFile(file, 'image', function(response) {
+                addImageToGallery(response);
+              });
+            });
+          }
+          this.value = ''; // Reset input
+        });
+      }
+
+      // Remove image buttons
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-image')) {
+          e.preventDefault();
+          var previewItem = e.target.closest('.preview-item');
+          if (previewItem) {
+            previewItem.remove();
+            // Clear hidden field if header image
+            if (previewItem.closest('#header-image-preview')) {
+              document.getElementById('field-header-image').value = '';
+            }
+          }
+        }
+      });
+
+      // Load existing gallery images
+      loadGalleryImages();
+    }
+
+    // Upload file to water_family_upload endpoint
+    function uploadWaterFamilyFile(file, fileType, callback) {
+      var formData = new FormData();
+      formData.append('upload', file);
+      formData.append('water_content_type', '{{ water_content_type }}');
+      formData.append('file_type', fileType);
+
+      fetch('/water_family_upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.uploaded === 1) {
+          callback(data);
+        } else {
+          alert('{{ _("Upload failed:") }} ' + (data.error ? data.error.message : '{{ _("Unknown error") }}'));
+        }
+      })
+      .catch(function(error) {
+        alert('{{ _("Upload error:") }} ' + error.message);
+      });
+    }
+
+    // Update header image preview
+    function updateHeaderImagePreview(url) {
+      var preview = document.getElementById('header-image-preview');
+      preview.innerHTML = '<div class="preview-item">' +
+        '<img src="' + url + '" alt="{{ _("Header image") }}">' +
+        '<button type="button" class="btn btn-sm btn-danger remove-image">' +
+        '<i class="fa fa-times"></i></button></div>';
+    }
+
+    // Add image to gallery
+    function addImageToGallery(imageData) {
+      var gallery = document.getElementById('gallery-images-preview');
+      var galleryField = document.getElementById('field-uploaded-images');
+
+      // Parse current gallery data
+      var images = [];
+      try {
+        images = JSON.parse(galleryField.value || '[]');
+      } catch (e) {
+        images = [];
+      }
+
+      // Add new image
+      images.push({
+        url: imageData.url,
+        fileName: imageData.fileName,
+        metadata: imageData.metadata || {}
+      });
+
+      // Update hidden field
+      galleryField.value = JSON.stringify(images);
+
+      // Add to preview
+      var item = document.createElement('div');
+      item.className = 'preview-item';
+      item.innerHTML = '<img src="' + imageData.url + '" alt="' + imageData.fileName + '">' +
+        '<button type="button" class="btn btn-sm btn-danger remove-image">' +
+        '<i class="fa fa-times"></i></button>';
+      gallery.appendChild(item);
+    }
+
+    // Load existing gallery images
+    function loadGalleryImages() {
+      var galleryField = document.getElementById('field-uploaded-images');
+      var gallery = document.getElementById('gallery-images-preview');
+
+      try {
+        var images = JSON.parse(galleryField.value || '[]');
+        images.forEach(function(image) {
+          var item = document.createElement('div');
+          item.className = 'preview-item';
+          item.innerHTML = '<img src="' + image.url + '" alt="' + (image.fileName || '') + '">' +
+            '<button type="button" class="btn btn-sm btn-danger remove-image">' +
+            '<i class="fa fa-times"></i></button>';
+          gallery.appendChild(item);
+        });
+      } catch (e) {
+        console.error('Error loading gallery images:', e);
+      }
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initWaterFamilyUploads);
+    } else {
+      initWaterFamilyUploads();
+    }
+  })();
+  </script>
+
+  <style>
+  .water-family-upload-zone {
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    background: #f9f9f9;
+  }
+
+  .upload-controls {
+    margin-bottom: 1rem;
+  }
+
+  .upload-info {
+    margin-left: 0.5rem;
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  .upload-preview, .gallery-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .preview-item {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-item .remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 2px 6px;
+  }
+
+  .help-text {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.25rem;
+  }
+  </style>
+
+{% endblock %}

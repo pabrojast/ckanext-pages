@@ -1076,12 +1076,12 @@ def _get_user_organization(username):
     try:
         if not username:
             return None
-            
+
         # Get user's organizations (as a member)
         user_obj = model.User.get(username)
         if not user_obj:
             return None
-            
+
         # Get organizations where user is a member
         member_orgs = model.Session.query(model.Member).filter(
             model.Member.table_name == 'user',
@@ -1093,15 +1093,246 @@ def _get_user_organization(username):
                 )
             )
         ).all()
-        
+
         if member_orgs:
             # Return the first organization (could be enhanced to handle multiple)
             org_id = member_orgs[0].group_id
             return model.Group.get(org_id)
-            
+
         return None
-        
+
     except Exception as e:
         log = logging.getLogger(__name__)
         log.error("Error getting user organization: %s", str(e))
         return None
+
+
+def water_family_upload(context, data_dict):
+    """Upload a file for water-family content (news, events, publications).
+
+    This function provides specialized upload handling for water-family content types
+    with specific validation rules and metadata management.
+
+    Supported water-family types:
+    - water-news: News articles with header images
+    - water-events: Event content with promotional images
+    - water-publications: Publications with PDFs and cover images
+
+    Args:
+        context: CKAN context dict
+        data_dict: Dict containing:
+            - upload: File object to upload
+            - water_content_type: Type of water content (water-news, water-events, water-publications)
+            - file_type: Type of file (image, document, thumbnail)
+            - is_logo: Boolean, if True processes image as logo (optional)
+            - add_background: Boolean, add white background to logo (optional)
+
+    Returns:
+        Dict with upload result:
+            - uploaded: 1 if successful, 0 if failed
+            - url: URL of uploaded file
+            - fileName: Name of uploaded file
+            - metadata: Additional metadata about the file
+
+    Raises:
+        NotAuthorized: If user not authorized to upload
+        ValidationError: If file validation fails
+    """
+    log = logging.getLogger(__name__)
+    log.info(f"[WATER_FAMILY_UPLOAD] Starting upload - data_dict keys: {list(data_dict.keys()) if data_dict else 'None'}")
+
+    # Extract water-specific parameters
+    water_content_type = data_dict.get('water_content_type', '')
+    file_type = data_dict.get('file_type', 'image')
+
+    # Validate water content type
+    valid_water_types = ['water-news', 'water-events', 'water-publications']
+    if water_content_type and water_content_type not in valid_water_types:
+        log.error(f"[WATER_FAMILY_UPLOAD] Invalid water_content_type: {water_content_type}")
+        return {'uploaded': 0, 'error': {'message': f'Invalid water content type: {water_content_type}'}}
+
+    log.info(f"[WATER_FAMILY_UPLOAD] Water content type: {water_content_type}, file type: {file_type}")
+
+    try:
+        # Authorization check - use water-specific auth
+        try:
+            p.toolkit.check_access('ckanext_water_family_upload', context, data_dict)
+        except p.toolkit.NotAuthorized:
+            log.error("[WATER_FAMILY_UPLOAD] Authorization failed")
+            p.toolkit.abort(401, p.toolkit._('Not authorized to upload files for water content'))
+
+        # Validate file type and size based on water content type and file type
+        validation_result = _validate_water_file(data_dict, water_content_type, file_type)
+        if not validation_result['valid']:
+            log.error(f"[WATER_FAMILY_UPLOAD] Validation failed: {validation_result['message']}")
+            return {'uploaded': 0, 'error': {'message': validation_result['message']}}
+
+        # Use ResourceUpload directly to avoid plugin conflicts
+        try:
+            upload = uploader.get_uploader('page_images')
+            log.info("[WATER_FAMILY_UPLOAD] Successfully got uploader via get_uploader")
+        except (AttributeError, TypeError) as e:
+            log.warning(f"[WATER_FAMILY_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, fallback")
+            from ckan.lib.uploader import ResourceUpload
+            upload = ResourceUpload({'id': 'page_images'})
+
+        log.info("[WATER_FAMILY_UPLOAD] Updating data_dict with file info")
+        upload.update_data_dict(data_dict, 'image_url', 'upload', 'clear_upload')
+
+        # Get max size based on file type
+        max_size = validation_result['max_size_mb']
+        log.info(f"[WATER_FAMILY_UPLOAD] Attempting upload with max size: {max_size}MB")
+
+        try:
+            upload.upload(max_size)
+            log.info("[WATER_FAMILY_UPLOAD] Upload successful")
+        except p.toolkit.ValidationError as e:
+            log.error(f"[WATER_FAMILY_UPLOAD] Validation error: {str(e)}")
+            message = f"Can't upload the file, size is too large. (Max allowed is {max_size}mb)"
+            return {'uploaded': 0, 'error': {'message': message}}
+
+    except Exception as e:
+        log.error(f"[WATER_FAMILY_UPLOAD] Unexpected error: {type(e).__name__}: {str(e)}", exc_info=True)
+        return {'uploaded': 0, 'error': {'message': f'Upload failed: {str(e)}'}}
+
+    # Process image if it's a logo
+    image_url = data_dict.get('image_url')
+    is_logo = data_dict.get('is_logo', False)
+    add_background = data_dict.get('add_background', False)
+
+    if image_url and is_logo:
+        try:
+            if image_url[0:6] not in {'http:/', 'https:'}:
+                upload_dir = upload.get_directory()
+                image_path = os.path.join(upload_dir, image_url)
+                processed_image_path = _process_logo_image(image_path, upload_dir, add_background)
+
+                if processed_image_path:
+                    image_url = os.path.basename(processed_image_path)
+                    upload.filename = image_url
+                    log.info(f"[WATER_FAMILY_UPLOAD] Logo processed: {image_url}")
+
+        except Exception as e:
+            log.error(f"[WATER_FAMILY_UPLOAD] Error processing logo: {str(e)}")
+
+    # Generate final URL
+    if image_url and image_url[0:6] not in {'http:/', 'https:'}:
+        image_url = h.url_for_static(f'uploads/page_images/{image_url}', qualified=True)
+
+    # Build metadata for water content
+    metadata = _build_water_file_metadata(data_dict, water_content_type, file_type, validation_result)
+
+    log.info(f"[WATER_FAMILY_UPLOAD] Upload completed successfully: {image_url}")
+    return {'url': image_url, 'fileName': upload.filename, 'uploaded': 1, 'metadata': metadata}
+
+
+def _validate_water_file(data_dict, water_content_type, file_type):
+    """Validate file for water-family content.
+
+    Args:
+        data_dict: Request data containing file info
+        water_content_type: Type of water content (water-news, water-events, water-publications)
+        file_type: Type of file (image, document, thumbnail)
+
+    Returns:
+        Dict with validation result:
+            - valid: Boolean
+            - message: Error message if invalid
+            - max_size_mb: Maximum allowed size in MB
+            - allowed_extensions: List of allowed file extensions
+    """
+    log = logging.getLogger(__name__)
+
+    # Define allowed file types and max sizes
+    allowed_image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
+    allowed_document_extensions = ['pdf', 'doc', 'docx']
+
+    # Default max sizes (in MB)
+    max_image_size = 5  # 5MB for images
+    max_document_size = 20  # 20MB for documents (publications may have large PDFs)
+
+    # Adjust based on water content type
+    if water_content_type == 'water-publications':
+        max_document_size = 30  # Allow larger PDFs for publications
+
+    # Determine allowed extensions and max size based on file type
+    if file_type == 'document':
+        allowed_extensions = allowed_document_extensions
+        max_size = max_document_size
+    else:  # image, thumbnail, or default
+        allowed_extensions = allowed_image_extensions
+        max_size = max_image_size
+
+    # Get uploaded file info
+    upload_field = data_dict.get('upload')
+    if not upload_field:
+        return {'valid': False, 'message': 'No file provided', 'max_size_mb': max_size,
+                'allowed_extensions': allowed_extensions}
+
+    # Extract filename
+    filename = getattr(upload_field, 'filename', '')
+    if not filename:
+        return {'valid': False, 'message': 'Invalid file', 'max_size_mb': max_size,
+                'allowed_extensions': allowed_extensions}
+
+    # Check file extension
+    file_ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    if file_ext not in allowed_extensions:
+        allowed_exts_str = ', '.join(allowed_extensions)
+        message = f'File type .{file_ext} not allowed. Allowed types: {allowed_exts_str}'
+        log.warning(f"[WATER_FILE_VALIDATION] {message}")
+        return {'valid': False, 'message': message, 'max_size_mb': max_size,
+                'allowed_extensions': allowed_extensions}
+
+    log.info(f"[WATER_FILE_VALIDATION] File validated: {filename} ({file_ext}), max size: {max_size}MB")
+    return {'valid': True, 'message': 'Valid', 'max_size_mb': max_size, 'allowed_extensions': allowed_extensions}
+
+
+def _build_water_file_metadata(data_dict, water_content_type, file_type, validation_result):
+    """Build metadata for uploaded water-family file.
+
+    Args:
+        data_dict: Request data
+        water_content_type: Type of water content
+        file_type: Type of file
+        validation_result: Result from validation
+
+    Returns:
+        Dict with file metadata
+    """
+    import mimetypes
+
+    upload_field = data_dict.get('upload')
+    filename = getattr(upload_field, 'filename', '')
+    file_ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+
+    # Determine MIME type
+    mime_type, _ = mimetypes.guess_type(filename)
+    if not mime_type:
+        if file_ext in ['jpg', 'jpeg']:
+            mime_type = 'image/jpeg'
+        elif file_ext == 'png':
+            mime_type = 'image/png'
+        elif file_ext == 'gif':
+            mime_type = 'image/gif'
+        elif file_ext == 'webp':
+            mime_type = 'image/webp'
+        elif file_ext == 'svg':
+            mime_type = 'image/svg+xml'
+        elif file_ext == 'pdf':
+            mime_type = 'application/pdf'
+        else:
+            mime_type = 'application/octet-stream'
+
+    metadata = {
+        'water_content_type': water_content_type,
+        'file_type': file_type,
+        'original_filename': filename,
+        'file_extension': file_ext,
+        'mime_type': mime_type,
+        'max_size_mb': validation_result['max_size_mb'],
+        'allowed_extensions': validation_result['allowed_extensions'],
+        'uploaded_at': datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }
+
+    return metadata

@@ -876,6 +876,600 @@ def pages_upload():
     return upload_info
 
 
+def water_family_upload():
+    """Handle file uploads for water-family content types.
+
+    This function processes uploads for water-news, water-events, and water-publications
+    with specific validation and metadata handling for each content type.
+
+    Supports:
+    - Images (header images, gallery images)
+    - Documents (PDFs, DOC files for attachments and agendas)
+
+    Returns:
+        dict: Upload response with url, fileName, uploaded status, and metadata
+    """
+    if not tk.request.method == 'POST':
+        tk.abort(409, _('Only POST requests are allowed'))
+
+    # Process file upload correctly
+    data_dict = {}
+
+    # Get the uploaded file from request
+    if 'upload' in tk.request.files:
+        data_dict['upload'] = tk.request.files['upload']
+    else:
+        return {'uploaded': 0, 'error': {'message': 'No file provided'}}
+
+    # Also process form parameters if they exist
+    if tk.request.form:
+        form_data = logic.clean_dict(
+            dict_fns.unflatten(
+                logic.tuplize_dict(
+                    logic.parse_params(tk.request.form)
+                )
+            )
+        )
+        data_dict.update(form_data)
+
+    # Ensure water_content_type is provided
+    if 'water_content_type' not in data_dict:
+        return {'uploaded': 0, 'error': {'message': 'water_content_type parameter is required'}}
+
+    # Validate water_content_type
+    valid_types = ['water-news', 'water-events', 'water-publications']
+    if data_dict['water_content_type'] not in valid_types:
+        return {
+            'uploaded': 0,
+            'error': {'message': f'Invalid water_content_type. Must be one of: {", ".join(valid_types)}'}
+        }
+
+    try:
+        # Call the water_family_upload action
+        upload_info = tk.get_action('ckanext_water_family_upload')(None, data_dict)
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Not authorized to upload files for water-family content'))
+    except tk.ValidationError as e:
+        return {'uploaded': 0, 'error': {'message': str(e)}}
+    except Exception as e:
+        return {'uploaded': 0, 'error': {'message': f'Upload failed: {str(e)}'}}
+
+    return upload_info
+
+
+def get_water_family_data(page, page_type):
+    """Retrieve water-family content data with specific processing.
+
+    This function fetches water-family content (news, events, publications) and
+    processes it with type-specific enhancements like parsing JSON fields,
+    validating dates, and enriching organization information.
+
+    Args:
+        page (str): Page name/slug to retrieve
+        page_type (str): Type of water content (water-news, water-events, water-publications)
+
+    Returns:
+        dict: Processed page data with enhanced fields, or None if not found
+
+    Raises:
+        tk.ObjectNotFound: If page doesn't exist
+        tk.NotAuthorized: If user not authorized to view
+    """
+    import json
+
+    # Validate page_type
+    valid_types = ['water-news', 'water-events', 'water-publications']
+    if page_type not in valid_types:
+        raise ValueError(f'Invalid page_type. Must be one of: {", ".join(valid_types)}')
+
+    # Fetch the page data
+    try:
+        page_dict = tk.get_action('ckanext_pages_show')(
+            context={'user': tk.g.user if hasattr(tk.g, 'user') else None},
+            data_dict={'org_id': None, 'page': page}
+        )
+    except tk.ObjectNotFound:
+        return None
+
+    if not page_dict:
+        return None
+
+    # Verify page_type matches
+    if page_dict.get('page_type') != page_type:
+        return None
+
+    # Process water-family specific fields
+    _process_water_family_json_fields(page_dict)
+
+    # Enrich organization information
+    if page_dict.get('ihp_organization'):
+        try:
+            org = tk.get_action('organization_show')(
+                context={},
+                data_dict={'id': page_dict['ihp_organization']}
+            )
+            page_dict['ihp_organization_details'] = {
+                'id': org.get('id'),
+                'name': org.get('name'),
+                'title': org.get('title') or org.get('display_name'),
+                'image_url': org.get('image_url')
+            }
+        except (tk.ObjectNotFound, tk.NotAuthorized):
+            pass
+
+    # Add computed fields
+    page_dict['is_draft'] = page_dict.get('private') == 'True' or page_dict.get('private') is True
+    page_dict['is_pending'] = page_dict.get('submission_status') == 'pending'
+    page_dict['is_approved'] = page_dict.get('submission_status') == 'approved'
+
+    return page_dict
+
+
+def validate_water_family(data_dict, page_type):
+    """Validate water-family content before submission.
+
+    Performs validation checks specific to water-family content types beyond
+    the standard schema validation. This includes checking required fields,
+    validating URLs, and ensuring data consistency.
+
+    Args:
+        data_dict (dict): Data to validate
+        page_type (str): Type of water content (water-news, water-events, water-publications)
+
+    Returns:
+        dict: Validation result with structure:
+            {
+                'valid': bool,
+                'errors': dict,  # Field-level errors
+                'warnings': list  # Non-blocking warnings
+            }
+    """
+    errors = {}
+    warnings = []
+
+    # Common validation for all water-family content
+    if not data_dict.get('title'):
+        errors['title'] = ['Title is required']
+
+    if not data_dict.get('content'):
+        warnings.append('Content field is empty. Consider adding a description.')
+
+    # Water type validation (if provided)
+    if data_dict.get('water_type'):
+        valid_water_types = [
+            'groundwater', 'surface_water', 'coastal_water', 'wastewater',
+            'transboundary', 'urban_water', 'agricultural_water', 'industrial_water',
+            'water_quality', 'water_governance', 'climate_water', 'ecosystem', 'other'
+        ]
+        if data_dict['water_type'] not in valid_water_types:
+            errors['water_type'] = [f'Invalid water type. Must be one of: {", ".join(valid_water_types)}']
+
+    # Type-specific validation
+    if page_type == 'water-news':
+        _validate_water_news(data_dict, errors, warnings)
+    elif page_type == 'water-events':
+        _validate_water_events(data_dict, errors, warnings)
+    elif page_type == 'water-publications':
+        _validate_water_publications(data_dict, errors, warnings)
+
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors,
+        'warnings': warnings
+    }
+
+
+def process_water_family_metadata(data_dict, page_type):
+    """Process and normalize water-family metadata.
+
+    Handles processing of JSON fields, file metadata, and type-specific data
+    normalization for water-family content. This includes parsing uploaded_images,
+    attachments, and other metadata fields.
+
+    Args:
+        data_dict (dict): Page data to process
+        page_type (str): Type of water content
+
+    Returns:
+        dict: Processed data_dict with normalized metadata
+    """
+    import json
+    from datetime import datetime
+
+    # Process JSON fields safely
+    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups']
+
+    for field in json_fields:
+        if field in data_dict and isinstance(data_dict[field], str):
+            try:
+                data_dict[field] = json.loads(data_dict[field])
+            except (json.JSONDecodeError, ValueError):
+                data_dict[field] = [] if field in ['uploaded_images', 'attachments', 'timeline_events'] else {}
+
+    # Normalize water_category (can be list or comma-separated string)
+    if 'water_category' in data_dict:
+        if isinstance(data_dict['water_category'], list):
+            data_dict['water_category'] = ','.join(data_dict['water_category'])
+        elif isinstance(data_dict['water_category'], str):
+            # Clean up spacing
+            categories = [c.strip() for c in data_dict['water_category'].split(',') if c.strip()]
+            data_dict['water_category'] = ','.join(categories)
+
+    # Add processing timestamp
+    if 'water_metadata' not in data_dict:
+        data_dict['water_metadata'] = {}
+
+    if isinstance(data_dict.get('water_metadata'), dict):
+        data_dict['water_metadata']['processed_at'] = datetime.utcnow().isoformat()
+        data_dict['water_metadata']['content_type'] = page_type
+
+    # Type-specific processing
+    if page_type == 'water-events':
+        _process_water_events_metadata(data_dict)
+    elif page_type == 'water-publications':
+        _process_water_publications_metadata(data_dict)
+
+    return data_dict
+
+
+def _process_water_family_json_fields(page_dict):
+    """Helper to safely parse JSON fields in water-family data."""
+    import json
+
+    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups']
+
+    for field in json_fields:
+        if field in page_dict and isinstance(page_dict[field], str):
+            try:
+                page_dict[field] = json.loads(page_dict[field])
+            except (json.JSONDecodeError, ValueError):
+                page_dict[field] = [] if field != 'water_metadata' else {}
+
+
+def _validate_water_news(data_dict, errors, warnings):
+    """Validate water-news specific fields."""
+    # Source URL validation (optional but recommended)
+    if not data_dict.get('source') and not data_dict.get('external_links'):
+        warnings.append('Consider adding a source URL or external links for credibility.')
+
+    # Author validation
+    if not data_dict.get('author'):
+        warnings.append('Author/source name is recommended for news articles.')
+
+
+def _validate_water_events(data_dict, errors, warnings):
+    """Validate water-events specific fields."""
+    import re
+    from datetime import datetime
+
+    # Event date validation
+    if data_dict.get('publish_date'):
+        try:
+            event_date = datetime.fromisoformat(str(data_dict['publish_date']).replace('Z', '+00:00'))
+            # Warn if event is in the past
+            if event_date < datetime.now():
+                warnings.append('Event date is in the past. Consider updating if this is an upcoming event.')
+        except (ValueError, AttributeError):
+            errors['publish_date'] = ['Invalid date format']
+
+    # Location validation
+    if not data_dict.get('location'):
+        warnings.append('Event location is recommended.')
+
+    # Registration URL validation
+    if data_dict.get('registration_url'):
+        url_pattern = re.compile(
+            r'^https?://'  # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+            r'localhost|'  # localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        if not url_pattern.match(data_dict['registration_url']):
+            errors['registration_url'] = ['Invalid URL format']
+
+
+def _validate_water_publications(data_dict, errors, warnings):
+    """Validate water-publications specific fields."""
+    import re
+    from datetime import datetime
+
+    # At least one URL required
+    if not data_dict.get('publication_url') and not data_dict.get('download_url'):
+        errors['publication_url'] = ['Either publication URL or download URL is required']
+
+    # Year validation
+    if data_dict.get('year'):
+        try:
+            year = int(data_dict['year'])
+            current_year = datetime.now().year
+            if year < 1900 or year > current_year + 1:
+                errors['year'] = [f'Year must be between 1900 and {current_year + 1}']
+        except (ValueError, TypeError):
+            errors['year'] = ['Year must be a valid number']
+
+    # Authors validation
+    if not data_dict.get('authors') and not data_dict.get('author'):
+        warnings.append('Author information is recommended for publications.')
+
+    # DOI format validation (if provided)
+    if data_dict.get('doi'):
+        doi_pattern = re.compile(r'^10\.\d{4,}/[\S]+$')
+        if not doi_pattern.match(data_dict['doi']):
+            warnings.append('DOI format may be incorrect. Expected format: 10.xxxx/xxxxx')
+
+
+def _process_water_events_metadata(data_dict):
+    """Process water-events specific metadata."""
+    from datetime import datetime
+
+    # Parse event date for easier display
+    if data_dict.get('publish_date'):
+        try:
+            event_date = datetime.fromisoformat(str(data_dict['publish_date']).replace('Z', '+00:00'))
+            if 'water_metadata' not in data_dict:
+                data_dict['water_metadata'] = {}
+
+            if isinstance(data_dict['water_metadata'], dict):
+                data_dict['water_metadata']['event_date_formatted'] = event_date.strftime('%B %d, %Y')
+                data_dict['water_metadata']['is_upcoming'] = event_date > datetime.now()
+        except (ValueError, AttributeError):
+            pass
+
+
+def _process_water_publications_metadata(data_dict):
+    """Process water-publications specific metadata."""
+    # Build citation string if not provided
+    if not data_dict.get('publication_details'):
+        citation_parts = []
+
+        if data_dict.get('authors'):
+            citation_parts.append(data_dict['authors'])
+
+        if data_dict.get('year'):
+            citation_parts.append(f"({data_dict['year']})")
+
+        if data_dict.get('title'):
+            citation_parts.append(f'"{data_dict["title"]}"')
+
+        if data_dict.get('journal'):
+            citation_parts.append(data_dict['journal'])
+        elif data_dict.get('conference'):
+            citation_parts.append(data_dict['conference'])
+
+        if data_dict.get('volume') or data_dict.get('issue') or data_dict.get('pages'):
+            vol_info = []
+            if data_dict.get('volume'):
+                vol_info.append(f"Vol. {data_dict['volume']}")
+            if data_dict.get('issue'):
+                vol_info.append(f"No. {data_dict['issue']}")
+            if data_dict.get('pages'):
+                vol_info.append(f"pp. {data_dict['pages']}")
+            citation_parts.append(', '.join(vol_info))
+
+        if citation_parts:
+            if 'water_metadata' not in data_dict:
+                data_dict['water_metadata'] = {}
+
+            if isinstance(data_dict['water_metadata'], dict):
+                data_dict['water_metadata']['generated_citation'] = '. '.join(citation_parts)
+
+
+def filter_water_family_list(pages_list, filters):
+    """Filter water-family content list based on various criteria.
+
+    Args:
+        pages_list (list): List of page dictionaries to filter
+        filters (dict): Filter criteria:
+            - water_type: Filter by water type
+            - water_category: Filter by category (comma-separated)
+            - organization: Filter by IHP organization
+            - date_from: Filter by date (ISO format)
+            - date_to: Filter by date (ISO format)
+            - is_upcoming: For events, filter upcoming (bool)
+
+    Returns:
+        list: Filtered list of pages
+    """
+    from datetime import datetime
+
+    if not filters:
+        return pages_list
+
+    filtered = pages_list
+
+    # Filter by water_type
+    if filters.get('water_type'):
+        filtered = [p for p in filtered if p.get('water_type') == filters['water_type']]
+
+    # Filter by water_category
+    if filters.get('water_category'):
+        filter_cats = set(filters['water_category'].split(','))
+        filtered = [p for p in filtered
+                    if p.get('water_category') and
+                    any(cat in filter_cats for cat in p.get('water_category', '').split(','))]
+
+    # Filter by organization
+    if filters.get('organization'):
+        filtered = [p for p in filtered if p.get('ihp_organization') == filters['organization']]
+
+    # Filter by date range
+    if filters.get('date_from') or filters.get('date_to'):
+        date_from = datetime.fromisoformat(filters['date_from']) if filters.get('date_from') else None
+        date_to = datetime.fromisoformat(filters['date_to']) if filters.get('date_to') else None
+
+        def in_date_range(page):
+            if not page.get('publish_date'):
+                return False
+            try:
+                page_date = datetime.fromisoformat(str(page['publish_date']).replace('Z', '+00:00'))
+                if date_from and page_date < date_from:
+                    return False
+                if date_to and page_date > date_to:
+                    return False
+                return True
+            except (ValueError, AttributeError):
+                return False
+
+        filtered = [p for p in filtered if in_date_range(p)]
+
+    # Filter upcoming events
+    if filters.get('is_upcoming') is not None:
+        is_upcoming = filters['is_upcoming']
+
+        def is_event_upcoming(page):
+            if not page.get('publish_date'):
+                return False
+            try:
+                event_date = datetime.fromisoformat(str(page['publish_date']).replace('Z', '+00:00'))
+                return event_date > datetime.now()
+            except (ValueError, AttributeError):
+                return False
+
+        if is_upcoming:
+            filtered = [p for p in filtered if is_event_upcoming(p)]
+        else:
+            filtered = [p for p in filtered if not is_event_upcoming(p)]
+
+    return filtered
+
+
+def sort_water_family_list(pages_list, sort_by='recent', page_type=None):
+    """Sort water-family content list by various criteria.
+
+    Args:
+        pages_list (list): List of page dictionaries to sort
+        sort_by (str): Sort criteria:
+            - recent: Most recent first (by publish_date)
+            - oldest: Oldest first (by publish_date)
+            - title: Alphabetical by title
+            - author: Alphabetical by author
+            - upcoming: For events, upcoming first
+        page_type (str): Optional page type for type-specific sorting
+
+    Returns:
+        list: Sorted list of pages
+    """
+    from datetime import datetime
+
+    if not pages_list:
+        return pages_list
+
+    if sort_by == 'recent':
+        return sorted(pages_list, key=lambda p: p.get('publish_date') or '', reverse=True)
+
+    elif sort_by == 'oldest':
+        return sorted(pages_list, key=lambda p: p.get('publish_date') or '')
+
+    elif sort_by == 'title':
+        return sorted(pages_list, key=lambda p: (p.get('title') or '').lower())
+
+    elif sort_by == 'author':
+        return sorted(pages_list, key=lambda p: (p.get('author') or p.get('authors') or '').lower())
+
+    elif sort_by == 'upcoming' and page_type == 'water-events':
+        # Sort events by date, with upcoming events first
+        def event_sort_key(page):
+            if not page.get('publish_date'):
+                return (1, '')  # Put events without dates last
+            try:
+                event_date = datetime.fromisoformat(str(page['publish_date']).replace('Z', '+00:00'))
+                is_upcoming = event_date > datetime.now()
+                return (0 if is_upcoming else 1, event_date.isoformat())
+            except (ValueError, AttributeError):
+                return (1, '')
+
+        return sorted(pages_list, key=event_sort_key)
+
+    return pages_list
+
+
+def get_water_family_statistics(page_type=None):
+    """Get statistics about water-family content.
+
+    Args:
+        page_type (str): Optional filter by specific type (water-news, water-events, water-publications)
+
+    Returns:
+        dict: Statistics including counts, recent activity, etc.
+    """
+    stats = {
+        'total': 0,
+        'by_type': {},
+        'by_water_type': {},
+        'by_category': {},
+        'by_organization': {},
+        'published': 0,
+        'pending': 0,
+        'draft': 0
+    }
+
+    # Get all water-family pages
+    types_to_query = [page_type] if page_type else ['water-news', 'water-events', 'water-publications']
+
+    for ptype in types_to_query:
+        try:
+            pages = tk.get_action('ckanext_pages_list')(
+                context={},
+                data_dict={'org_id': None, 'page_type': ptype}
+            )
+
+            stats['by_type'][ptype] = len(pages)
+            stats['total'] += len(pages)
+
+            for page in pages:
+                # Count by status
+                if page.get('private') == 'True' or page.get('private') is True:
+                    if page.get('submission_status') == 'pending':
+                        stats['pending'] += 1
+                    else:
+                        stats['draft'] += 1
+                else:
+                    stats['published'] += 1
+
+                # Count by water_type
+                if page.get('water_type'):
+                    wtype = page['water_type']
+                    stats['by_water_type'][wtype] = stats['by_water_type'].get(wtype, 0) + 1
+
+                # Count by category
+                if page.get('water_category'):
+                    for cat in page['water_category'].split(','):
+                        cat = cat.strip()
+                        if cat:
+                            stats['by_category'][cat] = stats['by_category'].get(cat, 0) + 1
+
+                # Count by organization
+                if page.get('ihp_organization'):
+                    org = page['ihp_organization']
+                    stats['by_organization'][org] = stats['by_organization'].get(org, 0) + 1
+
+        except Exception:
+            pass
+
+    return stats
+
+
+def slugify_water_family_title(title):
+    """Generate a URL-safe slug from a title for water-family content.
+
+    This is a convenience wrapper around the internal _slugify_title function
+    used in pages_edit, made available for external use.
+
+    Args:
+        title (str): Title to slugify
+
+    Returns:
+        str: URL-safe slug
+    """
+    import re
+    value = (title or '').strip().lower()
+    value = re.sub(r'[^a-z0-9\s_-]+', '', value)
+    value = re.sub(r'\s+', '-', value)
+    value = re.sub(r'-{2,}', '-', value)
+    return value.strip('-')
+
+
 def group_list_pages(id, group_type, group_dict=None):
     tk.c.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict={'org_id': tk.c.group_dict['id']}

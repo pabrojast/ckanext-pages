@@ -1,5 +1,11 @@
 import ckan.plugins as p
-from ckanext.pages.validators import page_name_validator, not_empty_if_blog
+from ckanext.pages.validators import (
+    page_name_validator,
+    not_empty_if_blog,
+    water_type_validator,
+    water_category_validator,
+    not_empty_if_water_publication
+)
 from ckanext.pages.interfaces import IPagesSchema
 
 
@@ -160,6 +166,11 @@ def default_pages_schema():
         'event_type': [ignore_missing, unicode_safe],        # Event type (references dynamic event types)
         # Common fields for all content types
         'author': [ignore_missing, unicode_safe],           # Author/Source name for all content
+        # Water Family common fields
+        'water_type': [ignore_missing, water_type_validator, unicode_safe],  # Specific water type (validated)
+        'water_category': [ignore_missing, water_category_validator, clean_categories_validator, unicode_safe],  # Categories
+        'water_metadata': [ignore_missing, json_validator, unicode_safe],  # Additional metadata in JSON format
+        'attachments': [ignore_missing, json_validator, unicode_safe],      # Attachments array in JSON format
         # Water News specific fields
         'source': [ignore_missing, url_validator, unicode_safe],           # Original source URL
         'external_links': [ignore_missing, unicode_safe],   # Related links
@@ -291,3 +302,152 @@ def update_event_types_schema():
             schema = plugin.update_event_types_schema(schema)
 
     return schema
+
+
+def water_family_schema():
+    """Schema for water-family content types (water-news, water-events, water-publications).
+
+    This function defines the schema for all water-family related content types,
+    including common fields shared across all types and specific fields for each type.
+
+    Water-family content types:
+    - water-news: News articles about water-related topics
+    - water-events: Water-related events (conferences, workshops, meetings)
+    - water-publications: Water-related publications (reports, papers, books)
+
+    Returns:
+        dict: Schema definition with validators for water-family content
+    """
+    ignore_empty = p.toolkit.get_validator('ignore_empty')
+    ignore_missing = p.toolkit.get_validator('ignore_missing')
+    not_empty = p.toolkit.get_validator('not_empty')
+    isodate = p.toolkit.get_validator('isodate')
+    unicode_safe = p.toolkit.get_validator('unicode_safe')
+    url_validator = p.toolkit.get_validator('url_validator')
+    email_validator = p.toolkit.get_validator('email_validator')
+    int_validator = p.toolkit.get_validator('int_validator')
+
+    def json_validator(key, data, errors, context):
+        """Validate and safely handle JSON fields"""
+        value = data.get(key)
+        if value and value != '':
+            try:
+                import json
+                if isinstance(value, str):
+                    json.loads(value)
+            except (ValueError, TypeError):
+                errors[key].append('Invalid JSON format')
+        return data[key]
+
+    def optional_int_validator(key, data, errors, context):
+        """Validate integer fields that can be empty"""
+        value = data.get(key)
+        if value and value != '':
+            try:
+                int(value)
+            except (ValueError, TypeError):
+                errors[key].append('Must be a valid number')
+        return data[key]
+
+    def clean_categories_validator(key, data, errors, context):
+        """Clean categories by removing duplicates and empty values"""
+        value = data.get(key)
+
+        if not value:
+            return data[key]
+
+        # Handle list values (from multi-select forms)
+        if isinstance(value, list):
+            unique_categories = []
+            seen = set()
+            for cat in value:
+                if cat and isinstance(cat, str):
+                    clean_cat = cat.strip()
+                    if clean_cat and clean_cat not in seen:
+                        unique_categories.append(clean_cat)
+                        seen.add(clean_cat)
+            data[key] = ','.join(unique_categories)
+
+        # Handle string values (comma-separated)
+        elif isinstance(value, str):
+            categories = [cat.strip() for cat in value.split(',') if cat.strip()]
+            unique_categories = []
+            seen = set()
+            for cat in categories:
+                if cat not in seen:
+                    unique_categories.append(cat)
+                    seen.add(cat)
+            data[key] = ','.join(unique_categories)
+
+        return data[key]
+
+    return {
+        # Core fields (inherited from base pages schema)
+        'id': [ignore_empty, unicode_safe],
+        'title': [not_empty, unicode_safe],
+        'name': [not_empty, unicode_safe],
+        'content': [ignore_missing, unicode_safe],
+        'page_type': [ignore_missing, unicode_safe],  # water-news, water-events, water-publications
+        'private': [ignore_missing, p.toolkit.get_validator('boolean_validator')],
+        'publish_date': [ignore_missing, isodate],
+        'created': [ignore_missing, isodate],
+
+        # Common water-family fields
+        'water_type': [ignore_missing, water_type_validator, unicode_safe],  # Specific water type (validated)
+        'water_category': [ignore_missing, water_category_validator, clean_categories_validator, unicode_safe],  # Categories
+        'water_metadata': [ignore_missing, json_validator, unicode_safe],  # Additional metadata in JSON format
+        'attachments': [ignore_missing, json_validator, unicode_safe],  # Attachments array in JSON format
+        'author': [ignore_missing, unicode_safe],  # Author/Source name
+        'excerpt': [ignore_missing, unicode_safe],  # Short excerpt/summary
+        'header_image': [ignore_missing, unicode_safe],  # Header image URL
+        'uploaded_images': [ignore_missing, json_validator, unicode_safe],  # Gallery images metadata
+        'additional_content': [ignore_missing, unicode_safe],  # Additional rich text content
+        'ihp_organization': [ignore_missing, unicode_safe],  # Primary IHP organization (id)
+
+        # Water News specific fields
+        'source': [ignore_missing, url_validator, unicode_safe],  # Original source URL
+        'external_links': [ignore_missing, unicode_safe],  # Related links (rich text)
+        'news_attachment': [ignore_missing, unicode_safe],  # News attachment URL
+
+        # Water Events specific fields
+        'location': [ignore_missing, unicode_safe],  # Event location
+        'organization': [ignore_missing, unicode_safe],  # Organizing institution
+        'co_organizers': [ignore_missing, unicode_safe],  # Co-organizers text
+        'event_details': [ignore_missing, unicode_safe],  # Event details and schedule
+        'event_format': [ignore_missing, unicode_safe],  # Event format (in-person, online, hybrid)
+        'speakers': [ignore_missing, unicode_safe],  # Speakers and organizers
+        'registration_info': [ignore_missing, unicode_safe],  # Registration information
+        'registration_url': [ignore_missing, url_validator, unicode_safe],  # Registration URL
+        'agenda_document': [ignore_missing, unicode_safe],  # Agenda or flyer document URL
+        'timeline_events': [ignore_missing, json_validator, unicode_safe],  # Event timeline (JSON)
+
+        # Water Publications specific fields
+        'publication_url': [ignore_missing, url_validator, unicode_safe],  # URL to publication
+        'publication_type': [ignore_missing, unicode_safe],  # Type (report, paper, book, thesis, etc.)
+        'authors': [ignore_missing, unicode_safe],  # Publication authors
+        'publication_details': [ignore_missing, unicode_safe],  # Bibliographic details
+        'download_url': [ignore_missing, url_validator, unicode_safe],  # Direct download URL
+        'isbn': [ignore_missing, unicode_safe],  # ISBN for books
+        'doi': [ignore_missing, unicode_safe],  # DOI for papers
+        'journal': [ignore_missing, unicode_safe],  # Journal name
+        'conference': [ignore_missing, unicode_safe],  # Conference name
+        'year': [ignore_missing, optional_int_validator, unicode_safe],  # Publication year
+        'volume': [ignore_missing, optional_int_validator, unicode_safe],  # Volume number
+        'issue': [ignore_missing, optional_int_validator, unicode_safe],  # Issue number
+        'pages': [ignore_missing, unicode_safe],  # Page numbers
+        'abstract': [ignore_missing, unicode_safe],  # Publication abstract
+
+        # Dataset integration fields (for publications)
+        'dataset_title': [ignore_missing, unicode_safe],  # Documents dataset title
+        'dataset_visibility': [ignore_missing, unicode_safe],  # Visibility for generated dataset
+        'dataset_url': [ignore_missing, url_validator, unicode_safe],  # External dataset URL
+        'document_format': [ignore_missing, unicode_safe],  # Resource format/extension
+        'document_mimetype': [ignore_missing, unicode_safe],  # Resource mimetype
+        'contact_name': [ignore_missing, unicode_safe],  # Dataset contact name
+        'contact_email': [ignore_missing, email_validator, unicode_safe],  # Dataset contact email
+        'dataset_description': [ignore_missing, unicode_safe],  # Dataset description text
+        'graphic_overview': [ignore_missing, url_validator, unicode_safe],  # Dataset graphic overview URL
+        'dataset_language': [ignore_missing, unicode_safe],  # Dataset metadata language
+        'creation_date': [ignore_missing, isodate],  # Dataset/resource creation date
+        'country_groups': [ignore_missing, json_validator, unicode_safe],  # Member states JSON payload
+    }

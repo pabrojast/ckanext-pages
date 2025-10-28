@@ -1,0 +1,155 @@
+{#
+Water News content form template
+
+This template extends water_family_form.html and adds news-specific fields.
+#}
+
+{% extends "ckanext_pages/water_family_form.html" %}
+{% import 'macros/form.html' as form %}
+
+{% block water_family_specific_fields %}
+
+  {# Source URL field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'source',
+      id='field-source',
+      label=_('Original Source URL'),
+      placeholder=_('https://example.com/news-article'),
+      value=data.source,
+      error=errors.source,
+      classes=['control-full'],
+      attrs={'type': 'url', 'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('URL to the original news source or article') }}</p>
+  </div>
+
+  {# External Links field #}
+  <div class="form-group control-group">
+    <label for="field-external-links" class="control-label">{{ _('Related Links') }}</label>
+    <div class="controls">
+      <textarea id="field-external-links" name="external_links" rows="4" class="form-control" placeholder="{{ _('Add related links here...') }}">{{ data.external_links or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Related links and references (supports Markdown formatting)') }}</p>
+    {% if errors.external_links %}<span class="error-block">{{ errors.external_links }}</span>{% endif %}
+  </div>
+
+  {# News Attachment field #}
+  <div class="form-group control-group">
+    <label for="field-news-attachment" class="control-label">{{ _('News Attachment') }}</label>
+    <div class="controls">
+      <input type="hidden" id="field-news-attachment" name="news_attachment" value="{{ data.news_attachment or '' }}">
+
+      <div class="water-family-upload-zone" data-field="news_attachment" data-content-type="water-news">
+        <div class="upload-controls">
+          <input type="file" id="news-attachment-upload" accept=".pdf,.doc,.docx" style="display: none;">
+          <button type="button" class="btn btn-default upload-trigger" data-target="news-attachment-upload">
+            <i class="fa fa-upload"></i> {{ _('Upload Document') }}
+          </button>
+          <span class="upload-info">{{ _('PDF or DOC, max 20MB') }}</span>
+        </div>
+
+        <div id="news-attachment-preview" class="upload-preview">
+          {% if data.news_attachment %}
+            <div class="attachment-item">
+              <i class="fa fa-file"></i>
+              <a href="{{ data.news_attachment }}" target="_blank">{{ _('View attachment') }}</a>
+              <button type="button" class="btn btn-sm btn-danger remove-attachment">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          {% else %}
+            <p class="text-muted">{{ _('No attachment uploaded yet') }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <p class="help-text">{{ _('Optional document attachment for the news article') }}</p>
+    {% if errors.news_attachment %}<span class="error-block">{{ errors.news_attachment }}</span>{% endif %}
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script>
+  (function() {
+    'use strict';
+
+    // News attachment upload handler
+    var attachmentInput = document.getElementById('news-attachment-upload');
+    if (attachmentInput) {
+      attachmentInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          uploadNewsAttachment(this.files[0]);
+        }
+      });
+    }
+
+    function uploadNewsAttachment(file) {
+      var formData = new FormData();
+      formData.append('upload', file);
+      formData.append('water_content_type', 'water-news');
+      formData.append('file_type', 'document');
+
+      fetch('/water_family_upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.uploaded === 1) {
+          document.getElementById('field-news-attachment').value = data.url;
+          updateAttachmentPreview(data.url, data.fileName);
+        } else {
+          alert('{{ _("Upload failed:") }} ' + (data.error ? data.error.message : '{{ _("Unknown error") }}'));
+        }
+      })
+      .catch(function(error) {
+        alert('{{ _("Upload error:") }} ' + error.message);
+      });
+    }
+
+    function updateAttachmentPreview(url, fileName) {
+      var preview = document.getElementById('news-attachment-preview');
+      preview.innerHTML = '<div class="attachment-item">' +
+        '<i class="fa fa-file"></i> ' +
+        '<a href="' + url + '" target="_blank">' + (fileName || '{{ _("View attachment") }}') + '</a> ' +
+        '<button type="button" class="btn btn-sm btn-danger remove-attachment">' +
+        '<i class="fa fa-times"></i></button></div>';
+    }
+
+    // Remove attachment handler
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.remove-attachment')) {
+        e.preventDefault();
+        document.getElementById('field-news-attachment').value = '';
+        document.getElementById('news-attachment-preview').innerHTML =
+          '<p class="text-muted">{{ _("No attachment uploaded yet") }}</p>';
+      }
+    });
+  })();
+  </script>
+
+  <style>
+  .attachment-item {
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .attachment-item i.fa-file {
+    font-size: 1.5em;
+    color: #0072BC;
+  }
+
+  .attachment-item a {
+    flex: 1;
+  }
+  </style>
+{% endblock %}

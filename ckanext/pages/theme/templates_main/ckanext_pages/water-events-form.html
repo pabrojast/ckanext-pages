@@ -1,0 +1,237 @@
+{#
+Water Events content form template
+
+This template extends water_family_form.html and adds event-specific fields.
+#}
+
+{% extends "ckanext_pages/water_family_form.html" %}
+{% import 'macros/form.html' as form %}
+
+{% block water_family_specific_fields %}
+
+  {# Event Location field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'location',
+      id='field-location',
+      label=_('Event Location'),
+      placeholder=_('e.g., Paris, France or Online'),
+      value=data.location,
+      error=errors.location,
+      classes=['control-full'],
+      attrs={'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Physical location or online platform for the event') }}</p>
+  </div>
+
+  {# Event Format field #}
+  <div class="form-group control-group">
+    <label for="field-event-format" class="control-label">{{ _('Event Format') }}</label>
+    <div class="controls">
+      <select id="field-event-format" class="form-control" name="event_format">
+        <option value="">{{ _('Select format...') }}</option>
+        {% set formats = [
+          ('in-person', _('In-Person')),
+          ('online', _('Online/Virtual')),
+          ('hybrid', _('Hybrid (In-Person + Online)'))
+        ] %}
+        {% for value, label in formats %}
+          <option value="{{ value }}" {% if data.event_format == value %}selected="selected"{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="help-text">{{ _('Format of the event (in-person, online, or hybrid)') }}</p>
+    {% if errors.event_format %}<span class="error-block">{{ errors.event_format }}</span>{% endif %}
+  </div>
+
+  {# Organizing Institution field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'organization',
+      id='field-organization',
+      label=_('Organizing Institution'),
+      placeholder=_('e.g., UNESCO-IHP'),
+      value=data.organization,
+      error=errors.organization,
+      classes=['control-full'],
+      attrs={'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Main institution or organization hosting the event') }}</p>
+  </div>
+
+  {# Co-organizers field #}
+  <div class="form-group control-group">
+    <label for="field-co-organizers" class="control-label">{{ _('Co-organizers') }}</label>
+    <div class="controls">
+      <textarea id="field-co-organizers" name="co_organizers" rows="2" class="form-control" placeholder="{{ _('List co-organizing institutions...') }}">{{ data.co_organizers or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Other institutions or partners co-organizing the event') }}</p>
+    {% if errors.co_organizers %}<span class="error-block">{{ errors.co_organizers }}</span>{% endif %}
+  </div>
+
+  {# Event Details field #}
+  <div class="form-group control-group">
+    <label for="field-event-details" class="control-label">{{ _('Event Details & Schedule') }}</label>
+    <div class="controls">
+      <textarea id="field-event-details" name="event_details" rows="6" class="form-control" placeholder="{{ _('Detailed event schedule and program...') }}">{{ data.event_details or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Detailed event schedule, program, and session information (supports Markdown)') }}</p>
+    {% if errors.event_details %}<span class="error-block">{{ errors.event_details }}</span>{% endif %}
+  </div>
+
+  {# Speakers field #}
+  <div class="form-group control-group">
+    <label for="field-speakers" class="control-label">{{ _('Speakers & Organizers') }}</label>
+    <div class="controls">
+      <textarea id="field-speakers" name="speakers" rows="4" class="form-control" placeholder="{{ _('List speakers, facilitators, and key organizers...') }}">{{ data.speakers or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Information about speakers, facilitators, and key organizers') }}</p>
+    {% if errors.speakers %}<span class="error-block">{{ errors.speakers }}</span>{% endif %}
+  </div>
+
+  {# Registration Info field #}
+  <div class="form-group control-group">
+    <label for="field-registration-info" class="control-label">{{ _('Registration Information') }}</label>
+    <div class="controls">
+      <textarea id="field-registration-info" name="registration_info" rows="3" class="form-control" placeholder="{{ _('Registration details, deadlines, fees...') }}">{{ data.registration_info or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Registration requirements, deadlines, and fees (supports Markdown)') }}</p>
+    {% if errors.registration_info %}<span class="error-block">{{ errors.registration_info }}</span>{% endif %}
+  </div>
+
+  {# Registration URL field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'registration_url',
+      id='field-registration-url',
+      label=_('Registration URL'),
+      placeholder=_('https://example.com/register'),
+      value=data.registration_url,
+      error=errors.registration_url,
+      classes=['control-full'],
+      attrs={'type': 'url', 'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Direct link to event registration page') }}</p>
+  </div>
+
+  {# Agenda Document Upload #}
+  <div class="form-group control-group">
+    <label for="field-agenda-document" class="control-label">{{ _('Agenda/Flyer Document') }}</label>
+    <div class="controls">
+      <input type="hidden" id="field-agenda-document" name="agenda_document" value="{{ data.agenda_document or '' }}">
+
+      <div class="water-family-upload-zone" data-field="agenda_document" data-content-type="water-events">
+        <div class="upload-controls">
+          <input type="file" id="agenda-document-upload" accept=".pdf,.doc,.docx" style="display: none;">
+          <button type="button" class="btn btn-default upload-trigger" data-target="agenda-document-upload">
+            <i class="fa fa-upload"></i> {{ _('Upload Agenda/Flyer') }}
+          </button>
+          <span class="upload-info">{{ _('PDF or DOC, max 20MB') }}</span>
+        </div>
+
+        <div id="agenda-document-preview" class="upload-preview">
+          {% if data.agenda_document %}
+            <div class="attachment-item">
+              <i class="fa fa-file"></i>
+              <a href="{{ data.agenda_document }}" target="_blank">{{ _('View document') }}</a>
+              <button type="button" class="btn btn-sm btn-danger remove-document">
+                <i class="fa fa-times"></i>
+              </button>
+            </div>
+          {% else %}
+            <p class="text-muted">{{ _('No document uploaded yet') }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <p class="help-text">{{ _('Event agenda, program, or promotional flyer') }}</p>
+    {% if errors.agenda_document %}<span class="error-block">{{ errors.agenda_document }}</span>{% endif %}
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script>
+  (function() {
+    'use strict';
+
+    // Agenda document upload handler
+    var docInput = document.getElementById('agenda-document-upload');
+    if (docInput) {
+      docInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          uploadEventDocument(this.files[0]);
+        }
+      });
+    }
+
+    function uploadEventDocument(file) {
+      var formData = new FormData();
+      formData.append('upload', file);
+      formData.append('water_content_type', 'water-events');
+      formData.append('file_type', 'document');
+
+      fetch('/water_family_upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+        if (data.uploaded === 1) {
+          document.getElementById('field-agenda-document').value = data.url;
+          updateDocumentPreview(data.url, data.fileName);
+        } else {
+          alert('{{ _("Upload failed:") }} ' + (data.error ? data.error.message : '{{ _("Unknown error") }}'));
+        }
+      })
+      .catch(function(error) {
+        alert('{{ _("Upload error:") }} ' + error.message);
+      });
+    }
+
+    function updateDocumentPreview(url, fileName) {
+      var preview = document.getElementById('agenda-document-preview');
+      preview.innerHTML = '<div class="attachment-item">' +
+        '<i class="fa fa-file"></i> ' +
+        '<a href="' + url + '" target="_blank">' + (fileName || '{{ _("View document") }}') + '</a> ' +
+        '<button type="button" class="btn btn-sm btn-danger remove-document">' +
+        '<i class="fa fa-times"></i></button></div>';
+    }
+
+    // Remove document handler
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.remove-document')) {
+        e.preventDefault();
+        document.getElementById('field-agenda-document').value = '';
+        document.getElementById('agenda-document-preview').innerHTML =
+          '<p class="text-muted">{{ _("No document uploaded yet") }}</p>';
+      }
+    });
+  })();
+  </script>
+
+  <style>
+  .attachment-item {
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .attachment-item i.fa-file {
+    font-size: 1.5em;
+    color: #0072BC;
+  }
+
+  .attachment-item a {
+    flex: 1;
+  }
+  </style>
+{% endblock %}

@@ -1,0 +1,326 @@
+{#
+Water Publications content form template
+
+This template extends water_family_form.html and adds publication-specific fields.
+#}
+
+{% extends "ckanext_pages/water_family_form.html" %}
+{% import 'macros/form.html' as form %}
+
+{% block water_family_specific_fields %}
+
+  {# Publication Type field #}
+  <div class="form-group control-group">
+    <label for="field-publication-type" class="control-label">{{ _('Publication Type') }}</label>
+    <div class="controls">
+      <select id="field-publication-type" class="form-control" name="publication_type">
+        <option value="">{{ _('Select type...') }}</option>
+        {% set pub_types = [
+          ('report', _('Report')),
+          ('paper', _('Research Paper')),
+          ('book', _('Book')),
+          ('chapter', _('Book Chapter')),
+          ('thesis', _('Thesis/Dissertation')),
+          ('policy-brief', _('Policy Brief')),
+          ('technical-document', _('Technical Document')),
+          ('manual', _('Manual/Guide')),
+          ('proceedings', _('Conference Proceedings')),
+          ('other', _('Other'))
+        ] %}
+        {% for value, label in pub_types %}
+          <option value="{{ value }}" {% if data.publication_type == value %}selected="selected"{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <p class="help-text">{{ _('Type of publication') }}</p>
+    {% if errors.publication_type %}<span class="error-block">{{ errors.publication_type }}</span>{% endif %}
+  </div>
+
+  {# Authors field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'authors',
+      id='field-authors',
+      label=_('Authors'),
+      placeholder=_('e.g., Smith, J., Doe, A.'),
+      value=data.authors,
+      error=errors.authors,
+      classes=['control-full'],
+      attrs={'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Publication authors (separate multiple authors with commas)') }}</p>
+  </div>
+
+  {# Publication Year field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'year',
+      id='field-year',
+      label=_('Publication Year'),
+      placeholder=_('e.g., 2024'),
+      value=data.year,
+      error=errors.year,
+      classes=['control-medium'],
+      attrs={'type': 'number', 'min': '1900', 'max': '2100', 'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Year of publication') }}</p>
+  </div>
+
+  {# Abstract field #}
+  <div class="form-group control-group">
+    <label for="field-abstract" class="control-label">{{ _('Abstract') }}</label>
+    <div class="controls">
+      <textarea id="field-abstract" name="abstract" rows="6" class="form-control" placeholder="{{ _('Publication abstract or summary...') }}">{{ data.abstract or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Abstract or summary of the publication') }}</p>
+    {% if errors.abstract %}<span class="error-block">{{ errors.abstract }}</span>{% endif %}
+  </div>
+
+  {# Publication URL field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'publication_url',
+      id='field-publication-url',
+      label=_('Publication URL'),
+      placeholder=_('https://example.com/publication'),
+      value=data.publication_url,
+      error=errors.publication_url,
+      classes=['control-full'],
+      attrs={'type': 'url', 'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('URL to the publication page or landing page') }}</p>
+  </div>
+
+  {# Download URL field #}
+  <div class="form-group control-group">
+    {{ form.input(
+      'download_url',
+      id='field-download-url',
+      label=_('Direct Download URL'),
+      placeholder=_('https://example.com/download.pdf'),
+      value=data.download_url,
+      error=errors.download_url,
+      classes=['control-full'],
+      attrs={'type': 'url', 'class': 'form-control'}
+    ) }}
+    <p class="help-text">{{ _('Direct link to download the publication (PDF or other format)') }}</p>
+  </div>
+
+  {# Bibliographic Details Section #}
+  <fieldset class="form-section">
+    <legend>{{ _('Bibliographic Details') }}</legend>
+
+    {# Journal field #}
+    <div class="form-group control-group">
+      {{ form.input(
+        'journal',
+        id='field-journal',
+        label=_('Journal Name'),
+        placeholder=_('e.g., Water Resources Management'),
+        value=data.journal,
+        error=errors.journal,
+        classes=['control-full'],
+        attrs={'class': 'form-control'}
+      ) }}
+      <p class="help-text">{{ _('Journal name (for journal articles)') }}</p>
+    </div>
+
+    {# Conference field #}
+    <div class="form-group control-group">
+      {{ form.input(
+        'conference',
+        id='field-conference',
+        label=_('Conference Name'),
+        placeholder=_('e.g., International Water Conference 2024'),
+        value=data.conference,
+        error=errors.conference,
+        classes=['control-full'],
+        attrs={'class': 'form-control'}
+      ) }}
+      <p class="help-text">{{ _('Conference name (for conference papers)') }}</p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        {# Volume field #}
+        <div class="form-group control-group">
+          {{ form.input(
+            'volume',
+            id='field-volume',
+            label=_('Volume'),
+            placeholder=_('e.g., 45'),
+            value=data.volume,
+            error=errors.volume,
+            classes=['control-small'],
+            attrs={'type': 'number', 'class': 'form-control'}
+          ) }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        {# Issue field #}
+        <div class="form-group control-group">
+          {{ form.input(
+            'issue',
+            id='field-issue',
+            label=_('Issue'),
+            placeholder=_('e.g., 3'),
+            value=data.issue,
+            error=errors.issue,
+            classes=['control-small'],
+            attrs={'type': 'number', 'class': 'form-control'}
+          ) }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        {# Pages field #}
+        <div class="form-group control-group">
+          {{ form.input(
+            'pages',
+            id='field-pages',
+            label=_('Pages'),
+            placeholder=_('e.g., 123-145'),
+            value=data.pages,
+            error=errors.pages,
+            classes=['control-small'],
+            attrs={'class': 'form-control'}
+          ) }}
+        </div>
+      </div>
+    </div>
+
+    {# DOI field #}
+    <div class="form-group control-group">
+      {{ form.input(
+        'doi',
+        id='field-doi',
+        label=_('DOI'),
+        placeholder=_('e.g., 10.1234/example.doi'),
+        value=data.doi,
+        error=errors.doi,
+        classes=['control-full'],
+        attrs={'class': 'form-control'}
+      ) }}
+      <p class="help-text">{{ _('Digital Object Identifier (DOI) for the publication') }}</p>
+    </div>
+
+    {# ISBN field #}
+    <div class="form-group control-group">
+      {{ form.input(
+        'isbn',
+        id='field-isbn',
+        label=_('ISBN'),
+        placeholder=_('e.g., 978-3-16-148410-0'),
+        value=data.isbn,
+        error=errors.isbn,
+        classes=['control-medium'],
+        attrs={'class': 'form-control'}
+      ) }}
+      <p class="help-text">{{ _('ISBN for books') }}</p>
+    </div>
+  </fieldset>
+
+  {# Dataset Integration Section #}
+  <fieldset class="form-section">
+    <legend>{{ _('Dataset Integration (Optional)') }}</legend>
+    <p class="help-text">{{ _('Link this publication to a CKAN dataset for enhanced discoverability') }}</p>
+
+    {# Dataset Title field #}
+    <div class="form-group control-group">
+      {{ form.input(
+        'dataset_title',
+        id='field-dataset-title',
+        label=_('Dataset Title'),
+        placeholder=_('e.g., Water Quality Research Data 2024'),
+        value=data.dataset_title,
+        error=errors.dataset_title,
+        classes=['control-full'],
+        attrs={'class': 'form-control'}
+      ) }}
+      <p class="help-text">{{ _('Title for the associated dataset') }}</p>
+    </div>
+
+    {# Dataset URL field #}
+    <div class="form-group control-group">
+      {{ form.input(
+        'dataset_url',
+        id='field-dataset-url',
+        label=_('External Dataset URL'),
+        placeholder=_('https://example.com/dataset'),
+        value=data.dataset_url,
+        error=errors.dataset_url,
+        classes=['control-full'],
+        attrs={'type': 'url', 'class': 'form-control'}
+      ) }}
+      <p class="help-text">{{ _('URL to external dataset repository') }}</p>
+    </div>
+
+    {# Contact Information #}
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group control-group">
+          {{ form.input(
+            'contact_name',
+            id='field-contact-name',
+            label=_('Contact Name'),
+            placeholder=_('e.g., Dr. John Smith'),
+            value=data.contact_name,
+            error=errors.contact_name,
+            classes=['control-full'],
+            attrs={'class': 'form-control'}
+          ) }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group control-group">
+          {{ form.input(
+            'contact_email',
+            id='field-contact-email',
+            label=_('Contact Email'),
+            placeholder=_('contact@example.com'),
+            value=data.contact_email,
+            error=errors.contact_email,
+            classes=['control-full'],
+            attrs={'type': 'email', 'class': 'form-control'}
+          ) }}
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  {# Publication Details field #}
+  <div class="form-group control-group">
+    <label for="field-publication-details" class="control-label">{{ _('Additional Publication Details') }}</label>
+    <div class="controls">
+      <textarea id="field-publication-details" name="publication_details" rows="4" class="form-control" placeholder="{{ _('Any additional bibliographic or publication details...') }}">{{ data.publication_details or '' }}</textarea>
+    </div>
+    <p class="help-text">{{ _('Any additional publication information or bibliographic details') }}</p>
+    {% if errors.publication_details %}<span class="error-block">{{ errors.publication_details }}</span>{% endif %}
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <style>
+  .form-section {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    background: #f9f9f9;
+  }
+
+  .form-section legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #0072BC;
+    padding: 0 0.5rem;
+    width: auto;
+    margin-bottom: 1rem;
+    border: none;
+  }
+  </style>
+{% endblock %}

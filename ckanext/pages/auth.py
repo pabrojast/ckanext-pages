@@ -150,6 +150,12 @@ def user_authenticated(context, data_dict):
     else:
         return {'success': False, 'msg': p.toolkit._('You must be logged in')}
 
+
+def water_family_upload(context, data_dict):
+    '''Allow authenticated users to upload files for water family content'''
+    return user_authenticated(context, data_dict)
+
+
 def water_content_create(context, data_dict):
     '''Allow authenticated users to create water family content (will be saved as private/pending)'''
     return user_authenticated(context, data_dict)
