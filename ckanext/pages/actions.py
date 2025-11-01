@@ -446,6 +446,7 @@ def pages_upload(context, data_dict):
 
         # Use ResourceUpload directly to avoid plugin conflicts
         # Some plugins implement IUploader incorrectly which causes get_uploader to fail
+        use_fallback = False
         try:
             upload = uploader.get_uploader('page_images')
             log.info("[PAGES_UPLOAD] Successfully got uploader via get_uploader")
@@ -454,10 +455,23 @@ def pages_upload(context, data_dict):
             log.warning(f"[PAGES_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, using fallback ResourceUpload")
             from ckan.lib.uploader import ResourceUpload
             upload = ResourceUpload({'id': 'page_images'})
+            use_fallback = True
 
         log.info("[PAGES_UPLOAD] Updating data_dict with file info")
-        upload.update_data_dict(data_dict, 'image_url',
-                                'upload', 'clear_upload')
+
+        # ResourceUpload doesn't have update_data_dict, so we handle it manually
+        if use_fallback:
+            # Manually handle file info for ResourceUpload
+            upload_field_storage = data_dict.pop('upload', None)
+            if upload_field_storage:
+                upload.filename = upload_field_storage.filename
+                upload.file_upload = upload_field_storage.file
+                # Set tmp file for upload
+                upload.tmp = upload_field_storage
+        else:
+            # Use the standard method for proper uploaders
+            upload.update_data_dict(data_dict, 'image_url',
+                                    'upload', 'clear_upload')
 
         max_image_size = uploader.get_max_image_size()
         log.info(f"[PAGES_UPLOAD] Attempting upload with max size: {max_image_size}MB")
@@ -465,6 +479,11 @@ def pages_upload(context, data_dict):
         try:
             upload.upload(max_image_size)
             log.info("[PAGES_UPLOAD] Upload successful")
+
+            # When using fallback, manually set image_url from uploaded filename
+            if use_fallback and upload.filename:
+                data_dict['image_url'] = upload.filename
+                log.info(f"[PAGES_UPLOAD] Set image_url from fallback upload: {upload.filename}")
         except p.toolkit.ValidationError as e:
             log.error(f"[PAGES_UPLOAD] Validation error: {str(e)}")
             message = (
@@ -1168,6 +1187,7 @@ def water_family_upload(context, data_dict):
             return {'uploaded': 0, 'error': {'message': validation_result['message']}}
 
         # Use ResourceUpload directly to avoid plugin conflicts
+        use_fallback = False
         try:
             upload = uploader.get_uploader('page_images')
             log.info("[WATER_FAMILY_UPLOAD] Successfully got uploader via get_uploader")
@@ -1175,9 +1195,22 @@ def water_family_upload(context, data_dict):
             log.warning(f"[WATER_FAMILY_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, fallback")
             from ckan.lib.uploader import ResourceUpload
             upload = ResourceUpload({'id': 'page_images'})
+            use_fallback = True
 
         log.info("[WATER_FAMILY_UPLOAD] Updating data_dict with file info")
-        upload.update_data_dict(data_dict, 'image_url', 'upload', 'clear_upload')
+
+        # ResourceUpload doesn't have update_data_dict, so we handle it manually
+        if use_fallback:
+            # Manually handle file info for ResourceUpload
+            upload_field_storage = data_dict.pop('upload', None)
+            if upload_field_storage:
+                upload.filename = upload_field_storage.filename
+                upload.file_upload = upload_field_storage.file
+                # Set tmp file for upload
+                upload.tmp = upload_field_storage
+        else:
+            # Use the standard method for proper uploaders
+            upload.update_data_dict(data_dict, 'image_url', 'upload', 'clear_upload')
 
         # Get max size based on file type
         max_size = validation_result['max_size_mb']
@@ -1186,6 +1219,11 @@ def water_family_upload(context, data_dict):
         try:
             upload.upload(max_size)
             log.info("[WATER_FAMILY_UPLOAD] Upload successful")
+
+            # When using fallback, manually set image_url from uploaded filename
+            if use_fallback and upload.filename:
+                data_dict['image_url'] = upload.filename
+                log.info(f"[WATER_FAMILY_UPLOAD] Set image_url from fallback upload: {upload.filename}")
         except p.toolkit.ValidationError as e:
             log.error(f"[WATER_FAMILY_UPLOAD] Validation error: {str(e)}")
             message = f"Can't upload the file, size is too large. (Max allowed is {max_size}mb)"
