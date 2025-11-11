@@ -10,7 +10,18 @@ import logging
 import uuid as uuid_module
 from typing import Dict, Any
 
-from sqlalchemy.engine import Row
+try:
+    # SQLAlchemy 1.4+
+    from sqlalchemy.engine import Row  # type: ignore
+except ImportError:  # pragma: no cover - fallback for older SQLAlchemy
+    try:
+        from sqlalchemy.engine.result import RowProxy as Row  # type: ignore
+    except ImportError:
+        class Row:  # type: ignore
+            """Minimal stand-in used when SQLAlchemy row classes are unavailable."""
+
+            pass
+
 from sqlalchemy.orm import class_mapper
 
 from ckan import model
