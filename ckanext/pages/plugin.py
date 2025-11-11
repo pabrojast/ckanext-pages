@@ -17,7 +17,13 @@ from ckanext.pages import blueprint
 
 log = logging.getLogger(__name__)
 
-# Import data stories helpers
+DATA_STORIES_AVAILABLE = False
+data_stories_blueprint = None
+ds_actions = None
+ds_auth = None
+init_data_stories_tables = None
+
+# Import data stories modules
 try:
     from ckanext.pages.data_stories.helpers import (
         parse_terria_share_link,
@@ -39,10 +45,15 @@ try:
         format_file_size,
         highlight_search_terms,
     )
+    from ckanext.pages.data_stories import actions as ds_actions
+    from ckanext.pages.data_stories import auth as ds_auth
+    from ckanext.pages.data_stories.blueprint import data_stories_blueprint
+    from ckanext.pages.data_stories.db.utils import init_tables as init_data_stories_tables
+
     DATA_STORIES_AVAILABLE = True
 except ImportError as e:
-    log.warning("Data stories helpers not available: %s", str(e))
-    DATA_STORIES_AVAILABLE = False
+    log.warning("Data stories modules not available: %s", str(e))
+
 
 from ckan.lib.plugins import DefaultTranslation
 
@@ -684,12 +695,21 @@ class PagesPlugin(PagesPluginBase):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IBlueprint)
 
+    def __init__(self):
+        self.organization_pages = False
+        self.group_pages = False
+        self.data_stories_enabled = False
+
     def get_blueprint(self):
-        return [blueprint.pages]
+        blueprints = [blueprint.pages]
+        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and data_stories_blueprint:
+            blueprints.append(data_stories_blueprint)
+        return blueprints
 
     def update_config(self, config):
         self.organization_pages = tk.asbool(config.get('ckanext.pages.organization', False))
         self.group_pages = tk.asbool(config.get('ckanext.pages.group', False))
+        self.data_stories_enabled = tk.asbool(config.get('ckanext.data_stories.enabled', False))
 
         tk.add_template_directory(config, 'theme/templates_main')
         if self.group_pages:
@@ -718,6 +738,16 @@ class PagesPlugin(PagesPluginBase):
             log.error("Error initializing ckanext-pages database: %s", str(e))
             # Don't raise the error to avoid breaking the entire CKAN startup
             # The error handling in the other methods will handle cases where the table doesn't exist
+
+        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and init_data_stories_tables:
+            try:
+                from ckan import model
+
+                log.info("Initializing data stories database tables...")
+                init_data_stories_tables(model.meta.engine)
+                log.info("Data stories database initialization completed")
+            except Exception as e:
+                log.error("Error initializing data stories database: %s", str(e))
 
     def get_helpers(self):
         helpers = {
@@ -752,8 +782,8 @@ class PagesPlugin(PagesPluginBase):
             'get_categories_list': get_categories_list,
         }
 
-        # Add data stories helpers if available
-        if DATA_STORIES_AVAILABLE:
+        # Add data stories helpers if available and enabled
+        if self.data_stories_enabled and DATA_STORIES_AVAILABLE:
             helpers.update({
                 # Terria helpers
                 'parse_terria_share_link': parse_terria_share_link,
@@ -812,10 +842,40 @@ class PagesPlugin(PagesPluginBase):
                 'ckanext_group_pages_list': actions.group_pages_list,
             }
             actions_dict.update(group_actions)
+
+        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and ds_actions:
+            data_stories_actions = {
+                'data_story_create': ds_actions.data_story_create,
+                'data_story_section_create': ds_actions.data_story_section_create,
+                'data_story_show': ds_actions.data_story_show,
+                'data_story_list': ds_actions.data_story_list,
+                'data_story_section_show': ds_actions.data_story_section_show,
+                'data_story_section_list': ds_actions.data_story_section_list,
+                'data_story_update': ds_actions.data_story_update,
+                'data_story_section_update': ds_actions.data_story_section_update,
+                'data_story_reorder_sections': ds_actions.data_story_reorder_sections,
+                'data_story_delete': ds_actions.data_story_delete,
+                'data_story_section_delete': ds_actions.data_story_section_delete,
+                'data_story_submit': ds_actions.data_story_submit,
+                'data_story_review': ds_actions.data_story_review,
+                'data_story_approve': ds_actions.data_story_approve,
+                'data_story_request_changes': ds_actions.data_story_request_changes,
+                'data_story_link_dataset': ds_actions.data_story_link_dataset,
+                'data_story_unlink_dataset': ds_actions.data_story_unlink_dataset,
+                'data_story_datasets': ds_actions.data_story_datasets,
+                'data_story_comment_create': ds_actions.data_story_comment_create,
+                'data_story_comment_list': ds_actions.data_story_comment_list,
+                'data_story_comment_update': ds_actions.data_story_comment_update,
+                'data_story_comment_delete': ds_actions.data_story_comment_delete,
+                'data_story_comment_resolve': ds_actions.data_story_comment_resolve,
+                'data_story_record_view': ds_actions.data_story_record_view,
+                'data_story_stats': ds_actions.data_story_stats,
+            }
+            actions_dict.update(data_stories_actions)
         return actions_dict
 
     def get_auth_functions(self):
-        return {
+        auth_functions = {
             'ckanext_pages_show': auth.pages_show,
             'ckanext_pages_update': auth.pages_update,
             'ckanext_pages_delete': auth.pages_delete,
@@ -844,6 +904,37 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_event_types_update': auth.event_types_update,
             'ckanext_event_types_delete': auth.event_types_delete,
         }
+
+        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and ds_auth:
+            data_stories_auth = {
+                'data_story_create': ds_auth.data_story_create,
+                'data_story_show': ds_auth.data_story_show,
+                'data_story_list': ds_auth.data_story_list,
+                'data_story_update': ds_auth.data_story_update,
+                'data_story_delete': ds_auth.data_story_delete,
+                'data_story_section_create': ds_auth.data_story_section_create,
+                'data_story_section_show': ds_auth.data_story_section_show,
+                'data_story_section_list': ds_auth.data_story_section_list,
+                'data_story_section_update': ds_auth.data_story_section_update,
+                'data_story_section_delete': ds_auth.data_story_section_delete,
+                'data_story_reorder_sections': ds_auth.data_story_reorder_sections,
+                'data_story_submit': ds_auth.data_story_submit,
+                'data_story_review': ds_auth.data_story_review,
+                'data_story_approve': ds_auth.data_story_approve,
+                'data_story_request_changes': ds_auth.data_story_request_changes,
+                'data_story_link_dataset': ds_auth.data_story_link_dataset,
+                'data_story_unlink_dataset': ds_auth.data_story_unlink_dataset,
+                'data_story_datasets': ds_auth.data_story_datasets,
+                'data_story_comment_create': ds_auth.data_story_comment_create,
+                'data_story_comment_list': ds_auth.data_story_comment_list,
+                'data_story_comment_update': ds_auth.data_story_comment_update,
+                'data_story_comment_delete': ds_auth.data_story_comment_delete,
+                'data_story_comment_resolve': ds_auth.data_story_comment_resolve,
+                'data_story_stats': ds_auth.data_story_stats,
+            }
+            auth_functions.update(data_stories_auth)
+
+        return auth_functions
 
 
 class TextBoxView(p.SingletonPlugin):
