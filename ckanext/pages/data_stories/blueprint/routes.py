@@ -171,64 +171,6 @@ def my_stories():
 
 
 # ============================================================================
-# View Routes
-# ============================================================================
-
-@data_stories_blueprint.route('/<slug>')
-def show(slug):
-    """
-    View a single data story.
-
-    URL: /data-stories/<slug>
-    """
-    log.info(f"[DATA_STORIES_ROUTE] Showing story: {slug}")
-
-    context = _get_context()
-
-    try:
-        # Get story
-        story = tk.get_action('data_story_show')(context, {
-            'slug': slug,
-            'include_sections': True,
-            'include_datasets': True,
-            'include_contributors': True,
-        })
-
-        # Record view (ignore auth for this)
-        try:
-            tk.get_action('data_story_record_view')(
-                {'ignore_auth': True},
-                {'id': story['id']}
-            )
-        except Exception as e:
-            log.warning(f"Failed to record view: {str(e)}")
-
-    except tk.ObjectNotFound:
-        tk.abort(404, tk._('Story not found'))
-    except tk.NotAuthorized:
-        tk.abort(403, tk._('Not authorized to view this story'))
-    except Exception as e:
-        log.error(f"Error showing story: {str(e)}")
-        tk.abort(500, tk._('Error loading story'))
-
-    # Get comments if user is authorized
-    comments = []
-    try:
-        comments = tk.get_action('data_story_comment_list')(context, {
-            'story_id': story['id'],
-        })
-    except Exception as e:
-        log.warning(f"Could not load comments: {str(e)}")
-
-    extra_vars = {
-        'story': story,
-        'comments': comments,
-    }
-
-    return render_template('data_stories/show.html', **extra_vars)
-
-
-# ============================================================================
 # Create and Edit Routes
 # ============================================================================
 
@@ -299,6 +241,67 @@ def create():
     }
 
     return render_template('data_stories/create.html', **extra_vars)
+
+
+# ============================================================================
+# View Routes
+# ============================================================================
+
+@data_stories_blueprint.route('/<slug>')
+def show(slug):
+    """
+    View a single data story.
+
+    URL: /data-stories/<slug>
+
+    IMPORTANT: This route must come AFTER all specific routes like /new
+    to avoid matching them as slugs.
+    """
+    log.info(f"[DATA_STORIES_ROUTE] Showing story: {slug}")
+
+    context = _get_context()
+
+    try:
+        # Get story
+        story = tk.get_action('data_story_show')(context, {
+            'slug': slug,
+            'include_sections': True,
+            'include_datasets': True,
+            'include_contributors': True,
+        })
+
+        # Record view (ignore auth for this)
+        try:
+            tk.get_action('data_story_record_view')(
+                {'ignore_auth': True},
+                {'id': story['id']}
+            )
+        except Exception as e:
+            log.warning(f"Failed to record view: {str(e)}")
+
+    except tk.ObjectNotFound:
+        tk.abort(404, tk._('Story not found'))
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to view this story'))
+    except Exception as e:
+        log.error(f"Error showing story: {str(e)}")
+        tk.abort(500, tk._('Error loading story'))
+
+    # Get comments if user is authorized
+    comments = []
+    try:
+        comments = tk.get_action('data_story_comment_list')(context, {
+            'story_id': story['id'],
+        })
+    except Exception as e:
+        log.warning(f"Could not load comments: {str(e)}")
+
+    extra_vars = {
+        'story': story,
+        'comments': comments,
+    }
+
+    return render_template('data_stories/show.html', **extra_vars)
 
 
 @data_stories_blueprint.route('/<slug>/edit', methods=['GET', 'POST'])
