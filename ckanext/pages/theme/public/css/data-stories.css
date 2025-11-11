@@ -1,0 +1,708 @@
+/**
+ * Data Stories CSS
+ * Styles for data story listing, display, and editing interfaces
+ */
+
+/* ========================================
+   Story List & Cards
+   ======================================== */
+
+.story-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.story-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.story-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.story-card-header {
+  padding: 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.story-card-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.story-card-title {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.story-card-title a {
+  color: #0072BC;
+  text-decoration: none;
+}
+
+.story-card-title a:hover {
+  color: #005A9C;
+  text-decoration: underline;
+}
+
+.story-card-abstract {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.story-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #e9ecef;
+  font-size: 13px;
+  color: #666;
+}
+
+.story-card-meta .author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.story-card-meta .avatar-small {
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+}
+
+.story-card-meta .stats {
+  display: flex;
+  gap: 15px;
+}
+
+.story-card-meta .stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.story-card-organization {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e9ecef;
+}
+
+.story-card-footer {
+  padding: 15px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 10px;
+}
+
+/* Featured stories */
+.story-card.featured {
+  border-color: #ffc107;
+  background: linear-gradient(to bottom, #fff9e6 0%, #ffffff 100px);
+}
+
+/* ========================================
+   Story Status Badges
+   ======================================== */
+
+.story-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.label-default {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.label-info {
+  background-color: #17a2b8;
+  color: #fff;
+}
+
+.label-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.label-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.label-danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/* ========================================
+   Story Display (Single View)
+   ======================================== */
+
+.story-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.story-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #0072BC;
+}
+
+.story-title {
+  font-size: 32px;
+  line-height: 1.3;
+  margin: 0 0 15px 0;
+  color: #212529;
+}
+
+.story-abstract {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #666;
+  font-style: italic;
+  margin: 15px 0;
+}
+
+.story-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.story-metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.story-metadata-label {
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+
+.story-metadata-value {
+  font-size: 14px;
+  color: #333;
+}
+
+/* ========================================
+   Story Sections
+   ======================================== */
+
+.story-sections {
+  margin: 30px 0;
+}
+
+.story-section {
+  margin: 40px 0;
+  padding: 30px;
+  background: #fff;
+  border-radius: 4px;
+  border-left: 4px solid #0072BC;
+}
+
+.story-section:first-child {
+  margin-top: 0;
+}
+
+.section-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #0072BC;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-content {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.section-content p {
+  margin: 15px 0;
+}
+
+.section-content h3 {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #212529;
+}
+
+.section-content ul,
+.section-content ol {
+  margin: 15px 0;
+  padding-left: 30px;
+}
+
+.section-content li {
+  margin: 8px 0;
+}
+
+/* Section Images */
+.section-image {
+  margin: 25px 0;
+  text-align: center;
+}
+
+.section-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Videos */
+.section-video {
+  margin: 25px 0;
+}
+
+/* Terria Maps */
+.section-terria {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.terria-embed-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.terria-embed-iframe {
+  display: block;
+  width: 100%;
+  border: none;
+}
+
+/* Section Type Colors */
+.section-introduction {
+  border-left-color: #0072BC;
+}
+
+.section-research_question {
+  border-left-color: #17a2b8;
+}
+
+.section-study_area {
+  border-left-color: #28a745;
+}
+
+.section-data_sources {
+  border-left-color: #6f42c1;
+}
+
+.section-methodology {
+  border-left-color: #fd7e14;
+}
+
+.section-spatial_analysis {
+  border-left-color: #20c997;
+}
+
+.section-results {
+  border-left-color: #ffc107;
+}
+
+.section-discussion {
+  border-left-color: #e83e8c;
+}
+
+.section-conclusions {
+  border-left-color: #dc3545;
+}
+
+.section-references {
+  border-left-color: #6c757d;
+}
+
+.section-acknowledgments {
+  border-left-color: #17a2b8;
+}
+
+/* ========================================
+   Story Actions (Edit, Delete, etc.)
+   ======================================== */
+
+.story-actions {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ========================================
+   Story Editor (Create/Edit Form)
+   ======================================== */
+
+.story-editor {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-editor {
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.section-editor .panel-heading {
+  background: #f8f9fa;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-editor .panel-title {
+  margin: 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-editor .panel-body {
+  padding: 20px;
+}
+
+.section-editor .form-group {
+  margin-bottom: 20px;
+}
+
+.section-type-select {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.markdown-editor {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 13px;
+}
+
+.code-editor {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 12px;
+  background: #f8f9fa;
+}
+
+.terria-config-group .nav-tabs {
+  margin-bottom: 15px;
+}
+
+.terria-config-group .tab-content {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-top: none;
+  background: #fff;
+}
+
+/* Drag handle for reordering sections */
+.section-drag-handle {
+  cursor: move;
+  color: #999;
+  padding: 5px;
+}
+
+.section-drag-handle:hover {
+  color: #666;
+}
+
+/* ========================================
+   Story Filters & Search
+   ======================================== */
+
+.story-filters {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.story-filters .form-group {
+  margin-bottom: 15px;
+}
+
+.story-filters label {
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+
+.story-search {
+  position: relative;
+}
+
+.story-search input {
+  padding-right: 40px;
+}
+
+.story-search .search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+  .story-list {
+    grid-template-columns: 1fr;
+  }
+
+  .story-container {
+    padding: 15px;
+  }
+
+  .story-title {
+    font-size: 24px;
+  }
+
+  .story-section {
+    padding: 20px 15px;
+  }
+
+  .section-header h2 {
+    font-size: 20px;
+  }
+
+  .story-card-meta {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .story-metadata {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .story-actions {
+    flex-direction: column;
+  }
+
+  .story-actions .btn {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   Linked Datasets Section
+   ======================================== */
+
+.story-datasets {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.story-datasets-header {
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.dataset-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dataset-item {
+  padding: 12px;
+  margin: 8px 0;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.dataset-item:hover {
+  border-color: #0072BC;
+  box-shadow: 0 2px 6px rgba(0, 114, 188, 0.15);
+}
+
+.dataset-item a {
+  color: #0072BC;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.dataset-item a:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   Contributors Section
+   ======================================== */
+
+.story-contributors {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.contributors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.contributor-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+}
+
+.contributor-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.contributor-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.contributor-name {
+  font-weight: 600;
+  color: #212529;
+}
+
+.contributor-role {
+  font-size: 12px;
+  color: #666;
+  text-transform: capitalize;
+}
+
+/* ========================================
+   Loading & Empty States
+   ======================================== */
+
+.story-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.story-loading i {
+  font-size: 48px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.story-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.story-empty i {
+  font-size: 64px;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.story-empty p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+  .story-actions,
+  .story-filters,
+  .btn,
+  .story-card-footer {
+    display: none !important;
+  }
+
+  .story-section {
+    page-break-inside: avoid;
+  }
+
+  .story-container {
+    max-width: 100%;
+  }
+}

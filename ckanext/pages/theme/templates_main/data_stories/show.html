@@ -1,0 +1,268 @@
+{% extends "data_stories/base.html" %}
+
+{% block subtitle %}{{ story.title }}{% endblock %}
+
+{% block data_stories_content %}
+  <article class="data-story">
+    {# Story header #}
+    <header class="story-header">
+      <div class="story-meta">
+        <span class="badge badge-{{ story.status }}">{{ story.status|title }}</span>
+        {% if story.is_featured %}
+        <span class="badge badge-warning"><i class="fa fa-star"></i> {{ _('Featured') }}</span>
+        {% endif %}
+      </div>
+
+      <h1 class="story-title">{{ story.title }}</h1>
+
+      <div class="story-metadata">
+        <div class="author-info">
+          {% if story.author %}
+          <img src="{{ h.gravatar_url(story.author.email, size=40) }}" alt="{{ story.author.name }}" class="avatar" />
+          <div>
+            <strong>{{ story.author.fullname or story.author.name }}</strong>
+            {% if story.organization %}
+            <br/><small>{{ story.organization.title }}</small>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="story-stats">
+          <span title="{{ _('Published') }}">
+            <i class="fa fa-calendar"></i>
+            {{ h.render_datetime(story.published_at or story.created_at, with_hours=False) }}
+          </span>
+          <span title="{{ _('Views') }}">
+            <i class="fa fa-eye"></i> {{ story.view_count or 0 }}
+          </span>
+          {% if story.section_count %}
+          <span title="{{ _('Sections') }}">
+            <i class="fa fa-list"></i> {{ story.section_count }}
+          </span>
+          {% endif %}
+          {% if story.dataset_count %}
+          <span title="{{ _('Datasets') }}">
+            <i class="fa fa-database"></i> {{ story.dataset_count }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if story.abstract %}
+      <div class="story-abstract">
+        <p class="lead">{{ story.abstract }}</p>
+      </div>
+      {% endif %}
+
+      {# Action buttons #}
+      <div class="story-actions">
+        {% if h.check_access('data_story_update', {'id': story.id}) %}
+        <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}" class="btn btn-primary">
+          <i class="fa fa-edit"></i> {{ _('Edit') }}
+        </a>
+        {% endif %}
+
+        {% if story.status == 'draft' and h.check_access('data_story_submit', {'id': story.id}) %}
+        <form method="post" action="{{ h.url_for('data_stories.submit', slug=story.slug) }}" style="display: inline;">
+          <button type="submit" class="btn btn-success">
+            <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+          </button>
+        </form>
+        {% endif %}
+
+        {% if story.status in ['submitted', 'under_review'] and h.check_access('data_story_review', {'id': story.id}) %}
+        <a href="{{ h.url_for('data_stories.review', slug=story.slug) }}" class="btn btn-warning">
+          <i class="fa fa-check"></i> {{ _('Review') }}
+        </a>
+        {% endif %}
+
+        {% if h.check_access('data_story_delete', {'id': story.id}) %}
+        <form method="post" action="{{ h.url_for('data_stories.delete', slug=story.slug) }}" style="display: inline;" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
+          <button type="submit" class="btn btn-danger">
+            <i class="fa fa-trash"></i> {{ _('Delete') }}
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </header>
+
+    {# Research question #}
+    {% if story.research_question %}
+    <section class="story-section research-question">
+      <h2><i class="fa fa-question-circle"></i> {{ _('Research Question') }}</h2>
+      <div class="section-content">
+        {{ h.render_markdown(story.research_question) }}
+      </div>
+    </section>
+    {% endif %}
+
+    {# Study area #}
+    {% if story.study_area %}
+    <section class="story-section study-area">
+      <h2><i class="fa fa-map-marker"></i> {{ _('Study Area') }}</h2>
+      <div class="section-content">
+        {{ h.render_markdown(story.study_area) }}
+      </div>
+    </section>
+    {% endif %}
+
+    {# Sections #}
+    {% if story.sections %}
+    <nav class="story-navigation">
+      <h3>{{ _('Sections') }}</h3>
+      <ul class="nav nav-pills nav-stacked">
+        {% for section in story.sections %}
+        {% if section.is_visible %}
+        <li>
+          <a href="#section-{{ section.id }}">
+            {{ section.title or section.section_type|replace('_', ' ')|title }}
+          </a>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <div class="story-sections">
+      {% for section in story.sections %}
+      {% if section.is_visible %}
+        {% include "data_stories/components/section_display.html" %}
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Linked datasets #}
+    {% if story.datasets %}
+    <section class="story-section linked-datasets">
+      <h2><i class="fa fa-database"></i> {{ _('Datasets') }}</h2>
+      <div class="dataset-list">
+        {% for link in story.datasets %}
+          {% if link.dataset %}
+          <div class="dataset-item">
+            <div class="dataset-badge">{{ link.relationship_type|title }}</div>
+            <h4>
+              <a href="{{ h.url_for('dataset.read', id=link.dataset.name) }}">
+                {{ link.dataset.title }}
+              </a>
+            </h4>
+            {% if link.description %}
+            <p>{{ link.description }}</p>
+            {% endif %}
+            {% if link.dataset.notes %}
+            <p class="text-muted">{{ h.markdown_extract(link.dataset.notes, 150) }}</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {# Contributors #}
+    {% if story.contributors %}
+    <section class="story-section contributors">
+      <h2><i class="fa fa-users"></i> {{ _('Contributors') }}</h2>
+      <ul class="contributor-list">
+        {% for contributor in story.contributors %}
+        <li>
+          <strong>{{ contributor.name }}</strong>
+          {% if contributor.role %}
+          <span class="text-muted">({{ contributor.role|title }})</span>
+          {% endif %}
+          {% if contributor.affiliation %}
+          <br/><small>{{ contributor.affiliation }}</small>
+          {% endif %}
+          {% if contributor.orcid %}
+          <br/><small>ORCID: <a href="https://orcid.org/{{ contributor.orcid }}" target="_blank">{{ contributor.orcid }}</a></small>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {# Comments section #}
+    {% if comments or h.check_access('data_story_comment_create', {'story_id': story.id}) %}
+    <section class="story-section comments">
+      <h2><i class="fa fa-comments"></i> {{ _('Comments') }}</h2>
+
+      {% if h.check_access('data_story_comment_create', {'story_id': story.id}) %}
+      <form method="post" action="{{ h.url_for('data_stories.create_comment', story_id=story.id) }}" class="comment-form">
+        <div class="form-group">
+          <label for="content">{{ _('Add a comment') }}</label>
+          <textarea name="content" id="content" class="form-control" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="comment_type">{{ _('Comment type') }}</label>
+          <select name="comment_type" id="comment_type" class="form-control">
+            <option value="comment">{{ _('Comment') }}</option>
+            <option value="suggestion">{{ _('Suggestion') }}</option>
+            <option value="required_change">{{ _('Required Change') }}</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa fa-comment"></i> {{ _('Post Comment') }}
+        </button>
+      </form>
+      {% endif %}
+
+      {% if comments %}
+      <div class="comment-list">
+        {% for comment in comments %}
+        <div class="comment{% if comment.is_resolved %} resolved{% endif %}">
+          <div class="comment-header">
+            <strong>{{ comment.user.fullname or comment.user.name }}</strong>
+            <span class="comment-date">{{ h.render_datetime(comment.created_at) }}</span>
+            <span class="badge badge-{{ comment.comment_type }}">{{ comment.comment_type|title }}</span>
+            {% if comment.is_resolved %}
+            <span class="badge badge-success">{{ _('Resolved') }}</span>
+            {% endif %}
+          </div>
+          <div class="comment-content">
+            {{ h.render_markdown(comment.content) }}
+          </div>
+          {% if h.check_access('data_story_comment_resolve', {'id': comment.id}) and not comment.is_resolved %}
+          <form method="post" action="{{ h.url_for('data_stories.resolve_comment', comment_id=comment.id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-sm btn-success">
+              <i class="fa fa-check"></i> {{ _('Resolve') }}
+            </button>
+          </form>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </section>
+    {% endif %}
+  </article>
+{% endblock %}
+
+{% block data_stories_sidebar %}
+  {{ super() }}
+
+  {# Story info #}
+  <section class="module module-narrow module-shallow">
+    <h2 class="module-heading">{{ _('Story Information') }}</h2>
+    <div class="module-content">
+      <dl>
+        <dt>{{ _('Status') }}</dt>
+        <dd><span class="label label-{{ story.status }}">{{ story.status|title }}</span></dd>
+
+        <dt>{{ _('Created') }}</dt>
+        <dd>{{ h.render_datetime(story.created_at, with_hours=False) }}</dd>
+
+        {% if story.published_at %}
+        <dt>{{ _('Published') }}</dt>
+        <dd>{{ h.render_datetime(story.published_at, with_hours=False) }}</dd>
+        {% endif %}
+
+        {% if story.updated_at %}
+        <dt>{{ _('Last Updated') }}</dt>
+        <dd>{{ h.render_datetime(story.updated_at) }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{#
+Section display component - renders a story section
+
+Variables:
+- section: Section dict with all fields
+#}
+
+<section class="story-section section-{{ section.section_type }}" id="section-{{ section.id }}">
+  <header class="section-header">
+    <h2>
+      <i class="fa {{ h.get_section_icon(section.section_type) }}"></i>
+      {{ h.get_section_title(section.section_type, section.title) }}
+    </h2>
+  </header>
+
+  <div class="section-content">
+    {% if section.content %}
+      {{ h.render_markdown(section.content) }}
+    {% endif %}
+
+    {# Image #}
+    {% if section.image_url %}
+    <figure class="section-image">
+      <img src="{{ section.image_url }}" alt="{{ section.title }}" class="img-responsive" />
+    </figure>
+    {% endif %}
+
+    {# Video #}
+    {% if section.video_url %}
+    <div class="section-video">
+      <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="{{ section.video_url }}" allowfullscreen></iframe>
+      </div>
+    </div>
+    {% endif %}
+
+    {# Terria Map #}
+    {% if section.terria_config or section.terria_share_link %}
+    <div class="section-terria">
+      {{ h.get_terria_iframe_html(section)|safe }}
+      <p class="text-muted text-center">
+        <small>
+          <i class="fa fa-map"></i> {{ _('Interactive map powered by Terria') }}
+        </small>
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</section>

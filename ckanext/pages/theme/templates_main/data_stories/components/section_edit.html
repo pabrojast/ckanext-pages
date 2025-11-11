@@ -1,0 +1,149 @@
+{#
+Section editor component - inline section editing
+
+Variables:
+- section: Section dict (optional, for editing existing sections)
+#}
+
+<div class="section-editor panel panel-default">
+  <div class="panel-heading">
+    <div class="pull-right">
+      <button type="button" class="btn btn-danger btn-xs remove-section-btn">
+        <i class="fa fa-trash"></i> {{ _('Remove') }}
+      </button>
+    </div>
+    <h4 class="panel-title">
+      <i class="fa fa-file-text"></i>
+      {{ section.title or _('New Section') if section else _('New Section') }}
+    </h4>
+  </div>
+
+  <div class="panel-body">
+    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][id]" value="{{ section.id if section else '' }}" />
+
+    {# Section Type #}
+    <div class="form-group">
+      <label>{{ _('Section Type') }} <span class="text-danger">*</span></label>
+      <select name="sections[{{ loop.index0 if section else '0' }}][section_type]" class="form-control section-type-select" required>
+        <option value="">{{ _('Select a section type...') }}</option>
+        <option value="introduction"{% if section and section.section_type == 'introduction' %} selected{% endif %}>
+          {{ _('Introduction') }}
+        </option>
+        <option value="research_question"{% if section and section.section_type == 'research_question' %} selected{% endif %}>
+          {{ _('Research Question') }}
+        </option>
+        <option value="study_area"{% if section and section.section_type == 'study_area' %} selected{% endif %}>
+          {{ _('Study Area') }}
+        </option>
+        <option value="data_sources"{% if section and section.section_type == 'data_sources' %} selected{% endif %}>
+          {{ _('Data Sources') }}
+        </option>
+        <option value="methodology"{% if section and section.section_type == 'methodology' %} selected{% endif %}>
+          {{ _('Methodology') }}
+        </option>
+        <option value="spatial_analysis"{% if section and section.section_type == 'spatial_analysis' %} selected{% endif %}>
+          {{ _('Spatial Analysis') }}
+        </option>
+        <option value="results"{% if section and section.section_type == 'results' %} selected{% endif %}>
+          {{ _('Results') }}
+        </option>
+        <option value="discussion"{% if section and section.section_type == 'discussion' %} selected{% endif %}>
+          {{ _('Discussion') }}
+        </option>
+        <option value="conclusions"{% if section and section.section_type == 'conclusions' %} selected{% endif %}>
+          {{ _('Conclusions') }}
+        </option>
+        <option value="references"{% if section and section.section_type == 'references' %} selected{% endif %}>
+          {{ _('References') }}
+        </option>
+        <option value="acknowledgments"{% if section and section.section_type == 'acknowledgments' %} selected{% endif %}>
+          {{ _('Acknowledgments') }}
+        </option>
+      </select>
+    </div>
+
+    {# Title #}
+    <div class="form-group">
+      <label>{{ _('Title') }}</label>
+      <input type="text"
+             name="sections[{{ loop.index0 if section else '0' }}][title]"
+             value="{{ section.title if section else '' }}"
+             class="form-control"
+             placeholder="{{ _('Optional: Override default section title') }}" />
+    </div>
+
+    {# Content #}
+    <div class="form-group">
+      <label>{{ _('Content') }}</label>
+      <textarea name="sections[{{ loop.index0 if section else '0' }}][content]"
+                class="form-control markdown-editor"
+                rows="10">{{ section.content if section else '' }}</textarea>
+      <span class="help-block">
+        <i class="fa fa-info-circle"></i>
+        {{ _('Supports Markdown formatting') }}
+      </span>
+    </div>
+
+    {# Order #}
+    <div class="form-group">
+      <label>{{ _('Order') }}</label>
+      <input type="number"
+             name="sections[{{ loop.index0 if section else '0' }}][order_index]"
+             value="{{ section.order_index if section is defined and section else loop.index0 if section else '0' }}"
+             class="form-control"
+             min="0" />
+    </div>
+
+    {# Terria Configuration #}
+    <div class="form-group terria-config-group">
+      <label>{{ _('Terria Map Configuration') }}</label>
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+          <a href="#terria-share-{{ section.id if section else 'new' }}" role="tab" data-toggle="tab">
+            {{ _('Share Link') }}
+          </a>
+        </li>
+        <li role="presentation">
+          <a href="#terria-config-{{ section.id if section else 'new' }}" role="tab" data-toggle="tab">
+            {{ _('JSON Config') }}
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="terria-share-{{ section.id if section else 'new' }}">
+          <input type="text"
+                 name="sections[{{ loop.index0 if section else '0' }}][terria_share_link]"
+                 value="{{ section.terria_share_link if section else '' }}"
+                 class="form-control"
+                 placeholder="https://terria.water-data.org/#share=abc123" />
+          <span class="help-block">
+            {{ _('Paste a Terria share link') }}
+          </span>
+        </div>
+
+        <div role="tabpanel" class="tab-pane" id="terria-config-{{ section.id if section else 'new' }}">
+          <textarea name="sections[{{ loop.index0 if section else '0' }}][terria_config]"
+                    class="form-control code-editor"
+                    rows="8"
+                    placeholder='{"initSources": [...]}'>{{ section.terria_config|tojson if section and section.terria_config else '' }}</textarea>
+          <span class="help-block">
+            {{ _('Or provide Terria initialization JSON directly') }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {# Visibility #}
+    <div class="checkbox">
+      <label>
+        <input type="checkbox"
+               name="sections[{{ loop.index0 if section else '0' }}][is_visible]"
+               value="true"
+               {% if not section or section.is_visible %}checked{% endif %} />
+        {{ _('Visible') }}
+      </label>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+{#
+Story card component - displays a story in list/grid views
+
+Variables:
+- story: Story dict with all fields
+#}
+
+<div class="story-card module">
+  <div class="story-card-header">
+    {% if story.is_featured %}
+    <span class="badge badge-warning pull-right"><i class="fa fa-star"></i> Featured</span>
+    {% endif %}
+    {% set status_badge = h.get_story_status_badge(story.status) %}
+    <span class="{{ status_badge.class }}">
+      <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
+    </span>
+  </div>
+
+  <div class="story-card-body">
+    <h3 class="story-card-title">
+      <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">
+        {{ story.title }}
+      </a>
+    </h3>
+
+    {% if story.abstract %}
+    <p class="story-card-abstract">
+      {{ h.render_story_abstract(story.abstract, max_length=150) }}
+    </p>
+    {% endif %}
+
+    <div class="story-card-meta">
+      {% if story.author %}
+      <div class="author">
+        <img src="{{ h.gravatar_url(story.author.email, size=24) }}" alt="{{ story.author.name }}" class="avatar-small" />
+        <span>{{ story.author.fullname or story.author.name }}</span>
+      </div>
+      {% endif %}
+
+      <div class="stats">
+        <span title="{{ _('Published') }}">
+          <i class="fa fa-calendar"></i>
+          {{ h.render_story_date(story.published_at or story.created_at) }}
+        </span>
+        <span title="{{ _('Views') }}">
+          <i class="fa fa-eye"></i> {{ story.view_count or 0 }}
+        </span>
+        {% if story.section_count %}
+        <span title="{{ _('Sections') }}">
+          <i class="fa fa-list"></i> {{ h.pluralize(story.section_count, 'section') }}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if story.organization %}
+    <div class="story-card-organization">
+      <small class="text-muted">
+        <i class="fa fa-building"></i> {{ story.organization.title }}
+      </small>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="story-card-footer">
+    <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-primary btn-sm">
+      {{ _('Read Story') }} <i class="fa fa-arrow-right"></i>
+    </a>
+
+    {% if h.check_access('data_story_update', {'id': story.id}) %}
+    <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}" class="btn btn-default btn-sm">
+      <i class="fa fa-edit"></i> {{ _('Edit') }}
+    </a>
+    {% endif %}
+  </div>
+</div>

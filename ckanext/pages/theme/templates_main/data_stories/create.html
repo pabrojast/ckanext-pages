@@ -1,0 +1,169 @@
+{% extends "data_stories/base.html" %}
+
+{% block subtitle %}{{ _('Create New Story') }}{% endblock %}
+
+{% block data_stories_content %}
+  <header class="page-header">
+    <h1>{{ _('Create New Data Story') }}</h1>
+    <p class="lead">
+      {{ _('Share your research and datasets through an engaging narrative') }}
+    </p>
+  </header>
+
+  {% snippet 'snippets/form_errors.html', errors=errors, error_summary=error_summary %}
+
+  <form method="post" class="dataset-form form-horizontal">
+    <fieldset>
+      <legend>{{ _('Basic Information') }}</legend>
+
+      {# Title #}
+      <div class="form-group{% if errors.title %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="title">
+          {{ _('Title') }} <span class="text-danger">*</span>
+        </label>
+        <div class="col-sm-9">
+          <input type="text"
+                 id="title"
+                 name="title"
+                 value="{{ data.get('title', '') }}"
+                 class="form-control"
+                 placeholder="{{ _('e.g., Groundwater Depletion in the Indus Basin') }}"
+                 required />
+          <span class="help-block">
+            {{ _('A clear, descriptive title for your story') }}
+          </span>
+          {% if errors.title %}
+          <span class="help-block error">{{ errors.title.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Slug #}
+      <div class="form-group{% if errors.slug %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="slug">
+          {{ _('URL Slug') }}
+        </label>
+        <div class="col-sm-9">
+          <input type="text"
+                 id="slug"
+                 name="slug"
+                 value="{{ data.get('slug', '') }}"
+                 class="form-control"
+                 placeholder="{{ _('Auto-generated from title') }}" />
+          <span class="help-block">
+            {{ _('Leave blank to auto-generate. Use lowercase letters, numbers, and hyphens only.') }}
+          </span>
+          {% if errors.slug %}
+          <span class="help-block error">{{ errors.slug.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Abstract #}
+      <div class="form-group{% if errors.abstract %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="abstract">
+          {{ _('Abstract') }}
+        </label>
+        <div class="col-sm-9">
+          <textarea id="abstract"
+                    name="abstract"
+                    class="form-control"
+                    rows="4"
+                    placeholder="{{ _('Brief summary of your story...') }}">{{ data.get('abstract', '') }}</textarea>
+          <span class="help-block">
+            {{ _('A brief summary that will appear in story listings') }}
+          </span>
+          {% if errors.abstract %}
+          <span class="help-block error">{{ errors.abstract.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Research Question #}
+      <div class="form-group{% if errors.research_question %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="research_question">
+          {{ _('Research Question') }}
+        </label>
+        <div class="col-sm-9">
+          <textarea id="research_question"
+                    name="research_question"
+                    class="form-control"
+                    rows="3"
+                    placeholder="{{ _('What is the main research question?') }}">{{ data.get('research_question', '') }}</textarea>
+          <span class="help-block">
+            {{ _('The primary question your research addresses') }}
+          </span>
+          {% if errors.research_question %}
+          <span class="help-block error">{{ errors.research_question.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Organization #}
+      <div class="form-group{% if errors.organization_id %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="organization_id">
+          {{ _('Organization') }}
+        </label>
+        <div class="col-sm-9">
+          <select id="organization_id"
+                  name="organization_id"
+                  class="form-control">
+            <option value="">{{ _('No organization') }}</option>
+            {% for org in h.organizations_available('create_dataset') %}
+            <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
+              {{ org.title or org.name }}
+            </option>
+            {% endfor %}
+          </select>
+          <span class="help-block">
+            {{ _('Associate this story with an organization (optional)') }}
+          </span>
+          {% if errors.organization_id %}
+          <span class="help-block error">{{ errors.organization_id.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fa fa-plus"></i> {{ _('Create Story') }}
+      </button>
+      <a href="{{ h.url_for('data_stories.index') }}" class="btn btn-default">
+        {{ _('Cancel') }}
+      </a>
+    </div>
+
+    <div class="alert alert-info">
+      <i class="fa fa-info-circle"></i>
+      {{ _("After creating your story, you'll be able to add sections, link datasets, and build your narrative.") }}
+    </div>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    $(document).ready(function() {
+      // Auto-generate slug from title
+      $('#title').on('blur', function() {
+        var title = $(this).val();
+        var slug = $('#slug');
+
+        if (!slug.val() || slug.data('auto-generated')) {
+          var generatedSlug = title.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+          slug.val(generatedSlug);
+          slug.data('auto-generated', true);
+        }
+      });
+
+      $('#slug').on('input', function() {
+        $(this).data('auto-generated', false);
+      });
+    });
+  </script>
+{% endblock %}

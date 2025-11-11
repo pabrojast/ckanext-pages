@@ -1,0 +1,154 @@
+{% extends "data_stories/base.html" %}
+
+{% block subtitle %}{{ _('Data Stories') }}{% endblock %}
+
+{% block data_stories_content %}
+  <header class="page-header">
+    <h1>{{ _('Data Stories') }}</h1>
+    <p class="lead">
+      {{ _('Explore narrative-driven explanations of water resources datasets and research') }}
+    </p>
+  </header>
+
+  {# Search and filter form #}
+  <form method="get" class="search-form form-horizontal">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="form-group">
+          <input type="text"
+                 name="q"
+                 value="{{ q }}"
+                 class="form-control"
+                 placeholder="{{ _('Search stories...') }}" />
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+          <select name="sort" class="form-control">
+            <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
+            <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
+            <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('Alphabetical') }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">
+          <i class="fa fa-search"></i> {{ _('Search') }}
+        </button>
+        {% if q or status_filter or org_filter %}
+        <a href="{{ h.url_for('data_stories.index') }}" class="btn btn-default">
+          <i class="fa fa-times"></i> {{ _('Clear') }}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+
+  {# Featured stories #}
+  {% if featured_stories and page == 1 %}
+  <section class="featured-stories">
+    <h2>{{ _('Featured Stories') }}</h2>
+    <div class="row">
+      {% for story in featured_stories %}
+        {% include "data_stories/components/story_card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# Story list #}
+  <section class="story-list">
+    {% if page > 1 or featured_stories %}
+      <h2>{{ _('All Stories') }}</h2>
+    {% endif %}
+
+    {% if total_count > 0 %}
+      <p class="results-info">
+        {{ _('Showing {start} - {end} of {total} stories').format(
+          start=(page - 1) * limit + 1,
+          end=min(page * limit, total_count),
+          total=total_count
+        ) }}
+      </p>
+
+      <div class="row">
+        {% for story in stories %}
+          <div class="col-md-6">
+            {% include "data_stories/components/story_card.html" %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {# Pagination #}
+      {% if total_pages > 1 %}
+      <nav aria-label="Story pagination">
+        <ul class="pagination">
+          {% if page > 1 %}
+          <li>
+            <a href="{{ h.url_for('data_stories.index', page=page-1, sort=sort, q=q) }}" aria-label="{{ _('Previous') }}">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          {% endif %}
+
+          {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+            <li class="active"><span>{{ p }}</span></li>
+            {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+            <li><a href="{{ h.url_for('data_stories.index', page=p, sort=sort, q=q) }}">{{ p }}</a></li>
+            {% elif p == 4 or p == total_pages - 3 %}
+            <li class="disabled"><span>...</span></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page < total_pages %}
+          <li>
+            <a href="{{ h.url_for('data_stories.index', page=page+1, sort=sort, q=q) }}" aria-label="{{ _('Next') }}">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+
+    {% else %}
+      <div class="empty-state">
+        <i class="fa fa-book fa-5x text-muted"></i>
+        <h3>{{ _('No stories found') }}</h3>
+        <p class="text-muted">
+          {% if q %}
+            {{ _('Try adjusting your search or filters') }}
+          {% else %}
+            {{ _('There are no published stories yet') }}
+          {% endif %}
+        </p>
+        {% if h.check_access('data_story_create') %}
+        <a href="{{ h.url_for('data_stories.create') }}" class="btn btn-primary">
+          <i class="fa fa-plus"></i> {{ _('Create the first story') }}
+        </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
+
+{% block data_stories_sidebar_extra %}
+  {# Facets sidebar #}
+  {% if facets %}
+  <section class="module module-narrow">
+    <h2 class="module-heading">{{ _('Filter by Status') }}</h2>
+    <ul class="unstyled nav nav-simple">
+      {% for status, count in facets.get('status', {}).items() %}
+      <li class="nav-item{% if status_filter == status %} active{% endif %}">
+        <a href="{{ h.url_for('data_stories.index', status=status, q=q, sort=sort) }}">
+          {{ status|title }} <span class="badge">{{ count }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+{% endblock %}

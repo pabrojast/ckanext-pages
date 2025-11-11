@@ -14,6 +14,33 @@ from ckanext.pages import actions
 from ckanext.pages import auth
 from ckanext.pages import blueprint
 
+# Import data stories helpers
+try:
+    from ckanext.pages.data_stories.helpers import (
+        parse_terria_share_link,
+        generate_terria_embed_url,
+        validate_terria_init_json,
+        extract_terria_catalog_items,
+        get_terria_base_url,
+        get_terria_iframe_html,
+        is_terria_url,
+        render_story_date,
+        render_story_abstract,
+        get_story_status_badge,
+        get_section_icon,
+        get_section_title,
+        markdown_to_html,
+        truncate_text,
+        pluralize,
+        get_user_display_name,
+        format_file_size,
+        highlight_search_terms,
+    )
+    DATA_STORIES_AVAILABLE = True
+except ImportError as e:
+    log.warning("Data stories helpers not available: %s", str(e))
+    DATA_STORIES_AVAILABLE = False
+
 from ckan.lib.plugins import DefaultTranslation
 
 # Import database initialization utilities
@@ -692,7 +719,7 @@ class PagesPlugin(PagesPluginBase):
             # The error handling in the other methods will handle cases where the table doesn't exist
 
     def get_helpers(self):
-        return {
+        helpers = {
             'build_nav_main': build_pages_nav_main,
             'render_content': render_content,
             'strip_html_tags': strip_html_tags,
@@ -723,6 +750,33 @@ class PagesPlugin(PagesPluginBase):
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,
         }
+
+        # Add data stories helpers if available
+        if DATA_STORIES_AVAILABLE:
+            helpers.update({
+                # Terria helpers
+                'parse_terria_share_link': parse_terria_share_link,
+                'generate_terria_embed_url': generate_terria_embed_url,
+                'validate_terria_init_json': validate_terria_init_json,
+                'extract_terria_catalog_items': extract_terria_catalog_items,
+                'get_terria_base_url': get_terria_base_url,
+                'get_terria_iframe_html': get_terria_iframe_html,
+                'is_terria_url': is_terria_url,
+                # Formatting helpers
+                'render_story_date': render_story_date,
+                'render_story_abstract': render_story_abstract,
+                'get_story_status_badge': get_story_status_badge,
+                'get_section_icon': get_section_icon,
+                'get_section_title': get_section_title,
+                'markdown_to_html': markdown_to_html,
+                'truncate_text': truncate_text,
+                'pluralize': pluralize,
+                'get_user_display_name': get_user_display_name,
+                'format_file_size': format_file_size,
+                'highlight_search_terms': highlight_search_terms,
+            })
+
+        return helpers
 
     def get_actions(self):
         actions_dict = {

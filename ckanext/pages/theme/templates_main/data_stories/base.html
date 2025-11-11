@@ -1,0 +1,54 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Data Stories') }}{% endblock %}
+
+{% block primary_content_inner %}
+  <div class="data-stories-container">
+    {% block data_stories_content %}{% endblock %}
+  </div>
+{% endblock %}
+
+{% block secondary_content %}
+  <aside class="data-stories-sidebar">
+    {% block data_stories_sidebar %}
+      <section class="module module-narrow">
+        <h2 class="module-heading">
+          <i class="fa fa-book"></i> {{ _('Data Stories') }}
+        </h2>
+        <nav>
+          <ul class="unstyled nav nav-simple">
+            <li class="nav-item{% if request.endpoint == 'data_stories.index' %} active{% endif %}">
+              <a href="{{ h.url_for('data_stories.index') }}">
+                <i class="fa fa-list"></i> {{ _('Browse Stories') }}
+              </a>
+            </li>
+            {% if h.check_access('data_story_create') %}
+            <li class="nav-item{% if request.endpoint == 'data_stories.create' %} active{% endif %}">
+              <a href="{{ h.url_for('data_stories.create') }}">
+                <i class="fa fa-plus"></i> {{ _('Create Story') }}
+              </a>
+            </li>
+            <li class="nav-item{% if request.endpoint == 'data_stories.my_stories' %} active{% endif %}">
+              <a href="{{ h.url_for('data_stories.my_stories') }}">
+                <i class="fa fa-user"></i> {{ _('My Stories') }}
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </section>
+
+      {% block data_stories_sidebar_extra %}{% endblock %}
+    {% endblock %}
+  </aside>
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/data-stories.css" />
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="/js/data-stories.js"></script>
+{% endblock %}

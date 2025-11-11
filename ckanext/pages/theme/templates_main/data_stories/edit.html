@@ -1,0 +1,259 @@
+{% extends "data_stories/base.html" %}
+
+{% block subtitle %}{{ _('Edit Story') }} - {{ story.title }}{% endblock %}
+
+{% block data_stories_content %}
+  <header class="page-header">
+    <h1>{{ _('Edit Story') }}</h1>
+  </header>
+
+  {% snippet 'snippets/form_errors.html', errors=errors, error_summary=error_summary %}
+
+  <form method="post" class="dataset-form form-horizontal">
+    <fieldset>
+      <legend>{{ _('Basic Information') }}</legend>
+
+      {# Title #}
+      <div class="form-group{% if errors.title %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="title">
+          {{ _('Title') }} <span class="text-danger">*</span>
+        </label>
+        <div class="col-sm-9">
+          <input type="text"
+                 id="title"
+                 name="title"
+                 value="{{ data.get('title', '') }}"
+                 class="form-control"
+                 required />
+          {% if errors.title %}
+          <span class="help-block">{{ errors.title.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Slug #}
+      <div class="form-group{% if errors.slug %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="slug">
+          {{ _('URL Slug') }}
+        </label>
+        <div class="col-sm-9">
+          <input type="text"
+                 id="slug"
+                 name="slug"
+                 value="{{ data.get('slug', '') }}"
+                 class="form-control"
+                 placeholder="{{ _('Leave blank to auto-generate from title') }}" />
+          <span class="help-block">
+            {{ _('URL-friendly identifier (lowercase, hyphens only)') }}
+          </span>
+          {% if errors.slug %}
+          <span class="help-block error">{{ errors.slug.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Abstract #}
+      <div class="form-group{% if errors.abstract %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="abstract">
+          {{ _('Abstract') }}
+        </label>
+        <div class="col-sm-9">
+          <textarea id="abstract"
+                    name="abstract"
+                    class="form-control"
+                    rows="4">{{ data.get('abstract', '') }}</textarea>
+          <span class="help-block">
+            {{ _('Brief summary of the story (recommended)') }}
+          </span>
+          {% if errors.abstract %}
+          <span class="help-block error">{{ errors.abstract.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Research Question #}
+      <div class="form-group{% if errors.research_question %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="research_question">
+          {{ _('Research Question') }}
+        </label>
+        <div class="col-sm-9">
+          <textarea id="research_question"
+                    name="research_question"
+                    class="form-control"
+                    rows="3">{{ data.get('research_question', '') }}</textarea>
+          <span class="help-block">
+            {{ _('Main research question addressed by this story') }}
+          </span>
+          {% if errors.research_question %}
+          <span class="help-block error">{{ errors.research_question.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Study Area #}
+      <div class="form-group{% if errors.study_area %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="study_area">
+          {{ _('Study Area') }}
+        </label>
+        <div class="col-sm-9">
+          <textarea id="study_area"
+                    name="study_area"
+                    class="form-control"
+                    rows="3">{{ data.get('study_area', '') }}</textarea>
+          <span class="help-block">
+            {{ _('Description of the geographic study area') }}
+          </span>
+          {% if errors.study_area %}
+          <span class="help-block error">{{ errors.study_area.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Organization #}
+      <div class="form-group{% if errors.organization_id %} has-error{% endif %}">
+        <label class="control-label col-sm-3" for="organization_id">
+          {{ _('Organization') }}
+        </label>
+        <div class="col-sm-9">
+          <select id="organization_id"
+                  name="organization_id"
+                  class="form-control">
+            <option value="">{{ _('No organization') }}</option>
+            {% for org in h.organizations_available('create_dataset') %}
+            <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
+              {{ org.title or org.name }}
+            </option>
+            {% endfor %}
+          </select>
+          {% if errors.organization_id %}
+          <span class="help-block error">{{ errors.organization_id.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ _('Sections') }}</legend>
+
+      <div id="sections-container">
+        {% if story.sections %}
+        {% for section in story.sections %}
+          {% include "data_stories/components/section_edit.html" %}
+        {% endfor %}
+        {% else %}
+        <p class="text-muted">{{ _('No sections yet. Add your first section below.') }}</p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+          <button type="button" class="btn btn-success" id="add-section-btn">
+            <i class="fa fa-plus"></i> {{ _('Add Section') }}
+          </button>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ _('SEO & Metadata') }}</legend>
+
+      {# Meta Description #}
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="meta_description">
+          {{ _('Meta Description') }}
+        </label>
+        <div class="col-sm-9">
+          <textarea id="meta_description"
+                    name="meta_description"
+                    class="form-control"
+                    rows="2"
+                    maxlength="500">{{ data.get('meta_description', '') }}</textarea>
+          <span class="help-block">
+            {{ _('Description for search engines (max 500 characters)') }}
+          </span>
+        </div>
+      </div>
+
+      {# Meta Keywords #}
+      <div class="form-group">
+        <label class="control-label col-sm-3" for="meta_keywords">
+          {{ _('Keywords') }}
+        </label>
+        <div class="col-sm-9">
+          <input type="text"
+                 id="meta_keywords"
+                 name="meta_keywords"
+                 value="{{ data.get('meta_keywords', '') }}"
+                 class="form-control"
+                 placeholder="{{ _('water, hydrology, dataset, etc.') }}" />
+          <span class="help-block">
+            {{ _('Comma-separated keywords for SEO') }}
+          </span>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa fa-save"></i> {{ _('Save Changes') }}
+      </button>
+      <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-default">
+        {{ _('Cancel') }}
+      </a>
+    </div>
+  </form>
+
+  {# Section template (hidden, cloned by JavaScript) #}
+  <template id="section-template">
+    {% include "data_stories/components/section_edit.html" with context %}
+  </template>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    // Section management JavaScript
+    $(document).ready(function() {
+      var sectionIndex = {{ story.sections|length if story.sections else 0 }};
+
+      $('#add-section-btn').click(function() {
+        var template = $('#section-template').html();
+        var newSection = $(template);
+
+        // Update IDs and names
+        newSection.find('[name*="sections"]').each(function() {
+          var name = $(this).attr('name');
+          $(this).attr('name', name.replace('[0]', '[' + sectionIndex + ']'));
+        });
+
+        $('#sections-container').append(newSection);
+        sectionIndex++;
+      });
+
+      // Remove section
+      $(document).on('click', '.remove-section-btn', function() {
+        $(this).closest('.section-editor').remove();
+      });
+
+      // Auto-generate slug from title
+      $('#title').on('blur', function() {
+        var title = $(this).val();
+        var slug = $('#slug');
+
+        if (!slug.val() || slug.data('auto-generated')) {
+          var generatedSlug = title.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+          slug.val(generatedSlug);
+          slug.data('auto-generated', true);
+        }
+      });
+
+      $('#slug').on('input', function() {
+        $(this).data('auto-generated', false);
+      });
+    });
+  </script>
+{% endblock %}
