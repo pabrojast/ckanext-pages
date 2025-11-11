@@ -14,6 +14,9 @@ from ckanext.pages import actions
 from ckanext.pages import auth
 from ckanext.pages import blueprint
 
+
+log = logging.getLogger(__name__)
+
 # Import data stories helpers
 try:
     from ckanext.pages.data_stories.helpers import (
@@ -53,8 +56,6 @@ except ImportError:
     def ensure_pages_table_exists():
         pass
 
-
-log = logging.getLogger(__name__)
 
 
 def build_pages_nav_main(*args):
