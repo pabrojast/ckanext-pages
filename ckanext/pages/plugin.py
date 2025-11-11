@@ -695,15 +695,9 @@ class PagesPlugin(PagesPluginBase):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IBlueprint)
 
-    def __init__(self, name=None):
-        self.organization_pages = False
-        self.group_pages = False
-        self.data_stories_enabled = False
-        super(PagesPlugin, self).__init__(name=name)
-
     def get_blueprint(self):
         blueprints = [blueprint.pages]
-        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and data_stories_blueprint:
+        if hasattr(self, 'data_stories_enabled') and self.data_stories_enabled and DATA_STORIES_AVAILABLE and data_stories_blueprint:
             blueprints.append(data_stories_blueprint)
         return blueprints
 
