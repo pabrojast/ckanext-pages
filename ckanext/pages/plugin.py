@@ -695,10 +695,11 @@ class PagesPlugin(PagesPluginBase):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IBlueprint)
 
-    def __init__(self):
+    def __init__(self, name=None):
         self.organization_pages = False
         self.group_pages = False
         self.data_stories_enabled = False
+        super(PagesPlugin, self).__init__(name=name)
 
     def get_blueprint(self):
         blueprints = [blueprint.pages]
