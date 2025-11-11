@@ -17,7 +17,17 @@ branch_labels = None
 depends_on = None
 
 
+def _column_exists(table_name, column_name):
+    """Return True if the given column already exists."""
+    bind = op.get_bind()
+    insp = sa.inspect(bind)
+    return any(col['name'] == column_name for col in insp.get_columns(table_name))
+
+
 def upgrade():
+    if _column_exists('ckanext_pages', 'revisions'):
+        return
+
     op.add_column(
         'ckanext_pages',
         sa.Column(
@@ -28,4 +38,5 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column(u'ckanext_pages', u'revisions')
+    if _column_exists('ckanext_pages', 'revisions'):
+        op.drop_column(u'ckanext_pages', u'revisions')
