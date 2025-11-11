@@ -10,7 +10,7 @@ import json
 import re
 import logging
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
-from typing import Dict, Optional, List, Any
+from typing import Dict, Optional, List, Any, Tuple
 
 log = logging.getLogger(__name__)
 
@@ -159,7 +159,7 @@ def generate_terria_embed_url(init_json: Optional[str] = None,
     return embed_url
 
 
-def validate_terria_init_json(init_json: str) -> tuple[bool, Optional[str]]:
+def validate_terria_init_json(init_json: str) -> Tuple[bool, Optional[str]]:
     """
     Validate a Terria initialization JSON configuration.
 
