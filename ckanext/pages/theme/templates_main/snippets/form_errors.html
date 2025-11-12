@@ -1,0 +1,23 @@
+{%- if errors or error_summary -%}
+<div class="alert alert-danger" role="alert">
+  <strong>{{ _('Please correct the errors below and try again.') }}</strong>
+  {%- if error_summary -%}
+    <ul class="list-unstyled m-t-sm">
+      {%- if error_summary.items is defined -%}
+        {%- for field, message in error_summary.items() -%}
+        <li>
+          {%- if field -%}
+            <span class="text-muted">{{ field|replace('_', ' ')|title }}:</span>
+          {%- endif -%}
+          <span>{{ message }}</span>
+        </li>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for message in error_summary -%}
+        <li>{{ message }}</li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  {%- endif -%}
+</div>
+{%- endif -%}
