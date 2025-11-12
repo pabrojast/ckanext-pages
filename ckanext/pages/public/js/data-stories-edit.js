@@ -803,6 +803,14 @@
       // Load existing images on page load
       loadUploadedImages();
       
+      // Confirmation for delete button
+      $('[data-confirm]').on('click', function(e) {
+        if (!confirm($(this).data('confirm'))) {
+          e.preventDefault();
+          return false;
+        }
+      });
+      
       console.log('Data Stories editor initialized successfully');
     });
   });

@@ -80,16 +80,7 @@ Variables:
     <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][terria_share_link]" value="{{ section.terria_share_link if section else '' }}" class="section-terria-link" />
     <textarea name="sections[{{ loop.index0 if section else '0' }}][terria_config]" style="display:none;" class="section-terria-config">{{ section.terria_config|tojson if section and section.terria_config else '' }}</textarea>
     <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][blocks_metadata]" value="" class="section-blocks-metadata" />
-
-    {# Visibility #}
-    <div class="checkbox">
-      <label>
-        <input type="checkbox"
-               name="sections[{{ loop.index0 if section else '0' }}][is_visible]"
-               value="true"
-               {% if not section or section.is_visible %}checked{% endif %} />
-        {{ _('Visible') }}
-      </label>
-    </div>
+    {# Visibility is always true by default #}
+    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][is_visible]" value="true" />
   </div>
 </div>

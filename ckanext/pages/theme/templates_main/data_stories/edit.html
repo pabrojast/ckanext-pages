@@ -3,13 +3,60 @@
 {% block subtitle %}{{ _('Edit Story') }} - {{ story.title }}{% endblock %}
 
 {% block data_stories_content %}
-  <header class="page-header">
-    <h1>{{ _('Edit Story') }}</h1>
-  </header>
 
-  {% snippet 'snippets/form_errors.html', errors=errors, error_summary=error_summary %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+  
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+      
+      <!-- Breadcrumb Navigation -->
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('data_stories.list') }}">{{ _('Data Stories') }}</a></li>
+          {% if story %}
+            <li><a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">{{ story.title }}</a></li>
+            <li class="active">{{ _('Edit') }}</li>
+          {% else %}
+            <li class="active">{{ _('New Story') }}</li>
+          {% endif %}
+        </ol>
+      </div>
 
-  <form method="post" class="dataset-form form-horizontal">
+      <!-- Header Section -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/images/data-stories-header.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            {% if story %}
+              <h1>{{ _('Edit Data Story') }}</h1>
+              <p class="section-title-description">{{ _('Share insights and discoveries through data-driven narratives') }}</p>
+            {% else %}
+              <h1>{{ _('Create Data Story') }}</h1>
+              <p class="section-title-description">{{ _('Share insights and discoveries through data-driven narratives') }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+    </div>
+  
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          
+          <!-- Form Section -->
+          <div class="data-stories-form-wrapper">
+            <section class="module module-narrow">
+              <div class="module-content">
+                
+                {% snippet 'snippets/form_errors.html', errors=errors, error_summary=error_summary %}
+
+  <form method="post" class="data-stories-form" id="data-stories-form">
     <fieldset>
       <legend>{{ _('Basic Information') }}</legend>
 
@@ -224,12 +271,17 @@
     </fieldset>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary">
-        <i class="fa fa-save"></i> {{ _('Save Changes') }}
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fa fa-save"></i> {{ _('Save Story') }}
       </button>
-      <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-default">
-        {{ _('Cancel') }}
+      <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-default btn-lg">
+        <i class="fa fa-times"></i> {{ _('Cancel') }}
       </a>
+      {% if h.check_access('data_story_delete', {'id': story.id}) %}
+      <a href="{{ h.url_for('data_stories.delete', slug=story.slug) }}" class="btn btn-danger btn-lg pull-right" data-confirm="{{ _('Are you sure you want to delete this story?') }}">
+        <i class="fa fa-trash"></i> {{ _('Delete Story') }}
+      </a>
+      {% endif %}
     </div>
   </form>
 
@@ -237,6 +289,19 @@
   <template id="section-template">
     {% include "data_stories/components/section_edit.html" with context %}
   </template>
+  
+              </div>
+            </section>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  {% endblock %}
+</div>
+
 {% endblock %}
 
 {% block styles %}
