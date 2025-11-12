@@ -212,7 +212,20 @@
 {% block scripts %}
   {{ super() }}
   <script>
-    require(['jquery'], function ($) {
+    (function (initEditor) {
+      if (window.require) {
+        window.require(['jquery'], initEditor);
+      } else {
+        var waitForJquery = function () {
+          if (window.jQuery) {
+            initEditor(window.jQuery);
+          } else {
+            setTimeout(waitForJquery, 50);
+          }
+        };
+        waitForJquery();
+      }
+    })(function ($) {
       $(function () {
         var sectionIndex = {{ story.sections|length if story.sections else 0 }};
         var $sectionsContainer = $('#sections-container');

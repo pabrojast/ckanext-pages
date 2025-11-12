@@ -144,7 +144,20 @@
 {% block scripts %}
   {{ super() }}
   <script>
-    require(['jquery'], function ($) {
+    (function (initSlug) {
+      if (window.require) {
+        window.require(['jquery'], initSlug);
+      } else {
+        var waitForJquery = function () {
+          if (window.jQuery) {
+            initSlug(window.jQuery);
+          } else {
+            setTimeout(waitForJquery, 50);
+          }
+        };
+        waitForJquery();
+      }
+    })(function ($) {
       $(function () {
         var $title = $('#title');
         var $slug = $('#slug');

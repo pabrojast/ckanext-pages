@@ -3,7 +3,30 @@
  * Provides interactive functionality for data stories
  */
 
-(function ($, window) {
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD/RequireJS
+    define(['jquery'], function ($) {
+      factory($, window, document);
+    });
+  } else {
+    // Fallback: wait until DOM ready so jQuery is likely available
+    var initWhenReady = function () {
+      if (window.jQuery) {
+        factory(window.jQuery, window, document);
+      } else {
+        // Retry after a short delay if jQuery still loading
+        setTimeout(initWhenReady, 50);
+      }
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      initWhenReady();
+    } else {
+      document.addEventListener('DOMContentLoaded', initWhenReady);
+    }
+  }
+})(function ($, window, document) {
   'use strict';
 
   // Namespace for data stories functionality
@@ -421,4 +444,5 @@
   // Expose to global scope for external use
   window.DataStories = DataStories;
 
-})(jQuery, window);
+  return DataStories;
+});
