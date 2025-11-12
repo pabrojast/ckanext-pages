@@ -1,9 +1,10 @@
 import logging
 import json
 import re
+import hashlib
 from html import escape as html_escape
 
-from six.moves.urllib.parse import quote
+from six.moves.urllib.parse import quote, urlencode
 
 from ckan.plugins import toolkit as tk
 
@@ -212,6 +213,25 @@ def has_meaningful_content(content):
     
     # Check if there's any meaningful content left
     return len(clean_text) > 0
+
+
+def gravatar_url(email, size=40, default='identicon', rating='g'):
+    """Return a gravatar URL for the given email, falling back gracefully."""
+    if not email:
+        email = ''
+    email_bytes = email.strip().lower().encode('utf-8')
+    email_hash = hashlib.md5(email_bytes).hexdigest()
+
+    params = {'s': str(size)}
+    if default:
+        params['d'] = default
+    if rating:
+        params['r'] = rating
+
+    return 'https://www.gravatar.com/avatar/{}?{}'.format(
+        email_hash,
+        urlencode(params)
+    )
 
 
 def get_wysiwyg_editor():
@@ -753,6 +773,7 @@ class PagesPlugin(PagesPluginBase):
             'render_content': render_content,
             'strip_html_tags': strip_html_tags,
             'has_meaningful_content': has_meaningful_content,
+            'gravatar_url': gravatar_url,
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,
             'get_recent_rapid_response_posts': get_recent_rapid_response_posts,
