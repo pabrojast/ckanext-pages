@@ -1,15 +1,16 @@
-{% extends "data_stories/base.html" %}
+{% extends "page.html" %}
 
 {% block subtitle %}{{ _('Edit Story') }} - {{ story.title }}{% endblock %}
 
-{% block data_stories_content %}
+{# Override to not show sidebar in edit page #}
+{% block secondary_content %}{% endblock %}
 
+{% block primary_content_inner %}
 <div class="homepage layout-1">
   <div id="content" class="container">
     {{ self.flash() }}
   </div>
   
-  {% block primary_content %}
   <div class="main">
     <div class="container">
       
@@ -30,7 +31,7 @@
       <!-- Header Section -->
       <section class="module module-narrow module-shallow">
         <div class="section-title" style="margin-bottom: 2rem;">
-          <div class="section-title-bg" style="background-image: url('/images/data-stories-header.jpg');"></div>
+          <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
           <div class="section-title-overlay"></div>
           <div class="section-title-content">
             {% if story %}
@@ -299,10 +300,9 @@
     </div>
     
   </div>
-  {% endblock %}
 </div>
 
-{% endblock %}
+{% endblock primary_content_inner %}
 
 {% block styles %}
   {{ super() }}
