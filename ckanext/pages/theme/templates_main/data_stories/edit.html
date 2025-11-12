@@ -155,6 +155,36 @@
     </fieldset>
 
     <fieldset>
+      <legend>{{ _('Image Gallery') }}</legend>
+      <p class="help-block col-sm-offset-3 col-sm-9">
+        {{ _('Upload images that you can use in your story sections. Images will be available in the rich text editor.') }}
+      </p>
+
+      {# Image Upload Section #}
+      <div class="form-group">
+        <label class="control-label col-sm-3">{{ _('Upload Images') }}</label>
+        <div class="col-sm-9">
+          <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+          <div class="upload-dropzone" id="image-dropzone">
+            <div class="dropzone-content">
+              <i class="fa fa-cloud-upload fa-3x"></i>
+              <p>{{ _('Drop images here or click to browse') }}</p>
+              <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+            </div>
+          </div>
+          
+          {# Uploaded Images Preview #}
+          <div id="uploaded-images-preview" class="uploaded-images-grid">
+            {# Uploaded images will appear here #}
+          </div>
+          
+          {# Hidden field to store uploaded images data #}
+          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="" />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>{{ _('SEO & Metadata') }}</legend>
 
       {# Meta Description #}
@@ -209,77 +239,18 @@
   </template>
 {% endblock %}
 
+{% block styles %}
+  {{ super() }}
+  <!-- Quill Editor -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <!-- Data Stories Edit Styles -->
+  <link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
+{% endblock %}
+
 {% block scripts %}
   {{ super() }}
-  <script>
-    (function (initEditor) {
-      if (window.require) {
-        window.require(['jquery'], initEditor);
-      } else {
-        var waitForJquery = function () {
-          if (window.jQuery) {
-            initEditor(window.jQuery);
-          } else {
-            setTimeout(waitForJquery, 50);
-          }
-        };
-        waitForJquery();
-      }
-    })(function ($) {
-      $(function () {
-        var sectionIndex = {{ story.sections|length if story.sections else 0 }};
-        var $sectionsContainer = $('#sections-container');
-
-        $('#add-section-btn').on('click', function () {
-          var template = $('#section-template').html();
-          if (!template) {
-            return;
-          }
-
-          var $newSection = $(template);
-
-          // Update IDs and names
-          $newSection.find('[name*="sections"]').each(function () {
-            var name = $(this).attr('name');
-            if (name) {
-              $(this).attr('name', name.replace('[0]', '[' + sectionIndex + ']'));
-            }
-          });
-
-          $sectionsContainer.append($newSection);
-          sectionIndex += 1;
-        });
-
-        // Remove section
-        $(document).on('click', '.remove-section-btn', function () {
-          $(this).closest('.section-editor').remove();
-        });
-
-        var $title = $('#title');
-        var $slug = $('#slug');
-
-        // Auto-generate slug from title
-        $title.on('blur', function () {
-          var title = $(this).val();
-          if (!title) {
-            return;
-          }
-
-          if (!$slug.val() || $slug.data('auto-generated')) {
-            var generatedSlug = title.toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/[\s_]+/g, '-')
-              .replace(/^-+|-+$/g, '');
-
-            $slug.val(generatedSlug);
-            $slug.data('auto-generated', true);
-          }
-        });
-
-        $slug.on('input', function () {
-          $(this).data('auto-generated', false);
-        });
-      });
-    });
-  </script>
+  <!-- Quill Editor -->
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <!-- Data Stories Edit Script -->
+  <script type="text/javascript" src="/js/data-stories-edit.js"></script>
 {% endblock %}
