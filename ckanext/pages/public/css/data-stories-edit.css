@@ -14,6 +14,37 @@
   --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
 }
 
+/* CRITICAL: Remove all gray borders from CKAN default layout */
+/* This targets the parent wrapper that contains the grid */
+body {
+  background: #f8f9fa !important;
+}
+
+body .wrapper,
+body .wrapper .container,
+body .wrapper .row,
+body .wrapper .primary,
+body .wrapper .secondary,
+body > .wrapper,
+body > .wrapper > .container,
+#content .wrapper,
+#content .container,
+.wrapper,
+.wrapper .container,
+.wrapper .row,
+.wrapper [class*="col-"] {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
 /* Layout containers (aligned with Rapid Response) */
 .homepage.layout-1 {
   background: #f8f9fa;
@@ -22,6 +53,23 @@
 
 .main {
   padding-bottom: 3rem;
+}
+
+/* Clean slate - remove all default CKAN borders/backgrounds in edit view */
+.homepage.layout-1 ~ *,
+.homepage.layout-1 * {
+  border-color: transparent;
+}
+
+/* Target parent containers that might have gray borders */
+body .wrapper,
+body .wrapper .container,
+body .wrapper .row {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Full width layout for edit page (no sidebar) */
@@ -35,6 +83,51 @@ body .homepage.layout-1 .container {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Remove Bootstrap grid borders and backgrounds */
+body .row,
+body .col-sm-9,
+body .col-sm-3,
+body .col-md-9,
+body .col-md-3,
+body .primary,
+body .secondary,
+body .content,
+body .wrapper {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove any table/grid-like styling */
+body .wrapper,
+body .row:before,
+body .row:after,
+body .container:before,
+body .container:after {
+  border: none !important;
+  background: transparent !important;
+  display: block !important;
+}
+
+/* Specific overrides for CKAN theme */
+.account-masthead,
+.masthead,
+body > .wrapper > .container,
+.primary.col-md-9,
+.primary.col-sm-9 {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
 /* Breadcrumb (aligned with Rapid Response) */
