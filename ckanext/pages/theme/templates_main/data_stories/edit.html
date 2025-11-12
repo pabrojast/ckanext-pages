@@ -212,47 +212,60 @@
 {% block scripts %}
   {{ super() }}
   <script>
-    // Section management JavaScript
-    $(document).ready(function() {
-      var sectionIndex = {{ story.sections|length if story.sections else 0 }};
+    require(['jquery'], function ($) {
+      $(function () {
+        var sectionIndex = {{ story.sections|length if story.sections else 0 }};
+        var $sectionsContainer = $('#sections-container');
 
-      $('#add-section-btn').click(function() {
-        var template = $('#section-template').html();
-        var newSection = $(template);
+        $('#add-section-btn').on('click', function () {
+          var template = $('#section-template').html();
+          if (!template) {
+            return;
+          }
 
-        // Update IDs and names
-        newSection.find('[name*="sections"]').each(function() {
-          var name = $(this).attr('name');
-          $(this).attr('name', name.replace('[0]', '[' + sectionIndex + ']'));
+          var $newSection = $(template);
+
+          // Update IDs and names
+          $newSection.find('[name*="sections"]').each(function () {
+            var name = $(this).attr('name');
+            if (name) {
+              $(this).attr('name', name.replace('[0]', '[' + sectionIndex + ']'));
+            }
+          });
+
+          $sectionsContainer.append($newSection);
+          sectionIndex += 1;
         });
 
-        $('#sections-container').append(newSection);
-        sectionIndex++;
-      });
+        // Remove section
+        $(document).on('click', '.remove-section-btn', function () {
+          $(this).closest('.section-editor').remove();
+        });
 
-      // Remove section
-      $(document).on('click', '.remove-section-btn', function() {
-        $(this).closest('.section-editor').remove();
-      });
+        var $title = $('#title');
+        var $slug = $('#slug');
 
-      // Auto-generate slug from title
-      $('#title').on('blur', function() {
-        var title = $(this).val();
-        var slug = $('#slug');
+        // Auto-generate slug from title
+        $title.on('blur', function () {
+          var title = $(this).val();
+          if (!title) {
+            return;
+          }
 
-        if (!slug.val() || slug.data('auto-generated')) {
-          var generatedSlug = title.toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/[\s_]+/g, '-')
-            .replace(/^-+|-+$/g, '');
+          if (!$slug.val() || $slug.data('auto-generated')) {
+            var generatedSlug = title.toLowerCase()
+              .replace(/[^\w\s-]/g, '')
+              .replace(/[\s_]+/g, '-')
+              .replace(/^-+|-+$/g, '');
 
-          slug.val(generatedSlug);
-          slug.data('auto-generated', true);
-        }
-      });
+            $slug.val(generatedSlug);
+            $slug.data('auto-generated', true);
+          }
+        });
 
-      $('#slug').on('input', function() {
-        $(this).data('auto-generated', false);
+        $slug.on('input', function () {
+          $(this).data('auto-generated', false);
+        });
       });
     });
   </script>

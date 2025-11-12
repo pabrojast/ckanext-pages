@@ -720,6 +720,7 @@ class PagesPlugin(PagesPluginBase):
         tk.add_public_directory(config, 'assets/vendor/ckeditor/')
         tk.add_public_directory(config, 'assets/vendor/ckeditor/skins/moono-lisa')
         tk.add_public_directory(config, 'public/')
+        tk.add_public_directory(config, 'theme/public')
 
     def configure(self, config):
         '''
@@ -736,8 +737,7 @@ class PagesPlugin(PagesPluginBase):
             # Don't raise the error to avoid breaking the entire CKAN startup
             # The error handling in the other methods will handle cases where the table doesn't exist
 
-        # Always initialize data stories tables if available
-        if DATA_STORIES_AVAILABLE and init_data_stories_tables:
+        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and init_data_stories_tables:
             try:
                 from ckan import model
 

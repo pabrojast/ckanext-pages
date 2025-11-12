@@ -144,25 +144,32 @@
 {% block scripts %}
   {{ super() }}
   <script>
-    $(document).ready(function() {
-      // Auto-generate slug from title
-      $('#title').on('blur', function() {
-        var title = $(this).val();
-        var slug = $('#slug');
+    require(['jquery'], function ($) {
+      $(function () {
+        var $title = $('#title');
+        var $slug = $('#slug');
 
-        if (!slug.val() || slug.data('auto-generated')) {
-          var generatedSlug = title.toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/[\s_]+/g, '-')
-            .replace(/^-+|-+$/g, '');
+        // Auto-generate slug from title when slug empty or auto-generated
+        $title.on('blur', function () {
+          var title = $(this).val();
+          if (!title) {
+            return;
+          }
 
-          slug.val(generatedSlug);
-          slug.data('auto-generated', true);
-        }
-      });
+          if (!$slug.val() || $slug.data('auto-generated')) {
+            var generatedSlug = title.toLowerCase()
+              .replace(/[^\w\s-]/g, '')
+              .replace(/[\s_]+/g, '-')
+              .replace(/^-+|-+$/g, '');
 
-      $('#slug').on('input', function() {
-        $(this).data('auto-generated', false);
+            $slug.val(generatedSlug);
+            $slug.data('auto-generated', true);
+          }
+        });
+
+        $slug.on('input', function () {
+          $(this).data('auto-generated', false);
+        });
       });
     });
   </script>

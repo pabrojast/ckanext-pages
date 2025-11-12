@@ -45,10 +45,10 @@
 
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" href="/css/data-stories.css" />
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/data-stories.css') }}" />
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
-  <script src="/js/data-stories.js"></script>
+  <script src="{{ h.url_for_static('/js/data-stories.js') }}"></script>
 {% endblock %}
