@@ -606,6 +606,68 @@ def create_section(slug):
 
 
 # ============================================================================
+# Comment Routes
+# ============================================================================
+
+@data_stories_blueprint.route('/<slug>/comments', methods=['POST'])
+def create_comment(slug):
+    """
+    Create a comment on a story.
+    
+    URL: /data-stories/<slug>/comments (POST)
+    
+    Form data:
+        - content: Comment text (required)
+        - section_id: Section ID if commenting on a section (optional)
+        - parent_comment_id: Parent comment for threading (optional)
+        - comment_type: Type of comment (comment, suggestion, required_change)
+    """
+    log.info(f"[DATA_STORIES_ROUTE] Creating comment for story: {slug}")
+    
+    context = _get_context()
+    
+    # Get story
+    try:
+        story = tk.get_action('data_story_show')(context, {'slug': slug})
+    except tk.ObjectNotFound:
+        flash(tk._('Story not found'), 'error')
+        return redirect(url_for('data_stories.index'))
+    
+    # Extract comment data
+    content = request.form.get('content', '').strip()
+    
+    if not content:
+        flash(tk._('Comment cannot be empty'), 'error')
+        return redirect(url_for('data_stories.show', slug=slug))
+    
+    data_dict = {
+        'story_id': story['id'],
+        'content': content,
+        'section_id': request.form.get('section_id'),
+        'parent_comment_id': request.form.get('parent_comment_id'),
+        'comment_type': request.form.get('comment_type', 'comment')
+    }
+    
+    # Create comment
+    try:
+        comment = tk.get_action('data_story_comment_create')(context, data_dict)
+        flash(tk._('Comment added successfully'), 'success')
+        log.info(f"[DATA_STORIES_ROUTE] Comment created: {comment['id']}")
+        
+    except tk.NotAuthorized:
+        flash(tk._('You are not authorized to comment'), 'error')
+    except tk.ValidationError as e:
+        error_msg = ' '.join([str(v) for v in e.error_dict.values()])
+        flash(tk._('Error: {}').format(error_msg), 'error')
+    except Exception as e:
+        log.error(f"Error creating comment: {str(e)}")
+        flash(tk._('Error adding comment'), 'error')
+    
+    # Redirect back to story
+    return redirect(url_for('data_stories.show', slug=slug) + '#comments')
+
+
+# ============================================================================
 # Helper Functions
 # ============================================================================
 

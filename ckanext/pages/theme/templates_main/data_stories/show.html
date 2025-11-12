@@ -189,7 +189,7 @@
       <h2><i class="fa fa-comments"></i> {{ _('Comments') }}</h2>
 
       {% if h.check_access('data_story_comment_create', {'story_id': story.id}) %}
-      <form method="post" action="{{ h.url_for('data_stories.create_comment', story_id=story.id) }}" class="comment-form">
+      <form method="post" action="{{ h.url_for('data_stories.create_comment', slug=story.slug) }}" class="comment-form">
         <div class="form-group">
           <label for="content">{{ _('Add a comment') }}</label>
           <textarea name="content" id="content" class="form-control" rows="4" required></textarea>
