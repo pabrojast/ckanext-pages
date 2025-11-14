@@ -8,6 +8,7 @@
     {{ self.flash() }}
   </div>
 
+  {% block primary_content %}
   <div class="main">
     <div class="container">
 
@@ -225,10 +226,10 @@
       </div>
     </div>
   </div>
+  {% endblock %}
 </div>
 
 <!-- Load data stories CSS -->
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
-<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
 
 {% endblock %}
