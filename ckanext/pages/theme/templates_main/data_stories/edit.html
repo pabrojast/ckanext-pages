@@ -2,15 +2,13 @@
 
 {% block subtitle %}{{ _('Edit Story') }} - {{ story.title }}{% endblock %}
 
-{# Override to not show sidebar in edit page #}
-{% block secondary_content %}{% endblock %}
-
-{% block primary_content_inner %}
+{% block content %}
 <div class="homepage layout-1">
   <div id="content" class="container">
     {{ self.flash() }}
   </div>
-  
+
+  {% block primary_content %}
   <div class="main">
     <div class="container">
       
@@ -284,11 +282,11 @@
         </div>
       </div>
     </div>
-    
   </div>
+  {% endblock %}
 </div>
 
-{% endblock primary_content_inner %}
+{% endblock %}
 
 {% block styles %}
   {{ super() }}
