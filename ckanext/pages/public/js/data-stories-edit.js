@@ -265,17 +265,25 @@
         updateSectionContent(sectionId);
       }
       
-      // Add Terria map block
+      // Add Terria map block with tabs support
       function addTerriaBlock(sectionId, data = {}) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
         const $container = $('#section-' + sectionId + '-blocks');
-        
+
+        // Initialize tabs if not present
+        if (!data.tabs || !Array.isArray(data.tabs) || data.tabs.length === 0) {
+          data.tabs = [{
+            title: data.title || 'Map 1',
+            url: data.url || ''
+          }];
+        }
+
         const html = `
-          <div class="content-block" data-block-id="${blockId}" data-block-type="terria">
+          <div class="content-block terria-tabs-block" data-block-id="${blockId}" data-block-type="terria">
             <div class="content-block-header">
               <h5 class="content-block-title">
                 <i class="fa fa-map"></i>
-                Terria Map
+                Terria Maps with Tabs
               </h5>
               <div class="content-block-controls">
                 <button type="button" class="btn btn-sm btn-default move-block-up" title="Move Up">
@@ -291,28 +299,65 @@
             </div>
             <div class="content-block-body">
               <div class="terria-block-form">
-                <div class="form-group">
-                  <label>Terria Share Link</label>
-                  <input type="text" class="form-control terria-url" value="${data.url || ''}" 
-                         placeholder="https://ihp-wins.unesco.org/terria/#share=abc123">
-                  <small class="help-block">Paste a Terria share link or JSON config</small>
+
+                <!-- Tabs Navigation -->
+                <div class="terria-tabs-nav" style="margin-bottom: 1rem;">
+                  <div class="terria-tabs-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                    ${data.tabs.map((tab, index) => `
+                      <button type="button"
+                              class="terria-tab-btn ${index === 0 ? 'active' : ''}"
+                              data-tab-index="${index}"
+                              style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #e9ecef; background: ${index === 0 ? 'linear-gradient(135deg, #0072BC 0%, #005A9C 100%)' : '#f8f9fa'}; color: ${index === 0 ? 'white' : '#6c757d'}; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fa fa-map-marker"></i> ${tab.title || 'Map ' + (index + 1)}
+                      </button>
+                    `).join('')}
+                    <button type="button"
+                            class="add-terria-tab-btn"
+                            style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px dashed #0072BC; background: transparent; color: #0072BC; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                      <i class="fa fa-plus"></i> Add Tab
+                    </button>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <label>Title (optional)</label>
-                  <input type="text" class="form-control terria-title" value="${data.title || ''}" 
-                         placeholder="Map title">
+
+                <!-- Tabs Content -->
+                <div class="terria-tabs-content">
+                  ${data.tabs.map((tab, index) => `
+                    <div class="terria-tab-panel ${index === 0 ? 'active' : ''}" data-tab-index="${index}" style="display: ${index === 0 ? 'block' : 'none'};">
+                      <div class="form-group">
+                        <label>Tab Title</label>
+                        <input type="text"
+                               class="form-control terria-tab-title"
+                               value="${tab.title || ''}"
+                               placeholder="Map ${index + 1}">
+                      </div>
+                      <div class="form-group">
+                        <label>Terria Share Link</label>
+                        <input type="text"
+                               class="form-control terria-tab-url"
+                               value="${tab.url || ''}"
+                               placeholder="https://ihp-wins.unesco.org/terria/#share=abc123">
+                        <small class="help-block">Paste a Terria share link or JSON config</small>
+                      </div>
+                      <div class="form-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-sm btn-info preview-terria-tab">
+                          <i class="fa fa-eye"></i> Preview Map
+                        </button>
+                        ${data.tabs.length > 1 ? `
+                          <button type="button" class="btn btn-sm btn-danger delete-terria-tab">
+                            <i class="fa fa-trash"></i> Delete Tab
+                          </button>
+                        ` : ''}
+                      </div>
+                      <div class="terria-tab-preview" style="display: none; margin-top: 1rem; border-radius: 12px; overflow: hidden; border: 2px solid #e9ecef;"></div>
+                    </div>
+                  `).join('')}
                 </div>
-                <div class="form-group">
-                  <button type="button" class="btn btn-sm btn-info preview-terria">
-                    <i class="fa fa-eye"></i> Preview Map
-                  </button>
-                </div>
-                <div class="terria-preview" style="display: none;"></div>
+
               </div>
             </div>
           </div>
         `;
-        
+
         $container.append(html);
         addTerriaBlockEventListeners(blockId, sectionId);
         addBlockEventListeners(blockId, sectionId);
@@ -421,25 +466,170 @@
         });
       }
       
-      // Add Terria block event listeners
+      // Add Terria block event listeners with tabs support
       function addTerriaBlockEventListeners(blockId, sectionId) {
         const $block = $('[data-block-id="' + blockId + '"]');
-        
-        $block.find('.terria-url, .terria-title').on('input', function() {
+
+        // Switch between tabs
+        $block.find('.terria-tab-btn').on('click', function() {
+          const tabIndex = $(this).data('tab-index');
+
+          // Update button styles
+          $block.find('.terria-tab-btn').each(function() {
+            const isActive = $(this).data('tab-index') === tabIndex;
+            $(this).removeClass('active')
+              .css('background', isActive ? 'linear-gradient(135deg, #0072BC 0%, #005A9C 100%)' : '#f8f9fa')
+              .css('color', isActive ? 'white' : '#6c757d')
+              .css('border-color', isActive ? '#0072BC' : '#e9ecef');
+            if (isActive) {
+              $(this).addClass('active');
+            }
+          });
+
+          // Show/hide tab panels
+          $block.find('.terria-tab-panel').each(function() {
+            const panelIndex = $(this).data('tab-index');
+            if (panelIndex === tabIndex) {
+              $(this).show().addClass('active');
+            } else {
+              $(this).hide().removeClass('active');
+            }
+          });
+        });
+
+        // Add new tab
+        $block.find('.add-terria-tab-btn').on('click', function() {
+          const $tabsList = $block.find('.terria-tabs-list');
+          const $tabsContent = $block.find('.terria-tabs-content');
+          const currentTabCount = $block.find('.terria-tab-panel').length;
+          const newTabIndex = currentTabCount;
+
+          // Create new tab button
+          const $newTabBtn = $(`
+            <button type="button"
+                    class="terria-tab-btn"
+                    data-tab-index="${newTabIndex}"
+                    style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #e9ecef; background: #f8f9fa; color: #6c757d; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fa fa-map-marker"></i> Map ${newTabIndex + 1}
+            </button>
+          `);
+
+          // Insert before "Add Tab" button
+          $newTabBtn.insertBefore($(this));
+
+          // Create new tab panel
+          const $newPanel = $(`
+            <div class="terria-tab-panel" data-tab-index="${newTabIndex}" style="display: none;">
+              <div class="form-group">
+                <label>Tab Title</label>
+                <input type="text"
+                       class="form-control terria-tab-title"
+                       value="Map ${newTabIndex + 1}"
+                       placeholder="Map ${newTabIndex + 1}">
+              </div>
+              <div class="form-group">
+                <label>Terria Share Link</label>
+                <input type="text"
+                       class="form-control terria-tab-url"
+                       value=""
+                       placeholder="https://ihp-wins.unesco.org/terria/#share=abc123">
+                <small class="help-block">Paste a Terria share link or JSON config</small>
+              </div>
+              <div class="form-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm btn-info preview-terria-tab">
+                  <i class="fa fa-eye"></i> Preview Map
+                </button>
+                <button type="button" class="btn btn-sm btn-danger delete-terria-tab">
+                  <i class="fa fa-trash"></i> Delete Tab
+                </button>
+              </div>
+              <div class="terria-tab-preview" style="display: none; margin-top: 1rem; border-radius: 12px; overflow: hidden; border: 2px solid #e9ecef;"></div>
+            </div>
+          `);
+
+          $tabsContent.append($newPanel);
+
+          // Bind events to new tab
+          bindTerriaTabEvents($block, newTabIndex, sectionId);
+
+          // Switch to new tab
+          $newTabBtn.trigger('click');
+
           updateSectionContent(sectionId);
         });
-        
-        $block.find('.preview-terria').on('click', function() {
-          const $preview = $block.find('.terria-preview');
-          const url = $block.find('.terria-url').val();
-          
+
+        // Bind events for existing tabs
+        $block.find('.terria-tab-panel').each(function() {
+          const tabIndex = $(this).data('tab-index');
+          bindTerriaTabEvents($block, tabIndex, sectionId);
+        });
+      }
+
+      // Bind events for individual Terria tab
+      function bindTerriaTabEvents($block, tabIndex, sectionId) {
+        const $panel = $block.find(`.terria-tab-panel[data-tab-index="${tabIndex}"]`);
+        const $tabBtn = $block.find(`.terria-tab-btn[data-tab-index="${tabIndex}"]`);
+
+        // Update tab button text when title changes
+        $panel.find('.terria-tab-title').off('input').on('input', function() {
+          const newTitle = $(this).val() || 'Map ' + (tabIndex + 1);
+          $tabBtn.html(`<i class="fa fa-map-marker"></i> ${newTitle}`);
+          updateSectionContent(sectionId);
+        });
+
+        // Update content when URL changes
+        $panel.find('.terria-tab-url').off('input').on('input', function() {
+          updateSectionContent(sectionId);
+        });
+
+        // Preview tab
+        $panel.find('.preview-terria-tab').off('click').on('click', function() {
+          const $preview = $panel.find('.terria-tab-preview');
+          const url = $panel.find('.terria-tab-url').val();
+
           if ($preview.is(':visible')) {
             $preview.hide();
           } else if (url) {
-            const iframe = `<iframe src="${url}" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen></iframe>`;
+            const iframe = `<iframe src="${url}" width="100%" height="500" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen style="border-radius: 12px;"></iframe>`;
             $preview.html(iframe).show();
           } else {
             alert('Please enter a Terria share link first');
+          }
+        });
+
+        // Delete tab
+        $panel.find('.delete-terria-tab').off('click').on('click', function() {
+          const tabCount = $block.find('.terria-tab-panel').length;
+
+          if (tabCount <= 1) {
+            alert('You must have at least one tab');
+            return;
+          }
+
+          if (confirm('Are you sure you want to delete this tab?')) {
+            // Remove tab button and panel
+            $tabBtn.remove();
+            $panel.remove();
+
+            // If we deleted the active tab, activate the first remaining tab
+            if ($panel.hasClass('active')) {
+              $block.find('.terria-tab-btn').first().trigger('click');
+            }
+
+            // Renumber remaining tabs
+            $block.find('.terria-tab-panel').each(function(index) {
+              $(this).attr('data-tab-index', index);
+              const $btn = $block.find('.terria-tab-btn').eq(index);
+              $btn.attr('data-tab-index', index);
+
+              // Update placeholder if title is empty
+              const title = $(this).find('.terria-tab-title').val();
+              if (!title) {
+                $(this).find('.terria-tab-title').attr('placeholder', 'Map ' + (index + 1));
+              }
+            });
+
+            updateSectionContent(sectionId);
           }
         });
       }
@@ -522,24 +712,51 @@
               }
             }
           } else if (blockType === 'terria') {
-            const url = $block.find('.terria-url').val();
-            const title = $block.find('.terria-title').val();
-            
-            if (url) {
-              if (title) {
-                contentHtml += `<h3>${title}</h3>\n`;
+            // Collect all tabs
+            const tabs = [];
+            $block.find('.terria-tab-panel').each(function() {
+              const $panel = $(this);
+              const tabTitle = $panel.find('.terria-tab-title').val();
+              const tabUrl = $panel.find('.terria-tab-url').val();
+
+              if (tabUrl) {
+                tabs.push({
+                  title: tabTitle || 'Map ' + (tabs.length + 1),
+                  url: tabUrl
+                });
               }
-              contentHtml += `<iframe src="${url}" width="100%" height="600" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen></iframe>\n\n`;
-              
+            });
+
+            // Generate HTML for tabs
+            if (tabs.length > 0) {
+              // Add tabs navigation HTML
+              contentHtml += '<div class="terria-tabs-display">\n';
+              contentHtml += '<ul class="terria-tabs-nav-display">\n';
+              tabs.forEach((tab, index) => {
+                contentHtml += `  <li class="${index === 0 ? 'active' : ''}" data-tab="${index}">${tab.title}</li>\n`;
+              });
+              contentHtml += '</ul>\n';
+
+              // Add tabs content HTML
+              contentHtml += '<div class="terria-tabs-panels-display">\n';
+              tabs.forEach((tab, index) => {
+                contentHtml += `  <div class="terria-tab-display ${index === 0 ? 'active' : ''}" data-tab="${index}">\n`;
+                contentHtml += `    <iframe src="${tab.url}" width="100%" height="600" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen></iframe>\n`;
+                contentHtml += '  </div>\n';
+              });
+              contentHtml += '</div>\n';
+              contentHtml += '</div>\n\n';
+
+              // Save to metadata
               blocksMetadata.push({
                 type: 'terria',
-                url: url,
-                title: title
+                tabs: tabs
               });
-              
-              if (!hasTerriaMap) {
+
+              // Set first tab URL for backward compatibility
+              if (!hasTerriaMap && tabs.length > 0) {
                 hasTerriaMap = true;
-                terriaLink = url;
+                terriaLink = tabs[0].url;
               }
             }
           } else if (blockType === 'media') {

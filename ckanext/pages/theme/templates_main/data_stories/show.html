@@ -1,268 +1,485 @@
-{% extends "data_stories/base.html" %}
+{% extends "page.html" %}
 
-{% block subtitle %}{{ story.title }}{% endblock %}
+{% block title %}{{ story.title }} - {{ super() }}{% endblock %}
 
-{% block data_stories_content %}
-  <article class="data-story">
-    {# Story header #}
-    <header class="story-header">
-      <div class="story-meta">
-        <span class="badge badge-{{ story.status }}">{{ story.status|title }}</span>
-        {% if story.is_featured %}
-        <span class="badge badge-warning"><i class="fa fa-star"></i> {{ _('Featured') }}</span>
-        {% endif %}
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb Navigation -->
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
+          <li class="active"><a href="#">{{ story.title }}</a></li>
+        </ol>
       </div>
 
-      <h1 class="story-title">{{ story.title }}</h1>
+      <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-9">
 
-      <div class="story-metadata">
-        <div class="author-info">
-          {% if story.author %}
-          <img src="{{ h.gravatar_url(story.author.email, size=40) }}" alt="{{ story.author.name }}" class="avatar" />
-          <div>
-            <strong>{{ story.author.fullname or story.author.name }}</strong>
-            {% if story.organization %}
-            <br/><small>{{ story.organization.title }}</small>
+          <article class="data-story">
+
+            {# Story Header #}
+            <section class="module module-narrow">
+              <div class="story-header-content" style="padding: 2.5rem;">
+
+                {# Status Badges #}
+                <div class="story-badges" style="margin-bottom: 1rem;">
+                  <span class="badge-modern badge-{{ story.status }}" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                    <i class="fa fa-info-circle"></i> {{ story.status|title }}
+                  </span>
+                  {% if story.is_featured %}
+                  <span class="badge-modern badge-featured" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #FFB800 0%, #FF8800 100%); color: white; margin-left: 0.5rem;">
+                    <i class="fa fa-star"></i> {{ _('Featured') }}
+                  </span>
+                  {% endif %}
+                </div>
+
+                {# Title #}
+                <h1 class="story-title" style="margin: 0 0 1.5rem 0; color: #0072BC; font-size: 2.5rem; font-weight: 700; line-height: 1.2;">
+                  {{ story.title }}
+                </h1>
+
+                {# Abstract #}
+                {% if story.abstract %}
+                <div class="story-abstract" style="margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #f8f9fa 100%); border-radius: 12px; border-left: 4px solid #0072BC;">
+                  <p class="lead" style="margin: 0; color: #2c3e50; font-size: 1.2rem; line-height: 1.6;">{{ story.abstract }}</p>
+                </div>
+                {% endif %}
+
+                {# Metadata Row #}
+                <div class="story-metadata" style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; padding: 1.5rem 0; border-top: 2px solid #e9ecef; border-bottom: 2px solid #e9ecef;">
+
+                  {# Author Info #}
+                  {% if story.author %}
+                  <div class="author-info" style="display: flex; align-items: center; gap: 1rem;">
+                    <img src="{{ h.gravatar_url(story.author.email, size=48) }}"
+                         alt="{{ story.author.name }}"
+                         style="width: 48px; height: 48px; border-radius: 50%; border: 3px solid #0072BC;" />
+                    <div>
+                      <strong style="color: #2c3e50; font-size: 1.05rem;">{{ story.author.fullname or story.author.name }}</strong>
+                      {% if story.organization %}
+                      <br/><small style="color: #6c757d;"><i class="fa fa-building"></i> {{ story.organization.title }}</small>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% endif %}
+
+                  {# Stats #}
+                  <div class="story-stats" style="display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.95rem; color: #6c757d;">
+                    <span title="{{ _('Published') }}">
+                      <i class="fa fa-calendar" style="color: #0072BC;"></i>
+                      {{ h.render_datetime(story.published_at or story.created_at, with_hours=False) }}
+                    </span>
+                    <span title="{{ _('Views') }}">
+                      <i class="fa fa-eye" style="color: #0072BC;"></i> {{ story.view_count or 0 }}
+                    </span>
+                    {% if story.section_count %}
+                    <span title="{{ _('Sections') }}">
+                      <i class="fa fa-list" style="color: #0072BC;"></i> {{ story.section_count }}
+                    </span>
+                    {% endif %}
+                    {% if story.dataset_count %}
+                    <span title="{{ _('Datasets') }}">
+                      <i class="fa fa-database" style="color: #0072BC;"></i> {{ story.dataset_count }}
+                    </span>
+                    {% endif %}
+                  </div>
+
+                </div>
+
+                {# Action Buttons #}
+                <div class="story-actions" style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                  {% if h.check_access('data_story_update', {'id': story.id}) %}
+                  <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
+                     class="btn btn-primary"
+                     style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa fa-edit"></i> {{ _('Edit Story') }}
+                  </a>
+                  {% endif %}
+
+                  {% if story.status == 'draft' and h.check_access('data_story_submit', {'id': story.id}) %}
+                  <form method="post" action="{{ h.url_for('data_stories.submit', slug=story.slug) }}" style="display: inline;">
+                    <button type="submit"
+                            class="btn btn-success"
+                            style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #218838 100%); border: none; color: white;">
+                      <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+                    </button>
+                  </form>
+                  {% endif %}
+
+                  {% if story.status in ['submitted', 'under_review'] and h.check_access('data_story_review', {'id': story.id}) %}
+                  <a href="{{ h.url_for('data_stories.review', slug=story.slug) }}"
+                     class="btn btn-warning"
+                     style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); border: none; color: #2c3e50; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa fa-check"></i> {{ _('Review') }}
+                  </a>
+                  {% endif %}
+
+                  {% if h.check_access('data_story_delete', {'id': story.id}) %}
+                  <form method="post" action="{{ h.url_for('data_stories.delete', slug=story.slug) }}" style="display: inline;" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
+                    <button type="submit"
+                            class="btn btn-danger"
+                            style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; color: white;">
+                      <i class="fa fa-trash"></i> {{ _('Delete') }}
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+
+              </div>
+            </section>
+
+            {# Research Question #}
+            {% if story.research_question %}
+            <section class="module module-narrow story-section" style="margin-top: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <i class="fa fa-question-circle"></i> {{ _('Research Question') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="section-content">
+                  {{ h.render_markdown(story.research_question) | safe }}
+                </div>
+              </div>
+            </section>
             {% endif %}
-          </div>
-          {% endif %}
+
+            {# Study Area #}
+            {% if story.study_area %}
+            <section class="module module-narrow story-section" style="margin-top: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <i class="fa fa-map-marker"></i> {{ _('Study Area') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="section-content">
+                  {{ h.render_markdown(story.study_area) | safe }}
+                </div>
+              </div>
+            </section>
+            {% endif %}
+
+            {# Story Sections #}
+            {% if story.sections %}
+            <div class="story-sections" style="margin-top: 2rem;">
+              {% for section in story.sections %}
+              {% if section.is_visible %}
+              <section class="module module-narrow story-section" id="section-{{ section.id }}" style="margin-bottom: 2rem;">
+                <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                  <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
+                    {{ section.title or section.section_type|replace('_', ' ')|title }}
+                  </h2>
+                </div>
+                <div class="module-content" style="padding: 2rem 2.5rem;">
+                  <div class="section-content">
+                    {{ section.content | safe }}
+                  </div>
+                </div>
+              </section>
+              {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {# Linked Datasets #}
+            {% if story.datasets %}
+            <section class="module module-narrow story-section" style="margin-top: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <i class="fa fa-database"></i> {{ _('Datasets') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="dataset-list">
+                  {% for link in story.datasets %}
+                    {% if link.dataset %}
+                    <div class="dataset-item" style="padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; border-left: 4px solid #0072BC; margin-bottom: 1.5rem;">
+                      <span class="dataset-badge" style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: #0072BC; color: white; margin-bottom: 0.75rem;">
+                        {{ link.relationship_type|title }}
+                      </span>
+                      <h4 style="margin: 0 0 0.75rem 0;">
+                        <a href="{{ h.url_for('dataset.read', id=link.dataset.name) }}" style="color: #0072BC; text-decoration: none; font-weight: 600;">
+                          {{ link.dataset.title }}
+                        </a>
+                      </h4>
+                      {% if link.description %}
+                      <p style="margin-bottom: 0.5rem; color: #2c3e50;">{{ link.description }}</p>
+                      {% endif %}
+                      {% if link.dataset.notes %}
+                      <p class="text-muted" style="margin: 0; color: #6c757d; font-size: 0.95rem;">{{ h.markdown_extract(link.dataset.notes, 150) }}</p>
+                      {% endif %}
+                    </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+            {% endif %}
+
+            {# Contributors #}
+            {% if story.contributors %}
+            <section class="module module-narrow story-section" style="margin-top: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <i class="fa fa-users"></i> {{ _('Contributors') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <ul class="contributor-list" style="list-style: none; padding: 0; margin: 0;">
+                  {% for contributor in story.contributors %}
+                  <li style="padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid #0072BC;">
+                    <strong style="color: #2c3e50; font-size: 1.05rem;">{{ contributor.name }}</strong>
+                    {% if contributor.role %}
+                    <span class="text-muted" style="color: #6c757d;">({{ contributor.role|title }})</span>
+                    {% endif %}
+                    {% if contributor.affiliation %}
+                    <br/><small style="color: #6c757d;"><i class="fa fa-building"></i> {{ contributor.affiliation }}</small>
+                    {% endif %}
+                    {% if contributor.orcid %}
+                    <br/><small style="color: #6c757d;">ORCID: <a href="https://orcid.org/{{ contributor.orcid }}" target="_blank" style="color: #0072BC;">{{ contributor.orcid }}</a></small>
+                    {% endif %}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </section>
+            {% endif %}
+
+          </article>
+
         </div>
 
-        <div class="story-stats">
-          <span title="{{ _('Published') }}">
-            <i class="fa fa-calendar"></i>
-            {{ h.render_datetime(story.published_at or story.created_at, with_hours=False) }}
-          </span>
-          <span title="{{ _('Views') }}">
-            <i class="fa fa-eye"></i> {{ story.view_count or 0 }}
-          </span>
-          {% if story.section_count %}
-          <span title="{{ _('Sections') }}">
-            <i class="fa fa-list"></i> {{ story.section_count }}
-          </span>
+        <!-- Sidebar -->
+        <div class="col-md-3">
+
+          {# Table of Contents #}
+          {% if story.sections %}
+          <section class="module module-narrow module-shallow">
+            <div class="module-heading" style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 2px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.2rem;">
+                <i class="fa fa-list"></i> {{ _('Contents') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 1.5rem;">
+              <ul class="nav nav-pills nav-stacked" style="margin: 0;">
+                {% if story.research_question %}
+                <li><a href="#research-question" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Research Question') }}</a></li>
+                {% endif %}
+                {% if story.study_area %}
+                <li><a href="#study-area" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Study Area') }}</a></li>
+                {% endif %}
+                {% for section in story.sections %}
+                {% if section.is_visible %}
+                <li>
+                  <a href="#section-{{ section.id }}" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">
+                    {{ section.title or section.section_type|replace('_', ' ')|title }}
+                  </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% if story.datasets %}
+                <li><a href="#datasets" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Datasets') }}</a></li>
+                {% endif %}
+                {% if story.contributors %}
+                <li><a href="#contributors" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Contributors') }}</a></li>
+                {% endif %}
+              </ul>
+            </div>
+          </section>
           {% endif %}
-          {% if story.dataset_count %}
-          <span title="{{ _('Datasets') }}">
-            <i class="fa fa-database"></i> {{ story.dataset_count }}
-          </span>
-          {% endif %}
+
+          {# Story Information #}
+          <section class="module module-narrow module-shallow">
+            <div class="module-heading" style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 2px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.2rem;">
+                <i class="fa fa-info-circle"></i> {{ _('Information') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 1.5rem;">
+              <dl style="margin: 0;">
+                <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">{{ _('Status') }}</dt>
+                <dd style="margin-bottom: 1rem;">
+                  <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: #0072BC; color: white;">
+                    {{ story.status|title }}
+                  </span>
+                </dd>
+
+                <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">{{ _('Created') }}</dt>
+                <dd style="margin-bottom: 1rem; color: #6c757d;">{{ h.render_datetime(story.created_at, with_hours=False) }}</dd>
+
+                {% if story.published_at %}
+                <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">{{ _('Published') }}</dt>
+                <dd style="margin-bottom: 1rem; color: #6c757d;">{{ h.render_datetime(story.published_at, with_hours=False) }}</dd>
+                {% endif %}
+
+                {% if story.updated_at %}
+                <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">{{ _('Last Updated') }}</dt>
+                <dd style="margin-bottom: 0; color: #6c757d;">{{ h.render_datetime(story.updated_at) }}</dd>
+                {% endif %}
+              </dl>
+            </div>
+          </section>
+
+          {# Share Section #}
+          <section class="module module-narrow module-shallow">
+            <div class="module-heading" style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 2px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.2rem;">
+                <i class="fa fa-share-alt"></i> {{ _('Share') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 1.5rem;">
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ story.title }}"
+                   target="_blank"
+                   class="btn btn-sm"
+                   style="padding: 0.5rem 1rem; border-radius: 8px; background: #1DA1F2; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa fa-twitter"></i> Twitter
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}"
+                   target="_blank"
+                   class="btn btn-sm"
+                   style="padding: 0.5rem 1rem; border-radius: 8px; background: #4267B2; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa fa-facebook"></i> Facebook
+                </a>
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.url }}&title={{ story.title }}"
+                   target="_blank"
+                   class="btn btn-sm"
+                   style="padding: 0.5rem 1rem; border-radius: 8px; background: #0077B5; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <i class="fa fa-linkedin"></i> LinkedIn
+                </a>
+              </div>
+            </div>
+          </section>
+
         </div>
       </div>
 
-      {% if story.abstract %}
-      <div class="story-abstract">
-        <p class="lead">{{ story.abstract }}</p>
-      </div>
-      {% endif %}
-
-      {# Action buttons #}
-      <div class="story-actions">
-        {% if h.check_access('data_story_update', {'id': story.id}) %}
-        <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}" class="btn btn-primary">
-          <i class="fa fa-edit"></i> {{ _('Edit') }}
-        </a>
-        {% endif %}
-
-        {% if story.status == 'draft' and h.check_access('data_story_submit', {'id': story.id}) %}
-        <form method="post" action="{{ h.url_for('data_stories.submit', slug=story.slug) }}" style="display: inline;">
-          <button type="submit" class="btn btn-success">
-            <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
-          </button>
-        </form>
-        {% endif %}
-
-        {% if story.status in ['submitted', 'under_review'] and h.check_access('data_story_review', {'id': story.id}) %}
-        <a href="{{ h.url_for('data_stories.review', slug=story.slug) }}" class="btn btn-warning">
-          <i class="fa fa-check"></i> {{ _('Review') }}
-        </a>
-        {% endif %}
-
-        {% if h.check_access('data_story_delete', {'id': story.id}) %}
-        <form method="post" action="{{ h.url_for('data_stories.delete', slug=story.slug) }}" style="display: inline;" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
-          <button type="submit" class="btn btn-danger">
-            <i class="fa fa-trash"></i> {{ _('Delete') }}
-          </button>
-        </form>
-        {% endif %}
-      </div>
-    </header>
-
-    {# Research question #}
-    {% if story.research_question %}
-    <section class="story-section research-question">
-      <h2><i class="fa fa-question-circle"></i> {{ _('Research Question') }}</h2>
-      <div class="section-content">
-        {{ h.render_markdown(story.research_question) }}
-      </div>
-    </section>
-    {% endif %}
-
-    {# Study area #}
-    {% if story.study_area %}
-    <section class="story-section study-area">
-      <h2><i class="fa fa-map-marker"></i> {{ _('Study Area') }}</h2>
-      <div class="section-content">
-        {{ h.render_markdown(story.study_area) }}
-      </div>
-    </section>
-    {% endif %}
-
-    {# Sections #}
-    {% if story.sections %}
-    <nav class="story-navigation">
-      <h3>{{ _('Sections') }}</h3>
-      <ul class="nav nav-pills nav-stacked">
-        {% for section in story.sections %}
-        {% if section.is_visible %}
-        <li>
-          <a href="#section-{{ section.id }}">
-            {{ section.title or section.section_type|replace('_', ' ')|title }}
-          </a>
-        </li>
-        {% endif %}
-        {% endfor %}
-      </ul>
-    </nav>
-
-    <div class="story-sections">
-      {% for section in story.sections %}
-      {% if section.is_visible %}
-        {% include "data_stories/components/section_display.html" %}
-      {% endif %}
-      {% endfor %}
     </div>
-    {% endif %}
+  </div>
+</div>
 
-    {# Linked datasets #}
-    {% if story.datasets %}
-    <section class="story-section linked-datasets">
-      <h2><i class="fa fa-database"></i> {{ _('Datasets') }}</h2>
-      <div class="dataset-list">
-        {% for link in story.datasets %}
-          {% if link.dataset %}
-          <div class="dataset-item">
-            <div class="dataset-badge">{{ link.relationship_type|title }}</div>
-            <h4>
-              <a href="{{ h.url_for('dataset.read', id=link.dataset.name) }}">
-                {{ link.dataset.title }}
-              </a>
-            </h4>
-            {% if link.description %}
-            <p>{{ link.description }}</p>
-            {% endif %}
-            {% if link.dataset.notes %}
-            <p class="text-muted">{{ h.markdown_extract(link.dataset.notes, 150) }}</p>
-            {% endif %}
-          </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </section>
-    {% endif %}
+<!-- Load CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
 
-    {# Contributors #}
-    {% if story.contributors %}
-    <section class="story-section contributors">
-      <h2><i class="fa fa-users"></i> {{ _('Contributors') }}</h2>
-      <ul class="contributor-list">
-        {% for contributor in story.contributors %}
-        <li>
-          <strong>{{ contributor.name }}</strong>
-          {% if contributor.role %}
-          <span class="text-muted">({{ contributor.role|title }})</span>
-          {% endif %}
-          {% if contributor.affiliation %}
-          <br/><small>{{ contributor.affiliation }}</small>
-          {% endif %}
-          {% if contributor.orcid %}
-          <br/><small>ORCID: <a href="https://orcid.org/{{ contributor.orcid }}" target="_blank">{{ contributor.orcid }}</a></small>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-    </section>
-    {% endif %}
+<!-- Load JavaScript for Terria Tabs -->
+<script type="text/javascript" src="/js/terria-tabs-display.js"></script>
 
-    {# Comments section #}
-    {% if comments or h.check_access('data_story_comment_create', {'story_id': story.id}) %}
-    <section class="story-section comments">
-      <h2><i class="fa fa-comments"></i> {{ _('Comments') }}</h2>
+<style>
+/* Additional inline styles for show page */
+.story-section .section-content {
+  line-height: 1.8;
+  color: #2c3e50;
+}
 
-      {% if h.check_access('data_story_comment_create', {'story_id': story.id}) %}
-      <form method="post" action="{{ h.url_for('data_stories.create_comment', slug=story.slug) }}" class="comment-form">
-        <div class="form-group">
-          <label for="content">{{ _('Add a comment') }}</label>
-          <textarea name="content" id="content" class="form-control" rows="4" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="comment_type">{{ _('Comment type') }}</label>
-          <select name="comment_type" id="comment_type" class="form-control">
-            <option value="comment">{{ _('Comment') }}</option>
-            <option value="suggestion">{{ _('Suggestion') }}</option>
-            <option value="required_change">{{ _('Required Change') }}</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">
-          <i class="fa fa-comment"></i> {{ _('Post Comment') }}
-        </button>
-      </form>
-      {% endif %}
+.story-section .section-content h1,
+.story-section .section-content h2,
+.story-section .section-content h3,
+.story-section .section-content h4 {
+  color: #0072BC;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
 
-      {% if comments %}
-      <div class="comment-list">
-        {% for comment in comments %}
-        <div class="comment{% if comment.is_resolved %} resolved{% endif %}">
-          <div class="comment-header">
-            <strong>{{ comment.user.fullname or comment.user.name }}</strong>
-            <span class="comment-date">{{ h.render_datetime(comment.created_at) }}</span>
-            <span class="badge badge-{{ comment.comment_type }}">{{ comment.comment_type|title }}</span>
-            {% if comment.is_resolved %}
-            <span class="badge badge-success">{{ _('Resolved') }}</span>
-            {% endif %}
-          </div>
-          <div class="comment-content">
-            {{ h.render_markdown(comment.content) }}
-          </div>
-          {% if h.check_access('data_story_comment_resolve', {'id': comment.id}) and not comment.is_resolved %}
-          <form method="post" action="{{ h.url_for('data_stories.resolve_comment', comment_id=comment.id) }}" style="display: inline;">
-            <button type="submit" class="btn btn-sm btn-success">
-              <i class="fa fa-check"></i> {{ _('Resolve') }}
-            </button>
-          </form>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-    </section>
-    {% endif %}
-  </article>
-{% endblock %}
+.story-section .section-content p {
+  margin-bottom: 1rem;
+}
 
-{% block data_stories_sidebar %}
-  {{ super() }}
+.story-section .section-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+}
 
-  {# Story info #}
-  <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">{{ _('Story Information') }}</h2>
-    <div class="module-content">
-      <dl>
-        <dt>{{ _('Status') }}</dt>
-        <dd><span class="label label-{{ story.status }}">{{ story.status|title }}</span></dd>
+.story-section .section-content ul,
+.story-section .section-content ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
 
-        <dt>{{ _('Created') }}</dt>
-        <dd>{{ h.render_datetime(story.created_at, with_hours=False) }}</dd>
+.story-section .section-content li {
+  margin-bottom: 0.5rem;
+}
 
-        {% if story.published_at %}
-        <dt>{{ _('Published') }}</dt>
-        <dd>{{ h.render_datetime(story.published_at, with_hours=False) }}</dd>
-        {% endif %}
+.story-section .section-content blockquote {
+  border-left: 4px solid #0072BC;
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #6c757d;
+}
 
-        {% if story.updated_at %}
-        <dt>{{ _('Last Updated') }}</dt>
-        <dd>{{ h.render_datetime(story.updated_at) }}</dd>
-        {% endif %}
-      </dl>
-    </div>
-  </section>
+.story-section .section-content code {
+  background: #f8f9fa;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: #c7254e;
+}
+
+.story-section .section-content pre {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+/* Table of contents hover effect */
+.nav-pills li a:hover {
+  border-left-color: #0072BC !important;
+  background: #E3F2FD;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .story-title {
+    font-size: 2rem !important;
+  }
+
+  .story-metadata {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  .story-stats {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  .story-actions {
+    flex-direction: column !important;
+  }
+
+  .story-actions .btn,
+  .story-actions form {
+    width: 100%;
+  }
+
+  .story-actions .btn {
+    justify-content: center;
+  }
+}
+</style>
+
 {% endblock %}

@@ -825,7 +825,155 @@ input[type="submit"] {
   cursor: pointer;
 }
 
-/* Responsive Design */
+/* ========================================
+   Terria Tabs Styling
+   ======================================== */
+
+/* Editor Tabs */
+.terria-tabs-block .terria-tabs-nav {
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.terria-tabs-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.terria-tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  background: #f8f9fa;
+  color: #6c757d;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 5;
+}
+
+.terria-tab-btn:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+.terria-tab-btn.active {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+  border-color: var(--unesco-blue);
+  box-shadow: var(--shadow-light);
+}
+
+.add-terria-tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px dashed var(--unesco-blue);
+  background: transparent;
+  color: var(--unesco-blue);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 5;
+}
+
+.add-terria-tab-btn:hover {
+  background: var(--unesco-blue-pale);
+  transform: translateY(-1px);
+}
+
+.terria-tab-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.terria-tab-preview iframe {
+  width: 100%;
+  height: 500px;
+  border-radius: 12px;
+}
+
+/* Display Tabs (for show page) */
+.terria-tabs-display {
+  margin: 2rem 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  background: #fff;
+}
+
+.terria-tabs-nav-display {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 3px solid #e9ecef;
+  overflow-x: auto;
+}
+
+.terria-tabs-nav-display li {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  color: var(--text-secondary);
+  position: relative;
+  white-space: nowrap;
+}
+
+.terria-tabs-nav-display li:hover {
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+}
+
+.terria-tabs-nav-display li.active {
+  color: var(--unesco-blue);
+  border-bottom-color: var(--unesco-blue);
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+}
+
+.terria-tabs-panels-display {
+  position: relative;
+}
+
+.terria-tab-display {
+  display: none;
+}
+
+.terria-tab-display.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.terria-tab-display iframe {
+  width: 100%;
+  height: 600px;
+  border: none;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
 @media (max-width: 768px) {
   .section-header {
     flex-direction: column;
@@ -863,5 +1011,42 @@ input[type="submit"] {
   .data-stories-form legend {
     padding: 1rem 1.5rem;
     font-size: 1.2rem;
+  }
+
+  /* Terria Tabs Responsive */
+  .terria-tabs-list {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .terria-tab-btn,
+  .add-terria-tab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .terria-tabs-nav-display {
+    flex-direction: column;
+    border-bottom: none;
+  }
+
+  .terria-tabs-nav-display li {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    margin-bottom: 0;
+    margin-left: -3px;
+  }
+
+  .terria-tabs-nav-display li.active {
+    border-left-color: var(--unesco-blue);
+    border-bottom-color: transparent;
+  }
+
+  .terria-tab-display iframe {
+    height: 400px;
+  }
+
+  .terria-tab-preview iframe {
+    height: 350px;
   }
 }
