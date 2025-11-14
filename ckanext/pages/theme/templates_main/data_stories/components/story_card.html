@@ -1,76 +1,199 @@
 {#
-Story card component - displays a story in list/grid views
+Story card component - displays a story in list/grid views with modern design
+Aligned with rapid-response design
 
 Variables:
 - story: Story dict with all fields
 #}
 
-<div class="story-card module">
-  <div class="story-card-header">
-    {% if story.is_featured %}
-    <span class="badge badge-warning pull-right"><i class="fa fa-star"></i> Featured</span>
-    {% endif %}
-    {% set status_badge = h.get_story_status_badge(story.status) %}
-    <span class="{{ status_badge.class }}">
-      <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
-    </span>
-  </div>
+<div class="event-card-modern story-card-modern" style="margin-bottom: 1.5rem;">
+  <article class="module-modern">
+    <div class="event-card-content">
+      <div class="row">
 
-  <div class="story-card-body">
-    <h3 class="story-card-title">
-      <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">
-        {{ story.title }}
-      </a>
-    </h3>
+        <!-- Story Thumbnail/Image -->
+        <div class="col-md-3 col-sm-4">
+          <div class="event-image-container">
+            {% if story.thumbnail_url or story.header_image %}
+            <img src="{{ story.thumbnail_url or story.header_image }}"
+                 alt="{{ story.title }}"
+                 class="event-image">
+            {% else %}
+            <div class="placeholder-image">
+              <i class="fa fa-book fa-3x"></i>
+            </div>
+            {% endif %}
 
-    {% if story.abstract %}
-    <p class="story-card-abstract">
-      {{ h.render_story_abstract(story.abstract, max_length=150) }}
-    </p>
-    {% endif %}
+            <!-- Featured Badge -->
+            {% if story.is_featured %}
+            <div class="story-featured-badge">
+              <i class="fa fa-star"></i> {{ _('Featured') }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
 
-    <div class="story-card-meta">
-      {% if story.author %}
-      <div class="author">
-        <img src="{{ h.gravatar_url(story.author.email, size=24) }}" alt="{{ story.author.name }}" class="avatar-small" />
-        <span>{{ story.author.fullname or story.author.name }}</span>
-      </div>
-      {% endif %}
+        <!-- Story Content -->
+        <div class="col-md-9 col-sm-8">
+          <div class="event-details">
 
-      <div class="stats">
-        <span title="{{ _('Published') }}">
-          <i class="fa fa-calendar"></i>
-          {{ h.render_story_date(story.published_at or story.created_at) }}
-        </span>
-        <span title="{{ _('Views') }}">
-          <i class="fa fa-eye"></i> {{ story.view_count or 0 }}
-        </span>
-        {% if story.section_count %}
-        <span title="{{ _('Sections') }}">
-          <i class="fa fa-list"></i> {{ h.pluralize(story.section_count, 'section') }}
-        </span>
-        {% endif %}
+            <!-- Status Badge -->
+            <div class="story-badges" style="margin-bottom: 0.75rem;">
+              {% set status_badge = h.get_story_status_badge(story.status) %}
+              <span class="badge-modern {{ status_badge.class }}" style="padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
+                <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
+              </span>
+
+              {% if story.organization %}
+              <span class="badge-modern badge-organization" style="padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.85rem; background: #f8f9fa; color: #6c757d; margin-left: 0.5rem;">
+                <i class="fa fa-building"></i> {{ story.organization.title }}
+              </span>
+              {% endif %}
+            </div>
+
+            <!-- Story Title -->
+            <h3 class="event-title" style="margin: 0 0 1rem 0;">
+              <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
+                 style="color: #0072BC; text-decoration: none; font-size: 1.4rem; font-weight: 700; line-height: 1.3;">
+                {{ story.title }}
+              </a>
+            </h3>
+
+            <!-- Story Abstract -->
+            {% if story.abstract %}
+            <p class="event-excerpt" style="color: #6c757d; margin-bottom: 1rem; line-height: 1.6;">
+              {{ h.render_story_abstract(story.abstract, max_length=180) }}
+            </p>
+            {% endif %}
+
+            <!-- Metadata Row -->
+            <div class="story-meta-row" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; font-size: 0.9rem; color: #6c757d;">
+
+              {% if story.author %}
+              <div class="meta-item" style="display: flex; align-items: center; gap: 0.5rem;">
+                <img src="{{ h.gravatar_url(story.author.email, size=24) }}"
+                     alt="{{ story.author.name }}"
+                     style="width: 24px; height: 24px; border-radius: 50%;" />
+                <span>{{ story.author.fullname or story.author.name }}</span>
+              </div>
+              {% endif %}
+
+              <div class="meta-item">
+                <i class="fa fa-calendar" style="color: #0072BC;"></i>
+                {{ h.render_story_date(story.published_at or story.created_at) }}
+              </div>
+
+              <div class="meta-item">
+                <i class="fa fa-eye" style="color: #0072BC;"></i>
+                {{ story.view_count or 0 }} {{ _('views') }}
+              </div>
+
+              {% if story.section_count %}
+              <div class="meta-item">
+                <i class="fa fa-list" style="color: #0072BC;"></i>
+                {{ story.section_count }} {{ h.pluralize(story.section_count, _('section'), _('sections')) }}
+              </div>
+              {% endif %}
+
+              {% if story.research_question %}
+              <div class="meta-item">
+                <i class="fa fa-question-circle" style="color: #0072BC;"></i>
+                {{ _('Research-based') }}
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="story-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
+                 class="btn btn-primary"
+                 style="padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                {{ _('Read Story') }} <i class="fa fa-arrow-right"></i>
+              </a>
+
+              {% if h.check_access('data_story_update', {'id': story.id}) %}
+              <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
+                 class="btn btn-default"
+                 style="padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border: 2px solid #e9ecef; color: #2c3e50; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fa fa-edit"></i> {{ _('Edit') }}
+              </a>
+              {% endif %}
+
+              {% if h.check_access('data_story_delete', {'id': story.id}) %}
+              <a href="{{ h.url_for('data_stories.delete', slug=story.slug) }}"
+                 class="btn btn-danger"
+                 data-confirm="{{ _('Are you sure you want to delete this story?') }}"
+                 style="padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fa fa-trash"></i> {{ _('Delete') }}
+              </a>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </div>
-
-    {% if story.organization %}
-    <div class="story-card-organization">
-      <small class="text-muted">
-        <i class="fa fa-building"></i> {{ story.organization.title }}
-      </small>
-    </div>
-    {% endif %}
-  </div>
-
-  <div class="story-card-footer">
-    <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-primary btn-sm">
-      {{ _('Read Story') }} <i class="fa fa-arrow-right"></i>
-    </a>
-
-    {% if h.check_access('data_story_update', {'id': story.id}) %}
-    <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}" class="btn btn-default btn-sm">
-      <i class="fa fa-edit"></i> {{ _('Edit') }}
-    </a>
-    {% endif %}
-  </div>
+  </article>
 </div>
+
+<style>
+/* Story Card Specific Styles */
+.story-card-modern .placeholder-image {
+  background: linear-gradient(135deg, #E3F2FD 0%, #f8f9fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #0072BC;
+}
+
+.story-featured-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: linear-gradient(135deg, #FFB800 0%, #FF8800 100%);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.3);
+}
+
+.story-card-modern .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.2);
+  transition: all 0.3s ease;
+}
+
+.story-meta-row .meta-item {
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .story-card-modern .event-details {
+    padding-top: 1rem;
+  }
+
+  .story-card-modern .event-title {
+    font-size: 1.2rem !important;
+  }
+
+  .story-actions {
+    flex-direction: column;
+  }
+
+  .story-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .story-meta-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+}
+</style>

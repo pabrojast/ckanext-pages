@@ -63,120 +63,113 @@
 
       {# Title #}
       <div class="form-group{% if errors.title %} has-error{% endif %}">
-        <label class="control-label col-sm-3" for="title">
+        <label class="control-label" for="title">
           {{ _('Title') }} <span class="text-danger">*</span>
         </label>
-        <div class="col-sm-9">
-          <input type="text"
-                 id="title"
-                 name="title"
-                 value="{{ data.get('title', '') }}"
-                 class="form-control"
-                 required />
-          {% if errors.title %}
-          <span class="help-block">{{ errors.title.0 }}</span>
-          {% endif %}
-        </div>
+        <input type="text"
+               id="title"
+               name="title"
+               value="{{ data.get('title', '') }}"
+               class="form-control"
+               placeholder="{{ _('Enter a clear, descriptive title for your data story') }}"
+               required />
+        <span class="help-text">{{ _('Clear, descriptive title of the data story') }}</span>
+        {% if errors.title %}
+        <span class="error-block">{{ errors.title.0 }}</span>
+        {% endif %}
       </div>
 
       {# Slug #}
       <div class="form-group{% if errors.slug %} has-error{% endif %}">
-        <label class="control-label col-sm-3" for="slug">
+        <label class="control-label" for="slug">
           {{ _('URL Slug') }}
         </label>
-        <div class="col-sm-9">
-          <input type="text"
-                 id="slug"
-                 name="slug"
-                 value="{{ data.get('slug', '') }}"
-                 class="form-control"
-                 placeholder="{{ _('Leave blank to auto-generate from title') }}" />
-          <span class="help-block">
-            {{ _('URL-friendly identifier (lowercase, hyphens only)') }}
-          </span>
-          {% if errors.slug %}
-          <span class="help-block error">{{ errors.slug.0 }}</span>
-          {% endif %}
-        </div>
+        <input type="text"
+               id="slug"
+               name="slug"
+               value="{{ data.get('slug', '') }}"
+               class="form-control"
+               placeholder="{{ _('leave-blank-to-auto-generate') }}" />
+        <span class="help-text">
+          {{ _('URL-friendly identifier (lowercase, hyphens only). Leave blank to auto-generate from title.') }}
+        </span>
+        {% if errors.slug %}
+        <span class="error-block">{{ errors.slug.0 }}</span>
+        {% endif %}
       </div>
 
       {# Abstract #}
       <div class="form-group{% if errors.abstract %} has-error{% endif %}">
-        <label class="control-label col-sm-3" for="abstract">
+        <label class="control-label" for="abstract">
           {{ _('Abstract') }}
         </label>
-        <div class="col-sm-9">
-          <textarea id="abstract"
-                    name="abstract"
-                    class="form-control"
-                    rows="4">{{ data.get('abstract', '') }}</textarea>
-          <span class="help-block">
-            {{ _('Brief summary of the story (recommended)') }}
-          </span>
-          {% if errors.abstract %}
-          <span class="help-block error">{{ errors.abstract.0 }}</span>
-          {% endif %}
-        </div>
+        <textarea id="abstract"
+                  name="abstract"
+                  class="form-control"
+                  rows="4"
+                  placeholder="{{ _('Brief summary of your data story...') }}">{{ data.get('abstract', '') }}</textarea>
+        <span class="help-text">
+          {{ _('Brief summary of the story (recommended)') }}
+        </span>
+        {% if errors.abstract %}
+        <span class="error-block">{{ errors.abstract.0 }}</span>
+        {% endif %}
       </div>
 
       {# Research Question #}
       <div class="form-group{% if errors.research_question %} has-error{% endif %}">
-        <label class="control-label col-sm-3" for="research_question">
+        <label class="control-label" for="research_question">
           {{ _('Research Question') }}
         </label>
-        <div class="col-sm-9">
-          <textarea id="research_question"
-                    name="research_question"
-                    class="form-control"
-                    rows="3">{{ data.get('research_question', '') }}</textarea>
-          <span class="help-block">
-            {{ _('Main research question addressed by this story') }}
-          </span>
-          {% if errors.research_question %}
-          <span class="help-block error">{{ errors.research_question.0 }}</span>
-          {% endif %}
-        </div>
+        <textarea id="research_question"
+                  name="research_question"
+                  class="form-control"
+                  rows="3"
+                  placeholder="{{ _('What is the main research question addressed by this story?') }}">{{ data.get('research_question', '') }}</textarea>
+        <span class="help-text">
+          {{ _('Main research question addressed by this story') }}
+        </span>
+        {% if errors.research_question %}
+        <span class="error-block">{{ errors.research_question.0 }}</span>
+        {% endif %}
       </div>
 
       {# Study Area #}
       <div class="form-group{% if errors.study_area %} has-error{% endif %}">
-        <label class="control-label col-sm-3" for="study_area">
+        <label class="control-label" for="study_area">
           {{ _('Study Area') }}
         </label>
-        <div class="col-sm-9">
-          <textarea id="study_area"
-                    name="study_area"
-                    class="form-control"
-                    rows="3">{{ data.get('study_area', '') }}</textarea>
-          <span class="help-block">
-            {{ _('Description of the geographic study area') }}
-          </span>
-          {% if errors.study_area %}
-          <span class="help-block error">{{ errors.study_area.0 }}</span>
-          {% endif %}
-        </div>
+        <textarea id="study_area"
+                  name="study_area"
+                  class="form-control"
+                  rows="3"
+                  placeholder="{{ _('Describe the geographic study area...') }}">{{ data.get('study_area', '') }}</textarea>
+        <span class="help-text">
+          {{ _('Description of the geographic study area') }}
+        </span>
+        {% if errors.study_area %}
+        <span class="error-block">{{ errors.study_area.0 }}</span>
+        {% endif %}
       </div>
 
       {# Organization #}
       <div class="form-group{% if errors.organization_id %} has-error{% endif %}">
-        <label class="control-label col-sm-3" for="organization_id">
+        <label class="control-label" for="organization_id">
           {{ _('Organization') }}
         </label>
-        <div class="col-sm-9">
-          <select id="organization_id"
-                  name="organization_id"
-                  class="form-control">
-            <option value="">{{ _('No organization') }}</option>
-            {% for org in h.organizations_available('create_dataset') %}
-            <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
-              {{ org.title or org.name }}
-            </option>
-            {% endfor %}
-          </select>
-          {% if errors.organization_id %}
-          <span class="help-block error">{{ errors.organization_id.0 }}</span>
-          {% endif %}
-        </div>
+        <select id="organization_id"
+                name="organization_id"
+                class="form-control">
+          <option value="">{{ _('Select organization...') }}</option>
+          {% for org in h.organizations_available('create_dataset') %}
+          <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
+            {{ org.title or org.name }}
+          </option>
+          {% endfor %}
+        </select>
+        {% if errors.organization_id %}
+        <span class="error-block">{{ errors.organization_id.0 }}</span>
+        {% endif %}
       </div>
     </fieldset>
 
@@ -194,41 +187,37 @@
       </div>
 
       <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
-          <button type="button" class="btn btn-success" id="add-section-btn">
-            <i class="fa fa-plus"></i> {{ _('Add Section') }}
-          </button>
-        </div>
+        <button type="button" class="btn btn-success" id="add-section-btn">
+          <i class="fa fa-plus"></i> {{ _('Add Section') }}
+        </button>
       </div>
     </fieldset>
 
     <fieldset>
       <legend>{{ _('Image Gallery') }}</legend>
-      <p class="help-block col-sm-offset-3 col-sm-9">
+      <p class="help-block">
         {{ _('Upload images that you can use in your story sections. Images will be available in the rich text editor.') }}
       </p>
 
       {# Image Upload Section #}
       <div class="form-group">
-        <label class="control-label col-sm-3">{{ _('Upload Images') }}</label>
-        <div class="col-sm-9">
-          <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
-          <div class="upload-dropzone" id="image-dropzone">
-            <div class="dropzone-content">
-              <i class="fa fa-cloud-upload fa-3x"></i>
-              <p>{{ _('Drop images here or click to browse') }}</p>
-              <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
-            </div>
+        <label class="control-label">{{ _('Upload Images') }}</label>
+        <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+        <div class="upload-dropzone" id="image-dropzone">
+          <div class="dropzone-content">
+            <i class="fa fa-cloud-upload fa-3x"></i>
+            <p>{{ _('Drop images here or click to browse') }}</p>
+            <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
           </div>
-          
-          {# Uploaded Images Preview #}
-          <div id="uploaded-images-preview" class="uploaded-images-grid">
-            {# Uploaded images will appear here #}
-          </div>
-          
-          {# Hidden field to store uploaded images data #}
-          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="" />
         </div>
+
+        {# Uploaded Images Preview #}
+        <div id="uploaded-images-preview" class="uploaded-images-grid">
+          {# Uploaded images will appear here #}
+        </div>
+
+        {# Hidden field to store uploaded images data #}
+        <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="" />
       </div>
     </fieldset>
 
@@ -237,37 +226,34 @@
 
       {# Meta Description #}
       <div class="form-group">
-        <label class="control-label col-sm-3" for="meta_description">
+        <label class="control-label" for="meta_description">
           {{ _('Meta Description') }}
         </label>
-        <div class="col-sm-9">
-          <textarea id="meta_description"
-                    name="meta_description"
-                    class="form-control"
-                    rows="2"
-                    maxlength="500">{{ data.get('meta_description', '') }}</textarea>
-          <span class="help-block">
-            {{ _('Description for search engines (max 500 characters)') }}
-          </span>
-        </div>
+        <textarea id="meta_description"
+                  name="meta_description"
+                  class="form-control"
+                  rows="2"
+                  maxlength="500"
+                  placeholder="{{ _('Brief description for search engines...') }}">{{ data.get('meta_description', '') }}</textarea>
+        <span class="help-text">
+          {{ _('Description for search engines (max 500 characters)') }}
+        </span>
       </div>
 
       {# Meta Keywords #}
       <div class="form-group">
-        <label class="control-label col-sm-3" for="meta_keywords">
+        <label class="control-label" for="meta_keywords">
           {{ _('Keywords') }}
         </label>
-        <div class="col-sm-9">
-          <input type="text"
-                 id="meta_keywords"
-                 name="meta_keywords"
-                 value="{{ data.get('meta_keywords', '') }}"
-                 class="form-control"
-                 placeholder="{{ _('water, hydrology, dataset, etc.') }}" />
-          <span class="help-block">
-            {{ _('Comma-separated keywords for SEO') }}
-          </span>
-        </div>
+        <input type="text"
+               id="meta_keywords"
+               name="meta_keywords"
+               value="{{ data.get('meta_keywords', '') }}"
+               class="form-control"
+               placeholder="{{ _('water, hydrology, dataset, etc.') }}" />
+        <span class="help-text">
+          {{ _('Comma-separated keywords for SEO') }}
+        </span>
       </div>
     </fieldset>
 

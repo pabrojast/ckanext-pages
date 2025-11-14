@@ -15,34 +15,22 @@
 }
 
 /* CRITICAL: Remove all gray borders from CKAN default layout */
-/* This targets the parent wrapper that contains the grid */
+/* This targets the parent wrapper that contains the grid - Less aggressive approach */
 body {
-  background: #f8f9fa !important;
+  background: #f8f9fa;
 }
 
-body .wrapper,
-body .wrapper .container,
-body .wrapper .row,
-body .wrapper .primary,
-body .wrapper .secondary,
+/* Only target specific CKAN layout wrappers, not all elements */
 body > .wrapper,
 body > .wrapper > .container,
-#content .wrapper,
-#content .container,
-.wrapper,
-.wrapper .container,
-.wrapper .row,
-.wrapper [class*="col-"] {
-  border: 0 !important;
-  border-top: 0 !important;
-  border-bottom: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  outline: 0 !important;
+.wrapper.container,
+.content-wrapper {
+  border: 0;
+  border-top: 0;
+  border-bottom: 0;
+  background: transparent;
+  background-color: transparent;
+  box-shadow: none;
 }
 
 /* Layout containers (aligned with Rapid Response) */
@@ -55,79 +43,35 @@ body > .wrapper > .container,
   padding-bottom: 3rem;
 }
 
-/* Clean slate - remove all default CKAN borders/backgrounds in edit view */
-.homepage.layout-1 ~ *,
-.homepage.layout-1 * {
-  border-color: transparent;
-}
-
-/* Target parent containers that might have gray borders */
-body .wrapper,
-body .wrapper .container,
-body .wrapper .row {
-  border: 0 !important;
-  border-top: 0 !important;
-  border-bottom: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
 /* Full width layout for edit page (no sidebar) */
-body .primary.col-sm-9 {
-  width: 100% !important;
-  max-width: 100% !important;
+.data-stories-form-wrapper .primary {
+  width: 100%;
+  max-width: 100%;
 }
 
-body .toolbar,
-body .homepage.layout-1 .container {
+.toolbar,
+.homepage.layout-1 .container {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
 }
 
-/* Remove Bootstrap grid borders and backgrounds */
-body .row,
-body .col-sm-9,
-body .col-sm-3,
-body .col-md-9,
-body .col-md-3,
-body .primary,
-body .secondary,
-body .content,
-body .wrapper {
-  border: none !important;
-  border-top: none !important;
-  border-bottom: none !important;
-  border-left: none !important;
-  border-right: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  outline: none !important;
+/* Remove Bootstrap grid borders for layout only - More specific selectors */
+.homepage.layout-1 .row,
+.homepage.layout-1 .primary,
+.homepage.layout-1 .secondary {
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
-/* Remove any table/grid-like styling */
-body .wrapper,
-body .row:before,
-body .row:after,
-body .container:before,
-body .container:after {
-  border: none !important;
-  background: transparent !important;
-  display: block !important;
-}
-
-/* Specific overrides for CKAN theme */
+/* Specific overrides for CKAN theme - Only for layout wrappers */
 .account-masthead,
 .masthead,
-body > .wrapper > .container,
-.primary.col-md-9,
-.primary.col-sm-9 {
-  border: 0 !important;
-  border-top: 0 !important;
-  border-bottom: 0 !important;
-  background: none !important;
-  box-shadow: none !important;
+body > .wrapper > .container {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 /* Breadcrumb (aligned with Rapid Response) */
@@ -274,6 +218,8 @@ body > .wrapper > .container,
   transition: all 0.3s ease;
   overflow: hidden;
   border-left: 6px solid var(--unesco-blue);
+  position: relative;
+  z-index: 1;
 }
 
 .data-stories-form fieldset:hover {
@@ -294,6 +240,8 @@ body > .wrapper > .container,
   align-items: center;
   gap: 1rem;
   border-bottom: 3px solid var(--unesco-blue-pale);
+  position: relative;
+  z-index: 2;
 }
 
 .data-stories-form legend::before {
@@ -309,8 +257,26 @@ body > .wrapper > .container,
   box-shadow: var(--shadow-light);
 }
 
+.data-stories-form legend::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 2.5rem;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 2px;
+}
+
 .data-stories-form fieldset > div:not(legend) {
   padding: 2rem 2.5rem;
+}
+
+.data-stories-form fieldset > .help-block:first-child {
+  margin: 0;
+  padding: 1.5rem 2.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--unesco-blue);
 }
 
 /* Form actions */
@@ -633,22 +599,46 @@ body > .wrapper > .container,
   transition: width 0.3s ease;
 }
 
-/* Button Styling */
-.btn-primary {
-  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
-  border: none;
-  color: white;
-  padding: 0.6rem 1.5rem;
-  border-radius: 8px;
+/* Button Styling - Enhanced */
+.btn {
+  border-radius: 25px;
+  padding: 12px 24px;
   font-weight: 600;
   transition: all 0.3s ease;
+  border: none;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
   box-shadow: var(--shadow-light);
+  border: none;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-medium);
   background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
 }
 
 .btn-success {
@@ -669,27 +659,170 @@ body > .wrapper > .container,
   color: white;
 }
 
-/* Form Controls */
-.form-control {
+/* Form Controls - Enhanced (matching rapid-response) */
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="date"],
+select,
+textarea {
+  border-radius: 12px;
   border: 2px solid #e9ecef;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  padding: 14px 18px;
+  font-size: 1.05rem;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  min-height: 3.2em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: var(--shadow-light);
+  width: 100%;
 }
 
-.form-control:focus {
+.form-control:not([readonly]):not([disabled]),
+input[type="text"]:not([readonly]):not([disabled]),
+input[type="email"]:not([readonly]):not([disabled]),
+input[type="url"]:not([readonly]):not([disabled]),
+input[type="date"]:not([readonly]):not([disabled]),
+select:not([readonly]):not([disabled]),
+textarea:not([readonly]):not([disabled]) {
+  cursor: text;
+}
+
+.form-control[readonly],
+input[readonly],
+select[readonly],
+textarea[readonly] {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  cursor: not-allowed;
+  color: var(--text-secondary);
+}
+
+.form-control:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
   border-color: var(--unesco-blue);
-  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.1);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
   outline: none;
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.form-control:hover:not([readonly]):not(:focus),
+input[type="text"]:hover:not([readonly]):not(:focus),
+input[type="email"]:hover:not([readonly]):not(:focus),
+input[type="url"]:hover:not([readonly]):not(:focus),
+input[type="date"]:hover:not([readonly]):not(:focus),
+select:hover:not([readonly]):not(:focus),
+textarea:hover:not([readonly]):not(:focus) {
+  border-color: var(--unesco-blue-light);
+  transform: translateY(-1px);
+}
+
+textarea.form-control,
+textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.control-label,
+label {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.8rem;
+  display: block;
+  font-size: 1.05rem;
 }
 
 /* Help Text */
 .help-block,
-.form-text {
-  color: var(--text-secondary);
+.form-text,
+.help-text {
   font-size: 0.9rem;
+  color: var(--text-secondary);
   margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.help-block.error {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* Error Styling */
+.error-block {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: block;
+  font-weight: 600;
+}
+
+.form-group.has-error .form-control,
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+  border-color: #dc3545;
+}
+
+.form-group.has-error .control-label {
+  color: #dc3545;
+}
+
+/* Ensure all interactive elements are clickable */
+input,
+select,
+textarea,
+button,
+.btn,
+.upload-dropzone,
+label {
+  pointer-events: auto;
+  position: relative;
+}
+
+/* Make sure form controls are on top */
+.form-group input,
+.form-group select,
+.form-group textarea,
+.form-group button {
+  position: relative;
+  z-index: 5;
+}
+
+/* Dropzone should be clickable */
+.upload-dropzone {
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.dropzone-content {
+  pointer-events: none;
+}
+
+/* Buttons should be on top and clickable */
+button,
+.btn,
+input[type="button"],
+input[type="submit"] {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 /* Responsive Design */
@@ -698,28 +831,37 @@ body > .wrapper > .container,
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .section-controls {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .section-body {
     padding: 1rem;
   }
-  
+
   .content-block-header {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
   }
-  
+
   .content-block-controls {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   .uploaded-images-grid {
     grid-template-columns: 1fr;
+  }
+
+  .data-stories-form fieldset > div:not(legend) {
+    padding: 1.5rem;
+  }
+
+  .data-stories-form legend {
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
   }
 }

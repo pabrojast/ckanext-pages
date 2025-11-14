@@ -1,154 +1,234 @@
-{% extends "data_stories/base.html" %}
+{% extends "page.html" %}
 
-{% block subtitle %}{{ _('Data Stories') }}{% endblock %}
+{% block title %}{{ _('Data Stories') }} - {{ super() }}{% endblock %}
 
-{% block data_stories_content %}
-  <header class="page-header">
-    <h1>{{ _('Data Stories') }}</h1>
-    <p class="lead">
-      {{ _('Explore narrative-driven explanations of water resources datasets and research') }}
-    </p>
-  </header>
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
 
-  {# Search and filter form #}
-  <form method="get" class="search-form form-horizontal">
-    <div class="row">
-      <div class="col-md-8">
-        <div class="form-group">
-          <input type="text"
-                 name="q"
-                 value="{{ q }}"
-                 class="form-control"
-                 placeholder="{{ _('Search stories...') }}" />
-        </div>
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb Navigation -->
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li class="active"><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
+        </ol>
       </div>
-      <div class="col-md-4">
-        <div class="form-group">
-          <select name="sort" class="form-control">
-            <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
-            <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
-            <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('Alphabetical') }}</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <button type="submit" class="btn btn-primary">
-          <i class="fa fa-search"></i> {{ _('Search') }}
-        </button>
-        {% if q or status_filter or org_filter %}
-        <a href="{{ h.url_for('data_stories.index') }}" class="btn btn-default">
-          <i class="fa fa-times"></i> {{ _('Clear') }}
-        </a>
-        {% endif %}
-      </div>
-    </div>
-  </form>
 
-  {# Featured stories #}
-  {% if featured_stories and page == 1 %}
-  <section class="featured-stories">
-    <h2>{{ _('Featured Stories') }}</h2>
-    <div class="row">
-      {% for story in featured_stories %}
-        {% include "data_stories/components/story_card.html" %}
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-  {# Story list #}
-  <section class="story-list">
-    {% if page > 1 or featured_stories %}
-      <h2>{{ _('All Stories') }}</h2>
-    {% endif %}
-
-    {% if total_count > 0 %}
-      <p class="results-info">
-        {{ _('Showing {start} - {end} of {total} stories').format(
-          start=(page - 1) * limit + 1,
-          end=min(page * limit, total_count),
-          total=total_count
-        ) }}
-      </p>
-
-      <div class="row">
-        {% for story in stories %}
-          <div class="col-md-6">
-            {% include "data_stories/components/story_card.html" %}
+      <!-- Header Banner -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1>{{ _('Data Stories') }}</h1>
+            <p class="section-title-description">{{ _('Explore narrative-driven explanations of water resources datasets and research') }}</p>
           </div>
-        {% endfor %}
-      </div>
+        </div>
+      </section>
+    </div>
 
-      {# Pagination #}
-      {% if total_pages > 1 %}
-      <nav aria-label="Story pagination">
-        <ul class="pagination">
-          {% if page > 1 %}
-          <li>
-            <a href="{{ h.url_for('data_stories.index', page=page-1, sort=sort, q=q) }}" aria-label="{{ _('Previous') }}">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <!-- Action Bar -->
+          <div class="data-stories-actions-bar" style="margin-bottom: 3rem;">
+            <section class="module module-narrow">
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <div class="row">
+                  <div class="col-md-8">
+                    <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Data-Driven Narratives') }}</h2>
+                    <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Discover insights through interactive data storytelling') }}</p>
+                  </div>
+                  <div class="col-md-4 text-right">
+                    {% if h.check_access('data_story_create') %}
+                      <a href="{{ h.url_for('data_stories.create') }}" class="btn btn-primary btn-lg">
+                        <i class="fa fa-plus"></i> {{ _('Create Story') }}
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Filter and Search -->
+          <div class="data-stories-filters" style="margin-bottom: 2rem;">
+            <section class="module module-narrow">
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <form method="get">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="q" class="sr-only">{{ _('Search') }}</label>
+                        <input type="text"
+                               name="q"
+                               id="q"
+                               class="form-control"
+                               placeholder="{{ _('Search stories...') }}"
+                               value="{{ q or '' }}">
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="sort" class="sr-only">{{ _('Sort by') }}</label>
+                        <select name="sort" id="sort" class="form-control">
+                          <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
+                          <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
+                          <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('Alphabetical') }}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa fa-search"></i> {{ _('Search') }}
+                      </button>
+                      {% if q or status_filter or org_filter %}
+                      <a href="{{ h.url_for('data_stories.index') }}" class="btn btn-default btn-block" style="margin-top: 0.5rem;">
+                        <i class="fa fa-times"></i> {{ _('Clear') }}
+                      </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+
+          {# Featured stories #}
+          {% if featured_stories and page == 1 %}
+          <div class="featured-stories" style="margin-bottom: 3rem;">
+            <section class="module module-narrow">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
+                  <i class="fa fa-star" style="color: #FFB800; margin-right: 0.5rem;"></i>
+                  {{ _('Featured Stories') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="row">
+                  {% for story in featured_stories %}
+                  <div class="col-md-6">
+                    {% include "data_stories/components/story_card.html" %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+          </div>
           {% endif %}
 
-          {% for p in range(1, total_pages + 1) %}
-            {% if p == page %}
-            <li class="active"><span>{{ p }}</span></li>
-            {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
-            <li><a href="{{ h.url_for('data_stories.index', page=p, sort=sort, q=q) }}">{{ p }}</a></li>
-            {% elif p == 4 or p == total_pages - 3 %}
-            <li class="disabled"><span>...</span></li>
+          {# Story list #}
+          <div class="story-list">
+            {% if page > 1 or featured_stories %}
+            <section class="module module-narrow" style="margin-bottom: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-bottom: 2px solid #e9ecef;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">{{ _('All Stories') }}</h2>
+              </div>
+            </section>
             {% endif %}
-          {% endfor %}
 
-          {% if page < total_pages %}
-          <li>
-            <a href="{{ h.url_for('data_stories.index', page=page+1, sort=sort, q=q) }}" aria-label="{{ _('Next') }}">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
-          {% endif %}
-        </ul>
-      </nav>
-      {% endif %}
+            {% if total_count > 0 %}
+              <div class="results-info" style="padding: 1rem 0; margin-bottom: 1.5rem; color: #6c757d;">
+                <i class="fa fa-info-circle"></i>
+                {{ _('Showing {start} - {end} of {total} stories').format(
+                  start=(page - 1) * limit + 1,
+                  end=min(page * limit, total_count),
+                  total=total_count
+                ) }}
+              </div>
 
-    {% else %}
-      <div class="empty-state">
-        <i class="fa fa-book fa-5x text-muted"></i>
-        <h3>{{ _('No stories found') }}</h3>
-        <p class="text-muted">
-          {% if q %}
-            {{ _('Try adjusting your search or filters') }}
-          {% else %}
-            {{ _('There are no published stories yet') }}
-          {% endif %}
-        </p>
-        {% if h.check_access('data_story_create') %}
-        <a href="{{ h.url_for('data_stories.create') }}" class="btn btn-primary">
-          <i class="fa fa-plus"></i> {{ _('Create the first story') }}
-        </a>
-        {% endif %}
+              <div class="row">
+                {% for story in stories %}
+                <div class="col-md-6">
+                  {% include "data_stories/components/story_card.html" %}
+                </div>
+                {% endfor %}
+              </div>
+
+              {# Pagination #}
+              {% if total_pages > 1 %}
+              <nav aria-label="Story pagination" style="margin-top: 3rem;">
+                <section class="module module-narrow">
+                  <div class="module-content" style="padding: 1.5rem 2.5rem; text-align: center;">
+                    <ul class="pagination" style="margin: 0; justify-content: center;">
+                      {% if page > 1 %}
+                      <li>
+                        <a href="{{ h.url_for('data_stories.index', page=page-1, sort=sort, q=q) }}"
+                           aria-label="{{ _('Previous') }}"
+                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                          <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
+                        </a>
+                      </li>
+                      {% endif %}
+
+                      {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                        <li class="active">
+                          <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
+                        </li>
+                        {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+                        <li>
+                          <a href="{{ h.url_for('data_stories.index', page=p, sort=sort, q=q) }}"
+                             style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
+                        </li>
+                        {% elif p == 4 or p == total_pages - 3 %}
+                        <li class="disabled"><span style="padding: 0.5rem 0.75rem;">...</span></li>
+                        {% endif %}
+                      {% endfor %}
+
+                      {% if page < total_pages %}
+                      <li>
+                        <a href="{{ h.url_for('data_stories.index', page=page+1, sort=sort, q=q) }}"
+                           aria-label="{{ _('Next') }}"
+                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                          {{ _('Next') }} <i class="fa fa-chevron-right"></i>
+                        </a>
+                      </li>
+                      {% endif %}
+                    </ul>
+                  </div>
+                </section>
+              </nav>
+              {% endif %}
+
+            {% else %}
+              <div class="empty-state">
+                <section class="module module-narrow">
+                  <div class="module-content" style="padding: 4rem 2.5rem; text-align: center;">
+                    <i class="fa fa-book fa-5x" style="color: #e9ecef; margin-bottom: 1.5rem;"></i>
+                    <h3 style="color: #6c757d; margin-bottom: 1rem;">{{ _('No stories found') }}</h3>
+                    <p style="color: #6c757d; margin-bottom: 1.5rem;">
+                      {% if q %}
+                        {{ _('Try adjusting your search or filters') }}
+                      {% else %}
+                        {{ _('There are no published stories yet') }}
+                      {% endif %}
+                    </p>
+                    {% if h.check_access('data_story_create') %}
+                    <a href="{{ h.url_for('data_stories.create') }}" class="btn btn-primary btn-lg">
+                      <i class="fa fa-plus"></i> {{ _('Create the first story') }}
+                    </a>
+                    {% endif %}
+                  </div>
+                </section>
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
       </div>
-    {% endif %}
-  </section>
-{% endblock %}
+    </div>
+  </div>
+</div>
 
-{% block data_stories_sidebar_extra %}
-  {# Facets sidebar #}
-  {% if facets %}
-  <section class="module module-narrow">
-    <h2 class="module-heading">{{ _('Filter by Status') }}</h2>
-    <ul class="unstyled nav nav-simple">
-      {% for status, count in facets.get('status', {}).items() %}
-      <li class="nav-item{% if status_filter == status %} active{% endif %}">
-        <a href="{{ h.url_for('data_stories.index', status=status, q=q, sort=sort) }}">
-          {{ status|title }} <span class="badge">{{ count }}</span>
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-  </section>
-  {% endif %}
+<!-- Load data stories CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
+
 {% endblock %}
