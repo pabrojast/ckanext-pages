@@ -35,8 +35,6 @@ def data_story_schema():
         'status': [ignore_missing, unicode_safe],
         'is_public': [ignore_missing, boolean_validator],
         'is_featured': [ignore_missing, boolean_validator],
-        'meta_description': [ignore_missing, unicode_safe],
-        'meta_keywords': [ignore_missing, unicode_safe],
     }
 
 

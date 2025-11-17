@@ -83,12 +83,6 @@ def data_story_update(context, data_dict):
     if 'is_featured' in data:
         story.is_featured = data['is_featured']
 
-    if 'meta_description' in data:
-        story.meta_description = data['meta_description']
-
-    if 'meta_keywords' in data:
-        story.meta_keywords = data['meta_keywords']
-
     # Update timestamp
     story.updated_at = datetime.datetime.utcnow()
 

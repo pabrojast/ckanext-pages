@@ -233,42 +233,6 @@
       </div>
     </fieldset>
 
-    <fieldset>
-      <legend>{{ _('SEO & Metadata') }}</legend>
-
-      {# Meta Description #}
-      <div class="form-group">
-        <label class="control-label" for="meta_description">
-          {{ _('Meta Description') }}
-        </label>
-        <textarea id="meta_description"
-                  name="meta_description"
-                  class="form-control"
-                  rows="2"
-                  maxlength="500"
-                  placeholder="{{ _('Brief description for search engines...') }}">{{ data.get('meta_description', '') }}</textarea>
-        <span class="help-text">
-          {{ _('Description for search engines (max 500 characters)') }}
-        </span>
-      </div>
-
-      {# Meta Keywords #}
-      <div class="form-group">
-        <label class="control-label" for="meta_keywords">
-          {{ _('Keywords') }}
-        </label>
-        <input type="text"
-               id="meta_keywords"
-               name="meta_keywords"
-               value="{{ data.get('meta_keywords', '') }}"
-               class="form-control"
-               placeholder="{{ _('water, hydrology, dataset, etc.') }}" />
-        <span class="help-text">
-          {{ _('Comma-separated keywords for SEO') }}
-        </span>
-      </div>
-    </fieldset>
-
     <div class="form-actions">
       <button type="submit" class="btn btn-primary btn-lg">
         <i class="fa fa-save"></i> {% if is_new_story %}{{ _('Create Story') }}{% else %}{{ _('Save Story') }}{% endif %}

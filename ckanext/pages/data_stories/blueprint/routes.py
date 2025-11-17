@@ -700,8 +700,6 @@ def _extract_story_form_data(form):
         'research_question': form.get('research_question', '').strip(),
         'study_area': form.get('study_area', '').strip(),
         'organization_id': form.get('organization_id', '').strip() or None,
-        'meta_description': form.get('meta_description', '').strip(),
-        'meta_keywords': form.get('meta_keywords', '').strip(),
     }
 
 
@@ -716,7 +714,5 @@ def _build_story_context(data):
         'research_question': data.get('research_question', ''),
         'study_area': data.get('study_area', ''),
         'organization_id': data.get('organization_id'),
-        'meta_description': data.get('meta_description', ''),
-        'meta_keywords': data.get('meta_keywords', ''),
         'sections': data.get('sections', []),
     }

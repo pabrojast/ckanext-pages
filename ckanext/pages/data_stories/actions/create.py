@@ -34,8 +34,6 @@ def data_story_create(context, data_dict):
             - research_question: Main research question
             - study_area: Study area description
             - organization_id: Organization ID (optional)
-            - meta_description: SEO description
-            - meta_keywords: SEO keywords
 
     Returns:
         Dict with created story data
@@ -96,10 +94,6 @@ def data_story_create(context, data_dict):
     story.is_featured = False
     story.view_count = 0
     story.version = 1
-
-    # SEO
-    story.meta_description = data.get('meta_description', '')
-    story.meta_keywords = data.get('meta_keywords', '')
 
     # Timestamps
     now = datetime.datetime.utcnow()
