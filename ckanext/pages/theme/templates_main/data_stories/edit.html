@@ -1,6 +1,15 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ _('Edit Story') }} - {{ story.title }}{% endblock %}
+{% set is_new_story = is_new if is_new is defined else (not (story and story.id)) %}
+{% set story_title = data.get('title') if data else (story.title if story else '') %}
+{% set story_slug = story.slug if story else (data.get('slug') if data else '') %}
+{% block subtitle %}
+  {% if is_new_story %}
+    {{ _('Create Data Story') }}
+  {% else %}
+    {{ _('Edit Story') }} - {{ story_title }}
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="homepage layout-1">
@@ -17,11 +26,11 @@
         <ol class="breadcrumb">
           <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
           <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
-          {% if story %}
-            <li><a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">{{ story.title }}</a></li>
-            <li class="active">{{ _('Edit') }}</li>
-          {% else %}
+          {% if is_new_story %}
             <li class="active">{{ _('New Story') }}</li>
+          {% else %}
+            <li><a href="{{ h.url_for('data_stories.show', slug=story_slug) }}">{{ story_title }}</a></li>
+            <li class="active">{{ _('Edit') }}</li>
           {% endif %}
         </ol>
       </div>
@@ -32,13 +41,12 @@
           <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
           <div class="section-title-overlay"></div>
           <div class="section-title-content">
-            {% if story %}
-              <h1>{{ _('Edit Data Story') }}</h1>
-              <p class="section-title-description">{{ _('Share insights and discoveries through data-driven narratives') }}</p>
-            {% else %}
+            {% if is_new_story %}
               <h1>{{ _('Create Data Story') }}</h1>
-              <p class="section-title-description">{{ _('Share insights and discoveries through data-driven narratives') }}</p>
+            {% else %}
+              <h1>{{ _('Edit Data Story') }}</h1>
             {% endif %}
+            <p class="section-title-description">{{ _('Share insights and discoveries through data-driven narratives') }}</p>
           </div>
         </div>
       </section>
@@ -175,19 +183,25 @@
       <legend>{{ _('Sections') }}</legend>
 
       <div id="sections-container">
-        {% if story.sections %}
-        {% for section in story.sections %}
-          {% include "data_stories/components/section_edit.html" %}
-        {% endfor %}
+        {% set sections = story.sections if story and story.sections else [] %}
+        {% if sections %}
+          {% for section in sections %}
+            {% include "data_stories/components/section_edit.html" %}
+          {% endfor %}
+        {% elif is_new_story %}
+          <p class="text-muted">{{ _('Save your story details to start adding rich sections.') }}</p>
         {% else %}
-        <p class="text-muted">{{ _('No sections yet. Add your first section below.') }}</p>
+          <p class="text-muted">{{ _('No sections yet. Add your first section below.') }}</p>
         {% endif %}
       </div>
 
       <div class="form-group">
-        <button type="button" class="btn btn-success" id="add-section-btn">
+        <button type="button" class="btn btn-success" id="add-section-btn" {% if is_new_story %}disabled title="{{ _('Create the story first to enable sections') }}"{% endif %}>
           <i class="fa fa-plus"></i> {{ _('Add Section') }}
         </button>
+        {% if is_new_story %}
+        <p class="help-text">{{ _('Save the basic information to unlock section editing.') }}</p>
+        {% endif %}
       </div>
     </fieldset>
 
@@ -257,13 +271,13 @@
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary btn-lg">
-        <i class="fa fa-save"></i> {{ _('Save Story') }}
+        <i class="fa fa-save"></i> {% if is_new_story %}{{ _('Create Story') }}{% else %}{{ _('Save Story') }}{% endif %}
       </button>
-      <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-default btn-lg">
-        <i class="fa fa-times"></i> {{ _('Cancel') }}
+      <a href="{% if is_new_story %}{{ h.url_for('data_stories.index') }}{% else %}{{ h.url_for('data_stories.show', slug=story_slug) }}{% endif %}" class="btn btn-default btn-lg">
+        <i class="fa fa-times"></i> {% if is_new_story %}{{ _('Cancel') }}{% else %}{{ _('Cancel') }}{% endif %}
       </a>
-      {% if h.check_access('data_story_delete', {'id': story.id}) %}
-      <a href="{{ h.url_for('data_stories.delete', slug=story.slug) }}" class="btn btn-danger btn-lg pull-right" data-confirm="{{ _('Are you sure you want to delete this story?') }}">
+      {% if not is_new_story and h.check_access('data_story_delete', {'id': story.id}) %}
+      <a href="{{ h.url_for('data_stories.delete', slug=story_slug) }}" class="btn btn-danger btn-lg pull-right" data-confirm="{{ _('Are you sure you want to delete this story?') }}">
         <i class="fa fa-trash"></i> {{ _('Delete Story') }}
       </a>
       {% endif %}

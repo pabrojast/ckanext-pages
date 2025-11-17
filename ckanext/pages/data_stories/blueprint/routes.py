@@ -213,34 +213,43 @@ def create():
             errors = e.error_dict
             error_summary = e.error_summary
 
+            story_data = _build_story_context(data_dict)
             extra_vars = {
+                'story': story_data,
                 'data': data_dict,
                 'errors': errors,
                 'error_summary': error_summary,
+                'is_new': True,
             }
 
-            return render_template('data_stories/create.html', **extra_vars)
+            return render_template('data_stories/edit.html', **extra_vars)
 
         except Exception as e:
             log.error(f"Error creating story: {str(e)}")
             flash(tk._('Error creating story: {}').format(str(e)), 'error')
 
+            story_data = _build_story_context(data_dict)
             extra_vars = {
+                'story': story_data,
                 'data': data_dict,
                 'errors': {},
                 'error_summary': {},
+                'is_new': True,
             }
 
-            return render_template('data_stories/create.html', **extra_vars)
+            return render_template('data_stories/edit.html', **extra_vars)
 
     # GET request - show form
+    story_data = _build_story_context({})
     extra_vars = {
+        'story': story_data,
         'data': {},
         'errors': {},
         'error_summary': {},
+        'is_new': True,
     }
 
-    return render_template('data_stories/create.html', **extra_vars)
+    return render_template('data_stories/edit.html', **extra_vars)
 
 
 # ============================================================================
@@ -361,6 +370,7 @@ def edit(slug):
                 'data': data_dict,
                 'errors': errors,
                 'error_summary': error_summary,
+                'is_new': False,
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -374,6 +384,7 @@ def edit(slug):
                 'data': data_dict,
                 'errors': {},
                 'error_summary': {},
+                'is_new': False,
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -384,6 +395,7 @@ def edit(slug):
         'data': story,
         'errors': {},
         'error_summary': {},
+        'is_new': False,
     }
 
     return render_template('data_stories/edit.html', **extra_vars)
@@ -690,4 +702,21 @@ def _extract_story_form_data(form):
         'organization_id': form.get('organization_id', '').strip() or None,
         'meta_description': form.get('meta_description', '').strip(),
         'meta_keywords': form.get('meta_keywords', '').strip(),
+    }
+
+
+def _build_story_context(data):
+    """Build a story-like dict for templates, ensuring expected keys exist."""
+    data = data or {}
+    return {
+        'id': data.get('id'),
+        'title': data.get('title', ''),
+        'slug': data.get('slug', ''),
+        'abstract': data.get('abstract', ''),
+        'research_question': data.get('research_question', ''),
+        'study_area': data.get('study_area', ''),
+        'organization_id': data.get('organization_id'),
+        'meta_description': data.get('meta_description', ''),
+        'meta_keywords': data.get('meta_keywords', ''),
+        'sections': data.get('sections', []),
     }
