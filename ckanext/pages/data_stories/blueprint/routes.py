@@ -4,11 +4,13 @@ Flask routes for Data Stories web interface.
 Provides URL routes and view functions for the data stories web UI.
 """
 
+import json
 import logging
+import re
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 import ckan.plugins.toolkit as tk
-from ckan.common import g, c
+from ckan.common import g
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +20,9 @@ data_stories_blueprint = Blueprint(
     __name__,
     url_prefix='/data-stories'
 )
+
+# Pattern to extract section fields from form data
+_SECTION_FIELD_RE = re.compile(r'^sections\[(\d+)\]\[([^\]]+)\]$')
 
 
 # ============================================================================
@@ -199,23 +204,19 @@ def create():
     if request.method == 'POST':
         # Get form data
         data_dict = _extract_story_form_data(request.form)
+        sections_data = _extract_sections_form_data(request.form)
+        draft_story_context = _build_story_context({**data_dict, 'sections': sections_data})
 
         try:
             # Create story
             story = tk.get_action('data_story_create')(context, data_dict)
 
-            flash(tk._('Story created successfully'), 'success')
-
-            # Redirect to edit page to add sections
-            return redirect(url_for('data_stories.edit', slug=story['slug']))
-
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
 
-            story_data = _build_story_context(data_dict)
             extra_vars = {
-                'story': story_data,
+                'story': draft_story_context,
                 'data': data_dict,
                 'errors': errors,
                 'error_summary': error_summary,
@@ -228,9 +229,8 @@ def create():
             log.error(f"Error creating story: {str(e)}")
             flash(tk._('Error creating story: {}').format(str(e)), 'error')
 
-            story_data = _build_story_context(data_dict)
             extra_vars = {
-                'story': story_data,
+                'story': draft_story_context,
                 'data': data_dict,
                 'errors': {},
                 'error_summary': {},
@@ -238,6 +238,43 @@ def create():
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
+
+        # Persist sections captured in the form (if any)
+        try:
+            _sync_story_sections(context, story['id'], sections_data)
+        except tk.ValidationError as e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+
+            story_context = _build_story_context({**story, 'sections': sections_data})
+            extra_vars = {
+                'story': story_context,
+                'data': {**data_dict, 'slug': story.get('slug')},
+                'errors': errors,
+                'error_summary': error_summary,
+                'is_new': False,
+            }
+
+            return render_template('data_stories/edit.html', **extra_vars)
+        except Exception as e:
+            log.error(f"Error creating sections for story {story.get('id')}: {str(e)}")
+            flash(tk._('Story created but sections could not be saved: {}').format(str(e)), 'error')
+
+            story_context = _build_story_context({**story, 'sections': sections_data})
+            extra_vars = {
+                'story': story_context,
+                'data': {**data_dict, 'slug': story.get('slug')},
+                'errors': {},
+                'error_summary': {},
+                'is_new': False,
+            }
+
+            return render_template('data_stories/edit.html', **extra_vars)
+
+        flash(tk._('Story created successfully'), 'success')
+
+        # Redirect to edit page to add sections
+        return redirect(url_for('data_stories.edit', slug=story['slug']))
 
     # GET request - show form
     story_data = _build_story_context({})
@@ -351,10 +388,18 @@ def edit(slug):
         # Get form data
         data_dict = _extract_story_form_data(request.form)
         data_dict['id'] = story['id']
+        sections_data = _extract_sections_form_data(request.form)
+        story_context = _build_story_context({**story, **data_dict, 'sections': sections_data})
 
         try:
             # Update story
             updated_story = tk.get_action('data_story_update')(context, data_dict)
+            _sync_story_sections(
+                context,
+                story['id'],
+                sections_data,
+                existing_sections=story.get('sections', [])
+            )
 
             flash(tk._('Story updated successfully'), 'success')
 
@@ -366,7 +411,7 @@ def edit(slug):
             error_summary = e.error_summary
 
             extra_vars = {
-                'story': story,
+                'story': story_context,
                 'data': data_dict,
                 'errors': errors,
                 'error_summary': error_summary,
@@ -380,7 +425,7 @@ def edit(slug):
             flash(tk._('Error updating story: {}').format(str(e)), 'error')
 
             extra_vars = {
-                'story': story,
+                'story': story_context,
                 'data': data_dict,
                 'errors': {},
                 'error_summary': {},
@@ -716,3 +761,137 @@ def _build_story_context(data):
         'organization_id': data.get('organization_id'),
         'sections': data.get('sections', []),
     }
+
+
+def _extract_sections_form_data(form):
+    """
+    Extract section data from the submitted form.
+
+    Returns a list of section dicts preserving the form order.
+    Empty sections (no type, title, or content) are ignored.
+    """
+    sections = {}
+
+    for key in form:
+        match = _SECTION_FIELD_RE.match(key)
+        if not match:
+            continue
+
+        index = int(match.group(1))
+        field_name = match.group(2)
+
+        if index not in sections:
+            sections[index] = {}
+
+        sections[index][field_name] = form.get(key)
+
+    section_list = []
+    for index in sorted(sections.keys()):
+        raw = sections[index]
+
+        section = {
+            'id': (raw.get('id') or '').strip() or None,
+            'title': (raw.get('title') or '').strip(),
+            'section_type': (raw.get('section_type') or '').strip(),
+            'content': raw.get('content') or '',
+            'order_index': _coerce_int(raw.get('order_index'), index),
+            'image_url': (raw.get('image_url') or '').strip(),
+            'video_url': (raw.get('video_url') or '').strip(),
+            'terria_share_link': (raw.get('terria_share_link') or '').strip(),
+            'terria_config': _parse_json_field(raw.get('terria_config')),
+            'is_visible': _parse_bool(raw.get('is_visible', True)),
+        }
+
+        # Skip blank sections so they don't trigger validation errors
+        if not any([
+            section['section_type'],
+            section['title'],
+            section['content'],
+            section['terria_share_link'],
+            section['image_url'],
+            section['video_url'],
+            section['terria_config'],
+        ]):
+            continue
+
+        section_list.append(section)
+
+    return section_list
+
+
+def _sync_story_sections(context, story_id, sections_data, existing_sections=None):
+    """
+    Create, update, or delete sections to match the submitted form data.
+
+    Args:
+        context: CKAN context dict
+        story_id: ID of the story the sections belong to
+        sections_data: Sections extracted from the form
+        existing_sections: Current sections (dicts) for comparison
+    """
+    existing_sections = existing_sections or []
+    existing_map = {
+        s.get('id'): s for s in existing_sections
+        if s.get('id')
+    }
+    processed_ids = set()
+
+    for idx, section in enumerate(sections_data):
+        payload = {
+            'story_id': story_id,
+            'section_type': section.get('section_type'),
+            'title': section.get('title'),
+            'content': section.get('content', ''),
+            'order_index': section.get('order_index', idx),
+            'image_url': section.get('image_url'),
+            'video_url': section.get('video_url'),
+            'terria_config': section.get('terria_config'),
+            'terria_share_link': section.get('terria_share_link'),
+            'is_visible': section.get('is_visible', True),
+        }
+
+        section_id = section.get('id')
+        if section_id and section_id in existing_map:
+            payload['id'] = section_id
+            updated = tk.get_action('data_story_section_update')(context, payload)
+            processed_ids.add(updated['id'])
+        else:
+            created = tk.get_action('data_story_section_create')(context, payload)
+            processed_ids.add(created['id'])
+
+    # Delete removed sections
+    for existing_id in existing_map.keys():
+        if existing_id not in processed_ids:
+            tk.get_action('data_story_section_delete')(context, {'id': existing_id})
+
+
+def _coerce_int(value, default=0):
+    """Convert incoming value to int, returning default on failure."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _parse_json_field(raw_value):
+    """Parse JSON stored in form fields, returning None when unset/invalid."""
+    if not raw_value:
+        return None
+
+    if isinstance(raw_value, (dict, list)):
+        return raw_value
+
+    try:
+        return json.loads(raw_value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_bool(value):
+    """Normalize truthy/falsey form values to boolean."""
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+
+    return str(value).lower() not in ('false', '0', 'off', '')

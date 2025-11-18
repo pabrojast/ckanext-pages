@@ -187,21 +187,17 @@
         {% if sections %}
           {% for section in sections %}
             {% include "data_stories/components/section_edit.html" %}
-          {% endfor %}
-        {% elif is_new_story %}
-          <p class="text-muted">{{ _('Save your story details to start adding rich sections.') }}</p>
+        {% endfor %}
         {% else %}
           <p class="text-muted">{{ _('No sections yet. Add your first section below.') }}</p>
         {% endif %}
       </div>
 
       <div class="form-group">
-        <button type="button" class="btn btn-success" id="add-section-btn" {% if is_new_story %}disabled title="{{ _('Create the story first to enable sections') }}"{% endif %}>
+        <button type="button" class="btn btn-success" id="add-section-btn">
           <i class="fa fa-plus"></i> {{ _('Add Section') }}
         </button>
-        {% if is_new_story %}
-        <p class="help-text">{{ _('Save the basic information to unlock section editing.') }}</p>
-        {% endif %}
+        <p class="help-text">{{ _('Add sections to structure your story. All sections are saved together with the story details.') }}</p>
       </div>
     </fieldset>
 
