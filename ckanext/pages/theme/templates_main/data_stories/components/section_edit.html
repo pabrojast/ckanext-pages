@@ -3,8 +3,10 @@ Section editor component - modern modular block-based editing (aligned with rapi
 
 Variables:
 - section: Section dict (optional, for editing existing sections)
+- section_index: Index passed from parent template (fallback to 0)
 #}
 
+{% set idx = section_index if section_index is defined else (loop.index0 if loop is defined else 0) %}
 <div class="content-section-editor" data-section-id="{{ section.id if section else '' }}">
   <div class="section-header">
     <div class="section-title-row">
@@ -12,7 +14,7 @@ Variables:
         <i class="fa fa-file-text"></i>
       </div>
       <input type="text"
-             name="sections[{{ loop.index0 if section else '0' }}][title]"
+             name="sections[{{ idx }}][title]"
              value="{{ section.title if section else '' }}"
              class="section-title-input"
              placeholder="{{ _('Section Title') }}"
@@ -32,13 +34,13 @@ Variables:
   </div>
 
   <div class="section-body">
-    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][id]" value="{{ section.id if section else '' }}" />
-    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][order_index]" value="{{ section.order_index if section is defined and section else loop.index0 if section else '0' }}" class="section-order" />
+    <input type="hidden" name="sections[{{ idx }}][id]" value="{{ section.id if section else '' }}" />
+    <input type="hidden" name="sections[{{ idx }}][order_index]" value="{{ section.order_index if section is defined and section else idx }}" class="section-order" />
 
     {# Section Type #}
     <div class="form-group">
       <label>{{ _('Section Type') }} <span class="text-danger">*</span></label>
-      <select name="sections[{{ loop.index0 if section else '0' }}][section_type]" class="form-control section-type-select" required>
+      <select name="sections[{{ idx }}][section_type]" class="form-control section-type-select" required>
         <option value="">{{ _('Select a section type...') }}</option>
         <option value="introduction"{% if section and section.section_type == 'introduction' %} selected{% endif %}>{{ _('Introduction') }}</option>
         <option value="research_question"{% if section and section.section_type == 'research_question' %} selected{% endif %}>{{ _('Research Question') }}</option>
@@ -55,7 +57,7 @@ Variables:
     </div>
 
     {# Content Blocks Container #}
-    <div class="section-content-blocks" id="section-{{ loop.index0 if section else '0' }}-blocks">
+    <div class="section-content-blocks" id="section-{{ idx }}-blocks">
       {# Content blocks will be dynamically added here #}
     </div>
 
@@ -76,11 +78,11 @@ Variables:
     </div>
 
     {# Hidden fields for content and Terria config (backward compatibility) #}
-    <textarea name="sections[{{ loop.index0 if section else '0' }}][content]" style="display:none;" class="section-content-field">{{ section.content if section else '' }}</textarea>
-    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][terria_share_link]" value="{{ section.terria_share_link if section else '' }}" class="section-terria-link" />
-    <textarea name="sections[{{ loop.index0 if section else '0' }}][terria_config]" style="display:none;" class="section-terria-config">{{ section.terria_config|tojson if section and section.terria_config else '' }}</textarea>
-    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][blocks_metadata]" value="" class="section-blocks-metadata" />
+    <textarea name="sections[{{ idx }}][content]" style="display:none;" class="section-content-field">{{ section.content if section else '' }}</textarea>
+    <input type="hidden" name="sections[{{ idx }}][terria_share_link]" value="{{ section.terria_share_link if section else '' }}" class="section-terria-link" />
+    <textarea name="sections[{{ idx }}][terria_config]" style="display:none;" class="section-terria-config">{{ section.terria_config|tojson if section and section.terria_config else '' }}</textarea>
+    <input type="hidden" name="sections[{{ idx }}][blocks_metadata]" value="" class="section-blocks-metadata" />
     {# Visibility is always true by default #}
-    <input type="hidden" name="sections[{{ loop.index0 if section else '0' }}][is_visible]" value="true" />
+    <input type="hidden" name="sections[{{ idx }}][is_visible]" value="true" />
   </div>
 </div>

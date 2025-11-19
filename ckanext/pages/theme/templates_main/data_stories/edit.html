@@ -186,7 +186,7 @@
         {% set sections = story.sections if story and story.sections else [] %}
         {% if sections %}
           {% for section in sections %}
-            {% include "data_stories/components/section_edit.html" %}
+            {% include "data_stories/components/section_edit.html" with context %}
         {% endfor %}
         {% else %}
           <p class="text-muted">{{ _('No sections yet. Add your first section below.') }}</p>
@@ -246,7 +246,8 @@
 
   {# Section template (hidden, cloned by JavaScript) #}
   <template id="section-template">
-    {% include "data_stories/components/section_edit.html" with context %}
+    {% set section_index = 0 %}
+    {% include "data_stories/components/section_edit.html" %}
   </template>
   
               </div>
