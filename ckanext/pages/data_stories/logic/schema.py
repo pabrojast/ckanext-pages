@@ -4,7 +4,36 @@ Schema definitions for data stories.
 Uses CKAN validators for consistency.
 """
 
+import json
+
 import ckan.plugins.toolkit as tk
+
+
+def _get_json_validator():
+    """
+    Return CKAN's json_validator when available, otherwise use a local fallback.
+
+    Some installations (older CKAN versions) don't expose json_validator via
+    toolkit, so we provide a simple validator that checks JSON formatting.
+    """
+    try:
+        return tk.get_validator('json_validator')
+    except Exception:
+        def _json_validator(key, data, errors, context):
+            value = data.get(key)
+
+            if not value:
+                return
+
+            if isinstance(value, (dict, list)):
+                return
+
+            try:
+                json.loads(value)
+            except (TypeError, ValueError):
+                errors[key].append('Invalid JSON format')
+
+        return _json_validator
 
 
 def data_story_schema():
@@ -51,7 +80,7 @@ def data_story_section_schema():
     unicode_safe = tk.get_validator('unicode_safe')
     boolean_validator = tk.get_validator('boolean_validator')
     int_validator = tk.get_validator('int_validator')
-    json_validator = tk.get_validator('json_validator')
+    json_validator = _get_json_validator()
 
     return {
         'id': [ignore_empty, unicode_safe],
