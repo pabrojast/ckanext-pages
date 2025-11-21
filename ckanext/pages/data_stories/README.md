@@ -56,7 +56,8 @@ data_stories/
 - ✅ **11 Section Types**: Introduction, Methodology, Spatial Analysis, etc.
 - ✅ **Terria Integration**: Embed interactive geospatial maps
 - ✅ **Multi-Author Support**: Collaborate with ORCID integration
-- ✅ **Publication Workflow**: Draft → Submit → Review → Publish
+- ✅ **Flexible Publication**: 3 workflows (Review, Direct, Self-Publishing)
+- ✅ **Review Panel**: Comprehensive approval interface for reviewers
 - ✅ **Dataset Linking**: Connect stories to CKAN datasets
 - ✅ **Comment System**: Review and feedback with threading
 - ✅ **Version Control**: Automatic revision snapshots
@@ -129,6 +130,9 @@ Add to `ckan.ini`:
 ckanext.data_stories.enabled = true
 ckanext.data_stories.require_review = true
 ckanext.data_stories.terria_base_url = https://terria.water-data.org
+
+# Allow authors to publish stories directly without review (default: false)
+ckanext.pages.data_stories.allow_direct_publish = false
 ```
 
 ### 5. Restart CKAN
@@ -136,6 +140,104 @@ ckanext.data_stories.terria_base_url = https://terria.water-data.org
 ```bash
 sudo supervisorctl restart ckan-uwsgi:*
 ```
+
+## 📝 Publication Workflows
+
+Data Stories supports multiple publication workflows to fit different organizational needs:
+
+### Option 1: Review Workflow (Default)
+
+**Best for**: Organizations requiring quality control and editorial review.
+
+```
+Author creates story → Status: DRAFT
+     ↓
+Author submits for review → Status: SUBMITTED
+     ↓
+Reviewer reviews story → Status: UNDER_REVIEW
+     ↓
+Reviewer approves → Status: PUBLISHED (visible to public)
+```
+
+**Who can review/approve:**
+- ✅ Sysadmins (all stories)
+- ✅ Organization Admins (stories in their org)
+
+**URLs:**
+- `/data-stories/pending-review` - List all pending stories
+- `/data-stories/<slug>/review` - Review a specific story
+
+### Option 2: Direct Publishing (Admins)
+
+**Best for**: Trusted editors who need quick publication.
+
+Sysadmins and Organization Admins can bypass the review workflow:
+
+```
+Admin creates story → Status: DRAFT
+     ↓
+Admin clicks "Publish Now" → Status: PUBLISHED
+```
+
+This option is always available for admins, regardless of configuration.
+
+### Option 3: Author Self-Publishing
+
+**Best for**: Small teams or trusted author communities.
+
+Enable in `ckan.ini`:
+
+```ini
+ckanext.pages.data_stories.allow_direct_publish = true
+```
+
+With this setting:
+- ✅ All authors can publish their own stories directly
+- ✅ No review workflow required
+- ✅ Stories go from DRAFT → PUBLISHED in one click
+
+```
+Author creates story → Status: DRAFT
+     ↓
+Author clicks "Publish Now" → Status: PUBLISHED
+```
+
+**Configuration:**
+
+```ini
+# Default: false (review required)
+ckanext.pages.data_stories.allow_direct_publish = false
+
+# Enable self-publishing for all authors
+ckanext.pages.data_stories.allow_direct_publish = true
+```
+
+### Comparison Table
+
+| Feature | Review Workflow | Direct (Admins) | Self-Publishing |
+|---------|----------------|-----------------|-----------------|
+| Quality Control | ✅ Yes | ❌ No | ❌ No |
+| Speed | 🐢 Slower | ⚡ Instant | ⚡ Instant |
+| Who can publish | Admins only | Admins only | All authors |
+| Configuration | Default | Always enabled | Requires config |
+| Best for | Large orgs | Trusted editors | Small teams |
+
+### Review Interface
+
+Reviewers have access to a comprehensive review panel at `/data-stories/pending-review`:
+
+**Features:**
+- 📋 List all submitted/under-review stories
+- 🔍 Filter by status
+- 👁️ Preview full story content
+- ✅ Approve and publish
+- ✏️ Request changes with comments
+- 📊 Track review history
+
+**Review Actions:**
+1. **Start Review** - Marks story as "Under Review"
+2. **Approve and Publish** - Publishes story immediately
+3. **Request Changes** - Returns to author with feedback
 
 ## 🧪 Testing
 
@@ -193,15 +295,17 @@ See [tests/README.md](tests/README.md) for more details.
 **Stats**
 - `data_story_increment_views`, `data_story_stats`, `data_stories_popular`, `data_stories_recent`
 
-### Web Routes (11)
+### Web Routes (13)
 
-- `/data-stories/` - Browse all stories
+- `/data-stories/` - Browse all published stories
 - `/data-stories/new` - Create new story
 - `/data-stories/<slug>` - View story
 - `/data-stories/<slug>/edit` - Edit story
 - `/data-stories/<slug>/delete` - Delete story
-- `/data-stories/<slug>/submit` - Submit for review
-- `/data-stories/<slug>/review` - Review interface
+- `/data-stories/<slug>/submit` - Submit for review (POST)
+- `/data-stories/<slug>/publish` - Publish directly (POST)
+- `/data-stories/<slug>/review` - Review interface (GET/POST)
+- `/data-stories/pending-review` - List pending stories (reviewers only)
 - `/data-stories/my-stories` - User's stories
 - Plus routes for sections, datasets, comments
 
@@ -386,12 +490,13 @@ tk.add_template_directory(config, 'theme/templates_main')
 
 ## 📊 Statistics
 
-- **37 files** created
-- **~9,635 lines** of code
+- **40+ files** created
+- **~10,000+ lines** of code
 - **30+ API actions**
-- **11 web routes**
+- **13 web routes**
 - **6 database models**
 - **120+ tests** (85-90% coverage)
+- **3 publication workflows** (Review, Direct, Self-Publishing)
 
 ## 🎓 Learn More
 
@@ -409,6 +514,6 @@ Built as a comprehensive extension to ckanext-pages, following CKAN best practic
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Status**: Production Ready
-**Last Updated**: 2025-11-10
+**Last Updated**: 2025-11-21
