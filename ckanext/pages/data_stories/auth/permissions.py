@@ -299,9 +299,49 @@ def data_story_review(context, data_dict):
 
 
 def data_story_approve(context, data_dict):
-    """Check if user can approve a story."""
-    # Same as review
-    return data_story_review(context, data_dict)
+    """
+    Check if user can approve a story.
+
+    Rules:
+    - Sysadmins can always approve
+    - Organization admins can approve org stories
+    - If 'ckanext.pages.data_stories.allow_direct_publish' is enabled,
+      authors can approve their own stories
+    """
+    user = context.get('user')
+
+    if not user:
+        return {'success': False}
+
+    # Sysadmins can approve
+    if is_sysadmin(user):
+        return {'success': True}
+
+    # Get story
+    story_id = data_dict.get('id')
+    if not story_id:
+        return {'success': False}
+
+    story = DataStory.get(id=story_id)
+    if not story:
+        return {'success': False}
+
+    # Organization admins can approve org stories
+    if story.organization_id:
+        if is_organization_admin(user, story.organization_id):
+            return {'success': True}
+
+    # Check if direct publishing is enabled
+    allow_direct_publish = tk.asbool(
+        tk.config.get('ckanext.pages.data_stories.allow_direct_publish', False)
+    )
+
+    if allow_direct_publish:
+        # Authors can approve their own stories
+        if is_story_author(user, story):
+            return {'success': True}
+
+    return {'success': False}
 
 
 def data_story_request_changes(context, data_dict):

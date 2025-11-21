@@ -1,0 +1,235 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Pending Review') }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb Navigation -->
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
+          <li class="active"><a href="{{ h.url_for('data_stories.pending_review') }}">{{ _('Pending Review') }}</a></li>
+        </ol>
+      </div>
+
+      <!-- Header Banner -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1 style="color: white;">
+              <i class="fa fa-clipboard-check"></i> {{ _('Stories Pending Review') }}
+            </h1>
+            <p class="section-title-description" style="color: white;">{{ _('Review and approve submitted data stories') }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <!-- Filter Section -->
+          <div class="review-filters" style="margin-bottom: 2rem;">
+            <section class="module module-narrow">
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <form method="get">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="status" class="sr-only">{{ _('Filter by status') }}</label>
+                        <select name="status" id="status" class="form-control" onchange="this.form.submit()">
+                          <option value="all"{% if status_filter == 'all' %} selected{% endif %}>{{ _('All Pending') }}</option>
+                          <option value="submitted"{% if status_filter == 'submitted' %} selected{% endif %}>{{ _('Submitted') }}</option>
+                          <option value="under_review"{% if status_filter == 'under_review' %} selected{% endif %}>{{ _('Under Review') }}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-8 text-right">
+                      <div style="padding-top: 5px;">
+                        <span class="badge" style="background: #ffc107; color: #2c3e50; padding: 0.5rem 1rem; border-radius: 20px; font-size: 1rem;">
+                          <i class="fa fa-clock"></i> {{ total_count }} {{ _('stories pending') }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+
+          <!-- Stories List -->
+          {% if total_count > 0 %}
+            <div class="results-info" style="padding: 1rem 0; margin-bottom: 1.5rem; color: #6c757d;">
+              <i class="fa fa-info-circle"></i>
+              {{ _('Showing {start} - {end} of {total} stories').format(
+                start=(page - 1) * 20 + 1,
+                end=min(page * 20, total_count),
+                total=total_count
+              ) }}
+            </div>
+
+            <!-- Story Cards -->
+            <div class="pending-stories-list">
+              {% for story in stories %}
+              <section class="module module-narrow" style="margin-bottom: 1.5rem;">
+                <div class="module-content" style="padding: 2rem 2.5rem;">
+                  <div class="row">
+                    <div class="col-md-9">
+                      {# Status Badge #}
+                      <div style="margin-bottom: 1rem;">
+                        <span class="label" style="padding: 0.4rem 1rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; {% if story.status == 'submitted' %}background: #ffc107; color: #2c3e50;{% else %}background: #17a2b8; color: white;{% endif %}">
+                          <i class="fa fa-info-circle"></i> {{ story.status|title }}
+                        </span>
+                        {% if story.submission_date %}
+                        <small style="margin-left: 1rem; color: #6c757d;">
+                          <i class="fa fa-calendar"></i> {{ _('Submitted') }}: {{ h.render_datetime(story.submission_date, with_hours=False) }}
+                        </small>
+                        {% endif %}
+                      </div>
+
+                      {# Title #}
+                      <h3 style="margin: 0 0 1rem 0; color: #0072BC;">
+                        <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" style="color: #0072BC; text-decoration: none;">
+                          {{ story.title }}
+                        </a>
+                      </h3>
+
+                      {# Abstract #}
+                      {% if story.abstract %}
+                      <p style="margin-bottom: 1rem; color: #2c3e50; line-height: 1.6;">
+                        {{ story.abstract[:200] }}{% if story.abstract|length > 200 %}...{% endif %}
+                      </p>
+                      {% endif %}
+
+                      {# Metadata #}
+                      <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.9rem; color: #6c757d;">
+                        {% if story.author %}
+                        <span>
+                          <i class="fa fa-user"></i> {{ story.author.fullname or story.author.name }}
+                        </span>
+                        {% endif %}
+                        {% if story.organization %}
+                        <span>
+                          <i class="fa fa-building"></i> {{ story.organization.title }}
+                        </span>
+                        {% endif %}
+                        {% if story.section_count %}
+                        <span>
+                          <i class="fa fa-list"></i> {{ story.section_count }} {{ _('sections') }}
+                        </span>
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <div class="col-md-3 text-right">
+                      {# Review Actions #}
+                      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: stretch;">
+                        <a href="{{ h.url_for('data_stories.review', slug=story.slug) }}"
+                           class="btn btn-primary btn-block"
+                           style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); border: none; color: #2c3e50; font-weight: 600;">
+                          <i class="fa fa-clipboard-check"></i> {{ _('Review') }}
+                        </a>
+                        <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
+                           class="btn btn-default btn-block">
+                          <i class="fa fa-eye"></i> {{ _('View') }}
+                        </a>
+                        {% if h.check_access('data_story_update', {'id': story.id}) %}
+                        <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
+                           class="btn btn-default btn-block">
+                          <i class="fa fa-edit"></i> {{ _('Edit') }}
+                        </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              {% endfor %}
+            </div>
+
+            {# Pagination #}
+            {% if total_pages > 1 %}
+            <nav aria-label="Story pagination" style="margin-top: 3rem;">
+              <section class="module module-narrow">
+                <div class="module-content" style="padding: 1.5rem 2.5rem; text-align: center;">
+                  <ul class="pagination" style="margin: 0; justify-content: center;">
+                    {% if page > 1 %}
+                    <li>
+                      <a href="{{ h.url_for('data_stories.pending_review', page=page-1, status=status_filter) }}"
+                         aria-label="{{ _('Previous') }}"
+                         style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                        <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
+                      </a>
+                    </li>
+                    {% endif %}
+
+                    {% for p in range(1, total_pages + 1) %}
+                      {% if p == page %}
+                      <li class="active">
+                        <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
+                      </li>
+                      {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+                      <li>
+                        <a href="{{ h.url_for('data_stories.pending_review', page=p, status=status_filter) }}"
+                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
+                      </li>
+                      {% elif p == 4 or p == total_pages - 3 %}
+                      <li class="disabled"><span style="padding: 0.5rem 0.75rem;">...</span></li>
+                      {% endif %}
+                    {% endfor %}
+
+                    {% if page < total_pages %}
+                    <li>
+                      <a href="{{ h.url_for('data_stories.pending_review', page=page+1, status=status_filter) }}"
+                         aria-label="{{ _('Next') }}"
+                         style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                        {{ _('Next') }} <i class="fa fa-chevron-right"></i>
+                      </a>
+                    </li>
+                    {% endif %}
+                  </ul>
+                </div>
+              </section>
+            </nav>
+            {% endif %}
+
+          {% else %}
+            <div class="empty-state">
+              <section class="module module-narrow">
+                <div class="module-content" style="padding: 4rem 2.5rem; text-align: center;">
+                  <i class="fa fa-check-circle fa-5x" style="color: #28a745; margin-bottom: 1.5rem;"></i>
+                  <h3 style="color: #6c757d; margin-bottom: 1rem;">{{ _('No stories pending review') }}</h3>
+                  <p style="color: #6c757d; margin-bottom: 1.5rem;">
+                    {{ _('All submitted stories have been reviewed. Check back later for new submissions.') }}
+                  </p>
+                  <a href="{{ h.url_for('data_stories.index') }}" class="btn btn-primary btn-lg">
+                    <i class="fa fa-arrow-left"></i> {{ _('Back to Data Stories') }}
+                  </a>
+                </div>
+              </section>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+<!-- Load data stories CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+
+{% endblock %}

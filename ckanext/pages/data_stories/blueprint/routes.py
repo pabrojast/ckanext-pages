@@ -61,8 +61,12 @@ def index():
     }
 
     # Add filters if provided
+    # Default to 'published' status for public list, unless explicitly filtered
     if status_filter:
         data_dict['status'] = status_filter
+    else:
+        # Only show published stories by default in the public list
+        data_dict['status'] = 'published'
 
     if org_filter:
         data_dict['organization_id'] = org_filter
@@ -113,6 +117,116 @@ def index():
     }
 
     return render_template('data_stories/list.html', **extra_vars)
+
+
+@data_stories_blueprint.route('/pending-review')
+def pending_review():
+    """
+    List stories pending review (submitted or under_review).
+
+    URL: /data-stories/pending-review
+    """
+    log.info("[DATA_STORIES_ROUTE] Listing stories pending review")
+
+    context = _get_context()
+
+    # Must be logged in
+    if not g.userobj:
+        flash(tk._('Please log in to view pending stories'), 'error')
+        return redirect(url_for('user.login'))
+
+    # Check if user has review permissions
+    try:
+        # Try to check if user is a reviewer (will fail if not authorized)
+        tk.check_access('sysadmin', context, {})
+        is_reviewer = True
+    except tk.NotAuthorized:
+        is_reviewer = False
+
+    if not is_reviewer:
+        # Check if user is org admin for any org
+        from ckan import model
+        user_obj = g.userobj
+        user_orgs = model.Session.query(model.Member).filter(
+            model.Member.table_name == 'user',
+            model.Member.table_id == user_obj.id,
+            model.Member.capacity == 'admin',
+            model.Member.state == 'active'
+        ).all()
+
+        if not user_orgs:
+            flash(tk._('You do not have permission to review stories'), 'error')
+            return redirect(url_for('data_stories.index'))
+
+    # Get parameters
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 20))
+    status_filter = request.args.get('status', 'all')
+
+    # Calculate offset
+    offset = (page - 1) * limit
+
+    # Build data_dict for submitted stories
+    data_dict_submitted = {
+        'limit': limit,
+        'offset': offset,
+        'sort': 'recent',
+    }
+
+    # Filter by status
+    if status_filter == 'submitted':
+        data_dict_submitted['status'] = 'submitted'
+    elif status_filter == 'under_review':
+        data_dict_submitted['status'] = 'under_review'
+    elif status_filter == 'all':
+        # We'll need to combine both statuses
+        pass
+
+    # Get stories
+    stories = []
+    total_count = 0
+
+    try:
+        if status_filter in ['submitted', 'under_review']:
+            result = tk.get_action('data_story_list')(context, data_dict_submitted)
+            stories = result['stories']
+            total_count = result['count']
+        else:
+            # Get both submitted and under_review
+            result_submitted = tk.get_action('data_story_list')(context, {
+                **data_dict_submitted,
+                'status': 'submitted'
+            })
+            result_review = tk.get_action('data_story_list')(context, {
+                **data_dict_submitted,
+                'status': 'under_review'
+            })
+            stories = result_submitted['stories'] + result_review['stories']
+            total_count = result_submitted['count'] + result_review['count']
+
+            # Sort by created_at descending
+            stories.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+
+            # Apply pagination manually
+            stories = stories[offset:offset + limit]
+
+    except Exception as e:
+        log.error(f"Error listing pending stories: {str(e)}")
+        stories = []
+        total_count = 0
+
+    # Calculate pagination
+    total_pages = (total_count + limit - 1) // limit
+
+    extra_vars = {
+        'stories': stories,
+        'total_count': total_count,
+        'page': page,
+        'total_pages': total_pages,
+        'status_filter': status_filter,
+    }
+
+    return render_template('data_stories/pending_review.html', **extra_vars)
 
 
 @data_stories_blueprint.route('/my-stories')
@@ -273,8 +387,8 @@ def create():
 
         flash(tk._('Story created successfully'), 'success')
 
-        # Redirect to edit page to add sections
-        return redirect(url_for('data_stories.edit', slug=story['slug']))
+        # Redirect to story page
+        return redirect(url_for('data_stories.show', slug=story['slug']))
 
     # GET request - show form
     story_data = _build_story_context({})
@@ -518,6 +632,41 @@ def submit(slug):
     except Exception as e:
         log.error(f"Error submitting story: {str(e)}")
         flash(tk._('Error submitting story: {}').format(str(e)), 'error')
+
+    return redirect(url_for('data_stories.show', slug=slug))
+
+
+@data_stories_blueprint.route('/<slug>/publish', methods=['POST'])
+def publish(slug):
+    """
+    Publish a story directly (skip review workflow).
+
+    URL: /data-stories/<slug>/publish (POST)
+    """
+    log.info(f"[DATA_STORIES_ROUTE] Publishing story: {slug}")
+
+    context = _get_context()
+
+    # Get story
+    try:
+        story = tk.get_action('data_story_show')(context, {'slug': slug})
+    except tk.ObjectNotFound:
+        tk.abort(404, tk._('Story not found'))
+
+    # Publish story
+    try:
+        tk.get_action('data_story_approve')(context, {
+            'id': story['id'],
+            'approval_notes': 'Direct publication by author',
+        })
+
+        flash(tk._('Story published successfully'), 'success')
+
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to publish this story'))
+    except Exception as e:
+        log.error(f"Error publishing story: {str(e)}")
+        flash(tk._('Error publishing story: {}').format(str(e)), 'error')
 
     return redirect(url_for('data_stories.show', slug=slug))
 

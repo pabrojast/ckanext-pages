@@ -1,0 +1,261 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Review Story') }} - {{ story.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb Navigation -->
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
+          <li><a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">{{ story.title }}</a></li>
+          <li class="active">{{ _('Review') }}</li>
+        </ol>
+      </div>
+
+      <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-9">
+
+          <!-- Review Header -->
+          <section class="module module-narrow">
+            <div class="module-heading" style="padding: 1.5rem 2.5rem; background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+              <h1 style="margin: 0; color: white; font-size: 2rem; display: flex; align-items: center; gap: 1rem;">
+                <i class="fa fa-clipboard-check"></i>
+                {{ _('Review Data Story') }}
+              </h1>
+            </div>
+
+            <div class="module-content" style="padding: 2.5rem;">
+
+              {# Story Info #}
+              <div class="review-story-info" style="margin-bottom: 2rem;">
+                <h2 style="color: #0072BC; margin-bottom: 1rem;">{{ story.title }}</h2>
+
+                {# Status Badge #}
+                <div style="margin-bottom: 1.5rem;">
+                  <span class="label" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.95rem; font-weight: 600; {% if story.status == 'submitted' %}background: #ffc107; color: #2c3e50;{% elif story.status == 'under_review' %}background: #17a2b8; color: white;{% elif story.status == 'draft' %}background: #6c757d; color: white;{% else %}background: #28a745; color: white;{% endif %}">
+                    <i class="fa fa-info-circle"></i> {{ _('Status') }}: {{ story.status|title }}
+                  </span>
+                </div>
+
+                {# Metadata #}
+                <div class="row" style="margin-bottom: 1.5rem;">
+                  <div class="col-md-6">
+                    <strong><i class="fa fa-user"></i> {{ _('Author') }}:</strong>
+                    {% if story.author %}
+                      {{ story.author.fullname or story.author.name }}
+                    {% else %}
+                      {{ _('Unknown') }}
+                    {% endif %}
+                  </div>
+                  <div class="col-md-6">
+                    <strong><i class="fa fa-calendar"></i> {{ _('Created') }}:</strong>
+                    {{ h.render_datetime(story.created_at, with_hours=True) }}
+                  </div>
+                </div>
+
+                {% if story.organization %}
+                <div style="margin-bottom: 1.5rem;">
+                  <strong><i class="fa fa-building"></i> {{ _('Organization') }}:</strong>
+                  {{ story.organization.title }}
+                </div>
+                {% endif %}
+
+                {% if story.abstract %}
+                <div style="padding: 1.5rem; background: #f8f9fa; border-left: 4px solid #0072BC; border-radius: 8px; margin-bottom: 1.5rem;">
+                  <strong style="display: block; margin-bottom: 0.5rem;">{{ _('Abstract') }}:</strong>
+                  <p style="margin: 0;">{{ story.abstract }}</p>
+                </div>
+                {% endif %}
+
+                {# Section Count #}
+                <div style="margin-bottom: 1rem;">
+                  <strong><i class="fa fa-list"></i> {{ _('Sections') }}:</strong>
+                  {{ story.section_count or 0 }}
+                </div>
+
+                {# Link to full story #}
+                <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
+                   class="btn btn-default"
+                   target="_blank"
+                   style="margin-top: 1rem;">
+                  <i class="fa fa-external-link"></i> {{ _('View Full Story') }}
+                </a>
+              </div>
+
+              <hr style="margin: 2rem 0; border-top: 2px solid #e9ecef;">
+
+              {# Review Actions #}
+              <div class="review-actions">
+                <h3 style="color: #0072BC; margin-bottom: 1.5rem;">
+                  <i class="fa fa-tasks"></i> {{ _('Review Actions') }}
+                </h3>
+
+                {% if story.status == 'submitted' %}
+                  {# Start Review #}
+                  <div class="review-action-card" style="padding: 1.5rem; background: #f8f9fa; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h4 style="margin-top: 0; color: #17a2b8;">
+                      <i class="fa fa-play-circle"></i> {{ _('Start Review') }}
+                    </h4>
+                    <p>{{ _('Begin the review process for this story. The status will change to "Under Review".') }}</p>
+                    <form method="post" style="margin-top: 1rem;">
+                      <input type="hidden" name="action" value="start_review">
+                      <button type="submit" class="btn btn-info" style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); border: none;">
+                        <i class="fa fa-play-circle"></i> {{ _('Start Review') }}
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+
+                {% if story.status in ['submitted', 'under_review'] %}
+                  {# Approve #}
+                  <div class="review-action-card" style="padding: 1.5rem; background: #d4edda; border: 2px solid #28a745; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h4 style="margin-top: 0; color: #28a745;">
+                      <i class="fa fa-check-circle"></i> {{ _('Approve and Publish') }}
+                    </h4>
+                    <p>{{ _('Approve this story and make it publicly visible. The story will be published immediately.') }}</p>
+                    <form method="post" style="margin-top: 1rem;">
+                      <input type="hidden" name="action" value="approve">
+                      <div class="form-group">
+                        <label for="approval_notes">{{ _('Approval Notes (Optional)') }}</label>
+                        <textarea name="approval_notes"
+                                  id="approval_notes"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="{{ _('Add any notes about the approval...') }}"></textarea>
+                      </div>
+                      <button type="submit"
+                              class="btn btn-success btn-lg"
+                              onclick="return confirm('{{ _('Are you sure you want to approve and publish this story?') }}');"
+                              style="background: linear-gradient(135deg, #28a745 0%, #218838 100%); border: none;">
+                        <i class="fa fa-check-circle"></i> {{ _('Approve and Publish') }}
+                      </button>
+                    </form>
+                  </div>
+
+                  {# Request Changes #}
+                  <div class="review-action-card" style="padding: 1.5rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h4 style="margin-top: 0; color: #856404;">
+                      <i class="fa fa-edit"></i> {{ _('Request Changes') }}
+                    </h4>
+                    <p>{{ _('Send this story back to the author with change requests. The story will return to draft status.') }}</p>
+                    <form method="post" style="margin-top: 1rem;">
+                      <input type="hidden" name="action" value="request_changes">
+                      <div class="form-group">
+                        <label for="required_changes">{{ _('Required Changes') }} <span class="text-danger">*</span></label>
+                        <textarea name="required_changes"
+                                  id="required_changes"
+                                  class="form-control"
+                                  rows="4"
+                                  required
+                                  placeholder="{{ _('Describe what needs to be changed...') }}"></textarea>
+                        <span class="help-block">{{ _('Please be specific about what needs to be improved.') }}</span>
+                      </div>
+                      <button type="submit"
+                              class="btn btn-warning btn-lg"
+                              style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); border: none; color: #2c3e50;">
+                        <i class="fa fa-edit"></i> {{ _('Request Changes') }}
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+
+                {% if story.status not in ['submitted', 'under_review'] %}
+                  <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i>
+                    {% if story.status == 'published' %}
+                      {{ _('This story has already been published.') }}
+                    {% elif story.status == 'draft' %}
+                      {{ _('This story is still in draft status. The author needs to submit it for review first.') }}
+                    {% else %}
+                      {{ _('No review actions available for stories in this status.') }}
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-3">
+
+          {# Quick Actions #}
+          <section class="module module-narrow">
+            <div class="module-heading" style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h3 style="margin: 0; color: #0072BC; font-size: 1.2rem;">
+                <i class="fa fa-bolt"></i> {{ _('Quick Actions') }}
+              </h3>
+            </div>
+            <div class="module-content" style="padding: 1.5rem;">
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 1rem;">
+                  <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
+                     class="btn btn-default btn-block"
+                     style="text-align: left;">
+                    <i class="fa fa-eye"></i> {{ _('View Story') }}
+                  </a>
+                </li>
+                <li style="margin-bottom: 1rem;">
+                  <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
+                     class="btn btn-default btn-block"
+                     style="text-align: left;">
+                    <i class="fa fa-edit"></i> {{ _('Edit Story') }}
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ h.url_for('data_stories.index') }}"
+                     class="btn btn-default btn-block"
+                     style="text-align: left;">
+                    <i class="fa fa-arrow-left"></i> {{ _('Back to List') }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          {# Review History (if available) #}
+          {% if comments %}
+          <section class="module module-narrow" style="margin-top: 1.5rem;">
+            <div class="module-heading" style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h3 style="margin: 0; color: #0072BC; font-size: 1.2rem;">
+                <i class="fa fa-comments"></i> {{ _('Comments') }} ({{ comments|length }})
+              </h3>
+            </div>
+            <div class="module-content" style="padding: 1.5rem;">
+              {% for comment in comments %}
+              <div class="comment" style="margin-bottom: 1rem; padding-bottom: 1rem; {% if not loop.last %}border-bottom: 1px solid #e9ecef;{% endif %}">
+                <div style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.5rem;">
+                  <strong>{{ comment.user_name or _('Unknown') }}</strong>
+                  <br>
+                  <small>{{ h.render_datetime(comment.created_at, with_hours=True) }}</small>
+                </div>
+                <p style="margin: 0; font-size: 0.9rem;">{{ comment.content }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </section>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Load data stories CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+
+{% endblock %}

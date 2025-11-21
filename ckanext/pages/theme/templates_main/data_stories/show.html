@@ -105,14 +105,24 @@
                   </a>
                   {% endif %}
 
-                  {% if story.status == 'draft' and h.check_access('data_story_submit', {'id': story.id}) %}
-                  <form method="post" action="{{ h.url_for('data_stories.submit', slug=story.slug) }}" style="display: inline;">
-                    <button type="submit"
-                            class="btn btn-success"
-                            style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #218838 100%); border: none; color: white;">
-                      <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
-                    </button>
-                  </form>
+                  {% if story.status == 'draft' %}
+                    {% if h.check_access('data_story_approve', {'id': story.id}) %}
+                    <form method="post" action="{{ h.url_for('data_stories.publish', slug=story.slug) }}" style="display: inline;">
+                      <button type="submit"
+                              class="btn btn-success"
+                              style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #218838 100%); border: none; color: white;">
+                        <i class="fa fa-check-circle"></i> {{ _('Publish Now') }}
+                      </button>
+                    </form>
+                    {% elif h.check_access('data_story_submit', {'id': story.id}) %}
+                    <form method="post" action="{{ h.url_for('data_stories.submit', slug=story.slug) }}" style="display: inline;">
+                      <button type="submit"
+                              class="btn btn-success"
+                              style="padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #218838 100%); border: none; color: white;">
+                        <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+                      </button>
+                    </form>
+                    {% endif %}
                   {% endif %}
 
                   {% if story.status in ['submitted', 'under_review'] and h.check_access('data_story_review', {'id': story.id}) %}

@@ -47,6 +47,11 @@
                     <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Discover insights through interactive data storytelling') }}</p>
                   </div>
                   <div class="col-md-4 text-right">
+                    {% if h.check_access('sysadmin') %}
+                      <a href="{{ h.url_for('data_stories.pending_review') }}" class="btn btn-warning" style="margin-right: 0.5rem;">
+                        <i class="fa fa-clipboard-check"></i> {{ _('Pending Review') }}
+                      </a>
+                    {% endif %}
                     {% if h.check_access('data_story_create') %}
                       <a href="{{ h.url_for('data_stories.create') }}" class="btn btn-primary btn-lg">
                         <i class="fa fa-plus"></i> {{ _('Create Story') }}
