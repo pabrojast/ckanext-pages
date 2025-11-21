@@ -51,6 +51,8 @@ def init_tables(engine):
         DataStoryComment,
         DataStoryRevision,
     )
+    import sqlalchemy as sa
+    from sqlalchemy.dialects.postgresql import JSONB
 
     # Import BaseModel to get metadata
     try:
@@ -62,6 +64,21 @@ def init_tables(engine):
 
     # Create tables
     BaseModel.metadata.create_all(engine)
+
+    # Add missing columns to existing tables (migrations for existing installations)
+    try:
+        inspector = sa.inspect(engine)
+        if inspector.has_table('data_story_sections'):
+            existing_columns = [c['name'] for c in inspector.get_columns('data_story_sections')]
+            if 'blocks_metadata' not in existing_columns:
+                log.info("Adding blocks_metadata column to data_story_sections table...")
+                with engine.connect() as conn:
+                    conn.execute(sa.text('ALTER TABLE data_story_sections ADD COLUMN blocks_metadata JSONB'))
+                    conn.commit()
+                log.info("Added blocks_metadata column successfully")
+    except Exception as e:
+        log.warning(f"Could not add blocks_metadata column (may already exist): {str(e)}")
+
     log.info("Data Stories tables initialized")
 
 
