@@ -948,6 +948,7 @@ def _extract_sections_form_data(form):
             'video_url': (raw.get('video_url') or '').strip(),
             'terria_share_link': (raw.get('terria_share_link') or '').strip(),
             'terria_config': _parse_json_field(raw.get('terria_config')),
+            'blocks_metadata': _parse_json_field(raw.get('blocks_metadata')),
             'is_visible': _parse_bool(raw.get('is_visible', True)),
         }
 
@@ -996,6 +997,7 @@ def _sync_story_sections(context, story_id, sections_data, existing_sections=Non
             'video_url': section.get('video_url'),
             'terria_config': section.get('terria_config'),
             'terria_share_link': section.get('terria_share_link'),
+            'blocks_metadata': section.get('blocks_metadata'),
             'is_visible': section.get('is_visible', True),
         }
 

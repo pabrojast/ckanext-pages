@@ -157,6 +157,9 @@ class DataStorySection(DomainObject, BaseModel):
     terria_config = Column(JSONB)
     terria_share_link = Column(Text)
 
+    # Block structure metadata
+    blocks_metadata = Column(JSONB)
+
     # Visibility
     is_visible = Column(Boolean, default=True)
 

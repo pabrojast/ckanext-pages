@@ -93,6 +93,7 @@ def data_story_section_schema():
         'video_url': [ignore_missing, unicode_safe],
         'terria_config': [ignore_missing, json_validator],
         'terria_share_link': [ignore_missing, unicode_safe],
+        'blocks_metadata': [ignore_missing, json_validator],
         'is_visible': [ignore_missing, boolean_validator],
     }
 

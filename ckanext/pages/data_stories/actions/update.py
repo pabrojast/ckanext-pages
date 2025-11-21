@@ -162,6 +162,9 @@ def data_story_section_update(context, data_dict):
     if 'terria_share_link' in data:
         section.terria_share_link = data.get('terria_share_link')
 
+    if 'blocks_metadata' in data:
+        section.blocks_metadata = data.get('blocks_metadata')
+
     if 'is_visible' in data:
         section.is_visible = data['is_visible']
 

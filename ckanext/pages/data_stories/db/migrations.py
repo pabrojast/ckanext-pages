@@ -72,6 +72,7 @@ def upgrade():
             sa.Column('video_url', sa.Text),
             sa.Column('terria_config', JSONB),
             sa.Column('terria_share_link', sa.Text),
+            sa.Column('blocks_metadata', JSONB),
             sa.Column('is_visible', sa.Boolean, default=True),
             sa.Column('created_at', sa.DateTime, default=sa.func.now()),
             sa.Column('updated_at', sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()),
@@ -169,6 +170,11 @@ def upgrade():
 
         log.info("Created data_story_revisions table")
 
+    # Add blocks_metadata column if not exists (migration for existing tables)
+    if table_exists('data_story_sections') and not column_exists('data_story_sections', 'blocks_metadata'):
+        op.add_column('data_story_sections', sa.Column('blocks_metadata', JSONB))
+        log.info("Added blocks_metadata column to data_story_sections table")
+
     log.info("Data Stories migration completed successfully")
 
 
@@ -213,4 +219,25 @@ def table_exists(table_name):
         return model.Session.bind.has_table(table_name)
     except Exception as e:
         log.error(f"Error checking table existence: {str(e)}")
+        return False
+
+
+def column_exists(table_name, column_name):
+    """
+    Check if a column exists in a database table.
+
+    Args:
+        table_name: Name of the table
+        column_name: Name of the column to check
+
+    Returns:
+        Boolean indicating if column exists
+    """
+    from ckan import model
+    try:
+        inspector = sa.inspect(model.Session.bind)
+        columns = [c['name'] for c in inspector.get_columns(table_name)]
+        return column_name in columns
+    except Exception as e:
+        log.error(f"Error checking column existence: {str(e)}")
         return False

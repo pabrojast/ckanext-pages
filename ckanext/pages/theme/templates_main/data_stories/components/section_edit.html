@@ -91,7 +91,7 @@ Variables:
     <textarea name="sections[{{ idx }}][content]" style="display:none;" class="section-content-field">{{ section.content if section else '' }}</textarea>
     <input type="hidden" name="sections[{{ idx }}][terria_share_link]" value="{{ section.terria_share_link if section else '' }}" class="section-terria-link" />
     <textarea name="sections[{{ idx }}][terria_config]" style="display:none;" class="section-terria-config">{{ section.terria_config|tojson if section and section.terria_config else '' }}</textarea>
-    <input type="hidden" name="sections[{{ idx }}][blocks_metadata]" value="" class="section-blocks-metadata" />
+    <input type="hidden" name="sections[{{ idx }}][blocks_metadata]" value="{{ section.blocks_metadata|tojson if section and section.blocks_metadata else '' }}" class="section-blocks-metadata" />
     {# Visibility is always true by default #}
     <input type="hidden" name="sections[{{ idx }}][is_visible]" value="true" />
   </div>

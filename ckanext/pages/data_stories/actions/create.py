@@ -191,6 +191,9 @@ def data_story_section_create(context, data_dict):
     section.terria_config = data.get('terria_config')
     section.terria_share_link = data.get('terria_share_link')
 
+    # Blocks metadata
+    section.blocks_metadata = data.get('blocks_metadata')
+
     # Visibility
     section.is_visible = data.get('is_visible', True)
 
