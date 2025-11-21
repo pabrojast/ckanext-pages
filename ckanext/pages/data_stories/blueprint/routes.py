@@ -585,7 +585,7 @@ def delete(slug):
     try:
         tk.get_action('data_story_delete')(context, {'id': story['id']})
         flash(tk._('Story deleted successfully'), 'success')
-        return redirect(url_for('data_stories.my_stories'))
+        return redirect(url_for('data_stories.index'))
 
     except tk.NotAuthorized:
         tk.abort(403, tk._('Not authorized to delete this story'))

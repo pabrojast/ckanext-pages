@@ -138,24 +138,29 @@
       function initializeSectionBlocks($section, sectionId) {
         sectionBlockCounters[sectionId] = 0;
         sectionQuillEditors[sectionId] = {};
-        
+
         const $blocksContainer = $section.find('.section-content-blocks');
         const blocksContainerId = 'section-' + sectionId + '-blocks';
         $blocksContainer.attr('id', blocksContainerId);
-        
+
         // Load existing blocks from metadata or content
         loadExistingSectionBlocks($section, sectionId);
-        
+
+        // Update section content after loading existing blocks (with small delay for Quill init)
+        setTimeout(function() {
+          updateSectionContent(sectionId);
+        }, 100);
+
         // Add text block button
         $section.find('.add-text-block').on('click', function() {
           addTextBlock(sectionId);
         });
-        
+
         // Add Terria block button
         $section.find('.add-terria-block').on('click', function() {
           addTerriaBlock(sectionId);
         });
-        
+
         // Add media block button
         $section.find('.add-media-block').on('click', function() {
           addMediaBlock(sectionId);
@@ -456,9 +461,9 @@
         
         $block.find('.delete-block').on('click', function() {
           if (confirm('Are you sure you want to delete this block?')) {
-            const editorId = blockId + '-editor';
-            if (sectionQuillEditors[sectionId] && sectionQuillEditors[sectionId][editorId]) {
-              delete sectionQuillEditors[sectionId][editorId];
+            // Use blockId without '-editor' suffix since that's how we store it
+            if (sectionQuillEditors[sectionId] && sectionQuillEditors[sectionId][blockId]) {
+              delete sectionQuillEditors[sectionId][blockId];
             }
             $block.remove();
             updateSectionContent(sectionId);
@@ -704,11 +709,13 @@
           const blockType = $block.data('block-type');
           
           if (blockType === 'text') {
-            const editorId = blockId + '-editor';
+            const editorId = blockId;
             const quill = sectionQuillEditors[sectionId] && sectionQuillEditors[sectionId][editorId];
+            console.log('Processing text block:', blockId, 'Editor ID:', editorId, 'Quill exists:', !!quill);
             if (quill) {
               const html = quill.root.innerHTML;
               const text = quill.getText().trim();
+              console.log('Text content length:', text.length);
               if (text) {
                 contentHtml += html + '\n\n';
                 blocksMetadata.push({
@@ -716,6 +723,8 @@
                   content: html
                 });
               }
+            } else {
+              console.warn('Quill editor not found for block:', blockId);
             }
           } else if (blockType === 'terria') {
             // Collect all tabs
@@ -791,7 +800,12 @@
         // Update hidden fields
         $section.find('.section-content-field').val(contentHtml);
         $section.find('.section-blocks-metadata').val(JSON.stringify(blocksMetadata));
-        
+
+        console.log('Section ' + sectionId + ' content updated:');
+        console.log('- Content HTML length:', contentHtml.length);
+        console.log('- Blocks metadata:', blocksMetadata);
+        console.log('- Content field value:', $section.find('.section-content-field').val().substring(0, 100));
+
         // Update Terria link for backward compatibility
         if (terriaLink) {
           $section.find('.section-terria-link').val(terriaLink);
@@ -820,11 +834,13 @@
         $(this).data('auto-generated', false);
       });
       
-      // Form submission
-      $('form').on('submit', function(e) {
+      // Form submission - Only for the main data stories form, not delete forms
+      $('.data-stories-form, form.data-stories-form').on('submit', function(e) {
+        console.log('Data story form submitting, updating section content...');
         // Update all section content before submit
         $('.content-section-editor').each(function(index) {
           updateSectionContent(index);
+          console.log('Updated section ' + index);
         });
       });
       
