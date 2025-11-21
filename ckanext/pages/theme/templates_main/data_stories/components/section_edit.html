@@ -13,12 +13,18 @@ Variables:
       <div class="section-icon">
         <i class="fa fa-file-text"></i>
       </div>
-      <input type="text"
-             name="sections[{{ idx }}][title]"
-             value="{{ section.title if section else '' }}"
-             class="section-title-input"
-             placeholder="{{ _('Section Title') }}"
-             required />
+      <div style="flex: 1;">
+        <input type="text"
+               name="sections[{{ idx }}][title]"
+               value="{{ section.title if section else '' }}"
+               class="section-title-input"
+               placeholder="{{ _('Section Title (e.g., "Overview of Study Region")') }}"
+               required />
+        <small style="display: block; margin-top: 0.25rem; color: #6c757d; font-size: 0.85rem;">
+          <i class="fa fa-lightbulb-o"></i>
+          {{ _('Custom title that will appear as the section heading in your story') }}
+        </small>
+      </div>
     </div>
     <div class="section-controls">
       <button type="button" class="btn btn-sm btn-default move-section-up" title="{{ _('Move Up') }}">
@@ -54,6 +60,10 @@ Variables:
         <option value="references"{% if section and section.section_type == 'references' %} selected{% endif %}>{{ _('References') }}</option>
         <option value="acknowledgments"{% if section and section.section_type == 'acknowledgments' %} selected{% endif %}>{{ _('Acknowledgments') }}</option>
       </select>
+      <span class="help-block">
+        <i class="fa fa-info-circle"></i>
+        {{ _('The section type determines the category and icon that will appear in the story navigation menu.') }}
+      </span>
     </div>
 
     {# Content Blocks Container #}

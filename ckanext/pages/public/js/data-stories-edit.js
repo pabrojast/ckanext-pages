@@ -470,8 +470,11 @@
       function addTerriaBlockEventListeners(blockId, sectionId) {
         const $block = $('[data-block-id="' + blockId + '"]');
 
-        // Switch between tabs
-        $block.find('.terria-tab-btn').on('click', function() {
+        // Switch between tabs - Using event delegation for dynamically added tabs
+        $block.off('click.terriatab').on('click.terriatab', '.terria-tab-btn', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
           const tabIndex = $(this).data('tab-index');
 
           // Update button styles
@@ -497,8 +500,11 @@
           });
         });
 
-        // Add new tab
-        $block.find('.add-terria-tab-btn').on('click', function() {
+        // Add new tab - Using event delegation
+        $block.off('click.addtab').on('click.addtab', '.add-terria-tab-btn', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+
           const $tabsList = $block.find('.terria-tabs-list');
           const $tabsContent = $block.find('.terria-tabs-content');
           const currentTabCount = $block.find('.terria-tab-panel').length;

@@ -424,22 +424,47 @@ body > .wrapper > .container {
   background: white;
   border: 2px solid #e9ecef;
   border-radius: 8px;
-  min-height: 200px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
 }
 
 .quill-editor:focus-within {
   border-color: var(--unesco-blue);
+  box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.1);
 }
 
 .ql-toolbar {
   border: none !important;
   border-bottom: 2px solid #e9ecef !important;
   background: #f8f9fa;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .ql-container {
   border: none !important;
   font-size: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* This is the actual editable area inside Quill */
+.ql-editor {
+  min-height: 250px !important;
+  padding: 1.5rem !important;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.ql-editor.ql-blank::before {
+  color: #adb5bd;
+  font-style: normal;
+  font-size: 1rem;
+  padding: 1.5rem;
 }
 
 /* Terria Map Block Styling */
@@ -844,30 +869,32 @@ input[type="submit"] {
 }
 
 .terria-tab-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 2px solid #e9ecef;
-  background: #f8f9fa;
-  color: #6c757d;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 5;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  border: 2px solid #e9ecef !important;
+  background: #f8f9fa !important;
+  color: #6c757d !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  z-index: 5 !important;
+  pointer-events: auto !important;
+  user-select: none !important;
 }
 
 .terria-tab-btn:hover {
-  background: var(--unesco-blue-pale);
-  border-color: var(--unesco-blue);
-  color: var(--unesco-blue);
-  transform: translateY(-1px);
+  background: var(--unesco-blue-pale) !important;
+  border-color: var(--unesco-blue) !important;
+  color: var(--unesco-blue) !important;
+  transform: translateY(-1px) !important;
 }
 
 .terria-tab-btn.active {
-  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
-  color: white;
-  border-color: var(--unesco-blue);
-  box-shadow: var(--shadow-light);
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%) !important;
+  color: white !important;
+  border-color: var(--unesco-blue) !important;
+  box-shadow: var(--shadow-light) !important;
 }
 
 .add-terria-tab-btn {
