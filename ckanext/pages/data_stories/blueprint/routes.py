@@ -549,6 +549,20 @@ def edit(slug):
             return render_template('data_stories/edit.html', **extra_vars)
 
     # GET request - show form
+    # Debug: Log sections data being passed to template
+    if story.get('sections'):
+        for idx, section in enumerate(story['sections']):
+            log.info(f"[EDIT_GET] Section {idx} blocks_metadata: {type(section.get('blocks_metadata'))} = {section.get('blocks_metadata')}")
+
+        # Direct database verification
+        from ckanext.pages.data_stories.db.models import DataStorySection
+        from ckan import model as ckan_model
+        db_sections = ckan_model.Session.query(DataStorySection).filter(
+            DataStorySection.story_id == story['id']
+        ).all()
+        for db_section in db_sections:
+            log.info(f"[EDIT_GET_DB] Section {db_section.id} DB blocks_metadata: {type(db_section.blocks_metadata)} = {db_section.blocks_metadata}")
+
     extra_vars = {
         'story': story,
         'data': story,
@@ -919,6 +933,11 @@ def _extract_sections_form_data(form):
     Returns a list of section dicts preserving the form order.
     Empty sections (no type, title, or content) are ignored.
     """
+    # Debug: Log all form keys containing 'blocks_metadata'
+    for key in form:
+        if 'blocks_metadata' in key:
+            log.info(f"[EXTRACT_SECTIONS] Form key '{key}' = '{form.get(key)[:200] if form.get(key) else 'None'}...'")
+
     sections = {}
 
     for key in form:
@@ -938,6 +957,11 @@ def _extract_sections_form_data(form):
     for index in sorted(sections.keys()):
         raw = sections[index]
 
+        raw_blocks = raw.get('blocks_metadata')
+        parsed_blocks = _parse_json_field(raw_blocks)
+        log.info(f"[EXTRACT_SECTIONS] Section {index} raw blocks_metadata: {type(raw_blocks)} len={len(raw_blocks) if raw_blocks else 0}")
+        log.info(f"[EXTRACT_SECTIONS] Section {index} parsed blocks_metadata: {type(parsed_blocks)} = {parsed_blocks}")
+
         section = {
             'id': (raw.get('id') or '').strip() or None,
             'title': (raw.get('title') or '').strip(),
@@ -948,7 +972,7 @@ def _extract_sections_form_data(form):
             'video_url': (raw.get('video_url') or '').strip(),
             'terria_share_link': (raw.get('terria_share_link') or '').strip(),
             'terria_config': _parse_json_field(raw.get('terria_config')),
-            'blocks_metadata': _parse_json_field(raw.get('blocks_metadata')),
+            'blocks_metadata': parsed_blocks,
             'is_visible': _parse_bool(raw.get('is_visible', True)),
         }
 
@@ -987,6 +1011,9 @@ def _sync_story_sections(context, story_id, sections_data, existing_sections=Non
     processed_ids = set()
 
     for idx, section in enumerate(sections_data):
+        blocks_meta = section.get('blocks_metadata')
+        log.info(f"[SYNC_SECTIONS] Section {idx} blocks_metadata: {type(blocks_meta)} = {blocks_meta}")
+
         payload = {
             'story_id': story_id,
             'section_type': section.get('section_type'),
@@ -997,7 +1024,7 @@ def _sync_story_sections(context, story_id, sections_data, existing_sections=Non
             'video_url': section.get('video_url'),
             'terria_config': section.get('terria_config'),
             'terria_share_link': section.get('terria_share_link'),
-            'blocks_metadata': section.get('blocks_metadata'),
+            'blocks_metadata': blocks_meta,
             'is_visible': section.get('is_visible', True),
         }
 

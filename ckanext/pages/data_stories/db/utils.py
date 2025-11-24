@@ -160,6 +160,7 @@ def table_dictize(obj, context: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         Dictionary representation of the object
     """
     result_dict = {}
+    obj_class_name = obj.__class__.__name__ if obj else 'None'
 
     try:
         if isinstance(obj, Row):
@@ -191,6 +192,10 @@ def table_dictize(obj, context: Dict[str, Any], **kwargs) -> Dict[str, Any]:
                     result_dict[name] = value
                 else:
                     result_dict[name] = str(value)
+
+                # Debug logging for JSONB fields
+                if name in ('blocks_metadata', 'terria_config'):
+                    log.info(f"[TABLE_DICTIZE] {obj_class_name}.{name}: type={type(value)} value={value}")
             except Exception as e:
                 log.error(f"Error processing field {name}: {str(e)}")
                 continue

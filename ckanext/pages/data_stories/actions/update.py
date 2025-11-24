@@ -117,6 +117,7 @@ def data_story_section_update(context, data_dict):
         ValidationError: If data validation fails
     """
     log.info("[DATA_STORY_SECTION_UPDATE] Starting section update")
+    log.info(f"[DATA_STORY_SECTION_UPDATE] Input data_dict blocks_metadata: {type(data_dict.get('blocks_metadata'))} = {data_dict.get('blocks_metadata')}")
 
     # Check authorization
     tk.check_access('data_story_section_update', context, data_dict)
@@ -133,6 +134,7 @@ def data_story_section_update(context, data_dict):
     # Validate schema
     schema = data_story_section_schema()
     data, errors = df.validate(data_dict, schema, context)
+    log.info(f"[DATA_STORY_SECTION_UPDATE] After validation blocks_metadata: {type(data.get('blocks_metadata'))} = {data.get('blocks_metadata')}")
 
     if errors:
         raise tk.ValidationError(errors)
@@ -163,7 +165,11 @@ def data_story_section_update(context, data_dict):
         section.terria_share_link = data.get('terria_share_link')
 
     if 'blocks_metadata' in data:
-        section.blocks_metadata = data.get('blocks_metadata')
+        blocks_meta_value = data.get('blocks_metadata')
+        log.info(f"[DATA_STORY_SECTION_UPDATE] Setting blocks_metadata: {type(blocks_meta_value)} = {blocks_meta_value}")
+        section.blocks_metadata = blocks_meta_value
+    else:
+        log.info(f"[DATA_STORY_SECTION_UPDATE] 'blocks_metadata' not in validated data, skipping update")
 
     if 'is_visible' in data:
         section.is_visible = data['is_visible']
@@ -185,9 +191,11 @@ def data_story_section_update(context, data_dict):
     session.commit()
 
     log.info(f"[DATA_STORY_SECTION_UPDATE] Updated section: {section.id}")
+    log.info(f"[DATA_STORY_SECTION_UPDATE] After commit, section.blocks_metadata: {type(section.blocks_metadata)} = {section.blocks_metadata}")
 
     # Convert to dict
     section_dict = table_dictize(section, context)
+    log.info(f"[DATA_STORY_SECTION_UPDATE] Returned dict blocks_metadata: {section_dict.get('blocks_metadata')}")
 
     return section_dict
 

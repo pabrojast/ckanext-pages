@@ -146,6 +146,7 @@ def data_story_section_create(context, data_dict):
         ValidationError: If data validation fails
     """
     log.info("[DATA_STORY_SECTION_CREATE] Starting section creation")
+    log.info(f"[DATA_STORY_SECTION_CREATE] Input data_dict blocks_metadata: {type(data_dict.get('blocks_metadata'))} = {data_dict.get('blocks_metadata')}")
 
     # Check authorization
     tk.check_access('data_story_section_create', context, data_dict)
@@ -153,6 +154,7 @@ def data_story_section_create(context, data_dict):
     # Validate schema
     schema = data_story_section_schema()
     data, errors = df.validate(data_dict, schema, context)
+    log.info(f"[DATA_STORY_SECTION_CREATE] After validation blocks_metadata: {type(data.get('blocks_metadata'))} = {data.get('blocks_metadata')}")
 
     if errors:
         raise tk.ValidationError(errors)
@@ -192,7 +194,9 @@ def data_story_section_create(context, data_dict):
     section.terria_share_link = data.get('terria_share_link')
 
     # Blocks metadata
-    section.blocks_metadata = data.get('blocks_metadata')
+    blocks_meta_value = data.get('blocks_metadata')
+    log.info(f"[DATA_STORY_SECTION_CREATE] Setting blocks_metadata: {type(blocks_meta_value)} = {blocks_meta_value}")
+    section.blocks_metadata = blocks_meta_value
 
     # Visibility
     section.is_visible = data.get('is_visible', True)
@@ -214,8 +218,10 @@ def data_story_section_create(context, data_dict):
     session.commit()
 
     log.info(f"[DATA_STORY_SECTION_CREATE] Created section: {section.id} - {section.section_type}")
+    log.info(f"[DATA_STORY_SECTION_CREATE] After commit, section.blocks_metadata: {type(section.blocks_metadata)} = {section.blocks_metadata}")
 
     # Convert to dict
     section_dict = table_dictize(section, context)
+    log.info(f"[DATA_STORY_SECTION_CREATE] Returned dict blocks_metadata: {section_dict.get('blocks_metadata')}")
 
     return section_dict

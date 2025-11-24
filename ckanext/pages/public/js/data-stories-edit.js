@@ -61,6 +61,8 @@
         const metadataField = $section.find('.section-blocks-metadata');
         console.log('[Init Section ' + sectionId + '] Metadata field found:', metadataField.length > 0);
         console.log('[Init Section ' + sectionId + '] Raw metadata value:', metadataField.val());
+        console.log('[Init Section ' + sectionId + '] Debug type:', metadataField.data('debug-type'));
+        console.log('[Init Section ' + sectionId + '] Debug truthy:', metadataField.data('debug-truthy'));
         initializeSectionBlocks($section, sectionId);
       });
       
