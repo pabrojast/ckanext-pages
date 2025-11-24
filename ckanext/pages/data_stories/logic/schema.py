@@ -93,11 +93,14 @@ def _coerce_json_field(key, data, errors, context):
         return
 
     if isinstance(value, (dict, list)):
+        data[key] = value
         return
 
     try:
         data[key] = json.loads(value)
     except (TypeError, ValueError, json.JSONDecodeError):
+        # Keep original value so it is not lost, but register a validation error
+        data[key] = value
         errors[key].append('Invalid JSON format')
 
 
