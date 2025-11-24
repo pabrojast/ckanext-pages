@@ -908,6 +908,7 @@ def _extract_story_form_data(form):
         'research_question': form.get('research_question', '').strip(),
         'study_area': form.get('study_area', '').strip(),
         'organization_id': form.get('organization_id', '').strip() or None,
+        'countries': _parse_json_field(form.get('countries')),
     }
 
 
@@ -921,6 +922,7 @@ def _build_story_context(data):
         'abstract': data.get('abstract', ''),
         'research_question': data.get('research_question', ''),
         'study_area': data.get('study_area', ''),
+        'countries': data.get('countries', []),
         'organization_id': data.get('organization_id'),
         'sections': data.get('sections', []),
     }

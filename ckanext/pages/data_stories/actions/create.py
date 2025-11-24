@@ -7,6 +7,7 @@ initial section setup, and author assignment.
 
 import datetime
 import logging
+import json
 
 from ckan import model
 import ckan.plugins as p
@@ -80,6 +81,14 @@ def data_story_create(context, data_dict):
     story.abstract = data.get('abstract', '')
     story.research_question = data.get('research_question', '')
     story.study_area = data.get('study_area', '')
+
+    countries_value = data.get('countries')
+    if isinstance(countries_value, str):
+        try:
+            countries_value = json.loads(countries_value)
+        except Exception:
+            log.warning("[DATA_STORY_CREATE] Could not parse countries JSON, storing raw string")
+    story.countries = countries_value
 
     # Set author
     story.author_id = user_obj.id

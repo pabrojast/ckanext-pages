@@ -51,6 +51,7 @@ def data_story_schema():
     int_validator = tk.get_validator('int_validator')
     user_id_exists = tk.get_validator('user_id_exists')
     group_id_exists = tk.get_validator('group_id_exists')
+    json_validator = _get_json_validator()
 
     return {
         'id': [ignore_empty, unicode_safe],
@@ -59,6 +60,7 @@ def data_story_schema():
         'abstract': [ignore_missing, unicode_safe],
         'research_question': [ignore_missing, unicode_safe],
         'study_area': [ignore_missing, unicode_safe],
+        'countries': [_default_to_none, json_validator],
         'author_id': [ignore_missing, user_id_exists],
         'organization_id': [ignore_missing, group_id_exists],
         'status': [ignore_missing, unicode_safe],

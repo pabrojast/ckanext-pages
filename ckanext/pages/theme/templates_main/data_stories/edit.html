@@ -164,6 +164,45 @@
         {% endif %}
       </div>
 
+      {# Countries #}
+      <div class="form-group{% if errors.countries %} has-error{% endif %}">
+        <label class="control-label" for="story-country-select">
+          {{ _('Countries') }}
+        </label>
+        <div class="help-text" style="margin-bottom: 1rem;">
+          {{ _('Select one or more countries covered by this story.') }}
+        </div>
+
+        <div class="countries-container">
+          <div class="country-selector">
+            <div class="input-group">
+              <select id="story-country-select" class="form-control">
+                <option value="">{{ _('Select a country...') }}</option>
+              </select>
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-primary" id="story-add-country">
+                  <i class="fa fa-plus"></i> {{ _('Add') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="story-selected-countries"
+               class="selected-countries"
+               data-empty-text="{{ _('No countries selected yet. Select and add countries from the dropdown above.') }}">
+          </div>
+
+          <input type="hidden"
+                 id="story-countries-data"
+                 name="countries"
+                 value="{% if data.get('countries') %}{% if data.get('countries') is string %}{{ data.get('countries') }}{% elif data.get('countries') is mapping or data.get('countries') is iterable %}{{ data.get('countries')|tojson }}{% endif %}{% endif %}">
+        </div>
+
+        {% if errors.countries %}
+        <span class="error-block">{{ errors.countries.0 }}</span>
+        {% endif %}
+      </div>
+
       {# Organization #}
       <div class="form-group{% if errors.organization_id %} has-error{% endif %}">
         <label class="control-label" for="organization_id">
@@ -282,15 +321,32 @@
       <a href="{% if is_new_story %}{{ h.url_for('data_stories.index') }}{% else %}{{ h.url_for('data_stories.show', slug=story_slug) }}{% endif %}" class="btn btn-default btn-lg">
         <i class="fa fa-times"></i> {% if is_new_story %}{{ _('Cancel') }}{% else %}{{ _('Cancel') }}{% endif %}
       </a>
+      {# Delete button placeholder - actual form is outside to avoid nesting #}
       {% if not is_new_story and h.check_access('data_story_delete', {'id': story.id}) %}
-      <form method="post" action="{{ h.url_for('data_stories.delete', slug=story_slug) }}" style="display: inline;" class="pull-right" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
-        <button type="submit" class="btn btn-danger btn-lg">
-          <i class="fa fa-trash"></i> {{ _('Delete Story') }}
-        </button>
-      </form>
+      <span id="delete-button-placeholder" class="pull-right"></span>
       {% endif %}
     </div>
   </form>
+
+  {# Delete form MUST be outside the main form - nested forms are invalid HTML #}
+  {% if not is_new_story and h.check_access('data_story_delete', {'id': story.id}) %}
+  <form method="post" action="{{ h.url_for('data_stories.delete', slug=story_slug) }}" id="delete-story-form" style="display: none;" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
+    <button type="submit" class="btn btn-danger btn-lg">
+      <i class="fa fa-trash"></i> {{ _('Delete Story') }}
+    </button>
+  </form>
+  <script>
+    // Move the delete form button to its placeholder position
+    document.addEventListener('DOMContentLoaded', function() {
+      var deleteForm = document.getElementById('delete-story-form');
+      var placeholder = document.getElementById('delete-button-placeholder');
+      if (deleteForm && placeholder) {
+        deleteForm.style.display = 'inline';
+        placeholder.appendChild(deleteForm);
+      }
+    });
+  </script>
+  {% endif %}
 
   {# Section template (hidden, cloned by JavaScript) #}
   <template id="section-template">

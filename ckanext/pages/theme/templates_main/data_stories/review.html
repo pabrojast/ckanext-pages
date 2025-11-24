@@ -35,6 +35,10 @@
             </div>
 
             <div class="module-content" style="padding: 2.5rem;">
+              {% set story_countries = story.countries %}
+              {% if story_countries is string %}
+                {% set story_countries = h.json_loads(story_countries) or [] %}
+              {% endif %}
 
               {# Story Info #}
               <div class="review-story-info" style="margin-bottom: 2rem;">
@@ -74,6 +78,17 @@
                 <div style="padding: 1.5rem; background: #f8f9fa; border-left: 4px solid #0072BC; border-radius: 8px; margin-bottom: 1.5rem;">
                   <strong style="display: block; margin-bottom: 0.5rem;">{{ _('Abstract') }}:</strong>
                   <p style="margin: 0;">{{ story.abstract | safe }}</p>
+                </div>
+                {% endif %}
+
+                {% if story_countries %}
+                <div style="margin-bottom: 1.5rem;">
+                  <strong style="color: #0072BC;"><i class="fa fa-globe"></i> {{ _('Countries') }}:</strong>
+                  <div class="story-country-badges" style="margin-top: 0.5rem;">
+                    {% for country in story_countries %}
+                      <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+                    {% endfor %}
+                  </div>
                 </div>
                 {% endif %}
 

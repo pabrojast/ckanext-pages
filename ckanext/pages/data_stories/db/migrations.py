@@ -31,6 +31,7 @@ def upgrade():
             sa.Column('abstract', sa.Text),
             sa.Column('research_question', sa.Text),
             sa.Column('study_area', sa.Text),
+            sa.Column('countries', JSONB),
             sa.Column('created_at', sa.DateTime, default=sa.func.now()),
             sa.Column('updated_at', sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()),
             sa.Column('published_at', sa.DateTime, nullable=True),
@@ -174,6 +175,11 @@ def upgrade():
     if table_exists('data_story_sections') and not column_exists('data_story_sections', 'blocks_metadata'):
         op.add_column('data_story_sections', sa.Column('blocks_metadata', JSONB))
         log.info("Added blocks_metadata column to data_story_sections table")
+
+    # Add countries column if not exists (migration for existing tables)
+    if table_exists('data_stories') and not column_exists('data_stories', 'countries'):
+        op.add_column('data_stories', sa.Column('countries', JSONB))
+        log.info("Added countries column to data_stories table")
 
     log.info("Data Stories migration completed successfully")
 

@@ -57,6 +57,7 @@ class DataStory(DomainObject, BaseModel):
     study_area = Column(Text)
 
     # Metadata
+    countries = Column(JSONB)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     published_at = Column(DateTime, nullable=True)

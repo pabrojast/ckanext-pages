@@ -6,6 +6,11 @@ Variables:
 - story: Story dict with all fields
 #}
 
+{% set story_countries = story.countries %}
+{% if story_countries is string %}
+  {% set story_countries = h.json_loads(story_countries) or [] %}
+{% endif %}
+
 <div class="event-card-modern story-card-modern" style="margin-bottom: 1.5rem;">
   <article class="module-modern">
     <div class="event-card-content">
@@ -50,6 +55,17 @@ Variables:
               </span>
               {% endif %}
             </div>
+
+            {% if story_countries %}
+            <div class="story-country-badges" style="margin-top: 0.25rem;">
+              {% for country in story_countries[:3] %}
+              <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+              {% endfor %}
+              {% if story_countries|length > 3 %}
+              <span class="story-country-chip more">+{{ story_countries|length - 3 }}</span>
+              {% endif %}
+            </div>
+            {% endif %}
 
             <!-- Story Title -->
             <h3 class="event-title" style="margin: 0 0 1rem 0;">

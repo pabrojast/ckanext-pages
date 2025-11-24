@@ -87,6 +87,10 @@
                 <div class="module-content" style="padding: 2rem 2.5rem;">
                   <div class="row">
                     <div class="col-md-9">
+                      {% set story_countries = story.countries %}
+                      {% if story_countries is string %}
+                        {% set story_countries = h.json_loads(story_countries) or [] %}
+                      {% endif %}
                       {# Status Badge #}
                       <div style="margin-bottom: 1rem;">
                         <span class="label" style="padding: 0.4rem 1rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; {% if story.status == 'submitted' %}background: #ffc107; color: #2c3e50;{% else %}background: #17a2b8; color: white;{% endif %}">
@@ -111,6 +115,17 @@
                       <p style="margin-bottom: 1rem; color: #2c3e50; line-height: 1.6;">
                         {{ story.abstract[:200] }}{% if story.abstract|length > 200 %}...{% endif %}
                       </p>
+                      {% endif %}
+
+                      {% if story_countries %}
+                      <div class="story-country-badges" style="margin-bottom: 0.75rem;">
+                        <span style="font-weight: 700; color: #0072BC; display: inline-flex; align-items: center; gap: 0.4rem;">
+                          <i class="fa fa-globe"></i> {{ _('Countries') }}
+                        </span>
+                        {% for country in story_countries %}
+                          <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+                        {% endfor %}
+                      </div>
                       {% endif %}
 
                       {# Metadata #}

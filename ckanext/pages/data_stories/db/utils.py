@@ -109,6 +109,52 @@ def _ensure_blocks_metadata_column(engine):
             log.warning(f"Could not add blocks_metadata column: {str(e2)}")
 
 
+def _ensure_countries_column(engine):
+    """
+    Ensure the countries column exists in data_stories table.
+
+    Adds the column when missing to keep existing installations aligned with
+    new multi-country support.
+    """
+    import sqlalchemy as sa
+
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_stories'
+    """)
+
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_stories'
+        AND column_name = 'countries'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            table_exists = conn.execute(check_table_sql).fetchone() is not None
+            if not table_exists:
+                log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            column_exists = conn.execute(check_column_sql).fetchone() is not None
+            if column_exists:
+                log.debug("countries column already exists in data_stories")
+                return
+
+            log.info("Adding countries column to data_stories table...")
+            add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN countries JSONB')
+            conn.execute(add_column_sql)
+            try:
+                conn.commit()
+            except AttributeError:
+                pass
+            log.info("Successfully added countries column to data_stories")
+    except Exception as e:
+        log.warning(f"Could not ensure countries column on data_stories: {str(e)}")
+
+
 def init_tables(engine):
     """
     Initialize database tables for data stories.
@@ -143,6 +189,7 @@ def init_tables(engine):
     # Add missing columns to existing tables (migrations for existing installations)
     # Using direct SQL for maximum compatibility across SQLAlchemy versions
     _ensure_blocks_metadata_column(engine)
+    _ensure_countries_column(engine)
 
     log.info("Data Stories tables initialized")
 

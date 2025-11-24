@@ -6,6 +6,7 @@ Handles modifications to existing stories and sections.
 
 import datetime
 import logging
+import json
 
 from ckan import model
 import ckan.plugins as p
@@ -76,6 +77,15 @@ def data_story_update(context, data_dict):
 
     if 'study_area' in data:
         story.study_area = data['study_area']
+
+    if 'countries' in data:
+        countries_value = data.get('countries')
+        if isinstance(countries_value, str):
+            try:
+                countries_value = json.loads(countries_value)
+            except Exception:
+                log.warning("[DATA_STORY_UPDATE] Could not parse countries JSON, storing raw string")
+        story.countries = countries_value
 
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')

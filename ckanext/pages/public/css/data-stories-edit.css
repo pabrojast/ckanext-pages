@@ -1016,6 +1016,55 @@ input[type="submit"] {
 }
 
 /* ========================================
+   Countries Selection (aligned with Rapid Response)
+   ======================================== */
+.countries-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow-light);
+}
+
+.country-selector .input-group {
+  width: 100%;
+}
+
+.selected-countries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.selected-countries:empty::before {
+  content: attr(data-empty-text);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.country-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: #e3f2fd;
+  color: #0072bc;
+  border-radius: 999px;
+  border: 1px solid #cfe4fb;
+  box-shadow: var(--shadow-light);
+}
+
+.country-item .country-name {
+  font-weight: 600;
+}
+
+.country-item .btn {
+  border: none;
+  padding: 2px 6px;
+}
+
+/* ========================================
    Responsive Design
    ======================================== */
 @media (max-width: 768px) {

@@ -39,6 +39,25 @@ class TestDataStoryCreateActions:
         assert result['status'] == 'draft'
         assert 'slug' in result
 
+    def test_data_story_create_with_countries(self):
+        """Test creating a story with countries metadata."""
+        user = factories.User()
+
+        countries = [
+            {'name': 'France', 'display_name': 'France'},
+            {'name': 'Spain', 'display_name': 'Spain'},
+        ]
+
+        result = helpers.call_action(
+            'data_story_create',
+            context={'user': user['name']},
+            title='Story With Countries',
+            countries=countries,
+        )
+
+        assert result['countries'][0]['name'] == 'France'
+        assert result['countries'][1]['display_name'] == 'Spain'
+
     def test_data_story_create_with_slug(self):
         """Test creating a story with explicit slug."""
         user = factories.User()
@@ -252,10 +271,12 @@ class TestDataStoryUpdateActions:
             id=story['id'],
             title='Updated Title',
             abstract='Updated abstract',
+            countries=[{'name': 'Germany', 'display_name': 'Germany'}],
         )
 
         assert updated['title'] == 'Updated Title'
         assert updated['abstract'] == 'Updated abstract'
+        assert updated['countries'][0]['name'] == 'Germany'
 
     def test_data_story_update_requires_permission(self):
         """Test that updating requires permission."""

@@ -37,6 +37,166 @@
   waitForJQuery(function($) {
     $(document).ready(function() {
       
+      // ========================================
+      // COUNTRIES FIELD (aligned with rapid-response)
+      // ========================================
+      const countriesList = [
+        'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
+        'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+        'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium',
+        'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana',
+        'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde',
+        'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile',
+        'China', 'Colombia', 'Comoros', 'Congo', 'Cook Islands', 'Costa Rica',
+        "Cote d'Ivoire", 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
+        'Democratic Republic of the Congo', 'Denmark', 'Djibouti', 'Dominica',
+        'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea',
+        'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland',
+        'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana',
+        'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+        'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia',
+        'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica',
+        'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait',
+        'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia',
+        'Libya', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia',
+        'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
+        'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro',
+        'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
+        'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue',
+        'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau',
+        'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines',
+        'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda',
+        'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines',
+        'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia',
+        'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
+        'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka',
+        'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Tajikistan',
+        'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago',
+        'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine',
+        'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
+        'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+      ];
+
+      let selectedCountries = [];
+
+      function getCountryElementId(name) {
+        return 'story-country-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      }
+
+      function updateCountriesHiddenField() {
+        const value = selectedCountries.length ? JSON.stringify(selectedCountries) : '';
+        $('#story-countries-data').val(value);
+      }
+
+      function addCountryToList(country) {
+        const countryId = getCountryElementId(country.name);
+        if ($('#' + countryId).length) {
+          return;
+        }
+
+        const countryHtml = `
+          <div class="country-item" id="${countryId}" data-country-name="${country.name}">
+            <span class="country-name">${country.display_name || country.name}</span>
+            <button type="button" class="btn btn-sm btn-danger remove-story-country" data-country-name="${country.name}">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        `;
+        $('#story-selected-countries').append(countryHtml);
+      }
+
+      function loadExistingCountries() {
+        const $hidden = $('#story-countries-data');
+        const rawValue = $hidden.val();
+
+        if (!rawValue) {
+          selectedCountries = [];
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(rawValue);
+          if (Array.isArray(parsed)) {
+            selectedCountries = parsed.map(function(entry) {
+              if (typeof entry === 'string') {
+                return { name: entry, display_name: entry };
+              }
+              return {
+                name: entry.name || '',
+                display_name: entry.display_name || entry.name || ''
+              };
+            }).filter(function(entry) {
+              return entry.name;
+            });
+          }
+        } catch (e) {
+          // Fallback: comma-separated string
+          const countryNames = rawValue.split(',').map(function(c) { return c.trim(); }).filter(Boolean);
+          selectedCountries = countryNames.map(function(name) {
+            return { name: name, display_name: name };
+          });
+        }
+
+        selectedCountries.forEach(function(country) {
+          addCountryToList(country);
+        });
+      }
+
+      function initCountriesSelector() {
+        const $select = $('#story-country-select');
+        const $addButton = $('#story-add-country');
+        const $list = $('#story-selected-countries');
+
+        if (!$select.length || !$list.length) {
+          return;
+        }
+
+        // Remove whitespace so :empty CSS works for empty state
+        $list.empty();
+
+        // Populate dropdown
+        $select.empty();
+        $select.append('<option value="">Select a country...</option>');
+        countriesList.slice().sort().forEach(function(country) {
+          $select.append('<option value="' + country + '">' + country + '</option>');
+        });
+
+        // Load any existing selections
+        loadExistingCountries();
+        updateCountriesHiddenField();
+
+        // Add country handler
+        $addButton.on('click', function() {
+          const countryName = $select.val();
+          if (!countryName) {
+            return;
+          }
+
+          if (selectedCountries.find(function(c) { return c.name === countryName; })) {
+            alert('This country has already been added');
+            return;
+          }
+
+          const country = { name: countryName, display_name: countryName };
+          selectedCountries.push(country);
+          addCountryToList(country);
+          updateCountriesHiddenField();
+          $select.val('');
+        });
+
+        // Remove country handler
+        $(document).on('click', '.remove-story-country', function() {
+          const countryName = $(this).data('country-name');
+          const countryId = '#' + getCountryElementId(countryName);
+          $(countryId).remove();
+          selectedCountries = selectedCountries.filter(function(c) { return c.name !== countryName; });
+          updateCountriesHiddenField();
+        });
+      }
+
+      // Initialize countries selector
+      initCountriesSelector();
+
       // Wait for Quill to be available
       function waitForQuill(callback) {
         if (typeof Quill !== 'undefined') {
@@ -895,6 +1055,7 @@
       // Form submission - Only for the main data stories form, not delete forms
       $('.data-stories-form, form.data-stories-form').on('submit', function(e) {
         console.log('Data story form submitting, updating section content...');
+        updateCountriesHiddenField();
         // Update all section content before submit
         $('.content-section-editor').each(function(index) {
           updateSectionContent(index);
