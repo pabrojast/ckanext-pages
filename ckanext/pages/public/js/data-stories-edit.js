@@ -1049,7 +1049,84 @@
           return false;
         }
       });
-      
+
+      // ========================================
+      // BASIC FIELDS QUILL EDITORS
+      // ========================================
+
+      // Initialize Quill editors for basic fields (Abstract, Research Question, Study Area)
+      waitForQuill(function() {
+        var basicFieldsQuillConfig = {
+          theme: 'snow',
+          modules: {
+            toolbar: [
+              [{ 'header': [2, 3, false] }],
+              ['bold', 'italic', 'underline'],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              ['link'],
+              ['clean']
+            ]
+          }
+        };
+
+        // Abstract editor
+        if ($('#abstract-editor').length) {
+          var abstractEditor = new Quill('#abstract-editor', $.extend({}, basicFieldsQuillConfig, {
+            placeholder: 'Brief summary of your data story...'
+          }));
+          var $abstractTextarea = $('#abstract');
+          if ($abstractTextarea.val()) {
+            abstractEditor.clipboard.dangerouslyPasteHTML($abstractTextarea.val());
+          }
+          abstractEditor.on('text-change', function() {
+            $abstractTextarea.val(abstractEditor.root.innerHTML);
+          });
+        }
+
+        // Research Question editor
+        if ($('#research_question-editor').length) {
+          var researchQuestionEditor = new Quill('#research_question-editor', $.extend({}, basicFieldsQuillConfig, {
+            placeholder: 'What is the main research question addressed by this story?'
+          }));
+          var $researchQuestionTextarea = $('#research_question');
+          if ($researchQuestionTextarea.val()) {
+            researchQuestionEditor.clipboard.dangerouslyPasteHTML($researchQuestionTextarea.val());
+          }
+          researchQuestionEditor.on('text-change', function() {
+            $researchQuestionTextarea.val(researchQuestionEditor.root.innerHTML);
+          });
+        }
+
+        // Study Area editor
+        if ($('#study_area-editor').length) {
+          var studyAreaEditor = new Quill('#study_area-editor', $.extend({}, basicFieldsQuillConfig, {
+            placeholder: 'Describe the geographic study area...'
+          }));
+          var $studyAreaTextarea = $('#study_area');
+          if ($studyAreaTextarea.val()) {
+            studyAreaEditor.clipboard.dangerouslyPasteHTML($studyAreaTextarea.val());
+          }
+          studyAreaEditor.on('text-change', function() {
+            $studyAreaTextarea.val(studyAreaEditor.root.innerHTML);
+          });
+        }
+
+        // Update hidden fields before form submit (for basic fields)
+        $('.data-stories-form, form.data-stories-form').on('submit', function() {
+          if (typeof abstractEditor !== 'undefined') {
+            $('#abstract').val(abstractEditor.root.innerHTML);
+          }
+          if (typeof researchQuestionEditor !== 'undefined') {
+            $('#research_question').val(researchQuestionEditor.root.innerHTML);
+          }
+          if (typeof studyAreaEditor !== 'undefined') {
+            $('#study_area').val(studyAreaEditor.root.innerHTML);
+          }
+        });
+
+        console.log('Basic fields Quill editors initialized');
+      });
+
       console.log('Data Stories editor initialized successfully');
     });
   });

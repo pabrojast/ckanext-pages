@@ -216,7 +216,9 @@ def table_exists(table_name):
     """
     from ckan import model
     try:
-        return model.Session.bind.has_table(table_name)
+        inspector = sa.inspect(model.Session.bind)
+        table_names = inspector.get_table_names()
+        return table_name in table_names
     except Exception as e:
         log.error(f"Error checking table existence: {str(e)}")
         return False

@@ -429,6 +429,23 @@ body > .wrapper > .container {
   flex-direction: column;
 }
 
+/* Small Quill Editor for basic fields */
+.quill-editor-wrapper {
+  margin-bottom: 0.5rem;
+}
+
+.quill-editor-small {
+  min-height: 150px;
+}
+
+.quill-editor-small .ql-editor {
+  min-height: 100px !important;
+}
+
+.hidden-textarea {
+  display: none !important;
+}
+
 .quill-editor:focus-within {
   border-color: var(--unesco-blue);
   box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.1);

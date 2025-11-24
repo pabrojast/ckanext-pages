@@ -34,6 +34,81 @@ def make_uuid() -> str:
     return str(uuid_module.uuid4())
 
 
+def _ensure_blocks_metadata_column(engine):
+    """
+    Ensure the blocks_metadata column exists in data_story_sections table.
+
+    Uses direct SQL for maximum compatibility across different SQLAlchemy versions.
+    This handles the migration automatically when the plugin starts.
+    """
+    import sqlalchemy as sa
+
+    # Check if column exists using information_schema (PostgreSQL compatible)
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_story_sections'
+        AND column_name = 'blocks_metadata'
+    """)
+
+    # Check if table exists
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_story_sections'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            # First check if table exists
+            result = conn.execute(check_table_sql)
+            table_exists = result.fetchone() is not None
+
+            if not table_exists:
+                log.info("data_story_sections table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            # Check if column exists
+            result = conn.execute(check_column_sql)
+            column_exists = result.fetchone() is not None
+
+            if not column_exists:
+                log.info("Adding blocks_metadata column to data_story_sections table...")
+                add_column_sql = sa.text(
+                    'ALTER TABLE data_story_sections ADD COLUMN blocks_metadata JSONB'
+                )
+                conn.execute(add_column_sql)
+
+                # Handle commit for different SQLAlchemy versions
+                try:
+                    conn.commit()
+                except AttributeError:
+                    # SQLAlchemy 2.0+ with autocommit or different transaction handling
+                    pass
+
+                log.info("Successfully added blocks_metadata column to data_story_sections")
+            else:
+                log.debug("blocks_metadata column already exists in data_story_sections")
+
+    except Exception as e:
+        log.error(f"Error ensuring blocks_metadata column: {str(e)}")
+        # Try alternative approach with IF NOT EXISTS (PostgreSQL 9.6+)
+        try:
+            with engine.connect() as conn:
+                # PostgreSQL 9.6+ supports ADD COLUMN IF NOT EXISTS
+                add_column_sql = sa.text(
+                    'ALTER TABLE data_story_sections ADD COLUMN IF NOT EXISTS blocks_metadata JSONB'
+                )
+                conn.execute(add_column_sql)
+                try:
+                    conn.commit()
+                except AttributeError:
+                    pass
+                log.info("Added blocks_metadata column using IF NOT EXISTS fallback")
+        except Exception as e2:
+            log.warning(f"Could not add blocks_metadata column: {str(e2)}")
+
+
 def init_tables(engine):
     """
     Initialize database tables for data stories.
@@ -66,18 +141,8 @@ def init_tables(engine):
     BaseModel.metadata.create_all(engine)
 
     # Add missing columns to existing tables (migrations for existing installations)
-    try:
-        inspector = sa.inspect(engine)
-        if inspector.has_table('data_story_sections'):
-            existing_columns = [c['name'] for c in inspector.get_columns('data_story_sections')]
-            if 'blocks_metadata' not in existing_columns:
-                log.info("Adding blocks_metadata column to data_story_sections table...")
-                with engine.connect() as conn:
-                    conn.execute(sa.text('ALTER TABLE data_story_sections ADD COLUMN blocks_metadata JSONB'))
-                    conn.commit()
-                log.info("Added blocks_metadata column successfully")
-    except Exception as e:
-        log.warning(f"Could not add blocks_metadata column (may already exist): {str(e)}")
+    # Using direct SQL for maximum compatibility across SQLAlchemy versions
+    _ensure_blocks_metadata_column(engine)
 
     log.info("Data Stories tables initialized")
 

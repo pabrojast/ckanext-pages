@@ -109,11 +109,13 @@
         <label class="control-label" for="abstract">
           {{ _('Abstract') }}
         </label>
-        <textarea id="abstract"
-                  name="abstract"
-                  class="form-control"
-                  rows="4"
-                  placeholder="{{ _('Brief summary of your data story...') }}">{{ data.get('abstract', '') }}</textarea>
+        <div class="quill-editor-wrapper">
+          <div id="abstract-editor" class="quill-editor quill-editor-small"></div>
+          <textarea id="abstract"
+                    name="abstract"
+                    class="form-control hidden-textarea"
+                    style="display: none;">{{ data.get('abstract', '') }}</textarea>
+        </div>
         <span class="help-text">
           {{ _('Brief summary of the story (recommended)') }}
         </span>
@@ -127,11 +129,13 @@
         <label class="control-label" for="research_question">
           {{ _('Research Question') }}
         </label>
-        <textarea id="research_question"
-                  name="research_question"
-                  class="form-control"
-                  rows="3"
-                  placeholder="{{ _('What is the main research question addressed by this story?') }}">{{ data.get('research_question', '') }}</textarea>
+        <div class="quill-editor-wrapper">
+          <div id="research_question-editor" class="quill-editor quill-editor-small"></div>
+          <textarea id="research_question"
+                    name="research_question"
+                    class="form-control hidden-textarea"
+                    style="display: none;">{{ data.get('research_question', '') }}</textarea>
+        </div>
         <span class="help-text">
           {{ _('Main research question addressed by this story') }}
         </span>
@@ -145,11 +149,13 @@
         <label class="control-label" for="study_area">
           {{ _('Study Area') }}
         </label>
-        <textarea id="study_area"
-                  name="study_area"
-                  class="form-control"
-                  rows="3"
-                  placeholder="{{ _('Describe the geographic study area...') }}">{{ data.get('study_area', '') }}</textarea>
+        <div class="quill-editor-wrapper">
+          <div id="study_area-editor" class="quill-editor quill-editor-small"></div>
+          <textarea id="study_area"
+                    name="study_area"
+                    class="form-control hidden-textarea"
+                    style="display: none;">{{ data.get('study_area', '') }}</textarea>
+        </div>
         <span class="help-text">
           {{ _('Description of the geographic study area') }}
         </span>
