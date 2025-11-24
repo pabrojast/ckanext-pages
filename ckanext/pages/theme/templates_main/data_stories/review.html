@@ -73,7 +73,7 @@
                 {% if story.abstract %}
                 <div style="padding: 1.5rem; background: #f8f9fa; border-left: 4px solid #0072BC; border-radius: 8px; margin-bottom: 1.5rem;">
                   <strong style="display: block; margin-bottom: 0.5rem;">{{ _('Abstract') }}:</strong>
-                  <p style="margin: 0;">{{ story.abstract }}</p>
+                  <p style="margin: 0;">{{ story.abstract | safe }}</p>
                 </div>
                 {% endif %}
 
