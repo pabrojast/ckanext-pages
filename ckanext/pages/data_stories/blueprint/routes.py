@@ -1032,10 +1032,22 @@ def _parse_json_field(raw_value):
     if isinstance(raw_value, (dict, list)):
         return raw_value
 
-    try:
-        return json.loads(raw_value)
-    except (TypeError, ValueError):
-        return None
+    # Handle string values
+    if isinstance(raw_value, str):
+        raw_value = raw_value.strip()
+        if not raw_value or raw_value == 'null' or raw_value == '[]':
+            return None
+
+        try:
+            parsed = json.loads(raw_value)
+            # Handle double-encoded JSON (string containing JSON string)
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            return parsed
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return None
+
+    return None
 
 
 def _parse_bool(value):

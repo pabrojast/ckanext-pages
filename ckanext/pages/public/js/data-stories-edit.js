@@ -52,9 +52,16 @@
       let sectionQuillEditors = {};
       
       // Initialize existing sections
+      console.log('=== Initializing Data Stories Editor ===');
+      console.log('Found ' + $('.content-section-editor').length + ' existing sections');
+
       $('.content-section-editor').each(function(index) {
         const sectionId = index;
-        initializeSectionBlocks($(this), sectionId);
+        const $section = $(this);
+        const metadataField = $section.find('.section-blocks-metadata');
+        console.log('[Init Section ' + sectionId + '] Metadata field found:', metadataField.length > 0);
+        console.log('[Init Section ' + sectionId + '] Raw metadata value:', metadataField.val());
+        initializeSectionBlocks($section, sectionId);
       });
       
       // Add section button
@@ -170,40 +177,89 @@
       // Load existing section blocks
       function loadExistingSectionBlocks($section, sectionId) {
         const metadataField = $section.find('.section-blocks-metadata');
-        const blocksMetadata = metadataField.val();
-        
-        if (blocksMetadata && blocksMetadata.trim()) {
+        let blocksMetadata = metadataField.val();
+
+        console.log('[Section ' + sectionId + '] Loading blocks, raw metadata:', blocksMetadata);
+        console.log('[Section ' + sectionId + '] Metadata type:', typeof blocksMetadata);
+        console.log('[Section ' + sectionId + '] Metadata length:', blocksMetadata ? blocksMetadata.length : 0);
+
+        if (blocksMetadata && blocksMetadata.trim() && blocksMetadata !== 'null' && blocksMetadata !== '[]' && blocksMetadata !== 'None') {
           try {
-            const blocks = JSON.parse(blocksMetadata);
-            blocks.forEach(blockData => {
-              if (blockData.type === 'text') {
-                addTextBlock(sectionId, blockData.content);
-              } else if (blockData.type === 'terria') {
-                addTerriaBlock(sectionId, blockData);
-              } else if (blockData.type === 'media') {
-                addMediaBlock(sectionId, blockData);
-              }
-            });
-          } catch (e) {
-            console.warn('Error parsing blocks metadata:', e);
-            // Fallback: create single text block with existing content
-            const existingContent = $section.find('.section-content-field').val();
-            if (existingContent && existingContent.trim()) {
-              addTextBlock(sectionId, existingContent);
+            // Handle potential HTML-encoding (from input value attribute)
+            let cleanedMetadata = blocksMetadata
+              .replace(/&quot;/g, '"')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .replace(/&#39;/g, "'")
+              .replace(/&#x27;/g, "'")
+              .replace(/&#x2F;/g, '/')
+              .trim();
+
+            console.log('[Section ' + sectionId + '] Cleaned metadata:', cleanedMetadata.substring(0, 200));
+
+            // Handle potential double-encoding or escaped JSON
+            let blocks = cleanedMetadata;
+
+            // If it's a string, try to parse it
+            if (typeof blocks === 'string') {
+              blocks = JSON.parse(blocks);
             }
+
+            // If still a string after first parse (double-encoded), parse again
+            if (typeof blocks === 'string') {
+              blocks = JSON.parse(blocks);
+            }
+
+            console.log('[Section ' + sectionId + '] Parsed blocks:', blocks);
+            console.log('[Section ' + sectionId + '] Blocks is array:', Array.isArray(blocks));
+            console.log('[Section ' + sectionId + '] Blocks length:', blocks ? blocks.length : 0);
+
+            if (Array.isArray(blocks) && blocks.length > 0) {
+              blocks.forEach((blockData, blockIndex) => {
+                console.log('[Section ' + sectionId + '] Loading block ' + blockIndex + ':', blockData.type, blockData);
+
+                if (blockData.type === 'text') {
+                  console.log('[Section ' + sectionId + '] -> Adding TEXT block');
+                  addTextBlock(sectionId, blockData.content);
+                } else if (blockData.type === 'terria') {
+                  console.log('[Section ' + sectionId + '] -> Adding TERRIA block with tabs:', blockData.tabs);
+                  addTerriaBlock(sectionId, blockData);
+                } else if (blockData.type === 'media') {
+                  console.log('[Section ' + sectionId + '] -> Adding MEDIA block');
+                  addMediaBlock(sectionId, blockData);
+                } else {
+                  console.warn('[Section ' + sectionId + '] Unknown block type:', blockData.type);
+                  // Try to add as text block with content if available
+                  if (blockData.content) {
+                    addTextBlock(sectionId, blockData.content);
+                  }
+                }
+              });
+              return; // Exit after loading blocks from metadata
+            }
+          } catch (e) {
+            console.error('[Section ' + sectionId + '] Error parsing blocks metadata:', e);
+            console.error('[Section ' + sectionId + '] Raw value was:', blocksMetadata);
           }
-        } else {
-          // No metadata, check for existing content
-          const existingContent = $section.find('.section-content-field').val();
-          const terriaLink = $section.find('.section-terria-link').val();
-          
-          if (existingContent && existingContent.trim()) {
-            addTextBlock(sectionId, existingContent);
-          }
-          
-          if (terriaLink && terriaLink.trim()) {
-            addTerriaBlock(sectionId, { url: terriaLink });
-          }
+        }
+
+        // Fallback: No valid metadata, check for existing content and terria link
+        console.log('[Section ' + sectionId + '] No valid metadata, using fallback');
+        const existingContent = $section.find('.section-content-field').val();
+        const terriaLink = $section.find('.section-terria-link').val();
+
+        console.log('[Section ' + sectionId + '] Fallback content length:', existingContent ? existingContent.length : 0);
+        console.log('[Section ' + sectionId + '] Fallback terria link:', terriaLink);
+
+        if (existingContent && existingContent.trim()) {
+          console.log('[Section ' + sectionId + '] Fallback: Adding text block from content');
+          addTextBlock(sectionId, existingContent);
+        }
+
+        if (terriaLink && terriaLink.trim()) {
+          console.log('[Section ' + sectionId + '] Fallback: Adding Terria block from link:', terriaLink);
+          addTerriaBlock(sectionId, { url: terriaLink });
         }
       }
       
