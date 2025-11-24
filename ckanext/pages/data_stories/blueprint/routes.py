@@ -4,6 +4,7 @@ Flask routes for Data Stories web interface.
 Provides URL routes and view functions for the data stories web UI.
 """
 
+import html
 import json
 import logging
 import re
@@ -961,6 +962,10 @@ def _extract_sections_form_data(form):
 
         raw_blocks = raw.get('blocks_metadata')
         parsed_blocks = _parse_json_field(raw_blocks)
+        if parsed_blocks is None:
+            parsed_blocks = _reconstruct_blocks_metadata(raw)
+            if parsed_blocks:
+                log.info(f"[EXTRACT_SECTIONS] Section {index} reconstructed blocks_metadata from content/terria")
         log.info(f"[EXTRACT_SECTIONS] Section {index} raw blocks_metadata: {type(raw_blocks)} len={len(raw_blocks) if raw_blocks else 0}")
         log.info(f"[EXTRACT_SECTIONS] Section {index} parsed blocks_metadata: {type(parsed_blocks)} = {parsed_blocks}")
 
@@ -1063,7 +1068,7 @@ def _parse_json_field(raw_value):
 
     # Handle string values
     if isinstance(raw_value, str):
-        raw_value = raw_value.strip()
+        raw_value = html.unescape(raw_value).strip()
         if not raw_value or raw_value == 'null' or raw_value == '[]':
             return None
 
@@ -1077,6 +1082,78 @@ def _parse_json_field(raw_value):
             return None
 
     return None
+
+
+def _strip_html_tags(value: str) -> str:
+    """Remove HTML tags from a string."""
+    if not value:
+        return ''
+    return re.sub(r'<[^>]+>', '', value)
+
+
+def _extract_terria_tabs_from_content(content: str) -> list:
+    """
+    Try to recover Terria tabs info from rendered HTML content.
+
+    Returns a list of {title, url} dicts when Terria embed markup is present.
+    """
+    if not content or 'terria-tabs-display' not in content:
+        return []
+
+    # Map tab index -> title
+    titles = {}
+    for idx, title_html in re.findall(
+        r'<li[^>]*data-tab="(\d+)"[^>]*>(.*?)</li>', content, flags=re.S
+    ):
+        titles[idx] = _strip_html_tags(title_html).strip()
+
+    tabs = []
+    for idx, url in re.findall(
+        r'<div[^>]*class="[^"]*terria-tab-display[^"]*"[^>]*data-tab="(\d+)"[^>]*>'
+        r'.*?<iframe[^>]*src="([^"]+)"[^>]*>.*?</iframe>.*?</div>',
+        content,
+        flags=re.S,
+    ):
+        title = titles.get(idx) or f"Map {len(tabs) + 1}"
+        tabs.append({'title': title, 'url': url})
+
+    return tabs
+
+
+def _strip_terria_markup(content: str) -> str:
+    """Remove the Terria embed markup from a HTML string."""
+    if not content:
+        return ''
+    return re.sub(
+        r'<div[^>]*class="[^"]*terria-tabs-display[^"]*"[^>]*>.*?</div>',
+        '',
+        content,
+        flags=re.S,
+    ).strip()
+
+
+def _reconstruct_blocks_metadata(raw_section: dict) -> list:
+    """
+    Build a minimal blocks_metadata structure when the incoming form did not
+    contain valid JSON (e.g., legacy stories or parsing failures).
+    """
+    content = (raw_section.get('content') or '').strip()
+    terria_link = (raw_section.get('terria_share_link') or '').strip()
+    blocks = []
+
+    terria_tabs = _extract_terria_tabs_from_content(content)
+    if terria_tabs:
+        cleaned_content = _strip_terria_markup(content)
+        if cleaned_content:
+            blocks.append({'type': 'text', 'content': cleaned_content})
+        blocks.append({'type': 'terria', 'tabs': terria_tabs})
+    elif content:
+        blocks.append({'type': 'text', 'content': content})
+
+    if terria_link and not any(block.get('type') == 'terria' for block in blocks):
+        blocks.append({'type': 'terria', 'tabs': [{'title': 'Map 1', 'url': terria_link}]})
+
+    return blocks or None
 
 
 def _parse_bool(value):
