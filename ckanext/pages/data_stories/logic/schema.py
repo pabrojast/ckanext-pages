@@ -67,6 +67,17 @@ def data_story_schema():
     }
 
 
+def _default_to_none(key, data, errors, context):
+    """
+    Custom validator that defaults missing values to None instead of removing the key.
+    This ensures the key is present in the validated data even if empty.
+    """
+    from ckan.lib.navl.dictization_functions import missing
+    value = data.get(key)
+    if value is missing or value is None or value == '':
+        data[key] = None
+
+
 def data_story_section_schema():
     """
     Schema for story sections.
@@ -91,9 +102,9 @@ def data_story_section_schema():
         'order_index': [not_empty, int_validator],
         'image_url': [ignore_missing, unicode_safe],
         'video_url': [ignore_missing, unicode_safe],
-        'terria_config': [ignore_missing, json_validator],
+        'terria_config': [_default_to_none, json_validator],
         'terria_share_link': [ignore_missing, unicode_safe],
-        'blocks_metadata': [ignore_missing, json_validator],
+        'blocks_metadata': [_default_to_none, json_validator],
         'is_visible': [ignore_missing, boolean_validator],
     }
 

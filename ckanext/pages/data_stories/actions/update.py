@@ -164,12 +164,10 @@ def data_story_section_update(context, data_dict):
     if 'terria_share_link' in data:
         section.terria_share_link = data.get('terria_share_link')
 
-    if 'blocks_metadata' in data:
-        blocks_meta_value = data.get('blocks_metadata')
-        log.info(f"[DATA_STORY_SECTION_UPDATE] Setting blocks_metadata: {type(blocks_meta_value)} = {blocks_meta_value}")
-        section.blocks_metadata = blocks_meta_value
-    else:
-        log.info(f"[DATA_STORY_SECTION_UPDATE] 'blocks_metadata' not in validated data, skipping update")
+    # Always update blocks_metadata - the _default_to_none validator ensures the key is present
+    blocks_meta_value = data.get('blocks_metadata')
+    log.info(f"[DATA_STORY_SECTION_UPDATE] Setting blocks_metadata: {type(blocks_meta_value)} = {blocks_meta_value}")
+    section.blocks_metadata = blocks_meta_value
 
     if 'is_visible' in data:
         section.is_visible = data['is_visible']
