@@ -80,6 +80,27 @@ def _default_to_none(key, data, errors, context):
         data[key] = None
 
 
+def _coerce_json_field(key, data, errors, context):
+    """
+    Preserve dict/list JSON fields or parse JSON strings; allow empty -> None.
+    Prevents valid list/dict values from being dropped during validation.
+    """
+    from ckan.lib.navl.dictization_functions import missing
+
+    value = data.get(key, missing)
+    if value is missing or value is None or value == '':
+        data[key] = None
+        return
+
+    if isinstance(value, (dict, list)):
+        return
+
+    try:
+        data[key] = json.loads(value)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        errors[key].append('Invalid JSON format')
+
+
 def data_story_section_schema():
     """
     Schema for story sections.
@@ -93,7 +114,6 @@ def data_story_section_schema():
     unicode_safe = tk.get_validator('unicode_safe')
     boolean_validator = tk.get_validator('boolean_validator')
     int_validator = tk.get_validator('int_validator')
-    json_validator = _get_json_validator()
 
     return {
         'id': [ignore_empty, unicode_safe],
@@ -104,9 +124,9 @@ def data_story_section_schema():
         'order_index': [not_empty, int_validator],
         'image_url': [ignore_missing, unicode_safe],
         'video_url': [ignore_missing, unicode_safe],
-        'terria_config': [_default_to_none, json_validator],
+        'terria_config': [_coerce_json_field],
         'terria_share_link': [ignore_missing, unicode_safe],
-        'blocks_metadata': [_default_to_none, json_validator],
+        'blocks_metadata': [_coerce_json_field],
         'is_visible': [ignore_missing, boolean_validator],
     }
 
