@@ -21,6 +21,31 @@ from ckanext.pages.data_stories.logic.validation import validate_slug
 log = logging.getLogger(__name__)
 
 
+def _normalize_blocks_metadata(raw_value):
+    """
+    Keep list/dict values intact; attempt to parse JSON strings; return None when empty.
+    """
+    if raw_value in (None, '', []):
+        return None
+
+    if isinstance(raw_value, (dict, list)):
+        return raw_value
+
+    if isinstance(raw_value, str):
+        cleaned = raw_value.strip()
+        if not cleaned or cleaned in ('null', '[]'):
+            return None
+        try:
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            return parsed
+        except Exception:
+            return raw_value
+
+    return raw_value
+
+
 def data_story_update(context, data_dict):
     """
     Update an existing data story.
@@ -129,6 +154,11 @@ def data_story_section_update(context, data_dict):
     log.info("[DATA_STORY_SECTION_UPDATE] Starting section update")
     log.info(f"[DATA_STORY_SECTION_UPDATE] Input data_dict blocks_metadata: {type(data_dict.get('blocks_metadata'))} = {data_dict.get('blocks_metadata')}")
 
+    # Preserve raw blocks metadata before validation
+    raw_blocks_metadata = _normalize_blocks_metadata(data_dict.get('blocks_metadata'))
+    if raw_blocks_metadata is not None:
+        data_dict['blocks_metadata'] = raw_blocks_metadata
+
     # Check authorization
     tk.check_access('data_story_section_update', context, data_dict)
 
@@ -144,6 +174,10 @@ def data_story_section_update(context, data_dict):
     # Validate schema
     schema = data_story_section_schema()
     data, errors = df.validate(data_dict, schema, context)
+    # If validation dropped metadata, restore the normalized raw value
+    if data.get('blocks_metadata') is None and raw_blocks_metadata is not None:
+        data['blocks_metadata'] = raw_blocks_metadata
+
     log.info(f"[DATA_STORY_SECTION_UPDATE] After validation blocks_metadata: {type(data.get('blocks_metadata'))} = {data.get('blocks_metadata')}")
 
     if errors:
