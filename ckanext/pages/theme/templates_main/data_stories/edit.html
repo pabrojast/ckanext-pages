@@ -271,10 +271,12 @@
         {% set sections = story.sections if story and story.sections else [] %}
         {% if sections %}
           {% for section in sections %}
-            {% include "data_stories/components/section_edit.html" with context %}
-        {% endfor %}
+            {% include "data_stories/components/section_edit.html" with context, section_index=loop.index0 %}
+          {% endfor %}
         {% else %}
-          <p class="text-muted">{{ _('No sections yet. Add your first section below.') }}</p>
+          <p class="text-muted">
+            {{ _('No sections yet. Start with an Overview (introduction) and a Study Area section, then add more blocks as needed.') }}
+          </p>
         {% endif %}
       </div>
 
