@@ -320,6 +320,7 @@ def create():
         # Get form data
         data_dict = _extract_story_form_data(request.form)
         sections_data = _extract_sections_form_data(request.form)
+        datasets_data = data_dict.get('datasets_data') or []
         draft_story_context = _build_story_context({**data_dict, 'sections': sections_data})
 
         try:
@@ -336,6 +337,7 @@ def create():
                 'errors': errors,
                 'error_summary': error_summary,
                 'is_new': True,
+                'datasets_data_json': json.dumps(data_dict.get('datasets_data') or []),
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -350,6 +352,7 @@ def create():
                 'errors': {},
                 'error_summary': {},
                 'is_new': True,
+                'datasets_data_json': json.dumps(data_dict.get('datasets_data') or []),
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -357,6 +360,7 @@ def create():
         # Persist sections captured in the form (if any)
         try:
             _sync_story_sections(context, story['id'], sections_data)
+            _sync_story_datasets(context, story['id'], datasets_data)
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -368,6 +372,7 @@ def create():
                 'errors': errors,
                 'error_summary': error_summary,
                 'is_new': False,
+                'datasets_data_json': json.dumps(datasets_data or []),
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -382,6 +387,7 @@ def create():
                 'errors': {},
                 'error_summary': {},
                 'is_new': False,
+                'datasets_data_json': json.dumps(datasets_data or []),
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -399,6 +405,7 @@ def create():
         'errors': {},
         'error_summary': {},
         'is_new': True,
+        'datasets_data_json': json.dumps([]),
     }
 
     return render_template('data_stories/edit.html', **extra_vars)
@@ -504,6 +511,7 @@ def edit(slug):
         data_dict = _extract_story_form_data(request.form)
         data_dict['id'] = story['id']
         sections_data = _extract_sections_form_data(request.form)
+        datasets_data = data_dict.get('datasets_data') or []
         story_context = _build_story_context({**story, **data_dict, 'sections': sections_data})
 
         try:
@@ -515,6 +523,7 @@ def edit(slug):
                 sections_data,
                 existing_sections=story.get('sections', [])
             )
+            _sync_story_datasets(context, story['id'], datasets_data)
 
             flash(tk._('Story updated successfully'), 'success')
 
@@ -531,6 +540,7 @@ def edit(slug):
                 'errors': errors,
                 'error_summary': error_summary,
                 'is_new': False,
+                'datasets_data_json': json.dumps(datasets_data or _build_datasets_form_data(story)),
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -545,6 +555,7 @@ def edit(slug):
                 'errors': {},
                 'error_summary': {},
                 'is_new': False,
+                'datasets_data_json': json.dumps(datasets_data or _build_datasets_form_data(story)),
             }
 
             return render_template('data_stories/edit.html', **extra_vars)
@@ -570,6 +581,7 @@ def edit(slug):
         'errors': {},
         'error_summary': {},
         'is_new': False,
+        'datasets_data_json': json.dumps(_build_datasets_form_data(story)),
     }
 
     return render_template('data_stories/edit.html', **extra_vars)
@@ -910,6 +922,7 @@ def _extract_story_form_data(form):
         'study_area': form.get('study_area', '').strip(),
         'organization_id': form.get('organization_id', '').strip() or None,
         'countries': _parse_json_field(form.get('countries')),
+        'datasets_data': _parse_json_field(form.get('datasets_data')),
     }
 
 
@@ -926,6 +939,7 @@ def _build_story_context(data):
         'countries': data.get('countries', []),
         'organization_id': data.get('organization_id'),
         'sections': data.get('sections', []),
+        'datasets_data': data.get('datasets_data'),
     }
 
 
@@ -1050,6 +1064,52 @@ def _sync_story_sections(context, story_id, sections_data, existing_sections=Non
             tk.get_action('data_story_section_delete')(context, {'id': existing_id})
 
 
+def _sync_story_datasets(context, story_id, datasets_data):
+    """
+    Link/unlink datasets based on the submitted dataset list.
+    """
+    datasets_data = datasets_data or []
+
+    desired_ids = []
+    for entry in datasets_data:
+        if isinstance(entry, str):
+            desired_ids.append(entry)
+        elif isinstance(entry, dict):
+            ds_id = entry.get('id') or entry.get('dataset_id') or entry.get('name')
+            if ds_id:
+                desired_ids.append(ds_id)
+
+    # Remove duplicates while preserving order
+    seen = set()
+    desired_ids = [d for d in desired_ids if not (d in seen or seen.add(d))]
+
+    existing_links = tk.get_action('data_story_datasets')(context, {'story_id': story_id}) or []
+    existing_ids = {link.get('dataset_id') for link in existing_links if link.get('dataset_id')}
+
+    # Link new datasets
+    for ds_id in desired_ids:
+        if ds_id not in existing_ids:
+            try:
+                tk.get_action('data_story_link_dataset')(context, {
+                    'story_id': story_id,
+                    'dataset_id': ds_id,
+                    'relationship_type': 'primary',
+                })
+            except Exception as e:
+                log.error(f"[SYNC_DATASETS] Could not link dataset {ds_id}: {str(e)}")
+
+    # Unlink removed datasets
+    for ds_id in existing_ids:
+        if ds_id not in desired_ids:
+            try:
+                tk.get_action('data_story_unlink_dataset')(context, {
+                    'story_id': story_id,
+                    'dataset_id': ds_id,
+                })
+            except Exception as e:
+                log.error(f"[SYNC_DATASETS] Could not unlink dataset {ds_id}: {str(e)}")
+
+
 def _coerce_int(value, default=0):
     """Convert incoming value to int, returning default on failure."""
     try:
@@ -1164,3 +1224,48 @@ def _parse_bool(value):
         return False
 
     return str(value).lower() not in ('false', '0', 'off', '')
+
+
+def _get_extra_value(extras, key):
+    """Helper to pull a value from CKAN extras list."""
+    if not extras:
+        return None
+    for item in extras:
+        if item.get('key') == key:
+            return item.get('value')
+    return None
+
+
+def _build_datasets_form_data(story):
+    """Prepare dataset info for the edit form hidden field."""
+    datasets = story.get('datasets') if story else []
+    result = []
+
+    for link in datasets:
+        dataset = link.get('dataset') or {}
+        extras = dataset.get('extras')
+        doi = (
+            dataset.get('doi')
+            or dataset.get('dataset_doi')
+            or _get_extra_value(extras, 'doi')
+            or _get_extra_value(extras, 'dataset_doi')
+        )
+        doi_status = (
+            dataset.get('doi_status')
+            or _get_extra_value(extras, 'doi_status')
+            or _get_extra_value(extras, 'doi_state')
+        )
+        citation = dataset.get('citation') or _get_extra_value(extras, 'citation')
+        authors_text = _get_extra_value(extras, 'authors') or dataset.get('author') or dataset.get('maintainer')
+
+        result.append({
+            'id': dataset.get('id') or link.get('dataset_id'),
+            'name': dataset.get('name'),
+            'title': dataset.get('title'),
+            'doi': doi,
+            'doi_status': doi_status,
+            'citation': citation,
+            'authors': authors_text,
+        })
+
+    return result

@@ -225,6 +225,44 @@
     </fieldset>
 
     <fieldset>
+      <legend>{{ _('Datasets used in this story') }}</legend>
+      <p class="help-block">
+        {{ _('Paste a dataset URL or name to pull its DOI and authors. You can add multiple datasets.') }}
+      </p>
+
+      <div class="form-inline" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;">
+        <input type="text"
+               id="story-dataset-input"
+               class="form-control"
+               style="flex: 1; min-width: 240px;"
+               placeholder="{{ _('https://…/dataset/<name> or dataset name') }}">
+        <button type="button" class="btn btn-primary" id="story-add-dataset">
+          <i class="fa fa-plus"></i> {{ _('Add dataset') }}
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped" id="story-datasets-table" style="margin-bottom: 0;">
+          <thead>
+            <tr>
+              <th>{{ _('Title') }}</th>
+              <th>{{ _('DOI') }}</th>
+              <th>{{ _('Authors / Citation') }}</th>
+              <th style="width: 80px;">{{ _('Remove') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="empty-state">
+              <td colspan="4" class="text-muted">{{ _('No datasets added yet.') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <input type="hidden" id="story-datasets-data" name="datasets_data" value="{{ (datasets_data_json if datasets_data_json is defined else '')|e }}">
+    </fieldset>
+
+    <fieldset>
       <legend>{{ _('Sections') }}</legend>
 
       <div class="alert alert-info" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid #0072BC;">

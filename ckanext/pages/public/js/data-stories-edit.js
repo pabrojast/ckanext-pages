@@ -197,6 +197,166 @@
       // Initialize countries selector
       initCountriesSelector();
 
+      // ========================================
+      // DATASETS FIELD
+      // ========================================
+      let selectedDatasets = [];
+
+      function extractDatasetId(raw) {
+        if (!raw) return '';
+        const trimmed = raw.trim();
+        const match = trimmed.match(/dataset\/([^/?#]+)/);
+        if (match && match[1]) {
+          return match[1];
+        }
+        return trimmed;
+      }
+
+      function buildExtrasMap(extras) {
+        const map = {};
+        if (Array.isArray(extras)) {
+          extras.forEach(function(entry) {
+            if (entry && entry.key) {
+              map[entry.key] = entry.value;
+            }
+          });
+        }
+        return map;
+      }
+
+      function buildDatasetMeta(pkg) {
+        const extrasMap = buildExtrasMap(pkg.extras || []);
+        const doi = pkg.doi || pkg.dataset_doi || extrasMap.doi || extrasMap.dataset_doi || '';
+        const doiStatus = pkg.doi_status || extrasMap.doi_status || extrasMap.doi_state || '';
+        const citation = pkg.citation || extrasMap.citation || '';
+        const authors = extrasMap.authors || pkg.author || pkg.maintainer || '';
+
+        return {
+          id: pkg.id,
+          name: pkg.name,
+          title: pkg.title || pkg.name,
+          doi: doi,
+          doi_status: doiStatus || (doi ? 'pending' : ''),
+          citation: citation,
+          authors: authors,
+          url: window.location.origin + '/dataset/' + pkg.name
+        };
+      }
+
+      function updateDatasetsHiddenField() {
+        const value = selectedDatasets.length ? JSON.stringify(selectedDatasets) : '';
+        $('#story-datasets-data').val(value);
+      }
+
+      function renderDatasetsTable() {
+        const $tbody = $('#story-datasets-table tbody');
+        $tbody.empty();
+
+        if (!selectedDatasets.length) {
+          $tbody.append('<tr class="empty-state"><td colspan="4" class="text-muted">No datasets added yet.</td></tr>');
+          updateDatasetsHiddenField();
+          return;
+        }
+
+        selectedDatasets.forEach(function(ds, index) {
+          const doiText = ds.doi ? (ds.doi + (ds.doi_status ? ' (' + ds.doi_status + ')' : '')) : 'Pending';
+          const authorsText = ds.citation || ds.authors || '';
+          const row = `
+            <tr data-dataset-id="${ds.id}">
+              <td><a href="${ds.url}" target="_blank" rel="noopener">${ds.title}</a></td>
+              <td>${doiText}</td>
+              <td>${authorsText || '<span class="text-muted">—</span>'}</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm remove-dataset-row" data-index="${index}">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+          $tbody.append(row);
+        });
+
+        updateDatasetsHiddenField();
+      }
+
+      function loadExistingDatasets() {
+        const raw = $('#story-datasets-data').val();
+        if (!raw) {
+          selectedDatasets = [];
+          renderDatasetsTable();
+          return;
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            selectedDatasets = parsed;
+          } else {
+            selectedDatasets = [];
+          }
+        } catch (e) {
+          selectedDatasets = [];
+        }
+        renderDatasetsTable();
+      }
+
+      function fetchDataset(datasetId) {
+        return $.ajax({
+          url: '/api/3/action/package_show',
+          method: 'GET',
+          dataType: 'json',
+          data: { id: datasetId }
+        });
+      }
+
+      function addDatasetFromInput() {
+        const rawInput = $('#story-dataset-input').val();
+        const datasetId = extractDatasetId(rawInput);
+        if (!datasetId) {
+          alert('Please enter a dataset URL or name');
+          return;
+        }
+
+        // Prevent duplicates
+        if (selectedDatasets.find(function(ds) { return ds.name === datasetId || ds.id === datasetId; })) {
+          alert('This dataset is already added');
+          return;
+        }
+
+        fetchDataset(datasetId)
+          .done(function(resp) {
+            if (resp && resp.success && resp.result) {
+              const meta = buildDatasetMeta(resp.result);
+              selectedDatasets.push(meta);
+              renderDatasetsTable();
+              $('#story-dataset-input').val('');
+            } else {
+              alert('Dataset not found');
+            }
+          })
+          .fail(function() {
+            alert('Could not fetch dataset. Please check the URL or name.');
+          });
+      }
+
+      $('#story-add-dataset').on('click', function() {
+        addDatasetFromInput();
+      });
+
+      $('#story-dataset-input').on('keypress', function(e) {
+        if (e.which === 13) {
+          e.preventDefault();
+          addDatasetFromInput();
+        }
+      });
+
+      $(document).on('click', '.remove-dataset-row', function() {
+        const idx = $(this).data('index');
+        selectedDatasets.splice(idx, 1);
+        renderDatasetsTable();
+      });
+
+      loadExistingDatasets();
+
       // Wait for Quill to be available
       function waitForQuill(callback) {
         if (typeof Quill !== 'undefined') {

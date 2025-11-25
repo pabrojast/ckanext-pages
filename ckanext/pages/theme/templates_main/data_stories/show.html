@@ -111,6 +111,43 @@
 
                 </div>
 
+                {# Primary dataset snapshot #}
+                {% if story.datasets %}
+                  {% set primary = story.datasets[0] %}
+                  {% if primary.dataset %}
+                    {% set ds = primary.dataset %}
+                    {% set extras = ds.extras or [] %}
+                    {% set doi = ds.doi or (extras|selectattr('key','equalto','doi')|map(attribute='value')|list()|first) or (extras|selectattr('key','equalto','dataset_doi')|map(attribute='value')|list()|first) %}
+                    {% set doi_status = ds.doi_status or (extras|selectattr('key','equalto','doi_status')|map(attribute='value')|list()|first) or (extras|selectattr('key','equalto','doi_state')|map(attribute='value')|list()|first) %}
+                    {% set citation = ds.citation or (extras|selectattr('key','equalto','citation')|map(attribute='value')|list()|first) %}
+                    {% set authors_text = (extras|selectattr('key','equalto','authors')|map(attribute='value')|list()|first) or ds.author or ds.maintainer %}
+                    <div style="margin-top: 1.5rem; padding: 1.25rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; border: 1px solid #e9ecef;">
+                      <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                        <div>
+                          <strong style="color: #2c3e50;">{{ _('Dataset DOI') }}:</strong>
+                          <span>
+                            {% if doi %}
+                              {{ doi }} ({{ doi_status or _('Pending') }})
+                            {% else %}
+                              {{ _('Pending DOI') }}
+                            {% endif %}
+                          </span>
+                          {% if citation %}
+                          <div class="text-muted" style="margin-top: 0.35rem; font-size: 0.95rem;">{{ citation }}</div>
+                          {% elif authors_text %}
+                          <div class="text-muted" style="margin-top: 0.35rem; font-size: 0.95rem;">{{ authors_text }}</div>
+                          {% endif %}
+                        </div>
+                        <div>
+                          <a class="btn btn-default" href="{{ h.url_for('dataset.read', id=ds.name) }}" style="border-radius: 24px;">
+                            <i class="fa fa-database"></i> {{ _('View dataset') }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endif %}
+
                 {# Action Buttons #}
                 <div class="story-actions" style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
                   {% if h.check_access('data_story_update', {'id': story.id}) %}
