@@ -464,8 +464,9 @@ def pages_upload(context, data_dict):
             # Manually handle file info for ResourceUpload
             upload_field_storage = data_dict.pop('upload', None)
             if upload_field_storage:
-                upload.filename = upload_field_storage.filename
-                upload.file_upload = upload_field_storage.file
+                upload.filename = getattr(upload_field_storage, 'filename', None) or 'upload'
+                # Werkzeug uses .stream; FieldStorage uses .file; BytesIO has neither
+                upload.file_upload = getattr(upload_field_storage, 'file', None) or getattr(upload_field_storage, 'stream', None) or upload_field_storage
                 # Set tmp file for upload
                 upload.tmp = upload_field_storage
         else:
@@ -1204,8 +1205,8 @@ def water_family_upload(context, data_dict):
             # Manually handle file info for ResourceUpload
             upload_field_storage = data_dict.pop('upload', None)
             if upload_field_storage:
-                upload.filename = upload_field_storage.filename
-                upload.file_upload = upload_field_storage.file
+                upload.filename = getattr(upload_field_storage, 'filename', None) or 'upload'
+                upload.file_upload = getattr(upload_field_storage, 'file', None) or getattr(upload_field_storage, 'stream', None) or upload_field_storage
                 # Set tmp file for upload
                 upload.tmp = upload_field_storage
         else:
