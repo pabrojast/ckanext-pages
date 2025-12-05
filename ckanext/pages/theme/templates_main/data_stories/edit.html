@@ -309,7 +309,8 @@
         {% set sections = story.sections if story and story.sections else [] %}
         {% if sections %}
           {% for section in sections %}
-            {% include "data_stories/components/section_edit.html" with context, section_index=loop.index0 %}
+            {% set section_index = loop.index0 %}
+            {% include "data_stories/components/section_edit.html" with context %}
           {% endfor %}
         {% else %}
           <p class="text-muted">
