@@ -391,8 +391,89 @@
 
   {# Section template (hidden, cloned by JavaScript) #}
   <template id="section-template">
-    {% set section_index = 0 %}
-    {% include "data_stories/components/section_edit.html" %}
+    <div class="content-section-editor" data-section-id="">
+      <div class="section-header">
+        <div class="section-title-row">
+          <div class="section-icon">
+            <i class="fa fa-file-text"></i>
+          </div>
+          <div style="flex: 1;">
+            <input type="text"
+                   name="sections[0][title]"
+                   value=""
+                   class="section-title-input"
+                   placeholder="{{ _('Section Title (e.g., "Overview of Study Region")') }}"
+                   required />
+            <small style="display: block; margin-top: 0.25rem; color: #6c757d; font-size: 0.85rem;">
+              <i class="fa fa-lightbulb-o"></i>
+              {{ _('Custom title that will appear as the section heading in your story') }}
+            </small>
+          </div>
+        </div>
+        <div class="section-controls">
+          <button type="button" class="btn btn-sm btn-default move-section-up" title="{{ _('Move Up') }}">
+            <i class="fa fa-chevron-up"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-default move-section-down" title="{{ _('Move Down') }}">
+            <i class="fa fa-chevron-down"></i>
+          </button>
+          <button type="button" class="btn btn-sm btn-danger remove-section-btn" title="{{ _('Remove Section') }}">
+            <i class="fa fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="section-body">
+        <input type="hidden" name="sections[0][id]" value="" />
+        <input type="hidden" name="sections[0][order_index]" value="0" class="section-order" />
+        
+        <div class="form-group">
+          <label>{{ _('Section Type') }} <span class="text-danger">*</span></label>
+          <select name="sections[0][section_type]" class="form-control section-type-select" required>
+            <option value="">{{ _('Select a section type...') }}</option>
+            <option value="introduction">{{ _('Introduction') }}</option>
+            <option value="research_question">{{ _('Research Question') }}</option>
+            <option value="study_area">{{ _('Study Area') }}</option>
+            <option value="data_sources">{{ _('Data Sources') }}</option>
+            <option value="methodology">{{ _('Methodology') }}</option>
+            <option value="spatial_analysis">{{ _('Spatial Analysis') }}</option>
+            <option value="results">{{ _('Results') }}</option>
+            <option value="discussion">{{ _('Discussion') }}</option>
+            <option value="conclusions">{{ _('Conclusions') }}</option>
+            <option value="references">{{ _('References') }}</option>
+            <option value="acknowledgments">{{ _('Acknowledgments') }}</option>
+          </select>
+          <span class="help-block">
+            <i class="fa fa-info-circle"></i>
+            {{ _('The section type determines the category and icon that will appear in the story navigation menu.') }}
+          </span>
+        </div>
+        
+        <div class="section-content-blocks" id="section-0-blocks">
+        </div>
+        
+        <div class="add-block-controls">
+          <p class="text-muted">{{ _('Add content to this section:') }}</p>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-primary btn-sm add-text-block">
+              <i class="fa fa-text-width"></i> {{ _('Text Block') }}
+            </button>
+            <button type="button" class="btn btn-success btn-sm add-terria-block">
+              <i class="fa fa-map"></i> {{ _('Terria Map') }}
+            </button>
+            <button type="button" class="btn btn-info btn-sm add-media-block">
+              <i class="fa fa-play-circle"></i> {{ _('Media/Iframe') }}
+            </button>
+          </div>
+        </div>
+        
+        <textarea name="sections[0][content]" style="display:none;" class="section-content-field"></textarea>
+        <input type="hidden" name="sections[0][terria_share_link]" value="" class="section-terria-link" />
+        <textarea name="sections[0][terria_config]" style="display:none;" class="section-terria-config"></textarea>
+        <textarea name="sections[0][blocks_metadata]" style="display:none;" class="section-blocks-metadata"></textarea>
+        <input type="hidden" name="sections[0][is_visible]" value="true" />
+      </div>
+    </div>
   </template>
   
               </div>
