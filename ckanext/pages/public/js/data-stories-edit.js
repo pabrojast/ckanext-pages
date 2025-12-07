@@ -1506,6 +1506,124 @@
         console.log('Basic fields Quill editors initialized');
       });
 
+      // ========================================
+      // PAPER DOI FUNCTIONALITY
+      // ========================================
+      
+      // Show/hide fetch citation button based on DOI input
+      $('#paper_doi').on('input', function() {
+        const doiValue = $(this).val().trim();
+        const fetchGroup = $('#fetch-citation-group');
+        
+        if (doiValue && doiValue.match(/^10\./)) {
+          fetchGroup.show();
+        } else {
+          fetchGroup.hide();
+        }
+      });
+      
+      // Trigger on page load in case DOI is already filled
+      $('#paper_doi').trigger('input');
+      
+      // Fetch citation from CrossRef API
+      $('#fetch-citation-btn').on('click', function() {
+        const $btn = $(this);
+        const $citationField = $('#paper_citation');
+        const doi = $('#paper_doi').val().trim();
+        
+        if (!doi) {
+          alert('{{ _("Please enter a DOI first") }}');
+          return;
+        }
+        
+        // Show loading state
+        const originalText = $btn.html();
+        $btn.html('<i class="fa fa-spinner fa-spin"></i> {{ _("Fetching...") }}').prop('disabled', true);
+        
+        // Call CrossRef API
+        const crossrefUrl = `https://api.crossref.org/works/${doi}`;
+        
+        fetch(crossrefUrl, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('DOI not found or network error');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const work = data.message;
+          
+          // Format citation
+          let citation = '';
+          
+          // Authors
+          if (work.author && work.author.length > 0) {
+            const authors = work.author.map(author => {
+              if (author.family && author.given) {
+                return `${author.family}, ${author.given.charAt(0)}.`;
+              } else if (author.family) {
+                return author.family;
+              }
+              return '';
+            }).filter(a => a).join(', ');
+            citation += authors;
+          }
+          
+          // Year
+          if (work.published && work.published['date-parts'] && work.published['date-parts'][0]) {
+            const year = work.published['date-parts'][0][0];
+            citation += ` (${year})`;
+          }
+          
+          // Title
+          if (work.title && work.title[0]) {
+            citation += `. ${work.title[0]}`;
+          }
+          
+          // Journal
+          if (work['container-title'] && work['container-title'][0]) {
+            citation += `. ${work['container-title'][0]}`;
+          }
+          
+          // Volume and Issue
+          if (work.volume) {
+            citation += `, ${work.volume}`;
+            if (work.issue) {
+              citation += `(${work.issue})`;
+            }
+          }
+          
+          // Pages
+          if (work.page) {
+            citation += `, ${work.page}`;
+          }
+          
+          // DOI
+          citation += `. https://doi.org/${doi}`;
+          
+          // Set the citation
+          $citationField.val(citation);
+          
+          // Show success message
+          $citationField.after('<div class="alert alert-success" style="margin-top: 0.5rem;"><i class="fa fa-check"></i> {{ _("Citation fetched successfully!") }}</div>');
+          setTimeout(function() {
+            $citationField.next('.alert-success').fadeOut();
+          }, 3000);
+        })
+        .catch(error => {
+          console.error('Error fetching citation:', error);
+          alert('{{ _("Could not fetch citation. Please enter it manually.") }}');
+        })
+        .finally(() => {
+          // Restore button
+          $btn.html(originalText).prop('disabled', false);
+        });
+      });
+
       console.log('Data Stories editor initialized successfully');
     });
   });

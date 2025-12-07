@@ -232,6 +232,48 @@
             </section>
             {% endif %}
 
+            {# Research Publication #}
+            {% if story.paper_doi or story.paper_citation %}
+            <section class="module module-narrow story-section" style="margin-top: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <i class="fa fa-external-link"></i> {{ _('Research Publication') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="section-content">
+                  {% if story.paper_citation %}
+                  <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #0072BC; margin-bottom: 1.5rem;">
+                    <p style="margin: 0; font-style: italic; color: #2c3e50; line-height: 1.6;">
+                      {{ story.paper_citation }}
+                    </p>
+                  </div>
+                  {% endif %}
+                  
+                  {% if story.paper_doi %}
+                  <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <strong style="color: #2c3e50;">{{ _('DOI:') }}</strong>
+                    <code style="background: #f8f9fa; padding: 0.4rem 0.8rem; border-radius: 6px; color: #c7254e; font-family: 'Monaco', 'Menlo', 'Consolas', monospace;">{{ story.paper_doi }}</code>
+                    <a href="https://doi.org/{{ story.paper_doi }}" 
+                       target="_blank" 
+                       class="btn btn-sm btn-primary"
+                       style="padding: 0.5rem 1rem; border-radius: 20px; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                      <i class="fa fa-external-link"></i> {{ _('View Paper') }}
+                    </a>
+                  </div>
+                  {% endif %}
+                  
+                  {% if not story.paper_citation and story.paper_doi %}
+                  <p style="margin-top: 1rem; color: #6c757d; font-style: italic;">
+                    <i class="fa fa-info-circle"></i> 
+                    {{ _('This data story is based on the research paper with DOI') }} {{ story.paper_doi }}
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+            {% endif %}
+
             {# Story Sections #}
             {% if story.sections %}
             <div class="story-sections" style="margin-top: 2rem;">

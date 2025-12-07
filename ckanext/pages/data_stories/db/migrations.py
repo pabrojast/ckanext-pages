@@ -31,6 +31,8 @@ def upgrade():
             sa.Column('abstract', sa.Text),
             sa.Column('research_question', sa.Text),
             sa.Column('study_area', sa.Text),
+            sa.Column('paper_doi', sa.String(255), nullable=True),
+            sa.Column('paper_citation', sa.Text, nullable=True),
             sa.Column('countries', JSONB),
             sa.Column('created_at', sa.DateTime, default=sa.func.now()),
             sa.Column('updated_at', sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()),
@@ -180,6 +182,16 @@ def upgrade():
     if table_exists('data_stories') and not column_exists('data_stories', 'countries'):
         op.add_column('data_stories', sa.Column('countries', JSONB))
         log.info("Added countries column to data_stories table")
+
+    # Add paper_doi column if not exists (migration for existing tables)
+    if table_exists('data_stories') and not column_exists('data_stories', 'paper_doi'):
+        op.add_column('data_stories', sa.Column('paper_doi', sa.String(255), nullable=True))
+        log.info("Added paper_doi column to data_stories table")
+
+    # Add paper_citation column if not exists (migration for existing tables)
+    if table_exists('data_stories') and not column_exists('data_stories', 'paper_citation'):
+        op.add_column('data_stories', sa.Column('paper_citation', sa.Text, nullable=True))
+        log.info("Added paper_citation column to data_stories table")
 
     log.info("Data Stories migration completed successfully")
 

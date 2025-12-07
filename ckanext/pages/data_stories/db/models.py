@@ -55,6 +55,10 @@ class DataStory(DomainObject, BaseModel):
     abstract = Column(Text)
     research_question = Column(Text)
     study_area = Column(Text)
+    
+    # Research publication fields
+    paper_doi = Column(String(255), nullable=True)  # DOI of the research paper
+    paper_citation = Column(Text, nullable=True)  # Full citation of the research paper
 
     # Metadata
     countries = Column(JSONB)

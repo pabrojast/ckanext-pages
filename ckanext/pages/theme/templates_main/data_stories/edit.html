@@ -263,6 +263,79 @@
     </fieldset>
 
     <fieldset>
+      <legend>{{ _('Research Publication') }}</legend>
+      <p class="help-block" style="margin-bottom: 1.5rem;">
+        {{ _('Link this data story to a published research paper. This helps readers understand the academic context and cite the work properly.') }}
+      </p>
+
+      {# Paper DOI #}
+      <div class="form-group{% if errors.paper_doi %} has-error{% endif %}">
+        <label class="control-label" for="paper_doi">
+          <i class="fa fa-external-link"></i> {{ _('Research Paper DOI') }}
+          <span class="text-muted">({{ _('Optional') }})</span>
+        </label>
+        <div class="input-group">
+          <span class="input-group-addon" style="background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-color: #0072BC;">
+            <strong>DOI:</strong>
+          </span>
+          <input type="text"
+                 id="paper_doi"
+                 name="paper_doi"
+                 class="form-control"
+                 value="{{ data.get('paper_doi', story.paper_doi if story else '') }}"
+                 placeholder="{{ _('10.1000/example.doi') }}"
+                 pattern="^10\..*"
+                 title="{{ _('DOI must start with 10. (e.g., 10.1000/example.doi)') }}">
+        </div>
+        <span class="help-block">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Enter the DOI of the research paper that this data story is based on. DOIs usually start with "10." and look like "10.1000/example.doi"') }}
+          <br>
+          <strong>{{ _('Example:') }}</strong> 
+          <code style="background: #f8f9fa; padding: 0.2rem 0.4rem; border-radius: 3px;">10.1038/s41597-023-02543-1</code>
+        </span>
+        {% if errors.paper_doi %}
+        <span class="error-block">{{ errors.paper_doi.0 }}</span>
+        {% endif %}
+      </div>
+
+      {# Paper Citation (auto-filled from DOI or manual) #}
+      <div class="form-group{% if errors.paper_citation %} has-error{% endif %}">
+        <label class="control-label" for="paper_citation">
+          <i class="fa fa-quote-left"></i> {{ _('Paper Citation') }}
+          <span class="text-muted">({{ _('Optional') }})</span>
+        </label>
+        <textarea id="paper_citation"
+                  name="paper_citation"
+                  class="form-control"
+                  rows="3"
+                  placeholder="{{ _('Author, A., & Author, B. (2023). Title of the paper. Journal Name, 10(1), 123-456. https://doi.org/10.1000/example.doi') }}">{{ data.get('paper_citation', story.paper_citation if story else '') }}</textarea>
+        <span class="help-block">
+          <i class="fa fa-lightbulb-o text-warning"></i>
+          {{ _('Provide the full citation for the research paper. This will be displayed prominently in the data story to help readers cite the work properly.') }}
+          <br>
+          <small class="text-muted">
+            {{ _('Tip: If you enter a DOI above, you can try to auto-fetch the citation by clicking the "Fetch Citation" button.') }}
+          </small>
+        </span>
+        {% if errors.paper_citation %}
+        <span class="error-block">{{ errors.paper_citation.0 }}</span>
+        {% endif %}
+      </div>
+
+      {# Auto-fetch citation button #}
+      <div class="form-group" id="fetch-citation-group" style="display: none;">
+        <button type="button" class="btn btn-info" id="fetch-citation-btn">
+          <i class="fa fa-download"></i> {{ _('Fetch Citation from DOI') }}
+        </button>
+        <span class="help-block">
+          <i class="fa fa-magic text-success"></i>
+          {{ _('Automatically retrieve the citation information from the DOI using CrossRef API.') }}
+        </span>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>{{ _('Sections') }}</legend>
 
       <div class="alert alert-info" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid #0072BC;">
