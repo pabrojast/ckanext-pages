@@ -63,6 +63,8 @@ def data_story_update(context, data_dict):
         ValidationError: If data validation fails
     """
     log.info("[DATA_STORY_UPDATE] Starting update")
+    log.info(f"[DATA_STORY_UPDATE] Input data_dict keys: {list(data_dict.keys())}")
+    log.info(f"[DATA_STORY_UPDATE] Input countries: {data_dict.get('countries')!r}")
 
     # Check authorization
     tk.check_access('data_story_update', context, data_dict)
@@ -79,6 +81,9 @@ def data_story_update(context, data_dict):
     # Validate schema
     schema = data_story_schema()
     data, errors = df.validate(data_dict, schema, context)
+    
+    log.info(f"[DATA_STORY_UPDATE] After validation data keys: {list(data.keys())}")
+    log.info(f"[DATA_STORY_UPDATE] After validation countries: {data.get('countries')!r}")
 
     if errors:
         raise tk.ValidationError(errors)

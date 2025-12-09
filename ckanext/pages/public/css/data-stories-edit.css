@@ -1307,3 +1307,145 @@
     height: 350px;
   }
 }
+
+/* ========================================
+   FIX: Research Publication DOI/Citation Layout Issues
+   ======================================== */
+
+/* Ensure DOI input addon is properly sized and not overlapping */
+.data-stories-form .input-group .input-group-addon strong {
+  white-space: nowrap;
+}
+
+/* Fix DOI input-group to prevent overlap */
+.data-stories-form #paper_doi,
+.data-stories-form [name="paper_doi"] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Better spacing for help blocks in Research Publication */
+.data-stories-form fieldset > .form-group .help-block {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 8px;
+  border-left: 3px solid var(--unesco-blue-pale);
+}
+
+.data-stories-form fieldset > .form-group .help-block code {
+  background: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  font-size: 0.85em;
+}
+
+/* ========================================
+   FIX: Countries container button alignment
+   ======================================== */
+
+/* Ensure countries container doesn't overflow */
+.data-stories-form .countries-container {
+  overflow: visible;
+  width: 100%;
+}
+
+/* Fix input-group inside countries container */
+.data-stories-form .country-selector .input-group {
+  max-width: 100%;
+  flex-wrap: nowrap;
+}
+
+.data-stories-form .country-selector .input-group select.form-control {
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+.data-stories-form .country-selector .input-group .input-group-btn {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.data-stories-form .country-selector .input-group .input-group-btn .btn {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ========================================
+   FIX: Breadcrumb alignment
+   ======================================== */
+
+/* Ensure breadcrumb is properly contained */
+.homepage.layout-1 .toolbar {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.homepage.layout-1 .breadcrumb {
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.homepage.layout-1 .breadcrumb > li {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.homepage.layout-1 .breadcrumb > li span {
+  display: inline;
+}
+
+/* ========================================
+   FIX: Form field padding and spacing
+   ======================================== */
+
+/* Improve form-group internal spacing */
+.data-stories-form .form-group {
+  margin-bottom: 1.75rem;
+}
+
+.data-stories-form .form-group .control-label {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.data-stories-form .form-group .control-label .text-muted {
+  font-weight: 400;
+  font-size: 0.9em;
+}
+
+/* Improve fieldset internal padding */
+.data-stories-form fieldset {
+  padding: 1.5rem 2rem 2rem 2rem;
+}
+
+.data-stories-form legend {
+  padding: 1.25rem 2rem;
+  margin: 0 -2rem 1.5rem -2rem;
+  width: calc(100% + 4rem);
+}
+
+/* Reduce overly thick borders */
+.data-stories-form fieldset {
+  border-left-width: 4px;
+}
+
+.data-stories-form legend {
+  border-bottom-width: 2px;
+}
+
+.data-stories-form legend::after {
+  height: 2px;
+  left: 2rem;
+}

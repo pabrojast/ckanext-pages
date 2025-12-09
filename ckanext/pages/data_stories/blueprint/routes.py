@@ -914,6 +914,11 @@ def _get_context():
 
 def _extract_story_form_data(form):
     """Extract story data from form submission."""
+    countries_raw = form.get('countries')
+    log.info(f"[EXTRACT_FORM] countries raw from form: {countries_raw!r}")
+    countries_parsed = _parse_json_field(countries_raw, default_empty_list=True)
+    log.info(f"[EXTRACT_FORM] countries parsed: {countries_parsed!r}")
+    
     return {
         'title': form.get('title', '').strip(),
         'slug': form.get('slug', '').strip(),
@@ -923,7 +928,7 @@ def _extract_story_form_data(form):
         'paper_doi': form.get('paper_doi', '').strip(),
         'paper_citation': form.get('paper_citation', '').strip(),
         'organization_id': form.get('organization_id', '').strip() or None,
-        'countries': _parse_json_field(form.get('countries')),
+        'countries': countries_parsed,
         'datasets_data': _parse_json_field(form.get('datasets_data')),
     }
 
@@ -1122,10 +1127,15 @@ def _coerce_int(value, default=0):
         return default
 
 
-def _parse_json_field(raw_value):
-    """Parse JSON stored in form fields, returning None when unset/invalid."""
+def _parse_json_field(raw_value, default_empty_list=False):
+    """Parse JSON stored in form fields, returning None when unset/invalid.
+    
+    Args:
+        raw_value: The raw value from the form field
+        default_empty_list: If True, return [] instead of None for empty/null values
+    """
     if not raw_value:
-        return None
+        return [] if default_empty_list else None
 
     if isinstance(raw_value, (dict, list)):
         return raw_value
@@ -1133,8 +1143,12 @@ def _parse_json_field(raw_value):
     # Handle string values
     if isinstance(raw_value, str):
         raw_value = html.unescape(raw_value).strip()
-        if not raw_value or raw_value == 'null' or raw_value == '[]':
-            return None
+        if not raw_value or raw_value == 'null':
+            return [] if default_empty_list else None
+        
+        # Handle empty array string - return actual empty list
+        if raw_value == '[]':
+            return []
 
         try:
             parsed = json.loads(raw_value)
@@ -1143,9 +1157,9 @@ def _parse_json_field(raw_value):
                 parsed = json.loads(parsed)
             return parsed
         except (TypeError, ValueError, json.JSONDecodeError):
-            return None
+            return [] if default_empty_list else None
 
-    return None
+    return [] if default_empty_list else None
 
 
 def _strip_html_tags(value: str) -> str:

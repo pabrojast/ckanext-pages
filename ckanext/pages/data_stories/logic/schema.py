@@ -60,7 +60,9 @@ def data_story_schema():
         'abstract': [ignore_missing, unicode_safe],
         'research_question': [ignore_missing, unicode_safe],
         'study_area': [ignore_missing, unicode_safe],
-        'countries': [_default_to_none, json_validator],
+        'countries': [_default_to_empty_list, json_validator],
+        'paper_doi': [ignore_missing, unicode_safe],
+        'paper_citation': [ignore_missing, unicode_safe],
         'author_id': [ignore_missing, user_id_exists],
         'organization_id': [ignore_missing, group_id_exists],
         'status': [ignore_missing, unicode_safe],
@@ -73,11 +75,26 @@ def _default_to_none(key, data, errors, context):
     """
     Custom validator that defaults missing values to None instead of removing the key.
     This ensures the key is present in the validated data even if empty.
+    Note: Empty lists [] are preserved, not converted to None.
     """
     from ckan.lib.navl.dictization_functions import missing
     value = data.get(key)
     if value is missing or value is None or value == '':
         data[key] = None
+    # Keep empty lists [] as valid values - they are intentional
+
+
+def _default_to_empty_list(key, data, errors, context):
+    """
+    Custom validator for list fields that defaults to an empty list instead of None.
+    This is useful for fields like 'countries' where an empty list is a valid value.
+    """
+    from ckan.lib.navl.dictization_functions import missing
+    value = data.get(key)
+    if value is missing or value is None or value == '':
+        data[key] = []
+    elif isinstance(value, list):
+        data[key] = value
 
 
 def _coerce_json_field(key, data, errors, context):

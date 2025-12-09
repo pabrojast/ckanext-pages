@@ -84,8 +84,10 @@
       }
 
       function updateCountriesHiddenField() {
-        const value = selectedCountries.length ? JSON.stringify(selectedCountries) : '';
+        // Always send a valid JSON array, even if empty
+        const value = JSON.stringify(selectedCountries);
         $('#story-countries-data').val(value);
+        console.log('[DataStories] Countries field updated:', value);
       }
 
       function addCountryToList(country) {
