@@ -17,12 +17,12 @@ class StoryWorkflow:
 
     STATES = {
         'draft': {
-            'allowed_transitions': ['submitted'],
+            'allowed_transitions': ['submitted', 'published'],
             'required_permissions': ['data_story_update_own'],
             'description': 'Story is being drafted',
         },
         'submitted': {
-            'allowed_transitions': ['under_review', 'draft'],
+            'allowed_transitions': ['under_review', 'draft', 'published'],
             'required_permissions': ['data_story_review'],
             'description': 'Story has been submitted for review',
         },

@@ -185,21 +185,59 @@ def data_story_list(context, data_dict):
     except Exception:
         pass
 
+    # If filtering by review statuses (submitted, under_review), skip is_public filter for admin/reviewers
+    review_statuses = ['submitted', 'under_review']
+    is_review_filter = status in review_statuses if status else False
+
     if not is_admin:
-        # Show only public stories OR user's own stories
-        if user:
-            user_obj = model.User.get(user)
-            if user_obj:
-                query = query.filter(
-                    or_(
-                        DataStory.is_public == True,
-                        DataStory.author_id == user_obj.id
+        if is_review_filter:
+            # For review statuses, allow org admins to see stories in their orgs
+            if user:
+                user_obj = model.User.get(user)
+                if user_obj:
+                    # Get orgs where user is admin
+                    user_org_ids = []
+                    org_memberships = model.Session.query(model.Member).filter(
+                        model.Member.table_name == 'user',
+                        model.Member.table_id == user_obj.id,
+                        model.Member.capacity == 'admin',
+                        model.Member.state == 'active'
+                    ).all()
+                    for membership in org_memberships:
+                        user_org_ids.append(membership.group_id)
+
+                    if user_org_ids:
+                        # Can see stories in their orgs OR their own stories
+                        query = query.filter(
+                            or_(
+                                DataStory.organization_id.in_(user_org_ids),
+                                DataStory.author_id == user_obj.id
+                            )
+                        )
+                    else:
+                        # Can only see their own stories
+                        query = query.filter(DataStory.author_id == user_obj.id)
+                else:
+                    # No access to review statuses without login
+                    query = query.filter(DataStory.id == None)  # Return nothing
+            else:
+                # No access to review statuses without login
+                query = query.filter(DataStory.id == None)  # Return nothing
+        else:
+            # Show only public stories OR user's own stories
+            if user:
+                user_obj = model.User.get(user)
+                if user_obj:
+                    query = query.filter(
+                        or_(
+                            DataStory.is_public == True,
+                            DataStory.author_id == user_obj.id
+                        )
                     )
-                )
+                else:
+                    query = query.filter(DataStory.is_public == True)
             else:
                 query = query.filter(DataStory.is_public == True)
-        else:
-            query = query.filter(DataStory.is_public == True)
 
     # Get total count before pagination
     total_count = query.count()
