@@ -112,12 +112,17 @@ def data_story_update(context, data_dict):
 
     if 'countries' in data:
         countries_value = data.get('countries')
-        if isinstance(countries_value, str):
+        log.info(f"[DATA_STORY_UPDATE] countries raw value: {countries_value}, type: {type(countries_value)}")
+        if isinstance(countries_value, str) and countries_value:
             try:
                 countries_value = json.loads(countries_value)
-            except Exception:
-                log.warning("[DATA_STORY_UPDATE] Could not parse countries JSON, storing raw string")
+                log.info(f"[DATA_STORY_UPDATE] countries parsed: {countries_value}")
+            except Exception as e:
+                log.warning(f"[DATA_STORY_UPDATE] Could not parse countries JSON: {e}")
+        elif not countries_value:
+            countries_value = []
         story.countries = countries_value
+        log.info(f"[DATA_STORY_UPDATE] countries final value: {story.countries}")
 
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')

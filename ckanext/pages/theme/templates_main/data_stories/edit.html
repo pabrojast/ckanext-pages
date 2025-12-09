@@ -65,12 +65,12 @@
 
   <form method="post" class="data-stories-form" id="data-stories-form">
     <fieldset>
-      <legend>{{ _('Basic Information') }}</legend>
+      <legend><i class="fa fa-info-circle"></i> {{ _('Basic Information') }}</legend>
 
       {# Title #}
       <div class="form-group{% if errors.title %} has-error{% endif %}">
         <label class="control-label" for="title">
-          {{ _('Title') }} <span class="text-danger">*</span>
+          <i class="fa fa-heading"></i> {{ _('Title') }} <span class="text-danger">*</span>
         </label>
         <input type="text"
                id="title"
@@ -79,7 +79,10 @@
                class="form-control"
                placeholder="{{ _('Enter a clear, descriptive title for your data story') }}"
                required />
-        <span class="help-text">{{ _('Clear, descriptive title of the data story') }}</span>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Clear, descriptive title that captures the essence of your data story.') }}
+        </span>
         {% if errors.title %}
         <span class="error-block">{{ errors.title.0 }}</span>
         {% endif %}
@@ -107,7 +110,7 @@
       {# Abstract #}
       <div class="form-group{% if errors.abstract %} has-error{% endif %}">
         <label class="control-label" for="abstract">
-          {{ _('Abstract') }}
+          <i class="fa fa-align-left"></i> {{ _('Abstract') }}
         </label>
         <div class="quill-editor-wrapper">
           <div id="abstract-editor" class="quill-editor quill-editor-small"></div>
@@ -117,7 +120,8 @@
                     style="display: none;">{{ data.get('abstract', '') }}</textarea>
         </div>
         <span class="help-text">
-          {{ _('Brief summary of the story (recommended)') }}
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Brief summary of the story. This is prominently displayed at the top of your story.') }}
         </span>
         {% if errors.abstract %}
         <span class="error-block">{{ errors.abstract.0 }}</span>
@@ -127,7 +131,8 @@
       {# Research Question #}
       <div class="form-group{% if errors.research_question %} has-error{% endif %}">
         <label class="control-label" for="research_question">
-          {{ _('Research Question') }}
+          <i class="fa fa-question-circle"></i> {{ _('Key Research Question') }}
+          <span class="text-muted">({{ _('Summary') }})</span>
         </label>
         <div class="quill-editor-wrapper">
           <div id="research_question-editor" class="quill-editor quill-editor-small"></div>
@@ -137,7 +142,9 @@
                     style="display: none;">{{ data.get('research_question', '') }}</textarea>
         </div>
         <span class="help-text">
-          {{ _('Main research question addressed by this story') }}
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Brief summary of the main research question. This appears in the sidebar "At a Glance" section.') }}
+          <br><small class="text-muted">{{ _('Tip: For detailed explanation, add a "Research Question" section below.') }}</small>
         </span>
         {% if errors.research_question %}
         <span class="error-block">{{ errors.research_question.0 }}</span>
@@ -147,7 +154,8 @@
       {# Study Area #}
       <div class="form-group{% if errors.study_area %} has-error{% endif %}">
         <label class="control-label" for="study_area">
-          {{ _('Study Area') }}
+          <i class="fa fa-map-marker"></i> {{ _('Geographic Focus') }}
+          <span class="text-muted">({{ _('Summary') }})</span>
         </label>
         <div class="quill-editor-wrapper">
           <div id="study_area-editor" class="quill-editor quill-editor-small"></div>
@@ -157,7 +165,9 @@
                     style="display: none;">{{ data.get('study_area', '') }}</textarea>
         </div>
         <span class="help-text">
-          {{ _('Description of the geographic study area') }}
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Brief description of the geographic area covered. This appears in the sidebar "At a Glance" section.') }}
+          <br><small class="text-muted">{{ _('Tip: For detailed geographic analysis, add a "Study Area" section below.') }}</small>
         </span>
         {% if errors.study_area %}
         <span class="error-block">{{ errors.study_area.0 }}</span>
@@ -195,7 +205,8 @@
           <input type="hidden"
                  id="story-countries-data"
                  name="countries"
-                 value="{% if data.get('countries') %}{% if data.get('countries') is string %}{{ data.get('countries') }}{% elif data.get('countries') is mapping or data.get('countries') is iterable %}{{ data.get('countries')|tojson }}{% endif %}{% endif %}">
+                 value="{% set countries_val = data.get('countries') if data else (story.countries if story else none) %}{% if countries_val %}{% if countries_val is string %}{{ countries_val }}{% else %}{{ countries_val|tojson }}{% endif %}{% else %}[]{% endif %}"
+          >
         </div>
 
         {% if errors.countries %}
