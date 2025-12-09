@@ -63,11 +63,13 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  list-style: none;
 }
 
 .homepage.layout-1 .breadcrumb > li {
   display: inline-flex;
   align-items: center;
+  line-height: 1.5;
 }
 
 .homepage.layout-1 .breadcrumb > li + li:before {
@@ -75,6 +77,7 @@
   padding: 0 12px;
   color: var(--text-secondary);
   font-weight: 600;
+  line-height: 1;
 }
 
 .homepage.layout-1 .breadcrumb > li.active {
@@ -86,10 +89,17 @@
   color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .homepage.layout-1 .breadcrumb > li a:hover {
   color: var(--unesco-blue);
+}
+
+.homepage.layout-1 .breadcrumb > li.home a i {
+  font-size: 1rem;
 }
 
 /* Header Banner (aligned with Rapid Response) - Scoped to data stories */
@@ -186,7 +196,7 @@
 /* Form styling */
 .data-stories-form fieldset {
   margin-bottom: 3rem;
-  padding: 0;
+  padding: 0 0 2rem 0;
   border: none;
   border-radius: 20px;
   background: #fff;
@@ -246,15 +256,145 @@
   border-radius: 2px;
 }
 
-.data-stories-form fieldset > div:not(legend) {
-  padding: 2rem 2.5rem;
+/* Fieldset content wrapper - margins for all content after legend */
+.data-stories-form fieldset > *:not(legend) {
+  margin-left: 2.5rem;
+  margin-right: 2.5rem;
 }
 
-.data-stories-form fieldset > .help-block:first-child {
+.data-stories-form fieldset > *:not(legend):first-of-type {
+  margin-top: 2rem;
+}
+
+/* Form groups inside fieldsets - reset margins since parent has it */
+.data-stories-form fieldset .form-group {
+  margin-bottom: 1.5rem;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Help block at top of fieldset */
+.data-stories-form fieldset > p.help-block:first-of-type {
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  background: transparent;
+  border-bottom: 1px solid #e9ecef;
+  color: var(--text-secondary);
+}
+
+/* Alert info boxes inside fieldsets */
+.data-stories-form fieldset .alert {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: none;
+}
+
+.data-stories-form fieldset .alert.alert-info {
+  background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%) !important;
+  border-left: 4px solid var(--unesco-blue) !important;
+}
+
+/* Sections container */
+.data-stories-form #sections-container {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1.5rem;
+}
+
+.data-stories-form #sections-container > p.text-muted {
+  padding: 1.5rem;
   margin: 0;
-  padding: 1.5rem 2.5rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-left: 4px solid var(--unesco-blue);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* Table styling inside fieldsets */
+.data-stories-form fieldset .table-responsive {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1rem;
+}
+
+.data-stories-form fieldset .table {
+  margin-bottom: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.data-stories-form fieldset .table thead th {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 2px solid #e9ecef;
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.data-stories-form fieldset .table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.data-stories-form fieldset .table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-stories-form fieldset .table .empty-state td {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem 1rem;
+}
+
+/* Form inline (for datasets input) */
+.data-stories-form fieldset .form-inline {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1.5rem;
+}
+
+/* Input group styling */
+.data-stories-form .input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.data-stories-form .input-group .input-group-addon {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  color: var(--unesco-blue);
+  font-weight: 600;
+}
+
+.data-stories-form .input-group .form-control {
+  border-radius: 0;
+  border-left: none;
+}
+
+.data-stories-form .input-group .form-control:last-child,
+.data-stories-form .input-group .form-control:only-child {
+  border-radius: 0 12px 12px 0;
+}
+
+.data-stories-form .input-group .input-group-btn {
+  display: flex;
+}
+
+.data-stories-form .input-group .input-group-btn .btn {
+  border-radius: 0 12px 12px 0;
+  margin-left: -1px;
 }
 
 /* Form actions - Scoped to data stories */

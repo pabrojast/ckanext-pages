@@ -108,6 +108,10 @@ def data_story_create(context, data_dict):
     story.research_question = data.get('research_question', '')
     story.study_area = data.get('study_area', '')
 
+    # Research publication fields
+    story.paper_doi = data.get('paper_doi', '')
+    story.paper_citation = data.get('paper_citation', '')
+
     countries_value = data.get('countries')
     if isinstance(countries_value, str):
         try:

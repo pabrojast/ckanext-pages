@@ -103,6 +103,13 @@ def data_story_update(context, data_dict):
     if 'study_area' in data:
         story.study_area = data['study_area']
 
+    # Research publication fields
+    if 'paper_doi' in data:
+        story.paper_doi = data['paper_doi']
+
+    if 'paper_citation' in data:
+        story.paper_citation = data['paper_citation']
+
     if 'countries' in data:
         countries_value = data.get('countries')
         if isinstance(countries_value, str):
