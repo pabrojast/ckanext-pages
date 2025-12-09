@@ -155,6 +155,96 @@ def _ensure_countries_column(engine):
         log.warning(f"Could not ensure countries column on data_stories: {str(e)}")
 
 
+def _ensure_paper_doi_column(engine):
+    """
+    Ensure the paper_doi column exists in data_stories table.
+
+    Adds the column when missing to support research paper linking.
+    """
+    import sqlalchemy as sa
+
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_stories'
+    """)
+
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_stories'
+        AND column_name = 'paper_doi'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            table_exists = conn.execute(check_table_sql).fetchone() is not None
+            if not table_exists:
+                log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            column_exists = conn.execute(check_column_sql).fetchone() is not None
+            if column_exists:
+                log.debug("paper_doi column already exists in data_stories")
+                return
+
+            log.info("Adding paper_doi column to data_stories table...")
+            add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN paper_doi VARCHAR(255)')
+            conn.execute(add_column_sql)
+            try:
+                conn.commit()
+            except AttributeError:
+                pass
+            log.info("Successfully added paper_doi column to data_stories")
+    except Exception as e:
+        log.warning(f"Could not ensure paper_doi column on data_stories: {str(e)}")
+
+
+def _ensure_paper_citation_column(engine):
+    """
+    Ensure the paper_citation column exists in data_stories table.
+
+    Adds the column when missing to support research paper citation storage.
+    """
+    import sqlalchemy as sa
+
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_stories'
+    """)
+
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_stories'
+        AND column_name = 'paper_citation'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            table_exists = conn.execute(check_table_sql).fetchone() is not None
+            if not table_exists:
+                log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            column_exists = conn.execute(check_column_sql).fetchone() is not None
+            if column_exists:
+                log.debug("paper_citation column already exists in data_stories")
+                return
+
+            log.info("Adding paper_citation column to data_stories table...")
+            add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN paper_citation TEXT')
+            conn.execute(add_column_sql)
+            try:
+                conn.commit()
+            except AttributeError:
+                pass
+            log.info("Successfully added paper_citation column to data_stories")
+    except Exception as e:
+        log.warning(f"Could not ensure paper_citation column on data_stories: {str(e)}")
+
+
 def init_tables(engine):
     """
     Initialize database tables for data stories.
@@ -190,6 +280,8 @@ def init_tables(engine):
     # Using direct SQL for maximum compatibility across SQLAlchemy versions
     _ensure_blocks_metadata_column(engine)
     _ensure_countries_column(engine)
+    _ensure_paper_doi_column(engine)
+    _ensure_paper_citation_column(engine)
 
     log.info("Data Stories tables initialized")
 
