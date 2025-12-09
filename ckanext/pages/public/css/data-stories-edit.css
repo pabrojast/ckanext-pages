@@ -196,7 +196,7 @@
 /* Form styling */
 .data-stories-form fieldset {
   margin-bottom: 3rem;
-  padding: 0 0 2rem 0;
+  padding: 0 2.5rem 2rem 2.5rem;
   border: none;
   border-radius: 20px;
   background: #fff;
@@ -218,10 +218,10 @@
   color: var(--unesco-blue);
   font-weight: 700;
   padding: 1.5rem 2.5rem;
-  margin: 0;
+  margin: 0 -2.5rem 2rem -2.5rem;
   font-size: 1.4rem;
   border: none;
-  width: 100%;
+  width: calc(100% + 5rem);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -256,36 +256,27 @@
   border-radius: 2px;
 }
 
-/* Fieldset content wrapper - margins for all content after legend */
-.data-stories-form fieldset > *:not(legend) {
-  margin-left: 2.5rem;
-  margin-right: 2.5rem;
-}
-
-.data-stories-form fieldset > *:not(legend):first-of-type {
-  margin-top: 2rem;
-}
-
-/* Form groups inside fieldsets - reset margins since parent has it */
-.data-stories-form fieldset .form-group {
+/* Form groups inside fieldsets need no extra margin (padding from fieldset) */
+.data-stories-form fieldset > .form-group {
   margin-bottom: 1.5rem;
-  margin-left: 0;
-  margin-right: 0;
+}
+
+/* Last element in fieldset */
+.data-stories-form fieldset > *:last-child {
+  margin-bottom: 0;
 }
 
 /* Help block at top of fieldset */
-.data-stories-form fieldset > p.help-block:first-of-type {
+.data-stories-form fieldset > p.help-block {
   margin-bottom: 1.5rem;
-  padding: 1rem 0;
+  padding-bottom: 1rem;
   background: transparent;
   border-bottom: 1px solid #e9ecef;
   color: var(--text-secondary);
 }
 
 /* Alert info boxes inside fieldsets */
-.data-stories-form fieldset .alert {
-  margin-left: 0;
-  margin-right: 0;
+.data-stories-form fieldset > .alert {
   margin-bottom: 1.5rem;
   padding: 1.5rem;
   border-radius: 12px;
@@ -299,8 +290,6 @@
 
 /* Sections container */
 .data-stories-form #sections-container {
-  margin-left: 0;
-  margin-right: 0;
   margin-bottom: 1.5rem;
 }
 
@@ -316,8 +305,6 @@
 
 /* Table styling inside fieldsets */
 .data-stories-form fieldset .table-responsive {
-  margin-left: 0;
-  margin-right: 0;
   margin-bottom: 1rem;
 }
 
@@ -355,8 +342,6 @@
 
 /* Form inline (for datasets input) */
 .data-stories-form fieldset .form-inline {
-  margin-left: 0;
-  margin-right: 0;
   margin-bottom: 1.5rem;
 }
 

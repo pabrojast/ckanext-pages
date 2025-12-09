@@ -9,6 +9,7 @@ import logging
 
 from ckan import model
 import ckan.plugins.toolkit as tk
+from sqlalchemy import func
 
 from ckanext.pages.data_stories.db.models import DataStory
 from ckanext.pages.data_stories.db.utils import table_dictize
@@ -138,7 +139,7 @@ def data_story_stats(context, data_dict):
 
         # Get total views
         total_views = model.Session.query(
-            model.func.sum(DataStory.view_count)
+            func.sum(DataStory.view_count)
         ).scalar() or 0
 
         # Get most viewed stories

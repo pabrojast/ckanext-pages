@@ -8,7 +8,7 @@ import logging
 
 from ckan import model
 import ckan.plugins.toolkit as tk
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, func
 
 from ckanext.pages.data_stories.db.models import (
     DataStory,
@@ -365,13 +365,13 @@ def _build_facets(context):
     # Get status counts
     status_counts = model.Session.query(
         DataStory.status,
-        model.func.count(DataStory.id)
+        func.count(DataStory.id)
     ).group_by(DataStory.status).all()
 
     # Get organization counts
     org_counts = model.Session.query(
         DataStory.organization_id,
-        model.func.count(DataStory.id)
+        func.count(DataStory.id)
     ).filter(
         DataStory.organization_id.isnot(None)
     ).group_by(DataStory.organization_id).all()

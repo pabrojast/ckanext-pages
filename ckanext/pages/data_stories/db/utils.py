@@ -333,7 +333,7 @@ def table_dictize(obj, context: Dict[str, Any], **kwargs) -> Dict[str, Any]:
                     result_dict[name] = str(value)
 
                 # Debug logging for JSONB fields
-                if name in ('blocks_metadata', 'terria_config'):
+                if name in ('blocks_metadata', 'terria_config', 'countries'):
                     log.info(f"[TABLE_DICTIZE] {obj_class_name}.{name}: type={type(value)} value={value}")
             except Exception as e:
                 log.error(f"Error processing field {name}: {str(e)}")
@@ -365,15 +365,37 @@ def dictize_sections(sections, context: Dict[str, Any]) -> list:
 def dictize_datasets(datasets, context: Dict[str, Any]) -> list:
     """
     Convert a list of dataset link objects to dictionaries.
+    Enriches each link with CKAN dataset information.
 
     Args:
         datasets: List of DataStoryDataset objects
         context: CKAN context dict
 
     Returns:
-        List of dictionaries
+        List of dictionaries with dataset info included
     """
-    return [table_dictize(dataset, context) for dataset in datasets]
+    import ckan.plugins.toolkit as tk
+
+    result = []
+    for dataset_link in datasets:
+        link_dict = table_dictize(dataset_link, context)
+
+        # Try to fetch the CKAN dataset info
+        try:
+            dataset_id = link_dict.get('dataset_id')
+            if dataset_id:
+                dataset_info = tk.get_action('package_show')(
+                    {'ignore_auth': True},
+                    {'id': dataset_id}
+                )
+                link_dict['dataset'] = dataset_info
+        except Exception as e:
+            log.warning(f"Could not fetch dataset {link_dict.get('dataset_id')}: {str(e)}")
+            link_dict['dataset'] = {}
+
+        result.append(link_dict)
+
+    return result
 
 
 def dictize_contributors(contributors, context: Dict[str, Any]) -> list:
