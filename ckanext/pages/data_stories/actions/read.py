@@ -228,20 +228,31 @@ def data_story_list(context, data_dict):
                 # No access to review statuses without login
                 query = query.filter(DataStory.id == None)  # Return nothing
         else:
-            # Show only public stories OR user's own stories
+            # Show public stories (is_public=True OR status='published') OR user's own stories
             if user:
                 user_obj = model.User.get(user)
                 if user_obj:
                     query = query.filter(
                         or_(
                             DataStory.is_public == True,
+                            DataStory.status == 'published',
                             DataStory.author_id == user_obj.id
                         )
                     )
                 else:
-                    query = query.filter(DataStory.is_public == True)
+                    query = query.filter(
+                        or_(
+                            DataStory.is_public == True,
+                            DataStory.status == 'published'
+                        )
+                    )
             else:
-                query = query.filter(DataStory.is_public == True)
+                query = query.filter(
+                    or_(
+                        DataStory.is_public == True,
+                        DataStory.status == 'published'
+                    )
+                )
 
     # Get total count before pagination
     total_count = query.count()

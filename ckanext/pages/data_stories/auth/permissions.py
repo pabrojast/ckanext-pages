@@ -59,7 +59,8 @@ def data_story_show(context, data_dict):
     Check if user can view a data story.
 
     Rules:
-    - Public stories: Anyone can view
+    - Published stories: Anyone can view
+    - Public stories (is_public=True): Anyone can view
     - Private stories: Author, org members, or sysadmin
 
     Returns:
@@ -79,6 +80,10 @@ def data_story_show(context, data_dict):
 
     if not story:
         return {'success': False}
+
+    # Published stories are viewable by anyone
+    if story.status == 'published':
+        return {'success': True}
 
     # Public stories are viewable by anyone
     if story.is_public:
