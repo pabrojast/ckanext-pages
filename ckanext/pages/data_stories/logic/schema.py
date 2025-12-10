@@ -60,7 +60,7 @@ def data_story_schema():
         'abstract': [ignore_missing, unicode_safe],
         'research_question': [ignore_missing, unicode_safe],
         'study_area': [ignore_missing, unicode_safe],
-        'countries': [_default_to_empty_list, json_validator],
+        'countries': [_default_to_empty_list, _coerce_json_field],
         'paper_doi': [ignore_missing, unicode_safe],
         'paper_citation': [ignore_missing, unicode_safe],
         'author_id': [ignore_missing, user_id_exists],
