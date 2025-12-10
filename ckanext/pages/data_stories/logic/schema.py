@@ -88,6 +88,7 @@ def _default_to_empty_list(key, data, errors, context):
     """
     Custom validator for list fields that defaults to an empty list instead of None.
     This is useful for fields like 'countries' where an empty list is a valid value.
+    Also handles JSON strings by preserving them for the next validator to parse.
     """
     from ckan.lib.navl.dictization_functions import missing
     value = data.get(key)
@@ -95,6 +96,14 @@ def _default_to_empty_list(key, data, errors, context):
         data[key] = []
     elif isinstance(value, list):
         data[key] = value
+    elif isinstance(value, str):
+        # Keep string values for _coerce_json_field to parse
+        # Don't convert empty strings to []
+        if value.strip() == '' or value.strip() == '[]':
+            data[key] = []
+        else:
+            data[key] = value
+    # For other types (dict, etc.), leave as is
 
 
 def _coerce_json_field(key, data, errors, context):

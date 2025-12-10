@@ -110,14 +110,18 @@
       function loadExistingCountries() {
         const $hidden = $('#story-countries-data');
         const rawValue = $hidden.val();
+        console.log('[DataStories] loadExistingCountries: hidden field exists:', $hidden.length > 0);
+        console.log('[DataStories] loadExistingCountries: rawValue:', rawValue);
 
         if (!rawValue) {
+          console.log('[DataStories] loadExistingCountries: rawValue is empty/falsy');
           selectedCountries = [];
           return;
         }
 
         try {
           const parsed = JSON.parse(rawValue);
+          console.log('[DataStories] loadExistingCountries: parsed value:', parsed);
           if (Array.isArray(parsed)) {
             selectedCountries = parsed.map(function(entry) {
               if (typeof entry === 'string') {
@@ -130,8 +134,10 @@
             }).filter(function(entry) {
               return entry.name;
             });
+            console.log('[DataStories] loadExistingCountries: selectedCountries after parse:', selectedCountries);
           }
         } catch (e) {
+          console.log('[DataStories] loadExistingCountries: JSON parse error:', e.message);
           // Fallback: comma-separated string
           const countryNames = rawValue.split(',').map(function(c) { return c.trim(); }).filter(Boolean);
           selectedCountries = countryNames.map(function(name) {
@@ -148,6 +154,11 @@
         const $select = $('#story-country-select');
         const $addButton = $('#story-add-country');
         const $list = $('#story-selected-countries');
+
+        // Debug: Log the initial state of the hidden field
+        var $initialHidden = $('#story-countries-data');
+        console.log('[DataStories] initCountriesSelector - hidden field exists:', $initialHidden.length > 0);
+        console.log('[DataStories] initCountriesSelector - initial hidden value:', $initialHidden.val());
 
         if (!$select.length || !$list.length) {
           return;
@@ -1218,6 +1229,11 @@
       $('.data-stories-form, form.data-stories-form').on('submit', function(e) {
         console.log('Data story form submitting, updating section content...');
         updateCountriesHiddenField();
+        // Debug: Log the countries hidden field value at submit time
+        var countriesVal = $('#story-countries-data').val();
+        console.log('[DataStories] Form submit - countries hidden field value:', countriesVal);
+        console.log('[DataStories] Form submit - countries hidden field type:', typeof countriesVal);
+        console.log('[DataStories] Form submit - selectedCountries array:', selectedCountries);
         // Update all section content before submit
         $('.content-section-editor').each(function(index) {
           updateSectionContent(index);

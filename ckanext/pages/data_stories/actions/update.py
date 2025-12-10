@@ -81,7 +81,7 @@ def data_story_update(context, data_dict):
     # Validate schema
     schema = data_story_schema()
     data, errors = df.validate(data_dict, schema, context)
-    
+
     log.info(f"[DATA_STORY_UPDATE] After validation data keys: {list(data.keys())}")
     log.info(f"[DATA_STORY_UPDATE] After validation countries: {data.get('countries')!r}")
 
@@ -121,13 +121,19 @@ def data_story_update(context, data_dict):
         if isinstance(countries_value, str) and countries_value:
             try:
                 countries_value = json.loads(countries_value)
-                log.info(f"[DATA_STORY_UPDATE] countries parsed: {countries_value}")
+                log.info(f"[DATA_STORY_UPDATE] countries parsed from string: {countries_value}")
             except Exception as e:
                 log.warning(f"[DATA_STORY_UPDATE] Could not parse countries JSON: {e}")
         elif not countries_value:
             countries_value = []
+            log.info("[DATA_STORY_UPDATE] countries was falsy, defaulting to []")
+        # Force SQLAlchemy to detect the change by using flag_modified
+        from sqlalchemy.orm.attributes import flag_modified
         story.countries = countries_value
-        log.info(f"[DATA_STORY_UPDATE] countries final value: {story.countries}")
+        flag_modified(story, 'countries')
+        log.info(f"[DATA_STORY_UPDATE] countries assigned to story: {story.countries}")
+    else:
+        log.warning("[DATA_STORY_UPDATE] 'countries' not in data after validation!")
 
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')
