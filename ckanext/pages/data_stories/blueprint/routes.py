@@ -86,6 +86,19 @@ def index():
         total_count = 0
         facets = {}
 
+    # Get user's draft stories if logged in and viewing published stories
+    user_drafts = []
+    if g.userobj and (not status_filter or status_filter == 'published'):
+        try:
+            drafts_result = tk.get_action('data_story_list')(context, {
+                'status': 'draft',
+                'author_id': g.userobj.id,
+                'limit': 50,
+            })
+            user_drafts = drafts_result.get('stories', [])
+        except Exception as e:
+            log.warning(f"Error getting user drafts: {str(e)}")
+
     # Calculate pagination
     total_pages = (total_count + limit - 1) // limit
 
@@ -106,6 +119,7 @@ def index():
     extra_vars = {
         'stories': stories,
         'featured_stories': featured_stories,
+        'user_drafts': user_drafts,
         'total_count': total_count,
         'page': page,
         'total_pages': total_pages,

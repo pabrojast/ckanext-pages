@@ -129,6 +129,30 @@
           </div>
           {% endif %}
 
+          {# User's draft stories #}
+          {% if user_drafts %}
+          <div class="user-drafts" style="margin-bottom: 3rem;">
+            <section class="module module-narrow">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #FFF3E0 0%, #ffffff 100%); border-bottom: 3px solid #FFE0B2;">
+                <h2 style="margin: 0; color: #E65100; font-size: 1.5rem;">
+                  <i class="fa fa-pencil-square-o" style="margin-right: 0.5rem;"></i>
+                  {{ _('Your Drafts') }}
+                  <span class="badge" style="background: #E65100; color: white; margin-left: 0.5rem;">{{ user_drafts|length }}</span>
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="row">
+                  {% for story in user_drafts %}
+                  <div class="col-md-6">
+                    {% include "data_stories/components/story_card.html" %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+          </div>
+          {% endif %}
+
           {# Story list #}
           <div class="story-list">
             {% if page > 1 or featured_stories %}
@@ -140,11 +164,13 @@
             {% endif %}
 
             {% if total_count > 0 %}
+              {% set end_count = page * limit %}
+              {% if end_count > total_count %}{% set end_count = total_count %}{% endif %}
               <div class="results-info" style="padding: 1rem 0; margin-bottom: 1.5rem; color: #6c757d;">
                 <i class="fa fa-info-circle"></i>
                 {{ _('Showing {start} - {end} of {total} stories').format(
                   start=(page - 1) * limit + 1,
-                  end=min(page * limit, total_count),
+                  end=end_count,
                   total=total_count
                 ) }}
               </div>

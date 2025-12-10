@@ -113,7 +113,7 @@
                       {# Abstract #}
                       {% if story.abstract %}
                       <p style="margin-bottom: 1rem; color: #2c3e50; line-height: 1.6;">
-                        {{ story.abstract[:200] }}{% if story.abstract|length > 200 %}...{% endif %}
+                        {{ story.abstract | striptags | truncate(200) }}
                       </p>
                       {% endif %}
 
