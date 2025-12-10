@@ -202,10 +202,20 @@
                data-empty-text="{{ _('No countries selected yet. Select and add countries from the dropdown above.') }}">
           </div>
 
+          {% set countries_val = data.get('countries') if data else (story.countries if story else none) %}
+          {% if countries_val %}
+            {% if countries_val is string %}
+              {% set countries_json = countries_val %}
+            {% else %}
+              {% set countries_json = countries_val|tojson %}
+            {% endif %}
+          {% else %}
+            {% set countries_json = '[]' %}
+          {% endif %}
           <input type="hidden"
                  id="story-countries-data"
                  name="countries"
-                 value="{% set countries_val = data.get('countries') if data else (story.countries if story else none) %}{% if countries_val %}{% if countries_val is string %}{{ countries_val }}{% else %}{{ countries_val|tojson }}{% endif %}{% else %}[]{% endif %}"
+                 value="{{ countries_json|forceescape }}"
           >
         </div>
 
