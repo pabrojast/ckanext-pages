@@ -14,26 +14,14 @@ import ckan.plugins.toolkit as tk
 
 log = logging.getLogger(__name__)
 
-# Required sections for story submission
-REQUIRED_SECTIONS = [
-    'introduction',
-    'data_sources',
-    'methodology',
-    'spatial_analysis',
-    'conclusions',
-]
-
 
 def validate_story_completeness(story_dict: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Check if story has all required sections for submission.
+    Check if story is ready for submission.
 
-    Required sections:
-    - Introduction
-    - Data Sources
-    - Methodology
-    - At least one spatial analysis section
-    - Conclusions
+    Requirements:
+    - Story must have a title
+    - Story must have at least one section
 
     Args:
         story_dict: Story data dict (must include 'sections')
@@ -43,32 +31,15 @@ def validate_story_completeness(story_dict: Dict[str, Any]) -> Tuple[bool, List[
     """
     errors = []
 
-    # Check if sections exist
+    # Check title
+    if not story_dict.get('title', '').strip():
+        errors.append("Story must have a title")
+
+    # Check if at least one section exists
     sections = story_dict.get('sections', [])
     if not sections:
         errors.append("Story must have at least one section")
-        return (False, errors)
 
-    # Get section types
-    section_types = [s.get('section_type') for s in sections if s.get('section_type')]
-
-    # Check required sections
-    for required_type in REQUIRED_SECTIONS:
-        if required_type not in section_types:
-            section_name = required_type.replace('_', ' ').title()
-            errors.append(f"Missing required section: {section_name}")
-
-    # Check that at least one spatial analysis section has Terria config
-    spatial_sections = [s for s in sections if s.get('section_type') == 'spatial_analysis']
-    has_terria = any(
-        s.get('terria_config') or s.get('terria_share_link')
-        for s in spatial_sections
-    )
-
-    if spatial_sections and not has_terria:
-        errors.append("At least one Spatial Analysis section must include a Terria map")
-
-    # Minimum content length is not enforced; only the presence of required sections is checked.
     is_valid = len(errors) == 0
     return (is_valid, errors)
 
