@@ -83,6 +83,10 @@ def data_story_create(context, data_dict):
     if not user_obj:
         raise tk.NotAuthorized("User not found")
 
+    # Capture countries before validation (CKAN flattens nested lists)
+    countries_raw = data_dict.get('countries')
+    log.info(f"[DATA_STORY_CREATE] countries before validation: {countries_raw!r}")
+
     # Validate schema
     schema = data_story_schema()
     data, errors = df.validate(data_dict, schema, context)
@@ -112,8 +116,9 @@ def data_story_create(context, data_dict):
     story.paper_doi = data.get('paper_doi', '')
     story.paper_citation = data.get('paper_citation', '')
 
-    countries_value = data.get('countries')
-    log.info(f"[DATA_STORY_CREATE] countries raw value: {countries_value}, type: {type(countries_value)}")
+    # Use countries captured before validation (CKAN validation flattens nested lists)
+    countries_value = countries_raw
+    log.info(f"[DATA_STORY_CREATE] countries using pre-validation value: {countries_value}, type: {type(countries_value)}")
     if isinstance(countries_value, str) and countries_value:
         try:
             countries_value = json.loads(countries_value)

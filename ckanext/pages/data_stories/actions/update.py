@@ -66,6 +66,9 @@ def data_story_update(context, data_dict):
     log.info(f"[DATA_STORY_UPDATE] Input data_dict keys: {list(data_dict.keys())}")
     log.info(f"[DATA_STORY_UPDATE] Input countries: {data_dict.get('countries')!r}")
 
+    # Capture countries before validation (CKAN flattens nested lists)
+    countries_raw = data_dict.get('countries')
+
     # Check authorization
     tk.check_access('data_story_update', context, data_dict)
 
@@ -115,9 +118,10 @@ def data_story_update(context, data_dict):
     if 'paper_citation' in data:
         story.paper_citation = data['paper_citation']
 
-    if 'countries' in data:
-        countries_value = data.get('countries')
-        log.info(f"[DATA_STORY_UPDATE] countries raw value: {countries_value}, type: {type(countries_value)}")
+    # Use countries captured before validation (CKAN validation flattens nested lists)
+    if countries_raw is not None:
+        countries_value = countries_raw
+        log.info(f"[DATA_STORY_UPDATE] countries using pre-validation value: {countries_value}, type: {type(countries_value)}")
         if isinstance(countries_value, str) and countries_value:
             try:
                 countries_value = json.loads(countries_value)
@@ -133,7 +137,7 @@ def data_story_update(context, data_dict):
         flag_modified(story, 'countries')
         log.info(f"[DATA_STORY_UPDATE] countries assigned to story: {story.countries}")
     else:
-        log.warning("[DATA_STORY_UPDATE] 'countries' not in data after validation!")
+        log.info("[DATA_STORY_UPDATE] countries not provided in input, keeping existing value")
 
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')
