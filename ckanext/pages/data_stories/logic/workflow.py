@@ -142,8 +142,11 @@ def transition_state(story_id: str, to_state: str, context: Dict[str, Any]) -> D
     if not story:
         raise tk.ObjectNotFound(f"Story not found: {story_id}")
 
+    # Preserve old status for logging
+    old_status = story.status
+
     # Check if transition is allowed
-    allowed, reason = StoryWorkflow.can_transition(story.status, to_state)
+    allowed, reason = StoryWorkflow.can_transition(old_status, to_state)
     if not allowed:
         raise tk.ValidationError({'status': [reason]})
 
@@ -158,10 +161,20 @@ def transition_state(story_id: str, to_state: str, context: Dict[str, Any]) -> D
 
     elif to_state == 'under_review':
         story.review_date = datetime.datetime.utcnow()
-        # Set reviewer to current user
-        user = context.get('user')
-        if user:
-            story.reviewer_id = user
+        # Set reviewer to current user (store user.id, not username)
+        auth_user_obj = context.get('auth_user_obj')
+        reviewer_id = None
+        if auth_user_obj is not None and getattr(auth_user_obj, 'id', None):
+            reviewer_id = auth_user_obj.id
+        else:
+            user_name = context.get('user')
+            if user_name:
+                from ckan import model as _model
+                user_obj = _model.User.get(user_name)
+                if user_obj is not None:
+                    reviewer_id = user_obj.id
+        if reviewer_id:
+            story.reviewer_id = reviewer_id
 
     elif to_state == 'published':
         story.published_at = datetime.datetime.utcnow()
@@ -184,6 +197,6 @@ def transition_state(story_id: str, to_state: str, context: Dict[str, Any]) -> D
     model.Session.add(story)
     model.Session.commit()
 
-    log.info(f"Story {story_id} transitioned from '{story.status}' to '{to_state}'")
+    log.info(f"Story {story_id} transitioned from '{old_status}' to '{to_state}'")
 
     return table_dictize(story, context)

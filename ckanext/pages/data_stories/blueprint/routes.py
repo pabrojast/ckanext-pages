@@ -162,21 +162,10 @@ def pending_review():
     # Calculate offset
     offset = (page - 1) * limit
 
-    # Build data_dict for submitted stories
-    data_dict_submitted = {
-        'limit': limit,
-        'offset': offset,
+    # Build base data_dict for listing stories
+    base_data_dict = {
         'sort': 'recent',
     }
-
-    # Filter by status
-    if status_filter == 'submitted':
-        data_dict_submitted['status'] = 'submitted'
-    elif status_filter == 'under_review':
-        data_dict_submitted['status'] = 'under_review'
-    elif status_filter == 'all':
-        # We'll need to combine both statuses
-        pass
 
     # Get stories
     stories = []
@@ -184,27 +173,31 @@ def pending_review():
 
     try:
         if status_filter in ['submitted', 'under_review']:
-            result = tk.get_action('data_story_list')(context, data_dict_submitted)
+            data_dict = dict(base_data_dict)
+            data_dict['status'] = status_filter
+            data_dict['limit'] = limit
+            data_dict['offset'] = offset
+            result = tk.get_action('data_story_list')(context, data_dict)
             stories = result['stories']
             total_count = result['count']
         else:
-            # Get both submitted and under_review
+            # Get both submitted and under_review without pagination, then page in-memory
             result_submitted = tk.get_action('data_story_list')(context, {
-                **data_dict_submitted,
+                **base_data_dict,
                 'status': 'submitted'
             })
             result_review = tk.get_action('data_story_list')(context, {
-                **data_dict_submitted,
+                **base_data_dict,
                 'status': 'under_review'
             })
-            stories = result_submitted['stories'] + result_review['stories']
+            all_stories = result_submitted['stories'] + result_review['stories']
             total_count = result_submitted['count'] + result_review['count']
 
             # Sort by created_at descending
-            stories.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+            all_stories.sort(key=lambda x: x.get('created_at', ''), reverse=True)
 
             # Apply pagination manually
-            stories = stories[offset:offset + limit]
+            stories = all_stories[offset:offset + limit]
 
     except Exception as e:
         log.error(f"Error listing pending stories: {str(e)}")
