@@ -6,7 +6,7 @@ Handles fetching stories, sections, and related data.
 
 import logging
 
-from ckan import model
+from ckan import model, authz
 import ckan.plugins.toolkit as tk
 from sqlalchemy import or_, and_, func
 
@@ -178,12 +178,16 @@ def data_story_list(context, data_dict):
 
     # Check permissions - only show public stories unless user has permission
     user = context.get('user')
+    auth_user_obj = context.get('auth_user_obj')
     is_admin = False
 
-    try:
-        is_admin = tk.check_access('sysadmin', context, {})
-    except Exception:
-        pass
+    if auth_user_obj and getattr(auth_user_obj, 'sysadmin', False):
+        is_admin = True
+    elif user:
+        try:
+            is_admin = authz.is_sysadmin(user)
+        except Exception:
+            is_admin = False
 
     # If filtering by review statuses (submitted, under_review), skip is_public filter for admin/reviewers
     review_statuses = ['submitted', 'under_review']

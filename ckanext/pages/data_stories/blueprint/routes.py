@@ -136,13 +136,8 @@ def pending_review():
         flash(tk._('Please log in to view pending stories'), 'error')
         return redirect(url_for('user.login'))
 
-    # Check if user has review permissions
-    try:
-        # Try to check if user is a reviewer (will fail if not authorized)
-        tk.check_access('sysadmin', context, {})
-        is_reviewer = True
-    except tk.NotAuthorized:
-        is_reviewer = False
+    # Check if user has review permissions (sysadmins always can)
+    is_reviewer = bool(g.userobj and getattr(g.userobj, 'sysadmin', False))
 
     if not is_reviewer:
         # Check if user is org admin for any org
