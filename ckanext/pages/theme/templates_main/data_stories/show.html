@@ -40,9 +40,31 @@
 
                 {# Status Badges #}
                 <div class="story-badges" style="margin-bottom: 1rem;">
+                  {% if story.status == 'draft' %}
+                  <span class="badge-modern badge-draft" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white;">
+                    <i class="fa fa-pencil"></i> {{ _('Draft') }}
+                  </span>
+                  {% elif story.status == 'submitted' %}
+                  <span class="badge-modern badge-submitted" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #2c3e50;">
+                    <i class="fa fa-paper-plane"></i> {{ _('Submitted for Review') }}
+                  </span>
+                  {% elif story.status == 'under_review' %}
+                  <span class="badge-modern badge-under-review" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); color: white;">
+                    <i class="fa fa-search"></i> {{ _('Under Review') }}
+                  </span>
+                  {% elif story.status == 'published' %}
+                  <span class="badge-modern badge-published" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;">
+                    <i class="fa fa-check-circle"></i> {{ _('Published') }}
+                  </span>
+                  {% elif story.status == 'archived' %}
+                  <span class="badge-modern badge-archived" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                    <i class="fa fa-archive"></i> {{ _('Archived') }}
+                  </span>
+                  {% else %}
                   <span class="badge-modern badge-{{ story.status }}" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
                     <i class="fa fa-info-circle"></i> {{ story.status|title }}
                   </span>
+                  {% endif %}
                   {% if story.is_featured %}
                   <span class="badge-modern badge-featured" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #FFB800 0%, #FF8800 100%); color: white; margin-left: 0.5rem;">
                     <i class="fa fa-star"></i> {{ _('Featured') }}
