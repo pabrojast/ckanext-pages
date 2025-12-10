@@ -74,9 +74,10 @@ def validate_story_completeness(story_dict: Dict[str, Any]) -> Tuple[bool, List[
         section_type = section.get('section_type', 'unknown')
 
         if section_type in REQUIRED_SECTIONS:
-            if not content or len(content.strip()) < 50:
+            # Require some meaningful content but keep threshold low to avoid blocking submissions
+            if not content or len(content.strip()) < 10:
                 section_name = section_type.replace('_', ' ').title()
-                errors.append(f"{section_name} section must have at least 50 characters")
+                errors.append(f"{section_name} section must have at least 10 characters")
 
     is_valid = len(errors) == 0
     return (is_valid, errors)
