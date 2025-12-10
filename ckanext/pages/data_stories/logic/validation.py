@@ -68,17 +68,7 @@ def validate_story_completeness(story_dict: Dict[str, Any]) -> Tuple[bool, List[
     if spatial_sections and not has_terria:
         errors.append("At least one Spatial Analysis section must include a Terria map")
 
-    # Check minimum content length
-    for section in sections:
-        content = section.get('content', '')
-        section_type = section.get('section_type', 'unknown')
-
-        if section_type in REQUIRED_SECTIONS:
-            # Require some meaningful content but keep threshold low to avoid blocking submissions
-            if not content or len(content.strip()) < 10:
-                section_name = section_type.replace('_', ' ').title()
-                errors.append(f"{section_name} section must have at least 10 characters")
-
+    # Minimum content length is not enforced; only the presence of required sections is checked.
     is_valid = len(errors) == 0
     return (is_valid, errors)
 
