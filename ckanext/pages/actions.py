@@ -444,15 +444,21 @@ def pages_upload(context, data_dict):
             log.error("[PAGES_UPLOAD] Authorization failed")
             p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
 
-        # Use ResourceUpload directly to avoid plugin conflicts
-        # Some plugins implement IUploader incorrectly which causes get_uploader to fail
+        # Use the appropriate uploader for page images
+        # We bypass plugin system to avoid conflicts with plugins like SchemingDCATDatasetsPlugin
+        # that implement IUploader incorrectly
         use_fallback = False
+        log.info("[PAGES_UPLOAD] Using direct uploader instantiation to avoid plugin conflicts")
+        
         try:
-            upload = uploader.get_uploader('page_images')
-            log.info("[PAGES_UPLOAD] Successfully got uploader via get_uploader")
-        except (AttributeError, TypeError) as e:
-            # Fallback to direct ResourceUpload if get_uploader fails
-            log.warning(f"[PAGES_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, using fallback ResourceUpload")
+            # Import the base Upload class for page images
+            from ckan.lib.uploader import Upload
+            # Create uploader with object_type that matches our use case
+            upload = Upload(object_type='page_images')
+            log.info("[PAGES_UPLOAD] Successfully created Upload instance")
+        except Exception as e:
+            # Ultimate fallback to ResourceUpload if Upload fails
+            log.warning(f"[PAGES_UPLOAD] Upload creation failed with {type(e).__name__}: {str(e)}, using ResourceUpload fallback")
             from ckan.lib.uploader import ResourceUpload
             import uuid
             # Generate a unique ID as string for ResourceUpload
@@ -466,9 +472,9 @@ def pages_upload(context, data_dict):
 
         log.info("[PAGES_UPLOAD] Updating data_dict with file info")
 
-        # ResourceUpload doesn't have update_data_dict, so we handle it manually
+        # Handle file upload data
         if use_fallback:
-            # Manually handle file info for ResourceUpload
+            # ResourceUpload doesn't have update_data_dict, so we handle it manually
             upload_field_storage = data_dict.pop('upload', None)
             if upload_field_storage:
                 upload.filename = getattr(upload_field_storage, 'filename', None) or 'upload'
@@ -479,9 +485,8 @@ def pages_upload(context, data_dict):
                 # Force upload object type to be 'page_images' for directory structure
                 upload.object_type = 'page_images'
         else:
-            # Use the standard method for proper uploaders
-            upload.update_data_dict(data_dict, 'image_url',
-                                    'upload', 'clear_upload')
+            # Use the standard method for Upload class
+            upload.update_data_dict(data_dict, 'image_url', 'upload', 'clear_upload')
 
         max_image_size = uploader.get_max_image_size()
         log.info(f"[PAGES_UPLOAD] Attempting upload with max size: {max_image_size}MB")
@@ -1216,28 +1221,30 @@ def water_family_upload(context, data_dict):
             log.error(f"[WATER_FAMILY_UPLOAD] Validation failed: {validation_result['message']}")
             return {'uploaded': 0, 'error': {'message': validation_result['message']}}
 
-        # Use ResourceUpload directly to avoid plugin conflicts
+        # Use the appropriate uploader for page images
+        # Bypass plugin system to avoid conflicts
         use_fallback = False
+        log.info("[WATER_FAMILY_UPLOAD] Using direct uploader instantiation to avoid plugin conflicts")
+        
         try:
-            upload = uploader.get_uploader('page_images')
-            log.info("[WATER_FAMILY_UPLOAD] Successfully got uploader via get_uploader")
-        except (AttributeError, TypeError) as e:
-            log.warning(f"[WATER_FAMILY_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, fallback")
+            from ckan.lib.uploader import Upload
+            upload = Upload(object_type='page_images')
+            log.info("[WATER_FAMILY_UPLOAD] Successfully created Upload instance")
+        except Exception as e:
+            log.warning(f"[WATER_FAMILY_UPLOAD] Upload creation failed with {type(e).__name__}: {str(e)}, using ResourceUpload fallback")
             from ckan.lib.uploader import ResourceUpload
             import uuid
-            # Generate a unique ID as string for ResourceUpload
             unique_id = str(uuid.uuid4())
             upload = ResourceUpload({'id': unique_id})
-            # Explicitly set the id attribute to ensure it's a string
             upload.id = unique_id
             use_fallback = True
             log.info(f"[WATER_FAMILY_UPLOAD] Created ResourceUpload with id: {upload.id} (type: {type(upload.id)})")
 
         log.info("[WATER_FAMILY_UPLOAD] Updating data_dict with file info")
 
-        # ResourceUpload doesn't have update_data_dict, so we handle it manually
+        # Handle file upload data
         if use_fallback:
-            # Manually handle file info for ResourceUpload
+            # ResourceUpload doesn't have update_data_dict, so we handle it manually
             upload_field_storage = data_dict.pop('upload', None)
             if upload_field_storage:
                 upload.filename = getattr(upload_field_storage, 'filename', None) or 'upload'
@@ -1247,7 +1254,7 @@ def water_family_upload(context, data_dict):
                 # Force upload object type to be 'page_images' for directory structure
                 upload.object_type = 'page_images'
         else:
-            # Use the standard method for proper uploaders
+            # Use the standard method for Upload class
             upload.update_data_dict(data_dict, 'image_url', 'upload', 'clear_upload')
 
         # Get max size based on file type
