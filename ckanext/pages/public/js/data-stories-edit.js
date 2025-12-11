@@ -465,21 +465,29 @@
             $block.attr('data-block-id', newBlockId);
             
             // Update editor ID for text blocks
-            const $editor = $block.find('.ql-editor-container');
-            if ($editor.length) {
-              const oldEditorId = $editor.attr('id');
+            const $editorContainer = $block.find('.ql-editor-container');
+            if ($editorContainer.length) {
+              const oldEditorId = $editorContainer.attr('id');
               const newEditorId = 'section-' + index + '-block-' + newBlockId;
               
-              console.log(`[updateSectionOrder] Updating editor ID: ${oldEditorId} -> ${newEditorId}`);
+              console.log(`[updateSectionOrder] Updating editor: ${oldEditorId} -> ${newEditorId}`);
               
-              // Destroy old Quill instance if exists
+              // Get existing content before destroying
+              let existingContent = '';
               if (quillEditors[oldEditorId]) {
-                console.log(`[updateSectionOrder] Destroying old Quill instance: ${oldEditorId}`);
+                existingContent = quillEditors[oldEditorId].root.innerHTML;
+                console.log(`[updateSectionOrder] Saved content from ${oldEditorId}, length: ${existingContent.length}`);
                 delete quillEditors[oldEditorId];
               }
               
+              // Remove all Quill-generated elements
+              $editorContainer.find('.ql-toolbar').remove();
+              $editorContainer.find('.ql-container').remove();
+              $editorContainer.removeClass('ql-container ql-snow');
+              $editorContainer.empty();
+              
               // Update the ID
-              $editor.attr('id', newEditorId);
+              $editorContainer.attr('id', newEditorId);
               
               // Reinitialize Quill editor with new ID
               const editor = new Quill('#' + newEditorId, {
@@ -496,6 +504,12 @@
                   ]
                 }
               });
+              
+              // Restore content
+              if (existingContent) {
+                editor.root.innerHTML = existingContent;
+                console.log(`[updateSectionOrder] Restored content to ${newEditorId}`);
+              }
               
               // Store the new editor instance
               quillEditors[newEditorId] = editor;
