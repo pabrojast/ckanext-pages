@@ -120,9 +120,9 @@
                 </h2>
               </div>
               <div class="module-content" style="padding: 2rem 2.5rem;">
-                <div class="row">
+                <div class="row stories-grid">
                   {% for story in featured_stories %}
-                  <div class="col-md-12">
+                  <div class="col-md-6 col-lg-4">
                     {% include "data_stories/components/story_card.html" %}
                   </div>
                   {% endfor %}
@@ -178,9 +178,9 @@
                 ) }}
               </div>
 
-              <div class="row">
+              <div class="row stories-grid">
                 {% for story in stories %}
-                <div class="col-md-12">
+                <div class="col-md-6 col-lg-4">
                   {% include "data_stories/components/story_card.html" %}
                 </div>
                 {% endfor %}

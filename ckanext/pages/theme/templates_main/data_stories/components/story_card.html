@@ -11,169 +11,221 @@ Variables:
   {% set story_countries = h.json_loads(story_countries) or [] %}
 {% endif %}
 
-<div class="event-card-modern story-card-modern" style="margin-bottom: 1.5rem;">
+<div class="event-card-modern story-card-modern">
   <article class="module-modern">
+    <!-- Story Thumbnail/Image -->
+    <div class="event-image-container">
+      {% if story.thumbnail_url or story.header_image %}
+      <img src="{{ story.thumbnail_url or story.header_image }}"
+           alt="{{ story.title }}"
+           class="event-image">
+      {% else %}
+      <div class="placeholder-image">
+        <i class="fa fa-book fa-3x"></i>
+      </div>
+      {% endif %}
+
+      <!-- Featured Badge -->
+      {% if story.is_featured %}
+      <div class="story-featured-badge">
+        <i class="fa fa-star"></i> {{ _('Featured') }}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Story Content -->
     <div class="event-card-content">
-      <div class="row">
+      <!-- Status Badge -->
+      <div class="story-badges">
+        {% set status_badge = h.get_story_status_badge(story.status) %}
+        <span class="badge-modern {{ status_badge.class }}">
+          <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
+        </span>
 
-        <!-- Story Thumbnail/Image -->
-        <div class="col-md-4 col-sm-5">
-          <div class="event-image-container" style="height: 220px;">
-            {% if story.thumbnail_url or story.header_image %}
-            <img src="{{ story.thumbnail_url or story.header_image }}"
-                 alt="{{ story.title }}"
-                 class="event-image">
-            {% else %}
-            <div class="placeholder-image">
-              <i class="fa fa-book fa-3x"></i>
-            </div>
-            {% endif %}
+        {% if story.organization %}
+        <span class="badge-modern badge-organization">
+          <i class="fa fa-building"></i> {{ story.organization.title }}
+        </span>
+        {% endif %}
+      </div>
 
-            <!-- Featured Badge -->
-            {% if story.is_featured %}
-            <div class="story-featured-badge">
-              <i class="fa fa-star"></i> {{ _('Featured') }}
-            </div>
-            {% endif %}
-          </div>
+      {% if story_countries %}
+      <div class="story-country-badges">
+        {% for country in story_countries[:2] %}
+        <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+        {% endfor %}
+        {% if story_countries|length > 2 %}
+        <span class="story-country-chip more">+{{ story_countries|length - 2 }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Story Title -->
+      <h3 class="event-title">
+        <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">
+          {{ story.title }}
+        </a>
+      </h3>
+
+      <!-- Story Abstract -->
+      {% if story.abstract %}
+      <p class="event-excerpt">
+        {{ h.render_story_abstract(story.abstract, max_length=120) }}
+      </p>
+      {% endif %}
+
+      <!-- Metadata Row -->
+      <div class="story-meta-row">
+        {% if story.author %}
+        <div class="meta-item">
+          <img src="{{ h.gravatar_url(story.author.email, size=20) }}"
+               alt="{{ story.author.name }}"
+               class="meta-avatar" />
+          <span>{{ story.author.fullname or story.author.name }}</span>
+        </div>
+        {% endif %}
+
+        <div class="meta-item">
+          <i class="fa fa-calendar"></i>
+          {{ h.render_story_date(story.published_at or story.created_at) }}
         </div>
 
-        <!-- Story Content -->
-        <div class="col-md-8 col-sm-7">
-          <div class="event-details" style="padding-left: 1.5rem;">
-
-            <!-- Status Badge -->
-            <div class="story-badges" style="margin-bottom: 0.75rem;">
-              {% set status_badge = h.get_story_status_badge(story.status) %}
-              <span class="badge-modern {{ status_badge.class }}" style="padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">
-                <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
-              </span>
-
-              {% if story.organization %}
-              <span class="badge-modern badge-organization" style="padding: 0.35rem 0.75rem; border-radius: 12px; font-size: 0.85rem; background: #f8f9fa; color: #6c757d; margin-left: 0.5rem;">
-                <i class="fa fa-building"></i> {{ story.organization.title }}
-              </span>
-              {% endif %}
-            </div>
-
-            {% if story_countries %}
-            <div class="story-country-badges" style="margin-top: 0.25rem;">
-              {% for country in story_countries[:3] %}
-              <span class="story-country-chip">{{ country.display_name or country.name }}</span>
-              {% endfor %}
-              {% if story_countries|length > 3 %}
-              <span class="story-country-chip more">+{{ story_countries|length - 3 }}</span>
-              {% endif %}
-            </div>
-            {% endif %}
-
-            <!-- Story Title -->
-            <h3 class="event-title" style="margin: 0.5rem 0 1rem 0;">
-              <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
-                 style="color: #0072BC; text-decoration: none; font-size: 1.5rem; font-weight: 700; line-height: 1.3;">
-                {{ story.title }}
-              </a>
-            </h3>
-
-            <!-- Story Abstract -->
-            {% if story.abstract %}
-            <p class="event-excerpt" style="color: #6c757d; margin-bottom: 1.25rem; line-height: 1.7; font-size: 0.95rem;">
-              {{ h.render_story_abstract(story.abstract, max_length=180) }}
-            </p>
-            {% endif %}
-
-            <!-- Metadata Row -->
-            <div class="story-meta-row" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1rem; font-size: 0.9rem; color: #6c757d;">
-
-              {% if story.author %}
-              <div class="meta-item" style="display: flex; align-items: center; gap: 0.5rem;">
-                <img src="{{ h.gravatar_url(story.author.email, size=24) }}"
-                     alt="{{ story.author.name }}"
-                     style="width: 24px; height: 24px; border-radius: 50%;" />
-                <span>{{ story.author.fullname or story.author.name }}</span>
-              </div>
-              {% endif %}
-
-              <div class="meta-item">
-                <i class="fa fa-calendar" style="color: #0072BC;"></i>
-                {{ h.render_story_date(story.published_at or story.created_at) }}
-              </div>
-
-              <div class="meta-item">
-                <i class="fa fa-eye" style="color: #0072BC;"></i>
-                {{ story.view_count or 0 }} {{ _('views') }}
-              </div>
-
-              {% if story.section_count %}
-              <div class="meta-item">
-                <i class="fa fa-list" style="color: #0072BC;"></i>
-                {{ story.section_count }} {{ h.pluralize(story.section_count, _('section'), _('sections')) }}
-              </div>
-              {% endif %}
-
-              {% if story.research_question %}
-              <div class="meta-item">
-                <i class="fa fa-question-circle" style="color: #0072BC;"></i>
-                {{ _('Research-based') }}
-              </div>
-              {% endif %}
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="story-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
-                 class="btn btn-primary"
-                 style="padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
-                {{ _('Read Story') }} <i class="fa fa-arrow-right"></i>
-              </a>
-
-              {% if h.check_access('data_story_update', {'id': story.id}) %}
-              <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
-                 class="btn btn-default"
-                 style="padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border: 2px solid #e9ecef; color: #2c3e50; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
-                <i class="fa fa-edit"></i> {{ _('Edit') }}
-              </a>
-              {% endif %}
-
-              {% if h.check_access('data_story_delete', {'id': story.id}) %}
-              <form method="post" action="{{ h.url_for('data_stories.delete', slug=story.slug) }}" style="display: inline;" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
-                <button type="submit"
-                        class="btn btn-danger"
-                        style="padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 600; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; color: white; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                  <i class="fa fa-trash"></i> {{ _('Delete') }}
-                </button>
-              </form>
-              {% endif %}
-            </div>
-
-          </div>
+        <div class="meta-item">
+          <i class="fa fa-eye"></i>
+          {{ story.view_count or 0 }} {{ _('views') }}
         </div>
 
+        {% if story.section_count %}
+        <div class="meta-item">
+          <i class="fa fa-list"></i>
+          {{ story.section_count }} {{ h.pluralize(story.section_count, _('section'), _('sections')) }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Action Button -->
+      <div class="story-card-actions">
+        <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}" class="btn btn-primary btn-block">
+          {{ _('Read Story') }} <i class="fa fa-arrow-right"></i>
+        </a>
       </div>
     </div>
   </article>
 </div>
 
 <style>
-/* Story Card Specific Styles */
-.story-card-modern .module-modern {
-  transition: all 0.2s ease;
+/* Story Card Grid Styles */
+.story-card-modern {
   height: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.story-card-modern .module-modern {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all 0.2s ease;
 }
 
 .story-card-modern .module-modern:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 114, 188, 0.15);
 }
 
-.story-card-modern .compact-title a:hover {
+.story-card-modern .event-image-container {
+  height: 180px;
+  border-radius: 16px 16px 0 0;
+  position: relative;
+}
+
+.story-card-modern .event-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+}
+
+.story-card-modern .story-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.story-card-modern .story-badges .badge-modern {
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.story-card-modern .story-badges .badge-organization {
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+.story-card-modern .event-title {
+  margin: 0.5rem 0 0.75rem 0;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.story-card-modern .event-title a {
+  color: #0072BC;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.story-card-modern .event-title a:hover {
   text-decoration: underline;
 }
 
-.story-card-modern .btn-sm:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
-  transition: all 0.2s ease;
+.story-card-modern .event-excerpt {
+  color: #6c757d;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  font-size: 0.9rem;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.story-card-modern .story-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.story-card-modern .story-meta-row .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.story-card-modern .story-meta-row .meta-item i {
+  color: #0072BC;
+}
+
+.story-card-modern .story-meta-row .meta-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.story-card-modern .story-card-actions {
+  margin-top: auto;
+}
+
+.story-card-modern .story-card-actions .btn-block {
+  width: 100%;
+  justify-content: center;
 }
 
 .story-featured-badge {
@@ -184,69 +236,36 @@ Variables:
   color: white;
   padding: 0.35rem 0.75rem;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(255, 184, 0, 0.3);
 }
 
-.story-card-modern .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 114, 188, 0.2);
-  transition: all 0.3s ease;
+/* Stories grid container */
+.stories-grid {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.story-meta-row .meta-item {
-  white-space: nowrap;
+.stories-grid > [class*="col-"] {
+  display: flex;
+  margin-bottom: 1.5rem;
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
-  .story-card-modern .row {
-    margin: 0;
-  }
-
-  .story-card-modern .col-md-4,
-  .story-card-modern .col-md-8 {
-    padding-left: 0;
-    padding-right: 0;
-  }
-
+@media (max-width: 991px) {
   .story-card-modern .event-image-container {
-    height: 200px;
-    margin-bottom: 1rem;
+    height: 160px;
   }
+}
 
-  .story-card-modern .event-details {
-    padding-left: 0 !important;
-    padding-top: 0;
+@media (max-width: 768px) {
+  .story-card-modern .event-image-container {
+    height: 180px;
   }
 
   .story-card-modern .event-title {
-    font-size: 1.3rem !important;
-  }
-
-  .story-actions {
-    flex-direction: column;
-  }
-
-  .story-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .story-meta-row {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 0.5rem !important;
-  }
-
-  .featured-stories .module-content,
-  .user-drafts .module-content {
-    padding: 1rem;
-  }
-
-  .event-card-content {
-    padding: 1.25rem;
+    font-size: 1.1rem;
   }
 }
 </style>

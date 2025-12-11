@@ -459,7 +459,10 @@ def pages_upload(context, data_dict):
             # ResourceUpload needs an ID that can be sliced (id[0:3], id[3:6])
             unique_id = str(uuid.uuid4())
             upload = ResourceUpload({'id': unique_id})
+            # Explicitly set the id attribute to ensure it's a string
+            upload.id = unique_id
             use_fallback = True
+            log.info(f"[PAGES_UPLOAD] Created ResourceUpload with id: {upload.id} (type: {type(upload.id)})")
 
         log.info("[PAGES_UPLOAD] Updating data_dict with file info")
 
@@ -473,6 +476,8 @@ def pages_upload(context, data_dict):
                 upload.file_upload = getattr(upload_field_storage, 'file', None) or getattr(upload_field_storage, 'stream', None) or upload_field_storage
                 # Set tmp file for upload
                 upload.tmp = upload_field_storage
+                # Force upload object type to be 'page_images' for directory structure
+                upload.object_type = 'page_images'
         else:
             # Use the standard method for proper uploaders
             upload.update_data_dict(data_dict, 'image_url',
@@ -480,6 +485,10 @@ def pages_upload(context, data_dict):
 
         max_image_size = uploader.get_max_image_size()
         log.info(f"[PAGES_UPLOAD] Attempting upload with max size: {max_image_size}MB")
+        
+        # Debug: verify upload object state before calling upload()
+        if use_fallback:
+            log.info(f"[PAGES_UPLOAD] Upload object state: id={upload.id} (type: {type(upload.id)}), object_type={getattr(upload, 'object_type', 'NOT_SET')}")
 
         try:
             upload.upload(max_image_size)
@@ -1211,7 +1220,10 @@ def water_family_upload(context, data_dict):
             # Generate a unique ID as string for ResourceUpload
             unique_id = str(uuid.uuid4())
             upload = ResourceUpload({'id': unique_id})
+            # Explicitly set the id attribute to ensure it's a string
+            upload.id = unique_id
             use_fallback = True
+            log.info(f"[WATER_FAMILY_UPLOAD] Created ResourceUpload with id: {upload.id} (type: {type(upload.id)})")
 
         log.info("[WATER_FAMILY_UPLOAD] Updating data_dict with file info")
 
@@ -1224,6 +1236,8 @@ def water_family_upload(context, data_dict):
                 upload.file_upload = getattr(upload_field_storage, 'file', None) or getattr(upload_field_storage, 'stream', None) or upload_field_storage
                 # Set tmp file for upload
                 upload.tmp = upload_field_storage
+                # Force upload object type to be 'page_images' for directory structure
+                upload.object_type = 'page_images'
         else:
             # Use the standard method for proper uploaders
             upload.update_data_dict(data_dict, 'image_url', 'upload', 'clear_upload')
