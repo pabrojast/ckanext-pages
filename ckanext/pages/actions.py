@@ -454,7 +454,11 @@ def pages_upload(context, data_dict):
             # Fallback to direct ResourceUpload if get_uploader fails
             log.warning(f"[PAGES_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, using fallback ResourceUpload")
             from ckan.lib.uploader import ResourceUpload
-            upload = ResourceUpload({'id': 'page_images'})
+            import uuid
+            # Generate a unique ID as string for ResourceUpload
+            # ResourceUpload needs an ID that can be sliced (id[0:3], id[3:6])
+            unique_id = str(uuid.uuid4())
+            upload = ResourceUpload({'id': unique_id})
             use_fallback = True
 
         log.info("[PAGES_UPLOAD] Updating data_dict with file info")
@@ -1203,7 +1207,10 @@ def water_family_upload(context, data_dict):
         except (AttributeError, TypeError) as e:
             log.warning(f"[WATER_FAMILY_UPLOAD] get_uploader failed with {type(e).__name__}: {str(e)}, fallback")
             from ckan.lib.uploader import ResourceUpload
-            upload = ResourceUpload({'id': 'page_images'})
+            import uuid
+            # Generate a unique ID as string for ResourceUpload
+            unique_id = str(uuid.uuid4())
+            upload = ResourceUpload({'id': unique_id})
             use_fallback = True
 
         log.info("[WATER_FAMILY_UPLOAD] Updating data_dict with file info")

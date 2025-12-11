@@ -156,13 +156,24 @@ Variables:
 
 <style>
 /* Story Card Specific Styles */
-.story-card-modern .placeholder-image {
-  background: linear-gradient(135deg, #E3F2FD 0%, #f8f9fa 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.story-card-modern .module-modern {
+  transition: all 0.2s ease;
   height: 100%;
-  color: #0072BC;
+}
+
+.story-card-modern .module-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+}
+
+.story-card-modern .compact-title a:hover {
+  text-decoration: underline;
+}
+
+.story-card-modern .btn-sm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
+  transition: all 0.2s ease;
 }
 
 .story-featured-badge {
