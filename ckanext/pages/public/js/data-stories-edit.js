@@ -434,21 +434,89 @@
       
       // Update section order
       function updateSectionOrder() {
+        console.log('[DataStories] Updating section order after drag/drop');
+        
         $('.content-section-editor').each(function(index) {
+          const $section = $(this);
+          const oldSectionId = $section.attr('data-section-id') || index;
+          
           // Update order_index field
-          $(this).find('[name*="[order_index]"]').val(index);
-          $(this).find('.section-order').val(index);
+          $section.find('[name*="[order_index]"]').val(index);
+          $section.find('.section-order').val(index);
+          
+          // Update section ID
+          $section.attr('data-section-id', index);
+          $section.attr('id', 'section-' + index);
           
           // Update all name attributes to match new index
-          $(this).find('[name^="sections["]').each(function() {
+          $section.find('[name^="sections["]').each(function() {
             const name = $(this).attr('name');
             const newName = name.replace(/sections\[\d+\]/, 'sections[' + index + ']');
             $(this).attr('name', newName);
           });
           
+          // Update all IDs for blocks within this section
+          $section.find('.content-block').each(function(blockIndex) {
+            const $block = $(this);
+            const oldBlockId = $block.attr('data-block-id');
+            const newBlockId = blockIndex + 1;
+            
+            // Update block ID
+            $block.attr('data-block-id', newBlockId);
+            
+            // Update editor ID for text blocks
+            const $editor = $block.find('.ql-editor-container');
+            if ($editor.length) {
+              const oldEditorId = $editor.attr('id');
+              const newEditorId = 'section-' + index + '-block-' + newBlockId;
+              
+              console.log(`[updateSectionOrder] Updating editor ID: ${oldEditorId} -> ${newEditorId}`);
+              
+              // Destroy old Quill instance if exists
+              if (quillEditors[oldEditorId]) {
+                console.log(`[updateSectionOrder] Destroying old Quill instance: ${oldEditorId}`);
+                delete quillEditors[oldEditorId];
+              }
+              
+              // Update the ID
+              $editor.attr('id', newEditorId);
+              
+              // Reinitialize Quill editor with new ID
+              const editor = new Quill('#' + newEditorId, {
+                theme: 'snow',
+                placeholder: 'Write your content here...',
+                modules: {
+                  toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                  ]
+                }
+              });
+              
+              // Store the new editor instance
+              quillEditors[newEditorId] = editor;
+              
+              // Attach content update handler
+              editor.on('text-change', function() {
+                updateSectionContent(index);
+              });
+              
+              console.log(`[updateSectionOrder] Created new Quill instance: ${newEditorId}`);
+            }
+          });
+          
           // Update section number display if exists
-          $(this).find('.section-number').text(index + 1);
+          $section.find('.section-number').text(index + 1);
+          
+          // Update section content to reflect new structure
+          updateSectionContent(index);
         });
+        
+        console.log('[DataStories] Section order update complete');
       }
       
       // Add new section
