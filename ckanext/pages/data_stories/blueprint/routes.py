@@ -966,6 +966,10 @@ def _extract_story_form_data(form):
     countries_parsed = _parse_json_field(countries_raw, default_empty_list=True)
     log.info(f"[EXTRACT_FORM] countries parsed: {countries_parsed!r}")
     
+    uploaded_images_raw = form.get('uploaded_images')
+    uploaded_images_parsed = _parse_json_field(uploaded_images_raw, default_empty_list=True)
+    log.info(f"[EXTRACT_FORM] uploaded_images: {len(uploaded_images_parsed) if uploaded_images_parsed else 0} images")
+    
     return {
         'title': form.get('title', '').strip(),
         'slug': form.get('slug', '').strip(),
@@ -976,6 +980,7 @@ def _extract_story_form_data(form):
         'paper_citation': form.get('paper_citation', '').strip(),
         'organization_id': form.get('organization_id', '').strip() or None,
         'countries': countries_parsed,
+        'uploaded_images': uploaded_images_parsed,
         'datasets_data': _parse_json_field(form.get('datasets_data')),
     }
 
@@ -993,6 +998,7 @@ def _build_story_context(data):
         'paper_doi': data.get('paper_doi', ''),
         'paper_citation': data.get('paper_citation', ''),
         'countries': data.get('countries', []),
+        'uploaded_images': data.get('uploaded_images', []),
         'organization_id': data.get('organization_id'),
         'sections': data.get('sections', []),
         'datasets_data': data.get('datasets_data'),
