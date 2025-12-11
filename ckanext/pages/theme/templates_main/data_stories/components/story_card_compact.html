@@ -1,0 +1,134 @@
+{#
+Compact story card component - for draft stories in list view
+Smaller, more efficient layout for multiple cards per row
+
+Variables:
+- story: Story dict with all fields
+#}
+
+{% set story_countries = story.countries %}
+{% if story_countries is string %}
+  {% set story_countries = h.json_loads(story_countries) or [] %}
+{% endif %}
+
+<div class="story-card-compact" style="margin-bottom: 1.25rem;">
+  <article class="module-modern">
+    <div class="event-card-content" style="padding: 1.25rem;">
+      
+      <!-- Header with status and title -->
+      <div class="compact-header" style="margin-bottom: 0.75rem;">
+        
+        <!-- Status Badge -->
+        {% set status_badge = h.get_story_status_badge(story.status) %}
+        <span class="badge-modern {{ status_badge.class }}" style="padding: 0.3rem 0.65rem; border-radius: 10px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; display: inline-block;">
+          <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
+        </span>
+
+        <!-- Story Title -->
+        <h4 class="compact-title" style="margin: 0.25rem 0 0.5rem 0; font-size: 1.1rem; font-weight: 700; line-height: 1.3;">
+          <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
+             style="color: #0072BC; text-decoration: none;">
+            {{ story.title }}
+          </a>
+        </h4>
+
+      </div>
+
+      <!-- Compact Metadata -->
+      <div class="compact-meta" style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8rem; color: #6c757d;">
+        
+        <div class="meta-item" style="display: flex; align-items: center; gap: 0.35rem;">
+          <i class="fa fa-calendar" style="color: #0072BC;"></i>
+          <span>{{ h.render_story_date(story.updated_at or story.created_at) }}</span>
+        </div>
+
+        {% if story.organization %}
+        <div class="meta-item" style="display: flex; align-items: center; gap: 0.35rem;">
+          <i class="fa fa-building" style="color: #0072BC;"></i>
+          <span>{{ story.organization.title }}</span>
+        </div>
+        {% endif %}
+
+        {% if story.section_count %}
+        <div class="meta-item" style="display: flex; align-items: center; gap: 0.35rem;">
+          <i class="fa fa-list" style="color: #0072BC;"></i>
+          <span>{{ story.section_count }} {{ h.pluralize(story.section_count, _('section'), _('sections')) }}</span>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- Countries (if any) -->
+      {% if story_countries %}
+      <div class="compact-countries" style="margin-bottom: 0.75rem;">
+        {% for country in story_countries[:2] %}
+        <span class="story-country-chip" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; margin-right: 0.35rem; display: inline-block;">{{ country.display_name or country.name }}</span>
+        {% endfor %}
+        {% if story_countries|length > 2 %}
+        <span class="story-country-chip more" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; display: inline-block;">+{{ story_countries|length - 2 }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="compact-actions" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+        <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
+           class="btn btn-sm btn-primary"
+           style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; flex: 1; justify-content: center;">
+          <i class="fa fa-edit"></i> {{ _('Edit') }}
+        </a>
+
+        {% if h.check_access('data_story_delete', {'id': story.id}) %}
+        <form method="post" action="{{ h.url_for('data_stories.delete', slug=story.slug) }}" style="flex: 1;" onsubmit="return confirm('{{ _('Are you sure you want to delete this draft?') }}');">
+          <button type="submit"
+                  class="btn btn-sm btn-danger"
+                  style="width: 100%; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; color: white; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; justify-content: center;">
+            <i class="fa fa-trash"></i> {{ _('Delete') }}
+          </button>
+        </form>
+        {% endif %}
+      </div>
+
+    </div>
+  </article>
+</div>
+
+<style>
+/* Compact card specific styles */
+.story-card-compact .module-modern {
+  transition: all 0.2s ease;
+  min-height: auto;
+}
+
+.story-card-compact .module-modern:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+}
+
+.story-card-compact .compact-title a:hover {
+  text-decoration: underline;
+}
+
+.story-card-compact .btn-sm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
+  transition: all 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .story-card-compact .compact-meta {
+    flex-direction: column;
+    gap: 0.5rem !important;
+    align-items: flex-start !important;
+  }
+
+  .story-card-compact .compact-actions {
+    flex-direction: column;
+  }
+
+  .story-card-compact .compact-actions form {
+    flex: auto !important;
+  }
+}
+</style>

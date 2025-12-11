@@ -214,6 +214,33 @@
   border-left: 4px solid #E65100;
 }
 
+/* Compact cards for drafts */
+.story-card-compact .module-modern {
+  min-height: auto;
+}
+
+.story-card-compact .event-card-content {
+  padding: 1.25rem;
+}
+
+.story-card-compact .compact-title {
+  font-size: 1.1rem;
+  margin: 0.25rem 0 0.5rem 0;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.story-card-compact .compact-meta {
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.story-card-compact .btn-sm {
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 20px;
+}
+
 /* Featured stories - highlight */
 .featured-stories .module-modern {
   background: linear-gradient(135deg, #fffef7 0%, #ffffff 100%);
