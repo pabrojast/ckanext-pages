@@ -729,6 +729,34 @@
   font-size: 0.85rem;
 }
 
+/* Featured Image Styles */
+.data-stories-form .uploaded-image-item.is-featured {
+  border-color: #FFB800;
+  box-shadow: 0 0 0 2px rgba(255, 184, 0, 0.2);
+  position: relative;
+}
+
+.data-stories-form .featured-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #FFB800 0%, #FF8800 100%);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(255, 136, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.data-stories-form .featured-badge i {
+  font-size: 0.85rem;
+}
+
 /* Progress Indicator */
 .data-stories-form .upload-progress {
   padding: 1rem;

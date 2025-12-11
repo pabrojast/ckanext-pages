@@ -1388,13 +1388,18 @@
       // Add uploaded image preview
       function addUploadedImagePreview(imageData) {
         const imageId = 'uploaded-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        const isFeatured = imageData.featured || false;
         const imageHtml = `
-          <div class="uploaded-image-item" data-image-id="${imageId}">
+          <div class="uploaded-image-item ${isFeatured ? 'is-featured' : ''}" data-image-id="${imageId}">
+            ${isFeatured ? '<div class="featured-badge"><i class="fa fa-star"></i> Featured</div>' : ''}
             <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
             <div class="uploaded-image-info">
               <input type="text" class="image-alt form-control" value="${imageData.alt}" placeholder="Alt text">
-              <input type="text" class="image-caption form-control" value="${imageData.caption}" placeholder="Caption (optional)">
+              <input type="text" class="image-caption form-control" value="${imageData.caption || ''}" placeholder="Caption (optional)">
               <div class="uploaded-image-actions">
+                <button type="button" class="btn btn-sm ${isFeatured ? 'btn-warning' : 'btn-default'} image-set-featured" data-image-id="${imageId}">
+                  <i class="fa fa-star${isFeatured ? '' : '-o'}"></i> ${isFeatured ? 'Featured' : 'Set Featured'}
+                </button>
                 <button type="button" class="btn btn-sm btn-info image-copy-url" data-url="${imageData.url}">
                   <i class="fa fa-copy"></i> Copy URL
                 </button>
@@ -1432,6 +1437,29 @@
         updateUploadedImagesData();
       });
       
+      // Set image as featured
+      $(document).on('click', '.image-set-featured', function() {
+        const imageId = $(this).data('image-id');
+        const $item = $('[data-image-id="' + imageId + '"]');
+        const wasFeatured = $item.hasClass('is-featured');
+        
+        // Remove featured from all images
+        $('.uploaded-image-item').removeClass('is-featured');
+        $('.featured-badge').remove();
+        $('.image-set-featured').removeClass('btn-warning').addClass('btn-default')
+          .html('<i class="fa fa-star-o"></i> Set Featured');
+        
+        // Set this image as featured if it wasn't already
+        if (!wasFeatured) {
+          $item.addClass('is-featured');
+          $item.prepend('<div class="featured-badge"><i class="fa fa-star"></i> Featured</div>');
+          $(this).removeClass('btn-default').addClass('btn-warning')
+            .html('<i class="fa fa-star"></i> Featured');
+        }
+        
+        updateUploadedImagesData();
+      });
+      
       // Update uploaded images data
       function updateUploadedImagesData() {
         const currentImages = [];
@@ -1441,7 +1469,8 @@
             url: $item.find('img').attr('src'),
             fileName: $item.find('img').attr('src').split('/').pop(),
             alt: $item.find('.image-alt').val(),
-            caption: $item.find('.image-caption').val()
+            caption: $item.find('.image-caption').val(),
+            featured: $item.hasClass('is-featured')
           };
           currentImages.push(imageData);
         });
