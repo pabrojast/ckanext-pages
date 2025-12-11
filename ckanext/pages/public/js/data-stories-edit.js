@@ -1550,13 +1550,13 @@
         const doi = $('#paper_doi').val().trim();
         
         if (!doi) {
-          alert('{{ _("Please enter a DOI first") }}');
+          alert('Please enter a DOI first');
           return;
         }
         
         // Show loading state
         const originalText = $btn.html();
-        $btn.html('<i class="fa fa-spinner fa-spin"></i> {{ _("Fetching...") }}').prop('disabled', true);
+        $btn.html('<i class="fa fa-spinner fa-spin"></i> Fetching...').prop('disabled', true);
         
         // Call CrossRef API
         const crossrefUrl = `https://api.crossref.org/works/${doi}`;
@@ -1627,14 +1627,14 @@
           $citationField.val(citation);
           
           // Show success message
-          $citationField.after('<div class="alert alert-success" style="margin-top: 0.5rem;"><i class="fa fa-check"></i> {{ _("Citation fetched successfully!") }}</div>');
+          $citationField.after('<div class="alert alert-success" style="margin-top: 0.5rem;"><i class="fa fa-check"></i> Citation fetched successfully!</div>');
           setTimeout(function() {
             $citationField.next('.alert-success').fadeOut();
           }, 3000);
         })
         .catch(error => {
           console.error('Error fetching citation:', error);
-          alert('{{ _("Could not fetch citation. Please enter it manually.") }}');
+          alert('Could not fetch citation. Please enter it manually.');
         })
         .finally(() => {
           // Restore button
