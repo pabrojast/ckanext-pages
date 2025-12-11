@@ -130,6 +130,20 @@ def data_story_create(context, data_dict):
     story.countries = countries_value
     log.info(f"[DATA_STORY_CREATE] countries final value: {story.countries}")
 
+    # Handle uploaded_images (image gallery metadata)
+    uploaded_images_raw = data_dict.get('uploaded_images')
+    uploaded_images_value = uploaded_images_raw
+    if isinstance(uploaded_images_value, str) and uploaded_images_value:
+        try:
+            uploaded_images_value = json.loads(uploaded_images_value)
+        except Exception as e:
+            log.warning(f"[DATA_STORY_CREATE] Could not parse uploaded_images JSON: {e}")
+            uploaded_images_value = []
+    elif not uploaded_images_value:
+        uploaded_images_value = []
+    story.uploaded_images = uploaded_images_value
+    log.info(f"[DATA_STORY_CREATE] uploaded_images: {len(uploaded_images_value)} images")
+
     # Set author
     story.author_id = user_obj.id
 

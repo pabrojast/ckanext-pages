@@ -144,6 +144,23 @@ def data_story_update(context, data_dict):
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')
 
+    # Handle uploaded_images (image gallery metadata)
+    uploaded_images_raw = data_dict.get('uploaded_images')
+    if uploaded_images_raw is not None:
+        uploaded_images_value = uploaded_images_raw
+        if isinstance(uploaded_images_value, str) and uploaded_images_value:
+            try:
+                uploaded_images_value = json.loads(uploaded_images_value)
+            except Exception as e:
+                log.warning(f"[DATA_STORY_UPDATE] Could not parse uploaded_images JSON: {e}")
+                uploaded_images_value = []
+        elif not uploaded_images_value:
+            uploaded_images_value = []
+        from sqlalchemy.orm.attributes import flag_modified
+        story.uploaded_images = uploaded_images_value
+        flag_modified(story, 'uploaded_images')
+        log.info(f"[DATA_STORY_UPDATE] uploaded_images: {len(uploaded_images_value)} images")
+
     if 'is_featured' in data:
         story.is_featured = data['is_featured']
 

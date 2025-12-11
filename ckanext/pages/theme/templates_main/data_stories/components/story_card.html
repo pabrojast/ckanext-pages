@@ -125,6 +125,10 @@ Variables:
   flex-direction: column;
   height: 100%;
   transition: all 0.2s ease;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);
+  overflow: hidden;
 }
 
 .story-card-modern .module-modern:hover {
@@ -134,8 +138,12 @@ Variables:
 
 .story-card-modern .event-image-container {
   height: 180px;
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
   position: relative;
+  background: linear-gradient(135deg, #E3F2FD 0%, #f8f9fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .story-card-modern .event-card-content {
@@ -245,10 +253,12 @@ Variables:
 .stories-grid {
   display: flex;
   flex-wrap: wrap;
+  margin: 0 -15px;
 }
 
 .stories-grid > [class*="col-"] {
   display: flex;
+  padding: 0 15px;
   margin-bottom: 1.5rem;
 }
 

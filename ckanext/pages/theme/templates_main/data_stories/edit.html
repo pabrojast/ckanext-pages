@@ -22,8 +22,8 @@
     <div class="container">
       
       <!-- Breadcrumb Navigation -->
-      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
-        <ol class="breadcrumb">
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent; box-shadow: none; border: none; padding: 0.5rem 0; margin: 0;">
           <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
           <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
           {% if is_new_story %}
@@ -457,7 +457,7 @@
         </div>
 
         {# Hidden field to store uploaded images data #}
-        <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="" />
+        <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{% if story and story.uploaded_images %}{{ story.uploaded_images|tojson }}{% endif %}" />
       </div>
     </fieldset>
 

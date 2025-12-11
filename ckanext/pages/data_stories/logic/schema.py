@@ -61,6 +61,7 @@ def data_story_schema():
         'research_question': [ignore_missing, unicode_safe],
         'study_area': [ignore_missing, unicode_safe],
         'countries': [_default_to_empty_list, _coerce_json_field],
+        'uploaded_images': [ignore_missing, json_validator, unicode_safe],
         'paper_doi': [ignore_missing, unicode_safe],
         'paper_citation': [ignore_missing, unicode_safe],
         'author_id': [ignore_missing, user_id_exists],

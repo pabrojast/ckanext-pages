@@ -89,6 +89,8 @@ Variables:
 
     {# Hidden fields for content and Terria config (backward compatibility) #}
     <textarea name="sections[{{ idx }}][content]" style="display:none;" class="section-content-field">{{ section.content if section else '' }}</textarea>
+    <input type="hidden" name="sections[{{ idx }}][image_url]" value="{{ section.image_url if section else '' }}" class="section-image-url" />
+    <input type="hidden" name="sections[{{ idx }}][video_url]" value="{{ section.video_url if section else '' }}" class="section-video-url" />
     <input type="hidden" name="sections[{{ idx }}][terria_share_link]" value="{{ section.terria_share_link if section else '' }}" class="section-terria-link" />
     {# Use textarea for JSON fields to avoid HTML attribute escaping issues #}
     <textarea name="sections[{{ idx }}][terria_config]" style="display:none;" class="section-terria-config">{% if section and section.terria_config %}{% if section.terria_config is string %}{{ section.terria_config }}{% elif section.terria_config is mapping or section.terria_config is iterable %}{{ section.terria_config|tojson }}{% endif %}{% endif %}</textarea>

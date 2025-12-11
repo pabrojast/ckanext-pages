@@ -1356,6 +1356,16 @@
               uploadedImages.push(imageData);
               addUploadedImagePreview(imageData);
               updateUploadedImagesData();
+              
+              // Update the first section's image_url field with the uploaded image
+              const $firstSection = $('.content-section-editor').first();
+              if ($firstSection.length) {
+                const $imageUrlField = $firstSection.find('.section-image-url');
+                if ($imageUrlField.length && !$imageUrlField.val()) {
+                  $imageUrlField.val(response.url);
+                  console.log('[DataStories] Updated first section image_url:', response.url);
+                }
+              }
             } else {
               alert('Error uploading image: ' + (response.error ? response.error.message : 'Unknown error'));
             }

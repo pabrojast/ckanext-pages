@@ -62,6 +62,7 @@ class DataStory(DomainObject, BaseModel):
 
     # Metadata
     countries = Column(JSONB)
+    uploaded_images = Column(JSONB)  # Image gallery metadata
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     published_at = Column(DateTime, nullable=True)

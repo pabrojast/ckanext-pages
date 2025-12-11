@@ -34,6 +34,7 @@ def upgrade():
             sa.Column('paper_doi', sa.String(255), nullable=True),
             sa.Column('paper_citation', sa.Text, nullable=True),
             sa.Column('countries', JSONB),
+            sa.Column('uploaded_images', JSONB),
             sa.Column('created_at', sa.DateTime, default=sa.func.now()),
             sa.Column('updated_at', sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()),
             sa.Column('published_at', sa.DateTime, nullable=True),
@@ -192,6 +193,11 @@ def upgrade():
     if table_exists('data_stories') and not column_exists('data_stories', 'paper_citation'):
         op.add_column('data_stories', sa.Column('paper_citation', sa.Text, nullable=True))
         log.info("Added paper_citation column to data_stories table")
+
+    # Add uploaded_images column if not exists (migration for existing tables)
+    if table_exists('data_stories') and not column_exists('data_stories', 'uploaded_images'):
+        op.add_column('data_stories', sa.Column('uploaded_images', JSONB))
+        log.info("Added uploaded_images column to data_stories table")
 
     log.info("Data Stories migration completed successfully")
 
