@@ -130,6 +130,15 @@
   width: 100%;
 }
 
+/* Simple breadcrumb (no card style) */
+.breadcrumb-simple .breadcrumb {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.5rem 0 !important;
+}
+
 .breadcrumb {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   padding: 12px 20px;

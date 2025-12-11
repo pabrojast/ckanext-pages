@@ -12,14 +12,14 @@
     <div class="container">
 
       <!-- Breadcrumb Navigation -->
-      <div class="toolbar" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
-        <ol class="breadcrumb" style="background: transparent; box-shadow: none; border: none; padding: 0.5rem 0; margin: 0;">
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
           <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
           <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
           <li><a href="{{ h.url_for('data_stories.show', slug=story.slug) }}">{{ story.title }}</a></li>
           <li class="active">{{ _('Review') }}</li>
         </ol>
-      </div>
+      </nav>
 
       <div class="row">
         <!-- Main Content -->
