@@ -436,6 +436,19 @@
       function updateSectionOrder() {
         console.log('[DataStories] Updating section order after drag/drop');
         
+        // First pass: save all content with current IDs
+        const savedContent = {};
+        $('.content-section-editor').each(function() {
+          $(this).find('.ql-editor-container').each(function() {
+            const currentId = $(this).attr('id');
+            if (currentId && quillEditors[currentId]) {
+              savedContent[currentId] = quillEditors[currentId].root.innerHTML;
+              console.log(`[updateSectionOrder] Pre-saved content from ${currentId}, length: ${savedContent[currentId].length}`);
+            }
+          });
+        });
+        
+        // Second pass: update IDs and recreate editors
         $('.content-section-editor').each(function(index) {
           const $section = $(this);
           const oldSectionId = $section.attr('data-section-id') || index;
@@ -458,7 +471,6 @@
           // Update all IDs for blocks within this section
           $section.find('.content-block').each(function(blockIndex) {
             const $block = $(this);
-            const oldBlockId = $block.attr('data-block-id');
             const newBlockId = blockIndex + 1;
             
             // Update block ID
@@ -472,11 +484,11 @@
               
               console.log(`[updateSectionOrder] Updating editor: ${oldEditorId} -> ${newEditorId}`);
               
-              // Get existing content before destroying
-              let existingContent = '';
+              // Get saved content
+              const existingContent = savedContent[oldEditorId] || '';
+              
+              // Clean up old editor
               if (quillEditors[oldEditorId]) {
-                existingContent = quillEditors[oldEditorId].root.innerHTML;
-                console.log(`[updateSectionOrder] Saved content from ${oldEditorId}, length: ${existingContent.length}`);
                 delete quillEditors[oldEditorId];
               }
               
@@ -508,7 +520,7 @@
               // Restore content
               if (existingContent) {
                 editor.root.innerHTML = existingContent;
-                console.log(`[updateSectionOrder] Restored content to ${newEditorId}`);
+                console.log(`[updateSectionOrder] Restored content to ${newEditorId}, length: ${existingContent.length}`);
               }
               
               // Store the new editor instance
