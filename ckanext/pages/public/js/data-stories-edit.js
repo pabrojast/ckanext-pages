@@ -468,10 +468,11 @@
             $(this).attr('name', newName);
           });
           
-          // Update all IDs for blocks within this section
-          $section.find('.content-block').each(function(blockIndex) {
-            const $block = $(this);
+          // Update all IDs for blocks within this section using our mapping
+          sectionData.blocks.forEach(function(blockData, blockIndex) {
+            const $block = $section.find('.content-block').eq(blockIndex);
             const newBlockId = blockIndex + 1;
+            const newEditorId = 'section-' + index + '-block-' + newBlockId;
             
             // Update block ID
             $block.attr('data-block-id', newBlockId);
@@ -479,13 +480,9 @@
             // Update editor ID for text blocks
             const $editorContainer = $block.find('.ql-editor-container');
             if ($editorContainer.length) {
-              const oldEditorId = $editorContainer.attr('id');
-              const newEditorId = 'section-' + index + '-block-' + newBlockId;
+              const oldEditorId = blockData.oldId;
               
               console.log(`[updateSectionOrder] Updating editor: ${oldEditorId} -> ${newEditorId}`);
-              
-              // Get saved content
-              const existingContent = savedContent[oldEditorId] || '';
               
               // Clean up old editor
               if (quillEditors[oldEditorId]) {
@@ -517,10 +514,10 @@
                 }
               });
               
-              // Restore content
-              if (existingContent) {
-                editor.root.innerHTML = existingContent;
-                console.log(`[updateSectionOrder] Restored content to ${newEditorId}, length: ${existingContent.length}`);
+              // Restore content from our saved mapping
+              if (blockData.content) {
+                editor.root.innerHTML = blockData.content;
+                console.log(`[updateSectionOrder] Restored content to ${newEditorId}, length: ${blockData.content.length}`);
               }
               
               // Store the new editor instance
