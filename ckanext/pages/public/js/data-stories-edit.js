@@ -435,13 +435,19 @@
       // Update section order
       function updateSectionOrder() {
         $('.content-section-editor').each(function(index) {
+          // Update order_index field
+          $(this).find('[name*="[order_index]"]').val(index);
           $(this).find('.section-order').val(index);
-          // Update all name attributes
+          
+          // Update all name attributes to match new index
           $(this).find('[name^="sections["]').each(function() {
             const name = $(this).attr('name');
             const newName = name.replace(/sections\[\d+\]/, 'sections[' + index + ']');
             $(this).attr('name', newName);
           });
+          
+          // Update section number display if exists
+          $(this).find('.section-number').text(index + 1);
         });
       }
       
@@ -471,9 +477,13 @@
           }
         });
         
+        // Set order_index to current section count (append at end)
+        $newSection.find('[name*="[order_index]"]').val(sectionIndex);
+        
         $('#sections-container').append($newSection);
         initializeSectionBlocks($newSection, sectionIndex);
         sectionIndex++;
+        updateSectionOrder();
       }
       
       // Initialize section blocks
