@@ -48,8 +48,11 @@
                   </div>
                   <div class="col-md-4 text-right">
                     {% if h.check_access('sysadmin') %}
-                      <a href="{{ h.url_for('data_stories.pending_review') }}" class="btn btn-warning" style="margin-right: 0.5rem;">
+                      <a href="{{ h.url_for('data_stories.pending_review') }}" class="btn btn-warning" style="margin-right: 0.5rem; position: relative;">
                         <i class="fa fa-clipboard-check"></i> {{ _('Pending Review') }}
+                        {% if pending_count > 0 %}
+                        <span class="badge badge-notification" style="position: absolute; top: -8px; right: -8px; background: #dc3545; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ pending_count }}</span>
+                        {% endif %}
                       </a>
                     {% endif %}
                     {% if h.check_access('data_story_create') %}

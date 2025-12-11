@@ -71,11 +71,13 @@
 
           <!-- Stories List -->
           {% if total_count > 0 %}
+            {% set end_count = page * 20 %}
+            {% if end_count > total_count %}{% set end_count = total_count %}{% endif %}
             <div class="results-info" style="padding: 1rem 0; margin-bottom: 1.5rem; color: #6c757d;">
               <i class="fa fa-info-circle"></i>
               {{ _('Showing {start} - {end} of {total} stories').format(
                 start=(page - 1) * 20 + 1,
-                end=min(page * 20, total_count),
+                end=end_count,
                 total=total_count
               ) }}
             </div>

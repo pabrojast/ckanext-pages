@@ -120,6 +120,24 @@ def index():
         except Exception as e:
             log.error(f"Error getting featured stories: {str(e)}")
 
+    # Get pending review count for sysadmins
+    pending_count = 0
+    if g.userobj and getattr(g.userobj, 'sysadmin', False):
+        try:
+            # Count submitted stories
+            submitted_result = tk.get_action('data_story_list')(context, {
+                'status': 'submitted',
+                'limit': 0,
+            })
+            # Count under_review stories
+            review_result = tk.get_action('data_story_list')(context, {
+                'status': 'under_review',
+                'limit': 0,
+            })
+            pending_count = submitted_result.get('count', 0) + review_result.get('count', 0)
+        except Exception as e:
+            log.warning(f"Error getting pending count: {str(e)}")
+
     # Prepare template variables
     extra_vars = {
         'stories': stories,
@@ -134,6 +152,7 @@ def index():
         'org_filter': org_filter,
         'q': q,
         'facets': facets,
+        'pending_count': pending_count,
     }
 
     return render_template('data_stories/list.html', **extra_vars)

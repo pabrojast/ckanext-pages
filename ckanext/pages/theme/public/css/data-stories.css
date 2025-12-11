@@ -126,7 +126,8 @@
 /* Breadcrumb */
 .toolbar {
   margin-bottom: 2rem;
-  padding: 1rem 0;
+  padding: 0;
+  width: 100%;
 }
 
 .breadcrumb {
@@ -137,10 +138,17 @@
   border: 1px solid #e9ecef;
   box-shadow: var(--shadow-light);
   font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  width: 100%;
 }
 
 .breadcrumb > li {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .breadcrumb > li + li:before {
@@ -148,6 +156,7 @@
   padding: 0 12px;
   color: var(--text-secondary);
   font-weight: 600;
+  margin: 0;
 }
 
 .breadcrumb > li.active a {
@@ -159,10 +168,17 @@
   color: var(--text-secondary);
   text-decoration: none;
   transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .breadcrumb > li a:hover {
   color: var(--unesco-blue);
+}
+
+.breadcrumb > li a i {
+  margin-right: 0.25rem;
 }
 
 /* ========================================
@@ -520,6 +536,36 @@
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   color: #6c757d !important;
   border: 1px solid #dee2e6;
+}
+
+/* Notification badge for pending review */
+.badge-notification {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border-radius: 50%;
+  min-width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  padding: 0 6px;
+  line-height: 1;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(220, 53, 69, 0.7);
+  }
 }
 
 /* Legacy badge styles (keep for compatibility) */
@@ -927,6 +973,25 @@
 
   .story-actions .btn {
     width: 100%;
+  }
+
+  /* Breadcrumb responsive */
+  .breadcrumb {
+    font-size: 0.85rem;
+    padding: 10px 15px;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb > li + li:before {
+    padding: 0 8px;
+  }
+
+  .breadcrumb > li a span {
+    display: none;
+  }
+
+  .breadcrumb > li.home a span {
+    display: inline;
   }
 }
 
