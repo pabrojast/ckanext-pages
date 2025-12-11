@@ -499,6 +499,9 @@ def pages_upload(context, data_dict):
 
     # Procesar la imagen si es un logo
     image_url = data_dict.get('image_url')
+    # Ensure image_url is a string (could be int from form processing)
+    if image_url is not None and not isinstance(image_url, str):
+        image_url = str(image_url) if image_url else None
     is_logo = data_dict.get('is_logo', False)
     add_background = data_dict.get('add_background', False)
     
@@ -524,13 +527,18 @@ def pages_upload(context, data_dict):
             log.error(f"Error processing logo image: {str(e)}")
     
     # Generar URL final
-    if image_url and image_url[0:6] not in {'http:/', 'https:'}:
+    if image_url and isinstance(image_url, str) and image_url[0:6] not in {'http:/', 'https:'}:
         image_url = h.url_for_static(
             'uploads/page_images/%s' % image_url,
             qualified=True
         )
     
-    return {'url': image_url, 'fileName': upload.filename, 'uploaded': 1}
+    # Ensure filename is a string
+    filename = upload.filename if hasattr(upload, 'filename') else None
+    if filename is not None and not isinstance(filename, str):
+        filename = str(filename) if filename else None
+    
+    return {'url': image_url, 'fileName': filename, 'uploaded': 1}
 
 
 def _process_logo_image(image_path, upload_dir, add_background=False):

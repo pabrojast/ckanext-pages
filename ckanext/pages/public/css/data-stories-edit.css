@@ -1346,6 +1346,12 @@
   z-index: 1;
 }
 
+/* Ensure DOI addon has minimum width to display fully */
+.data-stories-form .input-group .input-group-addon {
+  min-width: fit-content;
+  overflow: visible;
+}
+
 /* Better spacing for help blocks in Research Publication */
 .data-stories-form fieldset > .form-group .help-block {
   margin-top: 0.75rem;
