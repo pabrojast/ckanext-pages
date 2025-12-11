@@ -17,8 +17,8 @@ Variables:
       <div class="row">
 
         <!-- Story Thumbnail/Image -->
-        <div class="col-md-3 col-sm-4">
-          <div class="event-image-container">
+        <div class="col-md-4 col-sm-5">
+          <div class="event-image-container" style="height: 220px;">
             {% if story.thumbnail_url or story.header_image %}
             <img src="{{ story.thumbnail_url or story.header_image }}"
                  alt="{{ story.title }}"
@@ -39,8 +39,8 @@ Variables:
         </div>
 
         <!-- Story Content -->
-        <div class="col-md-9 col-sm-8">
-          <div class="event-details">
+        <div class="col-md-8 col-sm-7">
+          <div class="event-details" style="padding-left: 1.5rem;">
 
             <!-- Status Badge -->
             <div class="story-badges" style="margin-bottom: 0.75rem;">
@@ -68,16 +68,16 @@ Variables:
             {% endif %}
 
             <!-- Story Title -->
-            <h3 class="event-title" style="margin: 0 0 1rem 0;">
+            <h3 class="event-title" style="margin: 0.5rem 0 1rem 0;">
               <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
-                 style="color: #0072BC; text-decoration: none; font-size: 1.4rem; font-weight: 700; line-height: 1.3;">
+                 style="color: #0072BC; text-decoration: none; font-size: 1.5rem; font-weight: 700; line-height: 1.3;">
                 {{ story.title }}
               </a>
             </h3>
 
             <!-- Story Abstract -->
             {% if story.abstract %}
-            <p class="event-excerpt" style="color: #6c757d; margin-bottom: 1rem; line-height: 1.6;">
+            <p class="event-excerpt" style="color: #6c757d; margin-bottom: 1.25rem; line-height: 1.7; font-size: 0.95rem;">
               {{ h.render_story_abstract(story.abstract, max_length=180) }}
             </p>
             {% endif %}
@@ -190,12 +190,28 @@ Variables:
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .story-card-modern .row {
+    margin: 0;
+  }
+
+  .story-card-modern .col-md-4,
+  .story-card-modern .col-md-8 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .story-card-modern .event-image-container {
+    height: 200px;
+    margin-bottom: 1rem;
+  }
+
   .story-card-modern .event-details {
-    padding-top: 1rem;
+    padding-left: 0 !important;
+    padding-top: 0;
   }
 
   .story-card-modern .event-title {
-    font-size: 1.2rem !important;
+    font-size: 1.3rem !important;
   }
 
   .story-actions {
@@ -211,6 +227,15 @@ Variables:
     flex-direction: column;
     align-items: flex-start !important;
     gap: 0.5rem !important;
+  }
+
+  .featured-stories .module-content,
+  .user-drafts .module-content {
+    padding: 1rem;
+  }
+
+  .event-card-content {
+    padding: 1.25rem;
   }
 }
 </style>

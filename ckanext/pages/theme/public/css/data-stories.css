@@ -165,9 +165,49 @@
   color: var(--unesco-blue);
 }
 
+/* ========================================
+   Featured & Draft Stories Sections
+   ======================================== */
+
+.featured-stories .module-heading,
+.user-drafts .module-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.featured-stories .module-content,
+.user-drafts .module-content {
+  padding: 1.5rem 2rem;
+}
+
+.featured-stories .story-card-modern,
+.user-drafts .story-card-modern {
+  margin-bottom: 1.25rem;
+}
+
+.featured-stories .story-card-modern:last-child,
+.user-drafts .story-card-modern:last-child {
+  margin-bottom: 0;
+}
+
+/* Draft stories - subtle different styling */
+.user-drafts .module-modern {
+  background: linear-gradient(135deg, #fffbf5 0%, #ffffff 100%);
+  border-left: 4px solid #E65100;
+}
+
+/* Featured stories - highlight */
+.featured-stories .module-modern {
+  background: linear-gradient(135deg, #fffef7 0%, #ffffff 100%);
+  border-left: 4px solid #FFB800;
+}
+
 /* Modern Card System (event-card-modern from rapid-response) */
 .event-card-modern {
   transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
 }
 
 .module-modern {
@@ -176,6 +216,7 @@
   border-radius: 16px;
   box-shadow: var(--shadow-light);
   transition: all 0.3s ease;
+  height: 100%;
 }
 
 .module-modern:hover {
@@ -184,12 +225,12 @@
 }
 
 .event-card-content {
-  padding: 1.5rem;
+  padding: 1.75rem;
 }
 
 .event-image-container {
   width: 100%;
-  height: 180px;
+  height: 220px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -208,12 +249,16 @@
 }
 
 .event-details {
-  padding-left: 1rem;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .event-title {
   margin: 0 0 1rem 0;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.3;
 }
@@ -230,18 +275,20 @@
 
 .event-excerpt {
   color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
 }
 
 /* Badges */
 .badge-modern {
   display: inline-block;
-  padding: 0.35rem 0.75rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
 }
 
 /* Buttons - Modern Style */
@@ -442,6 +489,40 @@
   font-weight: 500;
 }
 
+/* Modern badge styles for story cards */
+.badge-modern.label-default {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: #fff;
+}
+
+.badge-modern.label-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: #fff;
+}
+
+.badge-modern.label-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+  color: #212529;
+}
+
+.badge-modern.label-success {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: #fff;
+}
+
+.badge-modern.label-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: #fff;
+}
+
+/* Badge organization style */
+.badge-organization {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #6c757d !important;
+  border: 1px solid #dee2e6;
+}
+
+/* Legacy badge styles (keep for compatibility) */
 .label-default {
   background-color: #6c757d;
   color: #fff;

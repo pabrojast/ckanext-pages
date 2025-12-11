@@ -304,19 +304,26 @@ def format_file_size(size_bytes: int) -> str:
 
 def _strip_html_tags(text: str) -> str:
     """
-    Remove HTML tags from text.
+    Remove HTML tags from text and decode HTML entities.
 
     Args:
         text: Text that may contain HTML
 
     Returns:
-        str: Text with HTML tags removed
+        str: Text with HTML tags removed and entities decoded
     """
     if not text:
         return ''
 
     # Remove HTML tags
     clean_text = re.sub(r'<[^>]+>', '', text)
+
+    # Decode HTML entities (e.g., &nbsp; -> space, &lt; -> <)
+    try:
+        import html
+        clean_text = html.unescape(clean_text)
+    except Exception as e:
+        log.warning(f"Error decoding HTML entities: {str(e)}")
 
     # Remove extra whitespace
     clean_text = re.sub(r'\s+', ' ', clean_text)
