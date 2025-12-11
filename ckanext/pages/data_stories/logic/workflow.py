@@ -32,7 +32,7 @@ class StoryWorkflow:
             'description': 'Story is under review',
         },
         'published': {
-            'allowed_transitions': ['archived'],
+            'allowed_transitions': ['archived', 'submitted'],
             'required_permissions': ['data_story_update_any'],
             'description': 'Story is published and public',
         },

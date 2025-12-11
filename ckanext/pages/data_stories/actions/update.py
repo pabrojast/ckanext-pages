@@ -9,6 +9,7 @@ import logging
 import json
 
 from ckan import model
+from ckan import authz
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckan.lib.navl.dictization_functions as df
@@ -17,6 +18,7 @@ from ckanext.pages.data_stories.db.models import DataStory, DataStorySection
 from ckanext.pages.data_stories.db.utils import table_dictize
 from ckanext.pages.data_stories.logic.schema import data_story_schema, data_story_section_schema
 from ckanext.pages.data_stories.logic.validation import validate_slug
+from ckanext.pages.data_stories.logic.workflow import transition_state
 
 log = logging.getLogger(__name__)
 
@@ -145,6 +147,12 @@ def data_story_update(context, data_dict):
     if 'is_featured' in data:
         story.is_featured = data['is_featured']
 
+    # Check if this was a published story being edited by a non-admin
+    # If so, automatically resubmit for review
+    user = context.get('user')
+    is_admin = authz.is_sysadmin(user) if user else False
+    was_published = story.status == 'published'
+    
     # Update timestamp
     story.updated_at = datetime.datetime.utcnow()
 
@@ -155,6 +163,18 @@ def data_story_update(context, data_dict):
     session.commit()
 
     log.info(f"[DATA_STORY_UPDATE] Updated story: {story.id}")
+
+    # If a non-admin edited a published story, resubmit it for review
+    if was_published and not is_admin:
+        log.info(f"[DATA_STORY_UPDATE] Non-admin edited published story, resubmitting for review")
+        try:
+            # Transition back to submitted state
+            story_dict = transition_state(story.id, 'submitted', context)
+            log.info(f"[DATA_STORY_UPDATE] Story {story.id} resubmitted for review")
+            return story_dict
+        except Exception as e:
+            log.error(f"[DATA_STORY_UPDATE] Error resubmitting story: {str(e)}")
+            # Continue with normal flow if resubmission fails
 
     # Convert to dict
     story_dict = table_dictize(story, context)

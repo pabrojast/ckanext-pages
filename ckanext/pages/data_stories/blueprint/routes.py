@@ -554,6 +554,9 @@ def edit(slug):
         story_context = _build_story_context({**story, **data_dict, 'sections': sections_data})
 
         try:
+            # Store original status to check if it changed
+            original_status = story.get('status')
+            
             # Update story
             updated_story = tk.get_action('data_story_update')(context, data_dict)
             _sync_story_sections(
@@ -564,7 +567,12 @@ def edit(slug):
             )
             _sync_story_datasets(context, story['id'], datasets_data)
 
-            flash(tk._('Story updated successfully'), 'success')
+            # Check if story was resubmitted for review
+            new_status = updated_story.get('status')
+            if original_status == 'published' and new_status == 'submitted':
+                flash(tk._('Story updated and resubmitted for review. It will be reviewed before being published again.'), 'info')
+            else:
+                flash(tk._('Story updated successfully'), 'success')
 
             # Redirect to view page
             return redirect(url_for('data_stories.show', slug=updated_story['slug']))

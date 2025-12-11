@@ -35,6 +35,18 @@
         </ol>
       </div>
 
+      <!-- Warning for non-admin editing published story -->
+      {% if not is_new_story and story.status == 'published' and not h.check_access('sysadmin') %}
+      <div class="alert alert-info" style="margin-bottom: 2rem; padding: 1.25rem; border-radius: 12px; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid #0072BC; box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);">
+        <h4 style="margin-top: 0; color: #0072BC; font-weight: 600;">
+          <i class="fa fa-info-circle"></i> {{ _('Editing Published Story') }}
+        </h4>
+        <p style="margin-bottom: 0; color: #2c3e50;">
+          {{ _('You are editing a published story. When you save your changes, the story will be automatically resubmitted for review before being published again. This ensures quality control and content accuracy.') }}
+        </p>
+      </div>
+      {% endif %}
+
       <!-- Header Section -->
       <section class="module module-narrow module-shallow">
         <div class="section-title" style="margin-bottom: 2rem;">

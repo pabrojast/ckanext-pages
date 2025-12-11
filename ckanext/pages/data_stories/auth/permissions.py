@@ -127,10 +127,10 @@ def data_story_update(context, data_dict):
     Check if user can update a data story.
 
     Rules:
-    - Must be story author, OR
+    - Must be story author (can edit own stories at any status), OR
     - Must be organization admin, OR
     - Must be sysadmin
-    - Story must not be published (unless sysadmin)
+    - Note: Non-admin authors editing published stories will trigger re-review
 
     Returns:
         {'success': True/False}
@@ -153,10 +153,10 @@ def data_story_update(context, data_dict):
     if not story:
         return {'success': False}
 
-    # Author can update own stories (if not published)
+    # Author can update own stories (including published ones)
+    # When editing a published story, it should be re-submitted for review
     if is_story_author(user, story):
-        if story.status != 'published':
-            return {'success': True}
+        return {'success': True}
 
     # Organization editors can update org stories
     if story.organization_id:
