@@ -508,7 +508,7 @@ def pages_upload(context, data_dict):
     if image_url and is_logo:
         try:
             # Obtener la ruta del archivo subido
-            if image_url[0:6] not in {'http:/', 'https:'}:
+            if isinstance(image_url, str) and image_url[0:6] not in {'http:/', 'https:'}:
                 # Es un archivo local
                 upload_dir = upload.get_directory()
                 image_path = os.path.join(upload_dir, image_url)
