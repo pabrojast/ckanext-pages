@@ -133,23 +133,33 @@ Variables:
   transition: all 0.2s ease;
 }
 
-/* Draft items grid */
-.draft-item {
+/* Draft items grid - using CSS Grid for proper alignment */
+.drafts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.drafts-grid .draft-item {
   display: flex;
 }
 
 /* Responsive */
+@media (max-width: 1199px) {
+  .drafts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 991px) {
-  .draft-item {
-    flex: 0 0 50%;
-    max-width: 50%;
+  .drafts-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .draft-item {
-    flex: 0 0 100%;
-    max-width: 100%;
+  .drafts-grid {
+    grid-template-columns: 1fr;
   }
 
   .story-card-compact .compact-meta {

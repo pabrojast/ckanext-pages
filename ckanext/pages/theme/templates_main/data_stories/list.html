@@ -145,9 +145,9 @@
                 </h2>
               </div>
               <div class="module-content" style="padding: 2rem 2.5rem;">
-                <div class="row" id="drafts-container">
+                <div class="drafts-grid" id="drafts-container">
                   {% for story in user_drafts %}
-                  <div class="col-md-6 col-lg-3 draft-item" {% if loop.index > drafts_per_page %}style="display: none;"{% endif %}>
+                  <div class="draft-item" {% if loop.index > drafts_per_page %}style="display: none;"{% endif %}>
                     {% include "data_stories/components/story_card_compact.html" %}
                   </div>
                   {% endfor %}
