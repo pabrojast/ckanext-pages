@@ -95,9 +95,27 @@ Variables:
 
 <style>
 /* Compact card specific styles */
+.story-card-compact {
+  height: 100%;
+  margin-bottom: 1.25rem;
+}
+
 .story-card-compact .module-modern {
   transition: all 0.2s ease;
   min-height: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.story-card-compact .event-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.story-card-compact .compact-actions {
+  margin-top: auto;
 }
 
 .story-card-compact .module-modern:hover {
@@ -115,8 +133,25 @@ Variables:
   transition: all 0.2s ease;
 }
 
+/* Draft items grid */
+.draft-item {
+  display: flex;
+}
+
 /* Responsive */
+@media (max-width: 991px) {
+  .draft-item {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
 @media (max-width: 768px) {
+  .draft-item {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
   .story-card-compact .compact-meta {
     flex-direction: column;
     gap: 0.5rem !important;

@@ -489,6 +489,14 @@ def pages_upload(context, data_dict):
         # Debug: verify upload object state before calling upload()
         if use_fallback:
             log.info(f"[PAGES_UPLOAD] Upload object state: id={upload.id} (type: {type(upload.id)}), object_type={getattr(upload, 'object_type', 'NOT_SET')}")
+            # Override get_directory method to use our string ID
+            original_get_directory = upload.get_directory
+            def custom_get_directory(id=None):
+                # Always use the upload.id we set (which is a string)
+                # Ignore the id parameter which may be an int
+                return original_get_directory(upload.id)
+            upload.get_directory = custom_get_directory
+            log.info("[PAGES_UPLOAD] Overridden get_directory to use string ID")
 
         try:
             upload.upload(max_image_size)
@@ -1245,6 +1253,15 @@ def water_family_upload(context, data_dict):
         # Get max size based on file type
         max_size = validation_result['max_size_mb']
         log.info(f"[WATER_FAMILY_UPLOAD] Attempting upload with max size: {max_size}MB")
+
+        # Override get_directory for fallback to use string ID
+        if use_fallback:
+            log.info(f"[WATER_FAMILY_UPLOAD] Upload object state: id={upload.id} (type: {type(upload.id)})")
+            original_get_directory = upload.get_directory
+            def custom_get_directory(id=None):
+                return original_get_directory(upload.id)
+            upload.get_directory = custom_get_directory
+            log.info("[WATER_FAMILY_UPLOAD] Overridden get_directory to use string ID")
 
         try:
             upload.upload(max_size)

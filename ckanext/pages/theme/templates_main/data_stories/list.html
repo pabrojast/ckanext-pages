@@ -134,6 +134,7 @@
 
           {# User's draft stories #}
           {% if user_drafts %}
+          {% set drafts_per_page = 4 %}
           <div class="user-drafts" style="margin-bottom: 3rem;">
             <section class="module module-narrow">
               <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #FFF3E0 0%, #ffffff 100%); border-bottom: 3px solid #FFE0B2;">
@@ -144,13 +145,57 @@
                 </h2>
               </div>
               <div class="module-content" style="padding: 2rem 2.5rem;">
-                <div class="row">
+                <div class="row" id="drafts-container">
                   {% for story in user_drafts %}
-                  <div class="col-md-6">
+                  <div class="col-md-6 col-lg-3 draft-item" {% if loop.index > drafts_per_page %}style="display: none;"{% endif %}>
                     {% include "data_stories/components/story_card_compact.html" %}
                   </div>
                   {% endfor %}
                 </div>
+                {% if user_drafts|length > drafts_per_page %}
+                <div class="drafts-pagination" style="text-align: center; margin-top: 1.5rem;">
+                  <span class="drafts-info" style="color: #6c757d; font-size: 0.9rem;">
+                    {{ _('Showing') }} <span id="drafts-showing">{{ drafts_per_page }}</span> {{ _('of') }} {{ user_drafts|length }} {{ _('drafts') }}
+                  </span>
+                  <button type="button" id="show-more-drafts" class="btn btn-default" style="margin-left: 1rem;">
+                    <i class="fa fa-chevron-down"></i> {{ _('Show More') }}
+                  </button>
+                  <button type="button" id="show-less-drafts" class="btn btn-default" style="margin-left: 0.5rem; display: none;">
+                    <i class="fa fa-chevron-up"></i> {{ _('Show Less') }}
+                  </button>
+                </div>
+                <script>
+                (function() {
+                  var draftsPerPage = {{ drafts_per_page }};
+                  var totalDrafts = {{ user_drafts|length }};
+                  var currentShowing = draftsPerPage;
+                  var items = document.querySelectorAll('.draft-item');
+                  var showMoreBtn = document.getElementById('show-more-drafts');
+                  var showLessBtn = document.getElementById('show-less-drafts');
+                  var showingSpan = document.getElementById('drafts-showing');
+
+                  function updateVisibility() {
+                    items.forEach(function(item, index) {
+                      item.style.display = index < currentShowing ? '' : 'none';
+                    });
+                    showingSpan.textContent = Math.min(currentShowing, totalDrafts);
+                    showMoreBtn.style.display = currentShowing >= totalDrafts ? 'none' : '';
+                    showLessBtn.style.display = currentShowing <= draftsPerPage ? 'none' : '';
+                  }
+
+                  showMoreBtn.addEventListener('click', function() {
+                    currentShowing = Math.min(currentShowing + draftsPerPage, totalDrafts);
+                    updateVisibility();
+                  });
+
+                  showLessBtn.addEventListener('click', function() {
+                    currentShowing = draftsPerPage;
+                    updateVisibility();
+                    document.querySelector('.user-drafts').scrollIntoView({ behavior: 'smooth' });
+                  });
+                })();
+                </script>
+                {% endif %}
               </div>
             </section>
           </div>
