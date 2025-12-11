@@ -139,6 +139,40 @@
               </div>
             </section>
 
+            {# Image Gallery - Display uploaded images if any #}
+            {% if story.uploaded_images and story.uploaded_images|length > 0 %}
+            <section class="module module-narrow story-section" id="image-gallery" style="margin-top: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
+                  <i class="fa fa-image"></i> {{ _('Image Gallery') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="image-gallery-display" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                  {% for img in story.uploaded_images %}
+                  <div class="gallery-image-item" style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                    <a href="{{ img.url }}" target="_blank" style="display: block;">
+                      <img src="{{ img.url }}" 
+                           alt="{{ img.alt or 'Gallery image' }}" 
+                           style="width: 100%; height: 200px; object-fit: cover; display: block;" />
+                    </a>
+                    {% if img.alt or img.caption %}
+                    <div style="padding: 1rem;">
+                      {% if img.alt %}
+                      <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #2c3e50;">{{ img.alt }}</p>
+                      {% endif %}
+                      {% if img.caption %}
+                      <p style="margin: 0; font-size: 0.9rem; color: #6c757d;">{{ img.caption }}</p>
+                      {% endif %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+            {% endif %}
+
             {# Story Sections - Dynamic Content #}
             {% if story.sections %}
             <div class="story-sections" style="margin-top: 2rem;">
@@ -320,6 +354,9 @@
                 </li>
                 {% endif %}
                 {% endfor %}
+                {% if story.uploaded_images and story.uploaded_images|length > 0 %}
+                <li><a href="#image-gallery" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;"><i class="fa fa-image"></i> {{ _('Image Gallery') }}</a></li>
+                {% endif %}
                 {% if story.paper_doi or story.paper_citation %}
                 <li><a href="#research-publication" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Research Publication') }}</a></li>
                 {% endif %}

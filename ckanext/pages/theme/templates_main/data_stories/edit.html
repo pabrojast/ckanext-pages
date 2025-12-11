@@ -457,7 +457,7 @@
         </div>
 
         {# Hidden field to store uploaded images data #}
-        <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{% if story and story.uploaded_images %}{{ story.uploaded_images|tojson }}{% endif %}" />
+        <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{% if story and story.uploaded_images %}{{ story.uploaded_images|tojson|safe }}{% endif %}' />
       </div>
     </fieldset>
 

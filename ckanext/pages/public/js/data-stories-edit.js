@@ -1250,15 +1250,23 @@
       // Load existing uploaded images
       function loadUploadedImages() {
         const uploadedData = $('#uploaded-images-data').val();
+        console.log('[Image Gallery] Raw uploaded_images value:', uploadedData);
+        console.log('[Image Gallery] Value type:', typeof uploadedData);
+        console.log('[Image Gallery] Value length:', uploadedData ? uploadedData.length : 0);
+        
         if (uploadedData) {
           try {
             uploadedImages = JSON.parse(uploadedData);
+            console.log('[Image Gallery] Parsed successfully:', uploadedImages);
             uploadedImages.forEach(img => {
               addUploadedImagePreview(img);
             });
           } catch (e) {
-            console.error('Error parsing uploaded images data:', e);
+            console.error('[Image Gallery] Error parsing uploaded images data:', e);
+            console.error('[Image Gallery] Failed data:', uploadedData.substring(0, 100));
           }
+        } else {
+          console.log('[Image Gallery] No uploaded images data found');
         }
       }
       
