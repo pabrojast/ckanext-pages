@@ -245,6 +245,51 @@ def _ensure_paper_citation_column(engine):
         log.warning(f"Could not ensure paper_citation column on data_stories: {str(e)}")
 
 
+def _ensure_uploaded_images_column(engine):
+    """
+    Ensure the uploaded_images column exists in data_stories table.
+
+    Adds the column when missing to support image gallery metadata storage.
+    """
+    import sqlalchemy as sa
+
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_stories'
+    """)
+
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_stories'
+        AND column_name = 'uploaded_images'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            table_exists = conn.execute(check_table_sql).fetchone() is not None
+            if not table_exists:
+                log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            column_exists = conn.execute(check_column_sql).fetchone() is not None
+            if column_exists:
+                log.debug("uploaded_images column already exists in data_stories")
+                return
+
+            log.info("Adding uploaded_images column to data_stories table...")
+            add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN uploaded_images JSONB')
+            conn.execute(add_column_sql)
+            try:
+                conn.commit()
+            except AttributeError:
+                pass
+            log.info("Successfully added uploaded_images column to data_stories")
+    except Exception as e:
+        log.warning(f"Could not ensure uploaded_images column on data_stories: {str(e)}")
+
+
 def init_tables(engine):
     """
     Initialize database tables for data stories.
@@ -282,6 +327,7 @@ def init_tables(engine):
     _ensure_countries_column(engine)
     _ensure_paper_doi_column(engine)
     _ensure_paper_citation_column(engine)
+    _ensure_uploaded_images_column(engine)
 
     log.info("Data Stories tables initialized")
 
