@@ -72,9 +72,14 @@ def index():
     if org_filter:
         data_dict['organization_id'] = org_filter
 
-    # Get stories
+    # Get stories - use ignore_auth for public listing of published stories
+    # This allows anonymous users to see the list page
+    list_context = dict(context)
+    if not status_filter or status_filter == 'published':
+        list_context['ignore_auth'] = True
+
     try:
-        result = tk.get_action('data_story_list')(context, data_dict)
+        result = tk.get_action('data_story_list')(list_context, data_dict)
         stories = result['stories']
         total_count = result['count']
         facets = result.get('facets', {})
@@ -432,13 +437,26 @@ def show(slug):
     context = _get_context()
 
     try:
-        # Get story
-        story = tk.get_action('data_story_show')(context, {
+        # Get story - use ignore_auth to fetch, then check access manually
+        # This allows published stories to be viewed by anonymous users
+        show_context = dict(context)
+        show_context['ignore_auth'] = True
+        
+        story = tk.get_action('data_story_show')(show_context, {
             'slug': slug,
             'include_sections': True,
             'include_datasets': True,
             'include_contributors': True,
         })
+
+        # Check if user can view this story
+        # Published stories are viewable by anyone
+        if story.get('status') != 'published' and not story.get('is_public'):
+            # For non-published stories, check authorization
+            try:
+                tk.check_access('data_story_show', context, {'id': story['id']})
+            except tk.NotAuthorized:
+                tk.abort(403, tk._('Not authorized to view this story'))
 
         # Record view (ignore auth for this)
         try:
