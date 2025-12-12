@@ -566,6 +566,7 @@ def edit(slug):
                 existing_sections=story.get('sections', [])
             )
             _sync_story_datasets(context, story['id'], datasets_data)
+            log.info("[DATA_STORIES_ROUTE] Sync completed, preparing redirect")
 
             # Check if story was resubmitted for review
             new_status = updated_story.get('status')
@@ -573,9 +574,12 @@ def edit(slug):
                 flash(tk._('Story updated and resubmitted for review. It will be reviewed before being published again.'), 'info')
             else:
                 flash(tk._('Story updated successfully'), 'success')
+            log.info("[DATA_STORIES_ROUTE] Flash message set")
 
             # Redirect to view page
-            return redirect(url_for('data_stories.show', slug=updated_story['slug']))
+            redirect_url = url_for('data_stories.show', slug=updated_story['slug'])
+            log.info(f"[DATA_STORIES_ROUTE] Redirecting to: {redirect_url}")
+            return redirect(redirect_url)
 
         except tk.ValidationError as e:
             errors = e.error_dict
@@ -1146,8 +1150,10 @@ def _sync_story_datasets(context, story_id, datasets_data):
     seen = set()
     desired_ids = [d for d in desired_ids if not (d in seen or seen.add(d))]
 
-    existing_links = tk.get_action('data_story_datasets')(context, {'story_id': story_id}) or []
-    existing_ids = {link.get('dataset_id') for link in existing_links if link.get('dataset_id')}
+    # Query existing links directly from DB to avoid expensive package_show calls
+    from ckanext.pages.data_stories.db.models import DataStoryDataset
+    existing_db_links = DataStoryDataset.all(story_id=story_id)
+    existing_ids = {link.dataset_id for link in existing_db_links if link.dataset_id}
 
     # Link new datasets
     for ds_id in desired_ids:

@@ -502,9 +502,13 @@
           // Restore editors and counters with new index
           if (oldSectionId !== undefined && savedEditors[oldSectionId]) {
             sectionQuillEditors[newIndex] = savedEditors[oldSectionId];
+          } else if (!sectionQuillEditors[newIndex]) {
+            sectionQuillEditors[newIndex] = {};
           }
           if (oldSectionId !== undefined && savedCounters[oldSectionId] !== undefined) {
             sectionBlockCounters[newIndex] = savedCounters[oldSectionId];
+          } else if (sectionBlockCounters[newIndex] === undefined) {
+            sectionBlockCounters[newIndex] = 0;
           }
           
           // Update section content to reflect new structure
@@ -542,6 +546,10 @@
         
         // Set order_index to current section count (append at end)
         $newSection.find('[name*="[order_index]"]').val(sectionIndex);
+        
+        // Set data-section-id before appending and initializing
+        $newSection.attr('data-section-id', sectionIndex);
+        $newSection.attr('id', 'section-' + sectionIndex);
         
         $('#sections-container').append($newSection);
         initializeSectionBlocks($newSection, sectionIndex);
