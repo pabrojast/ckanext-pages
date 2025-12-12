@@ -391,6 +391,10 @@
       $('.content-section-editor').each(function(index) {
         const sectionId = index;
         const $section = $(this);
+        
+        // Ensure data-section-id is set to the numeric index for JS consistency
+        $section.attr('data-section-id', sectionId);
+        
         const metadataField = $section.find('.section-blocks-metadata');
         console.log('[Init Section ' + sectionId + '] Metadata field found:', metadataField.length > 0);
         console.log('[Init Section ' + sectionId + '] Raw metadata value:', metadataField.val());
@@ -436,107 +440,75 @@
       function updateSectionOrder() {
         console.log('[DataStories] Updating section order after drag/drop');
         
-        // First pass: save all content with current IDs
-        const savedContent = {};
-        $('.content-section-editor').each(function() {
-          $(this).find('.ql-editor-container').each(function() {
-            const currentId = $(this).attr('id');
-            if (currentId && quillEditors[currentId]) {
-              savedContent[currentId] = quillEditors[currentId].root.innerHTML;
-              console.log(`[updateSectionOrder] Pre-saved content from ${currentId}, length: ${savedContent[currentId].length}`);
-            }
+        // First pass: collect all mappings (oldSectionId -> newIndex) and save content
+        const mappings = [];
+        const savedEditors = {};
+        const savedCounters = {};
+        
+        $('.content-section-editor').each(function(newIndex) {
+          const $section = $(this);
+          const oldSectionId = $section.attr('data-section-id');
+          
+          mappings.push({
+            element: $section,
+            oldId: oldSectionId,
+            newIndex: newIndex
           });
+          
+          // Save editors and counters with old ID
+          if (oldSectionId !== undefined && sectionQuillEditors[oldSectionId]) {
+            savedEditors[oldSectionId] = sectionQuillEditors[oldSectionId];
+          }
+          if (oldSectionId !== undefined && sectionBlockCounters[oldSectionId] !== undefined) {
+            savedCounters[oldSectionId] = sectionBlockCounters[oldSectionId];
+          }
         });
         
-        // Second pass: update IDs and recreate editors
-        $('.content-section-editor').each(function(index) {
-          const $section = $(this);
-          const oldSectionId = $section.attr('data-section-id') || index;
+        // Clear current editor/counter references
+        Object.keys(sectionQuillEditors).forEach(function(key) {
+          delete sectionQuillEditors[key];
+        });
+        Object.keys(sectionBlockCounters).forEach(function(key) {
+          delete sectionBlockCounters[key];
+        });
+        
+        // Second pass: update IDs, field names, and restore editors to new positions
+        mappings.forEach(function(mapping) {
+          const $section = mapping.element;
+          const oldSectionId = mapping.oldId;
+          const newIndex = mapping.newIndex;
           
           // Update order_index field
-          $section.find('[name*="[order_index]"]').val(index);
-          $section.find('.section-order').val(index);
+          $section.find('[name*="[order_index]"]').val(newIndex);
+          $section.find('.section-order').val(newIndex);
           
           // Update section ID
-          $section.attr('data-section-id', index);
-          $section.attr('id', 'section-' + index);
+          $section.attr('data-section-id', newIndex);
+          $section.attr('id', 'section-' + newIndex);
           
           // Update all name attributes to match new index
           $section.find('[name^="sections["]').each(function() {
             const name = $(this).attr('name');
-            const newName = name.replace(/sections\[\d+\]/, 'sections[' + index + ']');
+            const newName = name.replace(/sections\[\d+\]/, 'sections[' + newIndex + ']');
             $(this).attr('name', newName);
           });
           
-          // Update all IDs for blocks within this section using our mapping
-          sectionData.blocks.forEach(function(blockData, blockIndex) {
-            const $block = $section.find('.content-block').eq(blockIndex);
-            const newBlockId = blockIndex + 1;
-            const newEditorId = 'section-' + index + '-block-' + newBlockId;
-            
-            // Update block ID
-            $block.attr('data-block-id', newBlockId);
-            
-            // Update editor ID for text blocks
-            const $editorContainer = $block.find('.ql-editor-container');
-            if ($editorContainer.length) {
-              const oldEditorId = blockData.oldId;
-              
-              console.log(`[updateSectionOrder] Updating editor: ${oldEditorId} -> ${newEditorId}`);
-              
-              // Clean up old editor
-              if (quillEditors[oldEditorId]) {
-                delete quillEditors[oldEditorId];
-              }
-              
-              // Remove all Quill-generated elements
-              $editorContainer.find('.ql-toolbar').remove();
-              $editorContainer.find('.ql-container').remove();
-              $editorContainer.removeClass('ql-container ql-snow');
-              $editorContainer.empty();
-              
-              // Update the ID
-              $editorContainer.attr('id', newEditorId);
-              
-              // Reinitialize Quill editor with new ID
-              const editor = new Quill('#' + newEditorId, {
-                theme: 'snow',
-                placeholder: 'Write your content here...',
-                modules: {
-                  toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'align': [] }],
-                    ['link', 'image'],
-                    ['clean']
-                  ]
-                }
-              });
-              
-              // Restore content from our saved mapping
-              if (blockData.content) {
-                editor.root.innerHTML = blockData.content;
-                console.log(`[updateSectionOrder] Restored content to ${newEditorId}, length: ${blockData.content.length}`);
-              }
-              
-              // Store the new editor instance
-              quillEditors[newEditorId] = editor;
-              
-              // Attach content update handler
-              editor.on('text-change', function() {
-                updateSectionContent(index);
-              });
-              
-              console.log(`[updateSectionOrder] Created new Quill instance: ${newEditorId}`);
-            }
-          });
+          // Update blocks container ID
+          $section.find('.section-content-blocks').attr('id', 'section-' + newIndex + '-blocks');
           
           // Update section number display if exists
-          $section.find('.section-number').text(index + 1);
+          $section.find('.section-number').text(newIndex + 1);
+          
+          // Restore editors and counters with new index
+          if (oldSectionId !== undefined && savedEditors[oldSectionId]) {
+            sectionQuillEditors[newIndex] = savedEditors[oldSectionId];
+          }
+          if (oldSectionId !== undefined && savedCounters[oldSectionId] !== undefined) {
+            sectionBlockCounters[newIndex] = savedCounters[oldSectionId];
+          }
           
           // Update section content to reflect new structure
-          updateSectionContent(index);
+          updateSectionContent(newIndex);
         });
         
         console.log('[DataStories] Section order update complete');
@@ -1186,7 +1158,12 @@
       
       // Update section content from blocks
       function updateSectionContent(sectionId) {
-        const $section = $('.content-section-editor').eq(sectionId);
+        // Find section by data-section-id attribute, fallback to index if not found
+        let $section = $('.content-section-editor[data-section-id="' + sectionId + '"]');
+        if (!$section.length) {
+          // Fallback: try by index position
+          $section = $('.content-section-editor').eq(sectionId);
+        }
         if (!$section.length) return;
         
         const $container = $section.find('.section-content-blocks');
@@ -1336,9 +1313,12 @@
         console.log('[DataStories] Form submit - countries hidden field type:', typeof countriesVal);
         console.log('[DataStories] Form submit - selectedCountries array:', selectedCountries);
         // Update all section content before submit
-        $('.content-section-editor').each(function(index) {
-          updateSectionContent(index);
-          console.log('Updated section ' + index);
+        $('.content-section-editor').each(function() {
+          var sectionId = $(this).attr('data-section-id');
+          if (sectionId !== undefined) {
+            updateSectionContent(sectionId);
+            console.log('Updated section ' + sectionId);
+          }
         });
       });
       
