@@ -563,6 +563,47 @@
             </div>
             <div class="module-content" style="padding: 1.5rem;">
               <dl style="margin: 0;">
+                {% if story.project_type %}
+                <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">
+                  <i class="fa fa-folder-open" style="color: #0072BC;"></i> {{ _('Project Type') }}
+                </dt>
+                <dd style="margin-bottom: 1rem;">
+                  <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); color: #0072BC; border: 1px solid #0072BC;">
+                    {% if story.project_type == 'scientific_research' %}{{ _('Scientific Research') }}
+                    {% elif story.project_type == 'case_study' %}{{ _('Case Study') }}
+                    {% elif story.project_type == 'pilot_project' %}{{ _('Pilot Project') }}
+                    {% elif story.project_type == 'policy_brief' %}{{ _('Policy Brief') }}
+                    {% elif story.project_type == 'technical_report' %}{{ _('Technical Report') }}
+                    {% elif story.project_type == 'capacity_building' %}{{ _('Capacity Building') }}
+                    {% elif story.project_type == 'field_assessment' %}{{ _('Field Assessment') }}
+                    {% elif story.project_type == 'monitoring_evaluation' %}{{ _('Monitoring & Evaluation') }}
+                    {% elif story.project_type == 'general' %}{{ _('General') }}
+                    {% else %}{{ story.project_type|replace('_', ' ')|title }}
+                    {% endif %}
+                  </span>
+                </dd>
+                {% endif %}
+
+                {% set story_partners = story.partners or [] %}
+                {% if story_partners is string %}
+                  {% set story_partners = h.json_loads(story_partners) if story_partners else [] %}
+                {% endif %}
+                {% if story_partners and story_partners|length > 0 %}
+                <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">
+                  <i class="fa fa-handshake-o" style="color: #0072BC;"></i> {{ _('Partners') }}
+                </dt>
+                <dd style="margin-bottom: 1rem;">
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for partner in story_partners %}
+                    <span style="display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; background: #e3f2fd; color: #0072BC; border: 1px solid #cfe4fb;">
+                      <i class="fa fa-building" style="margin-right: 0.35rem; font-size: 0.8rem;"></i>
+                      {{ partner.name if partner.name else partner }}
+                    </span>
+                    {% endfor %}
+                  </div>
+                </dd>
+                {% endif %}
+
                 <dt style="color: #2c3e50; font-weight: 700; margin-bottom: 0.5rem;">{{ _('Status') }}</dt>
                 <dd style="margin-bottom: 1rem;">
                   <span style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: #0072BC; color: white;">
