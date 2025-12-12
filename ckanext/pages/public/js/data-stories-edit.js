@@ -211,6 +211,127 @@
       initCountriesSelector();
 
       // ========================================
+      // PARTNERS FIELD
+      // ========================================
+      let selectedPartners = [];
+
+      function getPartnerElementId(name) {
+        return 'story-partner-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      }
+
+      function updatePartnersHiddenField() {
+        const value = JSON.stringify(selectedPartners);
+        $('#story-partners-data').val(value);
+        console.log('[DataStories] Partners field updated:', value);
+      }
+
+      function addPartnerToList(partner) {
+        const partnerId = getPartnerElementId(partner.name);
+        if ($('#' + partnerId).length) {
+          return;
+        }
+
+        const partnerHtml = `
+          <div class="partner-item" id="${partnerId}" data-partner-name="${partner.name}" style="display: inline-flex; align-items: center; background: #e3f2fd; border: 1px solid #0072BC; border-radius: 20px; padding: 0.25rem 0.75rem; margin: 0.25rem; font-size: 0.9rem;">
+            <i class="fa fa-building" style="margin-right: 0.5rem; color: #0072BC;"></i>
+            <span class="partner-name">${partner.name}</span>
+            <button type="button" class="btn btn-xs btn-link remove-story-partner" data-partner-name="${partner.name}" style="margin-left: 0.5rem; padding: 0; color: #dc3545;">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        `;
+        $('#story-selected-partners').append(partnerHtml);
+      }
+
+      function loadExistingPartners() {
+        const $hidden = $('#story-partners-data');
+        const rawValue = $hidden.val();
+        console.log('[DataStories] loadExistingPartners: rawValue:', rawValue);
+
+        if (!rawValue) {
+          selectedPartners = [];
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(rawValue);
+          if (Array.isArray(parsed)) {
+            selectedPartners = parsed.map(function(entry) {
+              if (typeof entry === 'string') {
+                return { name: entry };
+              }
+              return { name: entry.name || '' };
+            }).filter(function(entry) {
+              return entry.name;
+            });
+          }
+        } catch (e) {
+          console.log('[DataStories] loadExistingPartners: JSON parse error:', e.message);
+          const partnerNames = rawValue.split(',').map(function(p) { return p.trim(); }).filter(Boolean);
+          selectedPartners = partnerNames.map(function(name) {
+            return { name: name };
+          });
+        }
+
+        selectedPartners.forEach(function(partner) {
+          addPartnerToList(partner);
+        });
+      }
+
+      function initPartnersSelector() {
+        const $input = $('#story-partner-input');
+        const $addButton = $('#story-add-partner');
+        const $list = $('#story-selected-partners');
+
+        if (!$input.length || !$list.length) {
+          return;
+        }
+
+        $list.empty();
+        loadExistingPartners();
+        updatePartnersHiddenField();
+
+        // Add partner on button click
+        $addButton.on('click', function() {
+          const partnerName = $input.val().trim();
+          if (!partnerName) {
+            return;
+          }
+
+          if (selectedPartners.find(function(p) { return p.name.toLowerCase() === partnerName.toLowerCase(); })) {
+            alert('This partner has already been added');
+            return;
+          }
+
+          const partner = { name: partnerName };
+          selectedPartners.push(partner);
+          addPartnerToList(partner);
+          updatePartnersHiddenField();
+          $input.val('');
+        });
+
+        // Add partner on Enter key
+        $input.on('keypress', function(e) {
+          if (e.which === 13) {
+            e.preventDefault();
+            $addButton.click();
+          }
+        });
+
+        // Remove partner handler
+        $(document).on('click', '.remove-story-partner', function() {
+          const partnerName = $(this).data('partner-name');
+          const partnerId = '#' + getPartnerElementId(partnerName);
+          $(partnerId).remove();
+          selectedPartners = selectedPartners.filter(function(p) { return p.name !== partnerName; });
+          updatePartnersHiddenField();
+        });
+      }
+
+      // Initialize partners selector
+      initPartnersSelector();
+
+      // ========================================
       // DATASETS FIELD
       // ========================================
       let selectedDatasets = [];

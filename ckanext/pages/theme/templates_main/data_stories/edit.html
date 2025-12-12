@@ -255,6 +255,58 @@
         <span class="error-block">{{ errors.organization_id.0 }}</span>
         {% endif %}
       </div>
+
+      {# Partners #}
+      <div class="form-group{% if errors.partners %} has-error{% endif %}">
+        <label class="control-label" for="story-partner-input">
+          <i class="fa fa-handshake-o"></i> {{ _('Partners') }}
+        </label>
+        <div class="help-text" style="margin-bottom: 1rem;">
+          {{ _('Add partner organizations that contributed to this story. Type the name and click Add.') }}
+        </div>
+
+        <div class="partners-container">
+          <div class="partner-selector">
+            <div class="input-group">
+              <input type="text" 
+                     id="story-partner-input" 
+                     class="form-control" 
+                     placeholder="{{ _('Enter partner organization name...') }}">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-primary" id="story-add-partner">
+                  <i class="fa fa-plus"></i> {{ _('Add') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="story-selected-partners"
+               class="selected-partners"
+               style="margin-top: 1rem;"
+               data-empty-text="{{ _('No partners added yet. Type a partner name and click Add.') }}">
+          </div>
+
+          {% set partners_val = data.get('partners') if data else (story.partners if story else none) %}
+          {% if partners_val %}
+            {% if partners_val is string %}
+              {% set partners_json = partners_val %}
+            {% else %}
+              {% set partners_json = partners_val|tojson %}
+            {% endif %}
+          {% else %}
+            {% set partners_json = '[]' %}
+          {% endif %}
+          <input type="hidden"
+                 id="story-partners-data"
+                 name="partners"
+                 value="{{ partners_json|forceescape }}"
+          >
+        </div>
+
+        {% if errors.partners %}
+        <span class="error-block">{{ errors.partners.0 }}</span>
+        {% endif %}
+      </div>
     </fieldset>
 
     <fieldset>

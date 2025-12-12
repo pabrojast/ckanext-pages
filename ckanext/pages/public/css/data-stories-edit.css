@@ -1259,6 +1259,40 @@
   padding: 2px 6px;
 }
 
+.data-stories-form .selected-partners {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.data-stories-form .selected-partners:empty::before {
+  content: attr(data-empty-text);
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.data-stories-form .partner-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: #e3f2fd;
+  color: #0072bc;
+  border-radius: 999px;
+  border: 1px solid #cfe4fb;
+  box-shadow: var(--shadow-light);
+}
+
+.data-stories-form .partner-item .partner-name {
+  font-weight: 600;
+}
+
+.data-stories-form .partner-item .btn {
+  border: none;
+  padding: 2px 6px;
+}
+
 /* ========================================
    Responsive Design - Scoped to data stories
    ======================================== */
