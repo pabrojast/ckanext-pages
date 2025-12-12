@@ -216,7 +216,8 @@ def data_story_section_update(context, data_dict):
         ValidationError: If data validation fails
     """
     log.info("[DATA_STORY_SECTION_UPDATE] Starting section update")
-    log.info(f"[DATA_STORY_SECTION_UPDATE] Input data_dict blocks_metadata: {type(data_dict.get('blocks_metadata'))} = {data_dict.get('blocks_metadata')}")
+    blocks_meta_input = data_dict.get('blocks_metadata')
+    log.debug(f"[DATA_STORY_SECTION_UPDATE] Input blocks_metadata type: {type(blocks_meta_input)}, len: {len(str(blocks_meta_input)) if blocks_meta_input else 0}")
 
     # Preserve raw blocks metadata before validation
     raw_blocks_metadata = _normalize_blocks_metadata(data_dict.get('blocks_metadata'))
@@ -242,7 +243,7 @@ def data_story_section_update(context, data_dict):
     if data.get('blocks_metadata') is None and raw_blocks_metadata is not None:
         data['blocks_metadata'] = raw_blocks_metadata
 
-    log.info(f"[DATA_STORY_SECTION_UPDATE] After validation blocks_metadata: {type(data.get('blocks_metadata'))} = {data.get('blocks_metadata')}")
+    log.debug(f"[DATA_STORY_SECTION_UPDATE] After validation blocks_metadata type: {type(data.get('blocks_metadata'))}")
 
     if errors:
         raise tk.ValidationError(errors)
@@ -274,7 +275,7 @@ def data_story_section_update(context, data_dict):
 
     # Always update blocks_metadata - the _default_to_none validator ensures the key is present
     blocks_meta_value = data.get('blocks_metadata')
-    log.info(f"[DATA_STORY_SECTION_UPDATE] Setting blocks_metadata: {type(blocks_meta_value)} = {blocks_meta_value}")
+    log.debug(f"[DATA_STORY_SECTION_UPDATE] Setting blocks_metadata type: {type(blocks_meta_value)}")
     section.blocks_metadata = blocks_meta_value
 
     if 'is_visible' in data:
@@ -297,11 +298,9 @@ def data_story_section_update(context, data_dict):
     session.commit()
 
     log.info(f"[DATA_STORY_SECTION_UPDATE] Updated section: {section.id}")
-    log.info(f"[DATA_STORY_SECTION_UPDATE] After commit, section.blocks_metadata: {type(section.blocks_metadata)} = {section.blocks_metadata}")
 
     # Convert to dict
     section_dict = table_dictize(section, context)
-    log.info(f"[DATA_STORY_SECTION_UPDATE] Returned dict blocks_metadata: {section_dict.get('blocks_metadata')}")
 
     return section_dict
 

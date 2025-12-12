@@ -611,7 +611,7 @@ def edit(slug):
     # Debug: Log sections data being passed to template
     if story.get('sections'):
         for idx, section in enumerate(story['sections']):
-            log.info(f"[EDIT_GET] Section {idx} blocks_metadata: {type(section.get('blocks_metadata'))} = {section.get('blocks_metadata')}")
+            log.debug(f"[EDIT_GET] Section {idx} blocks_metadata type: {type(section.get('blocks_metadata'))}")
 
         # Direct database verification
         from ckanext.pages.data_stories.db.models import DataStorySection
@@ -620,7 +620,7 @@ def edit(slug):
             DataStorySection.story_id == story['id']
         ).all()
         for db_section in db_sections:
-            log.info(f"[EDIT_GET_DB] Section {db_section.id} DB blocks_metadata: {type(db_section.blocks_metadata)} = {db_section.blocks_metadata}")
+            log.debug(f"[EDIT_GET_DB] Section {db_section.id} DB blocks_metadata type: {type(db_section.blocks_metadata)}")
 
     extra_vars = {
         'story': story,
@@ -1012,10 +1012,11 @@ def _extract_sections_form_data(form):
     Returns a list of section dicts preserving the form order.
     Empty sections (no type, title, or content) are ignored.
     """
-    # Debug: Log all form keys containing 'blocks_metadata'
+    # Debug: Log form keys containing 'blocks_metadata' (length only to avoid performance issues)
     for key in form:
         if 'blocks_metadata' in key:
-            log.info(f"[EXTRACT_SECTIONS] Form key '{key}' = '{form.get(key)[:200] if form.get(key) else 'None'}...'")
+            val = form.get(key)
+            log.debug(f"[EXTRACT_SECTIONS] Form key '{key}' len={len(val) if val else 0}")
 
     sections = {}
 
@@ -1042,8 +1043,8 @@ def _extract_sections_form_data(form):
             parsed_blocks = _reconstruct_blocks_metadata(raw)
             if parsed_blocks:
                 log.info(f"[EXTRACT_SECTIONS] Section {index} reconstructed blocks_metadata from content/terria")
-        log.info(f"[EXTRACT_SECTIONS] Section {index} raw blocks_metadata: {type(raw_blocks)} len={len(raw_blocks) if raw_blocks else 0}")
-        log.info(f"[EXTRACT_SECTIONS] Section {index} parsed blocks_metadata: {type(parsed_blocks)} = {parsed_blocks}")
+        log.debug(f"[EXTRACT_SECTIONS] Section {index} raw blocks_metadata: {type(raw_blocks)} len={len(raw_blocks) if raw_blocks else 0}")
+        log.debug(f"[EXTRACT_SECTIONS] Section {index} parsed blocks_metadata type: {type(parsed_blocks)}")
 
         section = {
             'id': (raw.get('id') or '').strip() or None,
@@ -1095,7 +1096,7 @@ def _sync_story_sections(context, story_id, sections_data, existing_sections=Non
 
     for idx, section in enumerate(sections_data):
         blocks_meta = section.get('blocks_metadata')
-        log.info(f"[SYNC_SECTIONS] Section {idx} blocks_metadata: {type(blocks_meta)} = {blocks_meta}")
+        log.debug(f"[SYNC_SECTIONS] Section {idx} blocks_metadata type: {type(blocks_meta)}")
 
         payload = {
             'story_id': story_id,

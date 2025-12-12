@@ -378,9 +378,10 @@ def table_dictize(obj, context: Dict[str, Any], **kwargs) -> Dict[str, Any]:
                 else:
                     result_dict[name] = str(value)
 
-                # Debug logging for JSONB fields
+                # Debug logging for JSONB fields (only log type and length to avoid performance issues)
                 if name in ('blocks_metadata', 'terria_config', 'countries', 'uploaded_images'):
-                    log.info(f"[TABLE_DICTIZE] {obj_class_name}.{name}: type={type(value)} value={value}")
+                    value_len = len(str(value)) if value else 0
+                    log.debug(f"[TABLE_DICTIZE] {obj_class_name}.{name}: type={type(value)} len={value_len}")
             except Exception as e:
                 log.error(f"Error processing field {name}: {str(e)}")
                 continue

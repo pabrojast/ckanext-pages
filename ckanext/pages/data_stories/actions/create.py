@@ -267,7 +267,7 @@ def data_story_section_create(context, data_dict):
 
     # Blocks metadata
     blocks_meta_value = data.get('blocks_metadata')
-    log.info(f"[DATA_STORY_SECTION_CREATE] Setting blocks_metadata: {type(blocks_meta_value)} = {blocks_meta_value}")
+    log.debug(f"[DATA_STORY_SECTION_CREATE] Setting blocks_metadata type: {type(blocks_meta_value)}")
     section.blocks_metadata = blocks_meta_value
 
     # Visibility
