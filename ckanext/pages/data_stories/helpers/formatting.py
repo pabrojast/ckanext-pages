@@ -14,14 +14,14 @@ from typing import Optional
 log = logging.getLogger(__name__)
 
 
-def render_story_date(date_obj: Optional[datetime],
+def render_story_date(date_obj,
                      format_string: str = '%B %d, %Y',
                      with_time: bool = False) -> str:
     """
-    Render a datetime object as a formatted string.
+    Render a datetime object or ISO string as a formatted string.
 
     Args:
-        date_obj: Datetime object to format
+        date_obj: Datetime object or ISO date string to format
         format_string: strftime format string (default: 'Month DD, YYYY')
         with_time: Include time in output (default False)
 
@@ -38,6 +38,19 @@ def render_story_date(date_obj: Optional[datetime],
         return 'Not set'
 
     try:
+        # If it's a string, try to parse it as ISO format
+        if isinstance(date_obj, str):
+            # Handle ISO format with or without microseconds
+            date_obj = date_obj.replace('Z', '+00:00')
+            if 'T' in date_obj:
+                # Try parsing with microseconds first
+                try:
+                    date_obj = datetime.fromisoformat(date_obj.split('.')[0])
+                except ValueError:
+                    date_obj = datetime.fromisoformat(date_obj)
+            else:
+                date_obj = datetime.fromisoformat(date_obj)
+
         if with_time:
             format_string = '%B %d, %Y at %I:%M %p'
 
