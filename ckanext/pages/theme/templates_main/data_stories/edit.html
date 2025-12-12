@@ -256,6 +256,34 @@
         {% endif %}
       </div>
 
+      {# Project Type #}
+      <div class="form-group{% if errors.project_type %} has-error{% endif %}">
+        <label class="control-label" for="project_type">
+          <i class="fa fa-folder-open"></i> {{ _('Project Type') }}
+        </label>
+        <select id="project_type"
+                name="project_type"
+                class="form-control">
+          <option value="">{{ _('Select project type...') }}</option>
+          <option value="scientific_research"{% if data.get('project_type') == 'scientific_research' %} selected{% endif %}>{{ _('Scientific Research') }}</option>
+          <option value="case_study"{% if data.get('project_type') == 'case_study' %} selected{% endif %}>{{ _('Case Study') }}</option>
+          <option value="pilot_project"{% if data.get('project_type') == 'pilot_project' %} selected{% endif %}>{{ _('Pilot Project') }}</option>
+          <option value="policy_brief"{% if data.get('project_type') == 'policy_brief' %} selected{% endif %}>{{ _('Policy Brief') }}</option>
+          <option value="technical_report"{% if data.get('project_type') == 'technical_report' %} selected{% endif %}>{{ _('Technical Report') }}</option>
+          <option value="capacity_building"{% if data.get('project_type') == 'capacity_building' %} selected{% endif %}>{{ _('Capacity Building') }}</option>
+          <option value="field_assessment"{% if data.get('project_type') == 'field_assessment' %} selected{% endif %}>{{ _('Field Assessment') }}</option>
+          <option value="monitoring_evaluation"{% if data.get('project_type') == 'monitoring_evaluation' %} selected{% endif %}>{{ _('Monitoring & Evaluation') }}</option>
+          <option value="general"{% if data.get('project_type') == 'general' %} selected{% endif %}>{{ _('General') }}</option>
+        </select>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Select the type of project or study this data story represents.') }}
+        </span>
+        {% if errors.project_type %}
+        <span class="error-block">{{ errors.project_type.0 }}</span>
+        {% endif %}
+      </div>
+
       {# Partners #}
       <div class="form-group{% if errors.partners %} has-error{% endif %}">
         <label class="control-label" for="story-partner-input">

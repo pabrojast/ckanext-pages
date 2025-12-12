@@ -162,6 +162,7 @@ def default_pages_schema():
         'country': [ignore_missing, unicode_safe],           # Country/countries affected
         'countries_affected': [ignore_missing, json_validator, unicode_safe], # Countries affected (JSON array)
         'partners': [ignore_missing, json_validator, unicode_safe],  # Partners/organizations (JSON array of names)
+        'project_type': [ignore_missing, unicode_safe],  # Project type (scientific, project, case_study, etc.)
         'priority': [ignore_missing, unicode_safe],          # Priority level
         'severity': [ignore_missing, unicode_safe],          # Severity level
         'event_type': [ignore_missing, unicode_safe],        # Event type (references dynamic event types)
