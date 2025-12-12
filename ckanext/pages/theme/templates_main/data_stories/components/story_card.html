@@ -11,12 +11,30 @@ Variables:
   {% set story_countries = h.json_loads(story_countries) or [] %}
 {% endif %}
 
+{# Extract featured image from uploaded_images #}
+{% set uploaded_images = story.uploaded_images %}
+{% if uploaded_images is string %}
+  {% set uploaded_images = h.json_loads(uploaded_images) or [] %}
+{% endif %}
+{% set ns = namespace(featured_image_url=none) %}
+{% if uploaded_images %}
+  {% for img in uploaded_images %}
+    {% if img.featured %}
+      {% set ns.featured_image_url = img.url %}
+    {% endif %}
+  {% endfor %}
+  {# If no featured image, use the first image #}
+  {% if not ns.featured_image_url and uploaded_images|length > 0 %}
+    {% set ns.featured_image_url = uploaded_images[0].url %}
+  {% endif %}
+{% endif %}
+
 <div class="event-card-modern story-card-modern">
   <article class="module-modern">
     <!-- Story Thumbnail/Image -->
     <div class="event-image-container">
-      {% if story.thumbnail_url or story.header_image %}
-      <img src="{{ story.thumbnail_url or story.header_image }}"
+      {% if ns.featured_image_url or story.thumbnail_url or story.header_image %}
+      <img src="{{ ns.featured_image_url or story.thumbnail_url or story.header_image }}"
            alt="{{ story.title }}"
            class="event-image">
       {% else %}
