@@ -1465,6 +1465,53 @@
 }
 
 /* ========================================
+   FIX: Partners container button alignment
+   ======================================== */
+
+/* Ensure partners container doesn't overflow */
+.data-stories-form .partners-container {
+  overflow: visible;
+  width: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow-light);
+}
+
+.data-stories-form .partner-selector {
+  width: 100%;
+}
+
+/* Fix input-group inside partners container */
+.data-stories-form .partner-selector .input-group {
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: 100%;
+}
+
+.data-stories-form .partner-selector .input-group input.form-control {
+  flex: 1 1 auto;
+  min-width: 200px;
+  border-radius: 12px 0 0 12px;
+}
+
+.data-stories-form .partner-selector .input-group .input-group-btn {
+  flex: 0 0 auto;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.data-stories-form .partner-selector .input-group .input-group-btn .btn {
+  border-radius: 0 12px 12px 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ========================================
    FIX: Breadcrumb alignment
    ======================================== */
 
