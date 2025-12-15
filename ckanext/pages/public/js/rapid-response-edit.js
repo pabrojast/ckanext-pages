@@ -478,6 +478,28 @@
     }
   }
   
+  // Upload queue for sequential uploads (avoid server timeout with parallel uploads)
+  let uploadQueue = [];
+  let isUploading = false;
+  
+  function processUploadQueue() {
+    if (isUploading || uploadQueue.length === 0) {
+      return;
+    }
+    
+    isUploading = true;
+    const file = uploadQueue.shift();
+    uploadImageInternal(file, function() {
+      isUploading = false;
+      processUploadQueue();
+    });
+  }
+  
+  function queueImageUpload(file) {
+    uploadQueue.push(file);
+    processUploadQueue();
+  }
+  
   // Handle file upload
   $('#image-upload').on('change', function(e) {
     e.stopPropagation();
@@ -485,7 +507,7 @@
     if (files.length > 0) {
       Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
-          uploadImage(file);
+          queueImageUpload(file);
         }
       });
       // Clear the input so the same file can be selected again
@@ -526,14 +548,14 @@
     if (files.length > 0) {
       Array.from(files).forEach(file => {
         if (file.type.startsWith('image/')) {
-          uploadImage(file);
+          queueImageUpload(file);
         }
       });
     }
   });
   
-  // Upload image function
-  function uploadImage(file) {
+  // Upload image function (internal - called by queue processor)
+  function uploadImageInternal(file, onComplete) {
     const formData = new FormData();
     formData.append('upload', file);
     
@@ -580,10 +602,12 @@
         } else {
           alert('Error uploading image: ' + (response.error ? response.error.message : 'Unknown error'));
         }
+        if (onComplete) onComplete();
       },
       error: function() {
         $(`#${progressId}`).remove();
         alert('Error uploading image. Please try again.');
+        if (onComplete) onComplete();
       }
     });
   }
