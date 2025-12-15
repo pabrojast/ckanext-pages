@@ -144,6 +144,29 @@ def data_story_update(context, data_dict):
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')
 
+    if 'project_type' in data:
+        story.project_type = data.get('project_type')
+
+    # Handle partners (array of partner organization names)
+    partners_raw = data_dict.get('partners')
+    if partners_raw is not None:
+        partners_value = partners_raw
+        log.info(f"[DATA_STORY_UPDATE] partners using pre-validation value: {partners_value}, type: {type(partners_value)}")
+        if isinstance(partners_value, str) and partners_value:
+            try:
+                partners_value = json.loads(partners_value)
+                log.info(f"[DATA_STORY_UPDATE] partners parsed from string: {partners_value}")
+            except Exception as e:
+                log.warning(f"[DATA_STORY_UPDATE] Could not parse partners JSON: {e}")
+                partners_value = []
+        elif not partners_value:
+            partners_value = []
+            log.info("[DATA_STORY_UPDATE] partners was falsy, defaulting to []")
+        from sqlalchemy.orm.attributes import flag_modified
+        story.partners = partners_value
+        flag_modified(story, 'partners')
+        log.info(f"[DATA_STORY_UPDATE] partners assigned to story: {story.partners}")
+
     # Handle uploaded_images (image gallery metadata)
     uploaded_images_raw = data_dict.get('uploaded_images')
     if uploaded_images_raw is not None:

@@ -151,6 +151,19 @@ def data_story_create(context, data_dict):
     if data.get('organization_id'):
         story.organization_id = data['organization_id']
 
+    # Set project type if provided
+    if data.get('project_type'):
+        story.project_type = data['project_type']
+
+    # Set partners if provided
+    partners_value = data.get('partners', [])
+    if isinstance(partners_value, str) and partners_value:
+        try:
+            partners_value = json.loads(partners_value)
+        except Exception:
+            partners_value = []
+    story.partners = partners_value if partners_value else []
+
     # Set defaults
     story.status = 'draft'
     story.is_public = False

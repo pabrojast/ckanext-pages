@@ -62,6 +62,8 @@ class DataStory(DomainObject, BaseModel):
 
     # Metadata
     countries = Column(JSONB)
+    partners = Column(JSONB)  # Partner organizations (JSON array of names)
+    project_type = Column(String(100), nullable=True)  # Project type (scientific_research, case_study, etc.)
     uploaded_images = Column(JSONB)  # Image gallery metadata
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

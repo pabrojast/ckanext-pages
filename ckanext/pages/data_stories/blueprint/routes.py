@@ -970,6 +970,11 @@ def _extract_story_form_data(form):
     countries_parsed = _parse_json_field(countries_raw, default_empty_list=True)
     log.info(f"[EXTRACT_FORM] countries parsed: {countries_parsed!r}")
     
+    partners_raw = form.get('partners')
+    log.info(f"[EXTRACT_FORM] partners raw from form: {partners_raw!r}")
+    partners_parsed = _parse_json_field(partners_raw, default_empty_list=True)
+    log.info(f"[EXTRACT_FORM] partners parsed: {partners_parsed!r}")
+    
     uploaded_images_raw = form.get('uploaded_images')
     uploaded_images_parsed = _parse_json_field(uploaded_images_raw, default_empty_list=True)
     log.info(f"[EXTRACT_FORM] uploaded_images: {len(uploaded_images_parsed) if uploaded_images_parsed else 0} images")
@@ -983,6 +988,8 @@ def _extract_story_form_data(form):
         'paper_doi': form.get('paper_doi', '').strip(),
         'paper_citation': form.get('paper_citation', '').strip(),
         'organization_id': form.get('organization_id', '').strip() or None,
+        'project_type': form.get('project_type', '').strip() or None,
+        'partners': partners_parsed,
         'countries': countries_parsed,
         'uploaded_images': uploaded_images_parsed,
         'datasets_data': _parse_json_field(form.get('datasets_data')),
@@ -1002,6 +1009,8 @@ def _build_story_context(data):
         'paper_doi': data.get('paper_doi', ''),
         'paper_citation': data.get('paper_citation', ''),
         'countries': data.get('countries', []),
+        'partners': data.get('partners', []),
+        'project_type': data.get('project_type', ''),
         'uploaded_images': data.get('uploaded_images', []),
         'organization_id': data.get('organization_id'),
         'sections': data.get('sections', []),
