@@ -290,6 +290,92 @@ def _ensure_uploaded_images_column(engine):
         log.warning(f"Could not ensure uploaded_images column on data_stories: {str(e)}")
 
 
+def _ensure_partners_column(engine):
+    """
+    Ensure the partners column exists in data_stories table.
+    """
+    import sqlalchemy as sa
+
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_stories'
+    """)
+
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_stories'
+        AND column_name = 'partners'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            table_exists = conn.execute(check_table_sql).fetchone() is not None
+            if not table_exists:
+                log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            column_exists = conn.execute(check_column_sql).fetchone() is not None
+            if column_exists:
+                log.debug("partners column already exists in data_stories")
+                return
+
+            log.info("Adding partners column to data_stories table...")
+            add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN partners JSONB')
+            conn.execute(add_column_sql)
+            try:
+                conn.commit()
+            except AttributeError:
+                pass
+            log.info("Successfully added partners column to data_stories")
+    except Exception as e:
+        log.warning(f"Could not ensure partners column on data_stories: {str(e)}")
+
+
+def _ensure_project_type_column(engine):
+    """
+    Ensure the project_type column exists in data_stories table.
+    """
+    import sqlalchemy as sa
+
+    check_table_sql = sa.text("""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_name = 'data_stories'
+    """)
+
+    check_column_sql = sa.text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'data_stories'
+        AND column_name = 'project_type'
+    """)
+
+    try:
+        with engine.connect() as conn:
+            table_exists = conn.execute(check_table_sql).fetchone() is not None
+            if not table_exists:
+                log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
+                return
+
+            column_exists = conn.execute(check_column_sql).fetchone() is not None
+            if column_exists:
+                log.debug("project_type column already exists in data_stories")
+                return
+
+            log.info("Adding project_type column to data_stories table...")
+            add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN project_type VARCHAR(100)')
+            conn.execute(add_column_sql)
+            try:
+                conn.commit()
+            except AttributeError:
+                pass
+            log.info("Successfully added project_type column to data_stories")
+    except Exception as e:
+        log.warning(f"Could not ensure project_type column on data_stories: {str(e)}")
+
+
 def init_tables(engine):
     """
     Initialize database tables for data stories.
@@ -328,6 +414,8 @@ def init_tables(engine):
     _ensure_paper_doi_column(engine)
     _ensure_paper_citation_column(engine)
     _ensure_uploaded_images_column(engine)
+    _ensure_partners_column(engine)
+    _ensure_project_type_column(engine)
 
     log.info("Data Stories tables initialized")
 
