@@ -83,9 +83,13 @@ def data_story_create(context, data_dict):
     if not user_obj:
         raise tk.NotAuthorized("User not found")
 
-    # Capture countries before validation (CKAN flattens nested lists)
+    # Capture values before validation (CKAN flattens nested lists)
     countries_raw = data_dict.get('countries')
+    partners_raw = data_dict.get('partners')
+    project_type_raw = data_dict.get('project_type')
     log.info(f"[DATA_STORY_CREATE] countries before validation: {countries_raw!r}")
+    log.info(f"[DATA_STORY_CREATE] partners before validation: {partners_raw!r}")
+    log.info(f"[DATA_STORY_CREATE] project_type before validation: {project_type_raw!r}")
 
     # Validate schema
     schema = data_story_schema()
@@ -151,18 +155,20 @@ def data_story_create(context, data_dict):
     if data.get('organization_id'):
         story.organization_id = data['organization_id']
 
-    # Set project type if provided
-    if data.get('project_type'):
-        story.project_type = data['project_type']
+    # Set project type if provided (use pre-validation value)
+    if project_type_raw:
+        story.project_type = project_type_raw
+        log.info(f"[DATA_STORY_CREATE] project_type assigned: {story.project_type}")
 
-    # Set partners if provided
-    partners_value = data.get('partners', [])
+    # Set partners if provided (use pre-validation value)
+    partners_value = partners_raw if partners_raw is not None else []
     if isinstance(partners_value, str) and partners_value:
         try:
             partners_value = json.loads(partners_value)
         except Exception:
             partners_value = []
     story.partners = partners_value if partners_value else []
+    log.info(f"[DATA_STORY_CREATE] partners assigned: {story.partners}")
 
     # Set defaults
     story.status = 'draft'

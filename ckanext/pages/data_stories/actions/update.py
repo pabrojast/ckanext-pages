@@ -67,9 +67,13 @@ def data_story_update(context, data_dict):
     log.info("[DATA_STORY_UPDATE] Starting update")
     log.info(f"[DATA_STORY_UPDATE] Input data_dict keys: {list(data_dict.keys())}")
     log.info(f"[DATA_STORY_UPDATE] Input countries: {data_dict.get('countries')!r}")
+    log.info(f"[DATA_STORY_UPDATE] Input partners: {data_dict.get('partners')!r}")
+    log.info(f"[DATA_STORY_UPDATE] Input project_type: {data_dict.get('project_type')!r}")
 
-    # Capture countries before validation (CKAN flattens nested lists)
+    # Capture values before validation (CKAN flattens nested lists)
     countries_raw = data_dict.get('countries')
+    partners_raw = data_dict.get('partners')
+    project_type_raw = data_dict.get('project_type')
 
     # Check authorization
     tk.check_access('data_story_update', context, data_dict)
@@ -144,11 +148,12 @@ def data_story_update(context, data_dict):
     if 'organization_id' in data:
         story.organization_id = data.get('organization_id')
 
-    if 'project_type' in data:
-        story.project_type = data.get('project_type')
+    # Handle project_type (use pre-validation value)
+    if project_type_raw is not None:
+        story.project_type = project_type_raw if project_type_raw else None
+        log.info(f"[DATA_STORY_UPDATE] project_type assigned to story: {story.project_type}")
 
-    # Handle partners (array of partner organization names)
-    partners_raw = data_dict.get('partners')
+    # Handle partners (array of partner organization names) - use pre-validation value
     if partners_raw is not None:
         partners_value = partners_raw
         log.info(f"[DATA_STORY_UPDATE] partners using pre-validation value: {partners_value}, type: {type(partners_value)}")

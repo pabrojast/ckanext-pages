@@ -1436,11 +1436,16 @@
       $('.data-stories-form, form.data-stories-form').on('submit', function(e) {
         console.log('Data story form submitting, updating section content...');
         updateCountriesHiddenField();
+        updatePartnersHiddenField();
         // Debug: Log the countries hidden field value at submit time
         var countriesVal = $('#story-countries-data').val();
         console.log('[DataStories] Form submit - countries hidden field value:', countriesVal);
         console.log('[DataStories] Form submit - countries hidden field type:', typeof countriesVal);
         console.log('[DataStories] Form submit - selectedCountries array:', selectedCountries);
+        // Debug: Log the partners hidden field value at submit time
+        var partnersVal = $('#story-partners-data').val();
+        console.log('[DataStories] Form submit - partners hidden field value:', partnersVal);
+        console.log('[DataStories] Form submit - selectedPartners array:', selectedPartners);
         // Update all section content before submit
         $('.content-section-editor').each(function() {
           var sectionId = $(this).attr('data-section-id');
