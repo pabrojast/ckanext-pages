@@ -500,6 +500,13 @@
         }
       }
       
+      // Register ImageResize module if available
+      waitForQuill(function() {
+        if (typeof ImageResize !== 'undefined') {
+          Quill.register('modules/imageResize', ImageResize.default || ImageResize);
+        }
+      });
+      
       // Section management
       let sectionIndex = $('.content-section-editor').length;
       let sectionBlockCounters = {};
@@ -834,17 +841,23 @@
         
         // Initialize Quill editor
         waitForQuill(function() {
+          // Build modules config with ImageResize if available
+          var modulesConfig = {
+            toolbar: [
+              [{ 'header': [2, 3, false] }],
+              ['bold', 'italic', 'underline'],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              ['link', 'image'],
+              ['clean']
+            ]
+          };
+          if (typeof ImageResize !== 'undefined') {
+            modulesConfig.imageResize = { displaySize: true };
+          }
+          
           const quill = new Quill('#' + blockId + '-editor', {
             theme: 'snow',
-            modules: {
-              toolbar: [
-                [{ 'header': [2, 3, false] }],
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['link', 'image'],
-                ['clean']
-              ]
-            },
+            modules: modulesConfig,
             placeholder: 'Enter your content here...'
           });
           
@@ -1739,17 +1752,22 @@
 
       // Initialize Quill editors for basic fields (Abstract, Research Question, Study Area)
       waitForQuill(function() {
+        // Build modules config with ImageResize if available
+        var basicToolbar = [
+          [{ 'header': [2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['link', 'image'],
+          ['clean']
+        ];
+        var basicModules = { toolbar: basicToolbar };
+        if (typeof ImageResize !== 'undefined') {
+          basicModules.imageResize = { displaySize: true };
+        }
+        
         var basicFieldsQuillConfig = {
           theme: 'snow',
-          modules: {
-            toolbar: [
-              [{ 'header': [2, 3, false] }],
-              ['bold', 'italic', 'underline'],
-              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-              ['link'],
-              ['clean']
-            ]
-          }
+          modules: basicModules
         };
 
         // Abstract editor

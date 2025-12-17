@@ -231,6 +231,10 @@
     .hidden-textarea {
       display: none !important;
     }
+
+    /* Quill Image Resize Styles */
+    .ql-editor img { cursor: pointer; max-width: 100%; }
+    .ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
   </style>
 {% endblock %}
 
@@ -238,6 +242,8 @@
   {{ super() }}
   <!-- Quill Editor JS -->
   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <!-- Quill Image Resize Module -->
+  <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
   <script>
     (function (initForm) {
       if (window.require) {
