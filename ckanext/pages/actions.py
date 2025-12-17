@@ -352,6 +352,10 @@ def _pages_update(context, data_dict):
             else:
                 value = 'page' if item == 'page_type' else None
 
+            # Ensure 'private' is always a proper boolean, not a string
+            if item == 'private':
+                value = tk.asbool(value) if value is not None else False
+
             setattr(out, item, value)
             # DEBUG: Log content field specifically
             if item == 'content':
