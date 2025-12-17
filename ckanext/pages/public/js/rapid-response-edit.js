@@ -937,7 +937,7 @@
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       [{ 'indent': '-1' }, { 'indent': '+1' }],
       ['blockquote', 'code-block'],
-      ['link', 'video'],
+      ['link', 'image', 'video'],
       ['clean'],
       [{ 'align': [] }]
     ];
@@ -945,9 +945,14 @@
       [{ 'header': [2, 3, false] }],
       ['bold', 'italic', 'underline'],
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['link'],
+      ['link', 'image'],
       ['clean']
     ];
+
+    // Register ImageResize module if available
+    if (typeof ImageResize !== 'undefined') {
+      Quill.register('modules/imageResize', ImageResize.default || ImageResize);
+    }
 
     var editorConfigs = {
       'content-editor': { textareaId: 'field-content', toolbar: fullToolbar, placeholder: 'Detailed description of the emergency event, when and where it occurred, and its overall impact...' },
@@ -961,7 +966,14 @@
       var editorEl = document.getElementById(editorId);
       var textarea = document.getElementById(cfg.textareaId);
       if (!editorEl || !textarea) return;
-      var quill = new Quill('#' + editorId, { theme: 'snow', modules: { toolbar: cfg.toolbar, history: { delay: 1000, maxStack: 50 } }, placeholder: cfg.placeholder });
+      
+      // Build modules config with ImageResize if available
+      var modulesConfig = { toolbar: cfg.toolbar, history: { delay: 1000, maxStack: 50 } };
+      if (typeof ImageResize !== 'undefined') {
+        modulesConfig.imageResize = { displaySize: true };
+      }
+      
+      var quill = new Quill('#' + editorId, { theme: 'snow', modules: modulesConfig, placeholder: cfg.placeholder });
       if (textarea.value) {
         try { quill.clipboard.dangerouslyPasteHTML(textarea.value); } catch(e) { quill.setText(textarea.value); }
       }
@@ -1517,17 +1529,23 @@
     
     // Wait for Quill to be available
     waitForQuill(function() {
+      // Build modules config with ImageResize if available
+      var modulesConfig = {
+        toolbar: [
+          [{ 'header': [2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['link', 'image'],
+          ['clean']
+        ]
+      };
+      if (typeof ImageResize !== 'undefined') {
+        modulesConfig.imageResize = { displaySize: true };
+      }
+      
       const quill = new Quill('#' + editorId, {
         theme: 'snow',
-        modules: {
-          toolbar: [
-            [{ 'header': [2, 3, false] }],
-            ['bold', 'italic', 'underline'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            ['link', 'image'],
-            ['clean']
-          ]
-        },
+        modules: modulesConfig,
         placeholder: 'Enter your text content here...'
       });
       
