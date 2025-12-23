@@ -1637,22 +1637,38 @@
         });
       }
       
+      // Escape HTML entities for safe display in attributes
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
       // Add uploaded image preview
       function addUploadedImagePreview(imageData) {
         const imageId = 'uploaded-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         const isFeatured = imageData.featured || false;
+        const safeAlt = escapeHtml(imageData.alt || '');
+        const safeCaption = escapeHtml(imageData.caption || '');
+        const safeCopyright = escapeHtml(imageData.copyright || '');
+        const safeUrl = escapeHtml(imageData.url || '');
         const imageHtml = `
           <div class="uploaded-image-item ${isFeatured ? 'is-featured' : ''}" data-image-id="${imageId}">
             ${isFeatured ? '<div class="featured-badge"><i class="fa fa-star"></i> Featured</div>' : ''}
-            <img src="${imageData.url}" alt="${imageData.alt}" class="uploaded-image-preview">
+            <img src="${safeUrl}" alt="${safeAlt}" class="uploaded-image-preview">
             <div class="uploaded-image-info">
-              <input type="text" class="image-alt form-control" value="${imageData.alt}" placeholder="Alt text">
-              <input type="text" class="image-caption form-control" value="${imageData.caption || ''}" placeholder="Caption (optional)">
+              <input type="text" class="image-alt form-control" value="${safeAlt}" placeholder="Description / Alt text">
+              <input type="text" class="image-caption form-control" value="${safeCaption}" placeholder="Caption (optional)">
+              <input type="text" class="image-copyright form-control" value="${safeCopyright}" placeholder="Copyright (e.g., © 2024 Author Name)">
               <div class="uploaded-image-actions">
                 <button type="button" class="btn btn-sm ${isFeatured ? 'btn-warning' : 'btn-default'} image-set-featured" data-image-id="${imageId}">
                   <i class="fa fa-star${isFeatured ? '' : '-o'}"></i> ${isFeatured ? 'Featured' : 'Set Featured'}
                 </button>
-                <button type="button" class="btn btn-sm btn-info image-copy-url" data-url="${imageData.url}">
+                <button type="button" class="btn btn-sm btn-info image-copy-url" data-url="${safeUrl}">
                   <i class="fa fa-copy"></i> Copy URL
                 </button>
                 <button type="button" class="btn btn-sm btn-danger image-remove" data-image-id="${imageId}">
@@ -1712,16 +1728,16 @@
         updateUploadedImagesData();
       });
       
-      // Update uploaded images data
+      // Update uploaded images data - fileName is NOT stored, only the URL is needed
       function updateUploadedImagesData() {
         const currentImages = [];
         $('.uploaded-image-item').each(function() {
           const $item = $(this);
           const imageData = {
             url: $item.find('img').attr('src'),
-            fileName: $item.find('img').attr('src').split('/').pop(),
-            alt: $item.find('.image-alt').val(),
-            caption: $item.find('.image-caption').val(),
+            alt: $item.find('.image-alt').val() || '',
+            caption: $item.find('.image-caption').val() || '',
+            copyright: $item.find('.image-copyright').val() || '',
             featured: $item.hasClass('is-featured')
           };
           currentImages.push(imageData);
@@ -1730,8 +1746,8 @@
         $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
       }
       
-      // Update image data when alt text or caption changes
-      $(document).on('change input', '.image-alt, .image-caption', function() {
+      // Update image data when alt text, caption, or copyright changes
+      $(document).on('change input', '.image-alt, .image-caption, .image-copyright', function() {
         updateUploadedImagesData();
       });
       

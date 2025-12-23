@@ -145,6 +145,26 @@ def data_story_create(context, data_dict):
             uploaded_images_value = []
     elif not uploaded_images_value:
         uploaded_images_value = []
+
+    # Sanitize each image entry to prevent issues with problematic data
+    if isinstance(uploaded_images_value, list):
+        sanitized_images = []
+        for img in uploaded_images_value:
+            if isinstance(img, dict):
+                sanitized_img = {
+                    'url': str(img.get('url', ''))[:2000] if img.get('url') else '',
+                    'alt': str(img.get('alt', ''))[:500] if img.get('alt') else '',
+                    'caption': str(img.get('caption', ''))[:1000] if img.get('caption') else '',
+                    'copyright': str(img.get('copyright', ''))[:500] if img.get('copyright') else '',
+                    'featured': bool(img.get('featured', False))
+                }
+                # Only add images with valid URLs
+                if sanitized_img['url']:
+                    sanitized_images.append(sanitized_img)
+        uploaded_images_value = sanitized_images
+    else:
+        uploaded_images_value = []
+
     story.uploaded_images = uploaded_images_value
     log.info(f"[DATA_STORY_CREATE] uploaded_images: {len(uploaded_images_value)} images")
 

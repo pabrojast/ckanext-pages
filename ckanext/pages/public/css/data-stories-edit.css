@@ -718,6 +718,13 @@
   font-size: 0.9rem;
 }
 
+.data-stories-form .uploaded-image-info input.image-copyright {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-style: italic;
+  background-color: #fafafa;
+}
+
 .data-stories-form .uploaded-image-actions {
   display: flex;
   flex-wrap: wrap;

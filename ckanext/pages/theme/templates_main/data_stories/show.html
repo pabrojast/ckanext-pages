@@ -90,9 +90,14 @@
                     <img src="{{ featured_img.url }}" 
                          alt="{{ featured_img.alt or story.title }}" 
                          style="width: 100%; height: 400px; object-fit: cover; display: block;" />
-                    {% if featured_img.caption %}
+                    {% if featured_img.caption or featured_img.copyright %}
                     <div style="padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-top: 3px solid #0072BC;">
+                      {% if featured_img.caption %}
                       <p style="margin: 0; font-size: 0.95rem; color: #6c757d; font-style: italic;">{{ featured_img.caption }}</p>
+                      {% endif %}
+                      {% if featured_img.copyright %}
+                      <p style="margin: {% if featured_img.caption %}0.5rem{% else %}0{% endif %} 0 0 0; font-size: 0.85rem; color: #868e96;"><i class="fa fa-copyright"></i> {{ featured_img.copyright }}</p>
+                      {% endif %}
                     </div>
                     {% endif %}
                   </div>
@@ -303,13 +308,16 @@
                     <img src="{{ img.url }}" 
                          alt="{{ img.alt or 'Gallery image' }}" 
                          style="width: 100%; height: 200px; object-fit: cover; display: block;" />
-                    {% if img.alt or img.caption %}
+                    {% if img.alt or img.caption or img.copyright %}
                     <div style="padding: 1rem;">
                       {% if img.alt %}
                       <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #2c3e50; font-size: 0.95rem;">{{ img.alt }}</p>
                       {% endif %}
                       {% if img.caption %}
-                      <p style="margin: 0; font-size: 0.85rem; color: #6c757d;">{{ img.caption }}</p>
+                      <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #6c757d;">{{ img.caption }}</p>
+                      {% endif %}
+                      {% if img.copyright %}
+                      <p style="margin: 0; font-size: 0.8rem; color: #868e96; font-style: italic;"><i class="fa fa-copyright"></i> {{ img.copyright }}</p>
                       {% endif %}
                     </div>
                     {% endif %}
@@ -362,6 +370,7 @@
                 let caption = '';
                 if (img.alt) caption += '<strong>' + img.alt + '</strong>';
                 if (img.caption) caption += (img.alt ? '<br>' : '') + img.caption;
+                if (img.copyright) caption += '<br><small style="opacity: 0.7;"><i class="fa fa-copyright"></i> ' + img.copyright + '</small>';
                 document.getElementById('lightbox-caption').innerHTML = caption;
                 
                 document.getElementById('lightbox-counter').textContent = (currentLightboxIndex + 1) + ' / ' + galleryImages.length;

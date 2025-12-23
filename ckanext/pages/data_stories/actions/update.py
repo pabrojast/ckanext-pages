@@ -184,6 +184,26 @@ def data_story_update(context, data_dict):
                 uploaded_images_value = []
         elif not uploaded_images_value:
             uploaded_images_value = []
+
+        # Sanitize each image entry to prevent issues with problematic data
+        if isinstance(uploaded_images_value, list):
+            sanitized_images = []
+            for img in uploaded_images_value:
+                if isinstance(img, dict):
+                    sanitized_img = {
+                        'url': str(img.get('url', ''))[:2000] if img.get('url') else '',
+                        'alt': str(img.get('alt', ''))[:500] if img.get('alt') else '',
+                        'caption': str(img.get('caption', ''))[:1000] if img.get('caption') else '',
+                        'copyright': str(img.get('copyright', ''))[:500] if img.get('copyright') else '',
+                        'featured': bool(img.get('featured', False))
+                    }
+                    # Only add images with valid URLs
+                    if sanitized_img['url']:
+                        sanitized_images.append(sanitized_img)
+            uploaded_images_value = sanitized_images
+        else:
+            uploaded_images_value = []
+
         from sqlalchemy.orm.attributes import flag_modified
         story.uploaded_images = uploaded_images_value
         flag_modified(story, 'uploaded_images')
@@ -197,7 +217,7 @@ def data_story_update(context, data_dict):
     user = context.get('user')
     is_admin = authz.is_sysadmin(user) if user else False
     was_published = story.status == 'published'
-    
+
     # Update timestamp
     story.updated_at = datetime.datetime.utcnow()
 
