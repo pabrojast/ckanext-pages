@@ -128,7 +128,7 @@
                 return { name: entry, display_name: entry };
               }
               return {
-                name: entry.name || '',
+                name: entry.name || entry.display_name || '',
                 display_name: entry.display_name || entry.name || ''
               };
             }).filter(function(entry) {
@@ -260,7 +260,7 @@
               if (typeof entry === 'string') {
                 return { name: entry };
               }
-              return { name: entry.name || '' };
+              return { name: entry.name || entry.display_name || entry.title || '' };
             }).filter(function(entry) {
               return entry.name;
             });
@@ -843,34 +843,36 @@
         waitForQuill(function() {
           // Build modules config with ImageResize if available
           var modulesConfig = {
-            toolbar: [
-              [{ 'header': [2, 3, false] }],
-              ['bold', 'italic', 'underline'],
-              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-              ['link', 'image'],
-              ['clean']
-            ]
+            toolbar: {
+              container: [
+                [{ 'header': [2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link', 'image'],
+                ['clean']
+              ],
+              handlers: {
+                image: function() {
+                  const fileInput = document.createElement('input');
+                  fileInput.setAttribute('type', 'file');
+                  fileInput.setAttribute('accept', 'image/*');
+                  fileInput.onchange = function() {
+                    const file = fileInput.files && fileInput.files[0];
+                    if (file) {
+                      handleQuillFiles(quill, [file]).catch(function(err) {
+                        console.error('Toolbar image upload failed:', err);
+                        alert('No se pudo subir la imagen. Intenta nuevamente.');
+                      });
+                    }
+                  };
+                  fileInput.click();
+                }
+              }
+            }
           };
           if (typeof ImageResize !== 'undefined') {
             modulesConfig.imageResize = { displaySize: true };
           }
-          modulesConfig.handlers = {
-            image: function() {
-              const fileInput = document.createElement('input');
-              fileInput.setAttribute('type', 'file');
-              fileInput.setAttribute('accept', 'image/*');
-              fileInput.onchange = function() {
-                const file = fileInput.files && fileInput.files[0];
-                if (file) {
-                  handleQuillFiles(quill, [file]).catch(function(err) {
-                    console.error('Toolbar image upload failed:', err);
-                    alert('No se pudo subir la imagen. Intenta nuevamente.');
-                  });
-                }
-              };
-              fileInput.click();
-            }
-          };
           
           const quill = new Quill('#' + blockId + '-editor', {
             theme: 'snow',
@@ -1605,7 +1607,7 @@
       }
 
       function uploadDataUriImage(dataURI) {
-        return compressDataUri(dataURI, { maxSide: 1600, quality: 0.82 })
+        return compressDataUri(dataURI, { maxSide: 1200, quality: 0.7 })
           .catch(function() {
             // If compression fails, fallback to original data URI
             return dataURI;
@@ -1615,27 +1617,46 @@
             if (!blob) {
               return $.Deferred().reject('Invalid image data').promise();
             }
-            const mime = blob.type || 'image/jpeg';
-            const ext = mime.split('/')[1] || 'jpg';
-            const filename = `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-            const formData = new FormData();
-            formData.append('upload', blob, filename);
-
-            return $.ajax({
-              url: '/pages_upload',
-              type: 'POST',
-              data: formData,
-              processData: false,
-              contentType: false,
-              timeout: 45000
-            }).then(function(response) {
-              if (response && response.uploaded === 1 && response.url) {
-                return response.url;
-              }
-              const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
-              return $.Deferred().reject(errorMsg).promise();
-            });
+            // If still heavy, re-compress more aggressively
+            if (blob.size > 1500000) {
+              return compressDataUri(dataURI, { maxSide: 1000, quality: 0.65 })
+                .catch(function() { return processedUri; })
+                .then(function(retryUri) {
+                  const retryBlob = dataURItoBlob(retryUri);
+                  if (retryBlob && retryBlob.size < blob.size) {
+                    return retryBlob;
+                  }
+                  return blob;
+                })
+                .then(function(finalBlob) {
+                  return doUploadBlob(finalBlob);
+                });
+            }
+            return doUploadBlob(blob);
           });
+      }
+
+      function doUploadBlob(blob) {
+        const mime = blob.type || 'image/jpeg';
+        const ext = mime.split('/')[1] || 'jpg';
+        const filename = `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const formData = new FormData();
+        formData.append('upload', blob, filename);
+
+        return $.ajax({
+          url: '/pages_upload',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          timeout: 45000
+        }).then(function(response) {
+          if (response && response.uploaded === 1 && response.url) {
+            return response.url;
+          }
+          const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
+          return $.Deferred().reject(errorMsg).promise();
+        });
       }
 
       function extractDataUris(html) {
