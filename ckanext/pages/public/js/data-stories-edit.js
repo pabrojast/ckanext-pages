@@ -1449,6 +1449,41 @@
       // Inline image upload from Quill
       // ================================
 
+      function compressDataUri(dataURI, opts) {
+        opts = opts || {};
+        const maxSide = opts.maxSide || 1600;
+        const quality = opts.quality || 0.8;
+
+        return new Promise(function(resolve, reject) {
+          const img = new Image();
+          img.onload = function() {
+            try {
+              let width = img.width;
+              let height = img.height;
+              const scale = Math.min(1, maxSide / Math.max(width, height));
+              width = Math.round(width * scale);
+              height = Math.round(height * scale);
+
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+
+              // Always export as JPEG to shrink size
+              const compressed = canvas.toDataURL('image/jpeg', quality);
+              resolve(compressed || dataURI);
+            } catch (err) {
+              reject(err);
+            }
+          };
+          img.onerror = function(err) {
+            reject(err);
+          };
+          img.src = dataURI;
+        });
+      }
+
       function dataURItoBlob(dataURI) {
         const parts = dataURI.split(',');
         if (parts.length < 2) return null;
@@ -1466,29 +1501,37 @@
       }
 
       function uploadDataUriImage(dataURI) {
-        const blob = dataURItoBlob(dataURI);
-        if (!blob) {
-          return $.Deferred().reject('Invalid image data').promise();
-        }
-        const mime = blob.type || 'image/png';
-        const ext = mime.split('/')[1] || 'png';
-        const filename = `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const formData = new FormData();
-        formData.append('upload', blob, filename);
+        return compressDataUri(dataURI, { maxSide: 1600, quality: 0.82 })
+          .catch(function() {
+            // If compression fails, fallback to original data URI
+            return dataURI;
+          })
+          .then(function(processedUri) {
+            const blob = dataURItoBlob(processedUri);
+            if (!blob) {
+              return $.Deferred().reject('Invalid image data').promise();
+            }
+            const mime = blob.type || 'image/jpeg';
+            const ext = mime.split('/')[1] || 'jpg';
+            const filename = `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+            const formData = new FormData();
+            formData.append('upload', blob, filename);
 
-        return $.ajax({
-          url: '/pages_upload',
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-        }).then(function(response) {
-          if (response && response.uploaded === 1 && response.url) {
-            return response.url;
-          }
-          const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
-          return $.Deferred().reject(errorMsg).promise();
-        });
+            return $.ajax({
+              url: '/pages_upload',
+              type: 'POST',
+              data: formData,
+              processData: false,
+              contentType: false,
+              timeout: 45000
+            }).then(function(response) {
+              if (response && response.uploaded === 1 && response.url) {
+                return response.url;
+              }
+              const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
+              return $.Deferred().reject(errorMsg).promise();
+            });
+          });
       }
 
       function extractDataUris(html) {
