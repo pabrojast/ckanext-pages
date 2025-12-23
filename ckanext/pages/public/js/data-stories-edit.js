@@ -113,6 +113,12 @@
         console.log('[DataStories] loadExistingCountries: hidden field exists:', $hidden.length > 0);
         console.log('[DataStories] loadExistingCountries: rawValue:', rawValue);
 
+        function decodeHtmlEntities(str) {
+          const txt = document.createElement('textarea');
+          txt.innerHTML = str;
+          return txt.value;
+        }
+
         if (!rawValue) {
           console.log('[DataStories] loadExistingCountries: rawValue is empty/falsy');
           selectedCountries = [];
@@ -143,6 +149,28 @@
           selectedCountries = countryNames.map(function(name) {
             return { name: name, display_name: name };
           });
+        }
+
+        // If parsing produced empties but the raw string seems JSON, try decoding HTML entities and re-parse
+        if (selectedCountries.length === 0 && rawValue.indexOf('{') !== -1) {
+          try {
+            const decoded = decodeHtmlEntities(rawValue);
+            const parsed = JSON.parse(decoded);
+            if (Array.isArray(parsed)) {
+              selectedCountries = parsed.map(function(entry) {
+                if (typeof entry === 'string') {
+                  return { name: entry, display_name: entry };
+                }
+                return {
+                  name: entry.name || entry.display_name || '',
+                  display_name: entry.display_name || entry.name || ''
+                };
+              }).filter(function(entry) { return entry.name; });
+              console.log('[DataStories] loadExistingCountries: recovered after HTML decode:', selectedCountries);
+            }
+          } catch (e) {
+            // ignore
+          }
         }
 
         selectedCountries.forEach(function(country) {
@@ -883,7 +911,13 @@
           if (content) {
             quill.clipboard.dangerouslyPasteHTML(content);
           }
-          
+
+          // If legacy content has inline data URIs, upload immediately and replace
+          replaceInlineImagesInEditor(quill).catch(function(err) {
+            console.error('Inline image sanitize on init failed:', err);
+            alert('No se pudieron subir imágenes pegadas en el contenido existente. Intenta volver a guardarlo o súbelas mediante la galería.');
+          });
+
           bindQuillPasteDrop(quill);
           quill.on('text-change', function() {
             updateSectionContent(sectionId);
@@ -1476,24 +1510,61 @@
         quill.setSelection(index + 1, 'silent');
       }
 
-      function uploadInlineFile(file) {
-        const formData = new FormData();
-        const filename = file.name || `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${(file.type || 'image/jpeg').split('/')[1] || 'jpg'}`;
-        formData.append('upload', file, filename);
+      function readFileAsDataURL(file) {
+        return new Promise(function(resolve, reject) {
+          const reader = new FileReader();
+          reader.onload = function(e) { resolve(e.target.result); };
+          reader.onerror = function() { reject(new Error('No se pudo leer la imagen.')); };
+          reader.readAsDataURL(file);
+        });
+      }
 
-        return $.ajax({
-          url: '/pages_upload',
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          timeout: 45000
-        }).then(function(response) {
-          if (response && response.uploaded === 1 && response.url) {
-            return response.url;
-          }
-          const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
-          return $.Deferred().reject(errorMsg).promise();
+      function compressFileForUpload(file) {
+        if (!file) {
+          return $.Deferred().reject('Archivo de imagen no válido').promise();
+        }
+
+        // Skip compression for very small files to speed things up
+        const shouldCompress = !file.size || file.size > 600000;
+        if (!shouldCompress) {
+          return Promise.resolve(file);
+        }
+
+        return readFileAsDataURL(file)
+          .then(function(dataUrl) {
+            return compressDataUri(dataUrl, { maxSide: 1200, quality: 0.72 })
+              .catch(function() { return dataUrl; });
+          })
+          .then(function(uri) {
+            let blob = dataURItoBlob(uri);
+            if (!blob) {
+              return $.Deferred().reject('Imagen no válida').promise();
+            }
+            if (blob.size > 1200000) {
+              return compressDataUri(uri, { maxSide: 900, quality: 0.6 })
+                .catch(function() { return uri; })
+                .then(function(uri2) {
+                  const blob2 = dataURItoBlob(uri2) || blob;
+                  return blob2.size < blob.size ? blob2 : blob;
+                });
+            }
+            return blob;
+          })
+          .then(function(blob) {
+            if (blob.size > 2000000) {
+              return $.Deferred().reject('La imagen es demasiado grande para subirla desde el editor. Usa la galería.').promise();
+            }
+            return blob;
+          });
+      }
+
+      function uploadInlineFile(file) {
+        const prepare = compressFileForUpload(file).catch(function(err) {
+          return $.Deferred().reject(err).promise();
+        });
+
+        return prepare.then(function(blob) {
+          return doUploadBlob(blob);
         });
       }
 
@@ -1607,7 +1678,7 @@
       }
 
       function uploadDataUriImage(dataURI) {
-        return compressDataUri(dataURI, { maxSide: 1200, quality: 0.7 })
+        return compressDataUri(dataURI, { maxSide: 1200, quality: 0.68 })
           .catch(function() {
             // If compression fails, fallback to original data URI
             return dataURI;
@@ -1618,8 +1689,8 @@
               return $.Deferred().reject('Invalid image data').promise();
             }
             // If still heavy, re-compress more aggressively
-            if (blob.size > 1500000) {
-              return compressDataUri(dataURI, { maxSide: 1000, quality: 0.65 })
+            if (blob.size > 1200000) {
+              return compressDataUri(dataURI, { maxSide: 900, quality: 0.6 })
                 .catch(function() { return processedUri; })
                 .then(function(retryUri) {
                   const retryBlob = dataURItoBlob(retryUri);
@@ -1629,8 +1700,14 @@
                   return blob;
                 })
                 .then(function(finalBlob) {
+                  if (finalBlob.size > 1800000) {
+                    return $.Deferred().reject('La imagen pegada es demasiado grande, súbela usando la galería.').promise();
+                  }
                   return doUploadBlob(finalBlob);
                 });
+            }
+            if (blob.size > 1800000) {
+              return $.Deferred().reject('La imagen pegada es demasiado grande, súbela usando la galería.').promise();
             }
             return doUploadBlob(blob);
           });
@@ -1707,6 +1784,26 @@
         });
 
         return chain;
+      }
+
+      function replaceInlineImagesInEditor(quill) {
+        if (!quill) return Promise.resolve();
+        let html = quill.root.innerHTML || '';
+        const dataUris = extractDataUris(html);
+        if (!dataUris.length) {
+          return Promise.resolve();
+        }
+        let uploadChain = Promise.resolve();
+        dataUris.forEach(function(dataUri) {
+          uploadChain = uploadChain.then(function() {
+            return uploadDataUriImage(dataUri).then(function(url) {
+              html = html.split(dataUri).join(url);
+            });
+          });
+        });
+        return uploadChain.then(function() {
+          quill.root.innerHTML = html;
+        });
       }
 
       function replaceInlineImagesInAllSections() {
@@ -1866,9 +1963,6 @@
       
       // Upload image function (internal - called by queue processor)
       function uploadImageInternal(file, onComplete) {
-        const formData = new FormData();
-        formData.append('upload', file);
-        
         // Show upload progress
         const progressId = 'progress-' + Date.now();
         const progressHtml = `
@@ -1880,26 +1974,33 @@
           </div>
         `;
         $('#uploaded-images-preview').append(progressHtml);
-        
-        $.ajax({
-          url: '/pages_upload',
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          xhr: function() {
-            const xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener("progress", function(evt) {
-              if (evt.lengthComputable) {
-                const percentComplete = (evt.loaded / evt.total) * 100;
-                $('#' + progressId + ' .progress-bar').css('width', percentComplete + '%');
+
+        compressFileForUpload(file)
+          .then(function(blob) {
+            const formData = new FormData();
+            formData.append('upload', blob, file.name || ('upload-' + Date.now() + '.jpg'));
+
+            return $.ajax({
+              url: '/pages_upload',
+              type: 'POST',
+              data: formData,
+              processData: false,
+              contentType: false,
+              xhr: function() {
+                const xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                  if (evt.lengthComputable) {
+                    const percentComplete = (evt.loaded / evt.total) * 100;
+                    $('#' + progressId + ' .progress-bar').css('width', percentComplete + '%');
+                  }
+                }, false);
+                return xhr;
               }
-            }, false);
-            return xhr;
-          },
-          success: function(response) {
+            });
+          })
+          .then(function(response) {
             $('#' + progressId).remove();
-            if (response.uploaded === 1) {
+            if (response && response.uploaded === 1) {
               // Only store essential fields - no fileName to avoid JSON issues
               const imageData = {
                 url: response.url,
@@ -1921,16 +2022,17 @@
                 }
               }
             } else {
-              alert('Error uploading image: ' + (response.error ? response.error.message : 'Unknown error'));
+              alert('Error uploading image: ' + (response && response.error ? response.error.message : 'Unknown error'));
             }
-            if (onComplete) onComplete();
-          },
-          error: function() {
+          })
+          .catch(function(err) {
             $('#' + progressId).remove();
-            alert('Error uploading image. Please try again.');
+            const message = typeof err === 'string' ? err : 'Error uploading image. Please try again.';
+            alert(message);
+          })
+          .then(function() {
             if (onComplete) onComplete();
-          }
-        });
+          });
       }
       
       // Escape HTML entities for safe display in attributes
