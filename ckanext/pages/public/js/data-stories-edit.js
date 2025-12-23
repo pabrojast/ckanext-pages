@@ -854,6 +854,23 @@
           if (typeof ImageResize !== 'undefined') {
             modulesConfig.imageResize = { displaySize: true };
           }
+          modulesConfig.handlers = {
+            image: function() {
+              const fileInput = document.createElement('input');
+              fileInput.setAttribute('type', 'file');
+              fileInput.setAttribute('accept', 'image/*');
+              fileInput.onchange = function() {
+                const file = fileInput.files && fileInput.files[0];
+                if (file) {
+                  handleQuillFiles(quill, [file]).catch(function(err) {
+                    console.error('Toolbar image upload failed:', err);
+                    alert('No se pudo subir la imagen. Intenta nuevamente.');
+                  });
+                }
+              };
+              fileInput.click();
+            }
+          };
           
           const quill = new Quill('#' + blockId + '-editor', {
             theme: 'snow',
@@ -865,6 +882,7 @@
             quill.clipboard.dangerouslyPasteHTML(content);
           }
           
+          bindQuillPasteDrop(quill);
           quill.on('text-change', function() {
             updateSectionContent(sectionId);
           });
@@ -1448,6 +1466,92 @@
       // ================================
       // Inline image upload from Quill
       // ================================
+
+      function handleInlineImageInsert(quill, url) {
+        const range = quill.getSelection(true);
+        const index = range && typeof range.index === 'number' ? range.index : quill.getLength();
+        quill.insertEmbed(index, 'image', url, 'user');
+        quill.setSelection(index + 1, 'silent');
+      }
+
+      function uploadInlineFile(file) {
+        const formData = new FormData();
+        const filename = file.name || `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${(file.type || 'image/jpeg').split('/')[1] || 'jpg'}`;
+        formData.append('upload', file, filename);
+
+        return $.ajax({
+          url: '/pages_upload',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          timeout: 45000
+        }).then(function(response) {
+          if (response && response.uploaded === 1 && response.url) {
+            return response.url;
+          }
+          const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
+          return $.Deferred().reject(errorMsg).promise();
+        });
+      }
+
+      function handleQuillFiles(quill, files) {
+        // Upload sequentially to avoid large parallel requests
+        let chain = Promise.resolve();
+        Array.from(files).forEach(function(file) {
+          if (!file || !file.type || !file.type.startsWith('image/')) {
+            return;
+          }
+          chain = chain.then(function() {
+            return uploadInlineFile(file).then(function(url) {
+              handleInlineImageInsert(quill, url);
+            });
+          });
+        });
+        return chain;
+      }
+
+      function bindQuillPasteDrop(quill) {
+        const root = quill.root;
+
+        root.addEventListener('paste', function(e) {
+          if (!e.clipboardData || !e.clipboardData.items) {
+            return;
+          }
+          const items = Array.from(e.clipboardData.items).filter(function(item) {
+            return item.type && item.type.startsWith('image/');
+          });
+          if (!items.length) return;
+          e.preventDefault();
+          const files = items.map(function(item) { return item.getAsFile(); }).filter(Boolean);
+          handleQuillFiles(quill, files).catch(function(err) {
+            console.error('Inline paste upload failed:', err);
+          });
+        });
+
+        root.addEventListener('drop', function(e) {
+          if (!e.dataTransfer || !e.dataTransfer.items) {
+            return;
+          }
+          const items = Array.from(e.dataTransfer.items).filter(function(item) {
+            return item.type && item.type.startsWith('image/');
+          });
+          if (!items.length) return;
+          e.preventDefault();
+          const files = items.map(function(item) { return item.getAsFile(); }).filter(Boolean);
+          handleQuillFiles(quill, files).catch(function(err) {
+            console.error('Inline drop upload failed:', err);
+          });
+        });
+
+        root.addEventListener('dragover', function(e) {
+          if (e.dataTransfer && e.dataTransfer.items && Array.from(e.dataTransfer.items).some(function(item) {
+            return item.type && item.type.startsWith('image/');
+          })) {
+            e.preventDefault();
+          }
+        });
+      }
 
       function compressDataUri(dataURI, opts) {
         opts = opts || {};
