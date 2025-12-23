@@ -889,7 +889,7 @@
                     if (file) {
                       handleQuillFiles(quill, [file]).catch(function(err) {
                         console.error('Toolbar image upload failed:', err);
-                        alert('No se pudo subir la imagen. Intenta nuevamente.');
+                        alert('Image upload failed. Please try again.');
                       });
                     }
                   };
@@ -915,7 +915,7 @@
           // If legacy content has inline data URIs, upload immediately and replace
           replaceInlineImagesInEditor(quill).catch(function(err) {
             console.error('Inline image sanitize on init failed:', err);
-            alert('No se pudieron subir imágenes pegadas en el contenido existente. Intenta volver a guardarlo o súbelas mediante la galería.');
+            alert('Inline pasted images could not be uploaded. Please save again or upload through the gallery.');
           });
 
           bindQuillPasteDrop(quill);
@@ -1514,14 +1514,14 @@
         return new Promise(function(resolve, reject) {
           const reader = new FileReader();
           reader.onload = function(e) { resolve(e.target.result); };
-          reader.onerror = function() { reject(new Error('No se pudo leer la imagen.')); };
+          reader.onerror = function() { reject(new Error('Could not read image file.')); };
           reader.readAsDataURL(file);
         });
       }
 
       function compressFileForUpload(file) {
         if (!file) {
-          return $.Deferred().reject('Archivo de imagen no válido').promise();
+          return $.Deferred().reject('Invalid image file').promise();
         }
 
         // Skip compression for very small files to speed things up
@@ -1538,7 +1538,7 @@
           .then(function(uri) {
             let blob = dataURItoBlob(uri);
             if (!blob) {
-              return $.Deferred().reject('Imagen no válida').promise();
+              return $.Deferred().reject('Invalid image data').promise();
             }
             if (blob.size > 1200000) {
               return compressDataUri(uri, { maxSide: 900, quality: 0.6 })
@@ -1552,10 +1552,25 @@
           })
           .then(function(blob) {
             if (blob.size > 2000000) {
-              return $.Deferred().reject('La imagen es demasiado grande para subirla desde el editor. Usa la galería.').promise();
+              return $.Deferred().reject('The image is too large to upload from the editor. Please use the gallery.').promise();
             }
             return blob;
           });
+      }
+
+      function uploadBlobWithRetry(blob, maxAttempts) {
+        maxAttempts = maxAttempts || 2;
+        let attempt = 0;
+        function run() {
+          attempt += 1;
+          return doUploadBlob(blob).catch(function(err) {
+            if (attempt < maxAttempts) {
+              return run();
+            }
+            return $.Deferred().reject(err || 'Upload failed').promise();
+          });
+        }
+        return run();
       }
 
       function uploadInlineFile(file) {
@@ -1564,7 +1579,7 @@
         });
 
         return prepare.then(function(blob) {
-          return doUploadBlob(blob);
+          return uploadBlobWithRetry(blob, 2);
         });
       }
 
@@ -1701,13 +1716,13 @@
                 })
                 .then(function(finalBlob) {
                   if (finalBlob.size > 1800000) {
-                    return $.Deferred().reject('La imagen pegada es demasiado grande, súbela usando la galería.').promise();
+                    return $.Deferred().reject('The pasted image is too large; please upload it via the gallery.').promise();
                   }
                   return doUploadBlob(finalBlob);
                 });
             }
             if (blob.size > 1800000) {
-              return $.Deferred().reject('La imagen pegada es demasiado grande, súbela usando la galería.').promise();
+              return $.Deferred().reject('The pasted image is too large; please upload it via the gallery.').promise();
             }
             return doUploadBlob(blob);
           });
@@ -1856,7 +1871,7 @@
           })
           .catch(function(err) {
             console.error('Error uploading inline images:', err);
-            alert('No se pudieron subir las imágenes pegadas en el editor. Intenta nuevamente.');
+            alert('Inline images could not be uploaded. Please try again.');
             $(form).data('submitting-inline', false);
           });
       });
@@ -1977,26 +1992,34 @@
 
         compressFileForUpload(file)
           .then(function(blob) {
-            const formData = new FormData();
-            formData.append('upload', blob, file.name || ('upload-' + Date.now() + '.jpg'));
+            function send(attempt) {
+              const formData = new FormData();
+              formData.append('upload', blob, file.name || ('upload-' + Date.now() + '.jpg'));
 
-            return $.ajax({
-              url: '/pages_upload',
-              type: 'POST',
-              data: formData,
-              processData: false,
-              contentType: false,
-              xhr: function() {
-                const xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener("progress", function(evt) {
-                  if (evt.lengthComputable) {
-                    const percentComplete = (evt.loaded / evt.total) * 100;
-                    $('#' + progressId + ' .progress-bar').css('width', percentComplete + '%');
-                  }
-                }, false);
-                return xhr;
-              }
-            });
+              return $.ajax({
+                url: '/pages_upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                  const xhr = new window.XMLHttpRequest();
+                  xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                      const percentComplete = (evt.loaded / evt.total) * 100;
+                      $('#' + progressId + ' .progress-bar').css('width', percentComplete + '%');
+                    }
+                  }, false);
+                  return xhr;
+                }
+              }).catch(function(err) {
+                if (attempt < 2) {
+                  return send(attempt + 1);
+                }
+                return $.Deferred().reject(err || 'Upload failed').promise();
+              });
+            }
+            return send(1);
           })
           .then(function(response) {
             $('#' + progressId).remove();
@@ -2364,3 +2387,6 @@
     });
   });
 })();
+
+
+
