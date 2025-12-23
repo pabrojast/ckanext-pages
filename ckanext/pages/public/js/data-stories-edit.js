@@ -1605,16 +1605,17 @@
           success: function(response) {
             $('#' + progressId).remove();
             if (response.uploaded === 1) {
+              // Only store essential fields - no fileName to avoid JSON issues
               const imageData = {
                 url: response.url,
-                fileName: response.fileName,
                 alt: file.name.replace(/\.[^/.]+$/, ""),
-                caption: ''
+                caption: '',
+                copyright: ''
               };
               uploadedImages.push(imageData);
               addUploadedImagePreview(imageData);
               updateUploadedImagesData();
-              
+
               // Update the first section's image_url field with the uploaded image
               const $firstSection = $('.content-section-editor').first();
               if ($firstSection.length) {
