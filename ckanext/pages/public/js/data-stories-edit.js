@@ -1444,29 +1444,156 @@
       $('#slug').on('input', function() {
         $(this).data('auto-generated', false);
       });
+
+      // ================================
+      // Inline image upload from Quill
+      // ================================
+
+      function dataURItoBlob(dataURI) {
+        const parts = dataURI.split(',');
+        if (parts.length < 2) return null;
+        const header = parts[0];
+        const data = parts[1];
+        const mimeMatch = header.match(/data:([^;]+);/);
+        const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+        const byteString = atob(data);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mime });
+      }
+
+      function uploadDataUriImage(dataURI) {
+        const blob = dataURItoBlob(dataURI);
+        if (!blob) {
+          return $.Deferred().reject('Invalid image data').promise();
+        }
+        const mime = blob.type || 'image/png';
+        const ext = mime.split('/')[1] || 'png';
+        const filename = `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const formData = new FormData();
+        formData.append('upload', blob, filename);
+
+        return $.ajax({
+          url: '/pages_upload',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+        }).then(function(response) {
+          if (response && response.uploaded === 1 && response.url) {
+            return response.url;
+          }
+          const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
+          return $.Deferred().reject(errorMsg).promise();
+        });
+      }
+
+      function extractDataUris(html) {
+        const regex = /<img[^>]+src=["'](data:[^"']+)["'][^>]*>/gi;
+        const matches = new Set();
+        let m;
+        while ((m = regex.exec(html)) !== null) {
+          if (m[1]) {
+            matches.add(m[1]);
+          }
+        }
+        return Array.from(matches);
+      }
+
+      function replaceInlineImagesInSection(sectionId) {
+        const editors = sectionQuillEditors[sectionId] || {};
+        const blockIds = Object.keys(editors);
+        let chain = Promise.resolve();
+
+        blockIds.forEach(function(blockId) {
+          chain = chain.then(function() {
+            const quill = editors[blockId];
+            if (!quill) {
+              return Promise.resolve();
+            }
+            let html = quill.root.innerHTML || '';
+            const dataUris = extractDataUris(html);
+            if (!dataUris.length) {
+              return Promise.resolve();
+            }
+
+            console.log('[DataStories] Found', dataUris.length, 'inline images in section', sectionId, 'block', blockId);
+
+            // Upload sequentially to avoid large parallel payloads
+            let uploadChain = Promise.resolve();
+            dataUris.forEach(function(dataUri) {
+              uploadChain = uploadChain.then(function() {
+                return uploadDataUriImage(dataUri).then(function(url) {
+                  html = html.split(dataUri).join(url);
+                });
+              });
+            });
+
+            return uploadChain.then(function() {
+              quill.root.innerHTML = html;
+            });
+          });
+        });
+
+        return chain;
+      }
+
+      function replaceInlineImagesInAllSections() {
+        let chain = Promise.resolve();
+        $('.content-section-editor').each(function() {
+          const sectionId = $(this).attr('data-section-id');
+          if (sectionId !== undefined) {
+            chain = chain.then(function() {
+              return replaceInlineImagesInSection(sectionId);
+            });
+          }
+        });
+        return chain;
+      }
       
       // Form submission - Only for the main data stories form, not delete forms
       $('.data-stories-form, form.data-stories-form').on('submit', function(e) {
-        console.log('Data story form submitting, updating section content...');
-        updateCountriesHiddenField();
-        updatePartnersHiddenField();
-        // Debug: Log the countries hidden field value at submit time
-        var countriesVal = $('#story-countries-data').val();
-        console.log('[DataStories] Form submit - countries hidden field value:', countriesVal);
-        console.log('[DataStories] Form submit - countries hidden field type:', typeof countriesVal);
-        console.log('[DataStories] Form submit - selectedCountries array:', selectedCountries);
-        // Debug: Log the partners hidden field value at submit time
-        var partnersVal = $('#story-partners-data').val();
-        console.log('[DataStories] Form submit - partners hidden field value:', partnersVal);
-        console.log('[DataStories] Form submit - selectedPartners array:', selectedPartners);
-        // Update all section content before submit
-        $('.content-section-editor').each(function() {
-          var sectionId = $(this).attr('data-section-id');
-          if (sectionId !== undefined) {
-            updateSectionContent(sectionId);
-            console.log('Updated section ' + sectionId);
-          }
-        });
+        if ($(this).data('submitting-inline')) {
+          return;
+        }
+        e.preventDefault();
+        const form = this;
+        $(form).data('submitting-inline', true);
+
+        console.log('Data story form submitting, processing inline images...');
+
+        replaceInlineImagesInAllSections()
+          .then(function() {
+            console.log('Inline images processed, updating section content...');
+            updateCountriesHiddenField();
+            updatePartnersHiddenField();
+            // Debug: Log the countries hidden field value at submit time
+            var countriesVal = $('#story-countries-data').val();
+            console.log('[DataStories] Form submit - countries hidden field value:', countriesVal);
+            console.log('[DataStories] Form submit - countries hidden field type:', typeof countriesVal);
+            console.log('[DataStories] Form submit - selectedCountries array:', selectedCountries);
+            // Debug: Log the partners hidden field value at submit time
+            var partnersVal = $('#story-partners-data').val();
+            console.log('[DataStories] Form submit - partners hidden field value:', partnersVal);
+            console.log('[DataStories] Form submit - selectedPartners array:', selectedPartners);
+            // Update all section content before submit
+            $('.content-section-editor').each(function() {
+              var sectionId = $(this).attr('data-section-id');
+              if (sectionId !== undefined) {
+                updateSectionContent(sectionId);
+                console.log('Updated section ' + sectionId);
+              }
+            });
+            form.submit();
+          })
+          .catch(function(err) {
+            console.error('Error uploading inline images:', err);
+            alert('No se pudieron subir las imágenes pegadas en el editor. Intenta nuevamente.');
+            $(form).data('submitting-inline', false);
+          });
       });
       
       // ========================================
