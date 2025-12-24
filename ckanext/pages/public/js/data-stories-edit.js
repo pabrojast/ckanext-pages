@@ -528,11 +528,40 @@
         }
       }
       
-      // Register ImageResize module if available
+      // Register ImageResize module if available and extend image format to keep alignment styles
       waitForQuill(function() {
         if (typeof ImageResize !== 'undefined') {
           Quill.register('modules/imageResize', ImageResize.default || ImageResize);
         }
+
+        // Preserve inline image styles/classes (e.g., float alignment) when loading existing content
+        const BaseImage = Quill.import('formats/image');
+        const imageAttributes = ['alt', 'height', 'width', 'style', 'class'];
+        class StyledImage extends BaseImage {
+          static formats(domNode) {
+            const formats = super.formats(domNode);
+            imageAttributes.forEach(function(attr) {
+              const value = domNode.getAttribute(attr);
+              if (value) {
+                formats[attr] = value;
+              }
+            });
+            return formats;
+          }
+
+          format(name, value) {
+            if (imageAttributes.indexOf(name) !== -1) {
+              if (value) {
+                this.domNode.setAttribute(name, value);
+              } else {
+                this.domNode.removeAttribute(name);
+              }
+            } else {
+              super.format(name, value);
+            }
+          }
+        }
+        Quill.register(StyledImage, true);
       });
       
       // Section management
