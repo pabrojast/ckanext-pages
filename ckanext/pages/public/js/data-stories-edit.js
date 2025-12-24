@@ -2384,12 +2384,25 @@
       });
 
       // Character Counter for At a Glance fields
-      function updateCharacterCount(editorId, counterId, maxLength) {
-        const editor = window.quillEditors[editorId];
-        if (!editor) return;
+      function updateCharacterCount(editorSelector, counterId, maxLength) {
+        const editorElement = document.querySelector(editorSelector);
+        if (!editorElement) {
+          console.log('Editor element not found:', editorSelector);
+          return;
+        }
+        
+        // Get Quill instance from the element
+        const editor = editorElement.__quill;
+        if (!editor) {
+          console.log('Quill instance not found for:', editorSelector);
+          return;
+        }
         
         const counter = document.getElementById(counterId);
-        if (!counter) return;
+        if (!counter) {
+          console.log('Counter element not found:', counterId);
+          return;
+        }
         
         function updateCount() {
           const text = editor.getText();
@@ -2417,13 +2430,15 @@
         
         // Listen for text changes
         editor.on('text-change', updateCount);
+        
+        console.log('Character counter setup for:', editorSelector);
       }
       
       // Setup character counters for At a Glance fields
       setTimeout(() => {
-        updateCharacterCount('research_question-editor', 'research_question-counter', 120);
-        updateCharacterCount('study_area-editor', 'study_area-counter', 100);
-      }, 500); // Increased delay to ensure editors are ready
+        updateCharacterCount('#research_question-editor', 'research_question-counter', 120);
+        updateCharacterCount('#study_area-editor', 'study_area-counter', 100);
+      }, 1000); // Increased delay to ensure editors are ready
 
       console.log('Data Stories editor initialized successfully');
     });
