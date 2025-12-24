@@ -157,7 +157,11 @@
           <i class="fa fa-info-circle text-info"></i>
           {{ _('Brief summary of the main research question. This appears in the sidebar "At a Glance" section.') }}
           <br><small class="text-muted">{{ _('Tip: For detailed explanation, add a "Research Question" section below.') }}</small>
+          <br><small class="text-info"><i class="fa fa-exclamation-triangle"></i> <strong>{{ _('Limit: 120 characters') }}</strong> - {{ _('Longer text will be truncated in the sidebar display.') }}</small>
         </span>
+        <div class="character-counter" style="text-align: right; margin-top: 5px;">
+          <small id="research_question-counter" class="text-muted">0 / 120 {{ _('characters') }}</small>
+        </div>
         {% if errors.research_question %}
         <span class="error-block">{{ errors.research_question.0 }}</span>
         {% endif %}
@@ -180,7 +184,11 @@
           <i class="fa fa-info-circle text-info"></i>
           {{ _('Brief description of the geographic area covered. This appears in the sidebar "At a Glance" section.') }}
           <br><small class="text-muted">{{ _('Tip: For detailed geographic analysis, add a "Study Area" section below.') }}</small>
+          <br><small class="text-info"><i class="fa fa-exclamation-triangle"></i> <strong>{{ _('Limit: 100 characters') }}</strong> - {{ _('Longer text will be truncated in the sidebar display.') }}</small>
         </span>
+        <div class="character-counter" style="text-align: right; margin-top: 5px;">
+          <small id="study_area-counter" class="text-muted">0 / 100 {{ _('characters') }}</small>
+        </div>
         {% if errors.study_area %}
         <span class="error-block">{{ errors.study_area.0 }}</span>
         {% endif %}

@@ -481,7 +481,7 @@
                   <i class="fa fa-question-circle"></i> {{ _('Key Question') }}
                 </dt>
                 <dd style="margin: 0; color: #2c3e50; font-size: 0.9rem; line-height: 1.5; font-style: italic;">
-                  {{ story.research_question | striptags | truncate(200) }}
+                  {{ story.research_question | striptags | truncate(120) }}
                 </dd>
               </div>
               {% endif %}
@@ -492,7 +492,7 @@
                   <i class="fa fa-map-marker"></i> {{ _('Geographic Focus') }}
                 </dt>
                 <dd style="margin: 0; color: #2c3e50; font-size: 0.9rem; line-height: 1.5;">
-                  {{ story.study_area | striptags | truncate(150) }}
+                  {{ story.study_area | striptags | truncate(100) }}
                 </dd>
               </div>
               {% endif %}

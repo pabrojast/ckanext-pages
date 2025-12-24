@@ -2383,6 +2383,48 @@
         });
       });
 
+      // Character Counter for At a Glance fields
+      function updateCharacterCount(editorId, counterId, maxLength) {
+        const editor = window.quillEditors[editorId];
+        if (!editor) return;
+        
+        const counter = document.getElementById(counterId);
+        if (!counter) return;
+        
+        function updateCount() {
+          const text = editor.getText();
+          const currentLength = text.trim().length;
+          
+          // Update counter display
+          const charactersText = counter.textContent.includes('characters') ? 
+            'characters' : 'caracteres';
+          
+          counter.textContent = `${currentLength} / ${maxLength} ${charactersText}`;
+          
+          // Color coding based on usage
+          if (currentLength > maxLength) {
+            counter.className = 'text-danger';
+            counter.innerHTML = `<i class="fa fa-exclamation-triangle"></i> ${currentLength} / ${maxLength} ${charactersText} - <strong>Exceeds display limit</strong>`;
+          } else if (currentLength > maxLength * 0.8) {
+            counter.className = 'text-warning';
+          } else {
+            counter.className = 'text-muted';
+          }
+        }
+        
+        // Initial count
+        updateCount();
+        
+        // Listen for text changes
+        editor.on('text-change', updateCount);
+      }
+      
+      // Setup character counters for At a Glance fields
+      setTimeout(() => {
+        updateCharacterCount('research_question-editor', 'research_question-counter', 120);
+        updateCharacterCount('study_area-editor', 'study_area-counter', 100);
+      }, 500); // Increased delay to ensure editors are ready
+
       console.log('Data Stories editor initialized successfully');
     });
   });
