@@ -30,6 +30,35 @@
   padding-bottom: 3rem;
 }
 
+/* Breadcrumb (Data Stories) */
+.data-story-breadcrumb .breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.data-story-breadcrumb .breadcrumb > li {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.data-story-breadcrumb .breadcrumb > li + li:before {
+  padding: 0 0.35rem;
+}
+
+.data-story-breadcrumb .breadcrumb > li.active > a,
+.data-story-breadcrumb .breadcrumb > li.active {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
 /* Module System */
 .module {
   background: #fff;
