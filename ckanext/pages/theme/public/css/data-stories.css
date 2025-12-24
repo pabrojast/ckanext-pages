@@ -1219,6 +1219,105 @@
 }
 
 /* ========================================
+   Lightbox Modal - Fixed z-index issues
+   ======================================== */
+
+.ds-lightbox-modal {
+  display: none;
+  position: fixed;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.96) !important;
+  z-index: 2147483647 !important;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  isolation: isolate !important;
+}
+
+.ds-lightbox-modal.open { 
+  display: flex !important; 
+  position: fixed !important;
+  z-index: 2147483647 !important;
+}
+
+.ds-lightbox-btn {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  color: #fff;
+  font-size: 40px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  z-index: 2147483647 !important;
+  transition: background 0.2s ease;
+}
+
+.ds-lightbox-btn:hover { 
+  background: rgba(255, 255, 255, 0.3); 
+}
+
+.ds-lightbox-img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+.ds-lightbox-caption { 
+  color: #fff; 
+  font-size: 1.1rem; 
+  padding: 10px; 
+}
+
+.ds-lightbox-counter { 
+  color: #fff; 
+  opacity: 0.7; 
+  margin-top: 8px; 
+}
+
+/* Hide navigation elements when lightbox is open */
+body.ds-lightbox-open .nav-link.dropdown-toggle.active-item,
+body.ds-lightbox-open .dropdown-menu,
+body.ds-lightbox-open .site-footer,
+body.ds-lightbox-open .navbar,
+body.ds-lightbox-open [class*="dropdown"],
+body.ds-lightbox-open [class*="nav-"],
+body.ds-lightbox-open .footer-links {
+  z-index: -1 !important;
+  visibility: hidden !important;
+}
+
+/* Ensure lightbox is on top of everything */
+.ds-lightbox-modal {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  isolation: isolate !important;
+}
+
+/* Force modal content to be on top */
+.ds-lightbox-modal * {
+  z-index: inherit !important;
+}
+
+/* Override any other z-index when lightbox is open */
+body.ds-lightbox-open * {
+  z-index: auto !important;
+}
+
+body.ds-lightbox-open .ds-lightbox-modal,
+body.ds-lightbox-open .ds-lightbox-modal * {
+  z-index: 2147483647 !important;
+}
+
+/* ========================================
    Print Styles
    ======================================== */
 

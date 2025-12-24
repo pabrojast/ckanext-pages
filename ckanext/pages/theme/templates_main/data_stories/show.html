@@ -328,41 +328,6 @@
             </section>
 
             {# Lightbox Modal #}
-            <style>
-              .ds-lightbox-modal {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.96);
-                z-index: 2147483000;
-                align-items: center;
-                justify-content: center;
-                padding: 2rem;
-              }
-              .ds-lightbox-modal.open { display: flex; }
-              .ds-lightbox-btn {
-                position: absolute;
-                background: rgba(255, 255, 255, 0.18);
-                border: none;
-                color: #fff;
-                font-size: 40px;
-                padding: 10px 20px;
-                cursor: pointer;
-                border-radius: 6px;
-                z-index: 2147483001;
-                transition: background 0.2s ease;
-              }
-              .ds-lightbox-btn:hover { background: rgba(255, 255, 255, 0.3); }
-              .ds-lightbox-img {
-                max-width: 100%;
-                max-height: 80vh;
-                object-fit: contain;
-                margin-bottom: 20px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
-              }
-              .ds-lightbox-caption { color: #fff; font-size: 1.1rem; padding: 10px; }
-              .ds-lightbox-counter { color: #fff; opacity: 0.7; margin-top: 8px; }
-            </style>
             <div id="lightbox-modal" class="ds-lightbox-modal">
               <button onclick="closeLightbox()" class="ds-lightbox-btn" style="top: 20px; right: 30px;">&times;</button>
               <button onclick="changeLightboxImage(-1)" class="ds-lightbox-btn" style="left: 30px; top: 50%; transform: translateY(-50%);">&#10094;</button>
@@ -383,11 +348,13 @@
                 showLightboxImage();
                 document.getElementById('lightbox-modal').classList.add('open');
                 document.body.style.overflow = 'hidden';
+                document.body.classList.add('ds-lightbox-open');
               }
 
               function closeLightbox() {
                 document.getElementById('lightbox-modal').classList.remove('open');
                 document.body.style.overflow = '';
+                document.body.classList.remove('ds-lightbox-open');
               }
 
               function changeLightboxImage(direction) {
