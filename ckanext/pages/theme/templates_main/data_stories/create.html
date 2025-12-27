@@ -13,6 +13,7 @@
   {% snippet 'snippets/form_errors.html', errors=errors, error_summary=error_summary %}
 
   <form method="post" class="dataset-form form-horizontal">
+    {{ h.csrf_input() if 'csrf_input' in h }}
     <fieldset>
       <legend>{{ _('Basic Information') }}</legend>
 

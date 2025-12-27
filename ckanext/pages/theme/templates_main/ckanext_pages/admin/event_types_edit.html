@@ -60,8 +60,9 @@
                 <div class="event-type-form-wrapper">
                   <section class="module module-narrow">
                     <div class="module-content">
-                      
+
                       <form method="post" id="event-type-form">
+                        {{ h.csrf_input() if 'csrf_input' in h }}
                         
                         <!-- Error Summary -->
                         {% if error_summary %}

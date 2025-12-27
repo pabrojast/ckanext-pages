@@ -65,6 +65,7 @@
                     <div class="module-content">
                       
                       <form method="post" enctype="multipart/form-data" id="water-events-form">
+                        {{ h.csrf_input() if 'csrf_input' in h }}
                         <input type="hidden" name="submission_action" id="water-events-action" value="">
                         
                         <!-- Error Summary -->

@@ -123,6 +123,7 @@
                     </h4>
                     <p>{{ _('Begin the review process for this story. The status will change to "Under Review".') }}</p>
                     <form method="post" style="margin-top: 1rem;">
+                      {{ h.csrf_input() if 'csrf_input' in h }}
                       <input type="hidden" name="action" value="start_review">
                       <button type="submit" class="btn btn-info" style="background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%); border: none;">
                         <i class="fa fa-play-circle"></i> {{ _('Start Review') }}
@@ -139,6 +140,7 @@
                     </h4>
                     <p>{{ _('Approve this story and make it publicly visible. The story will be published immediately.') }}</p>
                     <form method="post" style="margin-top: 1rem;">
+                      {{ h.csrf_input() if 'csrf_input' in h }}
                       <input type="hidden" name="action" value="approve">
                       <div class="form-group">
                         <label for="approval_notes">{{ _('Approval Notes (Optional)') }}</label>
@@ -164,6 +166,7 @@
                     </h4>
                     <p>{{ _('Send this story back to the author with change requests. The story will return to draft status.') }}</p>
                     <form method="post" style="margin-top: 1rem;">
+                      {{ h.csrf_input() if 'csrf_input' in h }}
                       <input type="hidden" name="action" value="request_changes">
                       <div class="form-group">
                         <label for="required_changes">{{ _('Required Changes') }} <span class="text-danger">*</span></label>

@@ -83,6 +83,8 @@
 
                       <form method="post" enctype="multipart/form-data" class="software-form">
                         
+                        {{ h.csrf_input() if 'csrf_input' in h }}
+                        
                         <!-- Basic Information Section -->
                         <div class="form-section">
                           <h3 class="form-section-title">

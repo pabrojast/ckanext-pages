@@ -97,6 +97,7 @@
               {% endif %}
               
               <form action="{{ action }}" method="post" style="display: inline-block;">
+                {{ h.csrf_input() if 'csrf_input' in h }}
                 <button class="btn btn-default btn-lg" type="submit" name="cancel" style="margin-right: 1rem;">
                   <i class="fa fa-times"></i> {{ _('Cancel') }}
                 </button>

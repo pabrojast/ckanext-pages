@@ -225,6 +225,7 @@
                             <form method="post" action="{{ h.url_for('pages.water_admin_approve', page_type='water-news', page=item.name) }}" 
                                   style="display: inline-block;" 
                                   onsubmit="return confirm('{{ _('Are you sure you want to approve this news article?') }}')">
+                              {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-success btn-sm">
                                 <i class="fa fa-check"></i> {{ _('Approve') }}
                               </button>
@@ -232,6 +233,7 @@
                             <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-news', page=item.name) }}" 
                                   style="display: inline-block;" 
                                   onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this news article?') }}')">
+                              {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fa fa-times"></i> {{ _('Reject') }}
                               </button>
@@ -317,6 +319,7 @@
                             <form method="post" action="{{ h.url_for('pages.water_admin_approve', page_type='water-events', page=item.name) }}" 
                                   style="display: inline-block;" 
                                   onsubmit="return confirm('{{ _('Are you sure you want to approve this event?') }}')">
+                              {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-success btn-sm">
                                 <i class="fa fa-check"></i> {{ _('Approve') }}
                               </button>
@@ -324,6 +327,7 @@
                             <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-events', page=item.name) }}" 
                                   style="display: inline-block;" 
                                   onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this event?') }}')">
+                              {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fa fa-times"></i> {{ _('Reject') }}
                               </button>
@@ -405,6 +409,7 @@
                             <form method="post" action="{{ h.url_for('pages.water_admin_approve', page_type='water-publications', page=item.name) }}" 
                                   style="display: inline-block;" 
                                   onsubmit="return confirm('{{ _('Are you sure you want to approve this publication?') }}')">
+                              {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-success btn-sm">
                                 <i class="fa fa-check"></i> {{ _('Approve') }}
                               </button>
@@ -412,6 +417,7 @@
                             <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-publications', page=item.name) }}" 
                                   style="display: inline-block;" 
                                   onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this publication?') }}')">
+                              {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fa fa-times"></i> {{ _('Reject') }}
                               </button>

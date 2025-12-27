@@ -362,6 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
                               <div class="admin-org-change" style="margin-bottom: 0.5rem;">
                                 <form method="post" action="{{ h.url_for('pages.open_source_admin_change_org', page=item.name) }}"
                                       style="display: flex; gap: 0.5rem; align-items: center;">
+                                  {{ h.csrf_input() if 'csrf_input' in h }}
                                   <select name="new_organization" id="org-select-{{ item.name }}" class="form-control form-control-sm org-selector"
                                           style="min-width: 180px;" data-item-name="{{ item.name }}">
                                     <option value="">{{ _('Change Organization...') }}</option>
@@ -381,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <form method="post" action="{{ h.url_for('pages.open_source_admin_reject', page=item.name) }}"
                                       style="display: inline-block; margin-right: 0.5rem;"
                                       onsubmit="return confirm('{{ _('Are you sure you want to reject this software tool submission?') }}')">
+                                  {{ h.csrf_input() if 'csrf_input' in h }}
                                   <button type="submit" class="btn btn-danger btn-sm admin-btn-reject">
                                     <i class="fa fa-times"></i> {{ _('Reject') }}
                                   </button>
@@ -389,6 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                       id="approve-form-{{ item.name }}"
                                       style="display: inline-block;"
                                       onsubmit="return confirm('{{ _('Are you sure you want to approve and publish this software tool?') }}')">
+                                  {{ h.csrf_input() if 'csrf_input' in h }}
                                   <!-- Hidden field to capture organization selection -->
                                   <input type="hidden" name="new_organization" id="approve-org-{{ item.name }}" value="{{ item.ihp_organization or '' }}">
                                   <button type="submit" class="btn btn-success btn-sm admin-btn-approve">

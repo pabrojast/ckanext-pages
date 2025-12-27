@@ -76,6 +76,7 @@
                 {% snippet 'snippets/form_errors.html', errors=errors, error_summary=error_summary %}
 
   <form method="post" class="data-stories-form" id="data-stories-form">
+    {{ h.csrf_input() if 'csrf_input' in h }}
     <fieldset>
       <legend><i class="fa fa-info-circle"></i> {{ _('Basic Information') }}</legend>
 
@@ -566,6 +567,7 @@
   {# Delete form MUST be outside the main form - nested forms are invalid HTML #}
   {% if not is_new_story and h.check_access('data_story_delete', {'id': story.id}) %}
   <form method="post" action="{{ h.url_for('data_stories.delete', slug=story_slug) }}" id="delete-story-form" style="display: none;" onsubmit="return confirm('{{ _('Are you sure you want to delete this story?') }}');">
+    {{ h.csrf_input() if 'csrf_input' in h }}
     <button type="submit" class="btn btn-danger btn-lg">
       <i class="fa fa-trash"></i> {{ _('Delete Story') }}
     </button>
