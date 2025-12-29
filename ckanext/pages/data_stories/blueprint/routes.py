@@ -9,7 +9,7 @@ import json
 import logging
 import re
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 import ckan.plugins.toolkit as tk
 from ckan.common import g
 
@@ -949,6 +949,144 @@ def create_comment(slug):
     
     # Redirect back to story
     return redirect(url_for('data_stories.show', slug=slug) + '#comments')
+
+
+# ============================================================================
+# Import/Export Routes (Sysadmin only)
+# ============================================================================
+
+@data_stories_blueprint.route('/<slug>/export')
+def export_story(slug):
+    """
+    Export a data story as JSON file.
+
+    URL: /data-stories/<slug>/export
+
+    Only sysadmins can export stories.
+    """
+    log.info(f"[DATA_STORIES_ROUTE] Exporting story: {slug}")
+
+    context = _get_context()
+
+    # Must be logged in
+    if not g.userobj:
+        flash(tk._('Please log in to export stories'), 'error')
+        return redirect(url_for('user.login'))
+
+    # Check if user is sysadmin
+    if not getattr(g.userobj, 'sysadmin', False):
+        tk.abort(403, tk._('Only administrators can export stories'))
+
+    try:
+        # Get story first to get the slug for filename
+        story = tk.get_action('data_story_show')(context, {'slug': slug})
+
+        # Export story
+        export_data = tk.get_action('data_story_export')(context, {
+            'slug': slug,
+            'include_metadata': True,
+        })
+
+        # Convert to JSON
+        json_data = json.dumps(export_data, indent=2, ensure_ascii=False)
+
+        # Create response with JSON file download
+        filename = f"data-story-{story['slug']}.json"
+        response = Response(
+            json_data,
+            mimetype='application/json',
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"',
+                'Content-Type': 'application/json; charset=utf-8',
+            }
+        )
+
+        return response
+
+    except tk.ObjectNotFound:
+        tk.abort(404, tk._('Story not found'))
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to export this story'))
+    except Exception as e:
+        log.error(f"Error exporting story: {str(e)}")
+        flash(tk._('Error exporting story: {}').format(str(e)), 'error')
+        return redirect(url_for('data_stories.show', slug=slug))
+
+
+@data_stories_blueprint.route('/import', methods=['GET', 'POST'])
+def import_story():
+    """
+    Import a data story from JSON file.
+
+    URL: /data-stories/import
+
+    Only sysadmins can import stories.
+    """
+    log.info("[DATA_STORIES_ROUTE] Import story page")
+
+    context = _get_context()
+
+    # Must be logged in
+    if not g.userobj:
+        flash(tk._('Please log in to import stories'), 'error')
+        return redirect(url_for('user.login'))
+
+    # Check if user is sysadmin
+    if not getattr(g.userobj, 'sysadmin', False):
+        tk.abort(403, tk._('Only administrators can import stories'))
+
+    if request.method == 'POST':
+        # Handle file upload
+        uploaded_file = request.files.get('import_file')
+
+        if not uploaded_file or uploaded_file.filename == '':
+            flash(tk._('Please select a file to import'), 'error')
+            return render_template('data_stories/import.html')
+
+        # Check file extension
+        if not uploaded_file.filename.endswith('.json'):
+            flash(tk._('Please upload a JSON file'), 'error')
+            return render_template('data_stories/import.html')
+
+        try:
+            # Read and parse JSON
+            file_content = uploaded_file.read().decode('utf-8')
+            export_data = json.loads(file_content)
+
+            # Get import options
+            slug_conflict = request.form.get('slug_conflict', 'rename')
+            organization_id = request.form.get('organization_id') or None
+            target_status = request.form.get('status', 'draft')
+
+            # Import story
+            result = tk.get_action('data_story_import')(context, {
+                'data': export_data,
+                'slug_conflict': slug_conflict,
+                'organization_id': organization_id,
+                'status': target_status,
+            })
+
+            import_info = result.get('import_info', {})
+            flash(tk._('Story imported successfully! Imported {} sections.').format(
+                import_info.get('sections_imported', 0)
+            ), 'success')
+
+            return redirect(url_for('data_stories.show', slug=result['slug']))
+
+        except json.JSONDecodeError as e:
+            flash(tk._('Invalid JSON file: {}').format(str(e)), 'error')
+            return render_template('data_stories/import.html')
+        except tk.ValidationError as e:
+            error_msg = '; '.join([f"{k}: {v}" for k, v in e.error_dict.items()])
+            flash(tk._('Validation error: {}').format(error_msg), 'error')
+            return render_template('data_stories/import.html')
+        except Exception as e:
+            log.error(f"Error importing story: {str(e)}")
+            flash(tk._('Error importing story: {}').format(str(e)), 'error')
+            return render_template('data_stories/import.html')
+
+    # GET request - show import form
+    return render_template('data_stories/import.html')
 
 
 # ============================================================================

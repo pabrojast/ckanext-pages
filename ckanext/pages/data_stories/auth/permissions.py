@@ -477,3 +477,32 @@ def data_story_stats(context, data_dict):
             return {'success': False}
 
         return {'success': is_sysadmin(user)}
+
+
+# Import/Export permissions
+def data_story_export(context, data_dict):
+    """
+    Check if user can export a data story.
+
+    Only sysadmins can export stories.
+    """
+    user = context.get('user')
+
+    if not user:
+        return {'success': False}
+
+    return {'success': is_sysadmin(user)}
+
+
+def data_story_import(context, data_dict):
+    """
+    Check if user can import a data story.
+
+    Only sysadmins can import stories.
+    """
+    user = context.get('user')
+
+    if not user:
+        return {'success': False}
+
+    return {'success': is_sysadmin(user)}

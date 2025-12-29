@@ -48,6 +48,9 @@
                   </div>
                   <div class="col-md-4 text-right">
                     {% if h.check_access('sysadmin') %}
+                      <a href="{{ h.url_for('data_stories.import_story') }}" class="btn btn-info" style="margin-right: 0.5rem;" title="{{ _('Import story from JSON') }}">
+                        <i class="fa fa-upload"></i> {{ _('Import') }}
+                      </a>
                       <a href="{{ h.url_for('data_stories.pending_review') }}" class="btn btn-warning" style="margin-right: 0.5rem; position: relative;">
                         <i class="fa fa-clipboard-check"></i> {{ _('Pending Review') }}
                         {% if pending_count > 0 %}

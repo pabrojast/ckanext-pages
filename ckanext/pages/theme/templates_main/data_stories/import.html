@@ -1,0 +1,162 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Import Data Story') }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb Navigation -->
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
+          <li class="active"><a href="{{ h.url_for('data_stories.import_story') }}">{{ _('Import') }}</a></li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1><i class="fa fa-upload" style="margin-right: 0.5rem;"></i>{{ _('Import Data Story') }}</h1>
+            <p class="section-title-description">{{ _('Import a data story from a JSON export file') }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+
+          <!-- Import Form -->
+          <section class="module module-narrow">
+            <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.3rem;">
+                <i class="fa fa-file-import" style="margin-right: 0.5rem;"></i>
+                {{ _('Upload Export File') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 2rem 2.5rem;">
+
+              <div class="alert alert-info" style="margin-bottom: 1.5rem;">
+                <i class="fa fa-info-circle"></i>
+                {{ _('Upload a JSON file that was exported from another CKAN Data Stories instance. The story will be imported as a draft.') }}
+              </div>
+
+              <form method="post" enctype="multipart/form-data" class="form-horizontal">
+                {{ h.csrf_token_input() if 'csrf_token_input' in h else '' }}
+
+                <!-- File Upload -->
+                <div class="form-group">
+                  <label for="import_file" class="col-sm-3 control-label">{{ _('JSON File') }} <span class="text-danger">*</span></label>
+                  <div class="col-sm-9">
+                    <input type="file"
+                           name="import_file"
+                           id="import_file"
+                           class="form-control"
+                           accept=".json,application/json"
+                           required>
+                    <p class="help-block">{{ _('Select the exported JSON file to import') }}</p>
+                  </div>
+                </div>
+
+                <!-- Slug Conflict Resolution -->
+                <div class="form-group">
+                  <label for="slug_conflict" class="col-sm-3 control-label">{{ _('If slug exists') }}</label>
+                  <div class="col-sm-9">
+                    <select name="slug_conflict" id="slug_conflict" class="form-control">
+                      <option value="rename" selected>{{ _('Rename (add number suffix)') }}</option>
+                      <option value="overwrite">{{ _('Overwrite existing story') }}</option>
+                      <option value="error">{{ _('Show error') }}</option>
+                    </select>
+                    <p class="help-block">{{ _('Action to take if a story with the same URL slug already exists') }}</p>
+                  </div>
+                </div>
+
+                <!-- Organization (optional) -->
+                <div class="form-group">
+                  <label for="organization_id" class="col-sm-3 control-label">{{ _('Organization') }}</label>
+                  <div class="col-sm-9">
+                    <select name="organization_id" id="organization_id" class="form-control">
+                      <option value="">{{ _('-- No organization --') }}</option>
+                      {% for org in h.organizations_available('create_dataset') %}
+                      <option value="{{ org.id }}">{{ org.display_name or org.title or org.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <p class="help-block">{{ _('Optionally assign the imported story to an organization') }}</p>
+                  </div>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                  <label for="status" class="col-sm-3 control-label">{{ _('Status') }}</label>
+                  <div class="col-sm-9">
+                    <select name="status" id="status" class="form-control">
+                      <option value="draft" selected>{{ _('Draft') }}</option>
+                      <option value="published">{{ _('Published') }}</option>
+                    </select>
+                    <p class="help-block">{{ _('Set the initial status of the imported story') }}</p>
+                  </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="form-group">
+                  <div class="col-sm-9 col-sm-offset-3">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                      <i class="fa fa-upload"></i> {{ _('Import Story') }}
+                    </button>
+                    <a href="{{ h.url_for('data_stories.index') }}" class="btn btn-default btn-lg" style="margin-left: 0.5rem;">
+                      {{ _('Cancel') }}
+                    </a>
+                  </div>
+                </div>
+
+              </form>
+
+            </div>
+          </section>
+
+          <!-- Help Section -->
+          <section class="module module-narrow" style="margin-top: 2rem;">
+            <div class="module-heading" style="padding: 1rem 2.5rem; background: #f8f9fa;">
+              <h3 style="margin: 0; font-size: 1.1rem;">
+                <i class="fa fa-question-circle" style="margin-right: 0.5rem;"></i>
+                {{ _('How to Export/Import Stories') }}
+              </h3>
+            </div>
+            <div class="module-content" style="padding: 1.5rem 2.5rem;">
+              <ol style="margin: 0; padding-left: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;">{{ _('On the source CKAN instance, go to the story you want to export') }}</li>
+                <li style="margin-bottom: 0.5rem;">{{ _('Click the "Export" button (only visible to administrators)') }}</li>
+                <li style="margin-bottom: 0.5rem;">{{ _('Save the downloaded JSON file') }}</li>
+                <li style="margin-bottom: 0.5rem;">{{ _('On this instance, use this import page to upload the JSON file') }}</li>
+                <li>{{ _('The story will be created with all its sections and content') }}</li>
+              </ol>
+              <p style="margin-top: 1rem; color: #6c757d;">
+                <i class="fa fa-info-circle"></i>
+                {{ _('Note: Dataset links are exported as references. You may need to re-link datasets after import if they have different IDs in this instance.') }}
+              </p>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+<!-- Load data stories CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+
+{% endblock %}

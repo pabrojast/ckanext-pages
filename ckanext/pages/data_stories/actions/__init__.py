@@ -54,6 +54,11 @@ from ckanext.pages.data_stories.actions.stats import (
     data_story_stats,
 )
 
+from ckanext.pages.data_stories.actions.import_export import (
+    data_story_export,
+    data_story_import,
+)
+
 __all__ = [
     # Create
     'data_story_create',
@@ -88,4 +93,7 @@ __all__ = [
     # Stats
     'data_story_record_view',
     'data_story_stats',
+    # Import/Export
+    'data_story_export',
+    'data_story_import',
 ]
