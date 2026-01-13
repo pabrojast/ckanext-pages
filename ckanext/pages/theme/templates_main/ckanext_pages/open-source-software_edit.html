@@ -397,6 +397,40 @@
                           </div>
                         </div>
 
+                        <!-- Links & Resources -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-link"></i>
+                            {{ _('Links & Resources') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="repository_url" class="control-label">{{ _('Repository URL') }}</label>
+                                <input type="url" name="repository_url" id="repository_url" class="form-control" 
+                                       value="{{ data.get('repository_url', '') }}" 
+                                       placeholder="{{ _('https://github.com/user/project') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="website_url" class="control-label">{{ _('Official Website') }}</label>
+                                <input type="url" name="website_url" id="website_url" class="form-control" 
+                                       value="{{ data.get('website_url', '') }}" 
+                                       placeholder="{{ _('https://project.org') }}">
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="documentation_url" class="control-label">{{ _('Documentation URL') }}</label>
+                            <input type="url" name="documentation_url" id="documentation_url" class="form-control" 
+                                   value="{{ data.get('documentation_url', '') }}" 
+                                   placeholder="{{ _('https://docs.project.org') }}">
+                          </div>
+                        </div>
+
                         <!-- Technical Information -->
                         <div class="form-section">
                           <h3 class="form-section-title">
@@ -430,40 +464,6 @@
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-
-                        <!-- Links & Resources -->
-                        <div class="form-section">
-                          <h3 class="form-section-title">
-                            <i class="fa fa-link"></i>
-                            {{ _('Links & Resources') }}
-                          </h3>
-
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="repository_url" class="control-label">{{ _('Repository URL') }}</label>
-                                <input type="url" name="repository_url" id="repository_url" class="form-control" 
-                                       value="{{ data.get('repository_url', '') }}" 
-                                       placeholder="{{ _('https://github.com/user/project') }}">
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label for="website_url" class="control-label">{{ _('Official Website') }}</label>
-                                <input type="url" name="website_url" id="website_url" class="form-control" 
-                                       value="{{ data.get('website_url', '') }}" 
-                                       placeholder="{{ _('https://project.org') }}">
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="form-group">
-                            <label for="documentation_url" class="control-label">{{ _('Documentation URL') }}</label>
-                            <input type="url" name="documentation_url" id="documentation_url" class="form-control" 
-                                   value="{{ data.get('documentation_url', '') }}" 
-                                   placeholder="{{ _('https://docs.project.org') }}">
                           </div>
                         </div>
 

@@ -384,6 +384,68 @@
                 </div>
                 {% endif %}
 
+                <!-- Links & Resources -->
+                {% if c.page.repository_url or c.page.website_url or c.page.documentation_url %}
+                <div class="software-links" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow software-module-links">
+                    <div class="module-content">
+                      <div class="software-section-header">
+                        <div class="software-section-icon">
+                          <i class="fa fa-link"></i>
+                        </div>
+                        <h2>{{ _('Links & Resources') }}</h2>
+                      </div>
+                      <div class="links-grid">
+                        {% if c.page.repository_url %}
+                        <a href="{{ c.page.repository_url }}" target="_blank" class="resource-link repository">
+                          <div class="link-icon">
+                            <i class="fa fa-github"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Source Code Repository') }}</h4>
+                            <p>{{ _('Access the source code, report issues, and contribute') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if c.page.website_url %}
+                        <a href="{{ c.page.website_url }}" target="_blank" class="resource-link website">
+                          <div class="link-icon">
+                            <i class="fa fa-globe"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Official Website') }}</h4>
+                            <p>{{ _('Visit the official project website') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if c.page.documentation_url %}
+                        <a href="{{ c.page.documentation_url }}" target="_blank" class="resource-link documentation">
+                          <div class="link-icon">
+                            <i class="fa fa-book"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Documentation') }}</h4>
+                            <p>{{ _('Read comprehensive guides and API documentation') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
                 <!-- Technical Information -->
                 {% if c.page.technical_requirements or c.page.software_license or c.page.development_status or c.page.programming_language or c.page.platform or c.page.release_date %}
                 <div class="software-technical-info" style="margin-bottom: 3rem;">
@@ -630,69 +692,7 @@
                 </div>
                 {% endif %}
 
-                <!-- 8. Links & Resources -->
-                {% if c.page.repository_url or c.page.website_url or c.page.documentation_url %}
-                <div class="software-links" style="margin-bottom: 3rem;">
-                  <section class="module module-narrow software-module-links">
-                    <div class="module-content">
-                      <div class="software-section-header">
-                        <div class="software-section-icon">
-                          <i class="fa fa-link"></i>
-                        </div>
-                        <h2>{{ _('Links & Resources') }}</h2>
-                      </div>
-                      <div class="links-grid">
-                        {% if c.page.repository_url %}
-                        <a href="{{ c.page.repository_url }}" target="_blank" class="resource-link repository">
-                          <div class="link-icon">
-                            <i class="fa fa-github"></i>
-                          </div>
-                          <div class="link-content">
-                            <h4>{{ _('Source Code Repository') }}</h4>
-                            <p>{{ _('Access the source code, report issues, and contribute') }}</p>
-                          </div>
-                          <div class="link-arrow">
-                            <i class="fa fa-external-link"></i>
-                          </div>
-                        </a>
-                        {% endif %}
-                        
-                        {% if c.page.website_url %}
-                        <a href="{{ c.page.website_url }}" target="_blank" class="resource-link website">
-                          <div class="link-icon">
-                            <i class="fa fa-globe"></i>
-                          </div>
-                          <div class="link-content">
-                            <h4>{{ _('Official Website') }}</h4>
-                            <p>{{ _('Visit the official project website') }}</p>
-                          </div>
-                          <div class="link-arrow">
-                            <i class="fa fa-external-link"></i>
-                          </div>
-                        </a>
-                        {% endif %}
-                        
-                        {% if c.page.documentation_url %}
-                        <a href="{{ c.page.documentation_url }}" target="_blank" class="resource-link documentation">
-                          <div class="link-icon">
-                            <i class="fa fa-book"></i>
-                          </div>
-                          <div class="link-content">
-                            <h4>{{ _('Documentation') }}</h4>
-                            <p>{{ _('Read comprehensive guides and API documentation') }}</p>
-                          </div>
-                          <div class="link-arrow">
-                            <i class="fa fa-external-link"></i>
-                          </div>
-                        </a>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </section>
-                </div>
-                {% endif %}
-
-                <!-- 9. Actions and Metadata -->
+                <!-- Actions and Metadata -->
                 <div class="software-actions" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
                     <div class="module-content">
