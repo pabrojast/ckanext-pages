@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block title %}
-{{ c.page.title or c.page.name }} - {{ _('Water Management Tools') }} - {{ super() }}
+{{ c.page.title or c.page.name }} - {{ _('Open-Source Tools for Water Management') }} - {{ super() }}
 {% endblock %}
 
 {# Helper macro to extract URL from text without regex #}
@@ -146,14 +146,22 @@
         {%- if first_colon > 0 -%}
           {%- set resource_type = resource_def[:first_colon].strip() -%}
           {%- set rest = resource_def[first_colon+1:] -%}
-          {# Split from the right to extract description, then title, preserving any ':' within URL #}
-          {%- set rest_parts = rest.rsplit(':', 1) -%}
-          {%- set maybe_title = rest_parts[0] -%}
-          {%- set resource_desc = (rest_parts[1].strip() if rest_parts|length > 1 else '') -%}
-          {%- set title_split = maybe_title.rsplit(':', 1) -%}
-          {%- set maybe_url = title_split[0] -%}
-          {%- set resource_title = (title_split[1].strip() if title_split|length > 1 else 'Resource') -%}
-          {%- set resource_url = maybe_url.strip() -%}
+          {# Split from the right to extract description (optional), then title (optional), preserving any ':' within URL #}
+          {%- set parts_split = rest.split(':') -%}
+          {%- set resource_url = '' -%}
+          {%- set resource_title = 'Resource' -%}
+          {%- set resource_desc = '' -%}
+          
+          {%- if parts_split|length >= 1 -%}
+            {%- set resource_url = parts_split[0].strip() -%}
+          {%- endif -%}
+          {%- if parts_split|length >= 2 -%}
+            {%- set resource_title = parts_split[1].strip() if parts_split[1].strip() else 'Resource' -%}
+          {%- endif -%}
+          {%- if parts_split|length >= 3 -%}
+            {%- set resource_desc = ':'.join(parts_split[2:]).strip() -%}
+          {%- endif -%}
+          
           {%- if resource_url.startswith('http://') or resource_url.startswith('https://') -%}
             {%- set icons = {
               'youtube': 'fa-youtube-play',
@@ -200,9 +208,33 @@
 </div>
   {%- endif -%}
   
-  {# Check if there's any other content to render #}
+  {# Render any text content that's not inside RESOURCE tags #}
   {%- set has_resources = '[RESOURCE:' in text_content -%}
-  {%- if not has_resources -%}
+  {%- if has_resources -%}
+    {# Extract and render text content outside of resource tags #}
+    {%- set text_parts = [] -%}
+    {%- for part in parts -%}
+      {%- if loop.first -%}
+        {# First part is before any resource tag #}
+        {%- if part.strip() -%}
+          {%- set dummy = text_parts.append(part.strip()) -%}
+        {%- endif -%}
+      {%- else -%}
+        {# Extract text after the resource tag #}
+        {%- set end_pos = part.find(']') -%}
+        {%- if end_pos >= 0 and end_pos + 1 < part|length -%}
+          {%- set after_text = part[end_pos+1:].strip() -%}
+          {%- if after_text -%}
+            {%- set dummy = text_parts.append(after_text) -%}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+    
+    {%- if text_parts -%}
+      <div class="regular-content" style="margin-bottom: 1.5rem;">{{ '\n\n'.join(text_parts) | safe }}</div>
+    {%- endif -%}
+  {%- else -%}
     {# No resources, just render the content normally #}
     <div class="regular-content">{{ clean_content | safe }}</div>
   {%- endif -%}
@@ -225,7 +257,7 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Water Management Tools') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.open_source_software_index') }}">{{ _('Open-Source Tools for Water Management') }}</a></li>
                     <li class="active"><a href="{{ h.url_for('pages.open_source_software_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
                 </ol>
             </div>
@@ -525,7 +557,7 @@
                         <div class="software-section-icon">
                           <i class="fa fa-lightbulb-o"></i>
                         </div>
-                        <h2>{{ _('Examples & Use Cases') }}</h2>
+                        <h2>{{ _('Example Applications & Use Cases') }}</h2>
                       </div>
                       <div class="software-content-body">
                         {{ render_resource_cards(c.page.example_applications, _('Example Resources')) }}
@@ -1540,6 +1572,7 @@
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
+  grid-auto-rows: 1fr;
 }
 
 .resource-card {
@@ -1550,12 +1583,14 @@
   text-decoration: none;
   color: inherit;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-light);
   position: relative;
   overflow: hidden;
+  height: 100%;
+  min-height: 120px;
 }
 
 .resource-card:hover {
@@ -1826,13 +1861,14 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  height: 220px;
+  height: auto;
+  min-height: 200px;
 }
 
 .gallery-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   transition: transform 0.4s ease;
 }
 
