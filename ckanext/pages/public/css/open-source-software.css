@@ -57,6 +57,17 @@
   transform: scale(1.02);
 }
 
+/* Gradient background for logo display modes */
+.section-title-bg-gradient {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+  filter: none;
+}
+
+/* Lighter overlay for logo modes to make logo visible */
+.section-title-bg-gradient + .section-title-overlay {
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.15) 0%, rgba(0, 158, 224, 0.1) 100%);
+}
+
 .section-title-overlay {
   position: absolute;
   top: 0;

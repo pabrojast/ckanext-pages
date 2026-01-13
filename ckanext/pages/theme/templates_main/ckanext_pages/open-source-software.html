@@ -265,11 +265,18 @@
             <!-- Banner with overlay text -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
+                {% set display_mode = c.page.header_display_mode or 'text' %}
+                {% set logo_url = c.page.header_image %}
+                {% set is_logo_mode = display_mode == 'logo' or display_mode == 'logo_text' %}
+                
+                {# For logo modes, use a gradient background instead of the logo as background #}
+                {% if is_logo_mode and logo_url %}
+                <div class="section-title-bg section-title-bg-gradient"></div>
+                {% else %}
                 <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
+                {% endif %}
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
-                  {% set display_mode = c.page.header_display_mode or 'text' %}
-                  {% set logo_url = c.page.header_image %}
                   
                   {% if display_mode == 'logo' and logo_url %}
                     <!-- Logo Only Mode -->
