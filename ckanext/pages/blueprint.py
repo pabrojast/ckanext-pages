@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, redirect, url_for
 
 import ckanext.pages.utils as utils
 
@@ -248,6 +248,37 @@ def open_source_software_delete(page):
     return utils.pages_delete(page, page_type='open-source-software')
 
 
+# Redirect functions for legacy /open-source-software URLs to new /open-source-tools
+def redirect_open_source_tools_index():
+    return redirect(url_for('pages.open_source_software_index'), code=301)
+
+
+def redirect_open_source_tools_show(page):
+    return redirect(url_for('pages.open_source_software_show', page=page), code=301)
+
+
+def redirect_open_source_tools_revisions(page):
+    return redirect(url_for('pages.open_source_software_revisions', page=page), code=301)
+
+
+def redirect_open_source_tools_revisions_preview(page, revision):
+    return redirect(url_for('pages.open_source_software_revisions_preview', page=page, revision=revision), code=301)
+
+
+def redirect_open_source_tools_revision_restore(page, revision):
+    return redirect(url_for('pages.open_source_software_revision_restore', page=page, revision=revision), code=301)
+
+
+def redirect_open_source_tools_edit(page=None):
+    if page:
+        return redirect(url_for('pages.open_source_software_edit', page=page), code=301)
+    return redirect(url_for('pages.open_source_software_new'), code=301)
+
+
+def redirect_open_source_tools_delete(page):
+    return redirect(url_for('pages.open_source_software_delete', page=page), code=301)
+
+
 def org_show(id, page=None):
     return utils.group_show(id, 'organization', page)
 
@@ -399,7 +430,7 @@ pages.add_url_rule("/open-source-admin/approve/<page>", view_func=open_source_ad
 pages.add_url_rule("/open-source-admin/reject/<page>", view_func=open_source_admin_reject, endpoint='open_source_admin_reject', methods=['POST'])
 pages.add_url_rule("/open-source-admin/change-org/<page>", view_func=open_source_admin_change_org, endpoint='open_source_admin_change_org', methods=['POST'])
 
-# Open Source Software URLs
+# Open Source Software URLs (primary routes)
 pages.add_url_rule("/open-source-software", view_func=open_source_software_index, endpoint='open_source_software_index')
 pages.add_url_rule("/open-source-software/<page>", view_func=open_source_software_show, endpoint='open_source_software_show')
 pages.add_url_rule("/open-source-software/<page>/revisions", view_func=open_source_software_revisions, endpoint='open_source_software_revisions')
@@ -409,6 +440,18 @@ pages.add_url_rule("/open-source-software_edit", view_func=open_source_software_
 pages.add_url_rule("/open-source-software_edit/", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_edit/<page>", view_func=open_source_software_edit, endpoint='open_source_software_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_delete/<page>", view_func=open_source_software_delete, endpoint='open_source_software_delete', methods=['GET', 'POST'])
+
+# Open Source Tools URLs (aliases with 301 redirects to primary routes)
+# These provide the new /open-source-tools URL while maintaining backwards compatibility
+pages.add_url_rule("/open-source-tools", view_func=redirect_open_source_tools_index)
+pages.add_url_rule("/open-source-tools/<page>", view_func=redirect_open_source_tools_show)
+pages.add_url_rule("/open-source-tools/<page>/revisions", view_func=redirect_open_source_tools_revisions)
+pages.add_url_rule("/open-source-tools/<page>/revisions/<revision>", view_func=redirect_open_source_tools_revisions_preview)
+pages.add_url_rule("/open-source-tools/<page>/revisions/<revision>/restore", view_func=redirect_open_source_tools_revision_restore, methods=['GET'])
+pages.add_url_rule("/open-source-tools_edit", view_func=redirect_open_source_tools_edit, methods=['GET', 'POST'])
+pages.add_url_rule("/open-source-tools_edit/", view_func=redirect_open_source_tools_edit, methods=['GET', 'POST'])
+pages.add_url_rule("/open-source-tools_edit/<page>", view_func=redirect_open_source_tools_edit, methods=['GET', 'POST'])
+pages.add_url_rule("/open-source-tools_delete/<page>", view_func=redirect_open_source_tools_delete, methods=['GET', 'POST'])
 
 # Event Types Administration URLs (Sysadmin only)
 pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='event_types_admin')
