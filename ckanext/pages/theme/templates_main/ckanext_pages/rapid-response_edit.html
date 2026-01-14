@@ -130,11 +130,7 @@
                               <select id="field-event-type" name="subtitle" class="rr-form-control">
                                 <option value="">{{ _('Select event type...') }}</option>
                                 {% for event_type in h.get_event_types() %}
-                                  <option value="{{ event_type.title }}" 
-                                          data-event-id="{{ event_type.id }}"
-                                          {% if data.subtitle == event_type.title or data.event_type == event_type.id %}selected{% endif %}>
-                                    {{ _(event_type.title) }}
-                                  </option>
+                                  <option value="{{ event_type.title }}" data-event-id="{{ event_type.id }}" {% if data.subtitle == event_type.title or data.event_type == event_type.id %}selected{% endif %}>{{ _(event_type.title) }}</option>
                                 {% endfor %}
                                 {% if data.subtitle and data.subtitle not in h.get_event_types()|map(attribute='title')|list %}
                                   <option value="{{ data.subtitle }}" selected>{{ data.subtitle }}</option>

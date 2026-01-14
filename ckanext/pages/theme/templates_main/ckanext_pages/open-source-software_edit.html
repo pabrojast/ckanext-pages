@@ -3107,8 +3107,10 @@ textarea[id="example_applications"] {
 
   // Load member states from API
   function loadMemberStates() {
+    // Use current site's API endpoint for member states
+    var apiBaseUrl = window.location.origin;
     $.ajax({
-      url: 'https://data.ihp-wins.unesco.org/api/3/action/group_show',
+      url: apiBaseUrl + '/api/3/action/group_show',
       data: { 
         id: 'member-states',
         include_groups: true
