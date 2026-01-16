@@ -722,7 +722,7 @@
                               <a href="{{ h.url_for('pages.open_source_software_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-edit"></i> {{ _('Edit') }}
                               </a>
-                              <a href="/open-source-software/{{ c.page.name }}/revisions" class="btn btn-default btn-sm">
+                              <a href="{{ h.url_for('pages.open_source_software_revisions', page=c.page.name) }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-history"></i> {{ _('History') }}
                               </a>
                             </div>

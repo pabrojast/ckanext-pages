@@ -155,7 +155,7 @@ def build_pages_nav_main(*args):
                 if page_type == 'rapid-response':
                     type_ = 'rapid-response'
                 elif page_type == 'open-source-software':
-                    type_ = 'open-source-software'
+                    type_ = 'open-source-tools'
                     
                 name = quote(page_name_raw)
                 title = html_escape(page_title)
