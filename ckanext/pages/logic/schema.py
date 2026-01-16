@@ -236,6 +236,7 @@ def default_pages_schema():
         'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
         'member_states': [ignore_missing, json_validator, unicode_safe],    # Member states JSON array
         'header_display_mode': [ignore_missing, unicode_safe], # Header display mode (text, logo, logo_text)
+        'logo_image': [ignore_missing, unicode_safe], # Logo image URL
         'include_logo_in_gallery': [safe_boolean_validator, ignore_missing, boolean_validator], # Include logo in gallery option
         'add_background': [safe_boolean_validator, ignore_missing, boolean_validator], # Add white background to logo
     }

@@ -144,22 +144,39 @@
         {# Parse the resource definition robustly (allow colons inside URL) #}
         {%- set first_colon = resource_def.find(':') -%}
         {%- if first_colon > 0 -%}
-          {%- set resource_type = resource_def[:first_colon].strip() -%}
+          {%- set resource_type = resource_def[:first_colon].strip()|lower -%}
           {%- set rest = resource_def[first_colon+1:] -%}
           {# Split from the right to extract description (optional), then title (optional), preserving any ':' within URL #}
-          {%- set parts_split = rest.split(':') -%}
+          {%- set parts_split = rest.rsplit(':', 2) -%}
           {%- set resource_url = '' -%}
-          {%- set resource_title = 'Resource' -%}
+          {%- set resource_title = resource_type|replace('-', ' ')|title -%}
           {%- set resource_desc = '' -%}
-          
-          {%- if parts_split|length >= 1 -%}
+
+          {%- if parts_split|length == 1 -%}
             {%- set resource_url = parts_split[0].strip() -%}
-          {%- endif -%}
-          {%- if parts_split|length >= 2 -%}
-            {%- set resource_title = parts_split[1].strip() if parts_split[1].strip() else 'Resource' -%}
-          {%- endif -%}
-          {%- if parts_split|length >= 3 -%}
-            {%- set resource_desc = ':'.join(parts_split[2:]).strip() -%}
+          {%- elif parts_split|length == 2 -%}
+            {%- set maybe_url = parts_split[0].strip() -%}
+            {%- set maybe_title = parts_split[1].strip() -%}
+            {%- set combined_url = maybe_url ~ ':' ~ maybe_title -%}
+            {%- if (maybe_url.startswith('http://') or maybe_url.startswith('https://')) and maybe_title and (maybe_title.startswith('//') or '/' in maybe_title or '?' in maybe_title or '#' in maybe_title or (maybe_title.isdigit() and (maybe_title|length <= 5))) -%}
+              {%- set resource_url = combined_url -%}
+            {%- else -%}
+              {%- set resource_url = maybe_url -%}
+              {%- if maybe_title -%}
+                {%- set resource_title = maybe_title -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- else -%}
+            {%- set maybe_url = parts_split[0].strip() -%}
+            {%- set maybe_title = parts_split[1].strip() -%}
+            {%- set maybe_desc = parts_split[2].strip() -%}
+            {%- set resource_url = maybe_url -%}
+            {%- if maybe_title -%}
+              {%- set resource_title = maybe_title -%}
+            {%- endif -%}
+            {%- if maybe_desc -%}
+              {%- set resource_desc = maybe_desc -%}
+            {%- endif -%}
           {%- endif -%}
           
           {%- if resource_url.startswith('http://') or resource_url.startswith('https://') -%}
@@ -199,7 +216,9 @@
       <div class="resource-card-icon"><i class="fa {{ card.icon }}"></i></div>
       <div class="resource-card-content">
         <h5 class="resource-card-title">{{ card.title|e }}</h5>
-        <p class="resource-card-description">{{ card.description|e }}</p>
+        {% if card.description %}
+          <p class="resource-card-description">{{ card.description|e }}</p>
+        {% endif %}
       </div>
       <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
     </a>
@@ -209,30 +228,32 @@
   {%- endif -%}
   
   {# Render any text content that's not inside RESOURCE tags #}
-  {%- set has_resources = '[RESOURCE:' in text_content -%}
+  {%- set has_resources = '[RESOURCE:' in clean_content -%}
   {%- if has_resources -%}
-    {# Extract and render text content outside of resource tags #}
-    {%- set text_parts = [] -%}
-    {%- for part in parts -%}
+    {# Extract and render HTML content outside of resource tags #}
+    {%- set html_parts = [] -%}
+    {%- set html_chunks = clean_content.split('[RESOURCE:') -%}
+    {%- for chunk in html_chunks -%}
       {%- if loop.first -%}
-        {# First part is before any resource tag #}
-        {%- if part.strip() -%}
-          {%- set dummy = text_parts.append(part.strip()) -%}
+        {%- if chunk.strip() -%}
+          {%- set dummy = html_parts.append(chunk) -%}
         {%- endif -%}
       {%- else -%}
-        {# Extract text after the resource tag #}
-        {%- set end_pos = part.find(']') -%}
-        {%- if end_pos >= 0 and end_pos + 1 < part|length -%}
-          {%- set after_text = part[end_pos+1:].strip() -%}
-          {%- if after_text -%}
-            {%- set dummy = text_parts.append(after_text) -%}
+        {%- set end_pos = chunk.find(']') -%}
+        {%- if end_pos >= 0 -%}
+          {%- set after_html = chunk[end_pos+1:] -%}
+          {%- if after_html.strip() -%}
+            {%- set dummy = html_parts.append(after_html) -%}
           {%- endif -%}
+        {%- elif chunk.strip() -%}
+          {%- set dummy = html_parts.append(chunk) -%}
         {%- endif -%}
       {%- endif -%}
     {%- endfor -%}
-    
-    {%- if text_parts -%}
-      <div class="regular-content" style="margin-bottom: 1.5rem;">{{ '\n\n'.join(text_parts) | safe }}</div>
+
+    {%- set remaining_html = ''.join(html_parts) -%}
+    {%- if remaining_html.strip() -%}
+      <div class="regular-content" style="margin-bottom: 1.5rem;">{{ remaining_html | safe }}</div>
     {%- endif -%}
   {%- else -%}
     {# No resources, just render the content normally #}
@@ -266,7 +287,7 @@
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
                 {% set display_mode = c.page.header_display_mode or 'text' %}
-                {% set logo_url = c.page.header_image %}
+                {% set logo_url = c.page.logo_image or c.page.header_image %}
                 {% set is_logo_mode = display_mode == 'logo' or display_mode == 'logo_text' %}
                 
                 {# For logo modes, use a gradient background instead of the logo as background #}
@@ -649,13 +670,14 @@
                       </div>
                       
                       <!-- Uploaded Images Grid -->
-                      {% if c.page.uploaded_images or (c.page.header_image and c.page.include_logo_in_gallery) %}
+                      {% set logo_gallery_url = c.page.logo_image or c.page.header_image %}
+                      {% if c.page.uploaded_images or (logo_gallery_url and c.page.include_logo_in_gallery) %}
                         {% set uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
                         {% set all_images = [] %}
 
                         {# Add logo to gallery if option is enabled #}
-                        {% if c.page.header_image and c.page.include_logo_in_gallery %}
-                          {% set dummy = all_images.append({'url': c.page.header_image, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
+                        {% if logo_gallery_url and c.page.include_logo_in_gallery %}
+                          {% set dummy = all_images.append({'url': logo_gallery_url, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
                         {% endif %}
                         
                         {# Add uploaded images #}

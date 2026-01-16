@@ -420,6 +420,8 @@
                             <div class="software-image-container">
                               {% if page.header_image %}
                                 <img src="{{ page.header_image }}" alt="{{ page.title }}" class="software-image">
+                              {% elif page.logo_image %}
+                                <img src="{{ page.logo_image }}" alt="{{ page.title }}" class="software-image">
                               {% elif page.uploaded_images %}
                                 {% set images = h.json_loads(page.uploaded_images) or [] %}
                                 {% if images and images[0] %}
@@ -622,7 +624,7 @@
                       <div class="empty-state-icon">
                         <i class="fa fa-code fa-4x" style="color: var(--unesco-blue); margin-bottom: 2rem;"></i>
                       </div>
-                      <h3>{{ _('No Water Management Tools') }}</h3>
+                      <h3>{{ _('No Open-Source Tools for Water Management') }}</h3>
                       <p class="text-muted" style="margin-bottom: 2rem;">
                         {% if request.args.q %}
                           {{ _('No water management tools match your search criteria.') }}

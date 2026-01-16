@@ -9,7 +9,6 @@
 {% block scripts %}
   {{ super() }}
   <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
-  <script src="{{ h.url_for_static('/js/open-source-software-edit.js') }}"></script>
 {% endblock %}
 
 {% block title %}
@@ -496,6 +495,15 @@
                             </div>
                           </div>
 
+                        </div>
+
+                        <!-- Examples & Use Cases -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-lightbulb-o"></i>
+                            {{ _('Example Applications & Use Cases') }}
+                          </h3>
+
                           <div class="form-group">
                             <label for="example_applications" class="control-label">{{ _('Example Applications & Use Cases') }}</label>
                             <div class="quill-wrapper">
@@ -660,6 +668,7 @@
                                   </button>
                                 </div>
                               </div>
+                              <input type="hidden" id="logo_image" name="logo_image" value="{{ data.get('logo_image', '') }}">
                             </div>
                             
                             <!-- Uploaded Images Preview -->
@@ -3107,46 +3116,67 @@ textarea[id="example_applications"] {
 
   // Load member states from API
   function loadMemberStates() {
-    // Use current site's API endpoint for member states
-    var apiBaseUrl = window.location.origin;
-    $.ajax({
-      url: apiBaseUrl + '/api/3/action/group_show',
-      data: { 
-        id: 'member-states',
-        include_groups: true
-      },
-      dataType: 'json',
-      success: function(response) {
-        if (response.success && response.result && response.result.groups) {
-          const $select = $('#member-state-select');
-          $select.empty();
-          $select.append('<option value="">{{ _("Select a member state...") }}</option>');
-          
-          // Process and sort member states alphabetically by formatted display name
-          const processedGroups = response.result.groups.map(group => {
-            const formattedName = formatMemberStateName(group.name);
-            return {
-              ...group,
-              formatted_display_name: formattedName
-            };
-          }).sort((a, b) => 
-            a.formatted_display_name.localeCompare(b.formatted_display_name)
-          );
-          
-          processedGroups.forEach(function(group) {
-            $select.append(
-              `<option value="${group.name}" data-name="${group.name}" data-display="${group.formatted_display_name}">${group.formatted_display_name}</option>`
-            );
-          });
-          
-          // Load existing member states
-          loadExistingMemberStates();
-        }
-      },
-      error: function() {
-        $('#member-state-select').html('<option value="">{{ _("Error loading member states") }}</option>');
+    const baseUrls = [];
+    [window.location.origin, 'https://data.dev-wins.com'].forEach(function(baseUrl) {
+      if (baseUrl && baseUrls.indexOf(baseUrl) === -1) {
+        baseUrls.push(baseUrl);
       }
     });
+
+    const $select = $('#member-state-select');
+    const showError = function() {
+      $select.html('<option value="">{{ _("Error loading member states") }}</option>');
+    };
+
+    const requestMemberStates = function(index) {
+      if (index >= baseUrls.length) {
+        showError();
+        return;
+      }
+
+      $.ajax({
+        url: baseUrls[index] + '/api/3/action/group_show',
+        data: {
+          id: 'member-states',
+          include_groups: true
+        },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success && response.result && response.result.groups) {
+            $select.empty();
+            $select.append('<option value="">{{ _("Select a member state...") }}</option>');
+
+            // Process and sort member states alphabetically by formatted display name
+            const processedGroups = response.result.groups.map(group => {
+              const formattedName = formatMemberStateName(group.name);
+              return {
+                ...group,
+                formatted_display_name: formattedName
+              };
+            }).sort((a, b) =>
+              a.formatted_display_name.localeCompare(b.formatted_display_name)
+            );
+
+            processedGroups.forEach(function(group) {
+              $select.append(
+                `<option value="${group.name}" data-name="${group.name}" data-display="${group.formatted_display_name}">${group.formatted_display_name}</option>`
+              );
+            });
+
+            // Load existing member states
+            loadExistingMemberStates();
+            return;
+          }
+
+          requestMemberStates(index + 1);
+        },
+        error: function() {
+          requestMemberStates(index + 1);
+        }
+      });
+    };
+
+    requestMemberStates(0);
   }
   
   // Load existing member states from data
@@ -3243,13 +3273,16 @@ textarea[id="example_applications"] {
       }
     }
     
-    // Load existing logo from header_image field
+    // Load existing logo from dedicated field (fallback to header image for legacy entries)
+    const storedLogo = $('#logo_image').val();
     const headerImage = $('#header_image').val();
-    if (headerImage) {
-      logoUrl = headerImage;
-      showLogoPreview(headerImage);
+    const displayMode = $('input[name="header_display_mode"]:checked').val();
+    const fallbackLogo = storedLogo || ((displayMode === 'logo' || displayMode === 'logo_text') ? headerImage : '');
+    if (fallbackLogo) {
+      logoUrl = fallbackLogo;
+      showLogoPreview(fallbackLogo);
       // Also update the header display preview
-      updateHeaderDisplayPreview(headerImage);
+      updateHeaderDisplayPreview(fallbackLogo);
     }
   }
   
@@ -3404,7 +3437,7 @@ textarea[id="example_applications"] {
         if (response.uploaded === 1) {
           if (isLogo) {
             logoUrl = response.url;
-            $('#header_image').val(response.url);
+            $('#logo_image').val(response.url);
             showLogoPreview(response.url);
           } else {
                       const imageData = {
@@ -3450,7 +3483,7 @@ textarea[id="example_applications"] {
   // Remove logo
   $('#remove-logo').on('click', function() {
     logoUrl = '';
-    $('#header_image').val('');
+    $('#logo_image').val('');
     $('#logo-preview').hide();
     $('#logo-dropzone').show();
     
@@ -3826,7 +3859,9 @@ textarea[id="example_applications"] {
   // Header display mode change handler
   $('input[name="header_display_mode"]').on('change', function() {
     const selectedMode = $(this).val();
-    const currentLogoUrl = $('#header_image').val() || logoUrl;
+    const storedLogoUrl = $('#logo_image').val() || logoUrl;
+    const headerFallback = (selectedMode === 'logo' || selectedMode === 'logo_text') ? $('#header_image').val() : '';
+    const currentLogoUrl = storedLogoUrl || headerFallback;
     
     // Update all preview banners based on selected mode
     $('.header-display-option').each(function() {
