@@ -313,14 +313,14 @@
 
                           <!-- Member States Section -->
                           <div class="form-group">
-                            <label class="control-label">{{ _('Member States') }}</label>
+                            <label class="control-label" for="member-state-select">{{ _('Member States') }}</label>
                             <p class="help-block">{{ _('Select the member states associated with this software') }}</p>
                             
                             <div class="member-states-container">
                               <!-- Member states selector -->
                               <div class="member-state-selector">
                                 <div class="input-group">
-                                  <select id="member-state-select" class="form-control">
+                                  <select id="member-state-select" class="form-control" aria-label="{{ _('Member States') }}">
                                     <option value="">{{ _('Select a member state...') }}</option>
                                     <option value="loading" disabled>{{ _('Loading member states...') }}</option>
                                   </select>
@@ -389,7 +389,9 @@
                           </div>
 
                           <div class="form-group">
-                            <label for="key_features" class="control-label">{{ _('Key Features') }}</label>
+                            <h4>
+                              <label for="key_features" class="control-label">{{ _('Key Features') }}</label>
+                            </h4>
                             <textarea name="key_features" id="key_features" rows="8" class="form-control" 
                                       placeholder="{{ _('List key features, one per line:\n\nAdvanced spatial analysis tools\nUser-friendly interface\nExtensive plugin ecosystem\nCross-platform compatibility') }}">{{ data.get('key_features', '') }}</textarea>
                             <p class="help-block">{{ _('List main features, one per line. These will be displayed as highlighted points.') }}</p>
@@ -501,11 +503,11 @@
                         <div class="form-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-lightbulb-o"></i>
-                            {{ _('Example Applications & Use Cases') }}
+                            {{ _('Examples & Use Cases') }}
                           </h3>
 
                           <div class="form-group">
-                            <label for="example_applications" class="control-label">{{ _('Example Applications & Use Cases') }}</label>
+                            <label for="example_applications" class="control-label">{{ _('Examples & Use Cases') }}</label>
                             <div class="quill-wrapper">
                               <div id="example-applications-editor" class="quill-editor quill-compact"></div>
                               <textarea name="example_applications" id="example_applications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('example_applications', '') }}</textarea>
@@ -3066,6 +3068,7 @@ textarea[id="example_applications"] {
       url: '/api/3/action/organization_list',
       data: { all_fields: true, include_extras: false },
       dataType: 'json',
+      timeout: 5000,
       success: function(response) {
         if (response.success && response.result) {
           $select.append('<option value="">{{ _("Select Organization") }}</option>');
@@ -3141,6 +3144,7 @@ textarea[id="example_applications"] {
           include_groups: true
         },
         dataType: 'json',
+        timeout: 5000,
         success: function(response) {
           if (response.success && response.result && response.result.groups) {
             $select.empty();

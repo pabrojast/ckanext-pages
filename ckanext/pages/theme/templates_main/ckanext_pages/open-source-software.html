@@ -413,7 +413,9 @@
                 {% endif %}
 
                 <!-- Links & Resources -->
-                {% if c.page.repository_url or c.page.website_url or c.page.documentation_url %}
+                {% set has_links = c.page.repository_url or c.page.website_url or c.page.documentation_url %}
+                {% set is_overview_page = (c.page.title or c.page.name) == _('Open-Source Tools for Water Management') %}
+                {% if has_links or is_overview_page %}
                 <div class="software-links" style="margin-bottom: 3rem;">
                   <section class="module module-narrow software-module-links">
                     <div class="module-content">
@@ -423,6 +425,7 @@
                         </div>
                         <h2>{{ _('Links & Resources') }}</h2>
                       </div>
+                      {% if has_links %}
                       <div class="links-grid">
                         {% if c.page.repository_url %}
                         <a href="{{ c.page.repository_url }}" target="_blank" class="resource-link repository">
@@ -469,6 +472,28 @@
                         </a>
                         {% endif %}
                       </div>
+                      {% else %}
+                      <div class="resource-cards-section">
+                        <div class="resource-cards-grid">
+                          <a href="{{ h.url_for('pages.open_source_software_index') }}" class="resource-card resource-card-website">
+                            <div class="resource-card-icon"><i class="fa fa-th-large"></i></div>
+                            <div class="resource-card-content">
+                              <h5 class="resource-card-title">{{ _('Tool Catalog') }}</h5>
+                              <p class="resource-card-description">{{ _('Browse all open-source tools in the directory.') }}</p>
+                            </div>
+                            <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+                          </a>
+                          <a href="{{ h.url_for('pages.open_source_software_new') }}" class="resource-card resource-card-documentation">
+                            <div class="resource-card-icon"><i class="fa fa-plus"></i></div>
+                            <div class="resource-card-content">
+                              <h5 class="resource-card-title">{{ _('Submit a Tool') }}</h5>
+                              <p class="resource-card-description">{{ _('Start a new submission for your software.') }}</p>
+                            </div>
+                            <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+                          </a>
+                        </div>
+                      </div>
+                      {% endif %}
                     </div>
                   </section>
                 </div>
@@ -647,7 +672,7 @@
                         <div class="software-section-icon">
                           <i class="fa fa-lightbulb-o"></i>
                         </div>
-                        <h2>{{ _('Example Applications & Use Cases') }}</h2>
+                        <h2>{{ _('Examples & Use Cases') }}</h2>
                       </div>
                       <div class="software-content-body">
                         {{ render_resource_cards(c.page.example_applications, _('Example Resources')) }}
