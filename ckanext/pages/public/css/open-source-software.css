@@ -1551,6 +1551,18 @@
   align-items: stretch;
 }
 
+.links-card-section {
+  margin-bottom: 2rem;
+}
+
+.links-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: stretch;
+}
+
 .resource-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border: 2px solid #e9ecef;
@@ -1568,12 +1580,22 @@
   height: 100%;
 }
 
+.software-links .resource-card,
+.software-links .links-card {
+  min-height: 190px;
+  height: 210px;
+}
+
 .resource-card:hover {
   text-decoration: none;
   color: inherit;
   transform: translateY(-4px);
   box-shadow: var(--shadow-strong);
   border-color: var(--unesco-blue);
+}
+
+.links-card {
+  height: 100%;
 }
 
 .resource-card::before {
@@ -1593,7 +1615,8 @@
   transform: scaleY(1);
 }
 
-.resource-card-icon {
+.resource-card-icon,
+.links-card-icon {
   width: 50px;
   height: 50px;
   border-radius: 12px;
@@ -1607,7 +1630,8 @@
   transition: transform 0.3s ease;
 }
 
-.resource-card:hover .resource-card-icon {
+.resource-card:hover .resource-card-icon,
+.resource-card:hover .links-card-icon {
   transform: scale(1.1);
 }
 
@@ -1646,14 +1670,16 @@
   background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
 }
 
-.resource-card-content {
+.resource-card-content,
+.links-card-content {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
-.resource-card-title {
+.resource-card-title,
+.links-card-title {
   margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
   font-weight: 700;
@@ -1668,7 +1694,8 @@
   -webkit-line-clamp: 2;
 }
 
-.resource-card-description {
+.resource-card-description,
+.links-card-description {
   margin: 0;
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -1680,7 +1707,8 @@
   -webkit-line-clamp: 3;
 }
 
-.resource-card-arrow {
+.resource-card-arrow,
+.links-card-arrow {
   color: var(--unesco-blue);
   font-size: 1rem;
   opacity: 0.7;
@@ -1688,7 +1716,8 @@
   flex-shrink: 0;
 }
 
-.resource-card:hover .resource-card-arrow {
+.resource-card:hover .resource-card-arrow,
+.resource-card:hover .links-card-arrow {
   opacity: 1;
   transform: translateX(4px);
 }

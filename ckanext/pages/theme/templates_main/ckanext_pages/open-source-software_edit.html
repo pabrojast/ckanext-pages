@@ -9,6 +9,7 @@
 {% block scripts %}
   {{ super() }}
   <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
+  <script src="{{ h.url_for_static('/js/open-source-software-edit.js') }}"></script>
 {% endblock %}
 
 {% block title %}
@@ -399,11 +400,12 @@
                         </div>
 
                         <!-- Links & Resources -->
-                        <div class="form-section">
+                        <div class="form-section js-test-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-link"></i>
                             {{ _('Links & Resources') }}
                           </h3>
+                          <h4 class="form-section-heading">{{ _('Links & Resources') }}</h4>
 
                           <div class="row">
                             <div class="col-md-6">
@@ -500,11 +502,12 @@
                         </div>
 
                         <!-- Examples & Use Cases -->
-                        <div class="form-section">
+                        <div class="form-section js-test-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-lightbulb-o"></i>
                             {{ _('Examples & Use Cases') }}
                           </h3>
+                          <h4 class="form-section-heading">{{ _('Examples & Use Cases') }}</h4>
 
                           <div class="form-group">
                             <label for="example_applications" class="control-label">{{ _('Examples & Use Cases') }}</label>
@@ -566,7 +569,7 @@
                                   </div>
                                 </label>
                                 <label class="radio-option header-display-option" data-preview="logo">
-                                  <input type="radio" name="header_display_mode" value="logo" 
+                                  <input type="radio" name="header_display_mode" value="logo" aria-label="{{ _('Logo only') }}"
                                          {% if data.get('header_display_mode') == 'logo' %}checked{% endif %}>
                                   <div class="option-content">
                                     <div class="option-preview preview-logo">
@@ -577,14 +580,14 @@
                                       </div>
                                     </div>
                                     <div class="option-details">
-                                      <span class="radio-label">{{ _('Logo Only') }}</span>
+                                      <span class="radio-label">{{ _('Logo only') }}</span>
                                       <small class="help-block">{{ _('Display only the logo image, no text') }}</small>
                                       <small class="help-block text-warning"><i class="fa fa-exclamation-triangle"></i> {{ _('Requires logo image to be uploaded') }}</small>
                                     </div>
                                   </div>
                                 </label>
                                 <label class="radio-option header-display-option" data-preview="logo_text">
-                                  <input type="radio" name="header_display_mode" value="logo_text" 
+                                  <input type="radio" name="header_display_mode" value="logo_text" aria-label="{{ _('Logo above text') }}"
                                          {% if data.get('header_display_mode') == 'logo_text' %}checked{% endif %}>
                                   <div class="option-content">
                                     <div class="option-preview preview-logo-text">
@@ -596,7 +599,7 @@
                                       </div>
                                     </div>
                                     <div class="option-details">
-                                      <span class="radio-label">{{ _('Logo Above Text') }}</span>
+                                      <span class="radio-label">{{ _('Logo above text') }}</span>
                                       <small class="help-block">{{ _('Display logo image above the title text') }}</small>
                                       <small class="help-block text-warning"><i class="fa fa-exclamation-triangle"></i> {{ _('Requires logo image to be uploaded') }}</small>
                                     </div>

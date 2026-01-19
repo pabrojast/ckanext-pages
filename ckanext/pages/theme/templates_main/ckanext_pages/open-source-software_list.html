@@ -97,6 +97,7 @@
                   {% if h.check_access('ckanext_pages_update') %}
                     <div class="header-action" style="margin-top: 2rem;">
                       <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-light btn-lg">
+                        <span class="sr-only">{{ _('Submit application') }}</span>
                         <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}
                       </a>
                     </div>
@@ -154,31 +155,31 @@
                         </div>
                         <h2>{{ _('Links & Resources') }}</h2>
                       </div>
-                      <div class="resource-cards-section">
-                        <div class="resource-cards-grid">
-                          <a href="#tools-catalog" class="resource-card resource-card-website">
-                            <div class="resource-card-icon"><i class="fa fa-th-large"></i></div>
-                            <div class="resource-card-content">
-                              <h5 class="resource-card-title">{{ _('Tool Catalog') }}</h5>
-                              <p class="resource-card-description">{{ _('Browse all open-source tools in the directory.') }}</p>
+                      <div class="links-card-section">
+                        <div class="links-card-grid">
+                          <a href="#tools-catalog" class="resource-card resource-card-website links-card">
+                            <div class="links-card-icon"><i class="fa fa-th-large"></i></div>
+                            <div class="links-card-content">
+                              <h5 class="links-card-title">{{ _('Tool Catalog') }}</h5>
+                              <p class="links-card-description">{{ _('Browse all open-source tools in the directory.') }}</p>
                             </div>
-                            <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+                            <div class="links-card-arrow"><i class="fa fa-chevron-right"></i></div>
                           </a>
-                          <a href="#key-features" class="resource-card resource-card-documentation">
-                            <div class="resource-card-icon"><i class="fa fa-list"></i></div>
-                            <div class="resource-card-content">
-                              <h5 class="resource-card-title">{{ _('Key Features') }}</h5>
-                              <p class="resource-card-description">{{ _('Review the highlights and capabilities of the catalog.') }}</p>
+                          <a href="#key-features" class="resource-card resource-card-documentation links-card">
+                            <div class="links-card-icon"><i class="fa fa-list"></i></div>
+                            <div class="links-card-content">
+                              <h5 class="links-card-title">{{ _('Key Features') }}</h5>
+                              <p class="links-card-description">{{ _('Review the highlights and capabilities of the catalog.') }}</p>
                             </div>
-                            <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+                            <div class="links-card-arrow"><i class="fa fa-chevron-right"></i></div>
                           </a>
-                          <a href="#examples-use-cases" class="resource-card resource-card-course">
-                            <div class="resource-card-icon"><i class="fa fa-lightbulb-o"></i></div>
-                            <div class="resource-card-content">
-                              <h5 class="resource-card-title">{{ _('Examples & Use Cases') }}</h5>
-                              <p class="resource-card-description">{{ _('See how tools are applied in real-world workflows.') }}</p>
+                          <a href="#examples-use-cases" class="resource-card resource-card-course links-card">
+                            <div class="links-card-icon"><i class="fa fa-lightbulb-o"></i></div>
+                            <div class="links-card-content">
+                              <h5 class="links-card-title">{{ _('Examples & Use Cases') }}</h5>
+                              <p class="links-card-description">{{ _('See how tools are applied in real-world workflows.') }}</p>
                             </div>
-                            <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+                            <div class="links-card-arrow"><i class="fa fa-chevron-right"></i></div>
                           </a>
                         </div>
                       </div>
@@ -744,6 +745,7 @@
                       </p>
                       {% if h.check_access('ckanext_pages_update') %}
                         <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-primary btn-lg">
+                          <span class="sr-only">{{ _('Submit application') }}</span>
                           <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}
                         </a>
                       {% endif %}
