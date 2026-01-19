@@ -12,6 +12,7 @@ import re
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 import ckan.plugins.toolkit as tk
 from ckan.common import g
+from ckan import model
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +88,7 @@ def index():
         tk.abort(403, tk._('Not authorized to view stories'))
     except Exception as e:
         log.error(f"Error listing stories: {str(e)}")
+        model.Session.rollback()
         stories = []
         total_count = 0
         facets = {}
@@ -103,6 +105,7 @@ def index():
             user_drafts = drafts_result.get('stories', [])
         except Exception as e:
             log.warning(f"Error getting user drafts: {str(e)}")
+            model.Session.rollback()
 
     # Calculate pagination
     total_pages = (total_count + limit - 1) // limit
@@ -119,6 +122,7 @@ def index():
             featured_stories = featured_result['stories']
         except Exception as e:
             log.error(f"Error getting featured stories: {str(e)}")
+            model.Session.rollback()
 
     # Get pending review count for sysadmins
     pending_count = 0
@@ -137,6 +141,7 @@ def index():
             pending_count = submitted_result.get('count', 0) + review_result.get('count', 0)
         except Exception as e:
             log.warning(f"Error getting pending count: {str(e)}")
+            model.Session.rollback()
 
     # Prepare template variables
     extra_vars = {
@@ -239,6 +244,7 @@ def pending_review():
 
     except Exception as e:
         log.error(f"Error listing pending stories: {str(e)}")
+        model.Session.rollback()
         stories = []
         total_count = 0
 
@@ -299,6 +305,7 @@ def my_stories():
         total_count = result['count']
     except Exception as e:
         log.error(f"Error listing user stories: {str(e)}")
+        model.Session.rollback()
         stories = []
         total_count = 0
 
@@ -485,6 +492,7 @@ def show(slug):
             )
         except Exception as e:
             log.warning(f"Failed to record view: {str(e)}")
+            model.Session.rollback()
 
     except tk.ObjectNotFound:
         tk.abort(404, tk._('Story not found'))
@@ -492,6 +500,7 @@ def show(slug):
         tk.abort(403, tk._('Not authorized to view this story'))
     except Exception as e:
         log.error(f"Error showing story: {str(e)}")
+        model.Session.rollback()
         tk.abort(500, tk._('Error loading story'))
 
     # Get comments if user is authorized
@@ -502,6 +511,7 @@ def show(slug):
         })
     except Exception as e:
         log.warning(f"Could not load comments: {str(e)}")
+        model.Session.rollback()
 
     extra_vars = {
         'story': story,
@@ -783,6 +793,7 @@ def review(slug):
         })
     except Exception as e:
         log.warning(f"Could not load comments: {str(e)}")
+        model.Session.rollback()
 
     if request.method == 'POST':
         action = request.form.get('action')
