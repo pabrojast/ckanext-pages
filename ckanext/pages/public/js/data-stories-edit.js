@@ -2465,7 +2465,7 @@
       
       // Setup character counters for At a Glance fields
       setTimeout(() => {
-        updateCharacterCount('#research_question-editor', 'research_question-counter', 120);
+        updateCharacterCount('#research_question-editor', 'research_question-counter', 240);
         updateCharacterCount('#study_area-editor', 'study_area-counter', 100);
       }, 1000); // Increased delay to ensure editors are ready
 
@@ -2473,6 +2473,5 @@
     });
   });
 })();
-
 
 
