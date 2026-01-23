@@ -36,6 +36,20 @@ ON CKAN >= 2.9:
 (pyenv) $ ckan --config=/etc/ckan/default/ckan.ini db upgrade -p pages
 ```
 
+## Data Stories (optional)
+
+Data Stories are disabled by default. To enable them, add the setting below and run the pages migration so the tables exist before the routes are used:
+
+```
+ckanext.data_stories.enabled = true
+```
+
+```
+(pyenv) $ ckan --config=/etc/ckan/default/ckan.ini db upgrade -p pages
+```
+
+Restart CKAN after changing the config.
+
 
 ## Configuration
 
@@ -265,4 +279,3 @@ Released under the GNU Affero General Public License (AGPL) v3.0. See the file `
 ## History
 
 See the file [CHANGELOG.md](CHANGELOG.md).
-

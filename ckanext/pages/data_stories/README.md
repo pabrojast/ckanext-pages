@@ -111,7 +111,7 @@ from ckanext.pages.data_stories.blueprint import routes as ds_routes
 ### 3. Run Migrations
 
 ```bash
-ckan -c /etc/ckan/default/ckan.ini db upgrade -p pages_data_stories
+ckan -c /etc/ckan/default/ckan.ini db upgrade -p pages
 ```
 
 Or manually:
