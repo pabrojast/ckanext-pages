@@ -28,13 +28,17 @@ def with_db_retry(max_retries=3, delay=0.5):
                 except (DBAPIError, InvalidRequestError, OperationalError) as e:
                     last_exception = e
                     error_msg = str(e)
+                    error_msg_lower = error_msg.lower()
+                    orig_error = getattr(e, "orig", None)
+                    orig_msg = str(orig_error).lower() if orig_error else ""
                     
                     # Handle specific connection pool errors
-                    if any(msg in error_msg.lower() for msg in [
+                    if any(msg in error_msg_lower or msg in orig_msg for msg in [
                         "server closed the connection unexpectedly",
                         "connection pool exhausted",
                         "can't reconnect until invalid transaction is rolled back",
                         "error with status pgres_tuples_ok",
+                        "result object does not return rows",
                         "'nonetype' object has no attribute 'cursor'",
                         "connection refused",
                         "no connection to the server",
@@ -44,6 +48,10 @@ def with_db_retry(max_retries=3, delay=0.5):
                         
                         # Try to recover the session
                         try:
+                            try:
+                                model.meta.engine.dispose()
+                            except Exception:
+                                pass
                             model.Session.rollback()
                             model.Session.remove()
                             model.Session.configure(bind=model.meta.engine)
@@ -83,14 +91,18 @@ def ensure_valid_session():
         return True
     except Exception as e:
         error_str = str(e).lower()
+        orig_error = getattr(e, "orig", None)
+        orig_str = str(orig_error).lower() if orig_error else ""
         log.warning(f"Invalid session detected: {str(e)}")
         
         # Check for specific connection issues
-        if any(keyword in error_str for keyword in [
+        if any(keyword in error_str or keyword in orig_str for keyword in [
             'server closed the connection',
             'connection unexpectedly',
             'nonetype',
             'cursor',
+            'error with status pgres_tuples_ok',
+            'result object does not return rows',
             'connection refused',
             'no connection to the server',
             'database is locked'
@@ -100,6 +112,10 @@ def ensure_valid_session():
         try:
             model.Session.rollback()
             model.Session.remove()
+            try:
+                model.meta.engine.dispose()
+            except Exception:
+                pass
             model.Session.configure(bind=model.meta.engine)
             
             # Test the new session
