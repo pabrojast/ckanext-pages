@@ -237,10 +237,8 @@ class Page(DomainObject, BaseModel):
                 activity_filter = sa.or_(
                     # Activity status stored in extras JSON - exact match
                     cls.extras.ilike('%"activity_status": "' + activity_status + '"%'),
-                    # Also check if it's stored without quotes around value
-                    cls.extras.ilike('%"activity_status":' + activity_status + '%'),
-                    # Check for alternative storage format
-                    cls.extras.ilike('%activity_status%' + activity_status + '%')
+                    # Also handle JSON without spaces after colon
+                    cls.extras.ilike('%"activity_status":"' + activity_status + '"%')
                 )
                 query = query.filter(activity_filter)
             

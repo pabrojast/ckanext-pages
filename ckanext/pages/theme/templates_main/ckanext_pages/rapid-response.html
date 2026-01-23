@@ -1954,9 +1954,22 @@
     });
     
     // Close modal functionality
-    $('.close, .modal').on('click', function(e) {
+    function hideImageModal() {
+      if (typeof $.fn.modal !== 'undefined') {
+        $('#imageModal').modal('hide');
+      } else {
+        $('#imageModal').css('display', 'none').removeClass('show');
+      }
+    }
+
+    $('#imageModal .close').on('click', function(e) {
+      e.preventDefault();
+      hideImageModal();
+    });
+
+    $('#imageModal').on('click', function(e) {
       if (e.target === this) {
-        $('#imageModal').modal('hide').css('display', 'none').removeClass('show');
+        hideImageModal();
       }
     });
     
