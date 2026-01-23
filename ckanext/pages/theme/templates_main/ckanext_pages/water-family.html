@@ -72,10 +72,7 @@
                               </div>
                               <div class="summary-content">
                                 <div class="summary-number">
-                                  {% set pending_news_count = 0 %}
-                                  {% for item in news_items if item.private == 'True' %}
-                                    {% set pending_news_count = pending_news_count + 1 %}
-                                  {% endfor %}
+                                  {% set pending_news_count = pending_counts.get('news', 0) if pending_counts else 0 %}
                                   {{ pending_news_count }}
                                 </div>
                                 <div class="summary-label">{{ _('Pending News') }}</div>
@@ -89,10 +86,7 @@
                               </div>
                               <div class="summary-content">
                                 <div class="summary-number">
-                                  {% set pending_events_count = 0 %}
-                                  {% for item in events_items if item.private == 'True' %}
-                                    {% set pending_events_count = pending_events_count + 1 %}
-                                  {% endfor %}
+                                  {% set pending_events_count = pending_counts.get('events', 0) if pending_counts else 0 %}
                                   {{ pending_events_count }}
                                 </div>
                                 <div class="summary-label">{{ _('Pending Events') }}</div>
@@ -106,10 +100,7 @@
                               </div>
                               <div class="summary-content">
                                 <div class="summary-number">
-                                  {% set pending_publications_count = 0 %}
-                                  {% for item in publications_items if item.private == 'True' %}
-                                    {% set pending_publications_count = pending_publications_count + 1 %}
-                                  {% endfor %}
+                                  {% set pending_publications_count = pending_counts.get('publications', 0) if pending_counts else 0 %}
                                   {{ pending_publications_count }}
                                 </div>
                                 <div class="summary-label">{{ _('Pending Publications') }}</div>

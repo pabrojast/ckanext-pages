@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ _('Water Family Publications') }} - {{ super() }}
+{{ _('IHP Water Family Publications') }} - {{ super() }}
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
                     <li class="active"><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
                 </ol>
             </div>
@@ -32,8 +32,8 @@
                 <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
-                  <h1>{{ _('Water Family Publications') }}</h1>
-                  <p class="section-title-description">{{ _('Research papers, reports, books and scientific contributions from the Water Family community') }}</p>
+                  <h1>{{ _('IHP Water Family Publications') }}</h1>
+                  <p class="section-title-description">{{ _('Research papers, reports, books and scientific contributions from the IHP Water Family community') }}</p>
                 </div>
               </div>
             </section>
@@ -142,11 +142,21 @@
                           <div class="col-md-3">
                             <select name="publication_type" class="form-control">
                               <option value="">{{ _('All Publication Types') }}</option>
-                              <option value="research-paper" {% if request.args.publication_type == 'research-paper' %}selected{% endif %}>{{ _('Research Papers') }}</option>
-                              <option value="report" {% if request.args.publication_type == 'report' %}selected{% endif %}>{{ _('Reports') }}</option>
-                              <option value="book" {% if request.args.publication_type == 'book' %}selected{% endif %}>{{ _('Books') }}</option>
-                              <option value="thesis" {% if request.args.publication_type == 'thesis' %}selected{% endif %}>{{ _('Thesis') }}</option>
-                              <option value="policy-brief" {% if request.args.publication_type == 'policy-brief' %}selected{% endif %}>{{ _('Policy Briefs') }}</option>
+                              {% set publication_types = [
+                                ('report', _('Report')),
+                                ('paper', _('Research Paper')),
+                                ('book', _('Book')),
+                                ('chapter', _('Book Chapter')),
+                                ('thesis', _('Thesis/Dissertation')),
+                                ('policy-brief', _('Policy Brief')),
+                                ('technical-document', _('Technical Document')),
+                                ('manual', _('Manual/Guide')),
+                                ('proceedings', _('Conference Proceedings')),
+                                ('other', _('Other'))
+                              ] %}
+                              {% for value, label in publication_types %}
+                                <option value="{{ value }}" {% if request.args.publication_type == value %}selected{% endif %}>{{ label }}</option>
+                              {% endfor %}
                             </select>
                           </div>
                           <div class="col-md-3">
@@ -212,7 +222,13 @@
                                   </h3>
                                   <div class="event-badges">
                                     <span class="badge-status badge-publication">{{ page.subtitle or _('PUBLICATION') }}</span>
-                                    {% if page.private == 'True' %}
+                                    {% set submission_status = (page.submission_status or '').lower() %}
+                                    {% set is_private = page.private in [True, 'True', 'true', 1] %}
+                                    {% if submission_status == 'pending' %}
+                                      <span class="badge-status badge-pending">{{ _('PENDING APPROVAL') }}</span>
+                                    {% elif submission_status == 'draft' %}
+                                      <span class="badge-status badge-draft">{{ _('DRAFT') }}</span>
+                                    {% elif is_private %}
                                       <span class="badge-status badge-pending">{{ _('PENDING APPROVAL') }}</span>
                                     {% else %}
                                       <span class="badge-status badge-published">{{ _('PUBLISHED') }}</span>
@@ -279,7 +295,9 @@
                                     {% if content_text|length > 400 %}
                                       <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
                                       <br>
-                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn"
+                                              data-read-more="{{ _('Read more') }}"
+                                              data-read-less="{{ _('Read less') }}">
                                         <i class="fa fa-plus"></i> {{ _('Read more') }}
                                       </button>
                                     {% endif %}
@@ -354,7 +372,7 @@
                   <section class="module module-narrow">
                     <div class="module-content text-center" style="padding: 4rem 2.5rem;">
                       <div class="empty-state-icon">
-                        <i class="fa fa-file-text-o fa-4x" style="color: var(--water-publications-primary); margin-bottom: 2rem;"></i>
+                        <i class="fa fa-file-text-o fa-4x" style="color: var(--wf-primary-light); margin-bottom: 2rem;"></i>
                       </div>
                       <h3>{{ _('No Publications Found') }}</h3>
                       <p class="text-muted" style="margin-bottom: 2rem;">

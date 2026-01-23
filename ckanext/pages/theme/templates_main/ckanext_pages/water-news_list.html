@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ _('Water Family News') }} - {{ super() }}
+{{ _('IHP Water Family News') }} - {{ super() }}
 {% endblock %}
 
 {% block content %}
@@ -32,7 +32,7 @@
                 <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
-                  <h1>{{ _('Water Family News') }}</h1>
+                  <h1>{{ _('IHP Water Family News') }}</h1>
                   <p class="section-title-description">{{ _('Latest news and updates from the global water community') }}</p>
                 </div>
               </div>
@@ -142,7 +142,13 @@
                                   </h3>
                                   <div class="event-badges">
                                     <span class="badge-status badge-news">{{ _('NEWS') }}</span>
-                                    {% if page.private == 'True' %}
+                                    {% set submission_status = (page.submission_status or '').lower() %}
+                                    {% set is_private = page.private in [True, 'True', 'true', 1] %}
+                                    {% if submission_status == 'pending' %}
+                                      <span class="badge-status badge-pending">{{ _('PENDING REVIEW') }}</span>
+                                    {% elif submission_status == 'draft' %}
+                                      <span class="badge-status badge-draft">{{ _('DRAFT') }}</span>
+                                    {% elif is_private %}
                                       <span class="badge-status badge-pending">{{ _('PENDING REVIEW') }}</span>
                                     {% else %}
                                       <span class="badge-status badge-published">{{ _('PUBLISHED') }}</span>
@@ -180,7 +186,9 @@
                                     {% if content_text|length > 400 %}
                                       <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
                                       <br>
-                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn"
+                                              data-read-more="{{ _('Read more') }}"
+                                              data-read-less="{{ _('Read less') }}">
                                         <i class="fa fa-plus"></i> {{ _('Read more') }}
                                       </button>
                                     {% endif %}

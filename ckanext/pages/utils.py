@@ -141,6 +141,29 @@ def pages_list_pages(page_type):
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
     )
+
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        pages_list = tk.g.pages_dict
+        filters = {}
+
+        if page_type == 'water-publications' and tk.request.args.get('publication_type'):
+            filters['publication_type'] = tk.request.args.get('publication_type')
+
+        if filters:
+            pages_list = filter_water_family_list(pages_list, filters)
+
+        order_by = tk.request.args.get('order_by')
+        custom_sorts = {'title', 'author', 'upcoming', 'location', 'relevance'}
+        if order_by in custom_sorts:
+            pages_list = sort_water_family_list(
+                pages_list,
+                sort_by=order_by,
+                page_type=page_type,
+                query=tk.request.args.get('q')
+            )
+
+        tk.g.pages_dict = pages_list
+
     
     # Create custom pager URL to preserve search parameters
     def pager_url_with_params(page):
@@ -158,6 +181,11 @@ def pages_list_pages(page_type):
         url=pager_url_with_params,
         items_per_page=21
     )
+
+    if page_type == 'water-events':
+        tk.c.upcoming_count = sum(
+            1 for page in tk.c.page.items if _is_water_family_event_upcoming(page)
+        )
 
     if page_type == 'blog':
         return tk.render('ckanext_pages/blog_list.html')
@@ -1112,6 +1140,20 @@ def process_water_family_metadata(data_dict, page_type):
     return data_dict
 
 
+def _is_water_family_event_upcoming(page):
+    if not page.get('publish_date'):
+        return False
+    try:
+        event_date = datetime.datetime.fromisoformat(
+            str(page['publish_date']).replace('Z', '+00:00')
+        )
+        if event_date.tzinfo is None:
+            event_date = event_date.replace(tzinfo=datetime.timezone.utc)
+        return event_date > datetime.datetime.now(datetime.timezone.utc)
+    except (ValueError, AttributeError):
+        return False
+
+
 def _process_water_family_json_fields(page_dict):
     """Helper to safely parse JSON fields in water-family data."""
     import json
@@ -1267,12 +1309,11 @@ def filter_water_family_list(pages_list, filters):
             - date_from: Filter by date (ISO format)
             - date_to: Filter by date (ISO format)
             - is_upcoming: For events, filter upcoming (bool)
+            - publication_type: Filter by publication type
 
     Returns:
         list: Filtered list of pages
     """
-    from datetime import datetime
-
     if not filters:
         return pages_list
 
@@ -1316,25 +1357,23 @@ def filter_water_family_list(pages_list, filters):
     # Filter upcoming events
     if filters.get('is_upcoming') is not None:
         is_upcoming = filters['is_upcoming']
-
-        def is_event_upcoming(page):
-            if not page.get('publish_date'):
-                return False
-            try:
-                event_date = datetime.fromisoformat(str(page['publish_date']).replace('Z', '+00:00'))
-                return event_date > datetime.now()
-            except (ValueError, AttributeError):
-                return False
-
         if is_upcoming:
-            filtered = [p for p in filtered if is_event_upcoming(p)]
+            filtered = [p for p in filtered if _is_water_family_event_upcoming(p)]
         else:
-            filtered = [p for p in filtered if not is_event_upcoming(p)]
+            filtered = [p for p in filtered if not _is_water_family_event_upcoming(p)]
+
+    # Filter by publication type
+    if filters.get('publication_type'):
+        publication_type = filters['publication_type'].lower()
+        filtered = [
+            p for p in filtered
+            if (p.get('publication_type') or '').lower() == publication_type
+        ]
 
     return filtered
 
 
-def sort_water_family_list(pages_list, sort_by='recent', page_type=None):
+def sort_water_family_list(pages_list, sort_by='recent', page_type=None, query=None):
     """Sort water-family content list by various criteria.
 
     Args:
@@ -1345,7 +1384,10 @@ def sort_water_family_list(pages_list, sort_by='recent', page_type=None):
             - title: Alphabetical by title
             - author: Alphabetical by author
             - upcoming: For events, upcoming first
+            - location: For events, alphabetical by location
+            - relevance: Order by relevance to query
         page_type (str): Optional page type for type-specific sorting
+        query (str): Search query for relevance sorting
 
     Returns:
         list: Sorted list of pages
@@ -1380,6 +1422,30 @@ def sort_water_family_list(pages_list, sort_by='recent', page_type=None):
                 return (1, '')
 
         return sorted(pages_list, key=event_sort_key)
+
+    elif sort_by == 'location' and page_type == 'water-events':
+        return sorted(pages_list, key=lambda p: (p.get('location') or '').lower())
+
+    elif sort_by == 'relevance' and query:
+        terms = [term for term in query.lower().split() if term]
+        if not terms:
+            return pages_list
+
+        def score_text(text):
+            value = (text or '').lower()
+            return sum(value.count(term) for term in terms)
+
+        def score_page(page):
+            title = page.get('title')
+            excerpt = page.get('excerpt')
+            content = page.get('content')
+            return (score_text(title) * 3) + (score_text(excerpt) * 2) + score_text(content)
+
+        return sorted(
+            pages_list,
+            key=lambda p: (score_page(p), p.get('publish_date') or ''),
+            reverse=True
+        )
 
     return pages_list
 
@@ -1419,7 +1485,8 @@ def get_water_family_statistics(page_type=None):
 
             for page in pages:
                 # Count by status
-                if page.get('private') == 'True' or page.get('private') is True:
+                is_private = page.get('private') in [True, 'True', 'true', 1]
+                if is_private:
                     if page.get('submission_status') == 'pending':
                         stats['pending'] += 1
                     else:
@@ -1659,11 +1726,34 @@ def water_family_main_page():
         )[:3]  # Latest 3 publications
     except:
         publications_items = []
-    
+
+    pending_counts = {'news': 0, 'events': 0, 'publications': 0}
+    is_admin = False
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+        is_admin = True
+    except tk.NotAuthorized:
+        pass
+
+    if is_admin:
+        try:
+            pending_counts['news'] = len(_filter_non_admin_pages('water-news'))
+        except Exception:
+            pass
+        try:
+            pending_counts['events'] = len(_filter_non_admin_pages('water-events'))
+        except Exception:
+            pass
+        try:
+            pending_counts['publications'] = len(_filter_non_admin_pages('water-publications'))
+        except Exception:
+            pass
+
     return tk.render('ckanext_pages/water-family.html', extra_vars={
         'news_items': news_items,
         'events_items': events_items,
-        'publications_items': publications_items
+        'publications_items': publications_items,
+        'pending_counts': pending_counts
     })
 
 

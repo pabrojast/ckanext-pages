@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ _('Water Family Events') }} - {{ super() }}
+{{ _('IHP Water Family Events') }} - {{ super() }}
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
                     <li class="active"><a href="{{ h.url_for('pages.water_events_index') }}">{{ _('Events') }}</a></li>
                 </ol>
             </div>
@@ -32,7 +32,7 @@
                 <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
-                  <h1>{{ _('Water Family Events') }}</h1>
+                  <h1>{{ _('IHP Water Family Events') }}</h1>
                   <p class="section-title-description">{{ _('Conferences, workshops, meetings and activities from the IHP Water Family community') }}</p>
                 </div>
               </div>
@@ -79,13 +79,17 @@
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
                             <div class="metric-number">
-                              {% set upcoming_count = 0 %}
-                              {% for page in c.page.items %}
-                                {% if page.publish_date %}
-                                  {% set upcoming_count = upcoming_count + 1 %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ upcoming_count }}
+                              {% if c.upcoming_count is defined %}
+                                {{ c.upcoming_count }}
+                              {% else %}
+                                {% set upcoming_count = 0 %}
+                                {% for page in c.page.items %}
+                                  {% if page.publish_date %}
+                                    {% set upcoming_count = upcoming_count + 1 %}
+                                  {% endif %}
+                                {% endfor %}
+                                {{ upcoming_count }}
+                              {% endif %}
                             </div>
                             <div class="metric-label">{{ _('Upcoming') }}</div>
                           </div>
@@ -232,7 +236,13 @@
                                   </h3>
                                   <div class="event-badges">
                                     <span class="badge-status badge-event">{{ page.subtitle or _('EVENT') }}</span>
-                                    {% if page.private == 'True' %}
+                                    {% set submission_status = (page.submission_status or '').lower() %}
+                                    {% set is_private = page.private in [True, 'True', 'true', 1] %}
+                                    {% if submission_status == 'pending' %}
+                                      <span class="badge-status badge-pending">{{ _('PENDING APPROVAL') }}</span>
+                                    {% elif submission_status == 'draft' %}
+                                      <span class="badge-status badge-draft">{{ _('DRAFT') }}</span>
+                                    {% elif is_private %}
                                       <span class="badge-status badge-pending">{{ _('PENDING APPROVAL') }}</span>
                                     {% else %}
                                       <span class="badge-status badge-published">{{ _('PUBLISHED') }}</span>
@@ -292,7 +302,9 @@
                                     {% if content_text|length > 400 %}
                                       <span class="excerpt-full" style="display: none;">{{ content_text }}</span>
                                       <br>
-                                      <button type="button" class="btn btn-link btn-sm read-more-btn">
+                                      <button type="button" class="btn btn-link btn-sm read-more-btn"
+                                              data-read-more="{{ _('Read more') }}"
+                                              data-read-less="{{ _('Read less') }}">
                                         <i class="fa fa-plus"></i> {{ _('Read more') }}
                                       </button>
                                     {% endif %}

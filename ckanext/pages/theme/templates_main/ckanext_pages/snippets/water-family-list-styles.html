@@ -522,6 +522,11 @@
   color: #b98900;
 }
 
+.badge-draft {
+  background: rgba(108, 117, 125, 0.18);
+  color: #6c757d;
+}
+
 .badge-published {
   background: rgba(40, 167, 69, 0.18);
   color: #1b7c36;
@@ -782,31 +787,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // "Read more" functionality for excerpts
   document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList.contains('read-more-btn')) {
-      e.preventDefault();
+    var btn = e.target.closest('.read-more-btn');
+    if (!btn) return;
 
-      var btn = e.target;
-      var excerptContainer = btn.closest('.event-excerpt-modern');
-      if (!excerptContainer) return;
+    e.preventDefault();
 
-      var preview = excerptContainer.querySelector('.excerpt-preview');
-      var full = excerptContainer.querySelector('.excerpt-full');
+    var excerptContainer = btn.closest('.event-excerpt-modern');
+    if (!excerptContainer) return;
 
-      if (!preview || !full) return;
+    var preview = excerptContainer.querySelector('.excerpt-preview');
+    var full = excerptContainer.querySelector('.excerpt-full');
 
-      var isExpanded = full.style.display !== 'none';
+    if (!preview || !full) return;
 
-      if (isExpanded) {
-        // Collapse
-        preview.style.display = 'inline';
-        full.style.display = 'none';
-        btn.innerHTML = '<i class="fa fa-plus"></i> Read more';
-      } else {
-        // Expand
-        preview.style.display = 'none';
-        full.style.display = 'inline';
-        btn.innerHTML = '<i class="fa fa-minus"></i> Read less';
-      }
+    var isExpanded = full.style.display !== 'none';
+    var readMoreLabel = btn.getAttribute('data-read-more') || 'Read more';
+    var readLessLabel = btn.getAttribute('data-read-less') || 'Read less';
+
+    if (isExpanded) {
+      // Collapse
+      preview.style.display = 'inline';
+      full.style.display = 'none';
+      btn.innerHTML = '<i class="fa fa-plus"></i> ' + readMoreLabel;
+    } else {
+      // Expand
+      preview.style.display = 'none';
+      full.style.display = 'inline';
+      btn.innerHTML = '<i class="fa fa-minus"></i> ' + readLessLabel;
     }
   });
 });

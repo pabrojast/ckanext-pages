@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 
 {% block title %}
-{{ c.page.title or c.page.name }} - {{ _('Water Family News') }} - {{ super() }}
+{{ c.page.title or c.page.name }} - {{ _('IHP Water Family News') }} - {{ super() }}
 {% endblock %}
 
 {% set news_uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
