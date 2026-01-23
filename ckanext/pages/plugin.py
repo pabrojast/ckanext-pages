@@ -715,10 +715,13 @@ class PagesPlugin(PagesPluginBase):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IBlueprint)
 
+    def _data_stories_enabled(self):
+        return tk.asbool(tk.config.get('ckanext.data_stories.enabled', False))
+
     def get_blueprint(self):
         blueprints = [blueprint.pages]
-        # Always register data stories blueprint if available
-        if DATA_STORIES_AVAILABLE and data_stories_blueprint:
+        # Register data stories blueprint only when enabled
+        if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and data_stories_blueprint:
             blueprints.append(data_stories_blueprint)
             log.info("Data stories blueprint registered")
         return blueprints
@@ -757,7 +760,7 @@ class PagesPlugin(PagesPluginBase):
             # Don't raise the error to avoid breaking the entire CKAN startup
             # The error handling in the other methods will handle cases where the table doesn't exist
 
-        if self.data_stories_enabled and DATA_STORIES_AVAILABLE and init_data_stories_tables:
+        if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and init_data_stories_tables:
             try:
                 from ckan import model
 
@@ -862,8 +865,8 @@ class PagesPlugin(PagesPluginBase):
             }
             actions_dict.update(group_actions)
 
-        # Always register data stories actions if available
-        if DATA_STORIES_AVAILABLE and ds_actions:
+        # Register data stories actions only when enabled
+        if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and ds_actions:
             data_stories_actions = {
                 'data_story_create': ds_actions.data_story_create,
                 'data_story_section_create': ds_actions.data_story_section_create,
@@ -927,8 +930,8 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_event_types_delete': auth.event_types_delete,
         }
 
-        # Always register data stories auth if available
-        if DATA_STORIES_AVAILABLE and ds_auth:
+        # Register data stories auth only when enabled
+        if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and ds_auth:
             data_stories_auth = {
                 'data_story_create': ds_auth.data_story_create,
                 'data_story_show': ds_auth.data_story_show,
