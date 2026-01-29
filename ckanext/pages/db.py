@@ -122,6 +122,8 @@ class Page(DomainObject, BaseModel):
             country = kw.pop('country', None)
             activity_status = kw.pop('activity_status', None)
             order_by = kw.pop('order_by', None)
+            limit = kw.pop('limit', None)
+            offset = kw.pop('offset', None)
 
             # Base query - explicitly select all columns to avoid column mapping issues
             query = model.Session.query(cls).autoflush(False)
@@ -130,7 +132,10 @@ class Page(DomainObject, BaseModel):
             submission_status = kw.pop('submission_status', None)
 
             # DEBUG: Log all filter parameters
-            log.info(f"[DB.PAGES] Query filters - kw: {kw}, submission_status: {submission_status}")
+            log.info(
+                f"[DB.PAGES] Query filters - kw: {kw}, submission_status: {submission_status}, "
+                f"limit: {limit}, offset: {offset}"
+            )
 
             # Apply basic filters
             query = query.filter_by(**kw)
@@ -331,6 +336,12 @@ class Page(DomainObject, BaseModel):
             else:
                 # Default ordering
                 query = query.order_by(cls.created.desc())
+
+            # Apply pagination controls if provided
+            if offset:
+                query = query.offset(offset)
+            if limit is not None:
+                query = query.limit(limit)
             
             # Execute query with error handling
             try:

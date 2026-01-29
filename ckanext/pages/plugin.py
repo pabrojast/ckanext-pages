@@ -2,6 +2,8 @@ import logging
 import json
 import re
 import hashlib
+import time
+from functools import lru_cache
 from html import escape as html_escape
 
 from six.moves.urllib.parse import quote, urlencode
@@ -238,16 +240,17 @@ def get_wysiwyg_editor():
     return tk.config.get('ckanext.pages.editor', '')
 
 
-def get_recent_blog_posts(number=5, exclude=None):
+def _get_recent_blog_posts(number, exclude):
     try:
+        limit = number + 1 if exclude else number
         blog_list = tk.get_action('ckanext_pages_list')(
             None, {'order_publish_date': True, 'private': False,
-                   'page_type': 'blog'}
+                   'page_type': 'blog', 'limit': limit}
         )
     except Exception as e:
         log.error("Error getting blog posts list: %s", str(e))
         return []
-        
+
     new_list = []
     for blog in blog_list:
         if exclude and blog.get('name') == exclude:
@@ -257,6 +260,26 @@ def get_recent_blog_posts(number=5, exclude=None):
             break
 
     return new_list
+
+
+@lru_cache(maxsize=64)
+def _get_recent_blog_posts_cached(number, exclude, cache_buster):
+    return _get_recent_blog_posts(number, exclude)
+
+
+def _get_recent_blog_cache_ttl():
+    try:
+        return max(0, tk.asint(tk.config.get('ckanext.pages.recent_blog_cache_ttl', 300)))
+    except Exception:
+        return 300
+
+
+def get_recent_blog_posts(number=5, exclude=None):
+    cache_ttl = _get_recent_blog_cache_ttl()
+    if cache_ttl <= 0:
+        return _get_recent_blog_posts(number, exclude)
+    cache_buster = int(time.time() / cache_ttl)
+    return _get_recent_blog_posts_cached(number, exclude, cache_buster)
 
 
 def get_recent_rapid_response_posts(number=5, exclude=None):

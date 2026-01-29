@@ -88,6 +88,8 @@ def _pages_list(context, data_dict):
     order_publish_date = data_dict.get('order_publish_date')
     page_type = data_dict.get('page_type')
     private = data_dict.get('private', True)
+    limit = data_dict.get('limit')
+    offset = data_dict.get('offset')
     
     # New search and filter parameters
     q = data_dict.get('q')  # Search query
@@ -127,6 +129,22 @@ def _pages_list(context, data_dict):
         search['event_status'] = event_status
     if submission_status:
         search['submission_status'] = submission_status
+    if limit is not None:
+        try:
+            limit_value = tk.asint(limit)
+            if limit_value < 0:
+                raise ValueError("limit must be >= 0")
+            search['limit'] = limit_value
+        except (TypeError, ValueError):
+            log.warning("Invalid pages_list limit value: %r", limit)
+    if offset is not None:
+        try:
+            offset_value = tk.asint(offset)
+            if offset_value < 0:
+                raise ValueError("offset must be >= 0")
+            search['offset'] = offset_value
+        except (TypeError, ValueError):
+            log.warning("Invalid pages_list offset value: %r", offset)
         
     if not org_id:
         search['group_id'] = None
