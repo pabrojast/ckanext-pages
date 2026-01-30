@@ -292,9 +292,10 @@ def _pages_update(context, data_dict):
              'order', 'page_type', 'publish_date', 'submission_status',
              'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by']
 
-    # Handle submission workflow for open-source-software
+    # Handle submission workflow for open-source-software and water-family types
     submission_action = data_dict.get('submission_action')
-    if submission_action and data.get('page_type') == 'open-source-software':
+    water_family_types = ['open-source-software', 'water-news', 'water-events', 'water-publications']
+    if submission_action and data.get('page_type') in water_family_types:
         if submission_action == 'draft':
             data['submission_status'] = 'draft'
             data['private'] = True  # Keep as private for drafts
@@ -321,8 +322,8 @@ def _pages_update(context, data_dict):
             if not data.get('submitted_at'):
                 data['submitted_at'] = now
 
-    # Ensure organization handling for open-source-software
-    if data.get('page_type') == 'open-source-software':
+    # Ensure organization handling for open-source-software and water-family types
+    if data.get('page_type') in water_family_types:
         # Non-admins: force the organization to the user's primary organization
         is_admin = False
         try:

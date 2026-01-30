@@ -183,6 +183,7 @@ def default_pages_schema():
         'co_organizers': [ignore_missing, unicode_safe],    # Co-organizers text
         'event_details': [ignore_missing, unicode_safe],    # Event details and schedule
         'event_format': [ignore_missing, unicode_safe],     # Event format (in-person, online, hybrid)
+        'event_end_date': [ignore_missing, isodate],        # Event end date (for multi-day events)
         'speakers': [ignore_missing, unicode_safe],         # Speakers and organizers
         'registration_info': [ignore_missing, unicode_safe], # Registration information
         'registration_url': [ignore_missing, url_validator, unicode_safe], # Registration URL

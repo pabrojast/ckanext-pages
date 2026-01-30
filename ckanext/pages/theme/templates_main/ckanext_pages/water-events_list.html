@@ -254,7 +254,12 @@
                                 <div class="event-meta-compact">
                                   {% if page.publish_date %}
                                     <span class="meta-item">
-                                      <i class="fa fa-calendar"></i> {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                      <i class="fa fa-calendar"></i> 
+                                      {% if page.event_end_date and page.event_end_date != page.publish_date %}
+                                        {{ h.render_datetime(page.publish_date, '%b %d') }} - {{ h.render_datetime(page.event_end_date, '%b %d, %Y') }}
+                                      {% else %}
+                                        {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                      {% endif %}
                                     </span>
                                   {% endif %}
                                   {% if page.location %}

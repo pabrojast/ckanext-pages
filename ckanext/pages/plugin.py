@@ -217,6 +217,55 @@ def has_meaningful_content(content):
     return len(clean_text) > 0
 
 
+def sanitize_html_content(content):
+    """Sanitize HTML content to fix common encoding issues from WYSIWYG editors.
+    
+    This helper cleans up content that may have encoding issues or strange characters
+    from editors like Quill, CKEditor, etc.
+    """
+    if not content:
+        return content
+    
+    import html
+    
+    # First, decode any HTML entities that might have been double-encoded
+    try:
+        content = html.unescape(content)
+    except Exception:
+        pass
+    
+    # Fix common problematic patterns
+    replacements = [
+        # Double-encoded entities
+        ('&amp;nbsp;', ' '),
+        ('&amp;lt;', '<'),
+        ('&amp;gt;', '>'),
+        ('&amp;amp;', '&'),
+        ('&amp;quot;', '"'),
+        # Common problematic characters
+        ('\u00a0', ' '),  # Non-breaking space
+        ('\u200b', ''),   # Zero-width space
+        ('\u200c', ''),   # Zero-width non-joiner
+        ('\u200d', ''),   # Zero-width joiner
+        ('\ufeff', ''),   # BOM
+        # Smart quotes to regular quotes
+        ('\u2018', "'"),  # Left single quote
+        ('\u2019', "'"),  # Right single quote
+        ('\u201c', '"'),  # Left double quote
+        ('\u201d', '"'),  # Right double quote
+        # Dashes
+        ('\u2013', '-'),  # En dash
+        ('\u2014', '-'),  # Em dash
+        # Ellipsis
+        ('\u2026', '...'),
+    ]
+    
+    for old, new in replacements:
+        content = content.replace(old, new)
+    
+    return content
+
+
 def gravatar_url(email, size=40, default='identicon', rating='g'):
     """Return a gravatar URL for the given email, falling back gracefully."""
     if not email:
@@ -799,6 +848,7 @@ class PagesPlugin(PagesPluginBase):
             'render_content': render_content,
             'strip_html_tags': strip_html_tags,
             'has_meaningful_content': has_meaningful_content,
+            'sanitize_html_content': sanitize_html_content,
             'gravatar_url': gravatar_url,
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,

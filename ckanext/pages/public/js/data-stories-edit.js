@@ -568,6 +568,73 @@
       let sectionIndex = $('.content-section-editor').length;
       let sectionBlockCounters = {};
       let sectionQuillEditors = {};
+
+      function resolveSectionId(context, fallbackId) {
+        const $section = $(context).closest('.content-section-editor');
+        if (!$section.length) {
+          return fallbackId !== undefined ? fallbackId : null;
+        }
+        const rawId = $section.attr('data-section-id');
+        if (rawId === undefined || rawId === null || rawId === '') {
+          return fallbackId !== undefined ? fallbackId : null;
+        }
+        const parsedId = parseInt(rawId, 10);
+        if (Number.isNaN(parsedId)) {
+          return fallbackId !== undefined ? fallbackId : null;
+        }
+        return parsedId;
+      }
+
+      function updateSectionContentFor(context, fallbackId) {
+        const currentSectionId = resolveSectionId(context, fallbackId);
+        if (currentSectionId === null || currentSectionId === undefined) {
+          return;
+        }
+        updateSectionContent(currentSectionId);
+      }
+
+      function normalizeDimension(value, fallback, defaultUnit) {
+        const trimmed = (value || '').toString().trim();
+        if (!trimmed) {
+          return fallback;
+        }
+        const match = trimmed.match(/^(\d+(?:\.\d+)?)(px|%|vh|vw|rem|em)?$/i);
+        if (!match) {
+          return fallback;
+        }
+        const unit = match[2] || defaultUnit || '';
+        return match[1] + unit;
+      }
+
+      function renderInsertControlsHtml() {
+        return `
+          <div class="insert-block-controls">
+            <span class="insert-block-label">Add block below:</span>
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-xs btn-primary insert-block-btn" data-block-type="text">
+                <i class="fa fa-text-width"></i> Text
+              </button>
+              <button type="button" class="btn btn-xs btn-success insert-block-btn" data-block-type="terria">
+                <i class="fa fa-map"></i> Terria
+              </button>
+              <button type="button" class="btn btn-xs btn-info insert-block-btn" data-block-type="media">
+                <i class="fa fa-play-circle"></i> Media
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      function insertBlockHtml($container, html, insertAfterBlockId) {
+        if (insertAfterBlockId) {
+          const $after = $container.find('[data-block-id="' + insertAfterBlockId + '"]');
+          if ($after.length) {
+            $after.after(html);
+            return;
+          }
+        }
+        $container.append(html);
+      }
       
       // Initialize existing sections
       console.log('=== Initializing Data Stories Editor ===');
@@ -756,22 +823,34 @@
 
         // Update section content after loading existing blocks (with small delay for Quill init)
         setTimeout(function() {
-          updateSectionContent(sectionId);
+          updateSectionContentFor($section, sectionId);
         }, 100);
 
         // Add text block button
         $section.find('.add-text-block').on('click', function() {
-          addTextBlock(sectionId);
+          const currentSectionId = resolveSectionId(this, sectionId);
+          if (currentSectionId === null) {
+            return;
+          }
+          addTextBlock(currentSectionId);
         });
 
         // Add Terria block button
         $section.find('.add-terria-block').on('click', function() {
-          addTerriaBlock(sectionId);
+          const currentSectionId = resolveSectionId(this, sectionId);
+          if (currentSectionId === null) {
+            return;
+          }
+          addTerriaBlock(currentSectionId);
         });
 
         // Add media block button
         $section.find('.add-media-block').on('click', function() {
-          addMediaBlock(sectionId);
+          const currentSectionId = resolveSectionId(this, sectionId);
+          if (currentSectionId === null) {
+            return;
+          }
+          addMediaBlock(currentSectionId);
         });
       }
       
@@ -865,7 +944,7 @@
       }
       
       // Add text block
-      function addTextBlock(sectionId, content = '') {
+      function addTextBlock(sectionId, content = '', insertAfterBlockId = null) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
         const $container = $('#section-' + sectionId + '-blocks');
         
@@ -891,10 +970,11 @@
             <div class="content-block-body">
               <div class="quill-editor" id="${blockId}-editor"></div>
             </div>
+            ${renderInsertControlsHtml()}
           </div>
         `;
         
-        $container.append(html);
+        insertBlockHtml($container, html, insertAfterBlockId);
         
         // Initialize Quill editor
         waitForQuill(function() {
@@ -949,18 +1029,18 @@
 
           bindQuillPasteDrop(quill);
           quill.on('text-change', function() {
-            updateSectionContent(sectionId);
+            updateSectionContentFor(quill.root, sectionId);
           });
           
           sectionQuillEditors[sectionId][blockId] = quill;
         });
         
         addBlockEventListeners(blockId, sectionId);
-        updateSectionContent(sectionId);
+        updateSectionContentFor($container, sectionId);
       }
       
       // Add Terria map block with tabs support
-      function addTerriaBlock(sectionId, data = {}) {
+      function addTerriaBlock(sectionId, data = {}, insertAfterBlockId = null) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
         const $container = $('#section-' + sectionId + '-blocks');
 
@@ -968,7 +1048,9 @@
         if (!data.tabs || !Array.isArray(data.tabs) || data.tabs.length === 0) {
           data.tabs = [{
             title: data.title || 'Map 1',
-            url: data.url || ''
+            url: data.url || '',
+            width: data.width || '100%',
+            height: data.height || '600'
           }];
         }
 
@@ -1032,6 +1114,28 @@
                                placeholder="https://ihp-wins.unesco.org/terria/#share=abc123">
                         <small class="help-block">Paste a Terria share link or JSON config</small>
                       </div>
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Width</label>
+                            <input type="text"
+                                   class="form-control terria-tab-width"
+                                   value="${tab.width || '100%'}"
+                                   placeholder="100%">
+                            <small class="help-block">Use %, px, vh, vw</small>
+                          </div>
+                        </div>
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label>Height</label>
+                            <input type="text"
+                                   class="form-control terria-tab-height"
+                                   value="${tab.height || '600'}"
+                                   placeholder="600">
+                            <small class="help-block">Use px, vh, vw</small>
+                          </div>
+                        </div>
+                      </div>
                       <div class="form-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <button type="button" class="btn btn-sm btn-info preview-terria-tab">
                           <i class="fa fa-eye"></i> Preview Map
@@ -1049,17 +1153,18 @@
 
               </div>
             </div>
+            ${renderInsertControlsHtml()}
           </div>
         `;
 
-        $container.append(html);
+        insertBlockHtml($container, html, insertAfterBlockId);
         addTerriaBlockEventListeners(blockId, sectionId);
         addBlockEventListeners(blockId, sectionId);
-        updateSectionContent(sectionId);
+        updateSectionContentFor($container, sectionId);
       }
       
       // Add media/iframe block
-      function addMediaBlock(sectionId, data = {}) {
+      function addMediaBlock(sectionId, data = {}, insertAfterBlockId = null) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
         const $container = $('#section-' + sectionId + '-blocks');
         
@@ -1119,13 +1224,14 @@
                 <div class="media-preview" style="display: none;"></div>
               </div>
             </div>
+            ${renderInsertControlsHtml()}
           </div>
         `;
         
-        $container.append(html);
+        insertBlockHtml($container, html, insertAfterBlockId);
         addMediaBlockEventListeners(blockId, sectionId);
         addBlockEventListeners(blockId, sectionId);
-        updateSectionContent(sectionId);
+        updateSectionContentFor($container, sectionId);
       }
       
       // Add block event listeners (move, delete)
@@ -1136,7 +1242,7 @@
           const $prev = $block.prev('.content-block');
           if ($prev.length) {
             $block.insertBefore($prev);
-            updateSectionContent(sectionId);
+            updateSectionContentFor($block, sectionId);
           }
         });
         
@@ -1144,18 +1250,38 @@
           const $next = $block.next('.content-block');
           if ($next.length) {
             $block.insertAfter($next);
-            updateSectionContent(sectionId);
+            updateSectionContentFor($block, sectionId);
           }
         });
         
         $block.find('.delete-block').on('click', function() {
           if (confirm('Are you sure you want to delete this block?')) {
             // Use blockId without '-editor' suffix since that's how we store it
-            if (sectionQuillEditors[sectionId] && sectionQuillEditors[sectionId][blockId]) {
-              delete sectionQuillEditors[sectionId][blockId];
+            const currentSectionId = resolveSectionId($block, sectionId);
+            if (currentSectionId !== null && sectionQuillEditors[currentSectionId] && sectionQuillEditors[currentSectionId][blockId]) {
+              delete sectionQuillEditors[currentSectionId][blockId];
             }
             $block.remove();
-            updateSectionContent(sectionId);
+            if (currentSectionId !== null) {
+              updateSectionContent(currentSectionId);
+            }
+          }
+        });
+
+        $block.find('.insert-block-btn').on('click', function() {
+          const blockType = $(this).data('block-type');
+          const currentSectionId = resolveSectionId($block, sectionId);
+          if (currentSectionId === null) {
+            return;
+          }
+          const afterBlockId = $block.data('block-id');
+
+          if (blockType === 'text') {
+            addTextBlock(currentSectionId, '', afterBlockId);
+          } else if (blockType === 'terria') {
+            addTerriaBlock(currentSectionId, {}, afterBlockId);
+          } else if (blockType === 'media') {
+            addMediaBlock(currentSectionId, {}, afterBlockId);
           }
         });
       }
@@ -1235,6 +1361,28 @@
                        placeholder="https://ihp-wins.unesco.org/terria/#share=abc123">
                 <small class="help-block">Paste a Terria share link or JSON config</small>
               </div>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label>Width</label>
+                    <input type="text"
+                           class="form-control terria-tab-width"
+                           value="100%"
+                           placeholder="100%">
+                    <small class="help-block">Use %, px, vh, vw</small>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-group">
+                    <label>Height</label>
+                    <input type="text"
+                           class="form-control terria-tab-height"
+                           value="600"
+                           placeholder="600">
+                    <small class="help-block">Use px, vh, vw</small>
+                  </div>
+                </div>
+              </div>
               <div class="form-group" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 <button type="button" class="btn btn-sm btn-info preview-terria-tab">
                   <i class="fa fa-eye"></i> Preview Map
@@ -1255,7 +1403,7 @@
           // Switch to new tab
           $newTabBtn.trigger('click');
 
-          updateSectionContent(sectionId);
+          updateSectionContentFor($block, sectionId);
         });
 
         // Bind events for existing tabs
@@ -1274,23 +1422,31 @@
         $panel.find('.terria-tab-title').off('input').on('input', function() {
           const newTitle = $(this).val() || 'Map ' + (tabIndex + 1);
           $tabBtn.html(`<i class="fa fa-map-marker"></i> ${newTitle}`);
-          updateSectionContent(sectionId);
+          updateSectionContentFor($block, sectionId);
         });
 
         // Update content when URL changes
         $panel.find('.terria-tab-url').off('input').on('input', function() {
-          updateSectionContent(sectionId);
+          updateSectionContentFor($block, sectionId);
+        });
+
+        $panel.find('.terria-tab-width, .terria-tab-height').off('input').on('input', function() {
+          updateSectionContentFor($block, sectionId);
         });
 
         // Preview tab
         $panel.find('.preview-terria-tab').off('click').on('click', function() {
           const $preview = $panel.find('.terria-tab-preview');
           const url = $panel.find('.terria-tab-url').val();
+          const rawWidth = $panel.find('.terria-tab-width').val();
+          const rawHeight = $panel.find('.terria-tab-height').val();
+          const width = normalizeDimension(rawWidth, '100%', 'px');
+          const height = normalizeDimension(rawHeight, '600px', 'px');
 
           if ($preview.is(':visible')) {
             $preview.hide();
           } else if (url) {
-            const iframe = `<iframe src="${url}" width="100%" height="500" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen style="border-radius: 12px;"></iframe>`;
+            const iframe = `<iframe src="${url}" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen style="border-radius: 12px; width: ${width}; height: ${height};"></iframe>`;
             $preview.html(iframe).show();
           } else {
             alert('Please enter a Terria share link first');
@@ -1329,7 +1485,7 @@
               }
             });
 
-            updateSectionContent(sectionId);
+            updateSectionContentFor($block, sectionId);
           }
         });
       }
@@ -1339,7 +1495,7 @@
         const $block = $('[data-block-id="' + blockId + '"]');
         
         $block.find('.media-url, .media-title, .media-width, .media-height').on('input', function() {
-          updateSectionContent(sectionId);
+          updateSectionContentFor($block, sectionId);
         });
         
         $block.find('.preview-media').on('click', function() {
@@ -1427,11 +1583,17 @@
               const $panel = $(this);
               const tabTitle = $panel.find('.terria-tab-title').val();
               const tabUrl = $panel.find('.terria-tab-url').val();
+              const rawWidth = $panel.find('.terria-tab-width').val();
+              const rawHeight = $panel.find('.terria-tab-height').val();
+              const width = normalizeDimension(rawWidth, '100%', 'px');
+              const height = normalizeDimension(rawHeight, '600px', 'px');
 
               if (tabUrl) {
                 tabs.push({
                   title: tabTitle || 'Map ' + (tabs.length + 1),
-                  url: tabUrl
+                  url: tabUrl,
+                  width: width,
+                  height: height
                 });
               }
             });
@@ -1450,7 +1612,7 @@
               contentHtml += '<div class="terria-tabs-panels-display">\n';
               tabs.forEach((tab, index) => {
                 contentHtml += `  <div class="terria-tab-display ${index === 0 ? 'active' : ''}" data-tab="${index}">\n`;
-                contentHtml += `    <iframe src="${tab.url}" width="100%" height="600" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen></iframe>\n`;
+                contentHtml += `    <iframe src="${tab.url}" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen style="width: ${tab.width}; height: ${tab.height};"></iframe>\n`;
                 contentHtml += '  </div>\n';
               });
               contentHtml += '</div>\n';
@@ -2473,5 +2635,3 @@
     });
   });
 })();
-
-

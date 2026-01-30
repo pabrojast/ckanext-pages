@@ -72,7 +72,7 @@
                         <h2>{{ _('Article Content') }}</h2>
                       </div>
                       <div class="news-content-body">
-                        {{ h.render_markdown(c.page.content, allow_html=True) | safe }}
+                        {{ h.render_markdown(h.sanitize_html_content(c.page.content), allow_html=True) | safe }}
                       </div>
                     </div>
                   </section>
@@ -133,8 +133,9 @@
                       <!-- Uploaded Images Grid -->
                       {% if has_gallery %}
                         {% set uploaded_images = news_uploaded_images %}
+                        {% set single_image = uploaded_images|length == 1 %}
                         <div class="uploaded-images-gallery">
-                          <div class="images-grid">
+                          <div class="images-grid{% if single_image %} single-image{% endif %}">
                             {% for image in uploaded_images %}
                             <div class="gallery-image-item">
                               <div class="image-container">
@@ -651,9 +652,16 @@
 
 .images-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 350px));
   gap: 2rem;
   margin-bottom: 2rem;
+  justify-content: center;
+}
+
+/* Single image layout - don't stretch */
+.images-grid.single-image {
+  grid-template-columns: minmax(280px, 450px);
+  justify-content: center;
 }
 
 .gallery-image-item {
@@ -663,6 +671,7 @@
   box-shadow: var(--shadow-medium);
   transition: all 0.4s ease;
   position: relative;
+  max-width: 100%;
 }
 
 .gallery-image-item:hover {
@@ -674,13 +683,16 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  height: 220px;
+  /* Use aspect-ratio instead of fixed height for better proportions */
+  aspect-ratio: 16 / 10;
+  max-height: 300px;
 }
 
 .gallery-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.4s ease;
 }
 

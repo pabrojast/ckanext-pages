@@ -283,10 +283,27 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 page_dict['submission_status'] = 'pending'
             elif submission_action == 'publish':
                 page_dict['private'] = 'False'
-                page_dict['submission_status'] = 'published'
+                page_dict['submission_status'] = 'approved'
+            else:
+                # No submission_action provided - check if admin is publishing directly
+                try:
+                    tk.check_access('sysadmin', {'user': tk.g.user})
+                    # Admin publishing directly without submission workflow
+                    if page_dict.get('private') in [False, 'False', 'false']:
+                        page_dict['submission_status'] = 'approved'
+                    elif not page_dict.get('submission_status'):
+                        # Default to draft if no status set
+                        page_dict['submission_status'] = 'draft'
+                except tk.NotAuthorized:
+                    # Non-admin without submission_action - treat as draft
+                    if not page_dict.get('submission_status'):
+                        page_dict['submission_status'] = 'draft'
+                        page_dict['private'] = 'True'
 
         # Remove helper fields that should not hit the action layer
-        if 'submission_action' in page_dict and page_type != 'open-source-software':
+        # Keep submission_action for water-family and open-source-software so actions.py can process it
+        water_family_types = ['water-news', 'water-events', 'water-publications', 'open-source-software']
+        if 'submission_action' in page_dict and page_type not in water_family_types:
             page_dict.pop('submission_action')
 
         try:
