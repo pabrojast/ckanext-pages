@@ -108,6 +108,12 @@ ckanext.pages.revisions_force_limit = true
 
 By default is set to `False`. Needed when the `ckanext.pages.revisions_limit` number is decresed from the original (e.g. from 5 to 2) and we want to make sure that all Pages after update will have only specified number of Revisions instead of the old setting number. Without it, if Page had previously 5 Revisions, the page will continue to have 5 Revisions as it removes only the last one, so the new number limit will effect only new Pages, while setting this option to `true`, will force old Pages after update to have the spcific amount of last Revisions.
 
+```
+ckanext.pages.documents_dataset_type = documents
+```
+
+Optional override for the dataset type used when the Water Publications form creates a CKAN dataset. If unset, the extension auto-detects `documents`/`document` based on available dataset types or scheming schemas.
+
 ## Extending ckanext-pages schema
 
 This extension defines an `IPagesSchema` interface that allows other extensions to update the pages schema and add custom fields.

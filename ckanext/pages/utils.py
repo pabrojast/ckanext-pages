@@ -312,7 +312,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             )
 
             # If this is a Water Publication creation and dataset creation info was provided,
-            # create a CKAN dataset of type 'documents' with an optional resource
+            # create a CKAN documents dataset (type resolved from config/schema) with an optional resource
             if page_type == 'water-publications' and not page:
                 try:
                     _maybe_create_documents_dataset(page_dict)
@@ -395,8 +395,69 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         'ckanext_pages/%s_edit.html' % page_type, extra_vars=vars)
 
 
+def _resolve_documents_dataset_type():
+    """Resolve the dataset type used for documents.
+
+    Preference order:
+      1) Explicit config override: ckanext.pages.documents_dataset_type
+      2) Known dataset types from helpers (documents -> document)
+      3) Scheming schema presence (documents -> document)
+      4) Fallback to 'documents' for backward compatibility
+    """
+    override = (
+        tk.config.get('ckanext.pages.documents_dataset_type')
+        or tk.config.get('ckanext.pages.document_dataset_type')
+    )
+    if override:
+        return str(override).strip()
+
+    candidates = ['documents', 'document']
+
+    # Try CKAN helpers for available dataset types
+    dataset_types = []
+    for helper_name in ('get_dataset_types', 'package_types'):
+        getter = getattr(tk.h, helper_name, None)
+        if getter is None:
+            continue
+        try:
+            if callable(getter):
+                dataset_types = list(getter())
+            else:
+                dataset_types = list(getter)
+        except Exception:
+            continue
+        if dataset_types:
+            break
+
+    if dataset_types:
+        available = {str(t).strip().lower() for t in dataset_types if t}
+        for candidate in candidates:
+            if candidate in available:
+                return candidate
+
+    # Try scheming action if available
+    try:
+        schema_action = tk.get_action('scheming_dataset_schema_show')
+    except Exception:
+        schema_action = None
+    if schema_action:
+        for candidate in candidates:
+            try:
+                schema_action({}, {'type': candidate})
+                return candidate
+            except tk.ObjectNotFound:
+                continue
+            except tk.NotAuthorized:
+                # Assume schema exists but current user lacks permission
+                return candidate
+            except Exception:
+                continue
+
+    return 'documents'
+
+
 def _maybe_create_documents_dataset(form_data):
-    """Create a CKAN dataset of type 'documents' from publication form data
+    """Create a CKAN documents dataset from publication form data
     if the user provided upload/link metadata. Runs only on create (not edit).
 
     Expected form fields (all optional, best-effort):
@@ -512,8 +573,12 @@ def _maybe_create_documents_dataset(form_data):
     # Ensure unique dataset name before create
     unique_name = _generate_unique_dataset_name(base_name)
 
+    documents_type = _resolve_documents_dataset_type()
+
     package_dict = {
-        'type': 'documents',
+        'type': documents_type,
+        'title': dataset_title,
+        'notes': dataset_notes or '',
         'title_translated': {
             'en': dataset_title,
             'es': '',
