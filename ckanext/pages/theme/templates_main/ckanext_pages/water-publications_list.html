@@ -287,6 +287,10 @@
                                   {% set content_text = page.excerpt %}
                                 {% elif page.content %}
                                   {% set content_text = (page.content|striptags) %}
+                                {% elif page.dataset_description %}
+                                  {% set content_text = (page.dataset_description|striptags) %}
+                                {% elif page.abstract %}
+                                  {% set content_text = (page.abstract|striptags) %}
                                 {% endif %}
 
                                 {% if content_text %}

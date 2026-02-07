@@ -300,6 +300,10 @@
                               <p>{{ item.excerpt[:130] }}{% if item.excerpt|length > 130 %}...{% endif %}</p>
                             {% elif item.content %}
                               <p>{{ (item.content|striptags)[:130] }}{% if item.content|length > 130 %}...{% endif %}</p>
+                            {% elif item.dataset_description %}
+                              <p>{{ (item.dataset_description|striptags)[:130] }}{% if item.dataset_description|length > 130 %}...{% endif %}</p>
+                            {% elif item.abstract %}
+                              <p>{{ (item.abstract|striptags)[:130] }}{% if item.abstract|length > 130 %}...{% endif %}</p>
                             {% endif %}
                           </div>
                           <div class="card-footer">

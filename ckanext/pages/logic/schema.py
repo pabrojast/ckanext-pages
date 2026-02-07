@@ -214,6 +214,7 @@ def default_pages_schema():
         'dataset_language': [ignore_missing, unicode_safe],  # Dataset metadata language
         'creation_date': [ignore_missing, isodate],         # Dataset/resource creation date
         'country_groups': [ignore_missing, json_validator, unicode_safe],  # Member states JSON payload
+        'initiative_groups': [ignore_missing, json_validator, unicode_safe],  # Initiative groups JSON payload
         # Water Management Tools specific fields (formerly Open Source Software)
         'key_features': [ignore_missing, unicode_safe],     # Key features list
         'technical_requirements': [ignore_missing, unicode_safe], # Technical requirements
@@ -454,4 +455,5 @@ def water_family_schema():
         'dataset_language': [ignore_missing, unicode_safe],  # Dataset metadata language
         'creation_date': [ignore_missing, isodate],  # Dataset/resource creation date
         'country_groups': [ignore_missing, json_validator, unicode_safe],  # Member states JSON payload
+        'initiative_groups': [ignore_missing, json_validator, unicode_safe],  # Initiative groups JSON payload
     }
