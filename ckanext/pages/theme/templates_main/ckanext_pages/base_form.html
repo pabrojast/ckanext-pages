@@ -83,6 +83,24 @@
       </div>
     </div>
 
+    {# Display current status (read-only for non-admins) #}
+    {% set current_status = data.status|default('draft') %}
+    <div class="control-group form-group">
+      <label for="field-status" class="control-label">{{ _('Status') }}</label>
+      <div class="controls">
+        {% if current_status == 'draft' %}
+          <span class="badge badge-secondary">{{ _('Draft') }}</span>
+        {% elif current_status == 'pending' %}
+          <span class="badge badge-warning">{{ _('Pending Review') }}</span>
+        {% elif current_status == 'approved' %}
+          <span class="badge badge-success">{{ _('Approved') }}</span>
+        {% elif current_status == 'rejected' %}
+          <span class="badge badge-danger">{{ _('Rejected') }}</span>
+        {% endif %}
+        <input type="hidden" name="status" value="{{ current_status }}">
+      </div>
+    </div>
+
     {% if not hide_field_order %}
       <div class="control-group form-group">
         <label for="field-order" class="control-label">{{ _('Header Order') }}</label>
@@ -131,7 +149,15 @@
           {% endif %}
         {% endblock %}
 
+        {# Workflow action buttons #}
+        {% set current_status = data.status|default('draft') %}
+        
+        {# Save button - always available for editing #}
         <button class="btn btn-primary" name="save" value="save" type="submit">{{ _('Save') }}</button>
+        
+        {# Include workflow buttons #}
+        {% include "ckanext_pages/snippets/workflow_buttons.html" %}
+        
       {% endif %}
     </div>
 

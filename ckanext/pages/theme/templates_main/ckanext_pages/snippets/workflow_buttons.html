@@ -1,0 +1,63 @@
+{% set current_status = data.status|default('draft') %}
+{% set page_name = data.name %}
+
+{# Determine the URL prefix based on page type #}
+{% if type == 'org' %}
+    {% set submit_url = h.url_for('pages.organization_pages_submit', id=id, page=page_name) %}
+    {% set approve_url = h.url_for('pages.organization_pages_approve', id=id, page=page_name) %}
+    {% set reject_url = h.url_for('pages.organization_pages_reject', id=id, page=page_name) %}
+    {% set check_approve_access = 'ckanext_org_pages_approve' %}
+    {% set check_submit_access = 'ckanext_org_pages_submit_for_review' %}
+{% elif type == 'group' %}
+    {% set submit_url = h.url_for('pages.group_pages_submit', id=id, page=page_name) %}
+    {% set approve_url = h.url_for('pages.group_pages_approve', id=id, page=page_name) %}
+    {% set reject_url = h.url_for('pages.group_pages_reject', id=id, page=page_name) %}
+    {% set check_approve_access = 'ckanext_group_pages_approve' %}
+    {% set check_submit_access = 'ckanext_group_pages_submit_for_review' %}
+{% elif type == 'blog' %}
+    {% set submit_url = h.url_for('pages.blog_submit', page=page_name) %}
+    {% set approve_url = h.url_for('pages.blog_approve', page=page_name) %}
+    {% set reject_url = h.url_for('pages.blog_reject', page=page_name) %}
+    {% set check_approve_access = 'ckanext_pages_approve' %}
+    {% set check_submit_access = 'ckanext_pages_submit_for_review' %}
+{% else %}
+    {% set submit_url = h.url_for('pages.submit', page=page_name) %}
+    {% set approve_url = h.url_for('pages.approve', page=page_name) %}
+    {% set reject_url = h.url_for('pages.reject', page=page_name) %}
+    {% set check_approve_access = 'ckanext_pages_approve' %}
+    {% set check_submit_access = 'ckanext_pages_submit_for_review' %}
+{% endif %}
+
+<div class="workflow-actions" style="margin-top: 10px;">
+  {% if page_name %}
+    {# Submit for review button - only for draft or rejected pages #}
+    {% if current_status in ['draft', 'rejected'] %}
+      {% if h.check_access(check_submit_access, {'org_id': id, 'page': page_name}) %}
+        <form method="post" action="{{ submit_url }}" style="display: inline;">
+          {{ h.csrf_input() if 'csrf_input' in h }}
+          <button class="btn btn-info" type="submit">
+            <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
+    
+    {# Approve and Reject buttons - only for pending pages and admins #}
+    {% if current_status == 'pending' %}
+      {% if h.check_access(check_approve_access, {'org_id': id, 'page': page_name}) %}
+        <form method="post" action="{{ approve_url }}" style="display: inline;">
+          {{ h.csrf_input() if 'csrf_input' in h }}
+          <button class="btn btn-success" type="submit">
+            <i class="fa fa-check"></i> {{ _('Approve') }}
+          </button>
+        </form>
+        <form method="post" action="{{ reject_url }}" style="display: inline;">
+          {{ h.csrf_input() if 'csrf_input' in h }}
+          <button class="btn btn-warning" type="submit">
+            <i class="fa fa-times"></i> {{ _('Reject') }}
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+</div>

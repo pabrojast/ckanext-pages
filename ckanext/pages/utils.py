@@ -428,3 +428,46 @@ def group_delete(id, group_type, page):
         'ckanext_pages/confirm_delete.html',
         {'page': page, 'group_type': group_type, 'group_dict': group_dict}
     )
+
+
+def pages_workflow_action(page, action_type, page_type='pages', org_id=None):
+    """Handle workflow actions: submit, approve, reject"""
+    if page.startswith('/'):
+        page = page[1:]
+    
+    # Determine the correct action name based on context
+    if org_id:
+        action_prefix = 'ckanext_org_pages_'
+    else:
+        action_prefix = 'ckanext_pages_'
+    
+    action_name = action_prefix + action_type
+    
+    try:
+        tk.get_action(action_name)(
+            context={}, 
+            data_dict={'page': page, 'org_id': org_id}
+        )
+        
+        # Set success message
+        if action_type == 'submit_for_review':
+            tk.h.flash_success(_('Page submitted for review'))
+        elif action_type == 'approve':
+            tk.h.flash_success(_('Page approved'))
+        elif action_type == 'reject':
+            tk.h.flash_success(_('Page rejected'))
+            
+    except tk.NotAuthorized:
+        tk.abort(401, _('Unauthorized to perform this action'))
+    except tk.ObjectNotFound:
+        tk.abort(404, _('Page not found'))
+    except tk.ValidationError as e:
+        tk.h.flash_error(str(e))
+    
+    # Redirect back to the edit page
+    if org_id:
+        endpoint = 'pages.organization_pages_edit' if page_type == 'organization' else 'pages.group_pages_edit'
+        return tk.redirect_to(endpoint, id=org_id, page=page)
+    else:
+        endpoint = 'pages.edit' if page_type in ('pages', 'page') else 'pages.%s_edit' % page_type
+        return tk.redirect_to(endpoint, page=page)

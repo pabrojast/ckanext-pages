@@ -16,6 +16,18 @@
         {% if page.publish_date %}
            <small class="date"> {{ h.render_datetime(page.publish_date) }} </small>
         {% endif %}
+        {# Show status badge #}
+        {% if page.status %}
+          {% if page.status == 'draft' %}
+            <span class="label label-default">{{ _('Draft') }}</span>
+          {% elif page.status == 'pending' %}
+            <span class="label label-warning">{{ _('Pending Review') }}</span>
+          {% elif page.status == 'approved' %}
+            <span class="label label-success">{{ _('Approved') }}</span>
+          {% elif page.status == 'rejected' %}
+            <span class="label label-danger">{{ _('Rejected') }}</span>
+          {% endif %}
+        {% endif %}
     </h3>
     {% endblock %}
 
