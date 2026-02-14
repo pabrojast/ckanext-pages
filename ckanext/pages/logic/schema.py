@@ -1,5 +1,5 @@
 import ckan.plugins as p
-from ckanext.pages.validators import page_name_validator, not_empty_if_blog
+from ckanext.pages.validators import page_name_validator, not_empty_if_blog, status_validator
 from ckanext.pages.interfaces import IPagesSchema
 
 
@@ -26,6 +26,7 @@ def default_pages_schema():
         'created': [ignore_missing, isodate],
         'publish_date': [
             not_empty_if_blog, ignore_missing, isodate],
+        'status': [ignore_missing, unicode_safe, status_validator],
     }
 
 

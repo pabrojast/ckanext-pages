@@ -56,6 +56,7 @@ class Page(DomainObject, BaseModel):
     modified = Column(types.DateTime, default=datetime.datetime.utcnow)
     extras = Column(types.UnicodeText, default=u'{}')
     revisions = Column(MutableDict.as_mutable(JSONB), default=u'{}')
+    status = Column(types.UnicodeText, default=u'draft')
 
     @classmethod
     def get(cls, **kw):

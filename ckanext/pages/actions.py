@@ -32,6 +32,21 @@ def _pages_show(context, data_dict):
     page = data_dict.get('page')
     out = db.Page.get(group_id=org_id, name=page)
     if out:
+        # Check if user has permission to see non-approved pages
+        is_admin = False
+        try:
+            if org_id:
+                p.toolkit.check_access('ckanext_org_pages_update', context, {'id': org_id})
+            else:
+                p.toolkit.check_access('ckanext_pages_update', context, data_dict)
+            is_admin = True
+        except p.toolkit.NotAuthorized:
+            pass
+        
+        # Non-admin users can only see approved pages
+        if not is_admin and hasattr(out, 'status') and out.status != 'approved':
+            return None
+        
         out = db.table_dictize(out, context)
     return out
 
@@ -43,28 +58,48 @@ def _pages_list(context, data_dict):
     order_publish_date = data_dict.get('order_publish_date')
     page_type = data_dict.get('page_type')
     private = data_dict.get('private', True)
+    
     if ordered:
         search['order'] = True
     if page_type:
         search['page_type'] = page_type
     if order_publish_date:
         search['order_publish_date'] = True
+    
     if not org_id:
         search['group_id'] = None
         try:
             p.toolkit.check_access('ckanext_pages_update', context, data_dict)
+            # Admin can see all statuses
             if not private:
                 search['private'] = False
         except p.toolkit.NotAuthorized:
+            # Non-admin can only see approved pages
             search['private'] = False
+            search['status'] = 'approved'
     else:
         group = context['model'].Group.get(org_id)
         user = context['user']
         member = authz.has_user_permission_for_group_or_org(
             group.id, user, 'read')
         search['group_id'] = org_id
-        if not member:
+        
+        # Check if user is admin for this group
+        is_admin = False
+        try:
+            p.toolkit.check_access('ckanext_org_pages_update', context, {'id': org_id})
+            is_admin = True
+        except p.toolkit.NotAuthorized:
+            pass
+        
+        if not is_admin:
+            # Non-admin can only see approved pages
+            if not member:
+                search['private'] = False
+            search['status'] = 'approved'
+        elif not member:
             search['private'] = False
+    
     out = db.Page.pages(**search)
     out_list = []
     for pg in out:
@@ -77,6 +112,7 @@ def _pages_list(context, data_dict):
                   'publish_date': pg.publish_date.isoformat() if pg.publish_date else None,
                   'group_id': pg.group_id,
                   'page_type': pg.page_type,
+                  'status': pg.status if hasattr(pg, 'status') else 'approved',
                   }
         if img:
             pg_row['image'] = img
@@ -120,11 +156,17 @@ def _pages_update(context, data_dict):
         out.group_id = org_id
         out.name = page
     items = ['title', 'content', 'name', 'private',
-             'order', 'page_type', 'publish_date']
+             'order', 'page_type', 'publish_date', 'status']
 
     # backward compatible with older version where page_type does not exist
     for item in items:
-        setattr(out, item, data.get(item, 'page' if item == 'page_type' else None))
+        if item == 'page_type':
+            setattr(out, item, data.get(item, 'page'))
+        elif item == 'status':
+            # Set default status based on user permissions
+            setattr(out, item, data.get(item, 'draft'))
+        else:
+            setattr(out, item, data.get(item, None))
 
     extras = {}
 
@@ -342,3 +384,93 @@ def group_pages_list(context, data_dict):
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
     return _pages_list(context, data_dict)
+
+
+def pages_submit_for_review(context, data_dict):
+    """Submit a page for review by changing status from draft to pending"""
+    try:
+        p.toolkit.check_access('ckanext_pages_submit_for_review', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to submit page for review'))
+    
+    org_id = data_dict.get('org_id')
+    page = data_dict.get('page')
+    
+    out = db.Page.get(group_id=org_id, name=page)
+    if not out:
+        raise p.toolkit.ObjectNotFound(p.toolkit._('Page not found'))
+    
+    if out.status not in ['draft', 'rejected']:
+        raise p.toolkit.ValidationError(
+            {'status': [p.toolkit._('Only draft or rejected pages can be submitted for review')]}
+        )
+    
+    out.status = 'pending'
+    out.modified = datetime.datetime.now(datetime.timezone.utc)
+    out.save()
+    
+    session = context['session']
+    session.add(out)
+    session.commit()
+    
+    return db.table_dictize(out, context)
+
+
+def pages_approve(context, data_dict):
+    """Approve a pending page (admin only)"""
+    try:
+        p.toolkit.check_access('ckanext_pages_approve', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to approve pages'))
+    
+    org_id = data_dict.get('org_id')
+    page = data_dict.get('page')
+    
+    out = db.Page.get(group_id=org_id, name=page)
+    if not out:
+        raise p.toolkit.ObjectNotFound(p.toolkit._('Page not found'))
+    
+    if out.status != 'pending':
+        raise p.toolkit.ValidationError(
+            {'status': [p.toolkit._('Only pending pages can be approved')]}
+        )
+    
+    out.status = 'approved'
+    out.modified = datetime.datetime.now(datetime.timezone.utc)
+    out.save()
+    
+    session = context['session']
+    session.add(out)
+    session.commit()
+    
+    return db.table_dictize(out, context)
+
+
+def pages_reject(context, data_dict):
+    """Reject a pending page and send back to draft (admin only)"""
+    try:
+        p.toolkit.check_access('ckanext_pages_reject', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to reject pages'))
+    
+    org_id = data_dict.get('org_id')
+    page = data_dict.get('page')
+    
+    out = db.Page.get(group_id=org_id, name=page)
+    if not out:
+        raise p.toolkit.ObjectNotFound(p.toolkit._('Page not found'))
+    
+    if out.status != 'pending':
+        raise p.toolkit.ValidationError(
+            {'status': [p.toolkit._('Only pending pages can be rejected')]}
+        )
+    
+    out.status = 'rejected'
+    out.modified = datetime.datetime.now(datetime.timezone.utc)
+    out.save()
+    
+    session = context['session']
+    session.add(out)
+    session.commit()
+    
+    return db.table_dictize(out, context)
