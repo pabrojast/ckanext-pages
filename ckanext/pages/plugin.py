@@ -133,6 +133,9 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_pages_delete': actions.pages_delete,
             'ckanext_pages_list': actions.pages_list,
             'ckanext_pages_upload': actions.pages_upload,
+            'ckanext_pages_submit_for_review': actions.pages_submit_for_review,
+            'ckanext_pages_approve': actions.pages_approve,
+            'ckanext_pages_reject': actions.pages_reject,
         }
         if self.organization_pages:
             org_actions = {
@@ -159,14 +162,23 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_pages_delete': auth.pages_delete,
             'ckanext_pages_list': auth.pages_list,
             'ckanext_pages_upload': auth.pages_upload,
+            'ckanext_pages_submit_for_review': auth.pages_submit_for_review,
+            'ckanext_pages_approve': auth.pages_approve,
+            'ckanext_pages_reject': auth.pages_reject,
             'ckanext_org_pages_show': auth.org_pages_show,
             'ckanext_org_pages_update': auth.org_pages_update,
             'ckanext_org_pages_delete': auth.org_pages_delete,
             'ckanext_org_pages_list': auth.org_pages_list,
+            'ckanext_org_pages_submit_for_review': auth.org_pages_submit_for_review,
+            'ckanext_org_pages_approve': auth.org_pages_approve,
+            'ckanext_org_pages_reject': auth.org_pages_reject,
             'ckanext_group_pages_show': auth.group_pages_show,
             'ckanext_group_pages_update': auth.group_pages_update,
             'ckanext_group_pages_delete': auth.group_pages_delete,
             'ckanext_group_pages_list': auth.group_pages_list,
+            'ckanext_group_pages_submit_for_review': auth.group_pages_submit_for_review,
+            'ckanext_group_pages_approve': auth.group_pages_approve,
+            'ckanext_group_pages_reject': auth.group_pages_reject,
         }
 
 

@@ -154,3 +154,121 @@ class TestPagesActions:
             "ckanext_pages_list", {"user": user["name"], "ignore_auth": False}
         )
         assert len(results) == 3
+
+    def test_workflow_submit_for_review(self, app):
+        """Test submitting a page for review"""
+        sysadmin = factories.Sysadmin()
+        
+        # Create a draft page
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="test_page",
+            title="Test Page",
+            content="Test content",
+            status="draft",
+        )
+        
+        # Submit for review
+        result = helpers.call_action(
+            "ckanext_pages_submit_for_review",
+            {"user": sysadmin["name"]},
+            page="test_page",
+        )
+        
+        assert result["status"] == "pending"
+        
+        # Verify the page is now pending
+        page = helpers.call_action("ckanext_pages_show", {"user": sysadmin["name"]}, page="test_page")
+        assert page["status"] == "pending"
+
+    def test_workflow_approve(self, app):
+        """Test approving a pending page"""
+        sysadmin = factories.Sysadmin()
+        
+        # Create a pending page
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="test_page_approve",
+            title="Test Page",
+            content="Test content",
+            status="pending",
+        )
+        
+        # Approve the page
+        result = helpers.call_action(
+            "ckanext_pages_approve",
+            {"user": sysadmin["name"]},
+            page="test_page_approve",
+        )
+        
+        assert result["status"] == "approved"
+        
+        # Verify the page is now approved
+        page = helpers.call_action("ckanext_pages_show", {"user": sysadmin["name"]}, page="test_page_approve")
+        assert page["status"] == "approved"
+
+    def test_workflow_reject(self, app):
+        """Test rejecting a pending page"""
+        sysadmin = factories.Sysadmin()
+        
+        # Create a pending page
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="test_page_reject",
+            title="Test Page",
+            content="Test content",
+            status="pending",
+        )
+        
+        # Reject the page
+        result = helpers.call_action(
+            "ckanext_pages_reject",
+            {"user": sysadmin["name"]},
+            page="test_page_reject",
+        )
+        
+        assert result["status"] == "rejected"
+        
+        # Verify the page is now rejected
+        page = helpers.call_action("ckanext_pages_show", {"user": sysadmin["name"]}, page="test_page_reject")
+        assert page["status"] == "rejected"
+
+    def test_workflow_visibility_non_admin(self, app):
+        """Test that non-admin users can only see approved pages"""
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+        
+        # Create pages with different statuses
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="draft_page",
+            title="Draft Page",
+            content="Draft content",
+            status="draft",
+            private=False,
+        )
+        
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="approved_page",
+            title="Approved Page",
+            content="Approved content",
+            status="approved",
+            private=False,
+        )
+        
+        # Non-admin should only see approved pages
+        results = helpers.call_action(
+            "ckanext_pages_list", 
+            {"user": user["name"], "ignore_auth": False}
+        )
+        
+        # Should only see the approved page
+        page_names = [p['name'] for p in results]
+        assert "approved_page" in page_names
+        assert "draft_page" not in page_names

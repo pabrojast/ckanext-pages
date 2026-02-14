@@ -94,6 +94,30 @@ ckanext.pages.revisions_force_limit = true
 
 By default is set to `False`. Needed when the `ckanext.pages.revisions_limit` number is decresed from the original (e.g. from 5 to 2) and we want to make sure that all Pages after update will have only specified number of Revisions instead of the old setting number. Without it, if Page had previously 5 Revisions, the page will continue to have 5 Revisions as it removes only the last one, so the new number limit will effect only new Pages, while setting this option to `true`, will force old Pages after update to have the spcific amount of last Revisions.
 
+## Workflow and Review Process
+
+This extension now includes a workflow system for page approval. Pages can have one of the following statuses:
+
+- **draft**: Initial state when a page is created
+- **pending**: Page has been submitted for review
+- **approved**: Page has been approved and is visible to all users
+- **rejected**: Page has been rejected and sent back to draft
+
+### Workflow Permissions
+
+- **Regular users**: Can only view approved pages
+- **Organization/Group members**: Can create draft pages and submit them for review
+- **Organization/Group admins**: Can approve or reject pending pages
+- **Sysadmins**: Full control over all pages and workflow actions
+
+### Using the Workflow
+
+1. **Create a page**: Pages start in "draft" status by default
+2. **Submit for review**: Click the "Submit for Review" button to change status to "pending"
+3. **Approve or reject**: Admins can approve (making it visible to all) or reject (sending back to draft)
+
+Only approved pages are visible to non-admin users in the public listing.
+
 ## Extending ckanext-pages schema
 
 This extension defines an `IPagesSchema` interface that allows other extensions to update the pages schema and add custom fields.

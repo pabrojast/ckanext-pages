@@ -2,6 +2,24 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [Unreleased]
+
+### Added
+- Workflow approval system with draft, pending, approved, and rejected statuses
+- New actions: `pages_submit_for_review`, `pages_approve`, `pages_reject` for all page types
+- Status badges in page listings and edit forms
+- Workflow action buttons (Submit for Review, Approve, Reject) in page edit interface
+- Permission-based visibility: non-admin users only see approved pages
+- Database migration to add `status` field to pages table
+- Comprehensive test coverage for workflow functionality
+- Authorization controls: only admins can approve/reject, members can submit for review
+- Updated README with workflow documentation
+
+### Changed
+- Default page status is now 'draft' for new pages
+- Existing pages are migrated to 'approved' status for backward compatibility
+- Page listings now filter by status based on user permissions
+
 ## 0.4.0 (2023-02-14)
 * Drop support for CKAN 2.7 and 2.8
 * Drop support for PY2

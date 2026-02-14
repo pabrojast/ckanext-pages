@@ -546,3 +546,72 @@ class TestPages():
             )
 
             assert '<h1 class="page-heading">Login</h1>' in response.body
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "pages")
+class TestWorkflowAuthorization:
+    """Test authorization for workflow actions"""
+
+    def test_non_admin_cannot_approve(self, app):
+        """Test that non-admin users cannot approve pages"""
+        sysadmin = factories.Sysadmin()
+        user = factories.User()
+        
+        # Create a pending page as sysadmin
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="test_pending",
+            title="Test Pending",
+            content="Test content",
+            status="pending",
+        )
+        
+        # Regular user should not be able to approve
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_action(
+                "ckanext_pages_approve",
+                {"user": user["name"], "ignore_auth": False},
+                page="test_pending",
+            )
+
+    def test_sysadmin_can_approve(self, app):
+        """Test that sysadmin can approve pages"""
+        sysadmin = factories.Sysadmin()
+        
+        # Create a pending page
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="test_approve_admin",
+            title="Test Approve",
+            content="Test content",
+            status="pending",
+        )
+        
+        # Sysadmin should be able to approve
+        result = helpers.call_action(
+            "ckanext_pages_approve",
+            {"user": sysadmin["name"]},
+            page="test_approve_admin",
+        )
+        
+        assert result["status"] == "approved"
+
+    def test_status_validator(self, app):
+        """Test that status validator only accepts valid values"""
+        sysadmin = factories.Sysadmin()
+        
+        # Try to create a page with invalid status
+        with pytest.raises(toolkit.ValidationError) as exc_info:
+            helpers.call_action(
+                "ckanext_pages_update",
+                {"user": sysadmin["name"]},
+                name="test_invalid_status",
+                title="Test Invalid",
+                content="Test content",
+                status="invalid_status",
+            )
+        
+        assert "Status must be one of" in str(exc_info.value)
