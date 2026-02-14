@@ -120,6 +120,10 @@ def default_pages_schema():
         'order': [ignore_missing, unicode_safe],
         'private': [ignore_missing,
                     p.toolkit.get_validator('boolean_validator')],
+        'submission_status': [ignore_missing, unicode_safe],
+        'submitted_at': [ignore_missing, isodate],
+        'reviewed_at': [ignore_missing, isodate],
+        'reviewed_by': [ignore_missing, unicode_safe],
         'group_id': [ignore_missing, unicode_safe],
         'user_id': [ignore_missing, unicode_safe],
         'created': [ignore_missing, isodate],
@@ -153,7 +157,7 @@ def default_pages_schema():
         'key_cities_affected': [ignore_missing, unicode_safe],      # Cities affected
         'timeline_events': [ignore_missing, json_validator, unicode_safe],  # Dynamic timeline events
         'uploaded_images': [ignore_missing, json_validator, unicode_safe],  # Uploaded images metadata
-        'image_gallery': [ignore_missing, json_validator, unicode_safe],     # Enhanced image gallery
+        'image_gallery': [ignore_missing, unicode_safe],     # Markdown/text gallery content
         'response_activities': [ignore_missing, unicode_safe], # Response activities for rapid response
         'impact_assessment': [ignore_missing, unicode_safe],  # Impact assessment for rapid response
         'recovery_phase': [ignore_missing, unicode_safe],     # Recovery phase for rapid response
@@ -188,7 +192,7 @@ def default_pages_schema():
         'registration_info': [ignore_missing, unicode_safe], # Registration information
         'registration_url': [ignore_missing, url_validator, unicode_safe], # Registration URL
         # Water Publications specific fields
-        'publication_url': [ignore_missing, url_validator, unicode_safe],  # URL to publication
+        'publication_url': [not_empty_if_water_publication, ignore_missing, url_validator, unicode_safe],  # URL to publication
         'publication_type': [ignore_missing, unicode_safe], # Type of publication
         'authors': [ignore_missing, unicode_safe],          # Publication authors
         'publication_details': [ignore_missing, unicode_safe], # Publication bibliographic details
@@ -394,6 +398,10 @@ def water_family_schema():
         'content': [ignore_missing, unicode_safe],
         'page_type': [ignore_missing, unicode_safe],  # water-news, water-events, water-publications
         'private': [ignore_missing, p.toolkit.get_validator('boolean_validator')],
+        'submission_status': [ignore_missing, unicode_safe],
+        'submitted_at': [ignore_missing, isodate],
+        'reviewed_at': [ignore_missing, isodate],
+        'reviewed_by': [ignore_missing, unicode_safe],
         'publish_date': [ignore_missing, isodate],
         'created': [ignore_missing, isodate],
 
@@ -406,6 +414,7 @@ def water_family_schema():
         'excerpt': [ignore_missing, unicode_safe],  # Short excerpt/summary
         'header_image': [ignore_missing, unicode_safe],  # Header image URL
         'uploaded_images': [ignore_missing, json_validator, unicode_safe],  # Gallery images metadata
+        'image_gallery': [ignore_missing, unicode_safe],  # Markdown/text gallery content
         'additional_content': [ignore_missing, unicode_safe],  # Additional rich text content
         'ihp_organization': [ignore_missing, unicode_safe],  # Primary IHP organization (id)
 
@@ -427,7 +436,7 @@ def water_family_schema():
         'timeline_events': [ignore_missing, json_validator, unicode_safe],  # Event timeline (JSON)
 
         # Water Publications specific fields
-        'publication_url': [ignore_missing, url_validator, unicode_safe],  # URL to publication
+        'publication_url': [not_empty_if_water_publication, ignore_missing, url_validator, unicode_safe],  # URL to publication
         'publication_type': [ignore_missing, unicode_safe],  # Type (report, paper, book, thesis, etc.)
         'authors': [ignore_missing, unicode_safe],  # Publication authors
         'publication_details': [ignore_missing, unicode_safe],  # Bibliographic details

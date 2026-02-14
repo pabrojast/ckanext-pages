@@ -177,6 +177,31 @@ class TestPages():
         pending_names = [item['name'] for item in pending_entries]
         assert slug in pending_names
 
+    def test_non_admin_publish_request_is_converted_to_pending_for_water_news(self, app):
+        submitter = factories.User()
+        env = {'REMOTE_USER': submitter['name'].encode('ascii')}
+        slug = 'pending-water-news'
+
+        app.post(
+            toolkit.url_for('pages.water_news_new'),
+            params={
+                'title': 'Pending Water News',
+                'name': slug,
+                'content': 'Water news content awaiting review.',
+                'excerpt': 'Short summary',
+                'publish_date': '2025-01-01',
+                'submission_action': 'publish',
+            },
+            extra_environ=env,
+            status=302,
+        )
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {'user': submitter['name']}, page=slug
+        )
+        assert page['submission_status'] == 'pending'
+        assert page['private'] in (True, 'True', 'true', 1)
+
     def test_open_source_admin_dashboard_shows_organization_labels(self, app):
         sysadmin = factories.Sysadmin()
         org = factories.Organization()
@@ -210,6 +235,38 @@ class TestPages():
 
         assert expected_display in response.body
         assert sysadmin_data['id'] not in response.body
+
+    def test_water_admin_approve_route_sets_workflow_metadata(self, app):
+        sysadmin = factories.Sysadmin()
+        slug = 'pending-water-approve'
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': sysadmin['name']},
+            name=slug,
+            page=slug,
+            title='Pending Water Entry',
+            content='Pending water content.',
+            page_type='water-news',
+            submission_status='pending',
+            private=True,
+            submitted_at=datetime.datetime.utcnow().isoformat(),
+        )
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.post(
+            toolkit.url_for('pages.water_admin_approve', page_type='water-news', page=slug),
+            status=302,
+            extra_environ=env,
+        )
+        assert response.status_code == 302
+
+        page = helpers.call_action('ckanext_pages_show', {}, page=slug)
+        assert page['submission_status'] == 'approved'
+        assert page['private'] is False
+        assert page['reviewed_by'] == sysadmin['name']
+        assert page['reviewed_at'] is not None
+        assert page['submitted_at'] is not None
 
     def test_open_source_admin_approve_route_publishes_entry(self, app):
         sysadmin = factories.Sysadmin()

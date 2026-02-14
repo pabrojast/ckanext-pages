@@ -129,17 +129,41 @@ def water_category_validator(key, data, errors, context):
 
 
 def not_empty_if_water_publication(key, data, errors, context):
-    """Ensure publication_url or download_url is provided for water-publications."""
+    """Ensure a publication reference exists for water-publications pages."""
+
+    def _has_value(raw_value):
+        if raw_value is df.missing or raw_value is None:
+            return False
+        if isinstance(raw_value, str):
+            return bool(raw_value.strip())
+        return bool(raw_value)
+
     value = data.get(key)
     page_type = data.get(('page_type',), '')
 
     if page_type == 'water-publications':
-        # Check if either publication_url or download_url is provided
         publication_url = data.get(('publication_url',), '')
         download_url = data.get(('download_url',), '')
+        dataset_url = data.get(('dataset_url',), '')
+        dataset_title = data.get(('dataset_title',), '')
 
-        if not publication_url and not download_url:
+        has_dataset_upload = False
+        try:
+            request = p.toolkit.request
+            uploaded_file = request.files.get('dataset_upload') if getattr(request, 'files', None) else None
+            has_dataset_upload = bool(uploaded_file and getattr(uploaded_file, 'filename', None))
+        except Exception:
+            has_dataset_upload = False
+
+        if not any([
+            _has_value(publication_url),
+            _has_value(download_url),
+            _has_value(dataset_url),
+            # Allow existing records that rely on generated dataset metadata.
+            _has_value(dataset_title),
+            has_dataset_upload,
+        ]):
             if value is df.missing or not value:
                 errors[key].append(
-                    p.toolkit._('Either publication URL or download URL must be provided for publications')
+                    p.toolkit._('Provide a publication URL, download URL, dataset URL, or upload a file.')
                 )

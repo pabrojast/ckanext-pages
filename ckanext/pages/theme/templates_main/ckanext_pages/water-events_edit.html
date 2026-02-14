@@ -1197,6 +1197,8 @@ select.form-control option:selected {
     function uploadImage(file) {
       const formData = new FormData();
       formData.append('upload', file);
+      formData.append('water_content_type', 'water-events');
+      formData.append('file_type', 'image');
       
       // Show upload progress
       const progressId = `progress-${Date.now()}`;
@@ -1211,7 +1213,7 @@ select.form-control option:selected {
       $('#uploaded-images-preview').append(progressHtml);
       
       $.ajax({
-        url: '/pages_upload',
+        url: '/water_family_upload',
         type: 'POST',
         data: formData,
         processData: false,
@@ -1249,12 +1251,14 @@ select.form-control option:selected {
       });
     }
 
-    function uploadAsset(file, onSuccess, onFailure) {
+    function uploadAsset(file, fileType, onSuccess, onFailure) {
       const formData = new FormData();
       formData.append('upload', file);
+      formData.append('water_content_type', 'water-events');
+      formData.append('file_type', fileType || 'document');
 
       $.ajax({
-        url: '/pages_upload',
+        url: '/water_family_upload',
         type: 'POST',
         data: formData,
         processData: false,
@@ -1354,7 +1358,7 @@ select.form-control option:selected {
         return;
       }
 
-      uploadAsset(file, function(response) {
+      uploadAsset(file, 'document', function(response) {
         $('#field-agenda-document').val(response.url);
         $('#agenda-upload-feedback').html(
           '<i class="fa fa-file-text-o"></i> <a href="' + response.url + '" target="_blank" rel="noopener">{{ _('View agenda document') }}</a>' +
@@ -1390,7 +1394,7 @@ select.form-control option:selected {
         return;
       }
 
-      uploadAsset(file, function(response) {
+      uploadAsset(file, 'image', function(response) {
         $('#field-header-image').val(response.url).trigger('change');
         $('#header-image-feedback').html(
           '<img src="' + response.url + '" alt="{{ _('Header image preview') }}" style="max-width: 260px; border-radius: 6px; display:block; margin-bottom:0.5rem;">' +

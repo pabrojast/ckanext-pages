@@ -212,6 +212,13 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         value = re.sub(r'-{2,}', '-', value)
         return value.strip('-')
 
+    def _normalize_submission_action(value):
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in ['draft', 'submit', 'publish']:
+                return normalized
+        return None
+
     page_dict = None
     if page:
         if page.startswith('/'):
@@ -232,14 +239,28 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to create or edit a page'))
 
+    is_sysadmin = False
+    try:
+        tk.check_access('sysadmin', {'user': tk.g.user})
+        is_sysadmin = True
+    except tk.NotAuthorized:
+        is_sysadmin = False
+
     if tk.request.method == 'POST' and not data:
         data = _parse_form_data(tk.request)
-        submission_action = data.pop('submission_action', None) or tk.request.form.get('submission_action')
+        submission_action = _normalize_submission_action(
+            data.pop('submission_action', None) or tk.request.form.get('submission_action')
+        )
         page_dict.update(data)
 
         page_dict['org_id'] = None
         page_dict['page'] = page
         page_dict['page_type'] = 'page' if page_type == 'pages' else page_type
+
+        # Never allow non-admin users to publish directly via crafted form payloads.
+        workflow_page_types = ['water-news', 'water-events', 'water-publications', 'open-source-software']
+        if submission_action == 'publish' and not is_sysadmin and page_type in workflow_page_types:
+            submission_action = 'submit'
 
         # Re-add submission_action to page_dict so it reaches actions.py
         if submission_action:
@@ -252,10 +273,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
         # For water family content, set as private by default for non-admin users
         if page_type in ['water-news', 'water-events', 'water-publications'] and not page:
-            try:
-                tk.check_access('sysadmin', {'user': tk.g.user})
-                # Admin can choose public/private
-            except tk.NotAuthorized:
+            if not is_sysadmin:
                 # Regular users create as private (pending approval)
                 page_dict['private'] = 'True'
 
@@ -286,15 +304,14 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 page_dict['submission_status'] = 'approved'
             else:
                 # No submission_action provided - check if admin is publishing directly
-                try:
-                    tk.check_access('sysadmin', {'user': tk.g.user})
+                if is_sysadmin:
                     # Admin publishing directly without submission workflow
                     if page_dict.get('private') in [False, 'False', 'false']:
                         page_dict['submission_status'] = 'approved'
                     elif not page_dict.get('submission_status'):
                         # Default to draft if no status set
                         page_dict['submission_status'] = 'draft'
-                except tk.NotAuthorized:
+                else:
                     # Non-admin without submission_action - treat as draft
                     if not page_dict.get('submission_status'):
                         page_dict['submission_status'] = 'draft'
@@ -322,13 +339,17 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
             # Show different messages based on user type and page status
             if page_type in ['water-news', 'water-events', 'water-publications']:
-                try:
-                    tk.check_access('sysadmin', {'user': tk.g.user})
-                    if page_dict.get('private') == 'True':
-                        tk.h.flash_success(_('Content saved as draft'))
-                    else:
-                        tk.h.flash_success(_('Content published successfully'))
-                except tk.NotAuthorized:
+                status = page_dict.get('submission_status')
+                is_private = page_dict.get('private') in [True, 'True', 'true', 1]
+                if status == 'approved' and not is_private:
+                    tk.h.flash_success(_('Content published successfully'))
+                elif status == 'pending':
+                    tk.h.flash_success(_('Content submitted for review. It will be published after admin approval.'))
+                elif status == 'draft' or is_private:
+                    tk.h.flash_success(_('Content saved as draft'))
+                elif is_sysadmin:
+                    tk.h.flash_success(_('Content updated successfully'))
+                else:
                     tk.h.flash_success(_('Content submitted for review. It will be published after admin approval.'))
 
         except tk.ValidationError as e:
@@ -1840,14 +1861,15 @@ def water_family_main_page():
 
 
 def _filter_non_admin_pages(page_type):
-    """Get private pages created by non-admin users for the specified page type"""
+    """Get pending private pages created by non-admin users for the specified page type."""
     from ckanext.pages.db import Page
     from ckan import model
     
-    # Get all private pages of the specified type
+    # Only moderation queue items (pending) should appear here.
     query = model.Session.query(Page).filter(
         Page.page_type == page_type,
         Page.private == True,
+        Page.submission_status == 'pending',
         Page.group_id == None
     ).order_by(Page.publish_date.desc())
     
@@ -1881,6 +1903,7 @@ def _filter_non_admin_pages(page_type):
             'group_id': page.group_id,
             'page_type': page.page_type,
             'private': 'True',
+            'submission_status': page.submission_status,
             'created': page.created.isoformat() if page.created else None,
             'user_id': page.user_id
         }
@@ -1944,11 +1967,24 @@ def water_admin_approve(page, page_type):
             page_dict = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
+
+            if not page_dict:
+                tk.h.flash_error(_('Content not found'))
+                return tk.redirect_to('pages.water_admin_dashboard')
             
-            # Update to make it public
-            page_dict['private'] = 'False'
             page_dict['page'] = page
-            page_dict['page_type'] = page_type
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or page_type
+
+            # Update moderation workflow metadata and publish
+            now = datetime.datetime.utcnow()
+            page_dict['private'] = False
+            page_dict['submission_status'] = 'approved'
+            page_dict['reviewed_at'] = now.isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+            page_dict['submitted_at'] = page_dict.get('submitted_at') or now.isoformat()
+            if not page_dict.get('publish_date'):
+                page_dict['publish_date'] = now.isoformat()
             
             tk.get_action('ckanext_pages_update')(
                 context={}, data_dict=page_dict

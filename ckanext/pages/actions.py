@@ -293,9 +293,34 @@ def _pages_update(context, data_dict):
              'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by']
 
     # Handle submission workflow for open-source-software and water-family types
-    submission_action = data_dict.get('submission_action')
+    submission_action_raw = data_dict.get('submission_action')
+    submission_action = None
+    if isinstance(submission_action_raw, str):
+        normalized_action = submission_action_raw.strip().lower()
+        if normalized_action in {'draft', 'submit', 'publish'}:
+            submission_action = normalized_action
+
     water_family_types = ['open-source-software', 'water-news', 'water-events', 'water-publications']
-    if submission_action and data.get('page_type') in water_family_types:
+    target_page_type = data.get('page_type') or data_dict.get('page_type')
+    if not target_page_type and out:
+        target_page_type = out.page_type
+
+    if submission_action and target_page_type in water_family_types:
+        # Protect publish from privilege escalation via crafted requests.
+        if submission_action == 'publish':
+            is_admin_for_publish = False
+            try:
+                is_admin_for_publish = tk.check_access('sysadmin', context, {})
+            except Exception:
+                is_admin_for_publish = False
+
+            if not is_admin_for_publish:
+                log.warning(
+                    "[PAGES_UPDATE] User '%s' attempted publish without sysadmin rights. Forcing submit workflow.",
+                    context.get('user')
+                )
+                submission_action = 'submit'
+
         if submission_action == 'draft':
             data['submission_status'] = 'draft'
             data['private'] = True  # Keep as private for drafts
@@ -348,6 +373,7 @@ def _pages_update(context, data_dict):
                     log.info(f"Defaulted organization to {user_org.title or user_org.display_name or user_org.name} for admin {context['user']}")
 
     # backward compatible with older version where page_type does not exist
+    workflow_computed_fields = {'submission_status', 'private', 'submitted_at', 'reviewed_at', 'reviewed_by'}
     for item in items:
         if item in ['submitted_at', 'reviewed_at'] and data.get(item):
             # Handle datetime fields
@@ -359,10 +385,17 @@ def _pages_update(context, data_dict):
             else:
                 setattr(out, item, data.get(item))
         else:
+            # For workflow fields generated from submission_action, prefer computed
+            # values from validated data and do not overwrite from raw form payload.
+            if submission_action and item in workflow_computed_fields:
+                if item in data:
+                    value = data.get(item)
+                else:
+                    value = data_dict.get(item)
             # CRITICAL FIX: For fields that might be lost during validation,
             # check data_dict first, then data, then use default
-            # Prefer data_dict for critical fields to avoid validation stripping
-            if item in data_dict and data_dict.get(item):
+            # Prefer data_dict for non-workflow fields to avoid validation stripping
+            elif item in data_dict and data_dict.get(item):
                 # Use data_dict value if it exists and is not empty
                 value = data_dict.get(item)
                 if item in data and data.get(item) != value:

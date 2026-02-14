@@ -27,6 +27,36 @@ data_stories_blueprint = Blueprint(
 _SECTION_FIELD_RE = re.compile(r'^sections\[(\d+)\]\[([^\]]+)\]$')
 
 
+def _is_org_admin_any(user_obj):
+    """Return True when user is admin in at least one active organization."""
+    if not user_obj:
+        return False
+
+    membership = model.Session.query(model.Member.id).join(
+        model.Group, model.Member.group_id == model.Group.id
+    ).filter(
+        model.Member.table_name == 'user',
+        model.Member.table_id == user_obj.id,
+        model.Member.capacity == 'admin',
+        model.Member.state == 'active',
+        model.Group.type == 'organization',
+        model.Group.state == 'active'
+    ).first()
+
+    return bool(membership)
+
+
+def _can_review_stories(user_obj):
+    """Return True for sysadmins and organization admins."""
+    if not user_obj:
+        return False
+
+    if getattr(user_obj, 'sysadmin', False):
+        return True
+
+    return _is_org_admin_any(user_obj)
+
+
 # ============================================================================
 # List and Discovery Routes
 # ============================================================================
@@ -124,9 +154,10 @@ def index():
             log.error(f"Error getting featured stories: {str(e)}")
             model.Session.rollback()
 
-    # Get pending review count for sysadmins
+    # Get pending review count for reviewers (sysadmins and org admins)
     pending_count = 0
-    if g.userobj and getattr(g.userobj, 'sysadmin', False):
+    can_review = _can_review_stories(g.userobj)
+    if can_review:
         try:
             # Count submitted stories
             submitted_result = tk.get_action('data_story_list')(context, {
@@ -158,6 +189,7 @@ def index():
         'q': q,
         'facets': facets,
         'pending_count': pending_count,
+        'can_review': can_review,
     }
 
     return render_template('data_stories/list.html', **extra_vars)
@@ -179,23 +211,10 @@ def pending_review():
         flash(tk._('Please log in to view pending stories'), 'error')
         return redirect(url_for('user.login'))
 
-    # Check if user has review permissions (sysadmins always can)
-    is_reviewer = bool(g.userobj and getattr(g.userobj, 'sysadmin', False))
-
-    if not is_reviewer:
-        # Check if user is org admin for any org
-        from ckan import model
-        user_obj = g.userobj
-        user_orgs = model.Session.query(model.Member).filter(
-            model.Member.table_name == 'user',
-            model.Member.table_id == user_obj.id,
-            model.Member.capacity == 'admin',
-            model.Member.state == 'active'
-        ).all()
-
-        if not user_orgs:
-            flash(tk._('You do not have permission to review stories'), 'error')
-            return redirect(url_for('data_stories.index'))
+    # Check if user has review permissions (sysadmins or org admins)
+    if not _can_review_stories(g.userobj):
+        flash(tk._('You do not have permission to review stories'), 'error')
+        return redirect(url_for('data_stories.index'))
 
     # Get parameters
     page = int(request.args.get('page', 1))

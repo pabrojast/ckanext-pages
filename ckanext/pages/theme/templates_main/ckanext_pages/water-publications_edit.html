@@ -64,6 +64,7 @@
 
                       <form method="post" enctype="multipart/form-data" id="water-publications-form">
                         {{ h.csrf_input() if 'csrf_input' in h }}
+                        <input type="hidden" name="submission_action" id="water-publications-action" value="">
                         
                         <!-- Error Summary -->
                         {% if error_summary %}
@@ -339,26 +340,37 @@
                         <!-- Action Buttons -->
                         <div class="form-actions">
                           <input type="hidden" name="page_type" value="water-publications">
-                          {% if page %}
-                            <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-save"></i> {{ _('Update Publication') }}
-                            </button>
-                            <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}" class="btn btn-default">
-                              <i class="fa fa-times"></i> {{ _('Cancel') }}
-                            </a>
-                            {% if h.check_access('ckanext_pages_delete') %}
-                              <a href="{{ h.url_for('pages.water_publications_delete', page=page.name) }}" class="btn btn-danger" data-confirm="{{ _('Are you sure you want to delete this publication?') }}">
-                                <i class="fa fa-trash"></i> {{ _('Delete Publication') }}
-                              </a>
-                            {% endif %}
-                          {% else %}
-                            <button type="submit" name="save" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('Share Publication') }}
-                            </button>
-                            <a href="{{ h.url_for('pages.water_publications_index') }}" class="btn btn-default">
-                              <i class="fa fa-times"></i> {{ _('Cancel') }}
-                            </a>
-                          {% endif %}
+                          <div class="btn-toolbar" role="toolbar">
+                            <div class="btn-group" role="group">
+                              <button type="submit" class="btn btn-default btn-lg" data-water-action="draft">
+                                <i class="fa fa-save"></i> {{ page and _('Save as Draft') or _('Save Draft') }}
+                              </button>
+                              <button type="submit" class="btn btn-primary btn-lg" data-water-action="submit">
+                                <i class="fa fa-paper-plane"></i> {{ _('Submit for Validation') }}
+                              </button>
+                              {% if h.check_access('sysadmin') %}
+                                <button type="submit" class="btn btn-success btn-lg" data-water-action="publish">
+                                  <i class="fa fa-check"></i> {{ _('Publish Now') }}
+                                </button>
+                              {% endif %}
+                            </div>
+                            <div class="btn-group" role="group">
+                              {% if page %}
+                                <a href="{{ h.url_for('pages.water_publications_show', page=page.name) }}" class="btn btn-default">
+                                  <i class="fa fa-times"></i> {{ _('Cancel') }}
+                                </a>
+                                {% if h.check_access('ckanext_pages_delete') %}
+                                  <a href="{{ h.url_for('pages.water_publications_delete', page=page.name) }}" class="btn btn-danger" data-confirm="{{ _('Are you sure you want to delete this publication?') }}">
+                                    <i class="fa fa-trash"></i> {{ _('Delete Publication') }}
+                                  </a>
+                                {% endif %}
+                              {% else %}
+                                <a href="{{ h.url_for('pages.water_publications_index') }}" class="btn btn-default">
+                                  <i class="fa fa-times"></i> {{ _('Cancel') }}
+                                </a>
+                              {% endif %}
+                            </div>
+                          </div>
                         </div>
 
                       </form>
@@ -1013,6 +1025,22 @@ select.form-control option:selected {
       e.preventDefault();
       $('#image-upload').trigger('click');
     });
+
+    function setSubmissionAction(action) {
+      $('#water-publications-action').val(action);
+      if (action === 'publish') {
+        $('#field-private').val('False');
+      } else {
+        $('#field-private').val('True');
+      }
+    }
+
+    setSubmissionAction('submit');
+
+    $('[data-water-action]').on('click', function() {
+      var action = $(this).data('water-action');
+      setSubmissionAction(action);
+    });
     
     // Form validation
     $('form').on('submit', function(e) {
@@ -1092,6 +1120,8 @@ select.form-control option:selected {
     function uploadImage(file) {
       const formData = new FormData();
       formData.append('upload', file);
+      formData.append('water_content_type', 'water-publications');
+      formData.append('file_type', 'image');
       
       // Show upload progress
       const progressId = `progress-${Date.now()}`;
@@ -1106,7 +1136,7 @@ select.form-control option:selected {
       $('#uploaded-images-preview').append(progressHtml);
       
       $.ajax({
-        url: '/pages_upload',
+        url: '/water_family_upload',
         type: 'POST',
         data: formData,
         processData: false,
@@ -1258,9 +1288,8 @@ select.form-control option:selected {
       const slug = slugify(title);
       $('#field-title').val(title || 'Untitled Document');
       $('#field-name').val(slug);
-
-      const vis = $('#dataset_visibility').val();
-      $('#field-private').val(vis === 'private' ? 'True' : 'False');
+      const action = ($('#water-publications-action').val() || 'submit').toLowerCase();
+      $('#field-private').val(action === 'publish' ? 'False' : 'True');
 
       const date = $('#creation_date').val();
       if (date) $('#field-publish-date').val(date);
