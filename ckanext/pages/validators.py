@@ -26,12 +26,12 @@ def not_empty_if_blog(key, data, errors, context):
 
 def status_validator(key, data, errors, context):
     """Validate workflow status values"""
-    valid_statuses = ['draft', 'pending', 'approved']
+    valid_statuses = ['draft', 'pending', 'approved', 'rejected']
     value = data.get(key)
     
     if value and value not in valid_statuses:
         errors[key].append(
-            p.toolkit._('Status must be one of: draft, pending, approved'))
+            p.toolkit._('Status must be one of: draft, pending, approved, rejected'))
     
     # If no status provided, set default to draft
     if not value or value is df.missing:

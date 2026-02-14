@@ -45,7 +45,9 @@ def _pages_show(context, data_dict):
         
         # Non-admin users can only see approved pages
         if not is_admin and hasattr(out, 'status') and out.status != 'approved':
-            return None
+            raise p.toolkit.ObjectNotFound(
+                p.toolkit._('Page not found or not yet approved')
+            )
         
         out = db.table_dictize(out, context)
     return out
@@ -406,7 +408,7 @@ def pages_submit_for_review(context, data_dict):
         )
     
     out.status = 'pending'
-    out.modified = datetime.datetime.now(datetime.timezone.utc)
+    out.modified = datetime.datetime.utcnow()
     out.save()
     
     session = context['session']
@@ -436,7 +438,7 @@ def pages_approve(context, data_dict):
         )
     
     out.status = 'approved'
-    out.modified = datetime.datetime.now(datetime.timezone.utc)
+    out.modified = datetime.datetime.utcnow()
     out.save()
     
     session = context['session']
@@ -466,7 +468,7 @@ def pages_reject(context, data_dict):
         )
     
     out.status = 'rejected'
-    out.modified = datetime.datetime.now(datetime.timezone.utc)
+    out.modified = datetime.datetime.utcnow()
     out.save()
     
     session = context['session']
