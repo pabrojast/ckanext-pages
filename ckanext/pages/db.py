@@ -26,7 +26,7 @@ except ImportError:
         try:
             from ckan import model
             model.Session.rollback()
-        except:
+        except Exception:
             pass
 
 try:
@@ -78,12 +78,6 @@ class Page(DomainObject, BaseModel):
     extras = Column(types.UnicodeText, default=u'{}')
     revisions = Column(MutableDict.as_mutable(JSONB), default=u'{}')
     # Submission workflow and organization management
-    submission_status = Column(types.UnicodeText, default=u'draft')
-    ihp_organization = Column(types.UnicodeText, default=None)
-    submitted_at = Column(types.DateTime)
-    reviewed_at = Column(types.DateTime)
-    reviewed_by = Column(types.UnicodeText, default=None)
-    # New fields for submission workflow and organization management
     submission_status = Column(types.UnicodeText, default=u'draft')  # 'draft', 'pending', 'approved', 'rejected'
     ihp_organization = Column(types.UnicodeText, default=None)  # IHP WINS Organization
     submitted_at = Column(types.DateTime, default=None)  # When submitted for approval
@@ -328,7 +322,7 @@ class Page(DomainObject, BaseModel):
                 # Safe ordering by order field
                 try:
                     query = query.filter(cls.order != '').order_by(sa.cast(cls.order, sa.Integer))
-                except:
+                except (sa.exc.DataError, sa.exc.ProgrammingError, Exception):
                     # Fallback to string ordering if cast fails
                     query = query.filter(cls.order != '').order_by(cls.order)
             elif order_publish_date:
@@ -386,7 +380,7 @@ class Page(DomainObject, BaseModel):
                     }
                     return priority_weights.get(priority, 3)
                 return 3
-            except:
+            except (ValueError, TypeError, KeyError):
                 return 3
 
         def get_severity_weight(page):
@@ -402,7 +396,7 @@ class Page(DomainObject, BaseModel):
                     }
                     return severity_weights.get(severity, 0)
                 return 0
-            except:
+            except (ValueError, TypeError, KeyError):
                 return 0
 
         try:
@@ -432,7 +426,7 @@ class Page(DomainObject, BaseModel):
                     }
                     return priority_weights.get(priority, 2)  # Default to medium
                 return 2
-            except:
+            except (ValueError, TypeError, KeyError):
                 return 2
 
         try:

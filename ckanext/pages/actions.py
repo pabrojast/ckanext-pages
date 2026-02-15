@@ -324,10 +324,16 @@ def _pages_update(context, data_dict):
         if submission_action == 'draft':
             data['submission_status'] = 'draft'
             data['private'] = True  # Keep as private for drafts
+            # Clear previous review metadata when reverting to draft
+            data['reviewed_at'] = None
+            data['reviewed_by'] = None
         elif submission_action == 'submit':
             data['submission_status'] = 'pending'
             data['private'] = True  # Keep private until approved
             data['submitted_at'] = datetime.datetime.utcnow()
+            # Clear previous review metadata on resubmission
+            data['reviewed_at'] = None
+            data['reviewed_by'] = None
             # Auto-set organization from user if not already set
             if not data.get('ihp_organization'):
                 user_org = _get_user_organization(context['user'])
@@ -380,7 +386,7 @@ def _pages_update(context, data_dict):
             if isinstance(data.get(item), str):
                 try:
                     setattr(out, item, datetime.datetime.fromisoformat(data.get(item).replace('Z', '+00:00')))
-                except:
+                except (ValueError, TypeError):
                     setattr(out, item, datetime.datetime.utcnow())
             else:
                 setattr(out, item, data.get(item))

@@ -152,8 +152,39 @@ def user_authenticated(context, data_dict):
 
 
 def water_family_upload(context, data_dict):
-    '''Allow authenticated users to upload files for water family content'''
-    return user_authenticated(context, data_dict)
+    '''Allow authenticated users to upload files for water family content they own or are creating'''
+    import logging
+    log = logging.getLogger(__name__)
+
+    result = user_authenticated(context, data_dict)
+    if not result.get('success'):
+        return result
+
+    # If uploading to an existing page, verify ownership or admin
+    page_name = data_dict.get('page') or data_dict.get('name')
+    if page_name:
+        try:
+            sysadmin_result = sysadmin(context, data_dict)
+            if sysadmin_result.get('success'):
+                return {'success': True}
+        except (p.toolkit.NotAuthorized, Exception):
+            pass
+
+        try:
+            page_obj = db.Page.get(name=page_name)
+            if page_obj:
+                if not page_obj.user_id:
+                    # Orphaned content without owner - only admins can upload
+                    return {'success': False, 'msg': p.toolkit._('Not authorized to upload to this content')}
+                from ckan import model
+                user_obj = model.User.get(context.get('user'))
+                if user_obj and page_obj.user_id == user_obj.id:
+                    return {'success': True}
+                return {'success': False, 'msg': p.toolkit._('Not authorized to upload to this content')}
+        except Exception as e:
+            log.error("Error checking upload permission: %s", str(e))
+
+    return {'success': True}
 
 
 def water_content_create(context, data_dict):
@@ -163,40 +194,46 @@ def water_content_create(context, data_dict):
 
 def water_content_edit(context, data_dict):
     '''Allow the author or admin to edit water family content'''
+    import logging
+    log = logging.getLogger(__name__)
+
     # Check if user is sysadmin
     try:
-        return sysadmin(context, data_dict)
-    except:
+        result = sysadmin(context, data_dict)
+        if result.get('success'):
+            return result
+    except p.toolkit.NotAuthorized:
         pass
-    
+    except Exception as e:
+        log.error("Error checking sysadmin in water_content_edit: %s", str(e))
+
     # Check if user is the author of the content
     user = context.get('user')
     page = data_dict.get('page')
-    
+
     if user and page:
         try:
-            from ckanext.pages import db
             page_obj = db.Page.get(name=page)
             if page_obj and page_obj.user_id:
-                # Get user object from username
                 from ckan import model
                 user_obj = model.User.get(user)
                 if user_obj and page_obj.user_id == user_obj.id:
                     return {'success': True}
-        except:
-            pass
-    
+        except Exception as e:
+            log.error("Error checking page ownership in water_content_edit: %s", str(e))
+
     return {'success': False, 'msg': p.toolkit._('Not authorized to edit this content')}
 
 
 # Water Family specific permissions
-water_news_update = water_content_create
+# Update uses water_content_edit: only author or sysadmin can edit
+water_news_update = water_content_edit
 water_news_delete = sysadmin  # Only admins can delete
 
-water_events_update = water_content_create  
+water_events_update = water_content_edit
 water_events_delete = sysadmin
 
-water_publications_update = water_content_create
+water_publications_update = water_content_edit
 water_publications_delete = sysadmin
 
 

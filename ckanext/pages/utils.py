@@ -260,6 +260,12 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         # Never allow non-admin users to publish directly via crafted form payloads.
         workflow_page_types = ['water-news', 'water-events', 'water-publications', 'open-source-software']
         if submission_action == 'publish' and not is_sysadmin and page_type in workflow_page_types:
+            log = logging.getLogger(__name__)
+            log.warning(
+                "User '%s' attempted to publish %s content directly. Downgrading to submit.",
+                getattr(tk.g, 'user', 'unknown'), page_type
+            )
+            tk.h.flash_notice(_('Content has been submitted for review instead of published directly.'))
             submission_action = 'submit'
 
         # Re-add submission_action to page_dict so it reaches actions.py
@@ -275,7 +281,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         if page_type in ['water-news', 'water-events', 'water-publications'] and not page:
             if not is_sysadmin:
                 # Regular users create as private (pending approval)
-                page_dict['private'] = 'True'
+                page_dict['private'] = True
 
         if page_type in ['water-news', 'water-events', 'water-publications']:
             # Ensure we store the organization id of the submitter when missing
@@ -294,13 +300,13 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                     pass
 
             if submission_action == 'draft':
-                page_dict['private'] = 'True'
+                page_dict['private'] = True
                 page_dict['submission_status'] = 'draft'
             elif submission_action == 'submit':
-                page_dict.setdefault('private', 'True')
+                page_dict.setdefault('private', True)
                 page_dict['submission_status'] = 'pending'
             elif submission_action == 'publish':
-                page_dict['private'] = 'False'
+                page_dict['private'] = False
                 page_dict['submission_status'] = 'approved'
             else:
                 # No submission_action provided - check if admin is publishing directly
@@ -315,7 +321,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                     # Non-admin without submission_action - treat as draft
                     if not page_dict.get('submission_status'):
                         page_dict['submission_status'] = 'draft'
-                        page_dict['private'] = 'True'
+                        page_dict['private'] = True
 
         # Remove helper fields that should not hit the action layer
         # Keep submission_action for water-family and open-source-software so actions.py can process it
@@ -804,6 +810,29 @@ def pages_show(page=None, page_type='page'):
     )
     if _page is None:
         return pages_list_pages(page_type)
+
+    # Check privacy: non-admin users cannot view private/pending content
+    if _page.get('private') in [True, 'True', 'true']:
+        is_viewer_admin = False
+        try:
+            tk.check_access('sysadmin', {'user': tk.g.user})
+            is_viewer_admin = True
+        except (tk.NotAuthorized, Exception):
+            pass
+
+        if not is_viewer_admin:
+            is_author = False
+            if hasattr(tk, 'g') and tk.g.user and _page.get('user_id'):
+                try:
+                    from ckan import model as ckan_model
+                    user_obj = ckan_model.User.get(tk.g.user)
+                    if user_obj and _page.get('user_id') == user_obj.id:
+                        is_author = True
+                except Exception:
+                    pass
+            if not is_author:
+                return tk.abort(403, _('Not authorized to view this content'))
+
     tk.c.page = _page
     _inject_views_into_page(_page)
 
@@ -811,8 +840,11 @@ def pages_show(page=None, page_type='page'):
 
 
 def pages_revisions(page, page_type='page'):
+    permission_needed = 'ckanext_pages_update'
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        permission_needed = 'ckanext_%s_update' % page_type.replace('-', '_')
     try:
-        tk.check_access('ckanext_pages_update', {'user': tk.g.user})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to view this page'))
 
@@ -838,8 +870,11 @@ def pages_revisions(page, page_type='page'):
 
 
 def pages_revisions_preview(page, revision, page_type='page'):
+    permission_needed = 'ckanext_pages_update'
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        permission_needed = 'ckanext_%s_update' % page_type.replace('-', '_')
     try:
-        tk.check_access('ckanext_pages_update', {'user': tk.g.user})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to view this page'))
 
@@ -860,8 +895,11 @@ def pages_revisions_preview(page, revision, page_type='page'):
 
 
 def pages_revision_restore(page, revision, page_type='page'):
+    permission_needed = 'ckanext_pages_update'
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        permission_needed = 'ckanext_%s_update' % page_type.replace('-', '_')
     try:
-        tk.check_access('ckanext_pages_update', {'user': tk.g.user})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to view this page'))
 
@@ -882,6 +920,12 @@ def pages_revision_restore(page, revision, page_type='page'):
         endpoint = 'rapid_response_show'
     elif page_type == 'open-source-software':
         endpoint = 'open_source_software_show'
+    elif page_type == 'water-news':
+        endpoint = 'water_news_show'
+    elif page_type == 'water-events':
+        endpoint = 'water_events_show'
+    elif page_type == 'water-publications':
+        endpoint = 'water_publications_show'
     return tk.redirect_to('pages.%s' % endpoint, page=page)
 
 
@@ -903,8 +947,11 @@ def pages_delete(page, page_type='pages'):
         else:
             return tk.redirect_to('pages.edit', page=page)
 
+    delete_permission = 'ckanext_pages_delete'
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        delete_permission = 'ckanext_%s_delete' % page_type.replace('-', '_')
     try:
-        tk.check_access('ckanext_pages_delete', {'user': tk.g.user})
+        tk.check_access(delete_permission, {'user': tk.g.user})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to delete page'))
 
@@ -1803,7 +1850,7 @@ def water_family_main_page():
                 'private': False
             }
         )[:3]  # Latest 3 news items
-    except:
+    except Exception:
         news_items = []
     
     try:
@@ -1815,7 +1862,7 @@ def water_family_main_page():
                 'private': False
             }
         )[:3]  # Latest 3 events
-    except:
+    except Exception:
         events_items = []
     
     try:
@@ -1827,7 +1874,7 @@ def water_family_main_page():
                 'private': False
             }
         )[:3]  # Latest 3 publications
-    except:
+    except Exception:
         publications_items = []
 
     pending_counts = {'news': 0, 'events': 0, 'publications': 0}
@@ -1890,7 +1937,7 @@ def _filter_non_admin_pages(page_type):
             except tk.NotAuthorized:
                 # User is not admin - include this page for review
                 pass
-            except:
+            except Exception:
                 # Any other error, include for review
                 pass
         
@@ -1902,7 +1949,7 @@ def _filter_non_admin_pages(page_type):
             'publish_date': page.publish_date.isoformat() if page.publish_date else None,
             'group_id': page.group_id,
             'page_type': page.page_type,
-            'private': 'True',
+            'private': True,
             'submission_status': page.submission_status,
             'created': page.created.isoformat() if page.created else None,
             'user_id': page.user_id
@@ -1914,7 +1961,7 @@ def _filter_non_admin_pages(page_type):
                 import json
                 extras = json.loads(page.extras)
                 page_dict.update(extras)
-            except:
+            except (ValueError, TypeError):
                 pass
         
         filtered_pages.append(page_dict)
@@ -1933,17 +1980,17 @@ def water_admin_dashboard():
     # Get pending items created by non-admin users
     try:
         pending_news = _filter_non_admin_pages('water-news')
-    except:
+    except Exception:
         pending_news = []
-    
+
     try:
         pending_events = _filter_non_admin_pages('water-events')
-    except:
+    except Exception:
         pending_events = []
-    
+
     try:
         pending_publications = _filter_non_admin_pages('water-publications')
-    except:
+    except Exception:
         pending_publications = []
     
     return tk.render('ckanext_pages/water-admin-dashboard.html', extra_vars={
@@ -1999,36 +2046,44 @@ def water_admin_approve(page, page_type):
 
 
 def water_admin_reject(page, page_type):
-    """Reject water family content (admin only)"""
+    """Reject water family content (admin only) - sets status to rejected instead of deleting"""
     # Check admin access
     try:
         tk.check_access('sysadmin', {'user': tk.g.user})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to reject content'))
-    
+
     if tk.request.method == 'POST':
         try:
             # Get the page first
             page_dict = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            
+
             if not page_dict:
                 tk.h.flash_error(_('Content not found'))
                 return tk.redirect_to('pages.water_admin_dashboard')
-            
-            # Delete the rejected content
-            tk.get_action('ckanext_pages_delete')(
-                context={}, data_dict={'org_id': None, 'page': page}
+
+            # Set rejected status instead of deleting
+            now = datetime.datetime.utcnow()
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['submission_status'] = 'rejected'
+            page_dict['private'] = True
+            page_dict['reviewed_at'] = now.isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+
+            tk.get_action('ckanext_pages_update')(
+                context={}, data_dict=page_dict
             )
-            
-            tk.h.flash_success(_('Content rejected and deleted successfully'))
-            
+
+            tk.h.flash_success(_('Content has been rejected. The author can edit and resubmit it.'))
+
         except Exception as e:
             tk.h.flash_error(_('Error rejecting content: %s') % str(e))
-        
+
         return tk.redirect_to('pages.water_admin_dashboard')
-    
+
     # GET request - should not happen normally
     return tk.redirect_to('pages.water_admin_dashboard')
 
@@ -2044,7 +2099,7 @@ def open_source_admin_dashboard():
     # Get pending open source software submissions
     try:
         pending_software = _filter_pending_open_source_software()
-    except:
+    except Exception:
         pending_software = []
 
     org_options, org_lookup = _get_open_source_admin_organizations()

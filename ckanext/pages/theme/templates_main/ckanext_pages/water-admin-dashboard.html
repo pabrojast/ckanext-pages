@@ -232,7 +232,7 @@
                             </form>
                             <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-news', page=item.name) }}" 
                                   style="display: inline-block;" 
-                                  onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this news article?') }}')">
+                                  onsubmit="return confirm('{{ _('Are you sure you want to reject this news article? The author can edit and resubmit it.') }}')">
                               {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fa fa-times"></i> {{ _('Reject') }}
@@ -326,7 +326,7 @@
                             </form>
                             <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-events', page=item.name) }}" 
                                   style="display: inline-block;" 
-                                  onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this event?') }}')">
+                                  onsubmit="return confirm('{{ _('Are you sure you want to reject this event? The author can edit and resubmit it.') }}')">
                               {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fa fa-times"></i> {{ _('Reject') }}
@@ -416,7 +416,7 @@
                             </form>
                             <form method="post" action="{{ h.url_for('pages.water_admin_reject', page_type='water-publications', page=item.name) }}" 
                                   style="display: inline-block;" 
-                                  onsubmit="return confirm('{{ _('Are you sure you want to reject and delete this publication?') }}')">
+                                  onsubmit="return confirm('{{ _('Are you sure you want to reject this publication? The author can edit and resubmit it.') }}')">
                               {{ h.csrf_input() if 'csrf_input' in h }}
                               <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="fa fa-times"></i> {{ _('Reject') }}
