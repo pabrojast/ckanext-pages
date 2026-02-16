@@ -684,7 +684,7 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
             if os.path.abspath(image_path) != os.path.abspath(processed_path):
                 try:
                     os.remove(image_path)
-                except:
+                except (OSError, IOError):
                     pass
             
             return processed_path
@@ -1242,7 +1242,7 @@ def water_family_upload(context, data_dict):
             p.toolkit.check_access('ckanext_water_family_upload', context, data_dict)
         except p.toolkit.NotAuthorized:
             log.error("[WATER_FAMILY_UPLOAD] Authorization failed")
-            p.toolkit.abort(401, p.toolkit._('Not authorized to upload files for water content'))
+            raise p.toolkit.NotAuthorized(p.toolkit._('Not authorized to upload files for water content'))
 
         # Validate file type and size based on water content type and file type
         validation_result = _validate_water_file(data_dict, water_content_type, file_type)

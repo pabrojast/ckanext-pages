@@ -339,6 +339,7 @@
 
                         <!-- Action Buttons -->
                         <div class="form-actions">
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images else "" }}'>
                           <input type="hidden" name="page_type" value="water-publications">
                           <div class="btn-toolbar" role="toolbar">
                             <div class="btn-group" role="group">
@@ -1184,7 +1185,7 @@ select.form-control option:selected {
             <input type="text" class="image-alt" value="${imageData.alt}" placeholder="{{ _('Alt text') }}">
             <input type="text" class="image-caption" value="${imageData.caption}" placeholder="{{ _('Caption (optional)') }}">
             <div class="uploaded-image-actions">
-              <button type="button" class="image-copy-url" onclick="copyImageUrl('${imageData.url}')">
+              <button type="button" class="image-copy-url" onclick="copyImageUrl(event, '${imageData.url}')">
                 <i class="fa fa-copy"></i> {{ _('Copy URL') }}
               </button>
               <button type="button" class="image-remove" onclick="removeUploadedImage('${imageId}')">
@@ -1198,9 +1199,12 @@ select.form-control option:selected {
     }
     
     // Copy image URL to clipboard
-    window.copyImageUrl = function(url) {
+    window.copyImageUrl = function(evt, url) {
       navigator.clipboard.writeText(url).then(function() {
-        const btn = event.target.closest('.image-copy-url');
+        const btn = evt && evt.target ? evt.target.closest('.image-copy-url') : null;
+        if (!btn) {
+          return;
+        }
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fa fa-check"></i> {{ _("Copied!") }}';
         setTimeout(() => {

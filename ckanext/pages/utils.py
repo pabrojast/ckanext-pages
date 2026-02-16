@@ -1104,7 +1104,10 @@ def water_family_upload():
 
     try:
         # Call the water_family_upload action
-        upload_info = tk.get_action('ckanext_water_family_upload')(None, data_dict)
+        upload_info = tk.get_action('ckanext_water_family_upload')(
+            {'user': tk.g.user if hasattr(tk.g, 'user') else None},
+            data_dict
+        )
     except tk.NotAuthorized:
         return tk.abort(401, _('Not authorized to upload files for water-family content'))
     except tk.ValidationError as e:

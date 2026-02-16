@@ -372,7 +372,7 @@
                                 <div class="dropzone-content">
                                   <i class="fa fa-cloud-upload fa-3x"></i>
                                   <p>{{ _('Drop images here or click to browse') }}</p>
-                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 5MB per image)') }}</p>
                                 </div>
                               </div>
                             </div>
@@ -391,7 +391,7 @@
                           </div>
 
                           <!-- Hidden fields for uploaded images -->
-                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.uploaded_images or '' }}">
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images else "" }}'>
                           </div>
                         </fieldset>
 
@@ -408,7 +408,7 @@
                               <button type="button" class="btn btn-default" id="agenda-upload-trigger">
                                 <i class="fa fa-upload"></i> {{ _('Upload file') }}
                               </button>
-                              <span class="help-text" style="display:block; margin-top:0.5rem;">{{ _('Upload a PDF or image with the event agenda or flyer (max 10MB).') }}</span>
+                              <span class="help-text" style="display:block; margin-top:0.5rem;">{{ _('Upload a PDF or image with the event agenda or flyer (max 20MB).') }}</span>
                               <div id="agenda-upload-feedback" class="text-muted" style="margin-top:0.75rem;">
                                 {% if data.agenda_document %}
                                   <i class="fa fa-file-text-o"></i>
