@@ -505,7 +505,7 @@ def pages_upload(context, data_dict):
             p.toolkit.check_access('ckanext_pages_upload', context, data_dict)
         except p.toolkit.NotAuthorized:
             log.error("[PAGES_UPLOAD] Authorization failed")
-            p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
+            raise
 
         # Use the plugin system to get the appropriate uploader
         # This will use asset-storage if available, or fall back to default Upload

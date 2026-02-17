@@ -1034,6 +1034,8 @@ def pages_upload():
     # Get the uploaded file from request
     if 'upload' in tk.request.files:
         data_dict['upload'] = tk.request.files['upload']
+    else:
+        return {'uploaded': 0, 'error': {'message': 'No file provided'}}
 
     # Also process form parameters if they exist
     if tk.request.form:
@@ -1047,9 +1049,16 @@ def pages_upload():
         data_dict.update(form_data)
 
     try:
-        upload_info = tk.get_action('ckanext_pages_upload')(None, data_dict)
+        upload_info = tk.get_action('ckanext_pages_upload')(
+            {'user': tk.g.user if hasattr(tk.g, 'user') else None},
+            data_dict
+        )
     except tk.NotAuthorized:
-        return tk.abort(401, _('Unauthorized to upload file %s') % id)
+        return {'uploaded': 0, 'error': {'message': 'Not authorized to upload files'}}
+    except tk.ValidationError as e:
+        return {'uploaded': 0, 'error': {'message': str(e)}}
+    except Exception as e:
+        return {'uploaded': 0, 'error': {'message': f'Upload failed: {str(e)}'}}
 
     return upload_info
 
