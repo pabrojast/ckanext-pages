@@ -690,7 +690,7 @@
                           </div>
 
                           <!-- Hidden fields for uploaded images -->
-                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value="{{ data.get('uploaded_images', '') }}">
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.get("uploaded_images", "")|tojson|safe if data.get("uploaded_images") else "" }}'>
                           <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.get('image_gallery', '') }}">
                         </div>
 
@@ -3424,7 +3424,7 @@ textarea[id="example_applications"] {
     }
     
     $.ajax({
-      url: '/pages_upload',
+      url: '{{ h.url_for("pages.upload") }}',
       type: 'POST',
       data: formData,
       processData: false,
@@ -3461,9 +3461,20 @@ textarea[id="example_applications"] {
           alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
         }
       },
-      error: function() {
+      error: function(xhr) {
         $(`#${progressId}`).remove();
-        alert('{{ _("Error uploading image. Please try again.") }}');
+        var errorMsg = '{{ _("Upload failed") }}';
+        if (xhr.responseText) {
+          try {
+            var resp = JSON.parse(xhr.responseText);
+            errorMsg += ': ' + (resp.error || resp.message || xhr.statusText);
+          } catch(e) {
+            errorMsg += ': ' + xhr.status + ' ' + xhr.statusText;
+          }
+        } else {
+          errorMsg += ': ' + xhr.status + ' ' + xhr.statusText;
+        }
+        alert(errorMsg);
       }
     });
   }

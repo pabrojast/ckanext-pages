@@ -158,7 +158,9 @@
             {%- set maybe_url = parts_split[0].strip() -%}
             {%- set maybe_title = parts_split[1].strip() -%}
             {%- set combined_url = maybe_url ~ ':' ~ maybe_title -%}
-            {%- if (maybe_url.startswith('http://') or maybe_url.startswith('https://')) and maybe_title and (maybe_title.startswith('//') or '/' in maybe_title or '?' in maybe_title or '#' in maybe_title or (maybe_title.isdigit() and (maybe_title|length <= 5))) -%}
+            {%- if (combined_url.startswith('http://') or combined_url.startswith('https://')) and ('/' in maybe_title or '?' in maybe_title or '#' in maybe_title or maybe_title.startswith('//')) -%}
+              {%- set resource_url = combined_url -%}
+            {%- elif (maybe_url.startswith('http://') or maybe_url.startswith('https://')) and maybe_title and (maybe_title.startswith('//') or '/' in maybe_title or '?' in maybe_title or '#' in maybe_title or (maybe_title.isdigit() and (maybe_title|length <= 5))) -%}
               {%- set resource_url = combined_url -%}
             {%- else -%}
               {%- set resource_url = maybe_url -%}
@@ -170,12 +172,21 @@
             {%- set maybe_url = parts_split[0].strip() -%}
             {%- set maybe_title = parts_split[1].strip() -%}
             {%- set maybe_desc = parts_split[2].strip() -%}
-            {%- set resource_url = maybe_url -%}
-            {%- if maybe_title -%}
-              {%- set resource_title = maybe_title -%}
-            {%- endif -%}
-            {%- if maybe_desc -%}
-              {%- set resource_desc = maybe_desc -%}
+            {# Handle case where URL protocol colon was split: "https" + "//domain/path" + "title" #}
+            {%- set combined_url_2 = maybe_url ~ ':' ~ maybe_title -%}
+            {%- if (maybe_url == 'https' or maybe_url == 'http') and maybe_title.startswith('//') -%}
+              {%- set resource_url = combined_url_2 -%}
+              {%- if maybe_desc -%}
+                {%- set resource_title = maybe_desc -%}
+              {%- endif -%}
+            {%- else -%}
+              {%- set resource_url = maybe_url -%}
+              {%- if maybe_title -%}
+                {%- set resource_title = maybe_title -%}
+              {%- endif -%}
+              {%- if maybe_desc -%}
+                {%- set resource_desc = maybe_desc -%}
+              {%- endif -%}
             {%- endif -%}
           {%- endif -%}
           
@@ -1844,7 +1855,7 @@
 /* Enhanced Image Gallery */
 .images-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
   margin-bottom: 2rem;
 }
@@ -1915,14 +1926,13 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  height: auto;
-  min-height: 200px;
+  height: 280px;
 }
 
 .gallery-image {
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.4s ease;
 }
 
@@ -2068,7 +2078,7 @@
   }
   
   .images-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
   
   /* Resource cards responsive for tablets */
