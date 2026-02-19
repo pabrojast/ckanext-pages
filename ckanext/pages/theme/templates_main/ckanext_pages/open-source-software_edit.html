@@ -405,7 +405,6 @@
                             <i class="fa fa-link"></i>
                             {{ _('Links & Resources') }}
                           </h3>
-                          <h4 class="form-section-heading">{{ _('Links & Resources') }}</h4>
 
                           <div class="row">
                             <div class="col-md-6">
@@ -507,10 +506,8 @@
                             <i class="fa fa-lightbulb-o"></i>
                             {{ _('Examples & Use Cases') }}
                           </h3>
-                          <h4 class="form-section-heading">{{ _('Examples & Use Cases') }}</h4>
 
                           <div class="form-group">
-                            <label for="example_applications" class="control-label">{{ _('Examples & Use Cases') }}</label>
                             <div class="quill-wrapper">
                               <div id="example-applications-editor" class="quill-editor quill-compact"></div>
                               <textarea name="example_applications" id="example_applications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('example_applications', '') }}</textarea>
@@ -712,6 +709,14 @@
                                 <i class="fa fa-paper-plane"></i> {{ _('Submit for Approval') }}
                                 <div class="btn-description">{{ _('Submit to admin for review') }}</div>
                               </button>
+                              
+                              {% if h.check_access('sysadmin') %}
+                              <!-- Publish Now Button (admin only) -->
+                              <button type="button" class="btn btn-primary btn-lg submission-btn" data-action="publish">
+                                <i class="fa fa-check-circle"></i> {{ _('Publish Now') }}
+                                <div class="btn-description">{{ _('Publish directly without review') }}</div>
+                              </button>
+                              {% endif %}
                             </div>
                             
                             <div class="secondary-actions">
@@ -1122,6 +1127,20 @@ textarea.form-control {
   color: white;
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(40, 167, 69, 0.3);
+}
+
+.submission-btn[data-action="publish"] {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
+  color: white;
+}
+
+.submission-btn[data-action="publish"]:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  border-color: var(--unesco-blue-dark);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 114, 188, 0.3);
 }
 
 .submission-btn i {
@@ -3677,85 +3696,9 @@ textarea[id="example_applications"] {
     }
   }
 
-  // Form validation
-  $('form').on('submit', function(e) {
-    console.log('Form submission started - syncing Quill editors...');
-
-    // FIRST: Sync all Quill editors to their textareas
-    if (window.syncAllQuillEditors) {
-      window.syncAllQuillEditors();
-    }
-
-    // Force sync all editors before validation
-    Object.keys(quillEditors).forEach(editorId => {
-      const quill = quillEditors[editorId];
-      let textareaId = editorId;
-
-      // Handle different ID mappings
-      if (editorId === 'content-editor') {
-        textareaId = 'content-textarea';
-      } else if (editorId.endsWith('-editor')) {
-        textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
-      }
-
-      const textarea = document.getElementById(textareaId);
-
-      if (quill && textarea) {
-        const content = quill.root.innerHTML;
-        textarea.value = content;
-        console.log(`✓ Synced ${textareaId}: ${content.length} characters, content preview: ${content.substring(0, 50)}...`);
-
-        // Trigger change event to ensure form knows field has changed
-        $(textarea).trigger('change');
-
-        // Mark as having content if not empty
-        if (content && content.trim() !== '<p><br></p>' && content.trim() !== '') {
-          $(textarea).attr('data-has-content', 'true');
-          console.log(`  → ${textareaId} marked as having content`);
-        }
-      } else {
-        console.warn(`⚠ Failed to sync ${editorId}: quill=${!!quill}, textarea=${!!textarea}`);
-      }
-    });
-
-    var isValid = true;
-    var title = $('#title').val().trim();
-    var name = $('#name').val().trim();
-
-    if (!title) {
-      alert('{{ _("Please enter a software title") }}');
-      $('#title').focus();
-      isValid = false;
-    }
-
-    if (!name) {
-      alert('{{ _("Please enter a URL") }}');
-      $('#name').focus();
-      isValid = false;
-    }
-
-    // Validate that all uploaded images have descriptive names
-    var emptyAltFields = $('.image-alt').filter(function() {
-      return !$(this).val().trim();
-    });
-
-    if (emptyAltFields.length > 0) {
-      alert('{{ _("Please provide descriptive names for all uploaded images before submitting.") }}');
-      emptyAltFields.first().focus();
-      isValid = false;
-    }
-
-    if (!isValid) {
-      e.preventDefault();
-    } else {
-      handleMultipleSelects();
-      updateUploadedImagesData();
-      updateMemberStatesData();
-
-      // Final content check
-      console.log('Final content field value:', $('#content-textarea').val());
-    }
-  });
+  // NOTE: Form validation and submission are handled by the .submission-btn
+  // click handler below. Do not add a duplicate $('form').on('submit') handler
+  // here — it would cause repeated alerts and duplicate hidden fields.
   
   // Submission button handlers
   $('.submission-btn').on('click', function(e) {
@@ -3785,7 +3728,7 @@ textarea[id="example_applications"] {
     }
     
     // Additional validation for submission (not for draft)
-    if (action === 'submit') {
+    if (action === 'submit' || action === 'publish') {
       // Check if organization is selected
       var organization = $('#ihp_organization').val();
       if (!organization) {
@@ -3806,8 +3749,14 @@ textarea[id="example_applications"] {
       }
       
       // Confirm submission
-      if (isValid && !confirm('{{ _("Are you sure you want to submit this entry for admin approval? You will not be able to edit it until it is reviewed.") }}')) {
-        isValid = false;
+      if (action === 'publish') {
+        if (isValid && !confirm('{{ _("Are you sure you want to publish this entry directly? It will be immediately visible to the public.") }}')) {
+          isValid = false;
+        }
+      } else {
+        if (isValid && !confirm('{{ _("Are you sure you want to submit this entry for admin approval? You will not be able to edit it until it is reviewed.") }}')) {
+          isValid = false;
+        }
       }
     }
     
