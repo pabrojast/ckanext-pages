@@ -330,7 +330,14 @@
                                 <div class="input-group">
                                   <select id="member-state-select" class="form-control" aria-label="{{ _('Member States') }}">
                                     <option value="">{{ _('Select a member state...') }}</option>
-                                    <option value="loading" disabled>{{ _('Loading member states...') }}</option>
+                                    {% for ms in member_states_list|default([]) %}
+                                      <option value="{{ ms.name }}" data-name="{{ ms.name }}" data-display="{{ ms.display_name or ms.title or ms.name }}">
+                                        {{ ms.display_name or ms.title or ms.name }}
+                                      </option>
+                                    {% endfor %}
+                                    {% if not member_states_list|default([]) %}
+                                      <option value="" disabled>{{ _('No member states available') }}</option>
+                                    {% endif %}
                                   </select>
                                   <div class="input-group-btn">
                                     <button type="button" class="btn btn-primary" id="add-member-state">
@@ -3087,72 +3094,6 @@ textarea[id="example_applications"] {
       .trim();
   }
 
-  // Load member states from API
-  function loadMemberStates() {
-    const baseUrls = [];
-    [window.location.origin, 'https://data.dev-wins.com'].forEach(function(baseUrl) {
-      if (baseUrl && baseUrls.indexOf(baseUrl) === -1) {
-        baseUrls.push(baseUrl);
-      }
-    });
-
-    const $select = $('#member-state-select');
-    const showError = function() {
-      $select.html('<option value="">{{ _("Error loading member states") }}</option>');
-    };
-
-    const requestMemberStates = function(index) {
-      if (index >= baseUrls.length) {
-        showError();
-        return;
-      }
-
-      $.ajax({
-        url: baseUrls[index] + '/api/3/action/group_show',
-        data: {
-          id: 'member-states',
-          include_groups: true
-        },
-        dataType: 'json',
-        timeout: 5000,
-        success: function(response) {
-          if (response.success && response.result && response.result.groups) {
-            $select.empty();
-            $select.append('<option value="">{{ _("Select a member state...") }}</option>');
-
-            // Process and sort member states alphabetically by formatted display name
-            const processedGroups = response.result.groups.map(group => {
-              const formattedName = formatMemberStateName(group.name);
-              return {
-                ...group,
-                formatted_display_name: formattedName
-              };
-            }).sort((a, b) =>
-              a.formatted_display_name.localeCompare(b.formatted_display_name)
-            );
-
-            processedGroups.forEach(function(group) {
-              $select.append(
-                `<option value="${group.name}" data-name="${group.name}" data-display="${group.formatted_display_name}">${group.formatted_display_name}</option>`
-              );
-            });
-
-            // Load existing member states
-            loadExistingMemberStates();
-            return;
-          }
-
-          requestMemberStates(index + 1);
-        },
-        error: function() {
-          requestMemberStates(index + 1);
-        }
-      });
-    };
-
-    requestMemberStates(0);
-  }
-  
   // Load existing member states from data
   function loadExistingMemberStates() {
     const memberStatesData = $('#member-states-data').val();
@@ -4157,7 +4098,7 @@ textarea[id="example_applications"] {
   
   // Initialize
   loadUploadedImages();
-  loadMemberStates();
+  loadExistingMemberStates();
   initializeHeaderDisplayMode();
   
   // Initialize Quill editors after a short delay to ensure DOM is ready

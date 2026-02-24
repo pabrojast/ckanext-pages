@@ -429,6 +429,20 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         except Exception:
             vars['organization_list'] = []
 
+    # Load member states server-side for open-source-software
+    if page_type == 'open-source-software':
+        try:
+            context = {'user': tk.g.user}
+            group_dict = tk.get_action('group_show')(
+                context, {'id': 'member-states', 'include_groups': True}
+            )
+            vars['member_states_list'] = sorted(
+                group_dict.get('groups', []),
+                key=lambda g: g.get('display_name', g.get('name', ''))
+            )
+        except Exception:
+            vars['member_states_list'] = []
+
     return tk.render(
         'ckanext_pages/%s_edit.html' % page_type, extra_vars=vars)
 
