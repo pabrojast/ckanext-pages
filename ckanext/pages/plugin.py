@@ -709,8 +709,9 @@ def get_event_type_by_id(event_type_id):
 def is_sysadmin():
     """Check if current user is sysadmin"""
     try:
-        return tk.check_access('sysadmin')
-    except:
+        import ckan.authz as authz
+        return authz.is_sysadmin(tk.g.user)
+    except Exception:
         return False
 
 
