@@ -7,7 +7,7 @@ from ckanext.pages import db
 
 def sysadmin(context, data_dict):
     '''Check if user is a sysadmin'''
-    return {'success': p.toolkit.check_access('sysadmin', context, data_dict)}
+    return {'success': authz.is_sysadmin(context.get('user', ''))}
 
 
 @p.toolkit.auth_allow_anonymous_access
@@ -119,11 +119,8 @@ def pages_update_with_org_check(context, data_dict):
 
 def pages_upload_auth(context, data_dict):
     '''Allow sysadmins or authenticated users to upload assets'''
-    try:
-        p.toolkit.check_access('sysadmin', context, data_dict)
+    if authz.is_sysadmin(context.get('user', '')):
         return {'success': True}
-    except p.toolkit.NotAuthorized:
-        pass
 
     return user_authenticated(context, data_dict)
 

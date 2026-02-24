@@ -349,7 +349,7 @@
                               <button type="submit" class="btn btn-primary btn-lg" data-water-action="submit">
                                 <i class="fa fa-paper-plane"></i> {{ _('Submit for Validation') }}
                               </button>
-                              {% if h.check_access('sysadmin') %}
+                              {% if h.is_sysadmin() %}
                                 <button type="submit" class="btn btn-success btn-lg" data-water-action="publish">
                                   <i class="fa fa-check"></i> {{ _('Publish Now') }}
                                 </button>

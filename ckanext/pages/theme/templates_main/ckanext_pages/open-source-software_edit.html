@@ -142,7 +142,14 @@
                                 <label for="ihp_organization" class="control-label">{{ _('IHP WINS Organization') }}</label>
                                 <select name="ihp_organization" id="ihp_organization" class="form-control">
                                   <option value="">{{ _('Select Organization') }}</option>
-                                  <option value="loading" disabled>{{ _('Loading organizations...') }}</option>
+                                  {% for org in organization_list|default([])|sort(attribute='display_name') %}
+                                    <option value="{{ org.id }}" {% if data.get('ihp_organization') == org.id %}selected{% endif %}>
+                                      {{ org.display_name or org.title or org.name }}
+                                    </option>
+                                  {% endfor %}
+                                  {% if not organization_list|default([]) %}
+                                    <option value="" disabled>{{ _('No organizations available for your account') }}</option>
+                                  {% endif %}
                                 </select>
                                 <div class="help-block">
                                   <i class="fa fa-info-circle"></i>
@@ -710,7 +717,7 @@
                                 <div class="btn-description">{{ _('Submit to admin for review') }}</div>
                               </button>
                               
-                              {% if h.check_access('sysadmin') %}
+                              {% if h.is_sysadmin() %}
                               <!-- Publish Now Button (admin only) -->
                               <button type="button" class="btn btn-primary btn-lg submission-btn" data-action="publish">
                                 <i class="fa fa-check-circle"></i> {{ _('Publish Now') }}
@@ -3057,57 +3064,6 @@ textarea[id="example_applications"] {
   let logoUrl = '';
   let selectedMemberStates = [];
   
-  // Auto-select user's organization if no organization is selected
-  {% set user_org = h.get_user_organization() %}
-  {% if user_org and not data.get('ihp_organization') %}
-    $('#ihp_organization').val('{{ user_org.id }}');
-  {% endif %}
-  
-  // Load organizations for the current user
-  function loadOrganizations() {
-    const isSysadmin = {{ 'true' if h.is_sysadmin() else 'false' }};
-    const currentIhpOrgId = '{{ data.get("ihp_organization", "") }}';
-    const $select = $('#ihp_organization');
-    $select.empty();
-
-    // Sysadmin: load all organizations; others: load user's organizations
-    const apiUrl = isSysadmin
-      ? '/api/3/action/organization_list'
-      : '/api/3/action/organization_list_for_user';
-    const apiData = isSysadmin
-      ? { all_fields: true, include_extras: false }
-      : { permission: 'create_dataset' };
-
-    $.ajax({
-      url: apiUrl,
-      data: apiData,
-      dataType: 'json',
-      timeout: 5000,
-      success: function(response) {
-        if (response.success && response.result && response.result.length > 0) {
-          $select.append('<option value="">{{ _("Select Organization") }}</option>');
-          response.result
-            .filter(function(org){ return org.state === 'active'; })
-            .sort(function(a,b){
-              const A = (a.display_name || a.title || a.name || '').toLowerCase();
-              const B = (b.display_name || b.title || b.name || '').toLowerCase();
-              return A.localeCompare(B);
-            })
-            .forEach(function(org) {
-              const label = org.display_name || org.title || org.name;
-              const isSelected = org.id === currentIhpOrgId ? 'selected' : '';
-              $select.append(`<option value="${org.id}" ${isSelected}>${label}</option>`);
-            });
-          if (!$select.val() && currentIhpOrgId) { $select.val(currentIhpOrgId); }
-        } else {
-          $select.append('<option value="">{{ _("No organizations available for your account") }}</option>');
-        }
-      },
-      error: function() {
-        $select.html('<option value="">{{ _("Error loading organizations") }}</option>');
-      }
-    });
-  }
   
   // Function to format member state name for display
   function formatMemberStateName(name) {
@@ -4201,7 +4157,6 @@ textarea[id="example_applications"] {
   
   // Initialize
   loadUploadedImages();
-  loadOrganizations();
   loadMemberStates();
   initializeHeaderDisplayMode();
   

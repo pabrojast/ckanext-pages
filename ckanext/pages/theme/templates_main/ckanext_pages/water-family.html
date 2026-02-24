@@ -45,7 +45,7 @@
               <div class="col-md-12">
 
                 <!-- Admin Panel (for sysadmins only) -->
-                {% if h.check_access('sysadmin') %}
+                {% if h.is_sysadmin() %}
                 <div class="admin-panel" style="margin-bottom: 3rem;">
                   <section class="module module-narrow admin-module">
                     <div class="module-content">

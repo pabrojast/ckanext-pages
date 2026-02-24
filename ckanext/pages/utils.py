@@ -8,6 +8,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckan.logic as logic
 import ckan.lib.helpers as helpers
+import ckan.authz as authz
 from ckan import model
 
 from ckanext.pages.db import Page
@@ -126,10 +127,7 @@ def pages_list_pages(page_type):
                 data_dict[param] = tk.request.args.get(param)
     
     # Filter content based on user permissions
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-        # Admin can see all items including private ones and pending submissions
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         # Regular users only see public items
         data_dict['private'] = False
         # For water family content and open-source-software, also consider submission status
@@ -239,12 +237,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to create or edit a page'))
 
-    is_sysadmin = False
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-        is_sysadmin = True
-    except tk.NotAuthorized:
-        is_sysadmin = False
+    is_sysadmin = authz.is_sysadmin(tk.g.user)
 
     if tk.request.method == 'POST' and not data:
         data = _parse_form_data(tk.request)
@@ -417,6 +410,24 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             'error_summary': error_summary, 'page': page_object,
             'page_name': page or '',
             'form_snippet': form_snippet}
+
+    # Load organizations server-side for page types that need them
+    if page_type in ['open-source-software', 'water-news', 'water-events', 'water-publications']:
+        try:
+            context = {'user': tk.g.user}
+            if is_sysadmin:
+                org_list = tk.get_action('organization_list')(
+                    context, {'all_fields': True, 'include_extras': False}
+                )
+            else:
+                org_list = tk.get_action('organization_list_for_user')(
+                    context, {'permission': 'create_dataset'}
+                )
+            vars['organization_list'] = [
+                o for o in org_list if o.get('state') == 'active'
+            ]
+        except Exception:
+            vars['organization_list'] = []
 
     return tk.render(
         'ckanext_pages/%s_edit.html' % page_type, extra_vars=vars)
@@ -813,12 +824,7 @@ def pages_show(page=None, page_type='page'):
 
     # Check privacy: non-admin users cannot view private/pending content
     if _page.get('private') in [True, 'True', 'true']:
-        is_viewer_admin = False
-        try:
-            tk.check_access('sysadmin', {'user': tk.g.user})
-            is_viewer_admin = True
-        except (tk.NotAuthorized, Exception):
-            pass
+        is_viewer_admin = authz.is_sysadmin(tk.g.user)
 
         if not is_viewer_admin:
             is_author = False
@@ -1890,12 +1896,7 @@ def water_family_main_page():
         publications_items = []
 
     pending_counts = {'news': 0, 'events': 0, 'publications': 0}
-    is_admin = False
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-        is_admin = True
-    except tk.NotAuthorized:
-        pass
+    is_admin = authz.is_sysadmin(tk.g.user)
 
     if is_admin:
         try:
@@ -1942,15 +1943,11 @@ def _filter_non_admin_pages(page_type):
                 user = model.User.get(page.user_id)
                 if user:
                     # Check if the page creator is a sysadmin
-                    context = {'user': user.name}
-                    tk.check_access('sysadmin', context, {})
-                    # If no exception, user is admin - skip this page
-                    continue
-            except tk.NotAuthorized:
-                # User is not admin - include this page for review
-                pass
+                    if authz.is_sysadmin(user.name):
+                        # User is admin - skip this page
+                        continue
             except Exception:
-                # Any other error, include for review
+                # Any error, include for review
                 pass
         
         # Convert page object to dict format expected by template
@@ -1984,9 +1981,7 @@ def _filter_non_admin_pages(page_type):
 def water_admin_dashboard():
     """Admin dashboard to approve/reject water family content"""
     
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to access admin dashboard'))
     
     # Get pending items created by non-admin users
@@ -2015,9 +2010,7 @@ def water_admin_dashboard():
 def water_admin_approve(page, page_type):
     """Approve a water family content item (make it public)"""
     
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to approve content'))
     
     if tk.request.method == 'POST':
@@ -2060,9 +2053,7 @@ def water_admin_approve(page, page_type):
 def water_admin_reject(page, page_type):
     """Reject water family content (admin only) - sets status to rejected instead of deleting"""
     # Check admin access
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to reject content'))
 
     if tk.request.method == 'POST':
@@ -2103,9 +2094,7 @@ def water_admin_reject(page, page_type):
 def open_source_admin_dashboard():
     """Admin dashboard to approve/reject open source software submissions"""
     
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to access admin dashboard'))
     
     # Get pending open source software submissions
@@ -2130,9 +2119,7 @@ def open_source_admin_approve(page):
 
     log = logging.getLogger(__name__)
 
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to approve content'))
 
     if tk.request.method == 'POST':
@@ -2228,9 +2215,7 @@ def open_source_admin_approve(page):
 def open_source_admin_reject(page):
     """Reject an open source software submission"""
     
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to reject content'))
     
     if tk.request.method == 'POST':
@@ -2292,9 +2277,7 @@ def open_source_admin_change_org(page):
     import ckan.model as model
     log = logging.getLogger(__name__)
 
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-    except tk.NotAuthorized:
+    if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to change organization'))
     
     if tk.request.method == 'POST':
@@ -2383,11 +2366,7 @@ def event_types_admin():
         return tk.abort(401, _('Unauthorized to access event types administration'))
     
     # Check if user is sysadmin for edit/delete actions
-    try:
-        tk.check_access('sysadmin', {'user': tk.g.user})
-        tk.c.is_sysadmin = True
-    except tk.NotAuthorized:
-        tk.c.is_sysadmin = False
+    tk.c.is_sysadmin = authz.is_sysadmin(tk.g.user)
     
     # Get all event types
     try:

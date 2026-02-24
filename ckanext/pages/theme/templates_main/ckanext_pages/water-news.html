@@ -237,7 +237,7 @@
                               <a href="{{ h.url_for('pages.water_news_edit', page=c.page.name) }}" class="btn btn-primary">
                                 <i class="fa fa-edit"></i> {{ _('Edit Article') }}
                               </a>
-                              {% if h.check_access('sysadmin') %}
+                              {% if h.is_sysadmin() %}
                                 <a href="/water-news/{{ c.page.name }}/revisions" class="btn btn-default">
                                   <i class="fa fa-history"></i> {{ _('History') }}
                                 </a>
