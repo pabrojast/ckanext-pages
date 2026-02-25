@@ -246,6 +246,18 @@ def default_pages_schema():
         'logo_image': [ignore_missing, unicode_safe], # Logo image URL
         'include_logo_in_gallery': [safe_boolean_validator, ignore_missing, boolean_validator], # Include logo in gallery option
         'add_background': [safe_boolean_validator, ignore_missing, boolean_validator], # Add white background to logo
+        # AI Water Tools specific fields
+        'ai_technique': [ignore_missing, clean_categories_validator, unicode_safe],
+        'water_application': [ignore_missing, clean_categories_validator, unicode_safe],
+        'maturity_level': [ignore_missing, unicode_safe],
+        'scalability': [ignore_missing, unicode_safe],
+        'ai_model_type': [ignore_missing, unicode_safe],
+        'training_data_type': [ignore_missing, unicode_safe],
+        'output_type': [ignore_missing, unicode_safe],
+        'accuracy_metrics': [ignore_missing, unicode_safe],
+        'data_requirements': [ignore_missing, unicode_safe],
+        'reference_publications': [ignore_missing, unicode_safe],
+        'developer_organization': [ignore_missing, unicode_safe],
     }
 
 

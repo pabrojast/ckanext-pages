@@ -302,6 +302,64 @@ class Page(DomainObject, BaseModel):
                         cls.extras.ilike('%"' + field_name + '":' + filter_value + '%')
                     )
                     query = query.filter(filter_condition)
+
+            # AI Water Tools specific filters (stored in extras JSON)
+            # Handle ai_technique filter (can be list or single value)
+            ai_technique = kw.pop('ai_technique', None)
+            if ai_technique:
+                if isinstance(ai_technique, list):
+                    technique_filters = []
+                    for tech in ai_technique:
+                        if tech.strip():
+                            tech_filter = sa.or_(
+                                cls.extras.ilike('%"ai_technique": "' + tech.strip() + '"%'),
+                                cls.extras.ilike('%"ai_technique":' + tech.strip() + '%')
+                            )
+                            technique_filters.append(tech_filter)
+                    if technique_filters:
+                        query = query.filter(sa.or_(*technique_filters))
+                else:
+                    technique_filter = sa.or_(
+                        cls.extras.ilike('%"ai_technique": "' + ai_technique + '"%'),
+                        cls.extras.ilike('%"ai_technique":' + ai_technique + '%')
+                    )
+                    query = query.filter(technique_filter)
+
+            # Handle water_application filter (can be list or single value)
+            water_application = kw.pop('water_application', None)
+            if water_application:
+                if isinstance(water_application, list):
+                    app_filters = []
+                    for app in water_application:
+                        if app.strip():
+                            app_filter = sa.or_(
+                                cls.extras.ilike('%"water_application": "' + app.strip() + '"%'),
+                                cls.extras.ilike('%"water_application":' + app.strip() + '%')
+                            )
+                            app_filters.append(app_filter)
+                    if app_filters:
+                        query = query.filter(sa.or_(*app_filters))
+                else:
+                    app_filter = sa.or_(
+                        cls.extras.ilike('%"water_application": "' + water_application + '"%'),
+                        cls.extras.ilike('%"water_application":' + water_application + '%')
+                    )
+                    query = query.filter(app_filter)
+
+            # Handle other ai-water-tools filters
+            for filter_name, field_name in [
+                ('maturity_level', 'maturity_level'),
+                ('scalability', 'scalability'),
+                ('ai_model_type', 'ai_model_type'),
+                ('development_status', 'development_status'),
+            ]:
+                filter_value = kw.pop(filter_name, None)
+                if filter_value:
+                    filter_condition = sa.or_(
+                        cls.extras.ilike('%"' + field_name + '": "' + filter_value + '"%'),
+                        cls.extras.ilike('%"' + field_name + '":' + filter_value + '%')
+                    )
+                    query = query.filter(filter_condition)
             
             # Apply ordering - improved with GDACS Alert Level
             if order_by == 'recent':

@@ -238,6 +238,111 @@
       }
 
       // ================================================================
+      // AI WATER EXCERPT TOGGLE (list view)
+      // ================================================================
+
+      window.toggleAiWaterExcerpt = function(button) {
+        var excerpt = button.parentElement;
+        var preview = excerpt.querySelector('.excerpt-preview');
+        var full = excerpt.querySelector('.excerpt-full');
+        if (full.style.display === 'none' || !full.style.display) {
+          preview.style.display = 'none';
+          full.style.display = 'inline';
+          button.innerHTML = '<i class="fa fa-minus"></i> Read less';
+          button.classList.add('expanded');
+        } else {
+          preview.style.display = 'inline';
+          full.style.display = 'none';
+          button.innerHTML = '<i class="fa fa-plus"></i> Read more';
+          button.classList.remove('expanded');
+        }
+      };
+
+      // ================================================================
+      // IMAGE GALLERY AND MODAL FUNCTIONALITY
+      // ================================================================
+
+      // Image modal for gallery
+      $(document).on('click', '.gallery-image', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var $img = $(this);
+        var imageUrl = $img.data('image') || $img.attr('src');
+        var caption = $img.data('caption') || $img.attr('alt') || '';
+
+        if (imageUrl) {
+          $('#modalImage').attr('src', imageUrl);
+          $('#modalImage').attr('alt', caption);
+          $('#imageModalTitle').text(caption || 'Image Preview');
+          $('#modalCaption').text(caption);
+
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('show');
+          } else {
+            $('#imageModal').css('display', 'block').addClass('show');
+          }
+        }
+      });
+
+      // Close modal functionality
+      $(document).on('click', '.close, .modal', function(e) {
+        if (e.target === this) {
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('hide');
+          }
+          $('#imageModal').css('display', 'none').removeClass('show');
+        }
+      });
+
+      // Escape key to close modal
+      $(document).on('keyup', function(e) {
+        if (e.keyCode === 27) {
+          if (typeof $.fn.modal !== 'undefined') {
+            $('#imageModal').modal('hide');
+          }
+          $('#imageModal').css('display', 'none').removeClass('show');
+        }
+      });
+
+      // ================================================================
+      // GALLERY IMAGE HOVER EFFECTS
+      // ================================================================
+
+      $('.gallery-image').on('load', function() {
+        $(this).addClass('loaded').css('opacity', '1');
+      });
+
+      $('.gallery-image').css('cursor', 'pointer');
+
+      $('.gallery-image-item').hover(
+        function() {
+          $(this).find('.image-overlay').css('opacity', '1');
+        },
+        function() {
+          $(this).find('.image-overlay').css('opacity', '0');
+        }
+      );
+
+      // ================================================================
+      // QUILL EDITOR SYNC
+      // ================================================================
+
+      $(document).on('submit', '.software-form, .ai-water-form', function() {
+        if (typeof Quill !== 'undefined') {
+          document.querySelectorAll('.quill-editor').forEach(function(editorEl) {
+            var quill = Quill.find(editorEl);
+            if (quill) {
+              var textarea = editorEl.parentElement.querySelector('textarea');
+              if (textarea) {
+                textarea.value = quill.root.innerHTML;
+              }
+            }
+          });
+        }
+      });
+
+      // ================================================================
       // DEBUG INFO
       // ================================================================
 
