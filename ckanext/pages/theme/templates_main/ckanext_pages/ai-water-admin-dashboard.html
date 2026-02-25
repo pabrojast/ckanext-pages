@@ -1,0 +1,862 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('AI Water Tools - Admin Dashboard') }} - {{ super() }}
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+/* Admin Dashboard Header Specific Styles */
+.admin-dashboard-header {
+    position: relative;
+    height: 300px !important;
+    overflow: hidden;
+    border-radius: 16px;
+    margin-bottom: 3rem !important;
+    box-shadow: 0 8px 32px rgba(0, 114, 188, 0.2);
+}
+
+.admin-dashboard-header .section-title-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.8);
+    transition: transform 0.3s ease;
+}
+
+.admin-dashboard-header:hover .section-title-bg {
+    transform: scale(1.02);
+}
+
+.admin-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.admin-dashboard-header .section-title-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 10;
+    width: 90%;
+    max-width: 700px;
+}
+
+.admin-dashboard-header .section-title-content h1 {
+    font-size: 3rem !important;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: white !important;
+}
+
+.admin-dashboard-header .section-title-description {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    opacity: 0.95;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    font-weight: 300;
+    line-height: 1.4;
+    color: white !important;
+}
+
+.admin-dashboard-header .section-title-meta {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    color: white !important;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.admin-dashboard-header .section-title-meta i {
+    margin-right: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.admin-dashboard-header .header-action .btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-dashboard-header .header-action .btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+.admin-dashboard-header .header-action .btn i {
+    color: white;
+}
+
+/* Responsive adjustments for admin header */
+@media (max-width: 768px) {
+    .admin-dashboard-header {
+        height: 250px !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    .admin-dashboard-header .section-title-content h1 {
+        font-size: 2.2rem !important;
+    }
+    
+    .admin-dashboard-header .section-title-description {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-dashboard-header {
+        height: 200px !important;
+    }
+    
+    .admin-dashboard-header .section-title-content h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .admin-dashboard-header .section-title-description {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var selectors = document.querySelectorAll('.org-selector');
+  Array.prototype.forEach.call(selectors, function (select) {
+    var itemName = select.getAttribute('data-item-name');
+    if (!itemName) {
+      return;
+    }
+    var hidden = document.getElementById('approve-org-' + itemName);
+    if (!hidden) {
+      return;
+    }
+    function syncHidden() {
+      hidden.value = select.value || '';
+    }
+    syncHidden();
+    select.addEventListener('change', syncHidden);
+    var approveForm = document.getElementById('approve-form-' + itemName);
+    if (approveForm) {
+      approveForm.addEventListener('submit', syncHidden);
+    }
+    if (select.form) {
+      select.form.addEventListener('submit', function (event) {
+        if (!select.value) {
+          event.preventDefault();
+          select.focus();
+        }
+      });
+    }
+  });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.ai_water_tools_index') }}">{{ _('AI Water Tools') }}</a></li>
+                    <li class="active">{{ _('Admin Dashboard') }}</li>
+                </ol>
+            </div>
+
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title admin-dashboard-header" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay admin-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Dashboard') }}</h1>
+                  <p class="section-title-description">{{ _('Review and approve community tool submissions') }}</p>
+                  <div class="section-title-meta">
+                    <i class="fa fa-shield"></i> {{ _('ADMINISTRATOR PANEL') }}
+                  </div>
+                  <div class="header-action" style="margin-top: 2rem;">
+                    <a href="{{ h.url_for('pages.ai_water_tools_index') }}" class="btn btn-light btn-lg">
+                      <i class="fa fa-list"></i> {{ _('View Published Tools') }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Summary Stats -->
+                <div class="admin-summary" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-summary">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-dashboard"></i>
+                        </div>
+                        <h2>{{ _('Pending Approvals Summary') }}</h2>
+                      </div>
+                      <div class="admin-stats-grid">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="admin-stat-card software-stat">
+                              <div class="stat-icon">
+                                <i class="fa fa-tint"></i>
+                              </div>
+                              <div class="stat-info">
+                                <div class="stat-number">{{ pending_tools|length }}</div>
+                                <div class="stat-label">{{ _('AI Water Tools') }}</div>
+                                <div class="stat-action">
+                                  {% if pending_tools %}
+                                    <a href="#pending-tools" class="btn btn-sm btn-primary">{{ _('Review') }}</a>
+                                  {% else %}
+                                    <span class="text-muted">{{ _('All up to date') }}</span>
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                
+                {% if pending_tools %}
+                
+                <!-- Pending AI Water Tools -->
+                <div id="pending-tools" class="admin-section" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow admin-module-content">
+                    <div class="module-content">
+                      <div class="admin-section-header">
+                        <div class="admin-section-icon">
+                          <i class="fa fa-tint"></i>
+                        </div>
+                        <h2>{{ _('Pending AI Water Tools') }} <span class="badge badge-warning">{{ pending_tools|length }}</span></h2>
+                        <p class="admin-section-description">{{ _('Review and approve or reject submitted AI water tools') }}</p>
+                      </div>
+                      
+                      <div class="admin-items-list">
+                        {% for tool in pending_tools %}
+                        <div class="admin-item">
+                          <div class="admin-item-header">
+                            <div class="admin-item-meta">
+                              <h3 class="admin-item-title">
+                                <a href="{{ h.url_for('pages.ai_water_tools_show', page=tool.name) }}" target="_blank" class="admin-item-link">
+                                  {{ tool.title or tool.name }}
+                                  <i class="fa fa-external-link" style="margin-left: 0.5rem; font-size: 0.8rem;"></i>
+                                </a>
+                              </h3>
+                              <div class="admin-item-info">
+                                {% if tool.submitted_at %}
+                                  <span class="admin-info-item">
+                                    <i class="fa fa-clock-o"></i>
+                                    {{ _('Submitted:') }} {{ h.render_datetime(tool.submitted_at, '%Y-%m-%d %H:%M') }}
+                                  </span>
+                                {% endif %}
+                                {% if tool.user_id %}
+                                  <span class="admin-info-item">
+                                    <i class="fa fa-user"></i>
+                                    {{ _('By:') }} {{ user_lookup.get(tool.user_id, tool.user_id) }}
+                                  </span>
+                                {% endif %}
+                                {% if tool.ihp_organization %}
+                                  <span class="admin-info-item">
+                                    <i class="fa fa-building-o"></i>
+                                    {{ _('Organization:') }} {{ organization_lookup.get(tool.ihp_organization, tool.ihp_organization) }}
+                                  </span>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="admin-item-content">
+                            {% if tool.excerpt %}
+                              <p class="admin-item-excerpt">{{ h.strip_html_tags(tool.excerpt)[:200] }}{% if tool.excerpt|length > 200 %}...{% endif %}</p>
+                            {% elif tool.content %}
+                              <p class="admin-item-excerpt">{{ h.strip_html_tags(tool.content)[:200] }}{% if tool.content|length > 200 %}...{% endif %}</p>
+                            {% endif %}
+                            
+                            <!-- AI Water specific metadata -->
+                            <div class="admin-item-meta-details">
+                              {% set extras = h.json_loads(tool.extras) if tool.extras else {} %}
+                              {% if extras.get('ai_technique') %}
+                                <span class="admin-meta-tag">
+                                  <i class="fa fa-brain"></i>
+                                  {{ extras.get('ai_technique').replace('-', ' ').title() }}
+                                </span>
+                              {% endif %}
+                              {% if extras.get('water_application') %}
+                                <span class="admin-meta-tag">
+                                  <i class="fa fa-tint"></i>
+                                  {{ extras.get('water_application').replace('-', ' ').title() }}
+                                </span>
+                              {% endif %}
+                              {% if extras.get('maturity_level') %}
+                                <span class="admin-meta-tag">
+                                  <i class="fa fa-signal"></i>
+                                  {{ extras.get('maturity_level').replace('-', ' ').title() }}
+                                </span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <div class="admin-item-actions">
+                            <div class="admin-actions-left">
+                              <a href="{{ h.url_for('pages.ai_water_tools_show', page=tool.name) }}" 
+                                 class="btn btn-info btn-sm admin-btn-preview" target="_blank">
+                                <i class="fa fa-eye"></i> {{ _('Preview') }}
+                              </a>
+                            </div>
+                            <div class="admin-actions-right">
+                              <!-- Change Organization -->
+                              <div class="admin-org-change" style="margin-bottom: 0.5rem;">
+                                <form method="post" action="{{ h.url_for('pages.ai_water_admin_change_org', page=tool.name) }}"
+                                      style="display: flex; gap: 0.5rem; align-items: center;">
+                                  {{ h.csrf_input() if 'csrf_input' in h }}
+                                  <select name="new_organization" id="org-select-{{ tool.name }}" class="form-control form-control-sm org-selector"
+                                          style="min-width: 180px;" data-item-name="{{ tool.name }}">
+                                    <option value="">{{ _('Change Organization...') }}</option>
+                                    {% for org in organization_options %}
+                                      <option value="{{ org.id }}" {% if tool.ihp_organization == org.id %}selected{% endif %}>
+                                        {{ org.label }}
+                                      </option>
+                                    {% endfor %}
+                                  </select>
+                                  <button type="submit" class="btn btn-warning btn-sm">
+                                    <i class="fa fa-exchange"></i> {{ _('Set Organization') }}
+                                  </button>
+                                </form>
+                              </div>
+
+                              {% if tool.submission_status == 'pending' %}
+                                <form method="post" action="{{ h.url_for('pages.ai_water_admin_reject', page=tool.name) }}"
+                                      style="display: inline-block; margin-right: 0.5rem;"
+                                      onsubmit="return confirm('{{ _('Are you sure you want to reject this AI water tool submission?') }}')">
+                                  {{ h.csrf_input() if 'csrf_input' in h }}
+                                  <button type="submit" class="btn btn-danger btn-sm admin-btn-reject">
+                                    <i class="fa fa-times"></i> {{ _('Reject') }}
+                                  </button>
+                                </form>
+                                <form method="post" action="{{ h.url_for('pages.ai_water_admin_approve', page=tool.name) }}"
+                                      id="approve-form-{{ tool.name }}"
+                                      style="display: inline-block;"
+                                      onsubmit="return confirm('{{ _('Are you sure you want to approve and publish this AI water tool?') }}')">
+                                  {{ h.csrf_input() if 'csrf_input' in h }}
+                                  <!-- Hidden field to capture organization selection -->
+                                  <input type="hidden" name="new_organization" id="approve-org-{{ tool.name }}" value="{{ tool.ihp_organization or '' }}">
+                                  <button type="submit" class="btn btn-success btn-sm admin-btn-approve">
+                                    <i class="fa fa-check"></i> {{ _('Approve & Publish') }}
+                                  </button>
+                                </form>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                
+                {% else %}
+                
+                <!-- Empty State -->
+                <div class="admin-empty-state">
+                  <section class="module module-narrow admin-module-empty">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="empty-state-icon">
+                        <i class="fa fa-check-circle fa-4x" style="color: #28a745; margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('All AI Water Tools Reviewed!') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {{ _('There are no pending AI water tool submissions requiring review at this time.') }}
+                      </p>
+                      <a href="{{ h.url_for('pages.ai_water_tools_index') }}" class="btn btn-primary btn-lg">
+                        <i class="fa fa-list"></i> {{ _('View Published Tools') }}
+                      </a>
+                    </div>
+                  </section>
+                </div>
+                
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<style>
+/* UNESCO Color Variables */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.1);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.15);
+}
+
+/* Section Title Styles */
+.section-title {
+  position: relative;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: white;
+  padding: 5.25rem 2.5rem;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 3.25rem;
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.8) 0%, rgba(0, 90, 156, 0.9) 100%);
+  z-index: 2;
+}
+
+.section-title-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+}
+
+.section-title h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
+}
+
+.section-title-description {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  font-weight: 400;
+  line-height: 1.4;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-title-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title-meta i {
+  font-size: 1.2rem;
+}
+
+.header-action {
+  margin-top: 2rem;
+}
+
+.btn-light {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: var(--unesco-blue);
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 25px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+.btn-light:hover {
+  background: white;
+  border-color: white;
+  color: var(--unesco-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-light i {
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+/* Admin Dashboard Styles */
+
+.admin-module-summary {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--unesco-blue);
+  box-shadow: var(--shadow-medium);
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+}
+
+.admin-section-icon {
+  background: var(--unesco-blue);
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1.5rem;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.admin-section-header h2 {
+  margin: 0;
+  color: var(--unesco-blue);
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.admin-section-description {
+  margin: 0.5rem 0 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.admin-stats-grid .row {
+  display: flex;
+  justify-content: center;
+}
+
+.admin-stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-light);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.admin-stat-card:hover {
+  border-color: var(--unesco-blue-pale);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.software-stat {
+  border-left: 6px solid #6f42c1;
+}
+
+.stat-icon {
+  background: linear-gradient(135deg, #6f42c1 0%, #563d7c 100%);
+  color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #6f42c1;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.stat-action .btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Admin Items List */
+.admin-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-item {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.admin-item:hover {
+  border-color: var(--unesco-blue-pale);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.admin-item-header {
+  margin-bottom: 1.5rem;
+}
+
+.admin-item-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.admin-item-link {
+  color: var(--unesco-blue);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.admin-item-link:hover {
+  color: var(--unesco-blue-dark);
+  text-decoration: none;
+}
+
+.admin-item-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.admin-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.admin-info-item i {
+  color: var(--unesco-blue);
+  font-size: 0.8rem;
+  width: 14px;
+  text-align: center;
+}
+
+.admin-item-excerpt {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.admin-item-meta-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--unesco-blue-pale);
+  color: var(--unesco-blue);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--unesco-blue-pale);
+}
+
+.admin-item-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-actions-left,
+.admin-actions-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.admin-btn-preview { background: #17a2b8; border-color: #17a2b8; }
+.admin-btn-approve { background: #28a745; border-color: #28a745; }
+.admin-btn-reject { background: #dc3545; border-color: #dc3545; }
+
+.admin-module-empty {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px dashed var(--unesco-blue-pale);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    padding: 4rem 1.75rem;
+  }
+  
+  .section-title h1 {
+    font-size: 2.2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .btn-light {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .admin-section-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .admin-stat-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .admin-item-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .admin-actions-left,
+  .admin-actions-right {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .admin-actions-right form {
+    flex: 1;
+  }
+  
+  .admin-actions-right .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    padding: 3rem 1.25rem;
+  }
+  
+  .section-title h1 {
+    font-size: 1.8rem;
+  }
+  
+  .section-title-description {
+    font-size: 1rem;
+  }
+  
+  .section-title-meta {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+</style>
+{% endblock %}

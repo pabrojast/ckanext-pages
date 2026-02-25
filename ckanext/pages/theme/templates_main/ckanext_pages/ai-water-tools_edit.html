@@ -1,0 +1,992 @@
+{% extends "page.html" %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
+{% endblock %}
+
+{% block title %}
+{% if page %}
+  {{ _('Edit AI Tool Entry') }} - {{ page.title or page.name }}
+{% else %}
+  {{ _('Add New AI Tool Entry') }}
+{% endif %}
+- {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.ai_water_tools_index') }}">{{ _('AI for Water Management') }}</a></li>
+                    {% if page %}
+                      <li><a href="{{ h.url_for('pages.ai_water_tools_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
+                      <li class="active">{{ _('Edit') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Add AI Tool Entry') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+
+            <!-- Form Header -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if page %}
+                    <h1>{{ _('Edit AI Tool Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Update AI tool information, techniques, and water application details') }}</p>
+                  {% else %}
+                    <h1>{{ _('Add New AI Tool Entry') }}</h1>
+                    <p class="section-title-description">{{ _('Add a new AI-powered water management tool or application') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Main Form -->
+                <div class="software-edit-form" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      
+                      {% if error_summary %}
+                        <div class="alert alert-danger">
+                          <h4>{{ _('Errors in form') }}</h4>
+                          {{ error_summary }}
+                        </div>
+                      {% endif %}
+
+                      <form method="post" enctype="multipart/form-data" class="software-form">
+                        
+                        {{ h.csrf_input() if 'csrf_input' in h }}
+                        
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-info-circle"></i>
+                            {{ _('Basic Information') }}
+                          </h3>
+                          
+                          <div class="form-group">
+                            <label for="title" class="control-label">{{ _('Tool Title') }} <span class="required">*</span></label>
+                            <input type="text" name="title" id="title" class="form-control" 
+                                   value="{{ data.get('title', '') }}" 
+                                   placeholder="{{ _('e.g., FloodAI - Deep Learning Flood Forecasting System') }}">
+                            {% if errors.title %}
+                              <div class="error-block">{{ errors.title[0] }}</div>
+                            {% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="name" class="control-label">{{ _('URL') }} <span class="required">*</span></label>
+                            <div class="input-group">
+                              <input type="text" name="name" id="name" class="form-control" 
+                                     value="{{ data.get('name', '') }}" 
+                                     placeholder="{{ _('auto-generated-from-title') }}"
+                                     {% if page %}readonly{% else %}readonly{% endif %}>
+                              <div class="input-group-btn">
+                                <button type="button" class="btn btn-default" id="edit-url-btn" title="{{ _('Edit URL manually') }}">
+                                  <i class="fa fa-edit"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <p class="help-block">{{ _('A unique identifier for this AI tool entry (auto-generated from title)') }}</p>
+                            {% if errors.name %}
+                              <div class="error-block">{{ errors.name[0] }}</div>
+                            {% endif %}
+                          </div>
+
+                          <!-- Organization Information Row -->
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="ihp_organization" class="control-label">{{ _('IHP WINS Organization') }}</label>
+                                <select name="ihp_organization" id="ihp_organization" class="form-control">
+                                  <option value="">{{ _('Select Organization') }}</option>
+                                  {% for org in organization_list|default([])|sort(attribute='display_name') %}
+                                    <option value="{{ org.id }}" {% if data.get('ihp_organization') == org.id %}selected{% endif %}>
+                                      {{ org.display_name or org.title or org.name }}
+                                    </option>
+                                  {% endfor %}
+                                  {% if not organization_list|default([]) %}
+                                    <option value="" disabled>{{ _('No organizations available for your account') }}</option>
+                                  {% endif %}
+                                </select>
+                                <div class="help-block">
+                                  <i class="fa fa-info-circle"></i>
+                                  {% if h.get_user_organization() %}
+                                    {{ _('Your organization has been automatically selected. Organization members can edit entries from their organization.') }}
+                                  {% else %}
+                                    {{ _('Please select your IHP WINS Organization. If you don\'t see your organization, please contact an administrator.') }}
+                                  {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="developer_organization" class="control-label">{{ _('Developer Organization') }}</label>
+                                <input type="text" name="developer_organization" id="developer_organization" class="form-control" 
+                                       value="{{ data.get('developer_organization', '') }}" 
+                                       placeholder="{{ _('Organization that developed the AI tool') }}">
+                                <p class="help-block">{{ _('Organization responsible for developing this AI tool') }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- AI Details Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-brain"></i>
+                            {{ _('AI Details') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="ai_technique" class="control-label">{{ _('AI Technique') }}</label>
+                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple techniques') }}</p>
+                                <select name="ai_technique" id="ai_technique" class="form-control" multiple>
+                                  <option value="machine-learning" {% if 'machine-learning' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Machine Learning') }}</option>
+                                  <option value="deep-learning" {% if 'deep-learning' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Deep Learning') }}</option>
+                                  <option value="nlp" {% if 'nlp' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Natural Language Processing') }}</option>
+                                  <option value="computer-vision" {% if 'computer-vision' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Computer Vision') }}</option>
+                                  <option value="reinforcement-learning" {% if 'reinforcement-learning' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Reinforcement Learning') }}</option>
+                                  <option value="time-series-forecasting" {% if 'time-series-forecasting' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Time Series Forecasting') }}</option>
+                                  <option value="optimization" {% if 'optimization' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Optimization') }}</option>
+                                  <option value="hybrid" {% if 'hybrid' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Hybrid') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="water_application_domain" class="control-label">{{ _('Water Application Domain') }}</label>
+                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple domains') }}</p>
+                                <select name="water_application_domain" id="water_application_domain" class="form-control" multiple>
+                                  <option value="flood-forecasting" {% if 'flood-forecasting' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Flood Forecasting') }}</option>
+                                  <option value="drought-prediction" {% if 'drought-prediction' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Drought Prediction') }}</option>
+                                  <option value="water-quality-monitoring" {% if 'water-quality-monitoring' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Water Quality Monitoring') }}</option>
+                                  <option value="groundwater-modeling" {% if 'groundwater-modeling' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Groundwater Modeling') }}</option>
+                                  <option value="demand-forecasting" {% if 'demand-forecasting' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Demand Forecasting') }}</option>
+                                  <option value="irrigation-optimization" {% if 'irrigation-optimization' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Irrigation Optimization') }}</option>
+                                  <option value="watershed-management" {% if 'watershed-management' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Watershed Management') }}</option>
+                                  <option value="climate-water-impact" {% if 'climate-water-impact' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Climate-Water Impact') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="maturity_level" class="control-label">{{ _('Maturity Level') }}</label>
+                                <select name="maturity_level" id="maturity_level" class="form-control">
+                                  <option value="">{{ _('Select Maturity Level') }}</option>
+                                  <option value="research" {% if data.get('maturity_level') == 'research' %}selected{% endif %}>{{ _('Research') }}</option>
+                                  <option value="prototype" {% if data.get('maturity_level') == 'prototype' %}selected{% endif %}>{{ _('Prototype') }}</option>
+                                  <option value="beta" {% if data.get('maturity_level') == 'beta' %}selected{% endif %}>{{ _('Beta') }}</option>
+                                  <option value="production" {% if data.get('maturity_level') == 'production' %}selected{% endif %}>{{ _('Production') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="scalability" class="control-label">{{ _('Scalability') }}</label>
+                                <select name="scalability" id="scalability" class="form-control">
+                                  <option value="">{{ _('Select Scalability') }}</option>
+                                  <option value="local" {% if data.get('scalability') == 'local' %}selected{% endif %}>{{ _('Local') }}</option>
+                                  <option value="regional" {% if data.get('scalability') == 'regional' %}selected{% endif %}>{{ _('Regional') }}</option>
+                                  <option value="national" {% if data.get('scalability') == 'national' %}selected{% endif %}>{{ _('National') }}</option>
+                                  <option value="global" {% if data.get('scalability') == 'global' %}selected{% endif %}>{{ _('Global') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Technical Details Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-cogs"></i>
+                            {{ _('Technical Details') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="access_type" class="control-label">{{ _('Access Type') }}</label>
+                                <select name="access_type" id="access_type" class="form-control">
+                                  <option value="">{{ _('Select Access Type') }}</option>
+                                  <option value="open-source" {% if data.get('access_type') == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
+                                  <option value="open-access" {% if data.get('access_type') == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
+                                  <option value="commercial" {% if data.get('access_type') == 'commercial' %}selected{% endif %}>{{ _('Commercial') }}</option>
+                                  <option value="freemium" {% if data.get('access_type') == 'freemium' %}selected{% endif %}>{{ _('Freemium') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="software_license" class="control-label">{{ _('License') }}</label>
+                                <select name="software_license" id="software_license" class="form-control">
+                                  <option value="">{{ _('Select License') }}</option>
+                                  <option value="MIT" {% if data.get('software_license') == 'MIT' %}selected{% endif %}>MIT</option>
+                                  <option value="GPL" {% if data.get('software_license') == 'GPL' %}selected{% endif %}>GPL</option>
+                                  <option value="Apache" {% if data.get('software_license') == 'Apache' %}selected{% endif %}>Apache</option>
+                                  <option value="BSD" {% if data.get('software_license') == 'BSD' %}selected{% endif %}>BSD</option>
+                                  <option value="Creative Commons" {% if data.get('software_license') == 'Creative Commons' %}selected{% endif %}>Creative Commons</option>
+                                  <option value="Proprietary" {% if data.get('software_license') == 'Proprietary' %}selected{% endif %}>{{ _('Proprietary') }}</option>
+                                  <option value="Other" {% if data.get('software_license') == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="programming_language" class="control-label">{{ _('Programming Languages') }}</label>
+                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple languages') }}</p>
+                                <select name="programming_language" id="programming_language" class="form-control" multiple>
+                                  <option value="Python" {% if 'Python' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Python</option>
+                                  <option value="JavaScript" {% if 'JavaScript' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>JavaScript</option>
+                                  <option value="R" {% if 'R' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>R</option>
+                                  <option value="Java" {% if 'Java' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Java</option>
+                                  <option value="C++" {% if 'C++' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>C++</option>
+                                  <option value="C" {% if 'C' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>C</option>
+                                  <option value="PHP" {% if 'PHP' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>PHP</option>
+                                  <option value="Go" {% if 'Go' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Go</option>
+                                  <option value="Rust" {% if 'Rust' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Rust</option>
+                                  <option value="MATLAB" {% if 'MATLAB' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>MATLAB</option>
+                                  <option value="Fortran" {% if 'Fortran' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Fortran</option>
+                                  <option value="Other" {% if 'Other' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>{{ _('Other') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="platform" class="control-label">{{ _('Platforms') }}</label>
+                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple platforms') }}</p>
+                                <select name="platform" id="platform" class="form-control" multiple>
+                                  <option value="Windows" {% if 'Windows' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Windows</option>
+                                  <option value="Linux" {% if 'Linux' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Linux</option>
+                                  <option value="macOS" {% if 'macOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>macOS</option>
+                                  <option value="Android" {% if 'Android' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Android</option>
+                                  <option value="iOS" {% if 'iOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>iOS</option>
+                                  <option value="Web" {% if 'Web' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>{{ _('Web') }}</option>
+                                  <option value="Cross-platform" {% if 'Cross-platform' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>{{ _('Cross-platform') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="release_date" class="control-label">{{ _('Release Date') }}</label>
+                                <input type="text" name="release_date" id="release_date" class="form-control" 
+                                       value="{{ data.get('release_date', '') }}" 
+                                       placeholder="{{ _('e.g., 2024, January 2024, 2024-01-15') }}">
+                                <p class="help-block">{{ _('Original release date or latest major version') }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Description & Content Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-file-text-o"></i>
+                            {{ _('Description & Content') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="excerpt" class="control-label">{{ _('Summary/Excerpt') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="excerpt-editor" class="quill-editor quill-excerpt"></div>
+                              <textarea name="excerpt" id="excerpt" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('excerpt', '') }}</textarea>
+                            </div>
+                            <div class="excerpt-info">
+                              <div class="character-counter">
+                                <span class="current-count">0</span> / <span class="max-count">200</span> {{ _('characters') }}
+                                <span class="counter-status"></span>
+                              </div>
+                              <p class="help-block">{{ _('Short summary shown in tool listings (200 characters recommended)') }}</p>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="content-textarea" class="control-label">{{ _('Full Description') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="content-editor" class="quill-editor"></div>
+                              <textarea name="content" id="content-textarea" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('content', '') }}</textarea>
+                            </div>
+                            <p class="help-block">{{ _('Detailed description of the AI tool and its applications in water management.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="key_features" class="control-label">{{ _('Key Features') }}</label>
+                            <textarea name="key_features" id="key_features" rows="8" class="form-control" 
+                                      placeholder="{{ _('List key features, one per line:\n\nReal-time flood prediction using LSTM networks\nAutomated water quality anomaly detection\nSatellite imagery analysis for drought monitoring') }}">{{ data.get('key_features', '') }}</textarea>
+                            <p class="help-block">{{ _('List main features, one per line. These will be displayed as highlighted points.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="data_requirements" class="control-label">{{ _('Data Requirements') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="data-requirements-editor" class="quill-editor quill-compact"></div>
+                              <textarea name="data_requirements" id="data_requirements" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('data_requirements', '') }}</textarea>
+                            </div>
+                            <p class="help-block">{{ _('Describe the input data types, formats, and sources needed by this AI tool.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="reference_publications" class="control-label">{{ _('Reference Publications') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="reference-publications-editor" class="quill-editor quill-compact"></div>
+                              <textarea name="reference_publications" id="reference_publications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('reference_publications', '') }}</textarea>
+                            </div>
+                            <p class="help-block">{{ _('Academic papers, reports, or publications related to or describing this AI tool.') }}</p>
+                          </div>
+                        </div>
+
+                        <!-- Links & Resources Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-link"></i>
+                            {{ _('Links & Resources') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="website_url" class="control-label">{{ _('Website URL') }}</label>
+                                <input type="url" name="website_url" id="website_url" class="form-control" 
+                                       value="{{ data.get('website_url', '') }}" 
+                                       placeholder="{{ _('https://project.org') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="documentation_url" class="control-label">{{ _('Documentation URL') }}</label>
+                                <input type="url" name="documentation_url" id="documentation_url" class="form-control" 
+                                       value="{{ data.get('documentation_url', '') }}" 
+                                       placeholder="{{ _('https://docs.project.org') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="repository_url" class="control-label">{{ _('Source Code URL') }}</label>
+                                <input type="url" name="repository_url" id="repository_url" class="form-control" 
+                                       value="{{ data.get('repository_url', '') }}" 
+                                       placeholder="{{ _('https://github.com/user/project') }}">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Advanced Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-sliders"></i>
+                            {{ _('Advanced') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="technical_requirements" class="control-label">{{ _('Technical Requirements') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="technical-requirements-editor" class="quill-editor quill-compact"></div>
+                              <textarea name="technical_requirements" id="technical_requirements" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('technical_requirements', '') }}</textarea>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="installation_instructions" class="control-label">{{ _('Installation Instructions') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="installation-instructions-editor" class="quill-editor"></div>
+                              <textarea name="installation_instructions" id="installation_instructions" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('installation_instructions', '') }}</textarea>
+                            </div>
+                            <p class="help-block">{{ _('Step-by-step installation and setup instructions.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="learning_resources" class="control-label">{{ _('Learning Resources') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="learning-resources-editor" class="quill-editor"></div>
+                              <textarea name="learning_resources" id="learning_resources" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('learning_resources', '') }}</textarea>
+                            </div>
+                            <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials.') }}</p>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="deltares_mapping_id" class="control-label">{{ _('Deltares Mapping ID') }}</label>
+                            <input type="text" name="deltares_mapping_id" id="deltares_mapping_id" class="form-control" 
+                                   value="{{ data.get('deltares_mapping_id', '') }}" 
+                                   placeholder="{{ _('UNESCO internal reference ID') }}">
+                            <p class="help-block">{{ _('Optional Deltares mapping identifier for UNESCO internal reference.') }}</p>
+                          </div>
+                        </div>
+
+                        <!-- Images & Media Section -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-camera"></i>
+                            {{ _('Images & Media') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="header_image" class="control-label">{{ _('Header Image URL') }}</label>
+                            <input type="url" name="header_image" id="header_image" class="form-control" 
+                                   value="{{ data.get('header_image', '') }}" 
+                                   placeholder="{{ _('https://example.com/image.jpg') }}">
+                            <p class="help-block">{{ _('Main image displayed in the header (recommended: 1200x400px)') }}</p>
+                          </div>
+
+                          <!-- Image Upload Section -->
+                          <div class="image-upload-section">
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload Screenshots & Images') }}</label>
+                              <p class="help-block">{{ _('Upload images that will be displayed in the tool gallery. You can crop and adjust each image.') }}</p>
+                              <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
+                              <div class="upload-dropzone modern-dropzone" id="image-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-cloud-upload fa-3x"></i>
+                                  <p>{{ _('Drop images here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Supported formats: JPG, PNG, GIF (Max 10MB per image)') }}</p>
+                                  <div class="upload-stats">
+                                    <span class="upload-count">0</span> {{ _('images uploaded') }}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <!-- Logo Upload Section -->
+                            <div class="form-group">
+                              <label class="control-label">{{ _('Upload Logo Image') }}</label>
+                              <input type="file" id="logo-upload" accept="image/*" style="display: none;">
+                              <div class="upload-dropzone logo-dropzone" id="logo-dropzone">
+                                <div class="dropzone-content">
+                                  <i class="fa fa-image fa-3x"></i>
+                                  <p>{{ _('Drop logo here or click to browse') }}</p>
+                                  <p class="text-muted">{{ _('Logo will be automatically resized to 200x80px') }}</p>
+                                </div>
+                              </div>
+                              <div id="logo-preview" class="logo-preview-container" style="display: none;">
+                                <img id="logo-preview-img" src="" alt="Logo Preview" class="logo-preview-img">
+                                <div class="logo-preview-actions">
+                                  <button type="button" class="btn btn-sm btn-danger" id="remove-logo">
+                                    <i class="fa fa-trash"></i> {{ _('Remove Logo') }}
+                                  </button>
+                                </div>
+                              </div>
+                              <input type="hidden" id="logo_image" name="logo_image" value="{{ data.get('logo_image', '') }}">
+                            </div>
+                            
+                            <!-- Uploaded Images Preview -->
+                            <div id="uploaded-images-preview" class="uploaded-images-grid">
+                              <!-- Uploaded images will appear here -->
+                            </div>
+                          </div>
+
+                          <!-- Hidden fields for uploaded images -->
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.get("uploaded_images", "")|tojson|safe if data.get("uploaded_images") else "" }}'>
+                          <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.get('image_gallery', '') }}">
+                        </div>
+
+                        <!-- Submission Action Buttons -->
+                        <div class="form-actions submission-actions">
+                          <input type="hidden" name="page_type" value="ai-water-tools">
+                          <input type="hidden" name="submission_action" value="" id="submission-action">
+                          
+                          <div class="submission-buttons-grid">
+                            <div class="primary-actions">
+                              <!-- Save Draft Button -->
+                              <button type="button" class="btn btn-default btn-lg submission-btn" data-action="draft">
+                                <i class="fa fa-floppy-o"></i> {{ _('Save Draft') }}
+                                <div class="btn-description">{{ _('Save your work without submitting') }}</div>
+                              </button>
+                              
+                              <!-- Submit for Approval Button -->
+                              <button type="button" class="btn btn-success btn-lg submission-btn" data-action="submit">
+                                <i class="fa fa-paper-plane"></i> {{ _('Submit for Approval') }}
+                                <div class="btn-description">{{ _('Submit to admin for review') }}</div>
+                              </button>
+                              
+                              {% if h.is_sysadmin() %}
+                              <!-- Publish Now Button (admin only) -->
+                              <button type="button" class="btn btn-primary btn-lg submission-btn" data-action="publish">
+                                <i class="fa fa-check-circle"></i> {{ _('Publish Now') }}
+                                <div class="btn-description">{{ _('Publish directly without review') }}</div>
+                              </button>
+                              {% endif %}
+                            </div>
+                            
+                            <div class="secondary-actions">
+                              <!-- Cancel Button -->
+                              <a href="{{ h.url_for('pages.ai_water_tools_index') }}" class="btn btn-link">
+                                <i class="fa fa-times"></i> {{ _('Cancel') }}
+                              </a>
+                              
+                              <!-- Delete Button (for existing entries) -->
+                              {% if page and h.check_access('ckanext_pages_delete') %}
+                                <a href="{{ h.url_for('pages.ai_water_tools_delete', page=page.name) }}" 
+                                   class="btn btn-link text-danger" 
+                                   data-confirm="{{ _('Are you sure you want to delete this AI tool entry?') }}">
+                                  <i class="fa fa-trash"></i> {{ _('Delete Entry') }}
+                                </a>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <!-- Submission Status Display -->
+                          {% if page and page.submission_status %}
+                            <div class="submission-status-display">
+                              <div class="status-indicator status-{{ page.submission_status }}">
+                                {% if page.submission_status == 'draft' %}
+                                  <i class="fa fa-edit"></i> {{ _('Draft') }}
+                                {% elif page.submission_status == 'pending' %}
+                                  <i class="fa fa-clock-o"></i> {{ _('Pending Review') }}
+                                  {% if page.submitted_at %}
+                                    <span class="status-date">{{ _('Submitted:') }} {{ h.render_datetime(page.submitted_at, '%Y-%m-%d') }}</span>
+                                  {% endif %}
+                                {% elif page.submission_status == 'approved' %}
+                                  <i class="fa fa-check-circle"></i> {{ _('Approved') }}
+                                  {% if page.reviewed_at %}
+                                    <span class="status-date">{{ _('Approved:') }} {{ h.render_datetime(page.reviewed_at, '%Y-%m-%d') }}</span>
+                                  {% endif %}
+                                {% elif page.submission_status == 'rejected' %}
+                                  <i class="fa fa-times-circle"></i> {{ _('Rejected') }}
+                                  {% if page.reviewed_at %}
+                                    <span class="status-date">{{ _('Reviewed:') }} {{ h.render_datetime(page.reviewed_at, '%Y-%m-%d') }}</span>
+                                  {% endif %}
+                                {% endif %}
+                              </div>
+                            </div>
+                          {% endif %}
+                        </div>
+
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Enhanced Form JavaScript -->
+<script>
+(function() {
+  if (window.__ai_water_edit_bound) { return; }
+  window.__ai_water_edit_bound = true;
+
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+  let uploadedImages = [];
+  let logoUrl = '';
+
+  // Load existing uploaded images
+  function loadUploadedImages() {
+    const data = $('#uploaded-images-data').val();
+    if (data) {
+      try {
+        uploadedImages = JSON.parse(data);
+        uploadedImages.forEach(function(img, index) {
+          addImagePreview(img.url, img.alt || '', img.caption || '', index);
+        });
+        $('.upload-count').text(uploadedImages.length);
+      } catch (e) {
+        console.error('Error loading uploaded images:', e);
+      }
+    }
+    // Load logo
+    const existingLogo = $('#logo_image').val();
+    if (existingLogo) {
+      logoUrl = existingLogo;
+      $('#logo-preview-img').attr('src', existingLogo);
+      $('#logo-preview').show();
+    }
+  }
+
+  function addImagePreview(url, alt, caption, index) {
+    const preview = $('<div class="uploaded-image-item">' +
+      '<img src="' + url + '" alt="' + (alt || '') + '">' +
+      '<div class="image-item-controls">' +
+        '<input type="text" class="form-control image-alt" placeholder="{{ _("Image name/description") }}" value="' + (alt || '') + '" data-index="' + index + '">' +
+        '<button type="button" class="btn btn-sm btn-danger remove-image" data-index="' + index + '">' +
+          '<i class="fa fa-trash"></i>' +
+        '</button>' +
+      '</div>' +
+    '</div>');
+    $('#uploaded-images-preview').append(preview);
+  }
+
+  function updateUploadedImagesData() {
+    var currentImages = [];
+    $('#uploaded-images-preview .uploaded-image-item').each(function(i) {
+      var img = $(this).find('img');
+      var alt = $(this).find('.image-alt').val() || '';
+      currentImages.push({
+        url: img.attr('src'),
+        alt: alt,
+        caption: alt
+      });
+    });
+    uploadedImages = currentImages;
+    $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
+    
+    var galleryData = uploadedImages.map(function(img) {
+      return { type: 'uploaded', url: img.url, alt: img.alt, caption: img.caption };
+    });
+    $('#image-gallery-data').val(JSON.stringify(galleryData));
+  }
+
+  $(document).on('change input', '.image-alt', function() {
+    updateUploadedImagesData();
+  });
+
+  // Auto-generate URL from title
+  $('#title').on('input', function() {
+    if ($('#name').prop('readonly')) {
+      var title = $(this).val().toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+      $('#name').val(title);
+    }
+  });
+  
+  // Toggle URL field editing
+  $('#edit-url-btn').on('click', function() {
+    var $urlField = $('#name');
+    var $btn = $(this);
+    
+    if ($urlField.prop('readonly')) {
+      $urlField.prop('readonly', false).focus();
+      $btn.html('<i class="fa fa-lock"></i>').attr('title', '{{ _("Lock auto-generation") }}');
+      $btn.removeClass('btn-default').addClass('btn-warning');
+    } else {
+      $urlField.prop('readonly', true);
+      $btn.html('<i class="fa fa-edit"></i>').attr('title', '{{ _("Edit URL manually") }}');
+      $btn.removeClass('btn-warning').addClass('btn-default');
+      var title = $('#title').val().toLowerCase()
+        .replace(/[^\w ]+/g,'')
+        .replace(/ +/g,'-');
+      $urlField.val(title);
+    }
+  });
+  
+  // Handle multiple selects - convert arrays to comma-separated strings
+  function handleMultipleSelects() {
+    var multiSelects = [
+      { id: 'ai_technique', hiddenName: 'ai_technique_list' },
+      { id: 'water_application_domain', hiddenName: 'water_application_domain_list' },
+      { id: 'programming_language', hiddenName: 'programming_language_list' },
+      { id: 'platform', hiddenName: 'platform_list' }
+    ];
+    
+    multiSelects.forEach(function(item) {
+      var values = $('#' + item.id).val();
+      if (values && Array.isArray(values)) {
+        var unique = [];
+        var seen = {};
+        values.forEach(function(v) {
+          var clean = v.trim();
+          if (clean && !seen[clean]) {
+            unique.push(clean);
+            seen[clean] = true;
+          }
+        });
+        $('<input>').attr({
+          type: 'hidden',
+          name: item.hiddenName,
+          value: unique.join(',')
+        }).appendTo('form');
+      }
+    });
+  }
+
+  // Submission button handlers
+  $('.submission-btn').on('click', function(e) {
+    e.preventDefault();
+    
+    var action = $(this).data('action');
+    var form = $('form');
+    var isValid = true;
+    
+    $('#submission-action').val(action);
+    
+    // Validate required fields
+    var title = $('#title').val().trim();
+    var name = $('#name').val().trim();
+    
+    if (!title) {
+      alert('{{ _("Please enter a title") }}');
+      $('#title').focus();
+      isValid = false;
+    }
+    
+    if (!name) {
+      alert('{{ _("Please enter a URL") }}');
+      $('#name').focus();
+      isValid = false;
+    }
+    
+    // Additional validation for submission (not for draft)
+    if (action === 'submit' || action === 'publish') {
+      var organization = $('#ihp_organization').val();
+      if (!organization) {
+        alert('{{ _("Please select an IHP WINS Organization before submitting") }}');
+        $('#ihp_organization').focus();
+        isValid = false;
+      }
+      
+      var emptyAltFields = $('.image-alt').filter(function() {
+        return !$(this).val().trim();
+      });
+      
+      if (emptyAltFields.length > 0) {
+        alert('{{ _("Please provide descriptive names for all uploaded images before submitting.") }}');
+        emptyAltFields.first().focus();
+        isValid = false;
+      }
+      
+      if (action === 'publish') {
+        if (isValid && !confirm('{{ _("Are you sure you want to publish this entry directly? It will be immediately visible to the public.") }}')) {
+          isValid = false;
+        }
+      } else {
+        if (isValid && !confirm('{{ _("Are you sure you want to submit this entry for admin approval? You will not be able to edit it until it is reviewed.") }}')) {
+          isValid = false;
+        }
+      }
+    }
+    
+    if (isValid) {
+      handleMultipleSelects();
+      updateUploadedImagesData();
+
+      if (window.syncAllQuillEditors) {
+        window.syncAllQuillEditors();
+      }
+
+      form.submit();
+    }
+  });
+
+  // Initialize Quill Editors
+  function initializeQuillEditors() {
+    var quillEditors = {};
+    
+    var fullToolbar = [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      ['blockquote', 'code-block'],
+      ['link'],
+      ['clean'],
+      [{ 'align': [] }]
+    ];
+    
+    var compactToolbar = [
+      [{ 'header': [2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link'],
+      ['clean']
+    ];
+    
+    var editorConfigs = {
+      'content-editor': {
+        placeholder: '{{ _("Detailed description of the AI tool, its purpose, and main water management capabilities...") }}',
+        theme: 'snow',
+        modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'data-requirements-editor': {
+        placeholder: '{{ _("Input data types, formats, resolution, and sources required by this AI tool...") }}',
+        theme: 'snow',
+        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'reference-publications-editor': {
+        placeholder: '{{ _("Academic papers, reports, or publications related to this AI tool...") }}',
+        theme: 'snow',
+        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'technical-requirements-editor': {
+        placeholder: '{{ _("System requirements, dependencies, GPU needs, supported platforms...") }}',
+        theme: 'snow',
+        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'installation-instructions-editor': {
+        placeholder: '{{ _("Step-by-step installation and setup instructions...") }}',
+        theme: 'snow',
+        modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'learning-resources-editor': {
+        placeholder: '{{ _("List learning resources, tutorials, courses, and training materials...") }}',
+        theme: 'snow',
+        modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'excerpt-editor': {
+        placeholder: '{{ _("Brief summary that appears in tool listings...") }}',
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link'],
+            ['clean']
+          ],
+          history: { delay: 1000, maxStack: 50 }
+        }
+      }
+    };
+    
+    // Initialize each editor
+    Object.keys(editorConfigs).forEach(function(editorId) {
+      var editorElement = document.getElementById(editorId);
+      if (editorElement) {
+        $(editorElement).addClass('quill-loading');
+
+        var textareaId = editorId;
+        if (editorId === 'content-editor') {
+          textareaId = 'content-textarea';
+        } else if (editorId.endsWith('-editor')) {
+          textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        }
+        var textarea = document.getElementById(textareaId);
+
+        var quill = new Quill('#' + editorId, editorConfigs[editorId]);
+
+        if (textarea && textarea.value) {
+          try {
+            quill.clipboard.dangerouslyPasteHTML(textarea.value);
+          } catch (e) {
+            quill.setText(textarea.value);
+          }
+        }
+
+        // Keep textarea hidden but in DOM for form submission
+        if (textarea) {
+          textarea.style.position = 'absolute';
+          textarea.style.left = '-9999px';
+          textarea.style.width = '1px';
+          textarea.style.height = '1px';
+          textarea.style.opacity = '0';
+        }
+
+        quill.on('text-change', function() {
+          if (textarea) {
+            var content = quill.root.innerHTML;
+            textarea.value = (content === '<p><br></p>') ? '' : content;
+          }
+        });
+
+        quillEditors[editorId] = quill;
+
+        setTimeout(function() {
+          $(editorElement).removeClass('quill-loading');
+        }, 300);
+      }
+    });
+
+    // Excerpt character counter
+    if (quillEditors['excerpt-editor']) {
+      var excerptQuill = quillEditors['excerpt-editor'];
+      
+      function updateCharacterCount() {
+        var text = excerptQuill.getText();
+        var len = text.length - 1; // subtract trailing newline
+        if (len < 0) len = 0;
+        $('.current-count').text(len);
+        if (len > 200) {
+          $('.counter-status').text('{{ _("(over limit)") }}').css('color', '#dc3545');
+        } else {
+          $('.counter-status').text('').css('color', '');
+        }
+      }
+      
+      excerptQuill.on('text-change', updateCharacterCount);
+      updateCharacterCount();
+    }
+
+    window.quillEditors = quillEditors;
+
+    window.syncAllQuillEditors = function() {
+      Object.keys(quillEditors).forEach(function(editorId) {
+        var quill = quillEditors[editorId];
+        var textareaId = editorId;
+        if (editorId === 'content-editor') {
+          textareaId = 'content-textarea';
+        } else if (editorId.endsWith('-editor')) {
+          textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
+        }
+        var textarea = document.getElementById(textareaId);
+        if (quill && textarea) {
+          var content = quill.root.innerHTML;
+          textarea.value = (content === '<p><br></p>') ? '' : content;
+        }
+      });
+    };
+  }
+
+  // Force hide Quill textareas
+  function forceHideQuillTextareas() {
+    $('.quill-wrapper textarea').each(function() {
+      this.style.position = 'absolute';
+      this.style.left = '-9999px';
+      this.style.width = '1px';
+      this.style.height = '1px';
+      this.style.opacity = '0';
+    });
+  }
+
+  // Initialize
+  loadUploadedImages();
+  
+  setTimeout(initializeQuillEditors, 100);
+  setTimeout(forceHideQuillTextareas, 200);
+  setTimeout(forceHideQuillTextareas, 1000);
+  }); // Close waitForJQuery
+})();
+</script>
+
+<!-- Quill Editor Integration -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+{% endblock %}

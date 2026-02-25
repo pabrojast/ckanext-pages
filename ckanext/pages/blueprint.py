@@ -219,6 +219,51 @@ def open_source_admin_change_org(page):
     return utils.open_source_admin_change_org(page)
 
 
+# AI Water Tools endpoints
+def ai_water_tools_index():
+    return utils.pages_list_pages('ai-water-tools')
+
+
+def ai_water_tools_show(page):
+    return utils.pages_show(page, page_type='ai-water-tools')
+
+
+def ai_water_tools_edit(page=None, data=None, errors=None, error_summary=None):
+    return utils.pages_edit(page, data, errors, error_summary, 'ai-water-tools')
+
+
+def ai_water_tools_revisions(page):
+    return utils.pages_revisions(page, page_type='ai-water-tools')
+
+
+def ai_water_tools_revisions_preview(page, revision):
+    return utils.pages_revisions_preview(page, revision, page_type='ai-water-tools')
+
+
+def ai_water_tools_revision_restore(page, revision):
+    return utils.pages_revision_restore(page, revision, page_type='ai-water-tools')
+
+
+def ai_water_tools_delete(page):
+    return utils.pages_delete(page, page_type='ai-water-tools')
+
+
+def ai_water_admin_dashboard():
+    return utils.ai_water_admin_dashboard()
+
+
+def ai_water_admin_approve(page):
+    return utils.ai_water_admin_approve(page)
+
+
+def ai_water_admin_reject(page):
+    return utils.ai_water_admin_reject(page)
+
+
+def ai_water_admin_change_org(page):
+    return utils.ai_water_admin_change_org(page)
+
+
 # Open Source Software endpoints
 def open_source_software_index():
     return utils.pages_list_pages('open-source-software')
@@ -457,6 +502,23 @@ pages.add_url_rule("/open-source-software_edit", view_func=redirect_open_source_
 pages.add_url_rule("/open-source-software_edit/", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_edit/<page>", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
 pages.add_url_rule("/open-source-software_delete/<page>", view_func=redirect_open_source_software_delete, methods=['GET', 'POST'])
+
+# AI Water Tools URLs
+pages.add_url_rule("/ai-water-tools", view_func=ai_water_tools_index, endpoint='ai_water_tools_index')
+pages.add_url_rule("/ai-water-tools/<page>", view_func=ai_water_tools_show, endpoint='ai_water_tools_show')
+pages.add_url_rule("/ai-water-tools/<page>/revisions", view_func=ai_water_tools_revisions, endpoint='ai_water_tools_revisions')
+pages.add_url_rule("/ai-water-tools/<page>/revisions/<revision>", view_func=ai_water_tools_revisions_preview, endpoint='ai_water_tools_revisions_preview')
+pages.add_url_rule("/ai-water-tools/<page>/revisions/<revision>/restore", view_func=ai_water_tools_revision_restore, endpoint='ai_water_tools_revision_restore', methods=['GET'])
+pages.add_url_rule("/ai-water-tools_edit", view_func=ai_water_tools_edit, endpoint='ai_water_tools_new', methods=['GET', 'POST'])
+pages.add_url_rule("/ai-water-tools_edit/", view_func=ai_water_tools_edit, endpoint='ai_water_tools_new', methods=['GET', 'POST'])
+pages.add_url_rule("/ai-water-tools_edit/<page>", view_func=ai_water_tools_edit, endpoint='ai_water_tools_edit', methods=['GET', 'POST'])
+pages.add_url_rule("/ai-water-tools_delete/<page>", view_func=ai_water_tools_delete, endpoint='ai_water_tools_delete', methods=['GET', 'POST'])
+
+# AI Water Tools Admin URLs
+pages.add_url_rule("/ai-water-admin", view_func=ai_water_admin_dashboard, endpoint='ai_water_admin_dashboard')
+pages.add_url_rule("/ai-water-admin/approve/<page>", view_func=ai_water_admin_approve, endpoint='ai_water_admin_approve', methods=['POST'])
+pages.add_url_rule("/ai-water-admin/reject/<page>", view_func=ai_water_admin_reject, endpoint='ai_water_admin_reject', methods=['POST'])
+pages.add_url_rule("/ai-water-admin/change-org/<page>", view_func=ai_water_admin_change_org, endpoint='ai_water_admin_change_org', methods=['POST'])
 
 # Event Types Administration URLs (Sysadmin only)
 pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='event_types_admin')

@@ -2538,3 +2538,204 @@ def event_types_delete(event_type_id):
             'event_type_id': event_type_id,
             'delete_url': tk.h.url_for('pages.event_types_delete', event_type_id=event_type_id)
         })
+
+
+# AI Water Tools Admin Functions
+
+def _filter_pending_ai_water_tools():
+    """Get pending AI water tools submissions for admin review"""
+    from ckanext.pages.db import Page
+
+    query = model.Session.query(Page).filter(
+        Page.page_type == 'ai-water-tools',
+        Page.submission_status == 'pending',
+        Page.group_id == None
+    ).order_by(Page.submitted_at.desc())
+
+    return query.all()
+
+
+def ai_water_admin_dashboard():
+    """Admin dashboard to approve/reject AI water tools submissions"""
+
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to access admin dashboard'))
+
+    try:
+        pending_tools = _filter_pending_ai_water_tools()
+    except Exception:
+        pending_tools = []
+
+    org_options, org_lookup = _get_open_source_admin_organizations()
+    user_lookup = _build_user_display_lookup(pending_tools)
+
+    return tk.render('ckanext_pages/ai-water-admin-dashboard.html', extra_vars={
+        'pending_tools': pending_tools,
+        'organization_options': org_options,
+        'organization_lookup': org_lookup,
+        'user_lookup': user_lookup,
+    })
+
+
+def ai_water_admin_approve(page):
+    """Approve an AI water tools submission"""
+
+    log = logging.getLogger(__name__)
+
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to approve content'))
+
+    if tk.request.method == 'POST':
+        try:
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+
+            if not page_dict:
+                tk.h.flash_error(_('Entry not found.'))
+                return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+            new_organization = tk.request.form.get('new_organization')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'ai-water-tools'
+
+            now = datetime.datetime.utcnow()
+            page_dict['submission_status'] = 'approved'
+            page_dict['private'] = False
+            page_dict['reviewed_at'] = now.isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+            page_dict['submitted_at'] = page_dict.get('submitted_at') or now.isoformat()
+            if not page_dict.get('publish_date'):
+                page_dict['publish_date'] = now.isoformat()
+
+            if new_organization:
+                page_dict['ihp_organization'] = new_organization
+
+            tk.get_action('ckanext_pages_update')(
+                context={
+                    'ignore_auth': True,
+                    'user': tk.g.user,
+                    'model': model,
+                    'session': model.Session,
+                },
+                data_dict=page_dict
+            )
+
+            model.Session.flush()
+            model.Session.commit()
+
+            tk.h.flash_success(_('AI water tool entry approved and published successfully.'))
+
+        except Exception as e:
+            log.error('Error approving AI water tool entry: %s', str(e), exc_info=True)
+            model.Session.rollback()
+            tk.h.flash_error(_('Error approving entry: {0}').format(str(e)))
+
+    return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+
+def ai_water_admin_reject(page):
+    """Reject an AI water tools submission"""
+
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to reject content'))
+
+    if tk.request.method == 'POST':
+        try:
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+
+            if not page_dict:
+                tk.h.flash_error(_('Entry not found.'))
+                return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'ai-water-tools'
+
+            now = datetime.datetime.utcnow()
+            page_dict['submission_status'] = 'rejected'
+            page_dict['reviewed_at'] = now.isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+
+            tk.get_action('ckanext_pages_update')(
+                context={
+                    'ignore_auth': True,
+                    'user': tk.g.user,
+                    'model': model,
+                    'session': model.Session,
+                },
+                data_dict=page_dict
+            )
+
+            tk.h.flash_success(_('AI water tool entry rejected.'))
+        except Exception as e:
+            tk.h.flash_error(_('Error rejecting entry: {0}').format(str(e)))
+
+    return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+
+def ai_water_admin_change_org(page):
+    """Change the organization of an AI water tools entry"""
+
+    log = logging.getLogger(__name__)
+
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to change organization'))
+
+    if tk.request.method == 'POST':
+        try:
+            new_organization = tk.request.form.get('new_organization')
+
+            if not new_organization:
+                tk.h.flash_error(_('Please select an organization'))
+                return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+
+            if not page_dict:
+                tk.h.flash_error(_('Entry not found.'))
+                return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+            current_submission_status = page_dict.get('submission_status')
+            current_private = page_dict.get('private')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'ai-water-tools'
+            page_dict['ihp_organization'] = new_organization
+            page_dict['modified'] = datetime.datetime.utcnow().isoformat()
+
+            if current_submission_status:
+                page_dict['submission_status'] = current_submission_status
+            if current_private is not None:
+                page_dict['private'] = current_private
+
+            tk.get_action('ckanext_pages_update')(
+                context={
+                    'ignore_auth': True,
+                    'user': tk.g.user,
+                    'model': model,
+                    'session': model.Session,
+                },
+                data_dict=page_dict
+            )
+
+            model.Session.flush()
+            model.Session.commit()
+
+            org = model.Group.get(new_organization)
+            org_name = org.title or org.display_name or org.name if org else new_organization
+            tk.h.flash_success(_('Organization changed to "{0}" successfully.').format(org_name))
+
+        except Exception as e:
+            log.error('Error changing organization for AI water tool: %s', str(e), exc_info=True)
+            model.Session.rollback()
+            tk.h.flash_error(_('Error changing organization: {0}').format(str(e)))
+
+    return tk.redirect_to('pages.ai_water_admin_dashboard')

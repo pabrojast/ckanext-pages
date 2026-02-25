@@ -435,6 +435,28 @@ def get_recent_open_source_software(number=5, exclude=None):
         return []
 
 
+def get_recent_ai_water_tools(number=5, exclude=None):
+    """Get recent AI water tools entries - only show approved public entries"""
+    try:
+        tools_list = tk.get_action('ckanext_pages_list')(
+            None, {'order_publish_date': True, 'private': False,
+                   'page_type': 'ai-water-tools',
+                   'submission_status': 'approved'}
+        )
+        new_list = []
+        for tool_post in tools_list:
+            if exclude and tool_post.get('name') == exclude:
+                continue
+            if tool_post.get('submission_status') == 'approved' and not tool_post.get('private'):
+                new_list.append(tool_post)
+            if len(new_list) == number:
+                break
+        return new_list
+    except Exception as e:
+        log.error("Error getting AI water tools list: %s", str(e))
+        return []
+
+
 def safe_json_loads(json_string):
     """Safely parse JSON string and return empty list if parsing fails"""
     if not json_string:
@@ -628,6 +650,39 @@ def get_software_difficulty_class(difficulty):
         'expert': 'difficulty-expert'
     }
     return difficulty_classes.get(difficulty, 'difficulty-beginner')
+
+
+def get_ai_technique_class(technique):
+    """Get CSS class for AI technique category"""
+    technique_classes = {
+        'machine-learning': 'technique-ml',
+        'deep-learning': 'technique-dl',
+        'nlp': 'technique-nlp',
+        'computer-vision': 'technique-cv',
+        'reinforcement-learning': 'technique-rl',
+        'time-series-forecasting': 'technique-ts',
+        'optimization': 'technique-opt',
+        'hybrid': 'technique-hybrid',
+    }
+    return technique_classes.get(technique.lower() if technique else '', 'technique-default')
+
+
+def count_ai_tools_by_technique(pages):
+    """Count AI water tools entries by technique"""
+    techniques = {}
+    for page in pages:
+        technique = page.get('ai_technique', 'other').lower()
+        techniques[technique] = techniques.get(technique, 0) + 1
+    return techniques
+
+
+def count_ai_tools_by_application(pages):
+    """Count AI water tools entries by water application domain"""
+    applications = {}
+    for page in pages:
+        application = page.get('water_application', 'other').lower()
+        applications[application] = applications.get(application, 0) + 1
+    return applications
 
 
 def get_priority_sort_key(page):
@@ -858,6 +913,7 @@ class PagesPlugin(PagesPluginBase):
             'get_recent_water_events': get_recent_water_events,
             'get_recent_water_publications': get_recent_water_publications,
             'get_recent_open_source_software': get_recent_open_source_software,
+            'get_recent_ai_water_tools': get_recent_ai_water_tools,
             'json_loads': safe_json_loads,
             'get_event_status': get_event_status,
             'get_event_status_badge_class': get_event_status_badge_class,
@@ -865,6 +921,9 @@ class PagesPlugin(PagesPluginBase):
             'get_software_category_class': get_software_category_class,
             'count_software_by_category': count_software_by_category,
             'get_software_difficulty_class': get_software_difficulty_class,
+            'get_ai_technique_class': get_ai_technique_class,
+            'count_ai_tools_by_technique': count_ai_tools_by_technique,
+            'count_ai_tools_by_application': count_ai_tools_by_application,
             'get_priority_sort_key': get_priority_sort_key,
             'get_severity_sort_key': get_severity_sort_key,
             'get_priority_class': get_priority_class,

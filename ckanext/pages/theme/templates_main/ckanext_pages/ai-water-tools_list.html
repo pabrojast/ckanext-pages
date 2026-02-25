@@ -1,0 +1,691 @@
+{% extends "page.html" %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/ai-water-tools.css') }}">
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/ai-water-tools.js') }}"></script>
+{% endblock %}
+
+{% block title %}
+{{ _('AI for Water Management') }} - {{ super() }}
+{% endblock %}
+
+{# Maturity level color mapping #}
+{% set maturity_colors = {
+  'research': '#6c757d',
+  'prototype': '#fd7e14',
+  'beta': '#0d6efd',
+  'production': '#198754'
+} %}
+
+{# Precompute summary counts #}
+{% set counts = namespace(total=0, research=0, production=0, open_source=0) %}
+{% for item in c.page.items %}
+  {% set counts.total = counts.total + 1 %}
+  {% if item.maturity_level == 'research' %}
+    {% set counts.research = counts.research + 1 %}
+  {% endif %}
+  {% if item.maturity_level == 'production' %}
+    {% set counts.production = counts.production + 1 %}
+  {% endif %}
+  {% if item.access_type == 'open-source' or not item.access_type %}
+    {% set counts.open_source = counts.open_source + 1 %}
+  {% endif %}
+{% endfor %}
+
+{% block content %}
+
+<style>
+/* AI Water Tools - Inline Styles */
+.ai-water-card {
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+.ai-water-module {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 114, 188, 0.08);
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.ai-water-module:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+.ai-water-card-content {
+  padding: 1.5rem;
+}
+.ai-water-title a {
+  color: #003366;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.ai-water-title a:hover {
+  color: #0072bc;
+}
+.ai-water-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.badge-ai-technique {
+  background: #e8f4fd;
+  color: #0072bc;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.badge-water-app {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.badge-maturity {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+.badge-maturity-research { background: #6c757d; }
+.badge-maturity-prototype { background: #fd7e14; }
+.badge-maturity-beta { background: #0d6efd; }
+.badge-maturity-production { background: #198754; }
+.ai-water-excerpt {
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+.ai-water-org {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+.ai-water-org i {
+  margin-right: 0.3rem;
+}
+.ai-water-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+.btn-view-details {
+  background: #0072bc;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn-view-details:hover {
+  background: #005a96;
+  color: #fff;
+  text-decoration: none;
+}
+.btn-edit-tool {
+  background: #f8f9fa;
+  color: #555;
+  border: 1px solid #dee2e6;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.btn-edit-tool:hover {
+  background: #e9ecef;
+  color: #333;
+  text-decoration: none;
+}
+
+/* Summary metrics */
+.status-metric {
+  padding: 0.75rem 0;
+}
+.metric-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0072bc;
+  line-height: 1;
+}
+.metric-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.3rem;
+}
+
+/* Unified filter system */
+.unified-filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+.search-section { width: 100%; }
+.search-input-group {
+  display: flex;
+  gap: 0;
+}
+.unified-search-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.unified-search-input:focus {
+  border-color: #0072bc;
+}
+.unified-search-btn {
+  padding: 0.6rem 1.2rem;
+  background: #0072bc;
+  color: #fff;
+  border: 2px solid #0072bc;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.unified-search-btn:hover {
+  background: #005a96;
+  border-color: #005a96;
+}
+.filters-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.filter-item { position: relative; }
+.unified-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #333;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.unified-filter-btn:hover {
+  border-color: #0072bc;
+  color: #0072bc;
+}
+.unified-dropdown-menu {
+  min-width: 220px;
+  padding: 0.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  border: 1px solid #e0e0e0;
+}
+.unified-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 0.25rem;
+}
+.unified-dropdown-content {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.unified-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+  margin: 0;
+  font-weight: normal;
+}
+.unified-option:hover {
+  background: #f0f7ff;
+}
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.unified-clear-btn {
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #666;
+  transition: all 0.2s;
+}
+.unified-clear-btn:hover {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+.unified-apply-btn {
+  padding: 0.5rem 1rem;
+  background: #0072bc;
+  border: 2px solid #0072bc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.unified-apply-btn:hover {
+  background: #005a96;
+  border-color: #005a96;
+}
+
+/* Empty state */
+.ai-water-empty-state .fa-4x {
+  color: #0072bc;
+  margin-bottom: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filters-grid { flex-direction: column; }
+  .ai-water-actions { flex-direction: column; align-items: stretch; }
+}
+</style>
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.ai_water_tools_index') }}">{{ _('AI for Water Management') }}</a></li>
+                </ol>
+            </div>
+
+            <!-- Banner -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('AI for Water Management') }}</h1>
+                  <p class="section-title-description">{{ _('Database of AI tools and applications for water resource management') }}</p>
+                  {% if h.check_access('ckanext_pages_update') %}
+                    <div class="header-action" style="margin-top: 2rem;">
+                      <a href="{{ h.url_for('pages.ai_water_tools_new') }}" class="btn btn-light btn-lg">
+                        <i class="fa fa-plus"></i> {{ _('Add AI Tool') }}
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+
+                <!-- Summary Counts -->
+                {% if c.page.items %}
+                <div class="ai-water-summary" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1rem 2.5rem;">
+                      <div class="row text-center">
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ counts.total }}</div>
+                            <div class="metric-label">{{ _('Total Tools') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ counts.research }}</div>
+                            <div class="metric-label">{{ _('Research Stage') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ counts.production }}</div>
+                            <div class="metric-label">{{ _('Production Stage') }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                          <div class="status-metric">
+                            <div class="metric-number">{{ counts.open_source }}</div>
+                            <div class="metric-label">{{ _('Open Source') }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Filters and Search -->
+                {% if c.page.items or request.args.q %}
+                <div class="ai-water-filters" style="margin-bottom: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <form method="get" class="form-inline">
+                        <div class="unified-filters-container">
+                          <!-- Search -->
+                          <div class="search-section">
+                            <div class="search-input-group">
+                              <label for="q" class="sr-only">{{ _('Search') }}</label>
+                              <input type="text" name="q" id="q" class="unified-search-input"
+                                     placeholder="{{ _('Search AI water management tools...') }}"
+                                     value="{{ request.args.q or '' }}">
+                              <button type="submit" class="unified-search-btn">
+                                <i class="fa fa-search"></i>
+                                <span class="btn-text">{{ _('Search') }}</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Filters Grid -->
+                          <div class="filters-grid">
+
+                            <!-- AI Technique (multi-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-brain"></i></span>
+                                  <span class="filter-text">{{ _('AI Technique') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-header">
+                                    <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
+                                    <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
+                                  </div>
+                                  <div class="unified-dropdown-content">
+                                    {% set selected_techniques = request.args.getlist('ai_technique') %}
+                                    {% for val, label in [
+                                      ('machine-learning', _('Machine Learning')),
+                                      ('deep-learning', _('Deep Learning')),
+                                      ('nlp', _('Natural Language Processing')),
+                                      ('computer-vision', _('Computer Vision')),
+                                      ('reinforcement-learning', _('Reinforcement Learning')),
+                                      ('time-series-forecasting', _('Time Series Forecasting')),
+                                      ('optimization', _('Optimization')),
+                                      ('hybrid', _('Hybrid'))
+                                    ] %}
+                                      <label class="unified-option">
+                                        <input type="checkbox" name="ai_technique" value="{{ val }}" {% if val in selected_techniques %}checked{% endif %}>
+                                        <span>{{ label }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Water Application (multi-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-tint"></i></span>
+                                  <span class="filter-text">{{ _('Water Application') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-header">
+                                    <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
+                                    <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
+                                  </div>
+                                  <div class="unified-dropdown-content">
+                                    {% set selected_applications = request.args.getlist('water_application') %}
+                                    {% for val, label in [
+                                      ('flood-forecasting', _('Flood Forecasting')),
+                                      ('drought-prediction', _('Drought Prediction')),
+                                      ('water-quality-monitoring', _('Water Quality Monitoring')),
+                                      ('groundwater-modeling', _('Groundwater Modeling')),
+                                      ('demand-forecasting', _('Demand Forecasting')),
+                                      ('irrigation-optimization', _('Irrigation Optimization')),
+                                      ('watershed-management', _('Watershed Management')),
+                                      ('climate-water-impact', _('Climate-Water Impact'))
+                                    ] %}
+                                      <label class="unified-option">
+                                        <input type="checkbox" name="water_application" value="{{ val }}" {% if val in selected_applications %}checked{% endif %}>
+                                        <span>{{ label }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Maturity Level (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-signal"></i></span>
+                                  <span class="filter-text">{{ _('Maturity Level') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    {% set maturity = request.args.maturity_level %}
+                                    <label class="unified-option">
+                                      <input type="radio" name="maturity_level" value="" {% if not maturity %}checked{% endif %}>
+                                      <span>{{ _('All Levels') }}</span>
+                                    </label>
+                                    {% for val, label in [
+                                      ('research', _('Research')),
+                                      ('prototype', _('Prototype')),
+                                      ('beta', _('Beta')),
+                                      ('production', _('Production'))
+                                    ] %}
+                                      <label class="unified-option">
+                                        <input type="radio" name="maturity_level" value="{{ val }}" {% if maturity == val %}checked{% endif %}>
+                                        <span>{{ label }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Scalability (single-select) -->
+                            <div class="filter-item">
+                              <div class="dropdown unified-dropdown">
+                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                                  <span class="filter-icon"><i class="fa fa-globe"></i></span>
+                                  <span class="filter-text">{{ _('Scalability') }}</span>
+                                  <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
+                                </button>
+                                <div class="dropdown-menu unified-dropdown-menu">
+                                  <div class="unified-dropdown-content">
+                                    {% set scale = request.args.scalability %}
+                                    <label class="unified-option">
+                                      <input type="radio" name="scalability" value="" {% if not scale %}checked{% endif %}>
+                                      <span>{{ _('All Scales') }}</span>
+                                    </label>
+                                    {% for val, label in [
+                                      ('local', _('Local')),
+                                      ('regional', _('Regional')),
+                                      ('national', _('National')),
+                                      ('global', _('Global'))
+                                    ] %}
+                                      <label class="unified-option">
+                                        <input type="radio" name="scalability" value="{{ val }}" {% if scale == val %}checked{% endif %}>
+                                        <span>{{ label }}</span>
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+
+                          <!-- Actions -->
+                          <div class="filter-actions">
+                            <button type="button" class="unified-clear-btn" onclick="window.location.href='{{ h.url_for('pages.ai_water_tools_index') }}'">
+                              <i class="fa fa-times"></i> {{ _('Clear Filters') }}
+                            </button>
+                            <button type="submit" class="unified-apply-btn">
+                              <i class="fa fa-filter"></i> {{ _('Apply Filters') }}
+                            </button>
+                          </div>
+
+                        </div>
+                      </form>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Tools Catalog -->
+                {% if c.page.items %}
+                <div id="tools-catalog" class="ai-water-catalog">
+                  {% for item in c.page.items %}
+                  <div class="ai-water-card">
+                    <article class="ai-water-module">
+                      <div class="ai-water-card-content">
+                        <!-- Title -->
+                        <h3 class="ai-water-title" style="margin-top: 0;">
+                          <a href="{{ h.url_for('pages.ai_water_tools_show', page=item.name) }}">
+                            {{ item.title or item.name }}
+                          </a>
+                        </h3>
+
+                        <!-- Badges -->
+                        <div class="ai-water-badges">
+                          {% if item.ai_technique %}
+                            <span class="badge-ai-technique">
+                              <i class="fa fa-cogs"></i> {{ item.ai_technique.replace('-', ' ').title() }}
+                            </span>
+                          {% endif %}
+                          {% if item.water_application %}
+                            <span class="badge-water-app">
+                              <i class="fa fa-tint"></i> {{ item.water_application.replace('-', ' ').title() }}
+                            </span>
+                          {% endif %}
+                          {% if item.maturity_level %}
+                            <span class="badge-maturity badge-maturity-{{ item.maturity_level }}">
+                              {{ item.maturity_level.title() }}
+                            </span>
+                          {% endif %}
+                        </div>
+
+                        <!-- Description excerpt -->
+                        {% if item.excerpt %}
+                          {% set content_text = h.strip_html_tags(item.excerpt) %}
+                        {% elif item.content %}
+                          {% set content_text = h.strip_html_tags(item.content) %}
+                        {% else %}
+                          {% set content_text = '' %}
+                        {% endif %}
+                        {% if content_text %}
+                          <p class="ai-water-excerpt">
+                            {{ content_text[:200] }}{% if content_text|length > 200 %}...{% endif %}
+                          </p>
+                        {% endif %}
+
+                        <!-- Organization -->
+                        {% if item.developer_organization %}
+                          <div class="ai-water-org">
+                            <i class="fa fa-building"></i> {{ item.developer_organization }}
+                          </div>
+                        {% endif %}
+
+                        <!-- Actions -->
+                        <div class="ai-water-actions">
+                          <a href="{{ h.url_for('pages.ai_water_tools_show', page=item.name) }}"
+                             class="btn btn-view-details">
+                            <i class="fa fa-eye"></i> {{ _('View Details') }}
+                          </a>
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <a href="{{ h.url_for('pages.ai_water_tools_edit', page=item.name) }}"
+                               class="btn btn-edit-tool">
+                              <i class="fa fa-edit"></i> {{ _('Edit') }}
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if c.page.page_count > 1 %}
+                <div class="pagination-wrapper" style="margin-top: 2rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 1.5rem;">
+                      {{ c.page.pager() }}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <!-- Empty State -->
+                <div class="ai-water-empty-state">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="empty-state-icon">
+                        <i class="fa fa-microchip fa-4x" style="color: #0072bc; margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('No AI Water Management Tools Found') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {% if request.args.q %}
+                          {{ _('No AI tools match your search criteria.') }}
+                          <br>
+                          <a href="{{ h.url_for('pages.ai_water_tools_index') }}">{{ _('View all tools') }}</a>
+                        {% else %}
+                          {{ _('No AI water management tools available at this time.') }}
+                        {% endif %}
+                      </p>
+                      {% if h.check_access('ckanext_pages_update') %}
+                        <a href="{{ h.url_for('pages.ai_water_tools_new') }}" class="btn btn-primary btn-lg">
+                          <i class="fa fa-plus"></i> {{ _('Add AI Tool') }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+{% endblock %}
