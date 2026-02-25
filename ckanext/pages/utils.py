@@ -13,6 +13,22 @@ from ckan import model
 
 from ckanext.pages.db import Page
 
+_LOWERCASE_WORDS = {'of', 'and', 'the', 'de', 'da', 'du'}
+
+
+def _format_member_state_name(name):
+    """Convert a slug like 'united-states' to 'United States'."""
+    if not name:
+        return name
+    words = name.split('-')
+    result = []
+    for i, word in enumerate(words):
+        if i > 0 and word.lower() in _LOWERCASE_WORDS:
+            result.append(word.lower())
+        else:
+            result.append(word.capitalize())
+    return ' '.join(result)
+
 
 def _get_open_source_admin_organizations():
     """Return organization options and lookup mapping for admin dashboard."""
@@ -436,9 +452,13 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             group_dict = tk.get_action('group_show')(
                 context, {'id': 'member-states', 'include_groups': True}
             )
+            groups = group_dict.get('groups', [])
+            for g in groups:
+                g['formatted_name'] = _format_member_state_name(
+                    g.get('name', '')
+                )
             vars['member_states_list'] = sorted(
-                group_dict.get('groups', []),
-                key=lambda g: g.get('display_name', g.get('name', ''))
+                groups, key=lambda g: g.get('formatted_name', '')
             )
         except Exception:
             vars['member_states_list'] = []

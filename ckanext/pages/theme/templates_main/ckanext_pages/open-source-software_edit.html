@@ -331,8 +331,8 @@
                                   <select id="member-state-select" class="form-control" aria-label="{{ _('Member States') }}">
                                     <option value="">{{ _('Select a member state...') }}</option>
                                     {% for ms in member_states_list|default([]) %}
-                                      <option value="{{ ms.name }}" data-name="{{ ms.name }}" data-display="{{ ms.display_name or ms.title or ms.name }}">
-                                        {{ ms.display_name or ms.title or ms.name }}
+                                      <option value="{{ ms.name }}" data-name="{{ ms.name }}" data-display="{{ ms.formatted_name or ms.display_name or ms.title or ms.name }}">
+                                        {{ ms.formatted_name or ms.display_name or ms.title or ms.name }}
                                       </option>
                                     {% endfor %}
                                     {% if not member_states_list|default([]) %}
