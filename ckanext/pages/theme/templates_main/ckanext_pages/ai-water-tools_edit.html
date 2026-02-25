@@ -1,13 +1,14 @@
 {% extends "page.html" %}
 
+{# Load external CSS and JS files for AI water tools functionality #}
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/ai-water-tools.css') }}">
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
-  <script src="{{ h.url_for_static('/js/open-source-software.js') }}"></script>
+  <script src="{{ h.url_for_static('/js/ai-water-tools.js') }}"></script>
 {% endblock %}
 
 {% block title %}
@@ -79,11 +80,11 @@
                         </div>
                       {% endif %}
 
-                      <form method="post" enctype="multipart/form-data" class="software-form">
+                      <form method="post" enctype="multipart/form-data" class="ai-water-form">
                         
                         {{ h.csrf_input() if 'csrf_input' in h }}
                         
-                        <!-- Basic Information Section -->
+                        <!-- Section 1: Basic Information -->
                         <div class="form-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-info-circle"></i>
@@ -98,6 +99,13 @@
                             {% if errors.title %}
                               <div class="error-block">{{ errors.title[0] }}</div>
                             {% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="subtitle" class="control-label">{{ _('Subtitle/Short Description') }}</label>
+                            <input type="text" name="subtitle" id="subtitle" class="form-control" 
+                                   value="{{ data.get('subtitle', '') }}" 
+                                   placeholder="{{ _('Brief one-line description') }}">
                           </div>
 
                           <div class="form-group">
@@ -147,56 +155,78 @@
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="developer_organization" class="control-label">{{ _('Developer Organization') }}</label>
-                                <input type="text" name="developer_organization" id="developer_organization" class="form-control" 
-                                       value="{{ data.get('developer_organization', '') }}" 
-                                       placeholder="{{ _('Organization that developed the AI tool') }}">
-                                <p class="help-block">{{ _('Organization responsible for developing this AI tool') }}</p>
+                                <label class="control-label">{{ _('Access Type') }}</label>
+                                <div class="access-type-options" style="margin-top: 0.5rem;">
+                                  {% set current_access = data.get('access_type', 'open-source') %}
+                                  <label class="radio-inline" style="margin-right: 1.5rem;">
+                                    <input type="radio" name="access_type" value="open-source" {% if current_access == 'open-source' %}checked{% endif %}> {{ _('Open Source') }}
+                                  </label>
+                                  <label class="radio-inline" style="margin-right: 1.5rem;">
+                                    <input type="radio" name="access_type" value="open-access" {% if current_access == 'open-access' %}checked{% endif %}> {{ _('Open Access') }}
+                                  </label>
+                                  <label class="radio-inline" style="margin-right: 1.5rem;">
+                                    <input type="radio" name="access_type" value="proprietary" {% if current_access == 'proprietary' %}checked{% endif %}> {{ _('Proprietary') }}
+                                  </label>
+                                  <label class="radio-inline">
+                                    <input type="radio" name="access_type" value="freemium" {% if current_access == 'freemium' %}checked{% endif %}> {{ _('Freemium') }}
+                                  </label>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <!-- AI Details Section -->
+                        <!-- Section 2: AI Technical Details -->
                         <div class="form-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-brain"></i>
-                            {{ _('AI Details') }}
+                            {{ _('AI Technical Details') }}
                           </h3>
 
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="ai_technique" class="control-label">{{ _('AI Technique') }}</label>
-                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple techniques') }}</p>
-                                <select name="ai_technique" id="ai_technique" class="form-control" multiple>
-                                  <option value="machine-learning" {% if 'machine-learning' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Machine Learning') }}</option>
-                                  <option value="deep-learning" {% if 'deep-learning' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Deep Learning') }}</option>
-                                  <option value="nlp" {% if 'nlp' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Natural Language Processing') }}</option>
-                                  <option value="computer-vision" {% if 'computer-vision' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Computer Vision') }}</option>
-                                  <option value="reinforcement-learning" {% if 'reinforcement-learning' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Reinforcement Learning') }}</option>
-                                  <option value="time-series-forecasting" {% if 'time-series-forecasting' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Time Series Forecasting') }}</option>
-                                  <option value="optimization" {% if 'optimization' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Optimization') }}</option>
-                                  <option value="hybrid" {% if 'hybrid' in (data.get('ai_technique', '') or '').split(',') %}selected{% endif %}>{{ _('Hybrid') }}</option>
-                                </select>
+                                <label class="control-label">{{ _('AI Technique') }}</label>
+                                <p class="help-block">{{ _('Select all applicable AI techniques') }}</p>
+                                {% set selected_ai = (data.get('ai_technique', '') or '').split(',') %}
+                                <div class="checkbox-grid">
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="machine-learning" {% if 'machine-learning' in selected_ai %}checked{% endif %}> {{ _('Machine Learning') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="deep-learning" {% if 'deep-learning' in selected_ai %}checked{% endif %}> {{ _('Deep Learning') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="nlp" {% if 'nlp' in selected_ai %}checked{% endif %}> {{ _('NLP') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="computer-vision" {% if 'computer-vision' in selected_ai %}checked{% endif %}> {{ _('Computer Vision') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="reinforcement-learning" {% if 'reinforcement-learning' in selected_ai %}checked{% endif %}> {{ _('Reinforcement Learning') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="time-series-forecasting" {% if 'time-series-forecasting' in selected_ai %}checked{% endif %}> {{ _('Time Series Forecasting') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="optimization" {% if 'optimization' in selected_ai %}checked{% endif %}> {{ _('Optimization') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="hybrid" {% if 'hybrid' in selected_ai %}checked{% endif %}> {{ _('Hybrid') }}</label>
+                                </div>
+                                <input type="hidden" name="ai_technique" id="ai_technique" value="{{ data.get('ai_technique', '') }}">
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="water_application_domain" class="control-label">{{ _('Water Application Domain') }}</label>
-                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple domains') }}</p>
-                                <select name="water_application_domain" id="water_application_domain" class="form-control" multiple>
-                                  <option value="flood-forecasting" {% if 'flood-forecasting' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Flood Forecasting') }}</option>
-                                  <option value="drought-prediction" {% if 'drought-prediction' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Drought Prediction') }}</option>
-                                  <option value="water-quality-monitoring" {% if 'water-quality-monitoring' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Water Quality Monitoring') }}</option>
-                                  <option value="groundwater-modeling" {% if 'groundwater-modeling' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Groundwater Modeling') }}</option>
-                                  <option value="demand-forecasting" {% if 'demand-forecasting' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Demand Forecasting') }}</option>
-                                  <option value="irrigation-optimization" {% if 'irrigation-optimization' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Irrigation Optimization') }}</option>
-                                  <option value="watershed-management" {% if 'watershed-management' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Watershed Management') }}</option>
-                                  <option value="climate-water-impact" {% if 'climate-water-impact' in (data.get('water_application_domain', '') or '').split(',') %}selected{% endif %}>{{ _('Climate-Water Impact') }}</option>
-                                </select>
+                                <label class="control-label">{{ _('Water Application Domain') }}</label>
+                                <p class="help-block">{{ _('Select all applicable water domains') }}</p>
+                                {% set selected_domain = (data.get('water_application_domain', '') or '').split(',') %}
+                                <div class="checkbox-grid">
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="flood-forecasting" {% if 'flood-forecasting' in selected_domain %}checked{% endif %}> {{ _('Flood Forecasting') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="drought-prediction" {% if 'drought-prediction' in selected_domain %}checked{% endif %}> {{ _('Drought Prediction') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="water-quality-monitoring" {% if 'water-quality-monitoring' in selected_domain %}checked{% endif %}> {{ _('Water Quality Monitoring') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="groundwater-modeling" {% if 'groundwater-modeling' in selected_domain %}checked{% endif %}> {{ _('Groundwater Modeling') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="demand-forecasting" {% if 'demand-forecasting' in selected_domain %}checked{% endif %}> {{ _('Demand Forecasting') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="irrigation-optimization" {% if 'irrigation-optimization' in selected_domain %}checked{% endif %}> {{ _('Irrigation Optimization') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="watershed-management" {% if 'watershed-management' in selected_domain %}checked{% endif %}> {{ _('Watershed Management') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="climate-water-impact" {% if 'climate-water-impact' in selected_domain %}checked{% endif %}> {{ _('Climate-Water Impact') }}</label>
+                                </div>
+                                <input type="hidden" name="water_application_domain" id="water_application_domain" value="{{ data.get('water_application_domain', '') }}">
                               </div>
                             </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="ai_model_type" class="control-label">{{ _('AI Model Type') }}</label>
+                            <input type="text" name="ai_model_type" id="ai_model_type" class="form-control" 
+                                   value="{{ data.get('ai_model_type', '') }}" 
+                                   placeholder="{{ _('e.g., CNN, LSTM, Transformer, Random Forest') }}">
                           </div>
 
                           <div class="row">
@@ -225,41 +255,132 @@
                               </div>
                             </div>
                           </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="training_data_type" class="control-label">{{ _('Training Data Type') }}</label>
+                                <input type="text" name="training_data_type" id="training_data_type" class="form-control" 
+                                       value="{{ data.get('training_data_type', '') }}" 
+                                       placeholder="{{ _('e.g., Satellite imagery, Sensor data, Weather data') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="output_type" class="control-label">{{ _('Output Type') }}</label>
+                                <input type="text" name="output_type" id="output_type" class="form-control" 
+                                       value="{{ data.get('output_type', '') }}" 
+                                       placeholder="{{ _('e.g., Predictions, Classifications, Maps, Alerts') }}">
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="accuracy_metrics" class="control-label">{{ _('Accuracy Metrics') }}</label>
+                            <textarea name="accuracy_metrics" id="accuracy_metrics" rows="3" class="form-control" 
+                                      placeholder="{{ _('e.g., RMSE: 0.05, R²: 0.95') }}">{{ data.get('accuracy_metrics', '') }}</textarea>
+                          </div>
                         </div>
 
-                        <!-- Technical Details Section -->
+                        <!-- Section 3: Developer & License Information -->
                         <div class="form-section">
                           <h3 class="form-section-title">
-                            <i class="fa fa-cogs"></i>
-                            {{ _('Technical Details') }}
+                            <i class="fa fa-building"></i>
+                            {{ _('Developer & License Information') }}
                           </h3>
 
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="access_type" class="control-label">{{ _('Access Type') }}</label>
-                                <select name="access_type" id="access_type" class="form-control">
-                                  <option value="">{{ _('Select Access Type') }}</option>
-                                  <option value="open-source" {% if data.get('access_type') == 'open-source' %}selected{% endif %}>{{ _('Open Source') }}</option>
-                                  <option value="open-access" {% if data.get('access_type') == 'open-access' %}selected{% endif %}>{{ _('Open Access') }}</option>
-                                  <option value="commercial" {% if data.get('access_type') == 'commercial' %}selected{% endif %}>{{ _('Commercial') }}</option>
-                                  <option value="freemium" {% if data.get('access_type') == 'freemium' %}selected{% endif %}>{{ _('Freemium') }}</option>
+                                <label for="developer_organization" class="control-label">{{ _('Developer Organization') }}</label>
+                                <input type="text" name="developer_organization" id="developer_organization" class="form-control" 
+                                       value="{{ data.get('developer_organization', '') }}" 
+                                       placeholder="{{ _('Organization that developed the AI tool') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="development_status" class="control-label">{{ _('Development Status') }}</label>
+                                <select name="development_status" id="development_status" class="form-control">
+                                  <option value="">{{ _('Select Status') }}</option>
+                                  <option value="active" {% if data.get('development_status') == 'active' %}selected{% endif %}>{{ _('Active') }}</option>
+                                  <option value="beta" {% if data.get('development_status') == 'beta' %}selected{% endif %}>{{ _('Beta') }}</option>
+                                  <option value="stable" {% if data.get('development_status') == 'stable' %}selected{% endif %}>{{ _('Stable') }}</option>
+                                  <option value="maintained" {% if data.get('development_status') == 'maintained' %}selected{% endif %}>{{ _('Maintained') }}</option>
+                                  <option value="deprecated" {% if data.get('development_status') == 'deprecated' %}selected{% endif %}>{{ _('Deprecated') }}</option>
+                                  <option value="archived" {% if data.get('development_status') == 'archived' %}selected{% endif %}>{{ _('Archived') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="software_license" class="control-label">{{ _('Software License') }}</label>
+                                <select name="software_license" id="software_license" class="form-control">
+                                  <option value="">{{ _('Select License') }}</option>
+                                  <option value="MIT" {% if data.get('software_license') == 'MIT' %}selected{% endif %}>MIT</option>
+                                  <option value="GPL-2.0" {% if data.get('software_license') == 'GPL-2.0' %}selected{% endif %}>GPL-2.0</option>
+                                  <option value="GPL-3.0" {% if data.get('software_license') == 'GPL-3.0' %}selected{% endif %}>GPL-3.0</option>
+                                  <option value="Apache-2.0" {% if data.get('software_license') == 'Apache-2.0' %}selected{% endif %}>Apache-2.0</option>
+                                  <option value="BSD-2-Clause" {% if data.get('software_license') == 'BSD-2-Clause' %}selected{% endif %}>BSD-2-Clause</option>
+                                  <option value="BSD-3-Clause" {% if data.get('software_license') == 'BSD-3-Clause' %}selected{% endif %}>BSD-3-Clause</option>
+                                  <option value="Creative Commons" {% if data.get('software_license') == 'Creative Commons' %}selected{% endif %}>Creative Commons</option>
+                                  <option value="Proprietary" {% if data.get('software_license') == 'Proprietary' %}selected{% endif %}>{{ _('Proprietary') }}</option>
+                                  <option value="Other" {% if data.get('software_license') == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
                                 </select>
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="software_license" class="control-label">{{ _('License') }}</label>
-                                <select name="software_license" id="software_license" class="form-control">
-                                  <option value="">{{ _('Select License') }}</option>
-                                  <option value="MIT" {% if data.get('software_license') == 'MIT' %}selected{% endif %}>MIT</option>
-                                  <option value="GPL" {% if data.get('software_license') == 'GPL' %}selected{% endif %}>GPL</option>
-                                  <option value="Apache" {% if data.get('software_license') == 'Apache' %}selected{% endif %}>Apache</option>
-                                  <option value="BSD" {% if data.get('software_license') == 'BSD' %}selected{% endif %}>BSD</option>
-                                  <option value="Creative Commons" {% if data.get('software_license') == 'Creative Commons' %}selected{% endif %}>Creative Commons</option>
-                                  <option value="Proprietary" {% if data.get('software_license') == 'Proprietary' %}selected{% endif %}>{{ _('Proprietary') }}</option>
-                                  <option value="Other" {% if data.get('software_license') == 'Other' %}selected{% endif %}>{{ _('Other') }}</option>
+                                <label for="attribution" class="control-label">{{ _('Attribution Requirements') }}</label>
+                                <select name="attribution" id="attribution" class="form-control">
+                                  <option value="">{{ _('Select Attribution') }}</option>
+                                  <option value="Required" {% if data.get('attribution') == 'Required' %}selected{% endif %}>{{ _('Required') }}</option>
+                                  <option value="Optional" {% if data.get('attribution') == 'Optional' %}selected{% endif %}>{{ _('Optional') }}</option>
+                                  <option value="None" {% if data.get('attribution') == 'None' %}selected{% endif %}>{{ _('None') }}</option>
                                 </select>
+                                <p class="help-block">{{ _('Whether attribution is required when using this tool') }}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label class="control-label">{{ _('Programming Languages') }}</label>
+                                <p class="help-block">{{ _('Select all applicable languages') }}</p>
+                                {% set selected_langs = (data.get('programming_language', '') or '').split(',') %}
+                                <div class="checkbox-grid">
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="Python" {% if 'Python' in selected_langs %}checked{% endif %}> Python</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="JavaScript" {% if 'JavaScript' in selected_langs %}checked{% endif %}> JavaScript</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="R" {% if 'R' in selected_langs %}checked{% endif %}> R</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="Java" {% if 'Java' in selected_langs %}checked{% endif %}> Java</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="C++" {% if 'C++' in selected_langs %}checked{% endif %}> C++</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="C" {% if 'C' in selected_langs %}checked{% endif %}> C</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="PHP" {% if 'PHP' in selected_langs %}checked{% endif %}> PHP</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="Go" {% if 'Go' in selected_langs %}checked{% endif %}> Go</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="programming_language_cb" value="Rust" {% if 'Rust' in selected_langs %}checked{% endif %}> Rust</label>
+                                </div>
+                                <input type="hidden" name="programming_language" id="programming_language" value="{{ data.get('programming_language', '') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label class="control-label">{{ _('Platforms') }}</label>
+                                <p class="help-block">{{ _('Select all supported platforms') }}</p>
+                                {% set selected_platforms = (data.get('platform', '') or '').split(',') %}
+                                <div class="checkbox-grid">
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="Windows" {% if 'Windows' in selected_platforms %}checked{% endif %}> Windows</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="Linux" {% if 'Linux' in selected_platforms %}checked{% endif %}> Linux</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="macOS" {% if 'macOS' in selected_platforms %}checked{% endif %}> macOS</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="Android" {% if 'Android' in selected_platforms %}checked{% endif %}> Android</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="iOS" {% if 'iOS' in selected_platforms %}checked{% endif %}> iOS</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="Web" {% if 'Web' in selected_platforms %}checked{% endif %}> {{ _('Web') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="platform_cb" value="Cross-platform" {% if 'Cross-platform' in selected_platforms %}checked{% endif %}> {{ _('Cross-platform') }}</label>
+                                </div>
+                                <input type="hidden" name="platform" id="platform" value="{{ data.get('platform', '') }}">
                               </div>
                             </div>
                           </div>
@@ -267,37 +388,18 @@
                           <div class="row">
                             <div class="col-md-4">
                               <div class="form-group">
-                                <label for="programming_language" class="control-label">{{ _('Programming Languages') }}</label>
-                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple languages') }}</p>
-                                <select name="programming_language" id="programming_language" class="form-control" multiple>
-                                  <option value="Python" {% if 'Python' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Python</option>
-                                  <option value="JavaScript" {% if 'JavaScript' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>JavaScript</option>
-                                  <option value="R" {% if 'R' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>R</option>
-                                  <option value="Java" {% if 'Java' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Java</option>
-                                  <option value="C++" {% if 'C++' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>C++</option>
-                                  <option value="C" {% if 'C' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>C</option>
-                                  <option value="PHP" {% if 'PHP' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>PHP</option>
-                                  <option value="Go" {% if 'Go' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Go</option>
-                                  <option value="Rust" {% if 'Rust' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Rust</option>
-                                  <option value="MATLAB" {% if 'MATLAB' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>MATLAB</option>
-                                  <option value="Fortran" {% if 'Fortran' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Fortran</option>
-                                  <option value="Other" {% if 'Other' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>{{ _('Other') }}</option>
-                                </select>
+                                <label for="additional_languages" class="control-label">{{ _('Additional Languages') }}</label>
+                                <input type="text" name="additional_languages" id="additional_languages" class="form-control" 
+                                       value="{{ data.get('additional_languages', '') }}" 
+                                       placeholder="{{ _('Other languages (comma-separated)') }}">
                               </div>
                             </div>
                             <div class="col-md-4">
                               <div class="form-group">
-                                <label for="platform" class="control-label">{{ _('Platforms') }}</label>
-                                <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple platforms') }}</p>
-                                <select name="platform" id="platform" class="form-control" multiple>
-                                  <option value="Windows" {% if 'Windows' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Windows</option>
-                                  <option value="Linux" {% if 'Linux' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Linux</option>
-                                  <option value="macOS" {% if 'macOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>macOS</option>
-                                  <option value="Android" {% if 'Android' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Android</option>
-                                  <option value="iOS" {% if 'iOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>iOS</option>
-                                  <option value="Web" {% if 'Web' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>{{ _('Web') }}</option>
-                                  <option value="Cross-platform" {% if 'Cross-platform' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>{{ _('Cross-platform') }}</option>
-                                </select>
+                                <label for="version" class="control-label">{{ _('Version') }}</label>
+                                <input type="text" name="version" id="version" class="form-control" 
+                                       value="{{ data.get('version', '') }}" 
+                                       placeholder="{{ _('e.g., 1.0.0') }}">
                               </div>
                             </div>
                             <div class="col-md-4">
@@ -305,22 +407,55 @@
                                 <label for="release_date" class="control-label">{{ _('Release Date') }}</label>
                                 <input type="text" name="release_date" id="release_date" class="form-control" 
                                        value="{{ data.get('release_date', '') }}" 
-                                       placeholder="{{ _('e.g., 2024, January 2024, 2024-01-15') }}">
-                                <p class="help-block">{{ _('Original release date or latest major version') }}</p>
+                                       placeholder="{{ _('e.g., 2024-01-15') }}">
                               </div>
+                            </div>
+                          </div>
+
+                          <!-- Member States Section -->
+                          <div class="form-group">
+                            <label class="control-label" for="member-state-select">{{ _('Member States') }}</label>
+                            <p class="help-block">{{ _('Select the member states associated with this AI tool') }}</p>
+                            
+                            <div class="member-states-container">
+                              <div class="member-state-selector">
+                                <div class="input-group">
+                                  <select id="member-state-select" class="form-control" aria-label="{{ _('Member States') }}">
+                                    <option value="">{{ _('Select a member state...') }}</option>
+                                    {% for ms in member_states_list|default([]) %}
+                                      <option value="{{ ms.name }}" data-name="{{ ms.name }}" data-display="{{ ms.formatted_name or ms.display_name or ms.title or ms.name }}">
+                                        {{ ms.formatted_name or ms.display_name or ms.title or ms.name }}
+                                      </option>
+                                    {% endfor %}
+                                    {% if not member_states_list|default([]) %}
+                                      <option value="" disabled>{{ _('No member states available') }}</option>
+                                    {% endif %}
+                                  </select>
+                                  <div class="input-group-btn">
+                                    <button type="button" class="btn btn-primary" id="add-member-state">
+                                      <i class="fa fa-plus"></i> {{ _('Add') }}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
+                              </div>
+                              
+                              <input type="hidden" id="member-states-data" name="member_states" value="{{ data.get('member_states', '') }}">
                             </div>
                           </div>
                         </div>
 
-                        <!-- Description & Content Section -->
+                        <!-- Section 4: Content & Description -->
                         <div class="form-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-file-text-o"></i>
-                            {{ _('Description & Content') }}
+                            {{ _('Content & Description') }}
                           </h3>
 
                           <div class="form-group">
-                            <label for="excerpt" class="control-label">{{ _('Summary/Excerpt') }}</label>
+                            <label for="excerpt" class="control-label">{{ _('Excerpt/Summary') }}</label>
                             <div class="quill-wrapper">
                               <div id="excerpt-editor" class="quill-editor quill-excerpt"></div>
                               <textarea name="excerpt" id="excerpt" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('excerpt', '') }}</textarea>
@@ -335,19 +470,113 @@
                           </div>
 
                           <div class="form-group">
-                            <label for="content-textarea" class="control-label">{{ _('Full Description') }}</label>
+                            <label for="content-textarea" class="control-label">{{ _('Tool Overview') }}</label>
                             <div class="quill-wrapper">
                               <div id="content-editor" class="quill-editor"></div>
                               <textarea name="content" id="content-textarea" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('content', '') }}</textarea>
                             </div>
-                            <p class="help-block">{{ _('Detailed description of the AI tool and its applications in water management.') }}</p>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Detailed description of the AI tool and its applications in water management. Use the rich text editor to format your content.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Pro Tip: Create Resource Cards') }}</strong>
+                                <p>{{ _('Use special tags to create beautiful resource cards automatically:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:documentation:https://docs.example.com:User Guide:Complete documentation and tutorials]</code><br>
+                                  <code>[RESOURCE:github:https://github.com/user/repo:Source Code:View and contribute to the project]</code><br>
+                                  <code>[RESOURCE:youtube:https://youtube.com/watch?v=xyz:Tutorial Video:Learn how to use this tool]</code>
+                                </div>
+                                <p><small>{{ _('Available types: documentation, github, youtube, openlearning, website, tutorial, guide, manual, course, download') }}</small></p>
+                              </div>
+                            </div>
                           </div>
 
                           <div class="form-group">
-                            <label for="key_features" class="control-label">{{ _('Key Features') }}</label>
+                            <h4>
+                              <label for="key_features" class="control-label">{{ _('Key Features') }}</label>
+                            </h4>
                             <textarea name="key_features" id="key_features" rows="8" class="form-control" 
                                       placeholder="{{ _('List key features, one per line:\n\nReal-time flood prediction using LSTM networks\nAutomated water quality anomaly detection\nSatellite imagery analysis for drought monitoring') }}">{{ data.get('key_features', '') }}</textarea>
                             <p class="help-block">{{ _('List main features, one per line. These will be displayed as highlighted points.') }}</p>
+                          </div>
+                        </div>
+
+                        <!-- Section 5: Links & Resources -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-link"></i>
+                            {{ _('Links & Resources') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="repository_url" class="control-label">{{ _('Repository URL') }}</label>
+                                <input type="url" name="repository_url" id="repository_url" class="form-control" 
+                                       value="{{ data.get('repository_url', '') }}" 
+                                       placeholder="{{ _('https://github.com/user/project') }}">
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="website_url" class="control-label">{{ _('Official Website') }}</label>
+                                <input type="url" name="website_url" id="website_url" class="form-control" 
+                                       value="{{ data.get('website_url', '') }}" 
+                                       placeholder="{{ _('https://project.org') }}">
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="documentation_url" class="control-label">{{ _('Documentation URL') }}</label>
+                            <input type="url" name="documentation_url" id="documentation_url" class="form-control" 
+                                   value="{{ data.get('documentation_url', '') }}" 
+                                   placeholder="{{ _('https://docs.project.org') }}">
+                          </div>
+                        </div>
+
+                        <!-- Section 6: Technical Information -->
+                        <div class="form-section">
+                          <h3 class="form-section-title">
+                            <i class="fa fa-cogs"></i>
+                            {{ _('Technical Information') }}
+                          </h3>
+
+                          <div class="form-group">
+                            <label for="technical_requirements" class="control-label">{{ _('Technical Requirements') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="technical-requirements-editor" class="quill-editor quill-compact"></div>
+                              <textarea name="technical_requirements" id="technical_requirements" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('technical_requirements', '') }}</textarea>
+                            </div>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('System requirements, dependencies, GPU needs, supported platforms.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Requirement Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:documentation:https://docs.example.com/requirements:System Requirements:Full hardware and software requirements]</code><br>
+                                  <code>[RESOURCE:download:https://github.com/user/repo/releases:Download:Get the latest version]</code>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="installation_instructions" class="control-label">{{ _('Installation & Usage Instructions') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="installation-instructions-editor" class="quill-editor"></div>
+                              <textarea name="installation_instructions" id="installation_instructions" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('installation_instructions', '') }}</textarea>
+                            </div>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Step-by-step installation and basic usage instructions.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Installation Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:documentation:https://docs.example.com/install:Installation Guide:Complete setup instructions]</code><br>
+                                  <code>[RESOURCE:tutorial:https://blog.example.com/how-to-install:Setup Tutorial:Follow this step-by-step guide]</code>
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
                           <div class="form-group">
@@ -358,75 +587,14 @@
                             </div>
                             <p class="help-block">{{ _('Describe the input data types, formats, and sources needed by this AI tool.') }}</p>
                           </div>
-
-                          <div class="form-group">
-                            <label for="reference_publications" class="control-label">{{ _('Reference Publications') }}</label>
-                            <div class="quill-wrapper">
-                              <div id="reference-publications-editor" class="quill-editor quill-compact"></div>
-                              <textarea name="reference_publications" id="reference_publications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('reference_publications', '') }}</textarea>
-                            </div>
-                            <p class="help-block">{{ _('Academic papers, reports, or publications related to or describing this AI tool.') }}</p>
-                          </div>
                         </div>
 
-                        <!-- Links & Resources Section -->
+                        <!-- Section 7: Learning & Publications -->
                         <div class="form-section">
                           <h3 class="form-section-title">
-                            <i class="fa fa-link"></i>
-                            {{ _('Links & Resources') }}
+                            <i class="fa fa-graduation-cap"></i>
+                            {{ _('Learning & Publications') }}
                           </h3>
-
-                          <div class="row">
-                            <div class="col-md-4">
-                              <div class="form-group">
-                                <label for="website_url" class="control-label">{{ _('Website URL') }}</label>
-                                <input type="url" name="website_url" id="website_url" class="form-control" 
-                                       value="{{ data.get('website_url', '') }}" 
-                                       placeholder="{{ _('https://project.org') }}">
-                              </div>
-                            </div>
-                            <div class="col-md-4">
-                              <div class="form-group">
-                                <label for="documentation_url" class="control-label">{{ _('Documentation URL') }}</label>
-                                <input type="url" name="documentation_url" id="documentation_url" class="form-control" 
-                                       value="{{ data.get('documentation_url', '') }}" 
-                                       placeholder="{{ _('https://docs.project.org') }}">
-                              </div>
-                            </div>
-                            <div class="col-md-4">
-                              <div class="form-group">
-                                <label for="repository_url" class="control-label">{{ _('Source Code URL') }}</label>
-                                <input type="url" name="repository_url" id="repository_url" class="form-control" 
-                                       value="{{ data.get('repository_url', '') }}" 
-                                       placeholder="{{ _('https://github.com/user/project') }}">
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Advanced Section -->
-                        <div class="form-section">
-                          <h3 class="form-section-title">
-                            <i class="fa fa-sliders"></i>
-                            {{ _('Advanced') }}
-                          </h3>
-
-                          <div class="form-group">
-                            <label for="technical_requirements" class="control-label">{{ _('Technical Requirements') }}</label>
-                            <div class="quill-wrapper">
-                              <div id="technical-requirements-editor" class="quill-editor quill-compact"></div>
-                              <textarea name="technical_requirements" id="technical_requirements" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('technical_requirements', '') }}</textarea>
-                            </div>
-                          </div>
-
-                          <div class="form-group">
-                            <label for="installation_instructions" class="control-label">{{ _('Installation Instructions') }}</label>
-                            <div class="quill-wrapper">
-                              <div id="installation-instructions-editor" class="quill-editor"></div>
-                              <textarea name="installation_instructions" id="installation_instructions" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('installation_instructions', '') }}</textarea>
-                            </div>
-                            <p class="help-block">{{ _('Step-by-step installation and setup instructions.') }}</p>
-                          </div>
 
                           <div class="form-group">
                             <label for="learning_resources" class="control-label">{{ _('Learning Resources') }}</label>
@@ -434,19 +602,62 @@
                               <div id="learning-resources-editor" class="quill-editor"></div>
                               <textarea name="learning_resources" id="learning_resources" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('learning_resources', '') }}</textarea>
                             </div>
-                            <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials.') }}</p>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Include links to tutorials, courses, documentation, and other learning materials.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Learning Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:youtube:https://youtube.com/watch?v=abc123:Tutorial Video:Learn the basics in 10 minutes]</code><br>
+                                  <code>[RESOURCE:openlearning:https://openlearning.unesco.org/course:UNESCO Course:Complete online training program]</code><br>
+                                  <code>[RESOURCE:course:https://coursera.org/course/xyz:Online Course:Comprehensive training course]</code><br>
+                                  <code>[RESOURCE:documentation:https://docs.example.com:User Manual:Complete documentation and guides]</code>
+                                </div>
+                                <p><small>{{ _('YouTube and OpenLearning links are automatically detected and styled with special branding') }}</small></p>
+                              </div>
+                            </div>
                           </div>
 
                           <div class="form-group">
-                            <label for="deltares_mapping_id" class="control-label">{{ _('Deltares Mapping ID') }}</label>
-                            <input type="text" name="deltares_mapping_id" id="deltares_mapping_id" class="form-control" 
-                                   value="{{ data.get('deltares_mapping_id', '') }}" 
-                                   placeholder="{{ _('UNESCO internal reference ID') }}">
-                            <p class="help-block">{{ _('Optional Deltares mapping identifier for UNESCO internal reference.') }}</p>
+                            <label for="reference_publications" class="control-label">{{ _('Reference Publications') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="reference-publications-editor" class="quill-editor quill-compact"></div>
+                              <textarea name="reference_publications" id="reference_publications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('reference_publications', '') }}</textarea>
+                            </div>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Academic papers, reports, or publications related to this AI tool.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Publication Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:documentation:https://doi.org/10.xxxx:Research Paper:Original publication describing the AI method]</code><br>
+                                  <code>[RESOURCE:website:https://arxiv.org/abs/xxxx:Preprint:Latest research findings]</code>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="example_applications" class="control-label">{{ _('Example Applications') }}</label>
+                            <div class="quill-wrapper">
+                              <div id="example-applications-editor" class="quill-editor quill-compact"></div>
+                              <textarea name="example_applications" id="example_applications" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;">{{ data.get('example_applications', '') }}</textarea>
+                            </div>
+                            <div class="help-block-enhanced">
+                              <p class="help-block">{{ _('Describe real-world examples and use cases where this AI tool has been applied.') }}</p>
+                              <div class="resource-tags-help">
+                                <strong>{{ _('💡 Create Example Resource Cards') }}</strong>
+                                <p>{{ _('Examples:') }}</p>
+                                <div class="tag-examples">
+                                  <code>[RESOURCE:website:https://project.example.com:Case Study:Real-world water management project]</code><br>
+                                  <code>[RESOURCE:github:https://github.com/user/examples:Example Code:Sample implementations and scripts]</code>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
-                        <!-- Images & Media Section -->
+                        <!-- Section 8: Images & Media -->
                         <div class="form-section">
                           <h3 class="form-section-title">
                             <i class="fa fa-camera"></i>
@@ -461,11 +672,83 @@
                             <p class="help-block">{{ _('Main image displayed in the header (recommended: 1200x400px)') }}</p>
                           </div>
 
+                          <!-- Header Display Options -->
+                          <div class="form-group">
+                            <label class="control-label">{{ _('Page Header Display Mode') }}</label>
+                            <div class="header-display-preview-container">
+                              <p class="help-block" style="margin-bottom: 1rem;">
+                                <i class="fa fa-info-circle"></i> {{ _('Choose how the tool title appears in the page header banner') }}
+                              </p>
+                              <div class="header-options-container">
+                                <label class="radio-option header-display-option" data-preview="text">
+                                  <input type="radio" name="header_display_mode" value="text" 
+                                         {% if not data.get('header_display_mode') or data.get('header_display_mode') == 'text' %}checked{% endif %}>
+                                  <div class="option-content">
+                                    <div class="option-preview preview-text">
+                                      <div class="preview-banner">
+                                        <h3>{{ data.get('title', 'AI Tool Title') or 'AI Tool Title' }}</h3>
+                                      </div>
+                                    </div>
+                                    <div class="option-details">
+                                      <span class="radio-label">{{ _('Text Only') }}</span>
+                                      <small class="help-block">{{ _('Display only the title text in the header') }}</small>
+                                    </div>
+                                  </div>
+                                </label>
+                                <label class="radio-option header-display-option" data-preview="logo">
+                                  <input type="radio" name="header_display_mode" value="logo" aria-label="{{ _('Logo only') }}"
+                                         {% if data.get('header_display_mode') == 'logo' %}checked{% endif %}>
+                                  <div class="option-content">
+                                    <div class="option-preview preview-logo">
+                                      <div class="preview-banner">
+                                        <div class="preview-logo-img">
+                                          <i class="fa fa-image"></i>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="option-details">
+                                      <span class="radio-label">{{ _('Logo only') }}</span>
+                                      <small class="help-block">{{ _('Display only the logo image, no text') }}</small>
+                                      <small class="help-block text-warning"><i class="fa fa-exclamation-triangle"></i> {{ _('Requires logo image to be uploaded') }}</small>
+                                    </div>
+                                  </div>
+                                </label>
+                                <label class="radio-option header-display-option" data-preview="logo_text">
+                                  <input type="radio" name="header_display_mode" value="logo_text" aria-label="{{ _('Logo above text') }}"
+                                         {% if data.get('header_display_mode') == 'logo_text' %}checked{% endif %}>
+                                  <div class="option-content">
+                                    <div class="option-preview preview-logo-text">
+                                      <div class="preview-banner">
+                                        <div class="preview-logo-img small">
+                                          <i class="fa fa-image"></i>
+                                        </div>
+                                        <h4>{{ data.get('title', 'AI Tool Title') or 'AI Tool Title' }}</h4>
+                                      </div>
+                                    </div>
+                                    <div class="option-details">
+                                      <span class="radio-label">{{ _('Logo above text') }}</span>
+                                      <small class="help-block">{{ _('Display logo image above the title text') }}</small>
+                                      <small class="help-block text-warning"><i class="fa fa-exclamation-triangle"></i> {{ _('Requires logo image to be uploaded') }}</small>
+                                    </div>
+                                  </div>
+                                </label>
+                              </div>
+                              <div class="alert alert-info" style="margin-top: 1rem;">
+                                <i class="fa fa-lightbulb-o"></i> 
+                                <strong>{{ _('Note:') }}</strong> {{ _('Logo display options require a logo image to be uploaded below.') }}
+                              </div>
+                            </div>
+                          </div>
+
                           <!-- Image Upload Section -->
                           <div class="image-upload-section">
                             <div class="form-group">
                               <label class="control-label">{{ _('Upload Screenshots & Images') }}</label>
                               <p class="help-block">{{ _('Upload images that will be displayed in the tool gallery. You can crop and adjust each image.') }}</p>
+                              <div class="alert alert-info" style="margin-bottom: 1rem;">
+                                <i class="fa fa-info-circle"></i> 
+                                <strong>{{ _('Important:') }}</strong> {{ _('Each uploaded image requires a descriptive name. Please avoid using file names with numbers or technical codes. Use clear, meaningful descriptions like "Neural network architecture", "Flood prediction dashboard", or "Water quality analysis results".') }}
+                              </div>
                               <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
                               <div class="upload-dropzone modern-dropzone" id="image-dropzone">
                                 <div class="dropzone-content">
@@ -488,6 +771,24 @@
                                   <i class="fa fa-image fa-3x"></i>
                                   <p>{{ _('Drop logo here or click to browse') }}</p>
                                   <p class="text-muted">{{ _('Logo will be automatically resized to 200x80px') }}</p>
+                                </div>
+                              </div>
+                              <div class="logo-options" style="margin-top: 1rem;">
+                                <div class="checkbox-option">
+                                  <input type="checkbox" id="add-background" name="add_background" value="true">
+                                  <label for="add-background">
+                                    <span class="checkbox-label">{{ _('Add white background to logo') }}</span>
+                                    <small class="help-inline">{{ _('Check this for logos with transparency that need a white background') }}</small>
+                                  </label>
+                                </div>
+                                <div class="checkbox-option">
+                                  <input type="hidden" id="include-logo-hidden" name="include_logo_in_gallery" value="{{ 'true' if data.get('include_logo_in_gallery') else 'false' }}">
+                                  <input type="checkbox" id="include-logo-in-gallery" value="true"
+                                         {% if data.get('include_logo_in_gallery') %}checked{% endif %}>
+                                  <label for="include-logo-in-gallery">
+                                    <span class="checkbox-label">{{ _('Include logo in image gallery') }}</span>
+                                    <small class="help-inline">{{ _('Show the logo image in the screenshots gallery section') }}</small>
+                                  </label>
                                 </div>
                               </div>
                               <div id="logo-preview" class="logo-preview-container" style="display: none;">
@@ -598,6 +899,829 @@
     {% endblock %}
 </div>
 
+
+<!-- Professional AI Water Tools Edit Form CSS -->
+<style>
+/* UNESCO Color Palette */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.9) 0%, rgba(0, 158, 224, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+}
+
+/* Professional Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module-content {
+  padding: 3rem;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--unesco-blue-pale);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 2rem;
+}
+
+.form-section-title {
+  color: var(--unesco-blue);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid var(--unesco-blue-pale);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 2px;
+}
+
+.form-section-title i {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-light);
+  flex-shrink: 0;
+}
+
+/* Enhanced Form Controls */
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.control-label {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  display: block;
+}
+
+.required {
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.form-control {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  line-height: 1.5;
+  height: 3em;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: var(--shadow-light);
+}
+
+.form-control:focus {
+  border-color: var(--unesco-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25);
+  background: #ffffff;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.form-control:hover {
+  border-color: var(--unesco-blue-light);
+  transform: translateY(-1px);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+  height: auto;
+}
+
+.form-control[readonly] {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  color: var(--text-secondary);
+}
+
+/* Help Text */
+.help-block {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Error Styling */
+.error-block {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-light);
+}
+
+/* Checkbox Grid */
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+}
+
+.checkbox-grid .checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.checkbox-grid .checkbox-inline:hover {
+  border-color: var(--unesco-blue-light);
+  background: var(--unesco-blue-pale);
+}
+
+.checkbox-grid .checkbox-inline input[type="checkbox"] {
+  accent-color: var(--unesco-blue);
+  width: 16px;
+  height: 16px;
+}
+
+/* Access Type Radio Buttons */
+.access-type-options .radio-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 8px 16px;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.access-type-options .radio-inline:hover {
+  border-color: var(--unesco-blue-light);
+  background: var(--unesco-blue-pale);
+}
+
+.access-type-options .radio-inline input[type="radio"] {
+  accent-color: var(--unesco-blue);
+}
+
+/* Professional Action Buttons */
+.form-actions {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 3rem;
+  text-align: center;
+  border: 2px solid var(--unesco-blue-pale);
+  box-shadow: var(--shadow-light);
+}
+
+.btn {
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-light);
+  margin: 0 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
+  color: white;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-default {
+  background: white;
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.btn-default:hover {
+  background: var(--unesco-blue-pale);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-1px);
+}
+
+/* Submission Actions Styling */
+.submission-actions {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue-pale);
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-top: 3rem;
+  box-shadow: 0 4px 20px rgba(0, 114, 188, 0.1);
+}
+
+.submission-buttons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.primary-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.submission-btn {
+  position: relative;
+  min-width: 220px;
+  padding: 1.2rem 2rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.4s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submission-btn[data-action="draft"] {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-color: #dee2e6;
+  color: var(--text-primary);
+}
+
+.submission-btn[data-action="draft"]:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 114, 188, 0.2);
+}
+
+.submission-btn[data-action="submit"] {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border-color: #28a745;
+  color: white;
+}
+
+.submission-btn[data-action="submit"]:hover {
+  background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+  border-color: #20c997;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(40, 167, 69, 0.3);
+}
+
+.submission-btn[data-action="publish"] {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border-color: var(--unesco-blue);
+  color: white;
+}
+
+.submission-btn[data-action="publish"]:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
+  border-color: var(--unesco-blue-dark);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 114, 188, 0.3);
+}
+
+.submission-btn i {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.btn-description {
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+
+/* Submission Status Display */
+.submission-status-display {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--unesco-blue-pale);
+  text-align: center;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.status-draft { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; }
+.status-pending { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; }
+.status-approved { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
+.status-rejected { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
+
+.status-date {
+  font-size: 0.9rem;
+  font-weight: 400;
+  opacity: 0.9;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  color: white;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li { display: inline-block; }
+.breadcrumb > li + li:before { content: "›"; padding: 0 12px; color: var(--text-secondary); font-weight: 600; }
+.breadcrumb > li.active { color: var(--unesco-blue); font-weight: 600; }
+.breadcrumb > li a { color: var(--text-secondary); text-decoration: none; transition: color 0.3s ease; }
+.breadcrumb > li a:hover { color: var(--unesco-blue); }
+
+/* Quill Editor Styling */
+.quill-wrapper {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.quill-editor {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.quill-editor:hover { border-color: var(--unesco-blue-light); transform: translateY(-1px); }
+.quill-editor.ql-focused { border-color: var(--unesco-blue); box-shadow: 0 0 0 0.2rem rgba(0, 114, 188, 0.25); transform: translateY(-1px); }
+
+.ql-toolbar {
+  border: none !important;
+  border-bottom: 2px solid #f8f9fa !important;
+  border-radius: 12px 12px 0 0 !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 2px 4px rgba(0, 114, 188, 0.08);
+}
+
+.ql-toolbar .ql-formats { margin-right: 20px; }
+.ql-toolbar .ql-formats:last-child { margin-right: 0; }
+
+.ql-container {
+  border: none !important;
+  border-radius: 0 0 12px 12px !important;
+  font-family: inherit !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+}
+
+.ql-editor {
+  padding: 20px !important;
+  min-height: 180px !important;
+  color: var(--text-primary) !important;
+  line-height: 1.6 !important;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--text-secondary) !important;
+  font-style: italic !important;
+  opacity: 0.7 !important;
+  left: 20px !important;
+  right: 20px !important;
+}
+
+.quill-compact .ql-editor { min-height: 120px !important; padding: 16px !important; }
+.quill-compact .ql-toolbar { padding: 8px 12px !important; }
+
+.ql-toolbar button {
+  border-radius: 6px !important;
+  margin: 2px !important;
+  padding: 6px 8px !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+}
+
+.ql-toolbar button:hover { background: var(--unesco-blue-pale) !important; border-color: var(--unesco-blue-light) !important; transform: translateY(-1px) !important; }
+.ql-toolbar button.ql-active { background: var(--unesco-blue) !important; color: white !important; border-color: var(--unesco-blue) !important; box-shadow: 0 2px 4px rgba(0, 114, 188, 0.3) !important; }
+.ql-toolbar .ql-stroke { stroke: #6c757d !important; }
+.ql-toolbar button:hover .ql-stroke { stroke: var(--unesco-blue) !important; }
+.ql-toolbar button.ql-active .ql-stroke { stroke: white !important; }
+.ql-toolbar .ql-fill { fill: #6c757d !important; }
+.ql-toolbar button:hover .ql-fill { fill: var(--unesco-blue) !important; }
+.ql-toolbar button.ql-active .ql-fill { fill: white !important; }
+
+.ql-toolbar .ql-picker { border-radius: 6px !important; border: 1px solid transparent !important; padding: 4px 8px !important; transition: all 0.2s ease !important; }
+.ql-toolbar .ql-picker:hover { background: var(--unesco-blue-pale) !important; border-color: var(--unesco-blue-light) !important; }
+.ql-toolbar .ql-picker.ql-expanded { background: var(--unesco-blue) !important; color: white !important; border-color: var(--unesco-blue) !important; }
+.ql-toolbar .ql-picker.ql-expanded .ql-stroke { stroke: white !important; }
+.ql-toolbar .ql-picker.ql-expanded .ql-fill { fill: white !important; }
+
+.ql-picker-options { background: white !important; border: 2px solid var(--unesco-blue) !important; border-radius: 8px !important; box-shadow: var(--shadow-medium) !important; padding: 8px 0 !important; margin-top: 4px !important; max-height: 200px !important; overflow-y: auto !important; }
+.ql-picker-item { padding: 8px 16px !important; transition: all 0.2s ease !important; border-radius: 0 !important; color: var(--text-primary) !important; }
+.ql-picker-item:hover { background: var(--unesco-blue-pale) !important; color: var(--unesco-blue) !important; }
+.ql-picker-item.ql-selected { background: var(--unesco-blue) !important; color: white !important; }
+
+.ql-editor h1 { font-size: 1.8rem !important; font-weight: 700 !important; color: var(--unesco-blue) !important; margin-bottom: 1rem !important; margin-top: 1.5rem !important; line-height: 1.3 !important; }
+.ql-editor h2 { font-size: 1.5rem !important; font-weight: 600 !important; color: var(--unesco-blue-dark) !important; margin-bottom: 0.8rem !important; margin-top: 1.2rem !important; line-height: 1.3 !important; }
+.ql-editor h3 { font-size: 1.3rem !important; font-weight: 600 !important; color: var(--text-primary) !important; margin-bottom: 0.6rem !important; margin-top: 1rem !important; line-height: 1.3 !important; }
+.ql-editor ul, .ql-editor ol { margin-bottom: 1rem !important; padding-left: 1.5rem !important; }
+.ql-editor li { margin-bottom: 0.3rem !important; line-height: 1.5 !important; }
+.ql-editor a { color: var(--unesco-blue) !important; text-decoration: none !important; border-bottom: 1px solid var(--unesco-blue-light) !important; transition: all 0.2s ease !important; }
+.ql-editor a:hover { color: var(--unesco-blue-dark) !important; border-bottom-color: var(--unesco-blue-dark) !important; background: var(--unesco-blue-pale) !important; padding: 2px 4px !important; border-radius: 4px !important; margin: -2px -4px !important; }
+.ql-editor strong { font-weight: 700 !important; color: var(--text-primary) !important; }
+.ql-editor em { font-style: italic !important; color: var(--text-secondary) !important; }
+.ql-editor blockquote { border-left: 4px solid var(--unesco-blue) !important; margin: 1rem 0 !important; padding: 0.5rem 0 0.5rem 1rem !important; background: var(--unesco-blue-pale) !important; border-radius: 0 8px 8px 0 !important; font-style: italic !important; color: var(--text-primary) !important; }
+.ql-editor code { background: #f8f9fa !important; border: 1px solid #e9ecef !important; border-radius: 4px !important; padding: 2px 6px !important; font-family: 'Courier New', Courier, monospace !important; font-size: 0.9em !important; color: #e83e8c !important; }
+.ql-editor pre { background: #f8f9fa !important; border: 1px solid #e9ecef !important; border-radius: 8px !important; padding: 1rem !important; margin: 1rem 0 !important; overflow-x: auto !important; font-family: 'Courier New', Courier, monospace !important; font-size: 0.9em !important; line-height: 1.4 !important; }
+
+.ql-tooltip { background: white !important; border: 2px solid var(--unesco-blue) !important; border-radius: 8px !important; box-shadow: var(--shadow-medium) !important; padding: 12px !important; color: var(--text-primary) !important; }
+.ql-tooltip input { border: 1px solid #e9ecef !important; border-radius: 6px !important; padding: 8px 12px !important; margin: 4px 0 !important; font-size: 14px !important; transition: border-color 0.2s ease !important; }
+.ql-tooltip input:focus { border-color: var(--unesco-blue) !important; outline: none !important; box-shadow: 0 0 0 2px rgba(0, 114, 188, 0.2) !important; }
+.ql-tooltip .ql-action { background: var(--unesco-blue) !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 6px 12px !important; margin: 0 4px !important; cursor: pointer !important; transition: all 0.2s ease !important; }
+.ql-tooltip .ql-action:hover { background: var(--unesco-blue-dark) !important; transform: translateY(-1px) !important; }
+.ql-tooltip .ql-remove { background: #dc3545 !important; color: white !important; border: none !important; border-radius: 6px !important; padding: 6px 12px !important; margin: 0 4px !important; cursor: pointer !important; transition: all 0.2s ease !important; }
+.ql-tooltip .ql-remove:hover { background: #c82333 !important; transform: translateY(-1px) !important; }
+
+.quill-loading { opacity: 0.7; pointer-events: none; position: relative; }
+.quill-loading::after { content: ''; position: absolute; top: 50%; left: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px; border: 2px solid var(--unesco-blue-pale); border-radius: 50%; border-top-color: var(--unesco-blue); animation: quill-spin 1s linear infinite; z-index: 10; }
+@keyframes quill-spin { to { transform: rotate(360deg); } }
+
+.ql-toolbar button:focus { outline: 2px solid var(--unesco-blue) !important; outline-offset: 2px !important; }
+
+/* Excerpt Editor Specific Styles */
+.quill-excerpt .ql-editor { min-height: 80px !important; padding: 16px !important; }
+.quill-excerpt .ql-toolbar { padding: 8px 12px !important; }
+
+/* Hide all Quill textareas visually but keep them in DOM for form submission */
+.quill-wrapper textarea,
+textarea[id="excerpt"],
+textarea[id="content-textarea"],
+textarea[id="technical_requirements"],
+textarea[id="installation_instructions"],
+textarea[id="data_requirements"],
+textarea[id="learning_resources"],
+textarea[id="reference_publications"],
+textarea[id="example_applications"] {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
+  pointer-events: none !important;
+}
+
+/* Enhanced Help Blocks with Resource Tags */
+.help-block-enhanced {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 1px solid var(--unesco-blue);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.resource-tags-help {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border-left: 4px solid var(--unesco-blue);
+}
+
+.resource-tags-help strong { color: var(--unesco-blue); font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
+.tag-examples { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 1rem; margin: 0.75rem 0; font-family: monospace; line-height: 1.6; }
+.tag-examples code { background: none; color: var(--unesco-blue); font-weight: 600; font-size: 0.9rem; padding: 0; border: none; word-break: break-all; display: block; margin-bottom: 0.5rem; }
+.tag-examples code:hover { background: var(--unesco-blue-pale); padding: 4px 6px; border-radius: 4px; cursor: pointer; }
+.resource-tags-help p:last-child { margin-bottom: 0; }
+.resource-tags-help small { color: var(--text-secondary); font-style: italic; }
+
+/* Character Counter Styles */
+.excerpt-info { margin-top: 0.5rem; }
+.character-counter { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; padding: 8px 12px; background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%); border: 1px solid var(--unesco-blue); border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: var(--unesco-blue); box-shadow: var(--shadow-light); }
+.current-count { font-weight: 700; font-size: 1rem; }
+.max-count { color: var(--text-secondary); }
+.counter-status { margin-left: auto; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; transition: all 0.3s ease; }
+.counter-status.optimal { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.counter-status.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+.counter-status.over-limit { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; animation: pulse-warning 2s infinite; }
+@keyframes pulse-warning { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.character-counter.over-limit { border-color: #dc3545; background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color: #721c24; }
+.character-counter.warning { border-color: #ffc107; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); color: #856404; }
+
+/* Modern Image Upload Styling */
+.image-upload-section { margin-bottom: 2rem; }
+
+.modern-dropzone {
+  border: 3px dashed #e9ecef;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.08);
+}
+
+.modern-dropzone:hover { border-color: var(--unesco-blue); background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 114, 188, 0.15); }
+.modern-dropzone.dragover { border-color: var(--unesco-blue); background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #e3f2fd 100%); transform: scale(1.02); box-shadow: 0 8px 32px rgba(0, 114, 188, 0.2); }
+.dropzone-content { pointer-events: none; }
+.dropzone-content i { color: var(--unesco-blue); margin-bottom: 1rem; opacity: 0.8; }
+.dropzone-content p { margin: 0.5rem 0; font-size: 1.1rem; color: var(--text-primary); font-weight: 500; }
+.dropzone-content .text-muted { font-size: 0.9rem; color: var(--text-secondary); }
+.upload-stats { margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(0, 114, 188, 0.1); border-radius: 20px; display: inline-block; font-size: 0.9rem; color: var(--unesco-blue); font-weight: 600; }
+.upload-count { font-weight: 700; font-size: 1.1rem; }
+
+/* Modern Image Grid */
+.uploaded-images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+.uploaded-image-item { background: white; border: 1px solid #e9ecef; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 114, 188, 0.08); transition: all 0.3s ease; position: relative; }
+.uploaded-image-item:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0, 114, 188, 0.16); border-color: var(--unesco-blue-pale); }
+.uploaded-image-preview { width: 100%; height: 200px; object-fit: cover; transition: transform 0.3s ease; }
+.uploaded-image-item:hover .uploaded-image-preview { transform: scale(1.05); }
+.uploaded-image-info { padding: 1rem; }
+.uploaded-image-info input { width: 100%; border: 1px solid #e9ecef; border-radius: 8px; padding: 0.5rem; margin-bottom: 0.5rem; font-size: 0.9rem; transition: border-color 0.3s ease; height: auto; }
+.uploaded-image-info input:focus { border-color: var(--unesco-blue); outline: none; box-shadow: 0 0 0 2px rgba(0, 114, 188, 0.2); }
+.uploaded-image-info input.required-field { border: 2px solid #dc3545; background: #fff5f5; box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25); }
+.uploaded-image-info input.required-field:focus { border-color: #dc3545; box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); outline: none; }
+.uploaded-image-info input.required-field::placeholder { color: #dc3545; font-weight: 600; }
+.uploaded-image-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.image-copy-url, .image-remove { padding: 0.4rem 0.8rem; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; flex: 1; }
+.image-copy-url { background: var(--unesco-blue-pale); color: var(--unesco-blue); }
+.image-copy-url:hover { background: var(--unesco-blue); color: white; }
+.image-remove { background: #f8d7da; color: #721c24; }
+.image-remove:hover { background: #dc3545; color: white; }
+
+/* Upload Progress */
+.upload-progress { background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 1rem; margin: 1rem 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.progress { height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--unesco-blue) 0%, var(--unesco-blue-light) 100%); transition: width 0.3s ease; }
+
+/* Logo Upload Specific Styles */
+.logo-dropzone { border: 3px dashed #28a745; border-radius: 12px; padding: 2rem; text-align: center; background: #f8fff8; cursor: pointer; transition: all 0.3s ease; }
+.logo-dropzone:hover { border-color: #20c997; background: #e8f5e8; }
+.logo-dropzone.dragover { border-color: #17a2b8; background: #e8f5f8; transform: scale(1.02); }
+.logo-preview-container { margin-top: 1rem; padding: 1rem; border: 1px solid #dee2e6; border-radius: 8px; background: #f8f9fa; text-align: center; }
+.logo-preview-img { max-width: 200px; max-height: 80px; border: 1px solid #dee2e6; border-radius: 4px; background: white; padding: 4px; object-fit: contain; }
+.logo-preview-actions { margin-top: 1rem; }
+
+/* Logo Options Styling */
+.logo-options { background: var(--unesco-blue-pale); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--unesco-blue); box-shadow: var(--shadow-light); }
+.checkbox-option { display: flex; align-items: flex-start; margin-bottom: 1rem; gap: 0.75rem; }
+.checkbox-option:last-child { margin-bottom: 0; }
+.checkbox-option input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; margin-top: 2px; flex-shrink: 0; accent-color: var(--unesco-blue); }
+.checkbox-option label { cursor: pointer; margin: 0; flex: 1; }
+.checkbox-label { font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 0.25rem; line-height: 1.3; }
+.help-inline { font-size: 0.85rem; color: var(--text-secondary); font-style: italic; margin: 0; line-height: 1.4; }
+
+/* Header Options Styling */
+.header-display-preview-container { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 16px; border: 1px solid #dee2e6; }
+.header-options-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem; }
+.header-display-option { position: relative; padding: 0; background: white; border-radius: 12px; border: 3px solid #e9ecef; cursor: pointer; transition: all 0.3s ease; overflow: hidden; box-shadow: var(--shadow-light); }
+.header-display-option:hover { border-color: var(--unesco-blue-light); box-shadow: var(--shadow-medium); transform: translateY(-2px); }
+.header-display-option input[type="radio"] { position: absolute; top: 1rem; right: 1rem; width: 20px; height: 20px; cursor: pointer; z-index: 10; }
+.header-display-option input[type="radio"]:checked { accent-color: var(--unesco-blue); }
+.header-display-option input[type="radio"]:checked ~ .option-content { background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%); }
+.header-display-option input[type="radio"]:checked ~ .option-content .radio-label { color: var(--unesco-blue); font-weight: 700; }
+.header-display-option.selected { border-color: var(--unesco-blue); box-shadow: 0 4px 16px rgba(0, 114, 188, 0.2); transform: translateY(-2px); }
+.header-display-option.selected .option-content { background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%); }
+.option-content { padding: 1rem; transition: background 0.3s ease; }
+.option-preview { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; min-height: 100px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.preview-banner { text-align: center; width: 100%; }
+.preview-banner h3, .preview-banner h4 { color: white; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+.preview-banner h3 { font-size: 1.3rem; }
+.preview-banner h4 { font-size: 1.1rem; }
+.preview-logo-img { width: 80px; height: 40px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: #6c757d; font-size: 1.5rem; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.preview-logo-img.small { width: 60px; height: 30px; font-size: 1.2rem; margin-bottom: 0.5rem; }
+.option-details { text-align: left; }
+.radio-label { font-weight: 600; color: var(--text-primary); font-size: 1.1rem; display: block; margin-bottom: 0.25rem; }
+.option-details .help-block { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+
+/* Remove automatic colons from header display mode labels */
+.header-display-option:after, .header-display-option label:after { content: none !important; display: none !important; }
+.header-display-option .radio-label:after { content: none !important; display: none !important; }
+
+/* Warning text styling */
+.text-warning { color: #f39c12 !important; font-weight: 600; }
+.text-warning i { margin-right: 0.25rem; }
+
+/* Member States Styling */
+.member-states-container { background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 1px solid #e9ecef; border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-light); }
+.member-state-selector { margin-bottom: 1.5rem; }
+.member-state-selector .input-group { width: 100%; }
+.member-state-selector .form-control { border-radius: 12px 0 0 12px; }
+.member-state-selector .btn { border-radius: 0 12px 12px 0; padding: 12px 20px; font-weight: 600; text-transform: none; }
+.selected-member-states { display: flex; flex-wrap: wrap; gap: 0.75rem; min-height: 45px; padding: 0.5rem 0; }
+.member-state-item { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%); border: 2px solid var(--unesco-blue); border-radius: 20px; padding: 6px 12px 6px 16px; font-size: 0.95rem; transition: all 0.3s ease; box-shadow: var(--shadow-light); }
+.member-state-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-medium); background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%); color: white; }
+.member-state-item:hover .member-state-name { color: white; }
+.member-state-item:hover .remove-member-state { background: white; color: var(--unesco-blue); border-color: white; }
+.member-state-name { font-weight: 600; color: var(--unesco-blue); }
+.remove-member-state { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 2px 8px; font-size: 0.75rem; border-radius: 12px; transition: all 0.2s ease; line-height: 1.2; min-width: auto; }
+.remove-member-state:hover { background: #dc3545; color: white; transform: scale(1.05); }
+.remove-member-state i { font-size: 0.8rem; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title { height: 200px; margin-bottom: 2rem; }
+  .section-title-content h1 { font-size: 2rem; }
+  .section-title-description { font-size: 1.1rem; }
+  .module-content { padding: 2rem; }
+  .form-section-title { font-size: 1.3rem; flex-direction: column; align-items: flex-start; text-align: left; }
+  .form-section-title i { width: 35px; height: 35px; font-size: 1rem; margin-bottom: 0.5rem; }
+  .form-actions { padding: 1.5rem; }
+  .btn { display: block; width: 100%; margin: 0.5rem 0; }
+  .btn-danger { margin-top: 2rem; }
+  .header-options-container { grid-template-columns: 1fr; }
+  .header-display-preview-container { padding: 1rem; }
+  .modern-dropzone { padding: 2rem 1rem; }
+  .uploaded-images-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .uploaded-image-preview { height: 150px; }
+  .checkbox-grid { gap: 0.3rem; }
+  .ql-toolbar { padding: 8px 12px !important; }
+  .ql-editor { padding: 16px !important; min-height: 150px !important; }
+  .quill-compact .ql-editor { min-height: 100px !important; padding: 12px !important; }
+  .member-states-container { padding: 1rem; }
+  .member-state-selector .btn { padding: 12px 16px; }
+  .member-state-item { font-size: 0.9rem; padding: 5px 10px 5px 14px; }
+}
+
+@media (max-width: 480px) {
+  .section-title { height: 150px; }
+  .section-title-content h1 { font-size: 1.8rem; }
+  .module-content { padding: 1.5rem; }
+  .form-section { margin-bottom: 2rem; }
+  .form-section-title { font-size: 1.2rem; }
+}
+</style>
+
+
 <!-- Enhanced Form JavaScript -->
 <script>
 (function() {
@@ -608,91 +1732,357 @@
     if (typeof jQuery !== 'undefined') {
       callback(jQuery);
     } else {
-      setTimeout(function() {
-        waitForJQuery(callback);
-      }, 50);
+      setTimeout(function() { waitForJQuery(callback); }, 50);
     }
   }
   
   waitForJQuery(function($) {
   let uploadedImages = [];
   let logoUrl = '';
+  let selectedMemberStates = [];
+
+  // Sync checkbox groups to hidden fields
+  function syncCheckboxGroup(cbName, hiddenId) {
+    var values = [];
+    $('input[name="' + cbName + '"]:checked').each(function() {
+      values.push($(this).val());
+    });
+    $('#' + hiddenId).val(values.join(','));
+  }
+
+  // Bind checkbox change events
+  $(document).on('change', 'input[name="ai_technique_cb"]', function() {
+    syncCheckboxGroup('ai_technique_cb', 'ai_technique');
+  });
+  $(document).on('change', 'input[name="water_application_domain_cb"]', function() {
+    syncCheckboxGroup('water_application_domain_cb', 'water_application_domain');
+  });
+  $(document).on('change', 'input[name="programming_language_cb"]', function() {
+    syncCheckboxGroup('programming_language_cb', 'programming_language');
+  });
+  $(document).on('change', 'input[name="platform_cb"]', function() {
+    syncCheckboxGroup('platform_cb', 'platform');
+  });
+
+  // Format member state name
+  function formatMemberStateName(name) {
+    if (!name) return name;
+    return name
+      .split('-')
+      .map(function(word) {
+        if (['of','and','the','de','da','du'].indexOf(word.toLowerCase()) !== -1) {
+          return word.toLowerCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // Load existing member states
+  function loadExistingMemberStates() {
+    var memberStatesData = $('#member-states-data').val();
+    if (memberStatesData) {
+      try {
+        selectedMemberStates = JSON.parse(memberStatesData);
+        selectedMemberStates.forEach(function(state) {
+          if (!state.display_name && state.name) {
+            state.display_name = formatMemberStateName(state.name);
+          }
+          addMemberStateToList(state);
+        });
+      } catch (e) {
+        console.error('Error parsing member states data:', e);
+      }
+    }
+  }
+
+  function addMemberStateToList(state) {
+    var stateId = 'member-state-' + state.name;
+    if ($('#' + stateId).length) return;
+    var stateHtml = '<div class="member-state-item" id="' + stateId + '" data-state-name="' + state.name + '">' +
+      '<span class="member-state-name">' + state.display_name + '</span>' +
+      '<button type="button" class="btn btn-sm btn-danger remove-member-state" data-state-name="' + state.name + '">' +
+      '<i class="fa fa-times"></i></button></div>';
+    $('#selected-member-states').append(stateHtml);
+  }
+
+  function updateMemberStatesData() {
+    $('#member-states-data').val(JSON.stringify(selectedMemberStates));
+  }
+
+  $('#add-member-state').on('click', function() {
+    var $select = $('#member-state-select');
+    var selectedOption = $select.find('option:selected');
+    var stateName = selectedOption.val();
+    if (!stateName) return;
+    if (selectedMemberStates.find(function(s) { return s.name === stateName; })) {
+      alert('{{ _("This member state has already been added") }}');
+      return;
+    }
+    var state = { id: stateName, name: stateName, display_name: selectedOption.data('display') };
+    selectedMemberStates.push(state);
+    addMemberStateToList(state);
+    updateMemberStatesData();
+    $select.val('');
+  });
+
+  $(document).on('click', '.remove-member-state', function() {
+    var stateName = $(this).data('state-name');
+    $('#member-state-' + stateName).remove();
+    selectedMemberStates = selectedMemberStates.filter(function(s) { return s.name !== stateName; });
+    updateMemberStatesData();
+  });
 
   // Load existing uploaded images
   function loadUploadedImages() {
-    const data = $('#uploaded-images-data').val();
-    if (data) {
+    var uploadedData = $('#uploaded-images-data').val();
+    if (uploadedData) {
       try {
-        uploadedImages = JSON.parse(data);
-        uploadedImages.forEach(function(img, index) {
-          addImagePreview(img.url, img.alt || '', img.caption || '', index);
+        uploadedImages = JSON.parse(uploadedData);
+        uploadedImages.forEach(function(img) {
+          addUploadedImagePreview(img);
         });
-        $('.upload-count').text(uploadedImages.length);
       } catch (e) {
-        console.error('Error loading uploaded images:', e);
+        console.error('Error parsing uploaded images data:', e);
       }
     }
-    // Load logo
-    const existingLogo = $('#logo_image').val();
-    if (existingLogo) {
-      logoUrl = existingLogo;
-      $('#logo-preview-img').attr('src', existingLogo);
-      $('#logo-preview').show();
+    // Load existing logo
+    var storedLogo = $('#logo_image').val();
+    var headerImage = $('#header_image').val();
+    var displayMode = $('input[name="header_display_mode"]:checked').val();
+    var fallbackLogo = storedLogo || ((displayMode === 'logo' || displayMode === 'logo_text') ? headerImage : '');
+    if (fallbackLogo) {
+      logoUrl = fallbackLogo;
+      showLogoPreview(fallbackLogo);
+      updateHeaderDisplayPreview(fallbackLogo);
     }
   }
 
-  function addImagePreview(url, alt, caption, index) {
-    const preview = $('<div class="uploaded-image-item">' +
-      '<img src="' + url + '" alt="' + (alt || '') + '">' +
-      '<div class="image-item-controls">' +
-        '<input type="text" class="form-control image-alt" placeholder="{{ _("Image name/description") }}" value="' + (alt || '') + '" data-index="' + index + '">' +
-        '<button type="button" class="btn btn-sm btn-danger remove-image" data-index="' + index + '">' +
-          '<i class="fa fa-trash"></i>' +
-        '</button>' +
-      '</div>' +
-    '</div>');
-    $('#uploaded-images-preview').append(preview);
+  // Handle file upload
+  $('#image-upload').on('change', function(e) {
+    e.stopPropagation();
+    var files = this.files;
+    if (files.length > 0) {
+      Array.from(files).forEach(function(file) {
+        if (file.type.startsWith('image/')) {
+          uploadImage(file, false);
+        }
+      });
+      this.value = '';
+    }
+  });
+
+  // Handle logo upload
+  $('#logo-upload').on('change', function(e) {
+    e.stopPropagation();
+    var files = this.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      uploadImage(files[0], true);
+      this.value = '';
+    }
+  });
+
+  // Keep hidden include_logo_in_gallery value in sync
+  var $includeLogoCheckbox = $('#include-logo-in-gallery');
+  var $includeLogoHidden = $('#include-logo-hidden');
+  if ($includeLogoCheckbox.length && $includeLogoHidden.length) {
+    var syncIncludeLogoField = function() {
+      $includeLogoHidden.val($includeLogoCheckbox.is(':checked') ? 'true' : 'false');
+    };
+    $includeLogoCheckbox.on('change', syncIncludeLogoField);
+    syncIncludeLogoField();
   }
+
+  // Handle dropzone click
+  $('#image-dropzone').on('click', function(e) { e.preventDefault(); e.stopPropagation(); $('#image-upload').trigger('click'); });
+  $('#logo-dropzone').on('click', function(e) { e.preventDefault(); e.stopPropagation(); $('#logo-upload').trigger('click'); });
+
+  // Drag and drop
+  $('#image-dropzone').on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('dragover'); });
+  $('#image-dropzone').on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('dragover'); });
+  $('#image-dropzone').on('drop', function(e) {
+    e.preventDefault(); e.stopPropagation(); $(this).removeClass('dragover');
+    var files = e.originalEvent.dataTransfer.files;
+    if (files.length > 0) {
+      Array.from(files).forEach(function(file) { if (file.type.startsWith('image/')) { uploadImage(file, false); } });
+    }
+  });
+
+  $('#logo-dropzone').on('dragover', function(e) { e.preventDefault(); e.stopPropagation(); $(this).addClass('dragover'); });
+  $('#logo-dropzone').on('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); $(this).removeClass('dragover'); });
+  $('#logo-dropzone').on('drop', function(e) {
+    e.preventDefault(); e.stopPropagation(); $(this).removeClass('dragover');
+    var files = e.originalEvent.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) { uploadImage(files[0], true); }
+  });
+
+  // Upload image function
+  function uploadImage(file, isLogo) {
+    var formData = new FormData();
+    formData.append('upload', file);
+    if (isLogo) {
+      formData.append('is_logo', 'true');
+      if ($('#add-background').is(':checked')) {
+        formData.append('add_background', 'true');
+      }
+    }
+    var progressId = 'progress-' + Date.now();
+    var progressHtml = '<div id="' + progressId + '" class="upload-progress">' +
+      '<p>{{ _("Uploading") }} ' + file.name + '...</p>' +
+      '<div class="progress"><div class="progress-bar" style="width: 0%"></div></div></div>';
+    if (isLogo) { $('#logo-dropzone').after(progressHtml); }
+    else { $('#uploaded-images-preview').append(progressHtml); }
+
+    $.ajax({
+      url: '{{ h.url_for("pages.upload") }}',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      xhr: function() {
+        var xhr = new window.XMLHttpRequest();
+        xhr.upload.addEventListener("progress", function(evt) {
+          if (evt.lengthComputable) {
+            var pct = (evt.loaded / evt.total) * 100;
+            $('#' + progressId + ' .progress-bar').css('width', pct + '%');
+          }
+        }, false);
+        return xhr;
+      },
+      success: function(response) {
+        $('#' + progressId).remove();
+        if (response.uploaded === 1) {
+          if (isLogo) {
+            logoUrl = response.url;
+            $('#logo_image').val(response.url);
+            showLogoPreview(response.url);
+          } else {
+            var imageData = { url: response.url, fileName: response.fileName, alt: '', caption: '' };
+            uploadedImages.push(imageData);
+            addUploadedImagePreview(imageData);
+            updateUploadedImagesData();
+          }
+        } else {
+          alert('{{ _("Error uploading image: ") }}' + (response.error ? response.error.message : '{{ _("Unknown error") }}'));
+        }
+      },
+      error: function(xhr) {
+        $('#' + progressId).remove();
+        var errorMsg = '{{ _("Upload failed") }}';
+        if (xhr.responseText) {
+          try { var resp = JSON.parse(xhr.responseText); errorMsg += ': ' + (resp.error || resp.message || xhr.statusText); }
+          catch(e) { errorMsg += ': ' + xhr.status + ' ' + xhr.statusText; }
+        } else { errorMsg += ': ' + xhr.status + ' ' + xhr.statusText; }
+        alert(errorMsg);
+      }
+    });
+  }
+
+  function showLogoPreview(url) {
+    $('#logo-preview-img').attr('src', url);
+    $('#logo-preview').show();
+    $('#logo-dropzone').hide();
+    updateHeaderDisplayPreview(url);
+  }
+
+  function updateHeaderDisplayPreview(logoUrl) {
+    if (logoUrl) {
+      $('.preview-logo-img').each(function() {
+        $(this).html('<img src="' + logoUrl + '" style="max-width: 100%; max-height: 100%; object-fit: contain;">');
+      });
+    }
+  }
+
+  $('#remove-logo').on('click', function() {
+    logoUrl = '';
+    $('#logo_image').val('');
+    $('#logo-preview').hide();
+    $('#logo-dropzone').show();
+    $('.preview-logo-img').each(function() { $(this).html('<i class="fa fa-image"></i>'); });
+  });
+
+  function addUploadedImagePreview(imageData) {
+    var imageId = 'uploaded-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    var altRequired = imageData.alt ? '' : 'required-field';
+    var imageHtml = '<div class="uploaded-image-item" data-image-id="' + imageId + '">' +
+      '<img src="' + imageData.url + '" alt="' + (imageData.alt || '') + '" class="uploaded-image-preview">' +
+      '<div class="uploaded-image-info">' +
+        '<input type="text" class="image-alt ' + altRequired + '" value="' + (imageData.alt || '') + '" placeholder="{{ _("Enter descriptive name (required)") }}" title="{{ _("Please provide a descriptive name for this image") }}">' +
+        '<input type="text" class="image-caption" value="' + (imageData.caption || '') + '" placeholder="{{ _("Caption (optional)") }}">' +
+        '<div class="uploaded-image-actions">' +
+          '<button type="button" class="image-copy-url" onclick="copyImageUrl(\'' + imageData.url + '\')">' +
+            '<i class="fa fa-copy"></i> {{ _("Copy URL") }}</button>' +
+          '<button type="button" class="image-remove" onclick="removeUploadedImage(\'' + imageId + '\')">' +
+            '<i class="fa fa-trash"></i></button>' +
+        '</div></div></div>';
+    $('#uploaded-images-preview').append(imageHtml);
+    if (!imageData.alt) {
+      setTimeout(function() { $('[data-image-id="' + imageId + '"] .image-alt').focus(); }, 100);
+    }
+  }
+
+  window.copyImageUrl = function(url) {
+    navigator.clipboard.writeText(url).then(function() {
+      var btn = event.target.closest('.image-copy-url');
+      var originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa fa-check"></i> {{ _("Copied!") }}';
+      setTimeout(function() { btn.innerHTML = originalText; }, 2000);
+    });
+  };
+
+  window.removeUploadedImage = function(imageId) {
+    var $item = $('.uploaded-image-item[data-image-id="' + imageId + '"]');
+    var imageUrl = $item.find('img').attr('src');
+    $item.remove();
+    uploadedImages = uploadedImages.filter(function(img) { return img.url !== imageUrl; });
+    updateUploadedImagesData();
+  };
 
   function updateUploadedImagesData() {
     var currentImages = [];
-    $('#uploaded-images-preview .uploaded-image-item').each(function(i) {
-      var img = $(this).find('img');
-      var alt = $(this).find('.image-alt').val() || '';
+    $('.uploaded-image-item').each(function() {
+      var $item = $(this);
       currentImages.push({
-        url: img.attr('src'),
-        alt: alt,
-        caption: alt
+        url: $item.find('img').attr('src'),
+        fileName: $item.find('img').attr('src').split('/').pop(),
+        alt: $item.find('.image-alt').val(),
+        caption: $item.find('.image-caption').val()
       });
     });
     uploadedImages = currentImages;
     $('#uploaded-images-data').val(JSON.stringify(uploadedImages));
-    
     var galleryData = uploadedImages.map(function(img) {
       return { type: 'uploaded', url: img.url, alt: img.alt, caption: img.caption };
     });
     $('#image-gallery-data').val(JSON.stringify(galleryData));
   }
 
-  $(document).on('change input', '.image-alt', function() {
+  $(document).on('change input', '.image-alt, .image-caption', function() {
+    if ($(this).hasClass('image-alt') && $(this).val().trim()) {
+      $(this).removeClass('required-field');
+    } else if ($(this).hasClass('image-alt') && !$(this).val().trim()) {
+      $(this).addClass('required-field');
+    }
     updateUploadedImagesData();
   });
 
   // Auto-generate URL from title
   $('#title').on('input', function() {
     if ($('#name').prop('readonly')) {
-      var title = $(this).val().toLowerCase()
-        .replace(/[^\w ]+/g,'')
-        .replace(/ +/g,'-');
+      var title = $(this).val().toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-');
       $('#name').val(title);
     }
+    // Update header preview
+    var titleText = $(this).val() || 'AI Tool Title';
+    $('.preview-banner h3, .preview-banner h4').text(titleText);
   });
-  
+
   // Toggle URL field editing
   $('#edit-url-btn').on('click', function() {
     var $urlField = $('#name');
     var $btn = $(this);
-    
     if ($urlField.prop('readonly')) {
       $urlField.prop('readonly', false).focus();
       $btn.html('<i class="fa fa-lock"></i>').attr('title', '{{ _("Lock auto-generation") }}');
@@ -701,82 +2091,59 @@
       $urlField.prop('readonly', true);
       $btn.html('<i class="fa fa-edit"></i>').attr('title', '{{ _("Edit URL manually") }}');
       $btn.removeClass('btn-warning').addClass('btn-default');
-      var title = $('#title').val().toLowerCase()
-        .replace(/[^\w ]+/g,'')
-        .replace(/ +/g,'-');
+      var title = $('#title').val().toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-');
       $urlField.val(title);
     }
   });
-  
-  // Handle multiple selects - convert arrays to comma-separated strings
-  function handleMultipleSelects() {
-    var multiSelects = [
-      { id: 'ai_technique', hiddenName: 'ai_technique_list' },
-      { id: 'water_application_domain', hiddenName: 'water_application_domain_list' },
-      { id: 'programming_language', hiddenName: 'programming_language_list' },
-      { id: 'platform', hiddenName: 'platform_list' }
-    ];
+
+  // Header display mode change handler
+  $('input[name="header_display_mode"]').on('change', function() {
+    var storedLogoUrl = $('#logo_image').val() || logoUrl;
+    var selectedMode = $(this).val();
+    var headerFallback = (selectedMode === 'logo' || selectedMode === 'logo_text') ? $('#header_image').val() : '';
+    var currentLogoUrl = storedLogoUrl || headerFallback;
     
-    multiSelects.forEach(function(item) {
-      var values = $('#' + item.id).val();
-      if (values && Array.isArray(values)) {
-        var unique = [];
-        var seen = {};
-        values.forEach(function(v) {
-          var clean = v.trim();
-          if (clean && !seen[clean]) {
-            unique.push(clean);
-            seen[clean] = true;
-          }
-        });
-        $('<input>').attr({
-          type: 'hidden',
-          name: item.hiddenName,
-          value: unique.join(',')
-        }).appendTo('form');
-      }
+    $('.header-display-option').each(function() {
+      if ($(this).find('input').is(':checked')) { $(this).addClass('selected'); }
+      else { $(this).removeClass('selected'); }
     });
+    if (currentLogoUrl) { updateHeaderDisplayPreview(currentLogoUrl); }
+  });
+
+  // Upload count
+  function updateUploadCount() {
+    $('.upload-count').text($('.uploaded-image-item').length);
+  }
+  $(document).on('DOMNodeInserted DOMNodeRemoved', '#uploaded-images-preview', function() {
+    setTimeout(updateUploadCount, 100);
+  });
+
+  // Initialize header display mode
+  function initializeHeaderDisplayMode() {
+    var selectedOption = $('input[name="header_display_mode"]:checked');
+    if (selectedOption.length) { selectedOption.closest('.header-display-option').addClass('selected'); }
   }
 
   // Submission button handlers
   $('.submission-btn').on('click', function(e) {
     e.preventDefault();
-    
     var action = $(this).data('action');
     var form = $('form');
     var isValid = true;
     
     $('#submission-action').val(action);
     
-    // Validate required fields
     var title = $('#title').val().trim();
     var name = $('#name').val().trim();
     
-    if (!title) {
-      alert('{{ _("Please enter a title") }}');
-      $('#title').focus();
-      isValid = false;
-    }
+    if (!title) { alert('{{ _("Please enter a title") }}'); $('#title').focus(); isValid = false; }
+    if (!name) { alert('{{ _("Please enter a URL") }}'); $('#name').focus(); isValid = false; }
     
-    if (!name) {
-      alert('{{ _("Please enter a URL") }}');
-      $('#name').focus();
-      isValid = false;
-    }
-    
-    // Additional validation for submission (not for draft)
     if (action === 'submit' || action === 'publish') {
       var organization = $('#ihp_organization').val();
-      if (!organization) {
-        alert('{{ _("Please select an IHP WINS Organization before submitting") }}');
-        $('#ihp_organization').focus();
-        isValid = false;
-      }
+      if (!organization) { alert('{{ _("Please select an IHP WINS Organization before submitting") }}'); $('#ihp_organization').focus(); isValid = false; }
       
-      var emptyAltFields = $('.image-alt').filter(function() {
-        return !$(this).val().trim();
-      });
-      
+      var emptyAltFields = $('.image-alt').filter(function() { return !$(this).val().trim(); });
       if (emptyAltFields.length > 0) {
         alert('{{ _("Please provide descriptive names for all uploaded images before submitting.") }}');
         emptyAltFields.first().focus();
@@ -784,26 +2151,40 @@
       }
       
       if (action === 'publish') {
-        if (isValid && !confirm('{{ _("Are you sure you want to publish this entry directly? It will be immediately visible to the public.") }}')) {
-          isValid = false;
-        }
+        if (isValid && !confirm('{{ _("Are you sure you want to publish this entry directly? It will be immediately visible to the public.") }}')) { isValid = false; }
       } else {
-        if (isValid && !confirm('{{ _("Are you sure you want to submit this entry for admin approval? You will not be able to edit it until it is reviewed.") }}')) {
-          isValid = false;
-        }
+        if (isValid && !confirm('{{ _("Are you sure you want to submit this entry for admin approval? You will not be able to edit it until it is reviewed.") }}')) { isValid = false; }
       }
     }
     
     if (isValid) {
-      handleMultipleSelects();
+      // Sync checkbox groups to hidden fields
+      syncCheckboxGroup('ai_technique_cb', 'ai_technique');
+      syncCheckboxGroup('water_application_domain_cb', 'water_application_domain');
+      syncCheckboxGroup('programming_language_cb', 'programming_language');
+      syncCheckboxGroup('platform_cb', 'platform');
+      
       updateUploadedImagesData();
-
-      if (window.syncAllQuillEditors) {
-        window.syncAllQuillEditors();
-      }
-
+      updateMemberStatesData();
+      
+      if (window.syncAllQuillEditors) { window.syncAllQuillEditors(); }
+      
+      $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ _("Processing...") }}');
       form.submit();
     }
+  });
+
+  // Confirmation for delete
+  $('[data-confirm]').on('click', function(e) {
+    if (!confirm($(this).data('confirm'))) { e.preventDefault(); }
+  });
+
+  // Enhanced textarea auto-resize (only for non-Quill textareas)
+  $('textarea:not([id="content-textarea"], [id="technical_requirements"], [id="installation_instructions"], [id="data_requirements"], [id="learning_resources"], [id="reference_publications"], [id="example_applications"], [id="excerpt"])').each(function() {
+    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+  }).on('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
   });
 
   // Initialize Quill Editors
@@ -836,30 +2217,35 @@
         theme: 'snow',
         modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }
       },
-      'data-requirements-editor': {
-        placeholder: '{{ _("Input data types, formats, resolution, and sources required by this AI tool...") }}',
-        theme: 'snow',
-        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
-      },
-      'reference-publications-editor': {
-        placeholder: '{{ _("Academic papers, reports, or publications related to this AI tool...") }}',
-        theme: 'snow',
-        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
-      },
       'technical-requirements-editor': {
         placeholder: '{{ _("System requirements, dependencies, GPU needs, supported platforms...") }}',
         theme: 'snow',
         modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
       },
       'installation-instructions-editor': {
-        placeholder: '{{ _("Step-by-step installation and setup instructions...") }}',
+        placeholder: '{{ _("Step-by-step installation and basic usage instructions...") }}',
         theme: 'snow',
         modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'data-requirements-editor': {
+        placeholder: '{{ _("Input data types, formats, resolution, and sources required by this AI tool...") }}',
+        theme: 'snow',
+        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
       },
       'learning-resources-editor': {
         placeholder: '{{ _("List learning resources, tutorials, courses, and training materials...") }}',
         theme: 'snow',
         modules: { toolbar: fullToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'reference-publications-editor': {
+        placeholder: '{{ _("Academic papers, reports, or publications related to this AI tool...") }}',
+        theme: 'snow',
+        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
+      },
+      'example-applications-editor': {
+        placeholder: '{{ _("Describe real-world examples and use cases...") }}',
+        theme: 'snow',
+        modules: { toolbar: compactToolbar, history: { delay: 1000, maxStack: 50 } }
       },
       'excerpt-editor': {
         placeholder: '{{ _("Brief summary that appears in tool listings...") }}',
@@ -881,7 +2267,7 @@
       var editorElement = document.getElementById(editorId);
       if (editorElement) {
         $(editorElement).addClass('quill-loading');
-
+        
         var textareaId = editorId;
         if (editorId === 'content-editor') {
           textareaId = 'content-textarea';
@@ -889,9 +2275,9 @@
           textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
         }
         var textarea = document.getElementById(textareaId);
-
+        
         var quill = new Quill('#' + editorId, editorConfigs[editorId]);
-
+        
         if (textarea && textarea.value) {
           try {
             quill.clipboard.dangerouslyPasteHTML(textarea.value);
@@ -899,84 +2285,140 @@
             quill.setText(textarea.value);
           }
         }
-
-        // Keep textarea hidden but in DOM for form submission
+        
         if (textarea) {
-          textarea.style.position = 'absolute';
-          textarea.style.left = '-9999px';
-          textarea.style.width = '1px';
-          textarea.style.height = '1px';
-          textarea.style.opacity = '0';
+          $(textarea).css({
+            'position': 'absolute',
+            'left': '-9999px',
+            'width': '1px',
+            'height': '1px',
+            'opacity': '0',
+            'z-index': '-9999',
+            'pointer-events': 'none'
+          });
         }
-
+        
         quill.on('text-change', function() {
           if (textarea) {
             var content = quill.root.innerHTML;
             textarea.value = (content === '<p><br></p>') ? '' : content;
+            $(textarea).trigger('change');
           }
         });
-
+        
         quillEditors[editorId] = quill;
-
+        
         setTimeout(function() {
           $(editorElement).removeClass('quill-loading');
-        }, 300);
+        }, 500);
+        
+        quill.on('selection-change', function(range) {
+          if (range) { $(editorElement).addClass('ql-focused'); }
+          else { $(editorElement).removeClass('ql-focused'); }
+        });
+        
+        $(editorElement).attr('role', 'textbox');
+        $(editorElement).attr('aria-label', editorConfigs[editorId].placeholder);
       }
     });
-
-    // Excerpt character counter
+    
+    // Keyboard shortcut: Ctrl+S
+    Object.keys(quillEditors).forEach(function(editorId) {
+      var quill = quillEditors[editorId];
+      quill.keyboard.addBinding({ key: 's', ctrlKey: true }, function() {
+        var tid = editorId;
+        if (editorId === 'content-editor') tid = 'content-textarea';
+        else if (editorId.endsWith('-editor')) tid = editorId.replace('-editor', '').replace(/-/g, '_');
+        var ta = document.getElementById(tid);
+        if (ta) { ta.value = quill.root.innerHTML; }
+        return false;
+      });
+    });
+    
+    // Auto-save
+    var autoSaveTimeout;
+    Object.keys(quillEditors).forEach(function(editorId) {
+      var quill = quillEditors[editorId];
+      quill.on('text-change', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(function() {
+          var tid = editorId;
+          if (editorId === 'content-editor') tid = 'content-textarea';
+          else if (editorId.endsWith('-editor')) tid = editorId.replace('-editor', '').replace(/-/g, '_');
+          var ta = document.getElementById(tid);
+          if (ta) { ta.value = quill.root.innerHTML; }
+        }, 2000);
+      });
+    });
+    
+    // Character counter for excerpt
     if (quillEditors['excerpt-editor']) {
       var excerptQuill = quillEditors['excerpt-editor'];
+      var $counter = $('.character-counter');
+      var $currentCount = $('.current-count');
+      var $counterStatus = $('.counter-status');
+      var maxLength = 200;
       
       function updateCharacterCount() {
         var text = excerptQuill.getText();
-        var len = text.length - 1; // subtract trailing newline
-        if (len < 0) len = 0;
-        $('.current-count').text(len);
-        if (len > 200) {
-          $('.counter-status').text('{{ _("(over limit)") }}').css('color', '#dc3545');
+        var currentLength = text.trim().length;
+        $currentCount.text(currentLength);
+        $counter.removeClass('warning over-limit');
+        $counterStatus.removeClass('optimal warning over-limit');
+        if (currentLength > maxLength) {
+          $counter.addClass('over-limit');
+          $counterStatus.addClass('over-limit').text('{{ _("Too long") }}');
+        } else if (currentLength > maxLength * 0.8) {
+          $counter.addClass('warning');
+          $counterStatus.addClass('warning').text('{{ _("Almost full") }}');
+        } else if (currentLength > 50) {
+          $counterStatus.addClass('optimal').text('{{ _("Good length") }}');
         } else {
-          $('.counter-status').text('').css('color', '');
+          $counterStatus.text('');
         }
       }
       
       excerptQuill.on('text-change', updateCharacterCount);
-      updateCharacterCount();
+      setTimeout(updateCharacterCount, 100);
     }
-
+    
     window.quillEditors = quillEditors;
-
+    
     window.syncAllQuillEditors = function() {
       Object.keys(quillEditors).forEach(function(editorId) {
         var quill = quillEditors[editorId];
-        var textareaId = editorId;
-        if (editorId === 'content-editor') {
-          textareaId = 'content-textarea';
-        } else if (editorId.endsWith('-editor')) {
-          textareaId = editorId.replace('-editor', '').replace(/-/g, '_');
-        }
-        var textarea = document.getElementById(textareaId);
-        if (quill && textarea) {
+        var tid = editorId;
+        if (editorId === 'content-editor') tid = 'content-textarea';
+        else if (editorId.endsWith('-editor')) tid = editorId.replace('-editor', '').replace(/-/g, '_');
+        var ta = document.getElementById(tid);
+        if (quill && ta) {
           var content = quill.root.innerHTML;
-          textarea.value = (content === '<p><br></p>') ? '' : content;
+          ta.value = (content === '<p><br></p>') ? '' : content;
+          $(ta).trigger('change');
         }
       });
     };
   }
-
+  
   // Force hide Quill textareas
   function forceHideQuillTextareas() {
-    $('.quill-wrapper textarea').each(function() {
-      this.style.position = 'absolute';
-      this.style.left = '-9999px';
-      this.style.width = '1px';
-      this.style.height = '1px';
-      this.style.opacity = '0';
+    $('.quill-wrapper textarea, textarea[id="excerpt"], textarea[id="content-textarea"], textarea[id="technical_requirements"], textarea[id="installation_instructions"], textarea[id="data_requirements"], textarea[id="learning_resources"], textarea[id="reference_publications"], textarea[id="example_applications"]').each(function() {
+      $(this).css({
+        'position': 'absolute',
+        'left': '-9999px',
+        'width': '1px',
+        'height': '1px',
+        'opacity': '0',
+        'z-index': '-9999',
+        'pointer-events': 'none'
+      });
     });
   }
-
+  
   // Initialize
   loadUploadedImages();
+  loadExistingMemberStates();
+  initializeHeaderDisplayMode();
   
   setTimeout(initializeQuillEditors, 100);
   setTimeout(forceHideQuillTextareas, 200);
@@ -984,6 +2426,68 @@
   }); // Close waitForJQuery
 })();
 </script>
+
+<!-- Image Crop Modal -->
+<div class="modal fade" id="image-crop-modal" tabindex="-1" role="dialog" aria-labelledby="imageCropModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="imageCropModalLabel">{{ _('Crop Image') }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="crop-container">
+          <div class="crop-preview-section">
+            <h5>{{ _('Original Image') }}</h5>
+            <div class="crop-area">
+              <img id="crop-image" src="" alt="{{ _('Image to crop') }}" style="max-width: 100%; display: none;">
+            </div>
+          </div>
+          <div class="crop-options">
+            <h5>{{ _('Crop Options') }}</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>{{ _('Aspect Ratio') }}</label>
+                  <select id="aspect-ratio-select" class="form-control">
+                    <option value="free">{{ _('Free Crop') }}</option>
+                    <option value="16:9">16:9 ({{ _('Landscape') }})</option>
+                    <option value="4:3">4:3 ({{ _('Standard') }})</option>
+                    <option value="1:1">1:1 ({{ _('Square') }})</option>
+                    <option value="3:2">3:2 ({{ _('Photography') }})</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>{{ _('Output Size') }}</label>
+                  <select id="output-size-select" class="form-control">
+                    <option value="original">{{ _('Keep Original Size') }}</option>
+                    <option value="800">800px ({{ _('Web Optimized') }})</option>
+                    <option value="1200">1200px ({{ _('High Quality') }})</option>
+                    <option value="400">400px ({{ _('Thumbnail') }})</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="crop-preview-result">
+              <h5>{{ _('Preview') }}</h5>
+              <div class="preview-container">
+                <canvas id="crop-preview-canvas" style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; border-radius: 8px;"></canvas>
+              </div>
+              <p class="help-block">{{ _('This is how your image will appear in the tool gallery') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ _('Cancel') }}</button>
+        <button type="button" class="btn btn-primary" id="apply-crop">{{ _('Apply Crop') }}</button>
+        <button type="button" class="btn btn-success" id="use-original">{{ _('Use Original') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Quill Editor Integration -->
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
