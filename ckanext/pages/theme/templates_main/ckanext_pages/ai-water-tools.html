@@ -1,148 +1,258 @@
 {% extends "page.html" %}
 
+{# Load external CSS and JS files for AI water tools functionality #}
 {% block styles %}
   {{ super() }}
-  <style>
-    /* UNESCO Color Palette */
-    :root {
-      --unesco-blue: #0072BC;
-      --unesco-blue-dark: #005A9C;
-      --unesco-blue-light: #009EE0;
-      --unesco-blue-pale: #E3F2FD;
-      --unesco-gray: #f8f9fa;
-      --text-primary: #2c3e50;
-      --text-secondary: #6c757d;
-      --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
-      --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
-    }
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/ai-water-tools.css') }}">
+{% endblock %}
 
-    .ai-tool-header {
-      background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
-      color: #fff;
-      padding: 2.5rem 2rem;
-      border-radius: 12px;
-      margin-bottom: 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .ai-tool-header h1 { margin: 0 0 0.75rem 0; font-size: 2rem; font-weight: 700; }
-    .ai-tool-header .header-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-    .ai-tool-header .header-badge {
-      display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px;
-      font-size: 0.85rem; font-weight: 600; background: rgba(255,255,255,0.2); color: #fff;
-    }
-    .ai-tool-header .header-badge.org-badge { background: rgba(255,255,255,0.25); }
-    .ai-tool-header .header-badge.maturity-badge { background: rgba(255,255,255,0.3); }
-    .ai-tool-header .header-actions { margin-top: 1rem; }
-    .ai-tool-header .header-actions .btn {
-      margin-right: 0.5rem; border: 1px solid rgba(255,255,255,0.5);
-      color: #fff; background: rgba(255,255,255,0.1); border-radius: 6px;
-    }
-    .ai-tool-header .header-actions .btn:hover { background: rgba(255,255,255,0.25); }
-    .ai-tool-header .header-actions .btn-danger {
-      border-color: #e74c3c; background: rgba(231,76,60,0.3);
-    }
-
-    .ai-section {
-      background: #fff; border-radius: 10px; padding: 1.5rem 2rem;
-      margin-bottom: 2rem; box-shadow: var(--shadow-light);
-      border: 1px solid #e8eef3;
-    }
-    .ai-section-header {
-      display: flex; align-items: center; gap: 0.75rem;
-      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
-      border-bottom: 2px solid var(--unesco-blue-pale);
-    }
-    .ai-section-header .section-icon {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: var(--unesco-blue-pale); color: var(--unesco-blue);
-      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-    }
-    .ai-section-header h2 { margin: 0; font-size: 1.3rem; color: var(--text-primary); font-weight: 600; }
-
-    .ai-sidebar .sidebar-item {
-      padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0;
-      display: flex; flex-direction: column;
-    }
-    .ai-sidebar .sidebar-item:last-child { border-bottom: none; }
-    .ai-sidebar .sidebar-label {
-      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
-      color: var(--text-secondary); font-weight: 600; margin-bottom: 0.25rem;
-    }
-    .ai-sidebar .sidebar-value { font-size: 0.95rem; color: var(--text-primary); }
-    .ai-sidebar .sidebar-badge {
-      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px;
-      font-size: 0.85rem; font-weight: 500; background: var(--unesco-blue-pale);
-      color: var(--unesco-blue);
-    }
-    .ai-sidebar .tech-tag {
-      display: inline-block; padding: 0.15rem 0.5rem; margin: 0.15rem;
-      border-radius: 4px; font-size: 0.85rem; background: #f0f4f8; color: var(--text-primary);
-    }
-
-    .ai-content-body { line-height: 1.7; color: var(--text-primary); }
-    .ai-content-body p { margin-bottom: 1rem; }
-    .ai-content-body ul, .ai-content-body ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-
-    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
-    .feature-item {
-      display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem;
-      border-radius: 6px; background: var(--unesco-gray);
-    }
-    .feature-item i { color: var(--unesco-blue); margin-top: 0.2rem; flex-shrink: 0; }
-
-    .links-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-    .resource-link {
-      display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem;
-      border-radius: 8px; border: 1px solid #e8eef3; text-decoration: none;
-      color: var(--text-primary); transition: all 0.2s;
-    }
-    .resource-link:hover {
-      border-color: var(--unesco-blue-light); box-shadow: var(--shadow-medium);
-      text-decoration: none; color: var(--text-primary);
-    }
-    .resource-link .link-icon {
-      width: 40px; height: 40px; border-radius: 8px; display: flex;
-      align-items: center; justify-content: center; font-size: 1.2rem;
-      background: var(--unesco-blue-pale); color: var(--unesco-blue); flex-shrink: 0;
-    }
-    .resource-link .link-content { flex: 1; }
-    .resource-link .link-content h4 { margin: 0 0 0.2rem 0; font-size: 0.95rem; font-weight: 600; }
-    .resource-link .link-content p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
-    .resource-link .link-arrow { color: var(--text-secondary); }
-
-    .related-tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
-    .related-tool-card {
-      border: 1px solid #e8eef3; border-radius: 8px; padding: 1.25rem;
-      text-decoration: none; color: var(--text-primary); transition: all 0.2s;
-      display: block;
-    }
-    .related-tool-card:hover {
-      box-shadow: var(--shadow-medium); border-color: var(--unesco-blue-light);
-      text-decoration: none; color: var(--text-primary);
-    }
-    .related-tool-card h4 { margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600; color: var(--unesco-blue); }
-    .related-tool-card p { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
-    .related-tool-card .card-badge {
-      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 10px;
-      font-size: 0.75rem; background: var(--unesco-blue-pale); color: var(--unesco-blue);
-      margin-top: 0.5rem;
-    }
-
-    .action-buttons .btn { margin-right: 0.5rem; }
-
-    @media (max-width: 768px) {
-      .ai-tool-header { padding: 1.5rem 1rem; }
-      .ai-tool-header h1 { font-size: 1.5rem; }
-      .features-grid { grid-template-columns: 1fr; }
-      .related-tools-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/ai-water-tools.js') }}"></script>
 {% endblock %}
 
 {% block title %}
 {{ c.page.title or c.page.name }} - {{ _('AI for Water Management') }} - {{ super() }}
 {% endblock %}
+
+{# Helper macro to extract URL from text without regex #}
+{% macro extract_url(line_text) %}
+  {% set http_pos = line_text.find('http://') %}
+  {% set https_pos = line_text.find('https://') %}
+  {% set start_pos = -1 %}
+  
+  {% if http_pos >= 0 and https_pos >= 0 %}
+    {% set start_pos = http_pos if http_pos < https_pos else https_pos %}
+  {% elif http_pos >= 0 %}
+    {% set start_pos = http_pos %}
+  {% elif https_pos >= 0 %}
+    {% set start_pos = https_pos %}
+  {% endif %}
+  
+  {% if start_pos >= 0 %}
+    {% set url_start = line_text[start_pos:] %}
+    {% set space_pos = url_start.find(' ') %}
+    {% set paren_pos = url_start.find(')') %}
+    {% set bracket_pos = url_start.find(']') %}
+    {% set newline_pos = url_start.find('\n') %}
+    {% set tab_pos = url_start.find('\t') %}
+    {% set gt_pos = url_start.find('>') %}
+    {% set quote_pos = url_start.find('"') %}
+    
+    {% set end_positions = [] %}
+    {% if space_pos > 0 %}{% set dummy = end_positions.append(space_pos) %}{% endif %}
+    {% if paren_pos > 0 %}{% set dummy = end_positions.append(paren_pos) %}{% endif %}
+    {% if bracket_pos > 0 %}{% set dummy = end_positions.append(bracket_pos) %}{% endif %}
+    {% if newline_pos > 0 %}{% set dummy = end_positions.append(newline_pos) %}{% endif %}
+    {% if tab_pos > 0 %}{% set dummy = end_positions.append(tab_pos) %}{% endif %}
+    {% if gt_pos > 0 %}{% set dummy = end_positions.append(gt_pos) %}{% endif %}
+    {% if quote_pos > 0 %}{% set dummy = end_positions.append(quote_pos) %}{% endif %}
+    
+    {% if end_positions %}
+      {% set min_pos = end_positions[0] %}
+      {% for pos in end_positions %}
+        {% if pos < min_pos %}{% set min_pos = pos %}{% endif %}
+      {% endfor %}
+      {{ url_start[:min_pos] }}
+    {% else %}
+      {{ url_start.strip() }}
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
+{# Helper macro to strip HTML tags from text #}
+{% macro strip_html_tags(text) %}
+  {% if text %}
+    {% set clean_text = text %}
+    {# Decode common HTML entities #}
+    {% set clean_text = clean_text | replace('&amp;lt;', '<') | replace('&amp;gt;', '>') | replace('&lt;', '<') | replace('&gt;', '>') | replace('&nbsp;', ' ') %}
+    {# Convert <br> to newlines #}
+    {% set clean_text = clean_text | replace('<br>', '\n') | replace('<br/>', '\n') | replace('<br />', '\n') %}
+
+    {# Strip simple tags #}
+    {% for tag in ['<p>', '</p>', '<div>', '</div>', '<strong>', '</strong>', '<em>', '</em>', '<u>', '</u>', '<b>', '</b>', '</span>'] %}
+      {% set clean_text = clean_text | replace(tag, '') %}
+    {% endfor %}
+
+    {# Strip <span ...> tags #}
+    {% set parts = clean_text.split('<span') %}
+    {% set rebuilt = [] %}
+    {% for part in parts %}
+      {% if loop.first %}
+        {% set dummy = rebuilt.append(part) %}
+      {% else %}
+        {% set close_idx = part.find('>') %}
+        {% if close_idx == -1 %}
+          {% set dummy = rebuilt.append('') %}
+        {% else %}
+          {% set dummy = rebuilt.append(part[close_idx+1:]) %}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% set clean_text = ''.join(rebuilt) %}
+
+    {# Remove residual '>' #}
+    {% set clean_text = clean_text | replace('>', '') %}
+
+    {# Remove style attributes #}
+    {% set lines = clean_text.split('\n') %}
+    {% set clean_lines = [] %}
+    {% for line in lines %}
+      {% set work = line %}
+      {% if 'style=' in work %}
+        {% set idx = work.find('style=') %}
+        {% set work = work[:idx] %}
+      {% endif %}
+      {% if work.strip() %}
+        {% set dummy = clean_lines.append(work.strip()) %}
+      {% endif %}
+    {% endfor %}
+
+    {{ '\n'.join(clean_lines) }}
+  {% endif %}
+{% endmacro %}
+
+{# Macro for creating resource cards from text content #}
+{%- macro render_resource_cards(content, title="") -%}
+{%- if content and content.strip() -%}
+  {%- set clean_content = content | replace('&amp;', '&') | replace('&lt;', '<') | replace('&gt;', '>') | replace('&quot;', '"') | replace('&#39;', "'") | replace('&nbsp;', ' ') -%}
+  
+  {%- set text_content = clean_content | striptags -%}
+  
+  {%- set resource_cards = [] -%}
+  {%- set processed_content = text_content -%}
+  {%- set search_pos = 0 -%}
+  {%- set found_count = 0 -%}
+  
+  {%- set parts = text_content.split('[RESOURCE:') -%}
+  
+  {%- for part in parts -%}
+    {%- if not loop.first -%}
+      {%- set end_pos = part.find(']') -%}
+      {%- if end_pos > 0 -%}
+        {%- set resource_def = part[:end_pos] -%}
+        
+        {%- set first_colon = resource_def.find(':') -%}
+        {%- if first_colon > 0 -%}
+          {%- set resource_type = resource_def[:first_colon].strip()|lower -%}
+          {%- set rest = resource_def[first_colon+1:] -%}
+          {%- set parts_split = rest.rsplit(':', 2) -%}
+          {%- set resource_url = '' -%}
+          {%- set resource_title = resource_type|replace('-', ' ')|title -%}
+          {%- set resource_desc = '' -%}
+
+          {%- if parts_split|length == 1 -%}
+            {%- set resource_url = parts_split[0].strip() -%}
+          {%- elif parts_split|length == 2 -%}
+            {%- set maybe_url = parts_split[0].strip() -%}
+            {%- set maybe_title = parts_split[1].strip() -%}
+            {%- set combined_url = maybe_url ~ ':' ~ maybe_title -%}
+            {%- if (combined_url.startswith('http://') or combined_url.startswith('https://')) and ('/' in maybe_title or '?' in maybe_title or '#' in maybe_title or maybe_title.startswith('//')) -%}
+              {%- set resource_url = combined_url -%}
+            {%- elif (maybe_url.startswith('http://') or maybe_url.startswith('https://')) and maybe_title and (maybe_title.startswith('//') or '/' in maybe_title or '?' in maybe_title or '#' in maybe_title or (maybe_title.isdigit() and (maybe_title|length <= 5))) -%}
+              {%- set resource_url = combined_url -%}
+            {%- else -%}
+              {%- set resource_url = maybe_url -%}
+              {%- if maybe_title -%}
+                {%- set resource_title = maybe_title -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- else -%}
+            {%- set maybe_url = parts_split[0].strip() -%}
+            {%- set maybe_title = parts_split[1].strip() -%}
+            {%- set maybe_desc = parts_split[2].strip() -%}
+            {%- set combined_url_2 = maybe_url ~ ':' ~ maybe_title -%}
+            {%- if (maybe_url == 'https' or maybe_url == 'http') and maybe_title.startswith('//') -%}
+              {%- set resource_url = combined_url_2 -%}
+              {%- if maybe_desc -%}
+                {%- set resource_title = maybe_desc -%}
+              {%- endif -%}
+            {%- else -%}
+              {%- set resource_url = maybe_url -%}
+              {%- if maybe_title -%}
+                {%- set resource_title = maybe_title -%}
+              {%- endif -%}
+              {%- if maybe_desc -%}
+                {%- set resource_desc = maybe_desc -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+          
+          {%- if resource_url.startswith('http://') or resource_url.startswith('https://') -%}
+            {%- set icons = {
+              'youtube': 'fa-youtube-play',
+              'openlearning': 'fa-graduation-cap',
+              'documentation': 'fa-file-text-o',
+              'course': 'fa-graduation-cap',
+              'github': 'fa-github',
+              'website': 'fa-globe',
+              'download': 'fa-download'
+            } -%}
+            {%- set dummy = resource_cards.append({
+              'type': resource_type,
+              'url': resource_url.strip(),
+              'title': resource_title,
+              'description': resource_desc,
+              'icon': icons.get(resource_type, 'fa-external-link')
+            }) -%}
+            {%- set found_count = found_count + 1 -%}
+          {%- endif -%}
+          
+        {%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  
+  {%- if resource_cards -%}
+<div class="resource-cards-section" style="margin-bottom: 2rem;">
+  <div class="resource-cards-grid">
+    {%- for card in resource_cards -%}
+    <a href="{{ card.url|e }}" target="_blank" class="resource-card resource-card-{{ card.type }}">
+      <div class="resource-card-icon"><i class="fa {{ card.icon }}"></i></div>
+      <div class="resource-card-content">
+        <h5 class="resource-card-title">{{ card.title|e }}</h5>
+        {% if card.description %}
+          <p class="resource-card-description">{{ card.description|e }}</p>
+        {% endif %}
+      </div>
+      <div class="resource-card-arrow"><i class="fa fa-chevron-right"></i></div>
+    </a>
+    {%- endfor -%}
+  </div>
+</div>
+  {%- endif -%}
+  
+  {%- set has_resources = '[RESOURCE:' in clean_content -%}
+  {%- if has_resources -%}
+    {%- set html_parts = [] -%}
+    {%- set html_chunks = clean_content.split('[RESOURCE:') -%}
+    {%- for chunk in html_chunks -%}
+      {%- if loop.first -%}
+        {%- if chunk.strip() -%}
+          {%- set dummy = html_parts.append(chunk) -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- set end_pos = chunk.find(']') -%}
+        {%- if end_pos >= 0 -%}
+          {%- set after_html = chunk[end_pos+1:] -%}
+          {%- if after_html.strip() -%}
+            {%- set dummy = html_parts.append(after_html) -%}
+          {%- endif -%}
+        {%- elif chunk.strip() -%}
+          {%- set dummy = html_parts.append(chunk) -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- set remaining_html = ''.join(html_parts) -%}
+    {%- if remaining_html.strip() -%}
+      <div class="regular-content" style="margin-bottom: 1.5rem;">{{ remaining_html | safe }}</div>
+    {%- endif -%}
+  {%- else -%}
+    <div class="regular-content">{{ clean_content | safe }}</div>
+  {%- endif -%}
+{%- endif -%}
+{%- endmacro -%}
 
 {% block content %}
 
@@ -153,6 +263,7 @@
 
     {% block primary_content %}
     <div class="main">
+
         <div class="container">
 
             <!-- Breadcrumb Navigation -->
@@ -160,312 +271,662 @@
                 <ol class="breadcrumb">
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> {{ _('Home') }}</span></a></li>
                     <li><a href="{{ h.url_for('pages.ai_water_tools_index') }}">{{ _('AI for Water Management') }}</a></li>
-                    <li class="active"><a href="#">{{ c.page.title or c.page.name }}</a></li>
+                    <li class="active"><a href="{{ h.url_for('pages.ai_water_tools_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
                 </ol>
             </div>
 
-            <!-- Header -->
-            <div class="ai-tool-header">
-                <h1>{{ c.page.title or c.page.name }}</h1>
-                <div class="header-badges">
-                    {% if c.page.developer_organization %}
-                      <span class="header-badge org-badge"><i class="fa fa-building-o"></i> {{ c.page.developer_organization }}</span>
-                    {% endif %}
-                    {% if c.page.maturity_level %}
-                      <span class="header-badge maturity-badge"><i class="fa fa-signal"></i> {{ c.page.maturity_level }}</span>
-                    {% endif %}
-                    {% if c.page.ai_technique %}
-                      <span class="header-badge"><i class="fa fa-microchip"></i> {{ c.page.ai_technique }}</span>
-                    {% endif %}
-                    {% if c.page.water_application %}
-                      <span class="header-badge"><i class="fa fa-tint"></i> {{ c.page.water_application }}</span>
-                    {% endif %}
+            <!-- Banner with overlay text -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                {% set display_mode = c.page.header_display_mode or 'text' %}
+                {% set logo_url = c.page.logo_image or c.page.header_image %}
+                {% set is_logo_mode = display_mode == 'logo' or display_mode == 'logo_text' %}
+                
+                {% if is_logo_mode and logo_url %}
+                <div class="section-title-bg section-title-bg-gradient"></div>
+                {% else %}
+                <div class="section-title-bg" style="background-image: url('{% if c.page.header_image %}{{ c.page.header_image }}{% else %}/images/rapid-response-header.jpg{% endif %}');"></div>
+                {% endif %}
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  
+                  {% if display_mode == 'logo' and logo_url %}
+                    <!-- Logo Only Mode -->
+                    <div class="header-logo-only">
+                      <img src="{{ logo_url }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
+                    </div>
+                  {% elif display_mode == 'logo_text' and logo_url %}
+                    <!-- Logo Above Text Mode -->
+                    <div class="header-logo-text">
+                      <img src="{{ logo_url }}" alt="{{ c.page.title or c.page.name }}" class="header-logo-image">
+                      <h1>{{ c.page.title or c.page.name }}</h1>
+                    </div>
+                  {% elif display_mode == 'logo' and not logo_url %}
+                    <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% elif display_mode == 'logo_text' and not logo_url %}
+                    <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% else %}
+                    <!-- Text Only Mode (default) -->
+                    <h1>{{ c.page.title or c.page.name }}</h1>
+                  {% endif %}
+                  
+                  {% if c.page.subtitle and display_mode != 'logo' and display_mode != 'logo_text' %}
+                    <p class="section-title-description">{{ c.page.subtitle }}</p>
+                  {% endif %}
+
+                  {% if c.page.ai_technique and display_mode != 'logo' %}
+                    <div class="section-title-meta-category">
+                      <i class="fa fa-microchip"></i> {{ _('AI Techniques:') }}
+                      {% set techniques = c.page.ai_technique.split(',') if c.page.ai_technique else [] %}
+                      {% for technique in techniques %}
+                        <span class="category-tag">{{ technique.strip().replace('-', ' ').title() }}</span>{% if not loop.last %}, {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
-                {% if h.check_access('ckanext_pages_update') %}
-                <div class="header-actions">
-                    <a href="{{ h.url_for('pages.ai_water_tools_edit', page=c.page.name) }}" class="btn btn-sm">
-                      <i class="fa fa-edit"></i> {{ _('Edit') }}
-                    </a>
-                    <a href="{{ h.url_for('pages.ai_water_tools_revisions', page=c.page.name) }}" class="btn btn-sm">
-                      <i class="fa fa-history"></i> {{ _('History') }}
-                    </a>
-                    <a href="{{ h.url_for('pages.ai_water_tools_delete', page=c.page.name) }}" class="btn btn-sm btn-danger"
-                       onclick="return confirm('{{ _('Are you sure you want to delete this tool?') }}');">
-                      <i class="fa fa-trash"></i> {{ _('Delete') }}
-                    </a>
+              </div>
+            </section>
+          </div>
+
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+
+                <!-- Summary/Excerpt -->
+                {% if c.page.excerpt %}
+                <div class="ai-water-summary" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-summary">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-file-text-o"></i>
+                        </div>
+                        <h2>{{ _('Summary') }}</h2>
+                      </div>
+                      <div class="ai-water-content-body">
+                        <div class="regular-content">{{ c.page.excerpt | safe }}</div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
                 {% endif %}
-            </div>
 
-            <div class="row">
-              <!-- Main Content (left column) -->
-              <div class="col-md-8">
-
-                <!-- Description / Content -->
+                <!-- Description / Overview -->
                 {% if c.page.content %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-info-circle"></i></div>
-                        <h2>{{ _('Description') }}</h2>
+                <div class="ai-water-main-content" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-overview">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-info-circle"></i>
+                        </div>
+                        <h2>{{ _('Tool Overview') }}</h2>
+                      </div>
+                      <div class="ai-water-content-body">
+                        {{ render_resource_cards(c.page.content, _('Overview Resources')) }}
+                      </div>
                     </div>
-                    <div class="ai-content-body">
-                        {{ h.render_content(c.page.content) }}
-                    </div>
+                  </section>
                 </div>
                 {% endif %}
 
                 <!-- Key Features -->
                 {% if c.page.key_features %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-star"></i></div>
+                <div class="ai-water-key-features" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-features">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-star"></i>
+                        </div>
                         <h2>{{ _('Key Features') }}</h2>
-                    </div>
-                    <div class="features-grid">
+                      </div>
+                      <div class="key-features-content">
                         {% set feature_lines = c.page.key_features.split('\n') if c.page.key_features else [] %}
-                        {% for feature in feature_lines %}
-                          {% if feature.strip() %}
-                          <div class="feature-item">
-                              <i class="fa fa-check-circle"></i>
-                              <span>{{ feature.strip() }}</span>
+                        {% if feature_lines %}
+                          <div class="features-grid">
+                            {% for feature in feature_lines %}
+                              {% if feature.strip() %}
+                                <div class="feature-item">
+                                  <i class="fa fa-check-circle"></i>
+                                  <span>{{ feature.strip() }}</span>
+                                </div>
+                              {% endif %}
+                            {% endfor %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- AI Technical Information -->
+                {% if c.page.ai_technique or c.page.water_application or c.page.ai_model_type or c.page.maturity_level or c.page.scalability or c.page.developer_organization or c.page.software_license or c.page.programming_language or c.page.platform or c.page.training_data_type or c.page.output_type or c.page.development_status or c.page.version or c.page.release_date or c.page.accuracy_metrics or c.page.data_requirements or c.page.technical_requirements %}
+                <div class="ai-water-technical-info" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-tech">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-microchip"></i>
+                        </div>
+                        <h2>{{ _('AI Technical Information') }}</h2>
+                      </div>
+                      <div class="tech-info-content">
+                        <div class="tech-info-grid">
+                          {% if c.page.ai_technique %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-microchip"></i>
+                              {{ _('AI Technique') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set techniques = c.page.ai_technique.split(',') if c.page.ai_technique else [] %}
+                              {% for technique in techniques %}
+                                <span class="tech-tag">{{ technique.strip() }}</span>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                            </div>
                           </div>
                           {% endif %}
-                        {% endfor %}
+
+                          {% if c.page.water_application %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-tint"></i>
+                              {{ _('Water Application') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set applications = c.page.water_application.split(',') if c.page.water_application else [] %}
+                              {% for app in applications %}
+                                <span class="tech-tag">{{ app.strip() }}</span>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.ai_model_type %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-cube"></i>
+                              {{ _('AI Model Type') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.ai_model_type }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.maturity_level %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-signal"></i>
+                              {{ _('Maturity Level') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.maturity_level }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.scalability %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-expand"></i>
+                              {{ _('Scalability') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.scalability }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.developer_organization %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-building-o"></i>
+                              {{ _('Developer Organization') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.developer_organization }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.software_license %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-certificate"></i>
+                              {{ _('License') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.software_license }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.programming_language %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-code"></i>
+                              {{ _('Programming Languages') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set languages = c.page.programming_language.split(',') if c.page.programming_language else [] %}
+                              {% for language in languages %}
+                                <span class="tech-tag">{{ language.strip() }}</span>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.platform %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-desktop"></i>
+                              {{ _('Platforms') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set platforms = c.page.platform.split(',') if c.page.platform else [] %}
+                              {% for platform in platforms %}
+                                <span class="tech-tag">{{ platform.strip() }}</span>{% if not loop.last %}, {% endif %}
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.training_data_type %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-database"></i>
+                              {{ _('Training Data Type') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.training_data_type }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.output_type %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-share-square-o"></i>
+                              {{ _('Output Type') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.output_type }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.development_status %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-heartbeat"></i>
+                              {{ _('Development Status') }}
+                            </div>
+                            <div class="tech-info-value">
+                              <span class="status-indicator status-{{ c.page.development_status.lower() }}"></span>
+                              {{ c.page.development_status.title() }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.version %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-tag"></i>
+                              {{ _('Current Version') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.version }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.release_date %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-calendar"></i>
+                              {{ _('Release Date') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.release_date }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.accuracy_metrics %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-bullseye"></i>
+                              {{ _('Accuracy Metrics') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.accuracy_metrics }}
+                            </div>
+                          </div>
+                          {% endif %}
+                        </div>
+
+                        {% if c.page.data_requirements and c.page.data_requirements|striptags|trim %}
+                        <div class="requirements-section">
+                          <h4>{{ _('Data Requirements') }}</h4>
+                          <div class="requirements-content">
+                            {{ render_resource_cards(c.page.data_requirements, _('Data Resources')) }}
+                          </div>
+                        </div>
+                        {% endif %}
+
+                        {% if c.page.technical_requirements and c.page.technical_requirements|striptags|trim %}
+                        <div class="requirements-section">
+                          <h4>{{ _('Technical Requirements') }}</h4>
+                          <div class="requirements-content">
+                            {{ render_resource_cards(c.page.technical_requirements, _('Technical Resources')) }}
+                          </div>
+                        </div>
+                        {% endif %}
+                      </div>
                     </div>
+                  </section>
                 </div>
                 {% endif %}
 
-                <!-- Data Requirements -->
-                {% if c.page.data_requirements %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-database"></i></div>
-                        <h2>{{ _('Data Requirements') }}</h2>
+                <!-- Links & Resources -->
+                {% set has_links = c.page.repository_url or c.page.website_url or c.page.documentation_url %}
+                {% if has_links %}
+                <div class="ai-water-links" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-links">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-link"></i>
+                        </div>
+                        <h2>{{ _('Links & Resources') }}</h2>
+                      </div>
+                      <div class="links-grid">
+                        {% if c.page.repository_url %}
+                        <a href="{{ c.page.repository_url }}" target="_blank" class="resource-link repository">
+                          <div class="link-icon">
+                            <i class="fa fa-github"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Source Code Repository') }}</h4>
+                            <p>{{ _('Access the source code, report issues, and contribute') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if c.page.website_url %}
+                        <a href="{{ c.page.website_url }}" target="_blank" class="resource-link website">
+                          <div class="link-icon">
+                            <i class="fa fa-globe"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Official Website') }}</h4>
+                            <p>{{ _('Visit the official project website') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if c.page.documentation_url %}
+                        <a href="{{ c.page.documentation_url }}" target="_blank" class="resource-link documentation">
+                          <div class="link-icon">
+                            <i class="fa fa-book"></i>
+                          </div>
+                          <div class="link-content">
+                            <h4>{{ _('Documentation') }}</h4>
+                            <p>{{ _('Read comprehensive guides and API documentation') }}</p>
+                          </div>
+                          <div class="link-arrow">
+                            <i class="fa fa-external-link"></i>
+                          </div>
+                        </a>
+                        {% endif %}
+                      </div>
                     </div>
-                    <div class="ai-content-body">
-                        {{ c.page.data_requirements|safe }}
-                    </div>
+                  </section>
                 </div>
                 {% endif %}
 
-                <!-- Technical Requirements -->
-                {% if c.page.technical_requirements %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-cogs"></i></div>
-                        <h2>{{ _('Technical Requirements') }}</h2>
+                <!-- Installation & Usage -->
+                {% if c.page.installation_instructions and c.page.installation_instructions|striptags|trim %}
+                <div class="ai-water-installation" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-install">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-download"></i>
+                        </div>
+                        <h2>{{ _('Installation & Usage') }}</h2>
+                      </div>
+                      <div class="installation-content">
+                        {{ render_resource_cards(c.page.installation_instructions, _('Installation Resources')) }}
+                      </div>
                     </div>
-                    <div class="ai-content-body">
-                        {{ c.page.technical_requirements|safe }}
-                    </div>
+                  </section>
                 </div>
                 {% endif %}
 
-                <!-- Installation & Usage Instructions -->
-                {% if c.page.installation_instructions %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-download"></i></div>
-                        <h2>{{ _('Installation & Usage Instructions') }}</h2>
+                <!-- Learning Resources & Courses -->
+                {% if c.page.learning_resources and c.page.learning_resources|striptags|trim %}
+                <div class="ai-water-learning" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-learning">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-graduation-cap"></i>
+                        </div>
+                        <h2>{{ _('Learning Resources & Courses') }}</h2>
+                      </div>
+                      <div class="learning-resources-content">
+                        {{ render_resource_cards(c.page.learning_resources, _('Learning Resources')) }}
+                      </div>
                     </div>
-                    <div class="ai-content-body">
-                        {{ c.page.installation_instructions|safe }}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Learning Resources -->
-                {% if c.page.learning_resources %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-graduation-cap"></i></div>
-                        <h2>{{ _('Learning Resources') }}</h2>
-                    </div>
-                    <div class="ai-content-body">
-                        {{ c.page.learning_resources|safe }}
-                    </div>
+                  </section>
                 </div>
                 {% endif %}
 
                 <!-- Reference Publications -->
-                {% if c.page.reference_publications %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-book"></i></div>
+                {% if c.page.reference_publications and c.page.reference_publications|striptags|trim %}
+                <div class="ai-water-publications" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-publications">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-book"></i>
+                        </div>
                         <h2>{{ _('Reference Publications') }}</h2>
+                      </div>
+                      <div class="ai-water-content-body">
+                        {{ render_resource_cards(c.page.reference_publications, _('Publications')) }}
+                      </div>
                     </div>
-                    <div class="ai-content-body">
-                        {{ c.page.reference_publications|safe }}
-                    </div>
+                  </section>
                 </div>
                 {% endif %}
 
-                <!-- Links Section -->
-                {% set has_links = c.page.website_url or c.page.documentation_url or c.page.repository_url %}
-                {% if has_links %}
-                <div class="ai-section">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-link"></i></div>
-                        <h2>{{ _('Links & Resources') }}</h2>
+                <!-- Examples & Use Cases -->
+                {% if c.page.example_applications and c.page.example_applications|striptags|trim %}
+                <div class="ai-water-examples" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-examples">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-lightbulb-o"></i>
+                        </div>
+                        <h2>{{ _('Examples & Use Cases') }}</h2>
+                      </div>
+                      <div class="ai-water-content-body">
+                        {{ render_resource_cards(c.page.example_applications, _('Example Resources')) }}
+                      </div>
                     </div>
-                    <div class="links-grid">
-                        {% if c.page.website_url %}
-                        <a href="{{ c.page.website_url }}" target="_blank" class="resource-link">
-                            <div class="link-icon"><i class="fa fa-globe"></i></div>
-                            <div class="link-content">
-                                <h4>{{ _('Official Website') }}</h4>
-                                <p>{{ _('Visit the official project website') }}</p>
-                            </div>
-                            <div class="link-arrow"><i class="fa fa-external-link"></i></div>
-                        </a>
-                        {% endif %}
-                        {% if c.page.documentation_url %}
-                        <a href="{{ c.page.documentation_url }}" target="_blank" class="resource-link">
-                            <div class="link-icon"><i class="fa fa-file-text-o"></i></div>
-                            <div class="link-content">
-                                <h4>{{ _('Documentation') }}</h4>
-                                <p>{{ _('Read comprehensive guides and API documentation') }}</p>
-                            </div>
-                            <div class="link-arrow"><i class="fa fa-external-link"></i></div>
-                        </a>
-                        {% endif %}
-                        {% if c.page.repository_url %}
-                        <a href="{{ c.page.repository_url }}" target="_blank" class="resource-link">
-                            <div class="link-icon"><i class="fa fa-github"></i></div>
-                            <div class="link-content">
-                                <h4>{{ _('Source Code') }}</h4>
-                                <p>{{ _('Access the source code, report issues, and contribute') }}</p>
-                            </div>
-                            <div class="link-arrow"><i class="fa fa-external-link"></i></div>
-                        </a>
-                        {% endif %}
-                    </div>
+                  </section>
                 </div>
                 {% endif %}
 
-              </div>
+                <!-- Screenshots & Gallery -->
+                {% if c.page.uploaded_images or c.page.image_carousel %}
+                <div class="ai-water-gallery" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-gallery">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-camera"></i>
+                        </div>
+                        <h2>{{ _('Screenshots & Gallery') }}</h2>
+                      </div>
+                      
+                      <!-- Uploaded Images Grid -->
+                      {% set logo_gallery_url = c.page.logo_image or c.page.header_image %}
+                      {% if c.page.uploaded_images or (logo_gallery_url and c.page.include_logo_in_gallery) %}
+                        {% set uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
+                        {% set all_images = [] %}
 
-              <!-- AI Details Sidebar (right column) -->
-              <div class="col-md-4">
-                <div class="ai-section ai-sidebar">
-                    <div class="ai-section-header">
-                        <div class="section-icon"><i class="fa fa-microchip"></i></div>
-                        <h2>{{ _('AI Details') }}</h2>
-                    </div>
-
-                    {% if c.page.ai_technique %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('AI Technique') }}</span>
-                        <span class="sidebar-value"><span class="sidebar-badge">{{ c.page.ai_technique }}</span></span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.water_application %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('Water Application Domain') }}</span>
-                        <span class="sidebar-value"><span class="sidebar-badge">{{ c.page.water_application }}</span></span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.maturity_level %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('Maturity Level') }}</span>
-                        <span class="sidebar-value">{{ c.page.maturity_level }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.scalability %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('Scalability') }}</span>
-                        <span class="sidebar-value">{{ c.page.scalability }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.developer_organization %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('Developer Organization') }}</span>
-                        <span class="sidebar-value">{{ c.page.developer_organization }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.software_license %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('License') }}</span>
-                        <span class="sidebar-value">{{ c.page.software_license }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.programming_language %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('Programming Languages') }}</span>
-                        <span class="sidebar-value">
-                            {% set languages = c.page.programming_language.split(',') if c.page.programming_language else [] %}
-                            {% for lang in languages %}
-                              <span class="tech-tag">{{ lang.strip() }}</span>
+                        {% if logo_gallery_url and c.page.include_logo_in_gallery %}
+                          {% set dummy = all_images.append({'url': logo_gallery_url, 'alt': c.page.title + ' Logo', 'caption': c.page.title + ' Logo', 'is_logo': true}) %}
+                        {% endif %}
+                        
+                        {% for img in uploaded_images %}
+                          {% set dummy = all_images.append(img) %}
+                        {% endfor %}
+                        
+                        {% if all_images %}
+                        <div class="uploaded-images-gallery">
+                          <div class="images-grid">
+                            {% for image in all_images %}
+                            <div class="gallery-image-item {% if image.is_logo %}logo-gallery-item{% endif %}">
+                              <div class="image-container">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}" class="gallery-image" data-toggle="modal" data-target="#imageModal" data-image="{{ image.url }}" data-caption="{{ image.caption or image.alt }}">
+                                <div class="image-overlay">
+                                  <i class="fa fa-expand"></i>
+                                </div>
+                              </div>
+                              {% if image.caption %}
+                                <div class="image-caption">{{ image.caption }}</div>
+                              {% elif image.alt %}
+                                <div class="image-caption">{{ image.alt }}</div>
+                              {% endif %}
+                            </div>
                             {% endfor %}
-                        </span>
-                    </div>
-                    {% endif %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      {% endif %}
 
-                    {% if c.page.platform %}
-                    <div class="sidebar-item">
-                        <span class="sidebar-label">{{ _('Platforms') }}</span>
-                        <span class="sidebar-value">
-                            {% set platforms = c.page.platform.split(',') if c.page.platform else [] %}
-                            {% for platform in platforms %}
-                              <span class="tech-tag">{{ platform.strip() }}</span>
-                            {% endfor %}
-                        </span>
+                      <!-- External Images (Markdown/HTML) -->
+                      {% if c.page.image_carousel %}
+                      <div class="external-images-gallery">
+                        <div class="image-gallery-content">
+                          {{ render_resource_cards(c.page.image_carousel, _('External Images & Media')) }}
+                        </div>
+                      </div>
+                      {% endif %}
                     </div>
-                    {% endif %}
+                  </section>
                 </div>
+                {% endif %}
+
+                <!-- Related Tools Section -->
+                {% set related_tools = h.get_recent_ai_water_tools(4, c.page.name) %}
+                {% if related_tools %}
+                <div class="ai-water-related" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-related">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-th-large"></i>
+                        </div>
+                        <h2>{{ _('Related AI Water Management Tools') }}</h2>
+                      </div>
+                      <div class="related-tools-grid">
+                        {% for tool in related_tools %}
+                        <a href="{{ h.url_for('pages.ai_water_tools_show', page=tool.name) }}" class="related-tool-card">
+                            <h4>{{ tool.title or tool.name }}</h4>
+                            {% if tool.excerpt %}
+                              <p>{{ tool.excerpt|truncate(100) }}</p>
+                            {% endif %}
+                            {% if tool.ai_technique %}
+                              <span class="card-badge">{{ tool.ai_technique }}</span>
+                            {% endif %}
+                            {% if tool.water_application %}
+                              <span class="card-badge">{{ tool.water_application }}</span>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
 
                 <!-- Actions and Metadata -->
-                {% if c.page.created %}
-                <div class="ai-section" style="padding: 1rem 1.5rem;">
-                    <p class="text-muted" style="margin: 0;">
-                        <small>
-                            <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
-                            {% if c.page.modified %}
-                              <br><i class="fa fa-refresh"></i> {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
-                            {% endif %}
-                        </small>
-                    </p>
+                <div class="ai-water-actions" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+                      <div class="row">
+                        <div class="col-md-8">
+                          {% if c.page.created %}
+                            <p class="text-muted">
+                              <small>
+                                <i class="fa fa-clock-o"></i> {{ _('Published:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                {% if c.page.modified %}
+                                  | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
+                                {% endif %}
+                              </small>
+                            </p>
+                          {% endif %}
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if h.check_access('ckanext_pages_update') %}
+                            <div class="action-buttons">
+                              <a href="{{ h.url_for('pages.ai_water_tools_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
+                                <i class="fa fa-edit"></i> {{ _('Edit') }}
+                              </a>
+                              <a href="{{ h.url_for('pages.ai_water_tools_revisions', page=c.page.name) }}" class="btn btn-default btn-sm">
+                                <i class="fa fa-history"></i> {{ _('History') }}
+                              </a>
+                              <a href="{{ h.url_for('pages.ai_water_tools_delete', page=c.page.name) }}" class="btn btn-danger btn-sm"
+                                 onclick="return confirm('{{ _('Are you sure you want to delete this tool?') }}');">
+                                <i class="fa fa-trash"></i> {{ _('Delete') }}
+                              </a>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
-                {% endif %}
+
               </div>
             </div>
+          </div>
 
-            <!-- Related Tools Section -->
-            {% set related_tools = h.get_recent_ai_water_tools(4, c.page.name) %}
-            {% if related_tools %}
-            <div class="ai-section" style="margin-top: 1rem;">
-                <div class="ai-section-header">
-                    <div class="section-icon"><i class="fa fa-th-large"></i></div>
-                    <h2>{{ _('Related AI Water Management Tools') }}</h2>
-                </div>
-                <div class="related-tools-grid">
-                    {% for tool in related_tools %}
-                    <a href="{{ h.url_for('pages.ai_water_tools_show', page=tool.name) }}" class="related-tool-card">
-                        <h4>{{ tool.title or tool.name }}</h4>
-                        {% if tool.excerpt %}
-                          <p>{{ tool.excerpt|truncate(100) }}</p>
-                        {% endif %}
-                        {% if tool.ai_technique %}
-                          <span class="card-badge">{{ tool.ai_technique }}</span>
-                        {% endif %}
-                        {% if tool.water_application %}
-                          <span class="card-badge">{{ tool.water_application }}</span>
-                        {% endif %}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-        </div>
     </div>
     {% endblock %}
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="imageModalTitle">{{ _('Image Preview') }}</h4>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-responsive" style="max-width: 100%; height: auto;">
+        <p id="modalCaption" class="image-modal-caption"></p>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
