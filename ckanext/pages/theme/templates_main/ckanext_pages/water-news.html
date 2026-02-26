@@ -44,7 +44,7 @@
                 <div class="section-title-content">
                   <h1>{{ c.page.title or c.page.name }}</h1>
                   {% if has_excerpt %}
-                    <p class="section-title-description">{{ c.page.excerpt }}</p>
+                    <p class="section-title-description">{{ c.page.excerpt | striptags }}</p>
                   {% endif %}
                   {% if c.page.publish_date %}
                     <div class="section-title-meta-date">
