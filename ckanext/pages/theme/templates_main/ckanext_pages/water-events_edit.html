@@ -483,8 +483,7 @@
                         <!-- Action Buttons -->
                         <div class="form-actions">
                           <input type="hidden" name="page_type" value="water-events">
-                          <div class="btn-toolbar" role="toolbar">
-                            <div class="btn-group" role="group">
+                          <div class="btn-toolbar" role="toolbar" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
                               <button type="submit" class="btn btn-default btn-lg" data-water-action="draft">
                                 <i class="fa fa-save"></i> {{ page and _('Save as Draft') or _('Save Draft') }}
                               </button>
@@ -496,8 +495,6 @@
                                   <i class="fa fa-check"></i> {{ _('Publish Now') }}
                                 </button>
                               {% endif %}
-                            </div>
-                            <div class="btn-group" role="group">
                               {% if page %}
                                 <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}" class="btn btn-default">
                                   <i class="fa fa-times"></i> {{ _('Cancel') }}
@@ -512,7 +509,6 @@
                                   <i class="fa fa-times"></i> {{ _('Cancel') }}
                                 </a>
                               {% endif %}
-                            </div>
                           </div>
                         </div>
 

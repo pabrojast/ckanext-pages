@@ -285,7 +285,7 @@
                                 <!-- Event Info Preview -->
                                 {% if page.event_details %}
                                 <div class="key-info-compact">
-                                  {% set detail_lines = page.event_details.split('\n')[:2] %}
+                                  {% set detail_lines = (page.event_details|striptags).split('\n')[:2] %}
                                   {% for line in detail_lines %}
                                     {% if line.strip() %}
                                       <div class="key-info-item">{{ line.strip() }}</div>
@@ -296,7 +296,7 @@
 
                                 {% set content_text = '' %}
                                 {% if page.excerpt %}
-                                  {% set content_text = page.excerpt %}
+                                  {% set content_text = (page.excerpt|striptags) %}
                                 {% elif page.content %}
                                   {% set content_text = (page.content|striptags) %}
                                 {% endif %}

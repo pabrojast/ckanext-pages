@@ -180,7 +180,7 @@
                           <div class="col-md-4">
                             <a href="{{ h.url_for('pages.water_news_new') }}" class="action-card action-card-news">
                               <div class="action-icon">
-                                <i class="fa fa-newspaper-o"></i>
+                                <i class="fa fa-bullhorn"></i>
                               </div>
                               <h3>{{ _('Share News') }}</h3>
                               <p>{{ _('Share important news and updates with the water community') }}</p>
@@ -198,7 +198,7 @@
                           <div class="col-md-4">
                             <a href="{{ h.url_for('pages.water_publications_new') }}" class="action-card action-card-publications">
                               <div class="action-icon">
-                                <i class="fa fa-file-text-o"></i>
+                                <i class="fa fa-book"></i>
                               </div>
                               <h3>{{ _('Submit Publication') }}</h3>
                               <p>{{ _('Share research papers, reports, and technical documents') }}</p>
@@ -242,7 +242,7 @@
                           <div class="card-content">
                             <h3><a href="{{ h.url_for('pages.water_news_show', page=item.name) }}">{{ item.title }}</a></h3>
                             {% if item.excerpt %}
-                              <p>{{ item.excerpt[:150] }}{% if item.excerpt|length > 150 %}...{% endif %}</p>
+                              <p>{{ (item.excerpt|striptags)[:150] }}{% if item.excerpt|striptags|length > 150 %}...{% endif %}</p>
                             {% elif item.content %}
                               <p>{{ (item.content|striptags)[:150] }}{% if item.content|length > 150 %}...{% endif %}</p>
                             {% endif %}
@@ -297,7 +297,7 @@
                               </div>
                             {% endif %}
                             {% if item.excerpt %}
-                              <p>{{ item.excerpt[:130] }}{% if item.excerpt|length > 130 %}...{% endif %}</p>
+                              <p>{{ (item.excerpt|striptags)[:130] }}{% if item.excerpt|striptags|length > 130 %}...{% endif %}</p>
                             {% elif item.content %}
                               <p>{{ (item.content|striptags)[:130] }}{% if item.content|length > 130 %}...{% endif %}</p>
                             {% elif item.dataset_description %}
@@ -356,7 +356,7 @@
                               </div>
                             {% endif %}
                             {% if item.excerpt %}
-                              <p>{{ item.excerpt[:130] }}{% if item.excerpt|length > 130 %}...{% endif %}</p>
+                              <p>{{ (item.excerpt|striptags)[:130] }}{% if item.excerpt|striptags|length > 130 %}...{% endif %}</p>
                             {% elif item.content %}
                               <p>{{ (item.content|striptags)[:130] }}{% if item.content|length > 130 %}...{% endif %}</p>
                             {% endif %}
