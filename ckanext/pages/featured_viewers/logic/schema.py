@@ -1,0 +1,120 @@
+"""
+Validation schemas and slug utilities for Featured Viewers.
+"""
+
+import re
+import logging
+import unicodedata
+
+from ckan.plugins.toolkit import get_validator
+
+log = logging.getLogger(__name__)
+
+not_empty = get_validator('not_empty')
+ignore_missing = get_validator('ignore_missing')
+not_missing = get_validator('not_missing')
+
+
+def featured_viewer_schema():
+    """Validation schema for creating/updating a featured viewer."""
+    return {
+        'title': [not_empty, str],
+        'slug': [ignore_missing, str],
+        'description': [ignore_missing, str],
+        'category': [ignore_missing, str],
+        'icon_class': [ignore_missing, str],
+        'thumbnail_url': [ignore_missing, str],
+        'terria_share_link': [ignore_missing, str],
+        'meta_description': [ignore_missing, str],
+        'organization_id': [ignore_missing, str],
+    }
+
+
+def generate_slug(title):
+    """Generate a URL-friendly slug from a title."""
+    if not title:
+        return ''
+
+    # Normalize unicode characters
+    slug = unicodedata.normalize('NFKD', title)
+    slug = slug.encode('ascii', 'ignore').decode('ascii')
+    slug = slug.lower().strip()
+    slug = re.sub(r'[^\w\s-]', '', slug)
+    slug = re.sub(r'[-\s]+', '-', slug)
+    slug = slug.strip('-')
+
+    return slug[:200]
+
+
+def validate_slug(slug):
+    """Validate a slug format."""
+    if not slug:
+        return False, 'Slug cannot be empty'
+
+    if not re.match(r'^[a-z0-9][a-z0-9-]*[a-z0-9]$', slug) and len(slug) > 1:
+        return False, 'Slug must contain only lowercase letters, numbers, and hyphens'
+
+    if len(slug) > 200:
+        return False, 'Slug must be 200 characters or less'
+
+    return True, None
+
+
+# Valid categories for featured viewers
+VIEWER_CATEGORIES = {
+    'flood-drought': {
+        'title': 'Flood & Drought Monitoring',
+        'icon': 'fa-tint',
+        'color': '#1565C0',
+    },
+    'water-quality': {
+        'title': 'Water Quality',
+        'icon': 'fa-flask',
+        'color': '#2E7D32',
+    },
+    'groundwater': {
+        'title': 'Groundwater Resources',
+        'icon': 'fa-arrow-circle-down',
+        'color': '#5D4037',
+    },
+    'climate-change': {
+        'title': 'Climate Change & Water',
+        'icon': 'fa-thermometer-half',
+        'color': '#E65100',
+    },
+    'urban-water': {
+        'title': 'Urban Water Management',
+        'icon': 'fa-building',
+        'color': '#6A1B9A',
+    },
+    'ecohydrology': {
+        'title': 'Ecohydrology',
+        'icon': 'fa-leaf',
+        'color': '#1B5E20',
+    },
+    'citizen-science': {
+        'title': 'Citizen Science',
+        'icon': 'fa-users',
+        'color': '#00838F',
+    },
+    'iot-monitoring': {
+        'title': 'IoT Monitoring',
+        'icon': 'fa-microchip',
+        'color': '#37474F',
+    },
+    'transboundary': {
+        'title': 'Transboundary Waters',
+        'icon': 'fa-globe',
+        'color': '#0277BD',
+    },
+    'sdg6': {
+        'title': 'SDG 6 Indicators',
+        'icon': 'fa-bullseye',
+        'color': '#00695C',
+    },
+    'general': {
+        'title': 'General',
+        'icon': 'fa-map',
+        'color': '#0072BC',
+    },
+}

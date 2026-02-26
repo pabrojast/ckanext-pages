@@ -1,0 +1,31 @@
+{#
+Map room panel component — shows map layers info in a collapsible panel.
+Used in the show page sidebar.
+
+Variables:
+- layers: list of layer dicts [{name, type, url, visible}]
+#}
+
+{% if layers %}
+<div class="fv-info-panel fv-map-room-panel">
+  <h3><i class="fa fa-layer-group"></i> {{ _('Map Room Layers') }}</h3>
+  <p style="font-size: 0.85rem; color: #888; margin-bottom: 1rem;">
+    {{ _('This map room includes {count} pre-configured data layers.').format(count=layers|length) }}
+  </p>
+  <ul class="fv-layer-list">
+    {% for layer in layers %}
+    <li class="fv-layer-item">
+      {% if layer.visible is defined and layer.visible %}
+      <i class="fa fa-check-square-o" style="color: #2E7D32;"></i>
+      {% else %}
+      <i class="fa fa-square-o"></i>
+      {% endif %}
+      <span>{{ layer.name or layer }}</span>
+      {% if layer.type %}
+      <span class="fv-country-chip" style="margin-left: auto; font-size: 0.7rem;">{{ layer.type }}</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

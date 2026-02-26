@@ -26,6 +26,12 @@ ds_actions = None
 ds_auth = None
 init_data_stories_tables = None
 
+FEATURED_VIEWERS_AVAILABLE = False
+featured_viewers_blueprint = None
+fv_actions = None
+fv_auth = None
+init_featured_viewers_tables = None
+
 # Import data stories modules
 try:
     from ckanext.pages.data_stories.helpers import (
@@ -56,6 +62,26 @@ try:
     DATA_STORIES_AVAILABLE = True
 except ImportError as e:
     log.warning("Data stories modules not available: %s", str(e))
+
+# Import featured viewers modules
+try:
+    from ckanext.pages.featured_viewers.helpers import (
+        get_viewer_categories,
+        get_viewer_category_info,
+        get_viewer_category_title,
+        get_viewer_category_icon,
+        get_viewer_category_color,
+        get_viewer_status_badge,
+        format_viewer_view_count,
+    )
+    from ckanext.pages.featured_viewers import actions as fv_actions
+    from ckanext.pages.featured_viewers import auth as fv_auth
+    from ckanext.pages.featured_viewers.blueprint.routes import featured_viewers_blueprint
+    from ckanext.pages.featured_viewers.db.utils import init_tables as init_featured_viewers_tables
+
+    FEATURED_VIEWERS_AVAILABLE = True
+except ImportError as e:
+    log.warning("Featured viewers modules not available: %s", str(e))
 
 
 from ckan.lib.plugins import DefaultTranslation
@@ -846,18 +872,25 @@ class PagesPlugin(PagesPluginBase):
     def _data_stories_enabled(self):
         return tk.asbool(tk.config.get('ckanext.data_stories.enabled', False))
 
+    def _featured_viewers_enabled(self):
+        return tk.asbool(tk.config.get('ckanext.featured_viewers.enabled', False))
+
     def get_blueprint(self):
         blueprints = [blueprint.pages]
         # Register data stories blueprint only when enabled
         if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and data_stories_blueprint:
             blueprints.append(data_stories_blueprint)
             log.info("Data stories blueprint registered")
+        if self._featured_viewers_enabled() and FEATURED_VIEWERS_AVAILABLE and featured_viewers_blueprint:
+            blueprints.append(featured_viewers_blueprint)
+            log.info("Featured viewers blueprint registered")
         return blueprints
 
     def update_config(self, config):
         self.organization_pages = tk.asbool(config.get('ckanext.pages.organization', False))
         self.group_pages = tk.asbool(config.get('ckanext.pages.group', False))
         self.data_stories_enabled = tk.asbool(config.get('ckanext.data_stories.enabled', False))
+        self.featured_viewers_enabled = tk.asbool(config.get('ckanext.featured_viewers.enabled', False))
 
         tk.add_template_directory(config, 'theme/templates_main')
         if self.group_pages:
@@ -897,6 +930,16 @@ class PagesPlugin(PagesPluginBase):
                 log.info("Data stories database initialization completed")
             except Exception as e:
                 log.error("Error initializing data stories database: %s", str(e))
+
+        if self._featured_viewers_enabled() and FEATURED_VIEWERS_AVAILABLE and init_featured_viewers_tables:
+            try:
+                from ckan import model
+
+                log.info("Initializing featured viewers database tables...")
+                init_featured_viewers_tables(model.meta.engine)
+                log.info("Featured viewers database initialization completed")
+            except Exception as e:
+                log.error("Error initializing featured viewers database: %s", str(e))
 
     def get_helpers(self):
         helpers = {
@@ -960,6 +1003,18 @@ class PagesPlugin(PagesPluginBase):
                 'get_user_display_name': get_user_display_name,
                 'format_file_size': format_file_size,
                 'highlight_search_terms': highlight_search_terms,
+            })
+
+        # Add featured viewers helpers if available
+        if FEATURED_VIEWERS_AVAILABLE:
+            helpers.update({
+                'get_viewer_categories': get_viewer_categories,
+                'get_viewer_category_info': get_viewer_category_info,
+                'get_viewer_category_title': get_viewer_category_title,
+                'get_viewer_category_icon': get_viewer_category_icon,
+                'get_viewer_category_color': get_viewer_category_color,
+                'get_viewer_status_badge': get_viewer_status_badge,
+                'format_viewer_view_count': format_viewer_view_count,
             })
 
         return helpers
@@ -1030,6 +1085,20 @@ class PagesPlugin(PagesPluginBase):
                 'data_story_import': ds_actions.data_story_import,
             }
             actions_dict.update(data_stories_actions)
+
+        # Register featured viewers actions only when enabled
+        if self._featured_viewers_enabled() and FEATURED_VIEWERS_AVAILABLE and fv_actions:
+            featured_viewers_actions = {
+                'featured_viewer_create': fv_actions.featured_viewer_create,
+                'featured_viewer_show': fv_actions.featured_viewer_show,
+                'featured_viewer_list': fv_actions.featured_viewer_list,
+                'featured_viewer_update': fv_actions.featured_viewer_update,
+                'featured_viewer_delete': fv_actions.featured_viewer_delete,
+                'featured_viewer_record_view': fv_actions.featured_viewer_record_view,
+                'featured_viewer_link_dataset': fv_actions.featured_viewer_link_dataset,
+                'featured_viewer_unlink_dataset': fv_actions.featured_viewer_unlink_dataset,
+            }
+            actions_dict.update(featured_viewers_actions)
         return actions_dict
 
     def get_auth_functions(self):
@@ -1094,6 +1163,20 @@ class PagesPlugin(PagesPluginBase):
                 'data_story_import': ds_auth.data_story_import,
             }
             auth_functions.update(data_stories_auth)
+
+        # Register featured viewers auth only when enabled
+        if self._featured_viewers_enabled() and FEATURED_VIEWERS_AVAILABLE and fv_auth:
+            featured_viewers_auth = {
+                'featured_viewer_create': fv_auth.featured_viewer_create,
+                'featured_viewer_show': fv_auth.featured_viewer_show,
+                'featured_viewer_list': fv_auth.featured_viewer_list,
+                'featured_viewer_update': fv_auth.featured_viewer_update,
+                'featured_viewer_delete': fv_auth.featured_viewer_delete,
+                'featured_viewer_record_view': fv_auth.featured_viewer_record_view,
+                'featured_viewer_link_dataset': fv_auth.featured_viewer_link_dataset,
+                'featured_viewer_unlink_dataset': fv_auth.featured_viewer_unlink_dataset,
+            }
+            auth_functions.update(featured_viewers_auth)
 
         return auth_functions
 

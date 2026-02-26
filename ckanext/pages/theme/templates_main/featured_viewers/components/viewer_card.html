@@ -1,0 +1,102 @@
+{#
+Viewer card component — displays a featured viewer in grid/list views.
+
+Variables:
+- viewer: Viewer dict with all fields
+#}
+
+{% set viewer_countries = viewer.countries %}
+{% if viewer_countries is string %}
+  {% set viewer_countries = h.json_loads(viewer_countries) or [] %}
+{% endif %}
+
+{% set viewer_tags = viewer.tags %}
+{% if viewer_tags is string %}
+  {% set viewer_tags = h.json_loads(viewer_tags) or [] %}
+{% endif %}
+
+{% set map_layers = viewer.map_layers %}
+{% if map_layers is string %}
+  {% set map_layers = h.json_loads(map_layers) or [] %}
+{% endif %}
+
+{% set cat_info = h.get_viewer_category_info(viewer.category or 'general') %}
+
+<div class="fv-card-wrapper">
+  <article class="fv-card">
+    <!-- Thumbnail -->
+    <div class="fv-card-image">
+      {% if viewer.thumbnail_url %}
+      <img src="{{ viewer.thumbnail_url }}" alt="{{ viewer.title }}" loading="lazy">
+      {% else %}
+      <div class="fv-placeholder">
+        <i class="fa {{ cat_info.icon or 'fa-map' }}"></i>
+      </div>
+      {% endif %}
+
+      <div class="fv-card-badges">
+        <div>
+          {% if viewer.is_featured %}
+          <span class="fv-badge fv-badge-featured">
+            <i class="fa fa-star"></i> {{ _('Featured') }}
+          </span>
+          {% endif %}
+        </div>
+        <div>
+          <span class="fv-badge fv-badge-category" style="background: {{ cat_info.color or '#0072BC' }};">
+            <i class="fa {{ cat_info.icon or 'fa-map' }}"></i> {{ cat_info.title }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="fv-card-content">
+      {% if viewer.status != 'published' %}
+      <div style="margin-bottom: 0.5rem;">
+        {% set status_badge = h.get_viewer_status_badge(viewer.status) %}
+        <span class="fv-badge {{ status_badge.class }}">
+          <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
+        </span>
+      </div>
+      {% endif %}
+
+      <h3 class="fv-card-title">
+        <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}">
+          {{ viewer.title }}
+        </a>
+      </h3>
+
+      {% if viewer.description %}
+      <p class="fv-card-desc">{{ h.truncate(viewer.description|striptags, 150) }}</p>
+      {% endif %}
+
+      {% if viewer_countries %}
+      <div class="fv-country-chips">
+        {% for country in viewer_countries[:3] %}
+        <span class="fv-country-chip">{{ country.display_name or country.name or country }}</span>
+        {% endfor %}
+        {% if viewer_countries|length > 3 %}
+        <span class="fv-country-chip">+{{ viewer_countries|length - 3 }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="fv-card-meta">
+        <span><i class="fa fa-eye"></i> {{ h.format_viewer_view_count(viewer.view_count or 0) }}</span>
+        {% if map_layers %}
+        <span><i class="fa fa-layers-alt"></i> {{ map_layers|length }} {{ _('layers') }}</span>
+        {% endif %}
+        {% if viewer.published_at %}
+        <span><i class="fa fa-calendar"></i> {{ h.render_datetime(viewer.published_at, date_format='%b %Y') }}</span>
+        {% endif %}
+      </div>
+
+      <div class="fv-card-cta">
+        <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}" class="fv-btn-explore">
+          {{ _('Explore Map Room') }} <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </article>
+</div>

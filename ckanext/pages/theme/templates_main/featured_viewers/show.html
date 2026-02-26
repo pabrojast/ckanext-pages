@@ -1,0 +1,217 @@
+{% extends "page.html" %}
+
+{% block title %}{{ viewer.title }} - {{ _('Featured Viewers') }} - {{ super() }}{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/featured-viewers.css" />
+{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      {% set viewer_countries = viewer.countries %}
+      {% if viewer_countries is string %}
+        {% set viewer_countries = h.json_loads(viewer_countries) or [] %}
+      {% endif %}
+      {% set viewer_tags = viewer.tags %}
+      {% if viewer_tags is string %}
+        {% set viewer_tags = h.json_loads(viewer_tags) or [] %}
+      {% endif %}
+      {% set map_layers = viewer.map_layers %}
+      {% if map_layers is string %}
+        {% set map_layers = h.json_loads(map_layers) or [] %}
+      {% endif %}
+      {% set cat_info = h.get_viewer_category_info(viewer.category or 'general') %}
+
+      <!-- Breadcrumb -->
+      <div class="fv-breadcrumb">
+        <a href="/"><i class="fa fa-home"></i> {{ _('Home') }}</a>
+        <span class="separator">›</span>
+        <a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a>
+        <span class="separator">›</span>
+        <span>{{ viewer.title }}</span>
+      </div>
+
+      <!-- Header -->
+      <div class="fv-show-header">
+        <h1>
+          <i class="fa {{ cat_info.icon or 'fa-map' }}" style="color: {{ cat_info.color or '#0072BC' }};"></i>
+          {{ viewer.title }}
+        </h1>
+
+        {% if viewer.description %}
+        <p class="fv-show-desc">{{ viewer.description }}</p>
+        {% endif %}
+
+        <!-- Badges Row -->
+        <div class="fv-tags-row">
+          <span class="fv-badge fv-badge-category" style="background: {{ cat_info.color or '#0072BC' }};">
+            <i class="fa {{ cat_info.icon or 'fa-map' }}"></i> {{ cat_info.title }}
+          </span>
+
+          {% if viewer.status != 'published' %}
+          {% set status_badge = h.get_viewer_status_badge(viewer.status) %}
+          <span class="fv-badge {{ status_badge.class }}">
+            <i class="fa {{ status_badge.icon }}"></i> {{ status_badge.label }}
+          </span>
+          {% endif %}
+
+          {% for country in viewer_countries %}
+          <span class="fv-country-chip">{{ country.display_name or country.name or country }}</span>
+          {% endfor %}
+
+          {% for tag in viewer_tags %}
+          <span class="fv-country-chip">{{ tag }}</span>
+          {% endfor %}
+        </div>
+
+        <!-- Admin Actions -->
+        {% if can_edit %}
+        <div style="margin-top: 0.75rem;">
+          <a href="{{ h.url_for('featured_viewers.edit', slug=viewer.slug) }}" class="fv-map-action-btn">
+            <i class="fa fa-pencil"></i> {{ _('Edit Viewer') }}
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Terria Map -->
+      {% if viewer.terria_share_link %}
+      {% set terria_url = viewer.terria_share_link %}
+      {% if '#' in terria_url and '?' not in terria_url %}
+        {% set parts = terria_url.split('#') %}
+        {% set terria_url = parts[0] + '?hideWorkbench=0#' + parts[1] %}
+      {% endif %}
+
+      <div class="fv-map-container" id="fv-map-container">
+        <iframe src="{{ terria_url }}"
+                allow="geolocation"
+                loading="lazy"
+                title="{{ viewer.title }} - Interactive Map"
+                style="width: 100%; height: 600px; border: none;"></iframe>
+      </div>
+
+      <!-- Map Action Bar -->
+      <div class="fv-map-actions">
+        <button type="button" id="fv-fullscreen-btn" class="fv-map-action-btn primary">
+          <i class="fa fa-expand"></i> {{ _('Full Screen') }}
+        </button>
+
+        <a href="{{ viewer.terria_share_link }}" target="_blank" rel="noopener" class="fv-map-action-btn">
+          <i class="fa fa-external-link"></i> {{ _('Open in Terria') }}
+        </a>
+
+        <button type="button" id="fv-copy-link" class="fv-map-action-btn">
+          <i class="fa fa-clipboard"></i> {{ _('Copy Link') }}
+        </button>
+      </div>
+      {% else %}
+      <div class="fv-info-panel" style="text-align: center; padding: 4rem 2rem;">
+        <i class="fa fa-map-o" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+        <h3 style="color: #888;">{{ _('No map configured') }}</h3>
+        <p style="color: #aaa;">{{ _('This viewer does not have a Terria map link configured yet.') }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Info Panels Row -->
+      <div class="row" style="margin-top: 1.5rem;">
+
+        <!-- Left Column: Layers + Description -->
+        <div class="col-md-8">
+          {% if map_layers %}
+          <div class="fv-info-panel">
+            <h3><i class="fa fa-layer-group"></i> {{ _('Data Layers') }}</h3>
+            <ul class="fv-layer-list">
+              {% for layer in map_layers %}
+              <li class="fv-layer-item">
+                <i class="fa fa-check-square-o"></i>
+                <span>{{ layer.name or layer }}</span>
+                {% if layer.type %}
+                <span class="fv-country-chip" style="margin-left: auto;">{{ layer.type }}</span>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {% if viewer.meta_description %}
+          <div class="fv-info-panel">
+            <h3><i class="fa fa-info-circle"></i> {{ _('About this Map Room') }}</h3>
+            <div style="color: #555; line-height: 1.7;">
+              {{ viewer.meta_description }}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Right Column: Datasets + Stats -->
+        <div class="col-md-4">
+          {% if viewer.datasets %}
+          <div class="fv-info-panel">
+            <h3><i class="fa fa-database"></i> {{ _('Related Datasets') }}</h3>
+            {% for ds in viewer.datasets %}
+            <div class="fv-dataset-item">
+              <a href="{{ h.url_for('dataset.read', id=ds.dataset_id) }}">
+                <i class="fa fa-cube"></i> {{ ds.dataset_title or ds.dataset_id }}
+              </a>
+              {% if ds.description %}
+              <p>{{ ds.description }}</p>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="fv-info-panel">
+            <h3><i class="fa fa-bar-chart"></i> {{ _('Statistics') }}</h3>
+            <div class="fv-stats-row" style="flex-direction: column; gap: 0.75rem;">
+              <div class="fv-stat">
+                <i class="fa fa-eye"></i>
+                <span>{{ h.format_viewer_view_count(viewer.view_count or 0) }} {{ _('views') }}</span>
+              </div>
+              {% if map_layers %}
+              <div class="fv-stat">
+                <i class="fa fa-layer-group"></i>
+                <span>{{ map_layers|length }} {{ _('data layers') }}</span>
+              </div>
+              {% endif %}
+              {% if viewer.datasets %}
+              <div class="fv-stat">
+                <i class="fa fa-database"></i>
+                <span>{{ viewer.datasets|length }} {{ _('linked datasets') }}</span>
+              </div>
+              {% endif %}
+              {% if viewer.published_at %}
+              <div class="fv-stat">
+                <i class="fa fa-calendar"></i>
+                <span>{{ _('Published') }} {{ h.render_datetime(viewer.published_at, date_format='%B %d, %Y') }}</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back Link -->
+      <div style="margin: 2rem 0; text-align: center;">
+        <a href="{{ h.url_for('featured_viewers.index') }}" class="fv-map-action-btn">
+          <i class="fa fa-arrow-left"></i> {{ _('Back to all viewers') }}
+        </a>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+<script src="/js/featured-viewers.js"></script>
+{% endblock %}
