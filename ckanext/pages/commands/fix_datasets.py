@@ -15,7 +15,6 @@ from datetime import datetime
 import ckan.model as model
 import ckan.logic as logic
 from ckan.common import config
-from ckan.lib.cli import load_config
 
 logger = logging.getLogger(__name__)
 
@@ -169,9 +168,7 @@ def fix_dataset(dataset, issues_list):
 @click.pass_context
 def fix_datasets(ctx, dry_run, limit, dataset):
     """Fix broken datasets with missing or invalid metadata"""
-    
-    load_config(ctx.obj['config'])
-    
+
     logger.info("Starting dataset repair process...")
     
     # Find datasets with issues
