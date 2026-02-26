@@ -95,8 +95,8 @@ def pages_update_with_org_check(context, data_dict):
         if user_obj and page.user_id == user_obj.id:
             return {'success': True}
             
-        # For open-source-software, check organization membership
-        if page.page_type == 'open-source-software' and page.ihp_organization:
+        # For open-source-software and ai-water-tools, check organization membership
+        if page.page_type in ('open-source-software', 'ai-water-tools') and page.ihp_organization:
             # Check if user is a member of the page's organization
             member_query = model.Session.query(model.Member).filter(
                 model.Member.table_name == 'user',

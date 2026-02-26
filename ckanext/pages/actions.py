@@ -300,7 +300,7 @@ def _pages_update(context, data_dict):
         if normalized_action in {'draft', 'submit', 'publish'}:
             submission_action = normalized_action
 
-    water_family_types = ['open-source-software', 'water-news', 'water-events', 'water-publications']
+    water_family_types = ['open-source-software', 'ai-water-tools', 'water-news', 'water-events', 'water-publications']
     target_page_type = data.get('page_type') or data_dict.get('page_type')
     if not target_page_type and out:
         target_page_type = out.page_type

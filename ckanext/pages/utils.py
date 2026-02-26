@@ -117,7 +117,7 @@ def pages_list_pages(page_type):
         data_dict['order_by'] = tk.request.args.get('order_by')
     else:
         # Default ordering for different page types
-        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications', 'open-source-software']:
+        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications', 'open-source-software', 'ai-water-tools']:
             data_dict['order_by'] = 'recent'  # Default to most recent first
     
     # Additional filters for rapid-response pages
@@ -127,8 +127,8 @@ def pages_list_pages(page_type):
             if tk.request.args.get(param):
                 data_dict[param] = tk.request.args.get(param)
     
-    # Additional filters for open-source-software
-    if page_type == 'open-source-software':
+    # Additional filters for open-source-software and ai-water-tools
+    if page_type in ['open-source-software', 'ai-water-tools']:
         # Handle multiple values for category and language filters
         multi_value_params = ['category', 'language']
         single_value_params = ['access_type', 'license', 'platform', 'attribution']
@@ -147,9 +147,9 @@ def pages_list_pages(page_type):
         # Regular users only see public items
         data_dict['private'] = False
         # For water family content and open-source-software, also consider submission status
-        if page_type in ['water-news', 'water-events', 'water-publications', 'open-source-software']:
+        if page_type in ['water-news', 'water-events', 'water-publications', 'open-source-software', 'ai-water-tools']:
             # Only show approved content to regular users
-            if page_type == 'open-source-software':
+            if page_type in ['open-source-software', 'ai-water-tools']:
                 data_dict['submission_status'] = 'approved'
     
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
@@ -213,6 +213,8 @@ def pages_list_pages(page_type):
         return tk.render('ckanext_pages/water-publications_list.html')
     elif page_type == 'open-source-software':
         return tk.render('ckanext_pages/open-source-software_list.html')
+    elif page_type == 'ai-water-tools':
+        return tk.render('ckanext_pages/ai-water-tools_list.html')
     return tk.render('ckanext_pages/pages_list.html')
 
 
@@ -267,7 +269,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         page_dict['page_type'] = 'page' if page_type == 'pages' else page_type
 
         # Never allow non-admin users to publish directly via crafted form payloads.
-        workflow_page_types = ['water-news', 'water-events', 'water-publications', 'open-source-software']
+        workflow_page_types = ['water-news', 'water-events', 'water-publications', 'open-source-software', 'ai-water-tools']
         if submission_action == 'publish' and not is_sysadmin and page_type in workflow_page_types:
             log = logging.getLogger(__name__)
             log.warning(
@@ -287,12 +289,12 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 page_dict['name'] = generated_name
 
         # For water family content, set as private by default for non-admin users
-        if page_type in ['water-news', 'water-events', 'water-publications'] and not page:
+        if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools'] and not page:
             if not is_sysadmin:
                 # Regular users create as private (pending approval)
                 page_dict['private'] = True
 
-        if page_type in ['water-news', 'water-events', 'water-publications']:
+        if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
             # Ensure we store the organization id of the submitter when missing
             if not page_dict.get('ihp_organization'):
                 try:
@@ -334,7 +336,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
         # Remove helper fields that should not hit the action layer
         # Keep submission_action for water-family and open-source-software so actions.py can process it
-        water_family_types = ['water-news', 'water-events', 'water-publications', 'open-source-software']
+        water_family_types = ['water-news', 'water-events', 'water-publications', 'open-source-software', 'ai-water-tools']
         if 'submission_action' in page_dict and page_type not in water_family_types:
             page_dict.pop('submission_action')
 
@@ -353,7 +355,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                     tk.h.flash_error(_('Dataset creation warning: %s') % str(e))
 
             # Show different messages based on user type and page status
-            if page_type in ['water-news', 'water-events', 'water-publications']:
+            if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
                 status = page_dict.get('submission_status')
                 is_private = page_dict.get('private') in [True, 'True', 'true', 1]
                 if status == 'approved' and not is_private:
@@ -386,13 +388,15 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             endpoint = 'water_publications_show'
         elif page_type == 'open-source-software':
             endpoint = 'open_source_software_show'
+        elif page_type == 'ai-water-tools':
+            endpoint = 'ai_water_tools_show'
         
         return tk.redirect_to('pages.%s' % endpoint, page=page_dict['name'])
 
     if not data:
         data = page_dict
 
-    if page_type in ['water-news', 'water-events', 'water-publications']:
+    if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
         if not data.get('ihp_organization'):
             try:
                 orgs = tk.get_action('organization_list_for_user')(
@@ -428,7 +432,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             'form_snippet': form_snippet}
 
     # Load organizations server-side for page types that need them
-    if page_type in ['open-source-software', 'water-news', 'water-events', 'water-publications']:
+    if page_type in ['open-source-software', 'ai-water-tools', 'water-news', 'water-events', 'water-publications']:
         try:
             context = {'user': tk.g.user}
             if is_sysadmin:
@@ -446,7 +450,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             vars['organization_list'] = []
 
     # Load member states server-side for open-source-software
-    if page_type == 'open-source-software':
+    if page_type in ['open-source-software', 'ai-water-tools']:
         try:
             context = {'user': tk.g.user}
             group_dict = tk.get_action('group_show')(
@@ -960,6 +964,8 @@ def pages_revision_restore(page, revision, page_type='page'):
         endpoint = 'rapid_response_show'
     elif page_type == 'open-source-software':
         endpoint = 'open_source_software_show'
+    elif page_type == 'ai-water-tools':
+        endpoint = 'ai_water_tools_show'
     elif page_type == 'water-news':
         endpoint = 'water_news_show'
     elif page_type == 'water-events':
@@ -984,6 +990,8 @@ def pages_delete(page, page_type='pages'):
             return tk.redirect_to('pages.water_publications_edit', page=page)
         elif page_type == 'open-source-software':
             return tk.redirect_to('pages.open_source_software_edit', page=page)
+        elif page_type == 'ai-water-tools':
+            return tk.redirect_to('pages.ai_water_tools_edit', page=page)
         else:
             return tk.redirect_to('pages.edit', page=page)
 
@@ -1026,6 +1034,9 @@ def pages_delete(page, page_type='pages'):
             elif page_type == 'open-source-software':
                 endpoint = 'open_source_software_index'
                 tk.h.flash_success(_('Software entry deleted successfully'))
+            elif page_type == 'ai-water-tools':
+                endpoint = 'ai_water_tools_index'
+                tk.h.flash_success(_('AI tool entry deleted successfully'))
             else:
                 endpoint = 'pages_index'
                 tk.h.flash_success(_('Page deleted successfully'))
@@ -1053,6 +1064,8 @@ def pages_delete(page, page_type='pages'):
             delete_url = tk.h.url_for('pages.water_publications_delete', page=page)
         elif page_type == 'open-source-software':
             delete_url = tk.h.url_for('pages.open_source_software_delete', page=page)
+        elif page_type == 'ai-water-tools':
+            delete_url = tk.h.url_for('pages.ai_water_tools_delete', page=page)
         else:
             delete_url = tk.h.url_for('pages.delete', page=page)
         
