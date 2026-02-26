@@ -868,6 +868,7 @@ class PagesPlugin(PagesPluginBase):
     p.implements(p.IAuthFunctions, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IBlueprint)
+    p.implements(p.IClick)
 
     def _data_stories_enabled(self):
         return tk.asbool(tk.config.get('ckanext.data_stories.enabled', False))
@@ -885,6 +886,21 @@ class PagesPlugin(PagesPluginBase):
             blueprints.append(featured_viewers_blueprint)
             log.info("Featured viewers blueprint registered")
         return blueprints
+
+    # IClick
+    def get_commands(self):
+        import click
+        from ckanext.pages.commands import get_commands as _get_cmds
+
+        @click.group()
+        def pages():
+            """ckanext-pages management commands."""
+            pass
+
+        for cmd in _get_cmds():
+            pages.add_command(cmd)
+
+        return [pages]
 
     def update_config(self, config):
         self.organization_pages = tk.asbool(config.get('ckanext.pages.organization', False))
