@@ -258,6 +258,17 @@ def default_pages_schema():
         'data_requirements': [ignore_missing, unicode_safe],
         'reference_publications': [ignore_missing, unicode_safe],
         'developer_organization': [ignore_missing, unicode_safe],
+        # UNESCO AI for Water Management framework fields
+        'water_application_category': [ignore_missing, unicode_safe],
+        'technology_readiness_level': [ignore_missing, unicode_safe],
+        'ethical_compliance': [ignore_missing, clean_categories_validator, unicode_safe],
+        'data_sources': [ignore_missing, clean_categories_validator, unicode_safe],
+        'spatial_scale': [ignore_missing, unicode_safe],
+        'temporal_scale': [ignore_missing, unicode_safe],
+        'open_science_compliance': [safe_boolean_validator, ignore_missing, boolean_validator],
+        'reference_doi': [ignore_missing, unicode_safe],
+        'related_datasets': [ignore_missing, unicode_safe],
+        'limitations': [ignore_missing, unicode_safe],
     }
 
 

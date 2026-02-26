@@ -22,6 +22,10 @@
   --technique-ts: #20c997;
   --technique-opt: #0dcaf0;
   --technique-hybrid: #6610f2;
+  --technique-emulation: #e83e8c;
+  --technique-pinn: #495057;
+  --technique-zsl: #17a2b8;
+  --technique-gen: #e65100;
 
   /* Water application domain color */
   --water-app: #0077b6;
@@ -535,6 +539,10 @@
 .technique-ts      { background: var(--technique-ts); }
 .technique-opt     { background: var(--technique-opt); color: #212529; }
 .technique-hybrid  { background: var(--technique-hybrid); }
+.technique-emulation { background: var(--technique-emulation); }
+.technique-pinn    { background: var(--technique-pinn); }
+.technique-zsl     { background: var(--technique-zsl); }
+.technique-gen     { background: var(--technique-gen); }
 .technique-default { background: var(--text-secondary); }
 
 /* ================================================================ */
@@ -2310,4 +2318,110 @@
   #modalImage {
     max-height: 65vh;
   }
+}
+
+/* ================================================================ */
+/* UNESCO FRAMEWORK PANEL                                           */
+/* ================================================================ */
+
+.unesco-framework-panel {
+  border-color: var(--unesco-blue-light);
+  margin-top: 2rem;
+}
+
+.unesco-framework-panel .panel-heading {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  color: #fff;
+  border-bottom: none;
+}
+
+.unesco-framework-panel .panel-title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.unesco-framework-panel .panel-title i {
+  margin-right: 0.5rem;
+}
+
+.unesco-framework-panel .meta-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.unesco-framework-panel .meta-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  min-width: 140px;
+}
+
+.unesco-framework-panel .meta-label i {
+  color: var(--unesco-blue);
+  margin-right: 0.3rem;
+  width: 16px;
+  text-align: center;
+}
+
+.unesco-framework-panel .meta-value {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.unesco-framework-panel .tag-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.unesco-framework-panel .tag-badges .badge {
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3em 0.7em;
+  border-radius: 3px;
+}
+
+.badge-unesco-ethics {
+  background: var(--unesco-blue);
+  color: #fff;
+}
+
+.badge-default {
+  background: #6c757d;
+  color: #fff;
+}
+
+.badge-info {
+  background: #17a2b8;
+  color: #fff;
+}
+
+.badge-warning {
+  background: #fd7e14;
+  color: #fff;
+}
+
+.badge-primary {
+  background: var(--unesco-blue);
+  color: #fff;
+}
+
+.badge-success {
+  background: #28a745;
+  color: #fff;
+}
+
+.limitations-text {
+  background: #fff8e1;
+  border-left: 3px solid #ffc107;
+  padding: 0.75rem 1rem;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin-top: 0.5rem;
 }

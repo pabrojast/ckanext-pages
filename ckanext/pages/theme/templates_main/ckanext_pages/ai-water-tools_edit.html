@@ -192,11 +192,15 @@
                                 <div class="checkbox-grid">
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="machine-learning" {% if 'machine-learning' in selected_ai %}checked{% endif %}> {{ _('Machine Learning') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="deep-learning" {% if 'deep-learning' in selected_ai %}checked{% endif %}> {{ _('Deep Learning') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="nlp" {% if 'nlp' in selected_ai %}checked{% endif %}> {{ _('NLP') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="nlp" {% if 'nlp' in selected_ai %}checked{% endif %}> {{ _('NLP / LLMs') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="computer-vision" {% if 'computer-vision' in selected_ai %}checked{% endif %}> {{ _('Computer Vision') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="reinforcement-learning" {% if 'reinforcement-learning' in selected_ai %}checked{% endif %}> {{ _('Reinforcement Learning') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="time-series-forecasting" {% if 'time-series-forecasting' in selected_ai %}checked{% endif %}> {{ _('Time Series Forecasting') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="optimization" {% if 'optimization' in selected_ai %}checked{% endif %}> {{ _('Optimization') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="model-emulation" {% if 'model-emulation' in selected_ai %}checked{% endif %}> {{ _('Model Emulation') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="physics-informed-nn" {% if 'physics-informed-nn' in selected_ai %}checked{% endif %}> {{ _('Physics-informed NN') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="zero-shot-learning" {% if 'zero-shot-learning' in selected_ai %}checked{% endif %}> {{ _('Zero-shot Learning') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="generative-models" {% if 'generative-models' in selected_ai %}checked{% endif %}> {{ _('Generative Models (GAN/Diffusion)') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="ai_technique_cb" value="hybrid" {% if 'hybrid' in selected_ai %}checked{% endif %}> {{ _('Hybrid') }}</label>
                                 </div>
                                 <input type="hidden" name="ai_technique" id="ai_technique" value="{{ data.get('ai_technique', '') }}">
@@ -208,14 +212,27 @@
                                 <p class="help-block">{{ _('Select all applicable water domains') }}</p>
                                 {% set selected_domain = (data.get('water_application_domain', '') or '').split(',') %}
                                 <div class="checkbox-grid">
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="flood-forecasting" {% if 'flood-forecasting' in selected_domain %}checked{% endif %}> {{ _('Flood Forecasting') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="surface-water-supply" {% if 'surface-water-supply' in selected_domain %}checked{% endif %}> {{ _('Surface Water Supply') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="groundwater-modelling" {% if 'groundwater-modelling' in selected_domain %}checked{% endif %}> {{ _('Groundwater Modelling') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="hydropower" {% if 'hydropower' in selected_domain %}checked{% endif %}> {{ _('Hydropower Generation') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="cryosphere" {% if 'cryosphere' in selected_domain %}checked{% endif %}> {{ _('Cryosphere Assessment') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="sediment-transport" {% if 'sediment-transport' in selected_domain %}checked{% endif %}> {{ _('Sediment Transport') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="agriculture-irrigation" {% if 'agriculture-irrigation' in selected_domain %}checked{% endif %}> {{ _('Agriculture & Irrigation') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="wef-nexus" {% if 'wef-nexus' in selected_domain %}checked{% endif %}> {{ _('Water-Energy-Food Nexus') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="weather-forecasting" {% if 'weather-forecasting' in selected_domain %}checked{% endif %}> {{ _('Weather Forecasting') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="flood-forecasting" {% if 'flood-forecasting' in selected_domain %}checked{% endif %}> {{ _('Flood Forecasting & Management') }}</label>
                                   <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="drought-prediction" {% if 'drought-prediction' in selected_domain %}checked{% endif %}> {{ _('Drought Prediction') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="water-quality-monitoring" {% if 'water-quality-monitoring' in selected_domain %}checked{% endif %}> {{ _('Water Quality Monitoring') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="groundwater-modeling" {% if 'groundwater-modeling' in selected_domain %}checked{% endif %}> {{ _('Groundwater Modeling') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="demand-forecasting" {% if 'demand-forecasting' in selected_domain %}checked{% endif %}> {{ _('Demand Forecasting') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="irrigation-optimization" {% if 'irrigation-optimization' in selected_domain %}checked{% endif %}> {{ _('Irrigation Optimization') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="watershed-management" {% if 'watershed-management' in selected_domain %}checked{% endif %}> {{ _('Watershed Management') }}</label>
-                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="climate-water-impact" {% if 'climate-water-impact' in selected_domain %}checked{% endif %}> {{ _('Climate-Water Impact') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="landslide-risk" {% if 'landslide-risk' in selected_domain %}checked{% endif %}> {{ _('Landslide Risk') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="glof" {% if 'glof' in selected_domain %}checked{% endif %}> {{ _('Glacial Lake Outburst Floods') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="flood-extent" {% if 'flood-extent' in selected_domain %}checked{% endif %}> {{ _('Flood Area Extent Estimation') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="real-time-control" {% if 'real-time-control' in selected_domain %}checked{% endif %}> {{ _('Real-time Flood Control') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="infrastructure-monitoring" {% if 'infrastructure-monitoring' in selected_domain %}checked{% endif %}> {{ _('Infrastructure Monitoring') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="flood-impact" {% if 'flood-impact' in selected_domain %}checked{% endif %}> {{ _('Flood Impact Assessment') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="climate-modelling" {% if 'climate-modelling' in selected_domain %}checked{% endif %}> {{ _('Climate Change Modelling') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="climate-adaptation" {% if 'climate-adaptation' in selected_domain %}checked{% endif %}> {{ _('Climate Adaptation & Resilience') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="water-quality" {% if 'water-quality' in selected_domain %}checked{% endif %}> {{ _('Water Quality Monitoring') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="stormwater-drainage" {% if 'stormwater-drainage' in selected_domain %}checked{% endif %}> {{ _('Stormwater Drainage') }}</label>
+                                  <label class="checkbox-inline"><input type="checkbox" name="water_application_domain_cb" value="wastewater-treatment" {% if 'wastewater-treatment' in selected_domain %}checked{% endif %}> {{ _('Wastewater Treatment') }}</label>
                                 </div>
                                 <input type="hidden" name="water_application_domain" id="water_application_domain" value="{{ data.get('water_application_domain', '') }}">
                               </div>
@@ -254,6 +271,18 @@
                                 </select>
                               </div>
                             </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="water_application_category" class="control-label">{{ _('Application Category (UNESCO Ch.3)') }}</label>
+                            <select name="water_application_category" id="water_application_category" class="form-control">
+                              <option value="">{{ _('Select Main Category') }}</option>
+                              <option value="water-resources-management" {% if data.get('water_application_category') == 'water-resources-management' %}selected{% endif %}>{{ _('Water Resources Management') }}</option>
+                              <option value="water-risk-management" {% if data.get('water_application_category') == 'water-risk-management' %}selected{% endif %}>{{ _('Water Risk Management') }}</option>
+                              <option value="climate-change-adaptation" {% if data.get('water_application_category') == 'climate-change-adaptation' %}selected{% endif %}>{{ _('Climate Change Adaptation') }}</option>
+                              <option value="water-quality-management" {% if data.get('water_application_category') == 'water-quality-management' %}selected{% endif %}>{{ _('Water Quality Management') }}</option>
+                            </select>
+                            <p class="help-block">{{ _('Main category from UNESCO AI for Water Management framework') }}</p>
                           </div>
 
                           <div class="row">
@@ -811,6 +840,136 @@
                           <!-- Hidden fields for uploaded images -->
                           <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.get("uploaded_images", "")|tojson|safe if data.get("uploaded_images") else "" }}'>
                           <input type="hidden" id="image-gallery-data" name="image_gallery" value="{{ data.get('image_gallery', '') }}">
+                        </div>
+
+                        <!-- Section 9: UNESCO Framework & Ethics -->
+                        <div class="form-section">
+                          {# ── Section: UNESCO Framework & Ethics ── #}
+                          <h3 class="form-section-title">
+                            <i class="fa fa-university"></i> {{ _('UNESCO Framework & Ethics') }}
+                          </h3>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="technology_readiness_level" class="control-label">{{ _('Technology Readiness Level (TRL)') }}</label>
+                                <select name="technology_readiness_level" id="technology_readiness_level" class="form-control">
+                                  <option value="">{{ _('Select TRL') }}</option>
+                                  <option value="trl-1-3" {% if data.get('technology_readiness_level') == 'trl-1-3' %}selected{% endif %}>{{ _('TRL 1-3: Research') }}</option>
+                                  <option value="trl-4-6" {% if data.get('technology_readiness_level') == 'trl-4-6' %}selected{% endif %}>{{ _('TRL 4-6: Prototype/Development') }}</option>
+                                  <option value="trl-7-8" {% if data.get('technology_readiness_level') == 'trl-7-8' %}selected{% endif %}>{{ _('TRL 7-8: Pre-operational') }}</option>
+                                  <option value="trl-9" {% if data.get('technology_readiness_level') == 'trl-9' %}selected{% endif %}>{{ _('TRL 9: Operational') }}</option>
+                                </select>
+                                <p class="help-block">{{ _('Technology Readiness Level as referenced in UNESCO AI for Water Management') }}</p>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="reference_doi" class="control-label">{{ _('Reference DOI') }}</label>
+                                <input type="text" name="reference_doi" id="reference_doi" class="form-control"
+                                       value="{{ data.get('reference_doi', '') }}"
+                                       placeholder="{{ _('e.g., 10.1000/xyz123') }}">
+                                <p class="help-block">{{ _('DOI of the primary publication or paper') }}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="spatial_scale" class="control-label">{{ _('Spatial Scale') }}</label>
+                                <select name="spatial_scale" id="spatial_scale" class="form-control">
+                                  <option value="">{{ _('Select Spatial Scale') }}</option>
+                                  <option value="local" {% if data.get('spatial_scale') == 'local' %}selected{% endif %}>{{ _('Local / Site-specific') }}</option>
+                                  <option value="catchment" {% if data.get('spatial_scale') == 'catchment' %}selected{% endif %}>{{ _('Catchment / Basin') }}</option>
+                                  <option value="regional" {% if data.get('spatial_scale') == 'regional' %}selected{% endif %}>{{ _('Regional') }}</option>
+                                  <option value="national" {% if data.get('spatial_scale') == 'national' %}selected{% endif %}>{{ _('National') }}</option>
+                                  <option value="global" {% if data.get('spatial_scale') == 'global' %}selected{% endif %}>{{ _('Global') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="temporal_scale" class="control-label">{{ _('Temporal Scale') }}</label>
+                                <select name="temporal_scale" id="temporal_scale" class="form-control">
+                                  <option value="">{{ _('Select Temporal Scale') }}</option>
+                                  <option value="nowcasting" {% if data.get('temporal_scale') == 'nowcasting' %}selected{% endif %}>{{ _('Nowcasting (0-6 hours)') }}</option>
+                                  <option value="short-term" {% if data.get('temporal_scale') == 'short-term' %}selected{% endif %}>{{ _('Short-term (0-3 days)') }}</option>
+                                  <option value="medium-range" {% if data.get('temporal_scale') == 'medium-range' %}selected{% endif %}>{{ _('Medium-range (3-10 days)') }}</option>
+                                  <option value="seasonal" {% if data.get('temporal_scale') == 'seasonal' %}selected{% endif %}>{{ _('Seasonal (months)') }}</option>
+                                  <option value="long-term" {% if data.get('temporal_scale') == 'long-term' %}selected{% endif %}>{{ _('Long-term (years/climate)') }}</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label class="control-label">{{ _('Data Sources') }}</label>
+                            <p class="help-block">{{ _('Types of input data used by this tool') }}</p>
+                            {% set selected_sources = (data.get('data_sources', '') or '').split(',') %}
+                            <div class="checkbox-grid">
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="satellite-imagery" {% if 'satellite-imagery' in selected_sources %}checked{% endif %}> {{ _('Satellite Imagery') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="iot-sensors" {% if 'iot-sensors' in selected_sources %}checked{% endif %}> {{ _('IoT Sensors') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="gauging-stations" {% if 'gauging-stations' in selected_sources %}checked{% endif %}> {{ _('Gauging Stations') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="weather-models" {% if 'weather-models' in selected_sources %}checked{% endif %}> {{ _('Weather Models/NWP') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="radar" {% if 'radar' in selected_sources %}checked{% endif %}> {{ _('Radar') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="lidar" {% if 'lidar' in selected_sources %}checked{% endif %}> {{ _('LiDAR') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="gps-gnss" {% if 'gps-gnss' in selected_sources %}checked{% endif %}> {{ _('GPS/GNSS') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="earth-observation" {% if 'earth-observation' in selected_sources %}checked{% endif %}> {{ _('Earth Observation (Copernicus, Landsat)') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="hydrological-models" {% if 'hydrological-models' in selected_sources %}checked{% endif %}> {{ _('Hydrological Models') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="data_sources_cb" value="citizen-science" {% if 'citizen-science' in selected_sources %}checked{% endif %}> {{ _('Citizen/Open Science') }}</label>
+                            </div>
+                            <input type="hidden" name="data_sources" id="data_sources" value="{{ data.get('data_sources', '') }}">
+                          </div>
+
+                          <div class="form-group">
+                            <label class="control-label">{{ _('UNESCO Ethical Principles Compliance') }}</label>
+                            <p class="help-block">{{ _('Select the UNESCO AI Ethics principles addressed by this tool (Recommendation on the Ethics of AI, 2021)') }}</p>
+                            {% set selected_ethics = (data.get('ethical_compliance', '') or '').split(',') %}
+                            <div class="checkbox-grid">
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="proportionality" {% if 'proportionality' in selected_ethics %}checked{% endif %}> {{ _('1. Proportionality & Do No Harm') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="safety" {% if 'safety' in selected_ethics %}checked{% endif %}> {{ _('2. Safety & Security') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="fairness" {% if 'fairness' in selected_ethics %}checked{% endif %}> {{ _('3. Fairness & Non-Discrimination') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="sustainability" {% if 'sustainability' in selected_ethics %}checked{% endif %}> {{ _('4. Sustainability') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="privacy" {% if 'privacy' in selected_ethics %}checked{% endif %}> {{ _('5. Privacy & Data Protection') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="human-oversight" {% if 'human-oversight' in selected_ethics %}checked{% endif %}> {{ _('6. Human Oversight') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="transparency" {% if 'transparency' in selected_ethics %}checked{% endif %}> {{ _('7. Transparency & Explainability') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="accountability" {% if 'accountability' in selected_ethics %}checked{% endif %}> {{ _('8. Accountability') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="awareness" {% if 'awareness' in selected_ethics %}checked{% endif %}> {{ _('9. Awareness & Literacy') }}</label>
+                              <label class="checkbox-inline"><input type="checkbox" name="ethical_compliance_cb" value="open-science" {% if 'open-science' in selected_ethics %}checked{% endif %}> {{ _('10. Multi-stakeholder & Open Science') }}</label>
+                            </div>
+                            <input type="hidden" name="ethical_compliance" id="ethical_compliance" value="{{ data.get('ethical_compliance', '') }}">
+                          </div>
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <div class="checkbox">
+                                  <label>
+                                    <input type="checkbox" name="open_science_compliance" value="true"
+                                           {% if data.get('open_science_compliance') %}checked{% endif %}>
+                                    <strong>{{ _('Open Science Compliant') }}</strong>
+                                    <span class="help-block" style="margin-top: 0.25rem;">{{ _('Aligns with UNESCO Recommendation on Open Science') }}</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="related_datasets" class="control-label">{{ _('Related IHP-WINS Datasets') }}</label>
+                                <input type="text" name="related_datasets" id="related_datasets" class="form-control"
+                                       value="{{ data.get('related_datasets', '') }}"
+                                       placeholder="{{ _('Comma-separated dataset IDs or URLs') }}">
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group">
+                            <label for="limitations" class="control-label">{{ _('Known Limitations') }}</label>
+                            <textarea name="limitations" id="limitations" class="form-control" rows="4"
+                                      placeholder="{{ _('Describe known limitations, biases, data requirements, or constraints') }}">{{ data.get('limitations', '') }}</textarea>
+                            <p class="help-block">{{ _('Document limitations per UNESCO AI Ethics: data biases, interpretability issues, geographic constraints, etc.') }}</p>
+                          </div>
                         </div>
 
                         <!-- Submission Action Buttons -->
@@ -1763,6 +1922,14 @@ textarea[id="example_applications"] {
   $(document).on('change', 'input[name="platform_cb"]', function() {
     syncCheckboxGroup('platform_cb', 'platform');
   });
+  // Sync data_sources checkboxes
+  $(document).on('change', 'input[name="data_sources_cb"]', function() {
+    syncCheckboxGroup('data_sources_cb', 'data_sources');
+  });
+  // Sync ethical_compliance checkboxes
+  $(document).on('change', 'input[name="ethical_compliance_cb"]', function() {
+    syncCheckboxGroup('ethical_compliance_cb', 'ethical_compliance');
+  });
 
   // Format member state name
   function formatMemberStateName(name) {
@@ -2163,6 +2330,8 @@ textarea[id="example_applications"] {
       syncCheckboxGroup('water_application_domain_cb', 'water_application_domain');
       syncCheckboxGroup('programming_language_cb', 'programming_language');
       syncCheckboxGroup('platform_cb', 'platform');
+      syncCheckboxGroup('data_sources_cb', 'data_sources');
+      syncCheckboxGroup('ethical_compliance_cb', 'ethical_compliance');
       
       updateUploadedImagesData();
       updateMemberStatesData();

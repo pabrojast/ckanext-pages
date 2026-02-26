@@ -352,6 +352,10 @@ class Page(DomainObject, BaseModel):
                 ('scalability', 'scalability'),
                 ('ai_model_type', 'ai_model_type'),
                 ('development_status', 'development_status'),
+                ('water_application_category', 'water_application_category'),
+                ('technology_readiness_level', 'technology_readiness_level'),
+                ('spatial_scale', 'spatial_scale'),
+                ('temporal_scale', 'temporal_scale'),
             ]:
                 filter_value = kw.pop(filter_name, None)
                 if filter_value:
