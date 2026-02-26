@@ -57,3 +57,11 @@ def format_view_count(count):
     if count >= 1000:
         return f'{count / 1000:.1f}k'
     return str(count)
+
+
+# Aliases used by plugin.py and templates (prefixed with 'viewer_')
+get_viewer_category_info = get_category_info
+get_viewer_category_title = get_category_title
+get_viewer_category_icon = get_category_icon
+get_viewer_category_color = get_category_color
+format_viewer_view_count = format_view_count
