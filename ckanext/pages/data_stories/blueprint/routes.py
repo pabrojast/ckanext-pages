@@ -810,14 +810,17 @@ def submit(slug):
             'submission_notes': request.form.get('submission_notes', ''),
         })
 
-        flash(tk._('Story submitted for review'), 'success')
+        log.info(f"[DATA_STORIES_ROUTE] Story submitted successfully: {slug}")
+        flash(tk._('Story submitted for review. An administrator will review it shortly.'), 'success')
 
     except tk.ValidationError as e:
-        flash(tk._('Cannot submit story: {}').format('; '.join(e.error_summary.values())), 'error')
+        error_msg = '; '.join(e.error_summary.values()) if e.error_summary else str(e)
+        log.warning(f"[DATA_STORIES_ROUTE] Submit validation failed for {slug}: {error_msg}")
+        flash(tk._('Cannot submit story: {}').format(error_msg), 'error')
     except tk.NotAuthorized:
         tk.abort(403, tk._('Not authorized to submit this story'))
     except Exception as e:
-        log.error(f"Error submitting story: {str(e)}")
+        log.error(f"[DATA_STORIES_ROUTE] Error submitting story {slug}: {str(e)}")
         flash(tk._('Error submitting story: {}').format(str(e)), 'error')
 
     return redirect(url_for('data_stories.show', slug=slug))
