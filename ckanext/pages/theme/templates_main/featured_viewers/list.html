@@ -2,11 +2,6 @@
 
 {% block title %}{{ _('Featured Viewers & Map Rooms') }} - {{ super() }}{% endblock %}
 
-{% block styles %}
-  {{ super() }}
-  <link rel="stylesheet" href="/css/featured-viewers.css" />
-{% endblock %}
-
 {% block content %}
 <div class="homepage layout-1">
   <div id="content" class="container">
@@ -26,158 +21,245 @@
       </nav>
 
       <!-- Hero Banner -->
-      <div class="fv-hero">
-        <div class="fv-hero-content">
-          <h1><i class="fa fa-globe"></i> {{ _('Featured Viewers & Map Rooms') }}</h1>
-          <p>{{ _('Explore thematical map rooms with preloaded maps and data layers for water-related monitoring and analysis.') }}</p>
-          {% if can_create %}
-          <div style="margin-top: 1.5rem;">
-            <a href="{{ h.url_for('featured_viewers.create') }}" class="fv-map-action-btn primary" style="font-size: 1rem;">
-              <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
-            </a>
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1>{{ _('Featured Viewers & Map Rooms') }}</h1>
+            <p class="section-title-description">{{ _('Explore thematical map rooms with preloaded maps and data layers for water-related monitoring and analysis.') }}</p>
           </div>
-          {% endif %}
         </div>
-      </div>
+      </section>
+    </div>
 
-      <!-- Category Tabs -->
-      <div class="fv-categories">
-        <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q) }}"
-           class="fv-category-tab {% if not category_filter %}active{% endif %}">
-          <i class="fa fa-th"></i> {{ _('All') }}
-          <span class="fv-cat-count">{{ total_count }}</span>
-        </a>
-        {% for cat_id, cat in categories.items() %}
-          {% set cat_count = facets.get('categories', {}).get(cat_id, 0) %}
-          {% if cat_count > 0 or not category_filter %}
-          <a href="{{ h.url_for('featured_viewers.index', category=cat_id, sort=sort, q=q) }}"
-             class="fv-category-tab {% if category_filter == cat_id %}active{% endif %}"
-             {% if category_filter == cat_id %}style="background: {{ cat.color }}; border-color: {{ cat.color }}; color: #fff;"{% endif %}>
-            <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
-            {% if cat_count > 0 %}
-            <span class="fv-cat-count">{{ cat_count }}</span>
-            {% endif %}
-          </a>
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      <!-- Filters -->
-      <form method="get" class="fv-filters">
-        {% if category_filter %}
-        <input type="hidden" name="category" value="{{ category_filter }}">
-        {% endif %}
-        <input type="text" name="q" class="fv-search-input"
-               placeholder="{{ _('Search viewers...') }}" value="{{ q or '' }}">
-        <select name="sort" class="fv-sort-select">
-          <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
-          <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
-          <option value="order"{% if sort == 'order' %} selected{% endif %}>{{ _('Recommended') }}</option>
-          <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('Alphabetical') }}</option>
-        </select>
-        <button type="submit" class="fv-map-action-btn primary">
-          <i class="fa fa-search"></i> {{ _('Search') }}
-        </button>
-        {% if q or category_filter %}
-        <a href="{{ h.url_for('featured_viewers.index') }}" class="fv-map-action-btn">
-          <i class="fa fa-times"></i> {{ _('Clear') }}
-        </a>
-        {% endif %}
-      </form>
-
-      <!-- Featured Viewers (page 1 only) -->
-      {% if featured_viewers and page == 1 and not category_filter and not q %}
-      <div style="margin-bottom: 2.5rem;">
-        <div class="fv-section-heading">
-          <i class="fa fa-star" style="color: #FFB800;"></i>
-          <h2>{{ _('Featured Map Rooms') }}</h2>
-        </div>
-        <div class="row">
-          {% for viewer in featured_viewers %}
-          <div class="col-md-6 col-lg-4">
-            {% include "featured_viewers/components/viewer_card.html" %}
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      <!-- Results Info -->
-      {% if total_count > 0 %}
-      <div style="margin-bottom: 1rem; color: #888; font-size: 0.9rem;">
-        <i class="fa fa-info-circle"></i>
-        {% set end_count = page * limit %}
-        {% if end_count > total_count %}{% set end_count = total_count %}{% endif %}
-        {{ _('Showing {start} – {end} of {total} viewers').format(
-          start=(page - 1) * limit + 1,
-          end=end_count,
-          total=total_count
-        ) }}
-      </div>
-      {% endif %}
-
-      <!-- Viewer Grid -->
-      {% if viewers %}
+    <div class="container">
       <div class="row">
-        {% for viewer in viewers %}
-        <div class="col-md-6 col-lg-4">
-          {% include "featured_viewers/components/viewer_card.html" %}
-        </div>
-        {% endfor %}
-      </div>
+        <div class="col-md-12">
 
-      <!-- Pagination -->
-      {% if total_pages > 1 %}
-      <div class="fv-pagination">
-        {% if page > 1 %}
-        <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, q=q) }}">
-          <i class="fa fa-chevron-left"></i>
-        </a>
-        {% endif %}
+          <!-- Action Bar -->
+          <div class="fv-actions-bar" style="margin-bottom: 3rem;">
+            <section class="module module-narrow">
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <div class="row">
+                  <div class="col-md-8">
+                    <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Thematic Map Rooms') }}</h2>
+                    <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Discover interactive map viewers for water-related monitoring and analysis') }}</p>
+                  </div>
+                  <div class="col-md-4 text-right">
+                    {% if can_create %}
+                    <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary btn-lg">
+                      <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
 
-        {% for p in range(1, total_pages + 1) %}
-          {% if p == page %}
-          <span class="active">{{ p }}</span>
-          {% elif p <= 2 or p >= total_pages - 1 or (p >= page - 2 and p <= page + 2) %}
-          <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, q=q) }}">{{ p }}</a>
-          {% elif p == 3 or p == total_pages - 2 %}
-          <span>…</span>
+          <!-- Category Tabs -->
+          <div class="fv-categories" style="margin-bottom: 1.5rem;">
+            <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q) }}"
+               class="fv-category-tab {% if not category_filter %}active{% endif %}">
+              <i class="fa fa-th"></i> {{ _('All') }}
+              <span class="fv-cat-count">{{ total_count }}</span>
+            </a>
+            {% for cat_id, cat in categories.items() %}
+              {% set cat_count = facets.get('categories', {}).get(cat_id, 0) %}
+              {% if cat_count > 0 or not category_filter %}
+              <a href="{{ h.url_for('featured_viewers.index', category=cat_id, sort=sort, q=q) }}"
+                 class="fv-category-tab {% if category_filter == cat_id %}active{% endif %}"
+                 {% if category_filter == cat_id %}style="background: {{ cat.color }}; border-color: {{ cat.color }}; color: #fff;"{% endif %}>
+                <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
+                {% if cat_count > 0 %}
+                <span class="fv-cat-count">{{ cat_count }}</span>
+                {% endif %}
+              </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Filters -->
+          <div class="data-stories-filters" style="margin-bottom: 2rem;">
+            <section class="module module-narrow">
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <form method="get">
+                  {% if category_filter %}
+                  <input type="hidden" name="category" value="{{ category_filter }}">
+                  {% endif %}
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="q" class="sr-only">{{ _('Search') }}</label>
+                        <input type="text" name="q" id="q" class="form-control"
+                               placeholder="{{ _('Search viewers...') }}" value="{{ q or '' }}">
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="sort" class="sr-only">{{ _('Sort by') }}</label>
+                        <select name="sort" id="sort" class="form-control">
+                          <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
+                          <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
+                          <option value="order"{% if sort == 'order' %} selected{% endif %}>{{ _('Recommended') }}</option>
+                          <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('Alphabetical') }}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa fa-search"></i> {{ _('Search') }}
+                      </button>
+                      {% if q or category_filter %}
+                      <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default btn-block" style="margin-top: 0.5rem;">
+                        <i class="fa fa-times"></i> {{ _('Clear') }}
+                      </a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+
+          <!-- Featured Viewers (page 1 only) -->
+          {% if featured_viewers and page == 1 and not category_filter and not q %}
+          <div class="featured-stories" style="margin-bottom: 3rem;">
+            <section class="module module-narrow">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
+                  <i class="fa fa-star" style="color: #FFB800; margin-right: 0.5rem;"></i>
+                  {{ _('Featured Map Rooms') }}
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="row stories-grid">
+                  {% for viewer in featured_viewers %}
+                  <div class="col-md-6 col-lg-4">
+                    {% include "featured_viewers/components/viewer_card.html" %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+          </div>
           {% endif %}
-        {% endfor %}
 
-        {% if page < total_pages %}
-        <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, q=q) }}">
-          <i class="fa fa-chevron-right"></i>
-        </a>
-        {% endif %}
-      </div>
-      {% endif %}
+          <!-- Viewer list -->
+          <div class="story-list">
+            {% if page > 1 or featured_viewers %}
+            <section class="module module-narrow" style="margin-bottom: 2rem;">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-bottom: 2px solid #e9ecef;">
+                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">{{ _('All Viewers') }}</h2>
+              </div>
+            </section>
+            {% endif %}
 
-      {% else %}
-      <!-- Empty State -->
-      <div class="fv-empty">
-        <i class="fa fa-map-o"></i>
-        <h3>{{ _('No viewers found') }}</h3>
-        <p>{{ _('No featured viewers match your current filters.') }}</p>
-        {% if q or category_filter %}
-        <a href="{{ h.url_for('featured_viewers.index') }}" class="fv-map-action-btn" style="margin-top: 1rem;">
-          <i class="fa fa-times"></i> {{ _('Clear filters') }}
-        </a>
-        {% endif %}
-        {% if can_create %}
-        <div style="margin-top: 1rem;">
-          <a href="{{ h.url_for('featured_viewers.create') }}" class="fv-btn-explore" style="display: inline-flex; width: auto;">
-            <i class="fa fa-plus"></i> {{ _('Create the first viewer') }}
-          </a>
+            {% if total_count > 0 %}
+              {% set end_count = page * limit %}
+              {% if end_count > total_count %}{% set end_count = total_count %}{% endif %}
+              <div class="results-info" style="padding: 1rem 0; margin-bottom: 1.5rem; color: #6c757d;">
+                <i class="fa fa-info-circle"></i>
+                {{ _('Showing {start} – {end} of {total} viewers').format(
+                  start=(page - 1) * limit + 1,
+                  end=end_count,
+                  total=total_count
+                ) }}
+              </div>
+
+              <div class="row stories-grid">
+                {% for viewer in viewers %}
+                <div class="col-md-6 col-lg-4">
+                  {% include "featured_viewers/components/viewer_card.html" %}
+                </div>
+                {% endfor %}
+              </div>
+
+              <!-- Pagination -->
+              {% if total_pages > 1 %}
+              <nav aria-label="Viewer pagination" style="margin-top: 3rem;">
+                <section class="module module-narrow">
+                  <div class="module-content" style="padding: 1.5rem 2.5rem; text-align: center;">
+                    <ul class="pagination" style="margin: 0; justify-content: center;">
+                      {% if page > 1 %}
+                      <li>
+                        <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, q=q) }}"
+                           aria-label="{{ _('Previous') }}"
+                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                          <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
+                        </a>
+                      </li>
+                      {% endif %}
+
+                      {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                        <li class="active">
+                          <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
+                        </li>
+                        {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+                        <li>
+                          <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, q=q) }}"
+                             style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
+                        </li>
+                        {% elif p == 4 or p == total_pages - 3 %}
+                        <li class="disabled"><span style="padding: 0.5rem 0.75rem;">...</span></li>
+                        {% endif %}
+                      {% endfor %}
+
+                      {% if page < total_pages %}
+                      <li>
+                        <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, q=q) }}"
+                           aria-label="{{ _('Next') }}"
+                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                          {{ _('Next') }} <i class="fa fa-chevron-right"></i>
+                        </a>
+                      </li>
+                      {% endif %}
+                    </ul>
+                  </div>
+                </section>
+              </nav>
+              {% endif %}
+
+            {% else %}
+              <div class="empty-state">
+                <section class="module module-narrow">
+                  <div class="module-content" style="padding: 4rem 2.5rem; text-align: center;">
+                    <i class="fa fa-map-o fa-5x" style="color: #e9ecef; margin-bottom: 1.5rem;"></i>
+                    <h3 style="color: #6c757d; margin-bottom: 1rem;">{{ _('No viewers found') }}</h3>
+                    <p style="color: #6c757d; margin-bottom: 1.5rem;">
+                      {% if q or category_filter %}
+                        {{ _('Try adjusting your search or filters') }}
+                      {% else %}
+                        {{ _('No featured viewers match your current filters.') }}
+                      {% endif %}
+                    </p>
+                    {% if q or category_filter %}
+                    <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default" style="margin-right: 0.5rem;">
+                      <i class="fa fa-times"></i> {{ _('Clear filters') }}
+                    </a>
+                    {% endif %}
+                    {% if can_create %}
+                    <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary btn-lg">
+                      <i class="fa fa-plus"></i> {{ _('Create the first viewer') }}
+                    </a>
+                    {% endif %}
+                  </div>
+                </section>
+              </div>
+            {% endif %}
+          </div>
+
         </div>
-        {% endif %}
       </div>
-      {% endif %}
-
     </div>
   </div>
   {% endblock %}
 </div>
 
+<!-- Load shared design system CSS and featured-viewers specific CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
 <script src="/js/featured-viewers.js"></script>
 {% endblock %}
