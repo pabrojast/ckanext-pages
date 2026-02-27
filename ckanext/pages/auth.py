@@ -190,7 +190,8 @@ def water_content_create(context, data_dict):
 
 
 def water_content_edit(context, data_dict):
-    '''Allow the author or admin to edit water family content'''
+    '''Allow the author or admin to edit water family content.
+    For new content (no page), allow authenticated organization members.'''
     import logging
     log = logging.getLogger(__name__)
 
@@ -204,22 +205,44 @@ def water_content_edit(context, data_dict):
     except Exception as e:
         log.error("Error checking sysadmin in water_content_edit: %s", str(e))
 
-    # Check if user is the author of the content
     user = context.get('user')
+    if not user:
+        return {'success': False,
+                'msg': p.toolkit._('Not authorized to edit this content')}
+
     page = data_dict.get('page')
 
-    if user and page:
+    # Creating new content: allow authenticated users who belong to an org
+    if not page:
         try:
-            page_obj = db.Page.get(name=page)
-            if page_obj and page_obj.user_id:
-                from ckan import model
-                user_obj = model.User.get(user)
-                if user_obj and page_obj.user_id == user_obj.id:
-                    return {'success': True}
+            orgs = p.toolkit.get_action('organization_list_for_user')(
+                {'user': user}, {'permission': 'create_dataset'}
+            )
+            if orgs:
+                return {'success': True}
         except Exception as e:
-            log.error("Error checking page ownership in water_content_edit: %s", str(e))
+            log.error(
+                "Error checking org membership in water_content_edit: %s",
+                str(e))
+        return {
+            'success': False,
+            'msg': p.toolkit._(
+                'You must belong to an organization to create this content')}
 
-    return {'success': False, 'msg': p.toolkit._('Not authorized to edit this content')}
+    # Editing existing content: check if user is the author
+    try:
+        page_obj = db.Page.get(name=page)
+        if page_obj and page_obj.user_id:
+            from ckan import model
+            user_obj = model.User.get(user)
+            if user_obj and page_obj.user_id == user_obj.id:
+                return {'success': True}
+    except Exception as e:
+        log.error("Error checking page ownership in water_content_edit: %s",
+                  str(e))
+
+    return {'success': False,
+            'msg': p.toolkit._('Not authorized to edit this content')}
 
 
 # Water Family specific permissions
