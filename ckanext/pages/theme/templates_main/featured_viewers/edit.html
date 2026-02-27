@@ -5,11 +5,6 @@
 
 {% block title %}{{ page_title }} - {{ _('Featured Viewers') }} - {{ super() }}{% endblock %}
 
-{% block styles %}
-  {{ super() }}
-  <link rel="stylesheet" href="/css/featured-viewers.css" />
-{% endblock %}
-
 {% block content %}
 <div class="homepage layout-1">
   <div id="content" class="container">
@@ -21,240 +16,637 @@
     <div class="container">
 
       <!-- Breadcrumb -->
-      <div class="fv-breadcrumb">
-        <a href="/"><i class="fa fa-home"></i> {{ _('Home') }}</a>
-        <span class="separator">›</span>
-        <a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a>
-        <span class="separator">›</span>
-        {% if is_edit %}
-        <a href="{{ h.url_for('featured_viewers.show', slug=data.slug) }}">{{ data.title }}</a>
-        <span class="separator">›</span>
-        <span>{{ _('Edit') }}</span>
-        {% else %}
-        <span>{{ _('New Viewer') }}</span>
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
+          {% if is_edit %}
+          <li><a href="{{ h.url_for('featured_viewers.show', slug=data.slug) }}">{{ data.title }}</a></li>
+          <li class="active">{{ _('Edit') }}</li>
+          {% else %}
+          <li class="active">{{ _('New Viewer') }}</li>
+          {% endif %}
+        </ol>
+      </nav>
+
+      <!-- Header Banner -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1>{{ page_title }}</h1>
+            <p class="section-title-description">{{ _('Configure a thematic map room with preloaded layers for water-related monitoring') }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="data-stories-form-wrapper">
+            <section class="module module-narrow">
+              <div class="module-content">
+
+                <!-- Error Summary -->
+                {% if error_summary %}
+                <div class="alert alert-danger" style="border-radius: 12px; margin-bottom: 1.5rem;">
+                  <h4><i class="fa fa-exclamation-triangle"></i> {{ _('Please correct the following errors:') }}</h4>
+                  <ul style="margin-bottom: 0;">
+                    {% for key, val in error_summary.items() %}
+                    <li><strong>{{ key }}:</strong> {{ val }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+
+  <form method="post"
+        action="{% if is_edit %}{{ h.url_for('featured_viewers.edit', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.create') }}{% endif %}"
+        enctype="multipart/form-data"
+        class="data-stories-form" id="fv-edit-form">
+
+    {# ── Basic Information ── #}
+    <fieldset>
+      <legend><i class="fa fa-info-circle"></i> {{ _('Basic Information') }}</legend>
+
+      <div class="form-group{% if errors.get('title') %} has-error{% endif %}">
+        <label class="control-label" for="fv-title">
+          <i class="fa fa-heading"></i> {{ _('Title') }} <span class="text-danger">*</span>
+        </label>
+        <input type="text" id="fv-title" name="title"
+               value="{{ data.get('title', '') }}" class="form-control"
+               placeholder="{{ _('e.g., Flood & Drought Monitoring Dashboard') }}" required>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('A clear, descriptive title for your map room viewer.') }}
+        </span>
+        {% if errors.get('title') %}
+        <span class="error-block">{{ errors.title[0] }}</span>
         {% endif %}
       </div>
 
-      <h1 style="font-size: 1.8rem; margin-bottom: 1.5rem;">
-        <i class="fa {% if is_edit %}fa-pencil{% else %}fa-plus-circle{% endif %}" style="color: var(--fv-blue, #0072BC);"></i>
-        {{ page_title }}
-      </h1>
-
-      <!-- Error Summary -->
-      {% if error_summary %}
-      <div class="alert alert-danger" style="border-radius: 12px; margin-bottom: 1.5rem;">
-        <h4><i class="fa fa-exclamation-triangle"></i> {{ _('Please correct the following errors:') }}</h4>
-        <ul style="margin-bottom: 0;">
-          {% for key, val in error_summary.items() %}
-          <li><strong>{{ key }}:</strong> {{ val }}</li>
-          {% endfor %}
-        </ul>
+      <div class="form-group{% if errors.get('slug') %} has-error{% endif %}">
+        <label class="control-label" for="fv-slug">{{ _('URL Slug') }}</label>
+        <input type="text" id="fv-slug" name="slug"
+               value="{{ data.get('slug', '') }}" class="form-control"
+               placeholder="{{ _('auto-generated-from-title') }}">
+        <span class="help-text">
+          {{ _('Leave blank to auto-generate from title. URL-friendly identifier (lowercase, hyphens only).') }}
+        </span>
+        {% if errors.get('slug') %}
+        <span class="error-block">{{ errors.slug[0] }}</span>
+        {% endif %}
       </div>
-      {% endif %}
 
-      <form method="post"
-            action="{% if is_edit %}{{ h.url_for('featured_viewers.edit', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.create') }}{% endif %}"
-            enctype="multipart/form-data">
+      <div class="form-group">
+        <label class="control-label" for="fv-description">
+          <i class="fa fa-align-left"></i> {{ _('Description') }}
+        </label>
+        <div class="quill-editor-wrapper">
+          <div id="fv-description-editor" class="quill-editor quill-editor-small"></div>
+          <textarea id="fv-description" name="description"
+                    class="form-control hidden-textarea"
+                    style="display: none;">{{ data.get('description', '') }}</textarea>
+        </div>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Brief description of what this map room shows. Displayed in listings and the viewer page.') }}
+        </span>
+      </div>
 
-        <!-- Section 1: Basic Information -->
-        <div class="fv-form-section">
-          <h3><i class="fa fa-info-circle"></i> {{ _('Basic Information') }}</h3>
-
-          <div class="fv-form-group {% if errors.get('title') %}has-error{% endif %}">
-            <label for="fv-title">{{ _('Title') }} <span style="color: red;">*</span></label>
-            <input type="text" id="fv-title" name="title"
-                   value="{{ data.get('title', '') }}" class="form-control"
-                   placeholder="{{ _('e.g., Flood & Drought Monitoring Dashboard') }}" required>
-            {% if errors.get('title') %}
-            <span class="help-block" style="color: #d32f2f;">{{ errors.title[0] }}</span>
-            {% endif %}
-          </div>
-
-          <div class="fv-form-group {% if errors.get('slug') %}has-error{% endif %}">
-            <label for="fv-slug">{{ _('URL Slug') }}</label>
-            <input type="text" id="fv-slug" name="slug"
-                   value="{{ data.get('slug', '') }}" class="form-control"
-                   placeholder="{{ _('auto-generated-from-title') }}">
-            <span class="help-block">{{ _('Leave blank to auto-generate from title. Used in the URL.') }}</span>
-          </div>
-
-          <div class="fv-form-group">
-            <label for="fv-description">{{ _('Description') }}</label>
-            <textarea id="fv-description" name="description" class="form-control"
-                      rows="4" placeholder="{{ _('Brief description of what this map room shows...') }}">{{ data.get('description', '') }}</textarea>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="fv-form-group">
-                <label for="fv-category">{{ _('Category') }}</label>
-                <select id="fv-category" name="category" class="form-control">
-                  {% for cat_id, cat in categories.items() %}
-                  <option value="{{ cat_id }}"{% if data.get('category') == cat_id %} selected{% endif %}>
-                    {{ cat.title }}
-                  </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="fv-form-group">
-                <label for="fv-icon">{{ _('Icon Class') }}</label>
-                <input type="text" id="fv-icon" name="icon_class"
-                       value="{{ data.get('icon_class', '') }}" class="form-control"
-                       placeholder="{{ _('fa-map (Font Awesome class)') }}">
-                <span class="help-block">{{ _('Leave blank to use category default icon.') }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="fv-form-group">
-            <label for="fv-thumbnail">{{ _('Thumbnail Image URL') }}</label>
-            <input type="url" id="fv-thumbnail" name="thumbnail_url"
-                   value="{{ data.get('thumbnail_url', '') }}" class="form-control"
-                   placeholder="https://example.com/image.jpg">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="control-label" for="fv-category">{{ _('Category') }}</label>
+            <select id="fv-category" name="category" class="form-control">
+              {% for cat_id, cat in categories.items() %}
+              <option value="{{ cat_id }}"{% if data.get('category') == cat_id %} selected{% endif %}>
+                {{ cat.title }}
+              </option>
+              {% endfor %}
+            </select>
           </div>
         </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label class="control-label" for="fv-icon">{{ _('Icon Class') }}</label>
+            <input type="text" id="fv-icon" name="icon_class"
+                   value="{{ data.get('icon_class', '') }}" class="form-control"
+                   placeholder="{{ _('fa-map (Font Awesome class)') }}">
+            <span class="help-text">{{ _('Leave blank to use category default icon.') }}</span>
+          </div>
+        </div>
+      </div>
 
-        <!-- Section 2: Map Configuration -->
-        <div class="fv-form-section">
-          <h3><i class="fa fa-map"></i> {{ _('Map Configuration') }}</h3>
+      <div class="form-group">
+        <label class="control-label" for="fv-thumbnail">{{ _('Thumbnail Image URL') }}</label>
+        <input type="url" id="fv-thumbnail" name="thumbnail_url"
+               value="{{ data.get('thumbnail_url', '') }}" class="form-control"
+               placeholder="https://example.com/image.jpg">
+      </div>
+    </fieldset>
 
-          <div class="fv-form-group {% if errors.get('terria_share_link') %}has-error{% endif %}">
-            <label for="fv-terria-link">{{ _('Terria Share Link') }}</label>
+    {# ── Map Configuration ── #}
+    <fieldset>
+      <legend><i class="fa fa-map"></i> {{ _('Map Configuration') }}</legend>
+
+      <div class="form-group{% if errors.get('terria_share_link') %} has-error{% endif %}">
+        <label class="control-label" for="fv-terria-link">
+          <i class="fa fa-link"></i> {{ _('Terria Share Link') }}
+        </label>
+        <div class="input-group">
+          <input type="url" id="fv-terria-link" name="terria_share_link"
+                 value="{{ data.get('terria_share_link', '') }}" class="form-control"
+                 placeholder="{{ _('Paste a Terria share link here...') }}">
+          <div class="input-group-btn">
+            <button type="button" id="fv-preview-map" class="btn btn-primary">
+              <i class="fa fa-eye"></i> {{ _('Preview') }}
+            </button>
+          </div>
+        </div>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Open Terria, configure your map layers, click Share, and paste the link here.') }}
+        </span>
+        {% if errors.get('terria_share_link') %}
+        <span class="error-block">{{ errors.terria_share_link[0] }}</span>
+        {% endif %}
+      </div>
+
+      <div id="fv-map-preview" class="fv-map-preview" style="margin-bottom: 1.5rem;">
+        {% if data.get('terria_share_link') %}
+          {% set preview_url = data.get('terria_share_link') %}
+          <iframe src="{{ preview_url }}" allow="geolocation" loading="lazy" title="Map Preview"></iframe>
+        {% else %}
+        <div class="fv-map-preview-placeholder">
+          <i class="fa fa-map-o"></i>
+          <p>{{ _('Enter a Terria share link above to preview the map') }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="fv-layers">{{ _('Map Layers (JSON)') }}</label>
+        <textarea id="fv-layers" name="map_layers" class="form-control code-editor" rows="4"
+                  placeholder='[{"name": "Precipitation Data", "type": "WMS", "visible": true}]'>{{ data.get('map_layers', '[]') if data.get('map_layers') is not string else data.get('map_layers', '[]') }}</textarea>
+        <span class="help-text">
+          {{ _('JSON array of layer definitions. Each layer: {name, type, url, visible}') }}
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="fv-terria-config">{{ _('Terria Config JSON (Advanced)') }}</label>
+        <textarea id="fv-terria-config" name="terria_config" class="form-control code-editor" rows="3"
+                  placeholder='{}'>{{ data.get('terria_config', '{}') if data.get('terria_config') is not string else data.get('terria_config', '{}') }}</textarea>
+        <span class="help-text">{{ _('Optional advanced Terria configuration object.') }}</span>
+      </div>
+    </fieldset>
+
+    {# ── Metadata ── #}
+    <fieldset>
+      <legend><i class="fa fa-tags"></i> {{ _('Metadata') }}</legend>
+
+      {# Countries - dropdown selector #}
+      <div class="form-group{% if errors.get('countries') %} has-error{% endif %}">
+        <label class="control-label" for="fv-country-select">
+          <i class="fa fa-globe"></i> {{ _('Countries') }}
+        </label>
+        <div class="help-text" style="margin-bottom: 1rem;">
+          {{ _('Select one or more countries covered by this viewer.') }}
+        </div>
+
+        <div class="countries-container">
+          <div class="country-selector">
             <div class="input-group">
-              <input type="url" id="fv-terria-link" name="terria_share_link"
-                     value="{{ data.get('terria_share_link', '') }}" class="form-control"
-                     placeholder="{{ _('Paste a Terria share link here...') }}">
-              <span class="input-group-btn">
-                <button type="button" id="fv-preview-map" class="btn btn-default">
-                  <i class="fa fa-eye"></i> {{ _('Preview') }}
+              <select id="fv-country-select" class="form-control">
+                <option value="">{{ _('Select a country...') }}</option>
+              </select>
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-primary" id="fv-add-country">
+                  <i class="fa fa-plus"></i> {{ _('Add') }}
                 </button>
-              </span>
+              </div>
             </div>
-            <span class="help-block">{{ _('Open Terria, configure your map layers, click Share, and paste the link here.') }}</span>
           </div>
 
-          <div id="fv-map-preview" class="fv-map-preview">
-            {% if data.get('terria_share_link') %}
-              {% set preview_url = data.get('terria_share_link') %}
-              <iframe src="{{ preview_url }}" allow="geolocation" loading="lazy" title="Map Preview"></iframe>
-            {% else %}
-            <div class="fv-map-preview-placeholder">
-              <i class="fa fa-map-o"></i>
-              <p>{{ _('Enter a Terria share link above to preview the map') }}</p>
-            </div>
-            {% endif %}
+          <div id="fv-selected-countries" class="selected-countries"
+               data-empty-text="{{ _('No countries selected yet.') }}">
           </div>
 
-          <div class="fv-form-group" style="margin-top: 1.25rem;">
-            <label for="fv-layers">{{ _('Map Layers (JSON)') }}</label>
-            <textarea id="fv-layers" name="map_layers" class="form-control" rows="4"
-                      placeholder='[{"name": "Precipitation Data", "type": "WMS", "visible": true}]'>{{ data.get('map_layers', '[]') if data.get('map_layers') is not string else data.get('map_layers', '[]') }}</textarea>
-            <span class="help-block">{{ _('JSON array of layer definitions. Each layer: {name, type, url, visible}') }}</span>
-          </div>
+          {% set countries_val = data.get('countries', '[]') %}
+          {% if countries_val and countries_val is not string %}
+            {% set countries_json = countries_val|tojson %}
+          {% else %}
+            {% set countries_json = countries_val or '[]' %}
+          {% endif %}
+          <input type="hidden" id="fv-countries-data" name="countries"
+                 value="{{ countries_json|forceescape }}">
+        </div>
+        {% if errors.get('countries') %}
+        <span class="error-block">{{ errors.countries[0] }}</span>
+        {% endif %}
+      </div>
 
-          <div class="fv-form-group">
-            <label for="fv-terria-config">{{ _('Terria Config JSON (Advanced)') }}</label>
-            <textarea id="fv-terria-config" name="terria_config" class="form-control" rows="3"
-                      placeholder='{}'>{{ data.get('terria_config', '{}') if data.get('terria_config') is not string else data.get('terria_config', '{}') }}</textarea>
-            <span class="help-block">{{ _('Optional advanced Terria configuration object.') }}</span>
-          </div>
+      {# Tags - chip input #}
+      <div class="form-group{% if errors.get('tags') %} has-error{% endif %}">
+        <label class="control-label" for="fv-tag-input">
+          <i class="fa fa-tag"></i> {{ _('Tags') }}
+        </label>
+        <div class="help-text" style="margin-bottom: 1rem;">
+          {{ _('Add tags to help categorize this viewer. Type a tag and press Enter or click Add.') }}
         </div>
 
-        <!-- Section 3: Metadata -->
-        <div class="fv-form-section">
-          <h3><i class="fa fa-tags"></i> {{ _('Metadata') }}</h3>
-
-          <div class="fv-form-group">
-            <label for="fv-countries">{{ _('Countries (JSON array)') }}</label>
-            <textarea id="fv-countries" name="countries" class="form-control" rows="2"
-                      placeholder='[{"name": "France"}, {"name": "Brazil"}]'>{{ data.get('countries', '[]') if data.get('countries') is not string else data.get('countries', '[]') }}</textarea>
+        <div class="tags-container">
+          <div class="input-group">
+            <input type="text" id="fv-tag-input" class="form-control"
+                   placeholder="{{ _('Enter a tag (e.g., flooding, real-time)...') }}">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-primary" id="fv-add-tag">
+                <i class="fa fa-plus"></i> {{ _('Add') }}
+              </button>
+            </div>
           </div>
 
-          <div class="fv-form-group">
-            <label for="fv-tags">{{ _('Tags (JSON array)') }}</label>
-            <textarea id="fv-tags" name="tags" class="form-control" rows="2"
-                      placeholder='["flooding", "real-time", "satellite"]'>{{ data.get('tags', '[]') if data.get('tags') is not string else data.get('tags', '[]') }}</textarea>
+          <div id="fv-selected-tags" class="selected-tags" style="margin-top: 1rem;"
+               data-empty-text="{{ _('No tags added yet.') }}">
           </div>
 
-          <div class="fv-form-group">
-            <label for="fv-meta-desc">{{ _('Meta Description (SEO)') }}</label>
-            <textarea id="fv-meta-desc" name="meta_description" class="form-control" rows="2"
-                      placeholder="{{ _('Brief SEO-friendly description...') }}">{{ data.get('meta_description', '') }}</textarea>
+          {% set tags_val = data.get('tags', '[]') %}
+          {% if tags_val and tags_val is not string %}
+            {% set tags_json = tags_val|tojson %}
+          {% else %}
+            {% set tags_json = tags_val or '[]' %}
+          {% endif %}
+          <input type="hidden" id="fv-tags-data" name="tags"
+                 value="{{ tags_json|forceescape }}">
+        </div>
+        {% if errors.get('tags') %}
+        <span class="error-block">{{ errors.tags[0] }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="fv-meta-desc">{{ _('Meta Description (SEO)') }}</label>
+        <textarea id="fv-meta-desc" name="meta_description" class="form-control" rows="2"
+                  placeholder="{{ _('Brief SEO-friendly description...') }}">{{ data.get('meta_description', '') }}</textarea>
+      </div>
+    </fieldset>
+
+    {# ── Visibility & Publishing ── #}
+    <fieldset>
+      <legend><i class="fa fa-cog"></i> {{ _('Visibility & Publishing') }}</legend>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="control-label" for="fv-status">{{ _('Status') }}</label>
+            <select id="fv-status" name="status" class="form-control">
+              <option value="draft"{% if data.get('status', 'draft') == 'draft' %} selected{% endif %}>{{ _('Draft') }}</option>
+              <option value="published"{% if data.get('status') == 'published' %} selected{% endif %}>{{ _('Published') }}</option>
+            </select>
           </div>
         </div>
-
-        <!-- Section 4: Visibility & Publishing -->
-        <div class="fv-form-section">
-          <h3><i class="fa fa-cog"></i> {{ _('Visibility & Publishing') }}</h3>
-
-          <div class="row">
-            <div class="col-md-4">
-              <div class="fv-form-group">
-                <label for="fv-status">{{ _('Status') }}</label>
-                <select id="fv-status" name="status" class="form-control">
-                  <option value="draft"{% if data.get('status', 'draft') == 'draft' %} selected{% endif %}>{{ _('Draft') }}</option>
-                  <option value="published"{% if data.get('status') == 'published' %} selected{% endif %}>{{ _('Published') }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="fv-form-group">
-                <label for="fv-order">{{ _('Display Order') }}</label>
-                <input type="number" id="fv-order" name="order_index"
-                       value="{{ data.get('order_index', 0) }}" class="form-control" min="0">
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="fv-form-group" style="padding-top: 1.8rem;">
-                <label class="checkbox-inline">
-                  <input type="checkbox" name="is_featured" {% if data.get('is_featured') %}checked{% endif %}>
-                  <i class="fa fa-star" style="color: #FFB800;"></i> {{ _('Featured Viewer') }}
-                </label>
-              </div>
-            </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="control-label" for="fv-order">{{ _('Display Order') }}</label>
+            <input type="number" id="fv-order" name="order_index"
+                   value="{{ data.get('order_index', 0) }}" class="form-control" min="0">
           </div>
-
-          <div class="fv-form-group">
+        </div>
+        <div class="col-md-4">
+          <div class="form-group" style="padding-top: 1.8rem;">
             <label class="checkbox-inline">
-              <input type="checkbox" name="is_public" {% if data.get('is_public', True) %}checked{% endif %}>
-              {{ _('Publicly visible') }}
+              <input type="checkbox" name="is_featured" {% if data.get('is_featured') %}checked{% endif %}>
+              <i class="fa fa-star" style="color: #FFB800;"></i> {{ _('Featured Viewer') }}
             </label>
           </div>
         </div>
+      </div>
 
-        <!-- Form Actions -->
-        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin: 2rem 0;">
-          <a href="{% if is_edit %}{{ h.url_for('featured_viewers.show', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.index') }}{% endif %}"
-             class="fv-map-action-btn">
-            <i class="fa fa-times"></i> {{ _('Cancel') }}
-          </a>
+      <div class="form-group">
+        <label class="checkbox-inline">
+          <input type="checkbox" name="is_public" {% if data.get('is_public', True) %}checked{% endif %}>
+          {{ _('Publicly visible') }}
+        </label>
+      </div>
+    </fieldset>
 
-          {% if is_edit %}
-          <button type="button" class="fv-map-action-btn" style="color: #d32f2f; border-color: #d32f2f;"
-                  onclick="if(confirm('{{ _('Are you sure you want to delete this viewer?') }}')){document.getElementById('delete-form').submit();}">
-            <i class="fa fa-trash"></i> {{ _('Delete') }}
-          </button>
-          {% endif %}
-
-          <button type="submit" class="fv-map-action-btn primary" style="font-size: 1rem;">
-            <i class="fa fa-check"></i>
-            {% if is_edit %}{{ _('Save Changes') }}{% else %}{{ _('Create Viewer') }}{% endif %}
-          </button>
-        </div>
-      </form>
-
+    {# ── Form Actions ── #}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fa fa-save"></i>
+        {% if is_edit %}{{ _('Save Changes') }}{% else %}{{ _('Create Viewer') }}{% endif %}
+      </button>
+      <a href="{% if is_edit %}{{ h.url_for('featured_viewers.show', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.index') }}{% endif %}"
+         class="btn btn-default btn-lg">
+        <i class="fa fa-times"></i> {{ _('Cancel') }}
+      </a>
       {% if is_edit %}
-      <form id="delete-form" method="post"
-            action="{{ h.url_for('featured_viewers.delete', slug=data.slug) }}" style="display: none;">
-      </form>
+      <span class="pull-right" id="delete-button-placeholder"></span>
       {% endif %}
+    </div>
+  </form>
 
+  {# Delete form outside main form #}
+  {% if is_edit %}
+  <form id="delete-form" method="post"
+        action="{{ h.url_for('featured_viewers.delete', slug=data.slug) }}"
+        style="display: none;"
+        onsubmit="return confirm('{{ _('Are you sure you want to delete this viewer?') }}');">
+    <button type="submit" class="btn btn-danger btn-lg">
+      <i class="fa fa-trash"></i> {{ _('Delete Viewer') }}
+    </button>
+  </form>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var deleteForm = document.getElementById('delete-form');
+      var placeholder = document.getElementById('delete-button-placeholder');
+      if (deleteForm && placeholder) {
+        deleteForm.style.display = 'inline';
+        placeholder.appendChild(deleteForm);
+      }
+    });
+  </script>
+  {% endif %}
+
+              </div>
+            </section>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
   {% endblock %}
 </div>
 
+<!-- Load design system CSS -->
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
+<link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
+<!-- Quill Editor CSS -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<style>
+  .ql-editor img { cursor: pointer; max-width: 100%; }
+  .ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
+  .code-editor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 12px;
+    background: #f8f9fa;
+  }
+  /* Country & Tag chip styles */
+  .selected-countries:empty::before,
+  .selected-tags:empty::before {
+    content: attr(data-empty-text);
+    display: block;
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+  }
+  .country-item, .tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: #e3f2fd;
+    color: #0072bc;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);
+    border: 1px solid #cfe4fb;
+    margin: 0.25rem;
+    transition: all 0.2s ease;
+  }
+  .country-item:hover, .tag-item:hover {
+    background: #bbdefb;
+    border-color: #90caf9;
+  }
+  .country-item .btn, .tag-item .btn {
+    padding: 0 0.25rem;
+    font-size: 0.75rem;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+<!-- Quill Editor JS -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<!-- Featured Viewers JS (slug gen + map preview) -->
 <script src="/js/featured-viewers.js"></script>
+<!-- Quill init + countries + tags for this form -->
+<script>
+(function() {
+  function waitForDeps(callback, attempts) {
+    attempts = attempts || 0;
+    if (typeof Quill !== 'undefined' && typeof jQuery !== 'undefined') {
+      callback(jQuery);
+      return;
+    }
+    if (attempts > 200) return;
+    setTimeout(function() { waitForDeps(callback, attempts + 1); }, 50);
+  }
+
+  waitForDeps(function($) {
+    $(document).ready(function() {
+
+      // ── Quill editor for description ──
+      var quillConfig = {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ 'header': [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link', 'image'],
+            ['clean']
+          ]
+        },
+        placeholder: '{{ _("Brief description of what this map room shows...") }}'
+      };
+
+      var descEditor = new Quill('#fv-description-editor', quillConfig);
+      var $descTextarea = $('#fv-description');
+      if ($descTextarea.val()) {
+        descEditor.clipboard.dangerouslyPasteHTML($descTextarea.val());
+      }
+      descEditor.on('text-change', function() {
+        $descTextarea.val(descEditor.root.innerHTML);
+      });
+
+      // Sync before submit
+      $('#fv-edit-form').on('submit', function() {
+        $descTextarea.val(descEditor.root.innerHTML);
+      });
+
+      // ── Countries selector ──
+      var countriesList = [
+        'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
+        'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+        'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium',
+        'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana',
+        'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde',
+        'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile',
+        'China', 'Colombia', 'Comoros', 'Congo', 'Cook Islands', 'Costa Rica',
+        "Cote d'Ivoire", 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
+        'Democratic Republic of the Congo', 'Denmark', 'Djibouti', 'Dominica',
+        'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea',
+        'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland',
+        'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana',
+        'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+        'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia',
+        'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica',
+        'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait',
+        'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia',
+        'Libya', 'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia',
+        'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
+        'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro',
+        'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
+        'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue',
+        'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau',
+        'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines',
+        'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda',
+        'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines',
+        'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia',
+        'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
+        'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka',
+        'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Tajikistan',
+        'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago',
+        'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine',
+        'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
+        'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+      ];
+
+      var selectedCountries = [];
+      var $countrySelect = $('#fv-country-select');
+      var $countryList = $('#fv-selected-countries');
+      var $countryHidden = $('#fv-countries-data');
+
+      // Populate dropdown
+      $countrySelect.empty().append('<option value="">{{ _("Select a country...") }}</option>');
+      countriesList.forEach(function(c) {
+        $countrySelect.append('<option value="' + c + '">' + c + '</option>');
+      });
+
+      function updateCountriesField() {
+        $countryHidden.val(JSON.stringify(selectedCountries));
+      }
+
+      function renderCountry(country) {
+        var id = 'fv-country-' + country.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        if ($('#' + id).length) return;
+        $countryList.append(
+          '<div class="country-item" id="' + id + '" data-name="' + country.name + '">' +
+          '<span>' + (country.display_name || country.name) + '</span>' +
+          '<button type="button" class="btn btn-sm btn-danger remove-fv-country" data-name="' + country.name + '">' +
+          '<i class="fa fa-times"></i></button></div>'
+        );
+      }
+
+      // Load existing
+      try {
+        var raw = $countryHidden.val();
+        if (raw) {
+          var decoded = $('<textarea>').html(raw).val();
+          var parsed = JSON.parse(decoded);
+          if (Array.isArray(parsed)) {
+            selectedCountries = parsed.map(function(e) {
+              if (typeof e === 'string') return { name: e, display_name: e };
+              return { name: e.name || '', display_name: e.display_name || e.name || '' };
+            }).filter(function(e) { return e.name; });
+            selectedCountries.forEach(renderCountry);
+          }
+        }
+      } catch(e) {}
+
+      $('#fv-add-country').on('click', function() {
+        var val = $countrySelect.val();
+        if (!val) return;
+        var exists = selectedCountries.some(function(c) { return c.name === val; });
+        if (exists) return;
+        var country = { name: val, display_name: val };
+        selectedCountries.push(country);
+        renderCountry(country);
+        updateCountriesField();
+        $countrySelect.val('');
+      });
+
+      $(document).on('click', '.remove-fv-country', function() {
+        var name = $(this).data('name');
+        selectedCountries = selectedCountries.filter(function(c) { return c.name !== name; });
+        $(this).closest('.country-item').remove();
+        updateCountriesField();
+      });
+
+      // ── Tags input ──
+      var selectedTags = [];
+      var $tagInput = $('#fv-tag-input');
+      var $tagList = $('#fv-selected-tags');
+      var $tagHidden = $('#fv-tags-data');
+
+      function updateTagsField() {
+        $tagHidden.val(JSON.stringify(selectedTags));
+      }
+
+      function renderTag(tag) {
+        var id = 'fv-tag-' + tag.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        if ($('#' + id).length) return;
+        $tagList.append(
+          '<div class="tag-item" id="' + id + '" data-tag="' + tag + '">' +
+          '<i class="fa fa-tag"></i> <span>' + tag + '</span>' +
+          '<button type="button" class="btn btn-sm btn-danger remove-fv-tag" data-tag="' + tag + '">' +
+          '<i class="fa fa-times"></i></button></div>'
+        );
+      }
+
+      function addTag() {
+        var val = $tagInput.val().trim().toLowerCase();
+        if (!val) return;
+        if (selectedTags.indexOf(val) !== -1) return;
+        selectedTags.push(val);
+        renderTag(val);
+        updateTagsField();
+        $tagInput.val('');
+      }
+
+      // Load existing tags
+      try {
+        var rawTags = $tagHidden.val();
+        if (rawTags) {
+          var decodedTags = $('<textarea>').html(rawTags).val();
+          var parsedTags = JSON.parse(decodedTags);
+          if (Array.isArray(parsedTags)) {
+            selectedTags = parsedTags.filter(function(t) { return typeof t === 'string' && t; });
+            selectedTags.forEach(renderTag);
+          }
+        }
+      } catch(e) {}
+
+      $('#fv-add-tag').on('click', addTag);
+      $tagInput.on('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); addTag(); }
+      });
+
+      $(document).on('click', '.remove-fv-tag', function() {
+        var tag = $(this).data('tag');
+        selectedTags = selectedTags.filter(function(t) { return t !== tag; });
+        $(this).closest('.tag-item').remove();
+        updateTagsField();
+      });
+
+    });
+  });
+})();
+</script>
 {% endblock %}
