@@ -63,10 +63,12 @@ def import_ai_tools(dry_run, update_existing):
         try:
             existing = None
             try:
-                existing = logic.get_action('pages_show')(
+                existing = logic.get_action('ckanext_pages_show')(
                     dict(context), {'page': name}
                 )
             except logic.NotFound:
+                pass
+            except KeyError:
                 pass
 
             if existing and not update_existing:
@@ -90,7 +92,7 @@ def import_ai_tools(dry_run, update_existing):
             page_data['page'] = name
             page_data['publish_date'] = '2025-01-01'
 
-            logic.get_action('pages_update')(dict(context), page_data)
+            logic.get_action('ckanext_pages_update')(dict(context), page_data)
 
             if existing:
                 updated += 1
