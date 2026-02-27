@@ -192,3 +192,70 @@ def _build_facets(context):
     return {
         'category': {cat: count for cat, count in category_counts if cat},
     }
+
+
+def map_room_show(context, data_dict):
+    """Show a single map room with its viewers."""
+    from ckanext.pages.featured_viewers.db.models import MapRoom
+
+    room_id = data_dict.get('id')
+    slug = data_dict.get('slug')
+
+    room = None
+    if room_id:
+        room = MapRoom.get(id=room_id)
+    elif slug:
+        room = MapRoom.get(slug=slug)
+
+    if not room:
+        raise tk.ObjectNotFound('Map room not found')
+
+    if room.status != 'published':
+        tk.check_access('map_room_show', context, data_dict)
+
+    room_dict = table_dictize(room, context)
+
+    # Include viewers in this room
+    viewers = []
+    for rv in (room.room_viewers or []):
+        if rv.viewer:
+            v_dict = table_dictize(rv.viewer, context)
+            v_dict['room_order'] = rv.order_index
+            if rv.viewer.author_id:
+                v_dict['author'] = get_user_info(rv.viewer.author_id)
+            viewers.append(v_dict)
+    room_dict['viewers'] = viewers
+
+    if room.author_id:
+        room_dict['author'] = get_user_info(room.author_id)
+
+    return room_dict
+
+
+def map_room_list(context, data_dict):
+    """List map rooms with optional filtering."""
+    from ckanext.pages.featured_viewers.db.models import MapRoom
+
+    status = data_dict.get('status', 'published')
+    category = data_dict.get('category')
+    limit = int(data_dict.get('limit', 50))
+    offset = int(data_dict.get('offset', 0))
+
+    query = model.Session.query(MapRoom).autoflush(False)
+
+    if status:
+        query = query.filter(MapRoom.status == status)
+    if category:
+        query = query.filter(MapRoom.category == category)
+
+    total = query.count()
+    rooms = query.order_by(MapRoom.order_index, MapRoom.title)\
+        .limit(limit).offset(offset).all()
+
+    result = []
+    for room in rooms:
+        room_dict = table_dictize(room, context)
+        room_dict['viewer_count'] = len(room.room_viewers or [])
+        result.append(room_dict)
+
+    return {'rooms': result, 'count': total}

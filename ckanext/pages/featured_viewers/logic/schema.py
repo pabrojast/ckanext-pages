@@ -118,3 +118,26 @@ VIEWER_CATEGORIES = {
         'color': '#0072BC',
     },
 }
+
+
+# Icons available in the visual picker
+AVAILABLE_ICONS = [
+    'fa-map', 'fa-globe', 'fa-tint', 'fa-flask', 'fa-leaf',
+    'fa-thermometer-half', 'fa-building', 'fa-users', 'fa-microchip',
+    'fa-bullseye', 'fa-arrow-circle-down', 'fa-water', 'fa-cloud-rain',
+    'fa-chart-bar', 'fa-chart-line', 'fa-database', 'fa-layer-group',
+    'fa-satellite', 'fa-compass', 'fa-mountain', 'fa-fish', 'fa-tree',
+    'fa-sun', 'fa-wind', 'fa-bolt', 'fa-shield-alt', 'fa-recycle',
+    'fa-industry', 'fa-city', 'fa-road', 'fa-ship',
+]
+
+
+def map_room_schema():
+    """Validation schema for creating/updating a map room."""
+    return {
+        'title': [not_empty, str],
+        'slug': [ignore_missing, str],
+        'description': [ignore_missing, str],
+        'thumbnail_url': [ignore_missing, str],
+        'category': [ignore_missing, str],
+    }

@@ -190,3 +190,101 @@ def _parse_json_field(raw_value):
         except Exception:
             return None
     return None
+
+
+def map_room_update(context, data_dict):
+    """Update a map room."""
+    from ckanext.pages.featured_viewers.db.models import MapRoom
+
+    tk.check_access('map_room_update', context, data_dict)
+
+    room_id = data_dict.get('id')
+    room = MapRoom.get(id=room_id)
+    if not room:
+        raise tk.ObjectNotFound('Map room not found')
+
+    for field in ('title', 'description', 'thumbnail_url', 'category'):
+        if field in data_dict:
+            setattr(room, field, data_dict[field])
+
+    if 'slug' in data_dict and data_dict['slug']:
+        is_valid, error_msg = validate_slug(data_dict['slug'])
+        if not is_valid:
+            raise tk.ValidationError({'slug': [error_msg]})
+        existing = MapRoom.get(slug=data_dict['slug'])
+        if existing and existing.id != room.id:
+            raise tk.ValidationError(
+                {'slug': ['A room with this slug already exists']}
+            )
+        room.slug = data_dict['slug']
+
+    if 'status' in data_dict:
+        room.status = data_dict['status']
+    if 'is_featured' in data_dict:
+        room.is_featured = bool(data_dict['is_featured'])
+    if 'order_index' in data_dict:
+        room.order_index = int(data_dict['order_index'])
+
+    room.updated_at = datetime.datetime.utcnow()
+
+    session = context.get('session', model.Session)
+    session.add(room)
+    session.commit()
+
+    return table_dictize(room, context)
+
+
+def map_room_add_viewer(context, data_dict):
+    """Add a viewer to a map room."""
+    from ckanext.pages.featured_viewers.db.models import (
+        MapRoom, MapRoomViewer,
+    )
+
+    tk.check_access('map_room_update', context, data_dict)
+
+    room = MapRoom.get(id=data_dict.get('room_id'))
+    if not room:
+        raise tk.ObjectNotFound('Map room not found')
+
+    viewer = FeaturedViewer.get(id=data_dict.get('viewer_id'))
+    if not viewer:
+        raise tk.ObjectNotFound('Viewer not found')
+
+    existing = MapRoomViewer.get(
+        room_id=room.id, viewer_id=viewer.id
+    )
+    if existing:
+        return table_dictize(existing, context)
+
+    link = MapRoomViewer()
+    link.id = make_uuid()
+    link.room_id = room.id
+    link.viewer_id = viewer.id
+    link.order_index = int(data_dict.get('order_index', 0))
+    link.created_at = datetime.datetime.utcnow()
+
+    session = context.get('session', model.Session)
+    session.add(link)
+    session.commit()
+
+    return table_dictize(link, context)
+
+
+def map_room_remove_viewer(context, data_dict):
+    """Remove a viewer from a map room."""
+    from ckanext.pages.featured_viewers.db.models import MapRoomViewer
+
+    tk.check_access('map_room_update', context, data_dict)
+
+    link = MapRoomViewer.get(
+        room_id=data_dict.get('room_id'),
+        viewer_id=data_dict.get('viewer_id'),
+    )
+    if not link:
+        raise tk.ObjectNotFound('Viewer not in this room')
+
+    session = context.get('session', model.Session)
+    session.delete(link)
+    session.commit()
+
+    return {'success': True}

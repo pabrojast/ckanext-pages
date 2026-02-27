@@ -1,10 +1,12 @@
 # encoding: utf-8
 """
-Template helpers for Featured Viewers.
+Template helpers for Featured Viewers and Map Rooms.
 """
 
 import logging
-from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
+from ckanext.pages.featured_viewers.logic.schema import (
+    VIEWER_CATEGORIES, AVAILABLE_ICONS,
+)
 
 log = logging.getLogger(__name__)
 
@@ -65,3 +67,21 @@ get_viewer_category_title = get_category_title
 get_viewer_category_icon = get_category_icon
 get_viewer_category_color = get_category_color
 format_viewer_view_count = format_view_count
+
+
+def get_available_icons():
+    """Return list of icons for the visual icon picker."""
+    return AVAILABLE_ICONS
+
+
+def json_loads(value):
+    """Safely parse JSON, returning [] on failure."""
+    import json
+    if not value:
+        return []
+    if isinstance(value, (list, dict)):
+        return value
+    try:
+        return json.loads(value)
+    except Exception:
+        return []

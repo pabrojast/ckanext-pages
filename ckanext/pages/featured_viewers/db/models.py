@@ -171,3 +171,104 @@ class ViewerDataset(DomainObject, BaseModel):
         except Exception as e:
             log.error(f"Error in ViewerDataset.all: {str(e)}")
             return []
+
+
+class MapRoom(DomainObject, BaseModel):
+    """
+    A Map Room groups multiple featured viewers into a thematic collection.
+    """
+
+    __tablename__ = 'map_rooms'
+
+    id = Column(String(100), primary_key=True)
+    title = Column(String(255), nullable=False)
+    slug = Column(String(255), unique=True, nullable=False, index=True)
+    description = Column(Text)
+    thumbnail_url = Column(Text)
+    category = Column(String(100), index=True)
+    status = Column(String(50), default='draft', index=True)
+    is_featured = Column(Boolean, default=False)
+    order_index = Column(Integer, default=0)
+
+    # Ownership
+    author_id = Column(
+        String(100),
+        ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(
+        DateTime,
+        default=datetime.datetime.utcnow,
+        onupdate=datetime.datetime.utcnow,
+    )
+
+    # Relationships
+    room_viewers = relationship(
+        'MapRoomViewer', back_populates='room',
+        cascade='all, delete-orphan',
+        order_by='MapRoomViewer.order_index',
+    )
+
+    __table_args__ = (
+        Index('idx_map_rooms_status', 'status'),
+        Index('idx_map_rooms_category', 'category'),
+    )
+
+    def __repr__(self):
+        return f'<MapRoom(id={self.id}, title={self.title})>'
+
+    @classmethod
+    def get(cls, **kwargs):
+        try:
+            return model.Session.query(cls).autoflush(False)\
+                .filter_by(**kwargs).first()
+        except Exception as e:
+            log.error(f"Error in MapRoom.get: {str(e)}")
+            return None
+
+    @classmethod
+    def all(cls, **kwargs):
+        try:
+            query = model.Session.query(cls).autoflush(False)
+            if kwargs:
+                query = query.filter_by(**kwargs)
+            return query.order_by(cls.order_index).all()
+        except Exception as e:
+            log.error(f"Error in MapRoom.all: {str(e)}")
+            return []
+
+
+class MapRoomViewer(DomainObject, BaseModel):
+    """
+    Junction table linking map rooms to featured viewers.
+    """
+
+    __tablename__ = 'map_room_viewers'
+
+    id = Column(String(100), primary_key=True)
+    room_id = Column(
+        String(100),
+        ForeignKey('map_rooms.id', ondelete='CASCADE'),
+        nullable=False, index=True,
+    )
+    viewer_id = Column(
+        String(100),
+        ForeignKey('featured_viewers.id', ondelete='CASCADE'),
+        nullable=False, index=True,
+    )
+    order_index = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    # Relationships
+    room = relationship('MapRoom', back_populates='room_viewers')
+    viewer = relationship('FeaturedViewer')
+
+    __table_args__ = (
+        UniqueConstraint(
+            'room_id', 'viewer_id',
+            name='uq_map_room_viewer',
+        ),
+    )

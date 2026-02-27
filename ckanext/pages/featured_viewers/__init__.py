@@ -17,9 +17,13 @@ __version__ = '1.0.0'
 from ckanext.pages.featured_viewers.db.models import (
     FeaturedViewer,
     ViewerDataset,
+    MapRoom,
+    MapRoomViewer,
 )
 
 __all__ = [
     'FeaturedViewer',
     'ViewerDataset',
+    'MapRoom',
+    'MapRoomViewer',
 ]

@@ -14,6 +14,7 @@ from ckanext.pages.featured_viewers.db.models import FeaturedViewer
 from ckanext.pages.featured_viewers.db.utils import make_uuid, table_dictize
 from ckanext.pages.featured_viewers.logic.schema import (
     featured_viewer_schema, generate_slug, validate_slug,
+    map_room_schema,
 )
 
 log = logging.getLogger(__name__)
@@ -123,3 +124,56 @@ def _parse_json_field(raw_value):
         except Exception:
             return None
     return None
+
+
+def map_room_create(context, data_dict):
+    """Create a new map room."""
+    from ckanext.pages.featured_viewers.db.models import MapRoom
+
+    tk.check_access('map_room_create', context, data_dict)
+
+    user = context.get('user')
+    user_obj = model.User.get(user)
+    if not user_obj:
+        raise tk.NotAuthorized("Must be logged in")
+
+    schema = map_room_schema()
+    data, errors = df.validate(data_dict, schema, context)
+    if errors:
+        raise tk.ValidationError(errors)
+
+    if not data.get('slug'):
+        data['slug'] = generate_slug(data['title'])
+    else:
+        is_valid, error_msg = validate_slug(data['slug'])
+        if not is_valid:
+            raise tk.ValidationError({'slug': [error_msg]})
+
+    existing = MapRoom.get(slug=data['slug'])
+    if existing:
+        raise tk.ValidationError(
+            {'slug': ['A room with this slug already exists']}
+        )
+
+    room = MapRoom()
+    room.id = make_uuid()
+    room.title = data['title']
+    room.slug = data['slug']
+    room.description = data.get('description', '')
+    room.thumbnail_url = data.get('thumbnail_url', '')
+    room.category = data.get('category', 'general')
+    room.author_id = user_obj.id
+    room.status = data_dict.get('status', 'draft')
+    room.is_featured = bool(data_dict.get('is_featured', False))
+    room.order_index = int(data_dict.get('order_index', 0))
+
+    now = datetime.datetime.utcnow()
+    room.created_at = now
+    room.updated_at = now
+
+    session = context.get('session', model.Session)
+    session.add(room)
+    session.commit()
+
+    log.info(f"[MAP_ROOM_CREATE] Created room: {room.id} - {room.title}")
+    return table_dictize(room, context)

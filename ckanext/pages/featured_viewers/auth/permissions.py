@@ -130,3 +130,41 @@ def featured_viewer_link_dataset(context, data_dict):
 def featured_viewer_unlink_dataset(context, data_dict):
     """Same as update."""
     return featured_viewer_update(context, {'id': data_dict.get('viewer_id')})
+
+
+# ── Map Room Auth ──
+
+def map_room_create(context, data_dict):
+    """Only sysadmins can create rooms."""
+    user = context.get('user')
+    user_obj = model.User.get(user) if user else None
+    if user_obj and user_obj.sysadmin:
+        return {'success': True}
+    if user_obj and authz.has_user_permission_for_some_org(
+        user_obj.id, 'admin'
+    ):
+        return {'success': True}
+    return {'success': False}
+
+
+def map_room_show(context, data_dict):
+    """Published rooms are public; drafts need auth."""
+    return {'success': True}
+
+
+def map_room_list(context, data_dict):
+    return {'success': True}
+
+
+def map_room_update(context, data_dict):
+    """Sysadmins and org admins can update rooms."""
+    return map_room_create(context, data_dict)
+
+
+def map_room_delete(context, data_dict):
+    """Only sysadmins can delete rooms."""
+    user = context.get('user')
+    user_obj = model.User.get(user) if user else None
+    if user_obj and user_obj.sysadmin:
+        return {'success': True}
+    return {'success': False}

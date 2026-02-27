@@ -73,6 +73,8 @@ try:
         get_viewer_category_color,
         get_viewer_status_badge,
         format_viewer_view_count,
+        get_available_icons,
+        json_loads as fv_json_loads,
     )
     from ckanext.pages.featured_viewers import actions as fv_actions
     from ckanext.pages.featured_viewers import auth as fv_auth
@@ -1031,6 +1033,8 @@ class PagesPlugin(PagesPluginBase):
                 'get_viewer_category_color': get_viewer_category_color,
                 'get_viewer_status_badge': get_viewer_status_badge,
                 'format_viewer_view_count': format_viewer_view_count,
+                'get_available_icons': get_available_icons,
+                'fv_json_loads': fv_json_loads,
             })
 
         return helpers
@@ -1113,6 +1117,13 @@ class PagesPlugin(PagesPluginBase):
                 'featured_viewer_record_view': fv_actions.featured_viewer_record_view,
                 'featured_viewer_link_dataset': fv_actions.featured_viewer_link_dataset,
                 'featured_viewer_unlink_dataset': fv_actions.featured_viewer_unlink_dataset,
+                'map_room_create': fv_actions.map_room_create,
+                'map_room_show': fv_actions.map_room_show,
+                'map_room_list': fv_actions.map_room_list,
+                'map_room_update': fv_actions.map_room_update,
+                'map_room_delete': fv_actions.map_room_delete,
+                'map_room_add_viewer': fv_actions.map_room_add_viewer,
+                'map_room_remove_viewer': fv_actions.map_room_remove_viewer,
             }
             actions_dict.update(featured_viewers_actions)
         return actions_dict
@@ -1191,6 +1202,11 @@ class PagesPlugin(PagesPluginBase):
                 'featured_viewer_record_view': fv_auth.featured_viewer_record_view,
                 'featured_viewer_link_dataset': fv_auth.featured_viewer_link_dataset,
                 'featured_viewer_unlink_dataset': fv_auth.featured_viewer_unlink_dataset,
+                'map_room_create': fv_auth.map_room_create,
+                'map_room_show': fv_auth.map_room_show,
+                'map_room_list': fv_auth.map_room_list,
+                'map_room_update': fv_auth.map_room_update,
+                'map_room_delete': fv_auth.map_room_delete,
             }
             auth_functions.update(featured_viewers_auth)
 

@@ -45,3 +45,22 @@ def featured_viewer_delete(context, data_dict):
 
     log.info(f"[FEATURED_VIEWER_DELETE] Deleted viewer: {viewer_id}")
     return {'success': True}
+
+
+def map_room_delete(context, data_dict):
+    """Delete a map room."""
+    from ckanext.pages.featured_viewers.db.models import MapRoom
+
+    tk.check_access('map_room_delete', context, data_dict)
+
+    room_id = data_dict.get('id')
+    room = MapRoom.get(id=room_id)
+    if not room:
+        raise tk.ObjectNotFound('Map room not found')
+
+    session = context.get('session', model.Session)
+    session.delete(room)
+    session.commit()
+
+    log.info(f"[MAP_ROOM_DELETE] Deleted room: {room_id}")
+    return {'success': True}

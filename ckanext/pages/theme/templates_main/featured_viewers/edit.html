@@ -36,7 +36,7 @@
           <div class="section-title-overlay"></div>
           <div class="section-title-content">
             <h1>{{ page_title }}</h1>
-            <p class="section-title-description">{{ _('Configure a thematic map room with preloaded layers for water-related monitoring') }}</p>
+            <p class="section-title-description">{{ _('Configure a thematic map viewer with preloaded layers for water-related monitoring') }}</p>
           </div>
         </div>
       </section>
@@ -66,8 +66,11 @@
         action="{% if is_edit %}{{ h.url_for('featured_viewers.edit', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.create') }}{% endif %}"
         enctype="multipart/form-data"
         class="data-stories-form" id="fv-edit-form">
+    {{ h.csrf_input() if 'csrf_input' in h }}
 
-    {# ── Basic Information ── #}
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 1. Basic Information                      ── #}
+    {# ═══════════════════════════════════════════════ #}
     <fieldset>
       <legend><i class="fa fa-info-circle"></i> {{ _('Basic Information') }}</legend>
 
@@ -80,7 +83,7 @@
                placeholder="{{ _('e.g., Flood & Drought Monitoring Dashboard') }}" required>
         <span class="help-text">
           <i class="fa fa-info-circle text-info"></i>
-          {{ _('A clear, descriptive title for your map room viewer.') }}
+          {{ _('A clear, descriptive title for your map viewer.') }}
         </span>
         {% if errors.get('title') %}
         <span class="error-block">{{ errors.title[0] }}</span>
@@ -112,127 +115,238 @@
         </div>
         <span class="help-text">
           <i class="fa fa-info-circle text-info"></i>
-          {{ _('Brief description of what this map room shows. Displayed in listings and the viewer page.') }}
+          {{ _('Brief description of what this viewer shows. Displayed in listings and detail page.') }}
         </span>
       </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="control-label" for="fv-category">{{ _('Category') }}</label>
-            <select id="fv-category" name="category" class="form-control">
-              {% for cat_id, cat in categories.items() %}
-              <option value="{{ cat_id }}"{% if data.get('category') == cat_id %} selected{% endif %}>
-                {{ cat.title }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label class="control-label" for="fv-icon">{{ _('Icon Class') }}</label>
-            <input type="text" id="fv-icon" name="icon_class"
-                   value="{{ data.get('icon_class', '') }}" class="form-control"
-                   placeholder="{{ _('fa-map (Font Awesome class)') }}">
-            <span class="help-text">{{ _('Leave blank to use category default icon.') }}</span>
-          </div>
-        </div>
-      </div>
-
+      {# Category select #}
       <div class="form-group">
-        <label class="control-label" for="fv-thumbnail">{{ _('Thumbnail Image URL') }}</label>
-        <input type="url" id="fv-thumbnail" name="thumbnail_url"
-               value="{{ data.get('thumbnail_url', '') }}" class="form-control"
-               placeholder="https://example.com/image.jpg">
+        <label class="control-label" for="fv-category">
+          <i class="fa fa-folder-open"></i> {{ _('Category') }}
+        </label>
+        <select id="fv-category" name="category" class="form-control">
+          {% for cat_id, cat in categories.items() %}
+          <option value="{{ cat_id }}"{% if data.get('category') == cat_id %} selected{% endif %}
+                  data-icon="{{ cat.icon }}" data-color="{{ cat.color }}">
+            {{ cat.title }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help-text">
+          {{ _('Thematic category — determines the default icon and color scheme.') }}
+        </span>
       </div>
     </fieldset>
 
-    {# ── Map Configuration ── #}
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 2. Cover Image & Icon                     ── #}
+    {# ═══════════════════════════════════════════════ #}
+    <fieldset>
+      <legend><i class="fa fa-image"></i> {{ _('Cover Image & Icon') }}</legend>
+
+      {# Thumbnail via drag-and-drop upload #}
+      <div class="form-group">
+        <label class="control-label">
+          <i class="fa fa-picture-o"></i> {{ _('Cover Image') }}
+        </label>
+        <span class="help-text" style="margin-bottom: 0.75rem; display: block;">
+          {{ _('Upload a cover image for listings. Drag & drop an image or click to browse.') }}
+        </span>
+
+        <input type="file" id="fv-thumbnail-file" accept="image/*" style="display: none;">
+        <div class="upload-dropzone" id="fv-thumbnail-dropzone">
+          <div class="dropzone-content" id="fv-dropzone-content">
+            {% if data.get('thumbnail_url') %}
+              <img src="{{ data.get('thumbnail_url') }}" alt="Current cover" class="dropzone-preview-img" id="fv-thumbnail-preview-img">
+              <p class="dropzone-filename" id="fv-dropzone-filename">{{ _('Current image') }}</p>
+              <button type="button" class="btn btn-sm btn-danger" id="fv-remove-thumbnail"
+                      style="margin-top: 0.5rem;">
+                <i class="fa fa-trash"></i> {{ _('Remove') }}
+              </button>
+            {% else %}
+              <i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>
+              <p>{{ _('Drop an image here or click to browse') }}</p>
+              <p class="text-muted" style="font-size: 0.85rem;">{{ _('JPG, PNG or GIF — Max 5 MB') }}</p>
+            {% endif %}
+          </div>
+        </div>
+        <input type="hidden" id="fv-thumbnail" name="thumbnail_url"
+               value="{{ data.get('thumbnail_url', '') }}">
+
+        {# Or enter URL directly #}
+        <div style="margin-top: 0.75rem;">
+          <a href="#" id="fv-toggle-url-input" class="text-muted" style="font-size: 0.85rem;">
+            <i class="fa fa-link"></i> {{ _('Or enter an image URL directly') }}
+          </a>
+          <div id="fv-url-input-wrapper" style="display: none; margin-top: 0.5rem;">
+            <input type="url" id="fv-thumbnail-url-input" class="form-control"
+                   value="{{ data.get('thumbnail_url', '') }}"
+                   placeholder="https://example.com/image.jpg">
+          </div>
+        </div>
+      </div>
+
+      {# Icon picker — visual grid #}
+      <div class="form-group">
+        <label class="control-label">
+          <i class="fa fa-th"></i> {{ _('Viewer Icon') }}
+        </label>
+        <span class="help-text" style="margin-bottom: 0.75rem; display: block;">
+          {{ _('Choose an icon for this viewer. Leave unselected to use the category default.') }}
+        </span>
+
+        <div class="fv-icon-picker" id="fv-icon-picker">
+          {% set current_icon = data.get('icon_class', '') %}
+          {% set icons = h.get_available_icons() if 'get_available_icons' in h else [] %}
+          {% for icon in icons %}
+          <button type="button"
+                  class="fv-icon-option{% if current_icon == icon %} active{% endif %}"
+                  data-icon="{{ icon }}" title="{{ icon }}">
+            <i class="fa {{ icon }}"></i>
+          </button>
+          {% endfor %}
+        </div>
+        <input type="hidden" id="fv-icon" name="icon_class"
+               value="{{ data.get('icon_class', '') }}">
+
+        <div id="fv-icon-selected" class="fv-icon-selected" style="margin-top: 0.5rem;">
+          {% if current_icon %}
+          <span class="badge" style="background: #E3F2FD; color: #0072BC; padding: 0.4rem 0.8rem; border-radius: 8px;">
+            <i class="fa {{ current_icon }}"></i> {{ current_icon }}
+          </span>
+          {% else %}
+          <span class="text-muted" style="font-size: 0.85rem;">{{ _('Using category default icon') }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </fieldset>
+
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 3. Map Configuration (Tabs)               ── #}
+    {# ═══════════════════════════════════════════════ #}
     <fieldset>
       <legend><i class="fa fa-map"></i> {{ _('Map Configuration') }}</legend>
 
-      <div class="form-group{% if errors.get('terria_share_link') %} has-error{% endif %}">
-        <label class="control-label" for="fv-terria-link">
-          <i class="fa fa-link"></i> {{ _('Terria Share Link') }}
-        </label>
-        <div class="input-group">
-          <input type="url" id="fv-terria-link" name="terria_share_link"
-                 value="{{ data.get('terria_share_link', '') }}" class="form-control"
-                 placeholder="{{ _('Paste a Terria share link here...') }}">
-          <div class="input-group-btn">
-            <button type="button" id="fv-preview-map" class="btn btn-primary">
-              <i class="fa fa-eye"></i> {{ _('Preview') }}
-            </button>
+      {# Tab navigation #}
+      <ul class="nav nav-tabs fv-config-tabs" id="fv-map-tabs" role="tablist">
+        <li role="presentation" class="active">
+          <a href="#fv-tab-simple" aria-controls="fv-tab-simple" role="tab" data-toggle="tab">
+            <i class="fa fa-link"></i> {{ _('Share Link') }}
+          </a>
+        </li>
+        <li role="presentation">
+          <a href="#fv-tab-advanced" aria-controls="fv-tab-advanced" role="tab" data-toggle="tab">
+            <i class="fa fa-code"></i> {{ _('Advanced Config') }}
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content fv-tab-content">
+        {# Tab 1: Simple Share Link #}
+        <div role="tabpanel" class="tab-pane active" id="fv-tab-simple">
+          <div class="fv-tab-inner">
+            <div class="form-group{% if errors.get('terria_share_link') %} has-error{% endif %}">
+              <label class="control-label" for="fv-terria-link">
+                <i class="fa fa-external-link"></i> {{ _('Terria Share Link') }}
+              </label>
+              <div class="input-group">
+                <input type="url" id="fv-terria-link" name="terria_share_link"
+                       value="{{ data.get('terria_share_link', '') }}" class="form-control"
+                       placeholder="{{ _('Paste your Terria share link here...') }}">
+                <div class="input-group-btn">
+                  <button type="button" id="fv-preview-map" class="btn btn-primary">
+                    <i class="fa fa-eye"></i> {{ _('Preview') }}
+                  </button>
+                </div>
+              </div>
+              <span class="help-text">
+                <i class="fa fa-lightbulb-o text-warning"></i>
+                {{ _('How to get this link: Open') }} <a href="https://map.dev-wins.com" target="_blank">Terria Map</a>,
+                {{ _('configure your layers, click "Share", and paste the URL here.') }}
+              </span>
+              {% if errors.get('terria_share_link') %}
+              <span class="error-block">{{ errors.terria_share_link[0] }}</span>
+              {% endif %}
+            </div>
+
+            {# Live map preview #}
+            <div id="fv-map-preview" class="fv-map-preview">
+              {% if data.get('terria_share_link') %}
+                <iframe src="{{ data.get('terria_share_link') }}" allow="geolocation" loading="lazy" title="Map Preview"></iframe>
+              {% else %}
+              <div class="fv-map-preview-placeholder">
+                <i class="fa fa-map-o fa-3x" style="color: #b0bec5;"></i>
+                <p>{{ _('A live preview of the map will appear here after you enter a share link') }}</p>
+              </div>
+              {% endif %}
+            </div>
           </div>
         </div>
-        <span class="help-text">
-          <i class="fa fa-info-circle text-info"></i>
-          {{ _('Open Terria, configure your map layers, click Share, and paste the link here.') }}
-        </span>
-        {% if errors.get('terria_share_link') %}
-        <span class="error-block">{{ errors.terria_share_link[0] }}</span>
-        {% endif %}
-      </div>
 
-      <div id="fv-map-preview" class="fv-map-preview" style="margin-bottom: 1.5rem;">
-        {% if data.get('terria_share_link') %}
-          {% set preview_url = data.get('terria_share_link') %}
-          <iframe src="{{ preview_url }}" allow="geolocation" loading="lazy" title="Map Preview"></iframe>
-        {% else %}
-        <div class="fv-map-preview-placeholder">
-          <i class="fa fa-map-o"></i>
-          <p>{{ _('Enter a Terria share link above to preview the map') }}</p>
+        {# Tab 2: Advanced JSON Config #}
+        <div role="tabpanel" class="tab-pane" id="fv-tab-advanced">
+          <div class="fv-tab-inner">
+            <div class="alert alert-info" style="border-radius: 10px; margin-bottom: 1.25rem;">
+              <i class="fa fa-info-circle"></i>
+              {{ _('Advanced settings are optional. Most users only need the Share Link above.') }}
+            </div>
+
+            <div class="form-group">
+              <label class="control-label" for="fv-layers">
+                <i class="fa fa-layer-group"></i> {{ _('Map Layers') }}
+              </label>
+              <textarea id="fv-layers" name="map_layers" class="form-control code-editor" rows="5"
+                        placeholder='[{"name": "Precipitation", "type": "WMS", "url": "...", "visible": true}]'
+              >{% if data.get('map_layers') %}{{ data.get('map_layers') if data.get('map_layers') is string else data.get('map_layers')|tojson(indent=2) }}{% else %}[]{% endif %}</textarea>
+              <span class="help-text">
+                {{ _('JSON array describing map layers. Each entry: {name, type, url, visible}.') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="control-label" for="fv-terria-config">
+                <i class="fa fa-cog"></i> {{ _('Terria JSON Config') }}
+              </label>
+              <textarea id="fv-terria-config" name="terria_config" class="form-control code-editor" rows="4"
+                        placeholder='{}'
+              >{% if data.get('terria_config') %}{{ data.get('terria_config') if data.get('terria_config') is string else data.get('terria_config')|tojson(indent=2) }}{% else %}{}{% endif %}</textarea>
+              <span class="help-text">{{ _('Full Terria catalog configuration object (for power users).') }}</span>
+            </div>
+          </div>
         </div>
-        {% endif %}
-      </div>
-
-      <div class="form-group">
-        <label class="control-label" for="fv-layers">{{ _('Map Layers (JSON)') }}</label>
-        <textarea id="fv-layers" name="map_layers" class="form-control code-editor" rows="4"
-                  placeholder='[{"name": "Precipitation Data", "type": "WMS", "visible": true}]'>{{ data.get('map_layers', '[]') if data.get('map_layers') is not string else data.get('map_layers', '[]') }}</textarea>
-        <span class="help-text">
-          {{ _('JSON array of layer definitions. Each layer: {name, type, url, visible}') }}
-        </span>
-      </div>
-
-      <div class="form-group">
-        <label class="control-label" for="fv-terria-config">{{ _('Terria Config JSON (Advanced)') }}</label>
-        <textarea id="fv-terria-config" name="terria_config" class="form-control code-editor" rows="3"
-                  placeholder='{}'>{{ data.get('terria_config', '{}') if data.get('terria_config') is not string else data.get('terria_config', '{}') }}</textarea>
-        <span class="help-text">{{ _('Optional advanced Terria configuration object.') }}</span>
       </div>
     </fieldset>
 
-    {# ── Metadata ── #}
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 4. Countries & Tags                       ── #}
+    {# ═══════════════════════════════════════════════ #}
     <fieldset>
-      <legend><i class="fa fa-tags"></i> {{ _('Metadata') }}</legend>
+      <legend><i class="fa fa-globe"></i> {{ _('Countries & Tags') }}</legend>
 
-      {# Countries - dropdown selector #}
+      {# Countries #}
       <div class="form-group{% if errors.get('countries') %} has-error{% endif %}">
-        <label class="control-label" for="fv-country-select">
-          <i class="fa fa-globe"></i> {{ _('Countries') }}
+        <label class="control-label">
+          <i class="fa fa-map-marker"></i> {{ _('Countries') }}
         </label>
-        <div class="help-text" style="margin-bottom: 1rem;">
-          {{ _('Select one or more countries covered by this viewer.') }}
-        </div>
+        <span class="help-text" style="margin-bottom: 0.75rem; display: block;">
+          {{ _('Select the countries covered by this viewer.') }}
+        </span>
 
         <div class="countries-container">
-          <div class="country-selector">
-            <div class="input-group">
-              <select id="fv-country-select" class="form-control">
-                <option value="">{{ _('Select a country...') }}</option>
-              </select>
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-primary" id="fv-add-country">
-                  <i class="fa fa-plus"></i> {{ _('Add') }}
-                </button>
-              </div>
+          <div class="input-group">
+            <select id="fv-country-select" class="form-control">
+              <option value="">{{ _('Select a country...') }}</option>
+            </select>
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-primary" id="fv-add-country">
+                <i class="fa fa-plus"></i> {{ _('Add') }}
+              </button>
             </div>
           </div>
 
           <div id="fv-selected-countries" class="selected-countries"
-               data-empty-text="{{ _('No countries selected yet.') }}">
+               data-empty-text="{{ _('No countries selected yet. Choose from the dropdown above.') }}"
+               style="margin-top: 0.75rem;">
           </div>
 
           {% set countries_val = data.get('countries', '[]') %}
@@ -249,19 +363,19 @@
         {% endif %}
       </div>
 
-      {# Tags - chip input #}
+      {# Tags #}
       <div class="form-group{% if errors.get('tags') %} has-error{% endif %}">
-        <label class="control-label" for="fv-tag-input">
-          <i class="fa fa-tag"></i> {{ _('Tags') }}
+        <label class="control-label">
+          <i class="fa fa-tags"></i> {{ _('Tags') }}
         </label>
-        <div class="help-text" style="margin-bottom: 1rem;">
-          {{ _('Add tags to help categorize this viewer. Type a tag and press Enter or click Add.') }}
-        </div>
+        <span class="help-text" style="margin-bottom: 0.75rem; display: block;">
+          {{ _('Add keywords to help users find this viewer. Press Enter or click Add.') }}
+        </span>
 
         <div class="tags-container">
           <div class="input-group">
             <input type="text" id="fv-tag-input" class="form-control"
-                   placeholder="{{ _('Enter a tag (e.g., flooding, real-time)...') }}">
+                   placeholder="{{ _('e.g., flooding, real-time, satellite...') }}">
             <div class="input-group-btn">
               <button type="button" class="btn btn-primary" id="fv-add-tag">
                 <i class="fa fa-plus"></i> {{ _('Add') }}
@@ -269,8 +383,9 @@
             </div>
           </div>
 
-          <div id="fv-selected-tags" class="selected-tags" style="margin-top: 1rem;"
-               data-empty-text="{{ _('No tags added yet.') }}">
+          <div id="fv-selected-tags" class="selected-tags"
+               data-empty-text="{{ _('No tags added yet. Type above and press Enter.') }}"
+               style="margin-top: 0.75rem;">
           </div>
 
           {% set tags_val = data.get('tags', '[]') %}
@@ -286,50 +401,70 @@
         <span class="error-block">{{ errors.tags[0] }}</span>
         {% endif %}
       </div>
-
-      <div class="form-group">
-        <label class="control-label" for="fv-meta-desc">{{ _('Meta Description (SEO)') }}</label>
-        <textarea id="fv-meta-desc" name="meta_description" class="form-control" rows="2"
-                  placeholder="{{ _('Brief SEO-friendly description...') }}">{{ data.get('meta_description', '') }}</textarea>
-      </div>
     </fieldset>
 
-    {# ── Visibility & Publishing ── #}
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 5. Publishing                             ── #}
+    {# ═══════════════════════════════════════════════ #}
     <fieldset>
-      <legend><i class="fa fa-cog"></i> {{ _('Visibility & Publishing') }}</legend>
+      <legend><i class="fa fa-rocket"></i> {{ _('Publishing') }}</legend>
 
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="form-group">
-            <label class="control-label" for="fv-status">{{ _('Status') }}</label>
+            <label class="control-label" for="fv-status">
+              <i class="fa fa-toggle-on"></i> {{ _('Status') }}
+            </label>
             <select id="fv-status" name="status" class="form-control">
-              <option value="draft"{% if data.get('status', 'draft') == 'draft' %} selected{% endif %}>{{ _('Draft') }}</option>
-              <option value="published"{% if data.get('status') == 'published' %} selected{% endif %}>{{ _('Published') }}</option>
+              <option value="draft"{% if data.get('status', 'draft') == 'draft' %} selected{% endif %}>
+                📝 {{ _('Draft — only you can see it') }}
+              </option>
+              <option value="published"{% if data.get('status') == 'published' %} selected{% endif %}>
+                🌐 {{ _('Published — visible to everyone') }}
+              </option>
             </select>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="form-group">
-            <label class="control-label" for="fv-order">{{ _('Display Order') }}</label>
-            <input type="number" id="fv-order" name="order_index"
-                   value="{{ data.get('order_index', 0) }}" class="form-control" min="0">
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-group" style="padding-top: 1.8rem;">
-            <label class="checkbox-inline">
-              <input type="checkbox" name="is_featured" {% if data.get('is_featured') %}checked{% endif %}>
-              <i class="fa fa-star" style="color: #FFB800;"></i> {{ _('Featured Viewer') }}
+            <label class="control-label" for="fv-order">
+              <i class="fa fa-sort-numeric-asc"></i> {{ _('Priority') }}
             </label>
+            <input type="number" id="fv-order" name="order_index"
+                   value="{{ data.get('order_index', 0) }}" class="form-control"
+                   min="0" max="999">
+            <span class="help-text">
+              {{ _('Lower number = higher in the list. Use 0 for top priority.') }}
+            </span>
           </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="checkbox-inline">
-          <input type="checkbox" name="is_public" {% if data.get('is_public', True) %}checked{% endif %}>
-          {{ _('Publicly visible') }}
-        </label>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group fv-checkbox-card">
+            <label class="fv-checkbox-label">
+              <input type="checkbox" name="is_featured" {% if data.get('is_featured') %}checked{% endif %}>
+              <span class="fv-checkbox-icon"><i class="fa fa-star"></i></span>
+              <span class="fv-checkbox-text">
+                <strong>{{ _('Featured Viewer') }}</strong>
+                <small>{{ _('Shows in the highlighted section at the top of the listing page.') }}</small>
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group fv-checkbox-card">
+            <label class="fv-checkbox-label">
+              <input type="checkbox" name="is_public" {% if data.get('is_public', True) %}checked{% endif %}>
+              <span class="fv-checkbox-icon"><i class="fa fa-eye"></i></span>
+              <span class="fv-checkbox-text">
+                <strong>{{ _('Publicly Visible') }}</strong>
+                <small>{{ _('When unchecked, only administrators can access this viewer.') }}</small>
+              </span>
+            </label>
+          </div>
+        </div>
       </div>
     </fieldset>
 
@@ -354,7 +489,8 @@
   <form id="delete-form" method="post"
         action="{{ h.url_for('featured_viewers.delete', slug=data.slug) }}"
         style="display: none;"
-        onsubmit="return confirm('{{ _('Are you sure you want to delete this viewer?') }}');">
+        onsubmit="return confirm('{{ _('Are you sure you want to delete this viewer? This cannot be undone.') }}');">
+    {{ h.csrf_input() if 'csrf_input' in h }}
     <button type="submit" class="btn btn-danger btn-lg">
       <i class="fa fa-trash"></i> {{ _('Delete Viewer') }}
     </button>
@@ -382,70 +518,245 @@
   {% endblock %}
 </div>
 
-<!-- Load design system CSS -->
+<!-- Design system CSS -->
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
 <link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
 <link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
-<!-- Quill Editor CSS -->
+<!-- Quill Editor -->
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+
 <style>
-  .ql-editor img { cursor: pointer; max-width: 100%; }
-  .ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
-  .code-editor {
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
-    font-size: 12px;
-    background: #f8f9fa;
-  }
-  /* Country & Tag chip styles */
-  .selected-countries:empty::before,
-  .selected-tags:empty::before {
-    content: attr(data-empty-text);
-    display: block;
-    padding: 1rem;
-    text-align: center;
-    color: #6c757d;
-    font-style: italic;
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6;
-    border-radius: 12px;
-  }
-  .country-item, .tag-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    background: #e3f2fd;
-    color: #0072bc;
-    font-weight: 600;
-    font-size: 0.85rem;
-    box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);
-    border: 1px solid #cfe4fb;
-    margin: 0.25rem;
-    transition: all 0.2s ease;
-  }
-  .country-item:hover, .tag-item:hover {
-    background: #bbdefb;
-    border-color: #90caf9;
-  }
-  .country-item .btn, .tag-item .btn {
-    padding: 0 0.25rem;
-    font-size: 0.75rem;
-    border-radius: 50%;
-    min-width: 20px;
-    height: 20px;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* ── Quill ── */
+.ql-editor img { cursor: pointer; max-width: 100%; }
+.ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
+
+/* ── Code editor ── */
+.code-editor {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* ── Dropzone ── */
+.upload-dropzone {
+  border: 2px dashed #b0bec5;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: linear-gradient(135deg, #f8fafe 0%, #ffffff 100%);
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-dropzone:hover,
+.upload-dropzone.drag-over {
+  border-color: #0072BC;
+  background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%);
+  box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+}
+.upload-dropzone .dropzone-preview-img {
+  max-height: 120px;
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ── Icon picker grid ── */
+.fv-icon-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  background: #f8fafe;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+}
+.fv-icon-option {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #546e7a;
+  transition: all 0.2s ease;
+}
+.fv-icon-option:hover {
+  border-color: #90caf9;
+  background: #E3F2FD;
+  color: #0072BC;
+  transform: scale(1.08);
+}
+.fv-icon-option.active {
+  border-color: #0072BC;
+  background: #0072BC;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
+}
+
+/* ── Tabs ── */
+.fv-config-tabs {
+  border-bottom: 2px solid #E3F2FD;
+  margin-bottom: 0;
+}
+.fv-config-tabs > li > a {
+  border-radius: 10px 10px 0 0;
+  color: #546e7a;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+}
+.fv-config-tabs > li.active > a,
+.fv-config-tabs > li.active > a:focus,
+.fv-config-tabs > li.active > a:hover {
+  border-color: #E3F2FD #E3F2FD transparent;
+  color: #0072BC;
+  background: #f8fafe;
+}
+.fv-tab-content {
+  border: 1px solid #E3F2FD;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  background: #f8fafe;
+}
+.fv-tab-inner {
+  padding: 1.5rem;
+}
+
+/* ── Checkbox cards ── */
+.fv-checkbox-card {
+  margin-bottom: 0;
+}
+.fv-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fff;
+  margin: 0;
+  font-weight: normal;
+}
+.fv-checkbox-label:hover {
+  border-color: #90caf9;
+  background: #f8fafe;
+}
+.fv-checkbox-label input[type="checkbox"] {
+  margin-top: 0.3rem;
+  width: 18px;
+  height: 18px;
+  accent-color: #0072BC;
+  flex-shrink: 0;
+}
+.fv-checkbox-label input[type="checkbox"]:checked ~ .fv-checkbox-icon {
+  color: #0072BC;
+}
+.fv-checkbox-icon {
+  font-size: 1.3rem;
+  color: #b0bec5;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  transition: color 0.2s ease;
+}
+.fv-checkbox-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.fv-checkbox-text strong {
+  font-size: 0.95rem;
+  color: #263238;
+}
+.fv-checkbox-text small {
+  font-size: 0.82rem;
+  color: #78909c;
+  line-height: 1.3;
+}
+
+/* ── Chip styles ── */
+.selected-countries:empty::before,
+.selected-tags:empty::before {
+  content: attr(data-empty-text);
+  display: block;
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+}
+.country-item, .tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #e3f2fd;
+  color: #0072bc;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);
+  border: 1px solid #cfe4fb;
+  margin: 0.25rem;
+  transition: all 0.2s ease;
+}
+.country-item:hover, .tag-item:hover {
+  background: #bbdefb;
+  border-color: #90caf9;
+}
+.country-item .btn, .tag-item .btn {
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Map preview ── */
+.fv-map-preview {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  margin-top: 1rem;
+}
+.fv-map-preview iframe {
+  width: 100%;
+  height: 350px;
+  border: none;
+}
+.fv-map-preview-placeholder {
+  padding: 3rem;
+  text-align: center;
+  background: #f5f5f5;
+  color: #78909c;
+}
+.fv-map-preview-placeholder i {
+  margin-bottom: 0.75rem;
+  display: block;
+}
 </style>
 
-<!-- Quill Editor JS -->
+<!-- Scripts -->
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<!-- Featured Viewers JS (slug gen + map preview) -->
 <script src="/js/featured-viewers.js"></script>
-<!-- Quill init + countries + tags for this form -->
 <script>
 (function() {
   function waitForDeps(callback, attempts) {
@@ -461,8 +772,10 @@
   waitForDeps(function($) {
     $(document).ready(function() {
 
-      // ── Quill editor for description ──
-      var quillConfig = {
+      // ══════════════════════════════════════════════
+      // Quill editor
+      // ══════════════════════════════════════════════
+      var descEditor = new Quill('#fv-description-editor', {
         theme: 'snow',
         modules: {
           toolbar: [
@@ -473,10 +786,8 @@
             ['clean']
           ]
         },
-        placeholder: '{{ _("Brief description of what this map room shows...") }}'
-      };
-
-      var descEditor = new Quill('#fv-description-editor', quillConfig);
+        placeholder: '{{ _("Describe what this viewer shows and why it matters...") }}'
+      });
       var $descTextarea = $('#fv-description');
       if ($descTextarea.val()) {
         descEditor.clipboard.dangerouslyPasteHTML($descTextarea.val());
@@ -484,13 +795,135 @@
       descEditor.on('text-change', function() {
         $descTextarea.val(descEditor.root.innerHTML);
       });
-
-      // Sync before submit
       $('#fv-edit-form').on('submit', function() {
         $descTextarea.val(descEditor.root.innerHTML);
       });
 
-      // ── Countries selector ──
+      // ══════════════════════════════════════════════
+      // Thumbnail drop-zone upload
+      // ══════════════════════════════════════════════
+      var $dropzone = $('#fv-thumbnail-dropzone');
+      var $fileInput = $('#fv-thumbnail-file');
+      var $hiddenUrl = $('#fv-thumbnail');
+      var $urlInput = $('#fv-thumbnail-url-input');
+
+      $dropzone.on('click', function() { $fileInput.trigger('click'); });
+
+      $dropzone.on('dragover dragenter', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $dropzone.addClass('drag-over');
+      });
+      $dropzone.on('dragleave drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $dropzone.removeClass('drag-over');
+      });
+      $dropzone.on('drop', function(e) {
+        var files = e.originalEvent.dataTransfer.files;
+        if (files.length) uploadThumbnail(files[0]);
+      });
+      $fileInput.on('change', function() {
+        if (this.files.length) uploadThumbnail(this.files[0]);
+      });
+
+      function uploadThumbnail(file) {
+        if (!file.type.match(/^image\//)) {
+          alert('Please select an image file.');
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Image must be under 5 MB.');
+          return;
+        }
+
+        var formData = new FormData();
+        formData.append('upload', file);
+
+        // Show uploading state
+        $('#fv-dropzone-content').html(
+          '<i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i>' +
+          '<p>{{ _("Uploading...") }}</p>'
+        );
+
+        $.ajax({
+          url: '/pages_upload',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(resp) {
+            var url = resp.url || resp;
+            $hiddenUrl.val(url);
+            $urlInput.val(url);
+            $('#fv-dropzone-content').html(
+              '<img src="' + url + '" alt="Cover" class="dropzone-preview-img">' +
+              '<p class="dropzone-filename" style="margin-top: 0.5rem;">' + file.name + '</p>' +
+              '<button type="button" class="btn btn-sm btn-danger" id="fv-remove-thumbnail" style="margin-top: 0.5rem;">' +
+              '<i class="fa fa-trash"></i> {{ _("Remove") }}</button>'
+            );
+          },
+          error: function() {
+            resetDropzone();
+            alert('{{ _("Upload failed. Please try again or enter a URL directly.") }}');
+          }
+        });
+      }
+
+      function resetDropzone() {
+        $hiddenUrl.val('');
+        $urlInput.val('');
+        $('#fv-dropzone-content').html(
+          '<i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>' +
+          '<p>{{ _("Drop an image here or click to browse") }}</p>' +
+          '<p class="text-muted" style="font-size: 0.85rem;">{{ _("JPG, PNG or GIF — Max 5 MB") }}</p>'
+        );
+      }
+
+      $(document).on('click', '#fv-remove-thumbnail', function(e) {
+        e.stopPropagation();
+        resetDropzone();
+      });
+
+      // Toggle URL input
+      $('#fv-toggle-url-input').on('click', function(e) {
+        e.preventDefault();
+        $('#fv-url-input-wrapper').slideToggle(200);
+      });
+      $urlInput.on('change', function() {
+        $hiddenUrl.val($(this).val());
+      });
+
+      // ══════════════════════════════════════════════
+      // Icon picker
+      // ══════════════════════════════════════════════
+      var $iconHidden = $('#fv-icon');
+      var $iconSelected = $('#fv-icon-selected');
+
+      $('.fv-icon-option').on('click', function() {
+        var icon = $(this).data('icon');
+        var $this = $(this);
+
+        if ($this.hasClass('active')) {
+          // Deselect
+          $this.removeClass('active');
+          $iconHidden.val('');
+          $iconSelected.html('<span class="text-muted" style="font-size: 0.85rem;">{{ _("Using category default icon") }}</span>');
+        } else {
+          // Select
+          $('.fv-icon-option').removeClass('active');
+          $this.addClass('active');
+          $iconHidden.val(icon);
+          $iconSelected.html(
+            '<span class="badge" style="background: #E3F2FD; color: #0072BC; padding: 0.4rem 0.8rem; border-radius: 8px;">' +
+            '<i class="fa ' + icon + '"></i> ' + icon + '</span>'
+          );
+        }
+      });
+
+      // ══════════════════════════════════════════════
+      // Countries selector
+      // ══════════════════════════════════════════════
       var countriesList = [
         'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
         'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
@@ -533,7 +966,6 @@
       var $countryList = $('#fv-selected-countries');
       var $countryHidden = $('#fv-countries-data');
 
-      // Populate dropdown
       $countrySelect.empty().append('<option value="">{{ _("Select a country...") }}</option>');
       countriesList.forEach(function(c) {
         $countrySelect.append('<option value="' + c + '">' + c + '</option>');
@@ -548,13 +980,13 @@
         if ($('#' + id).length) return;
         $countryList.append(
           '<div class="country-item" id="' + id + '" data-name="' + country.name + '">' +
+          '<i class="fa fa-map-marker" style="font-size: 0.8rem;"></i> ' +
           '<span>' + (country.display_name || country.name) + '</span>' +
           '<button type="button" class="btn btn-sm btn-danger remove-fv-country" data-name="' + country.name + '">' +
           '<i class="fa fa-times"></i></button></div>'
         );
       }
 
-      // Load existing
       try {
         var raw = $countryHidden.val();
         if (raw) {
@@ -573,8 +1005,7 @@
       $('#fv-add-country').on('click', function() {
         var val = $countrySelect.val();
         if (!val) return;
-        var exists = selectedCountries.some(function(c) { return c.name === val; });
-        if (exists) return;
+        if (selectedCountries.some(function(c) { return c.name === val; })) return;
         var country = { name: val, display_name: val };
         selectedCountries.push(country);
         renderCountry(country);
@@ -589,7 +1020,9 @@
         updateCountriesField();
       });
 
-      // ── Tags input ──
+      // ══════════════════════════════════════════════
+      // Tags input
+      // ══════════════════════════════════════════════
       var selectedTags = [];
       var $tagInput = $('#fv-tag-input');
       var $tagList = $('#fv-selected-tags');
@@ -620,7 +1053,6 @@
         $tagInput.val('');
       }
 
-      // Load existing tags
       try {
         var rawTags = $tagHidden.val();
         if (rawTags) {
@@ -645,8 +1077,8 @@
         updateTagsField();
       });
 
-    });
-  });
+    }); // document.ready
+  }); // waitForDeps
 })();
 </script>
 {% endblock %}

@@ -1,0 +1,464 @@
+{% extends "page.html" %}
+
+{% set is_edit = not is_new %}
+{% set page_title = _('Edit Map Room') if is_edit else _('Create Map Room') %}
+
+{% block title %}{{ page_title }} - {{ _('Map Rooms') }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          <li class="home"><a href="/"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
+          <li><a href="{{ h.url_for('featured_viewers.rooms_index') }}">{{ _('Map Rooms') }}</a></li>
+          {% if is_edit %}
+          <li><a href="{{ h.url_for('featured_viewers.rooms_show', slug=data.slug) }}">{{ data.title }}</a></li>
+          <li class="active">{{ _('Edit') }}</li>
+          {% else %}
+          <li class="active">{{ _('New Room') }}</li>
+          {% endif %}
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1><i class="fa fa-th-large"></i> {{ page_title }}</h1>
+            <p class="section-title-description">{{ _('A Map Room groups related viewers into a curated thematic collection') }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="data-stories-form-wrapper">
+            <section class="module module-narrow">
+              <div class="module-content">
+
+                {% if error_summary %}
+                <div class="alert alert-danger" style="border-radius: 12px; margin-bottom: 1.5rem;">
+                  <h4><i class="fa fa-exclamation-triangle"></i> {{ _('Please correct the errors:') }}</h4>
+                  <ul style="margin-bottom: 0;">
+                    {% for key, val in error_summary.items() %}
+                    <li><strong>{{ key }}:</strong> {{ val }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+
+  <form method="post"
+        action="{% if is_edit %}{{ h.url_for('featured_viewers.rooms_edit', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.rooms_create') }}{% endif %}"
+        enctype="multipart/form-data"
+        class="data-stories-form" id="room-edit-form">
+    {{ h.csrf_input() if 'csrf_input' in h }}
+
+    {# ── Room Information ── #}
+    <fieldset>
+      <legend><i class="fa fa-info-circle"></i> {{ _('Room Information') }}</legend>
+
+      <div class="form-group{% if errors.get('title') %} has-error{% endif %}">
+        <label class="control-label" for="room-title">
+          <i class="fa fa-heading"></i> {{ _('Room Title') }} <span class="text-danger">*</span>
+        </label>
+        <input type="text" id="room-title" name="title"
+               value="{{ data.get('title', '') }}" class="form-control"
+               placeholder="{{ _('e.g., Flood & Drought Monitoring Suite') }}" required>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('A descriptive name for this collection of map viewers.') }}
+        </span>
+        {% if errors.get('title') %}
+        <span class="error-block">{{ errors.title[0] }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="room-slug">{{ _('URL Slug') }}</label>
+        <input type="text" id="room-slug" name="slug"
+               value="{{ data.get('slug', '') }}" class="form-control"
+               placeholder="{{ _('auto-generated-from-title') }}">
+        <span class="help-text">{{ _('Leave blank to auto-generate.') }}</span>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="room-description">
+          <i class="fa fa-align-left"></i> {{ _('Description') }}
+        </label>
+        <textarea id="room-description" name="description" class="form-control" rows="4"
+                  placeholder="{{ _('Describe what this collection of viewers is about...') }}"
+        >{{ data.get('description', '') }}</textarea>
+        <span class="help-text">
+          {{ _('Explain the theme and purpose of this map room.') }}
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="room-category">
+          <i class="fa fa-folder-open"></i> {{ _('Category') }}
+        </label>
+        <select id="room-category" name="category" class="form-control">
+          {% for cat_id, cat in categories.items() %}
+          <option value="{{ cat_id }}"{% if data.get('category') == cat_id %} selected{% endif %}>
+            {{ cat.title }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </fieldset>
+
+    {# ── Cover Image ── #}
+    <fieldset>
+      <legend><i class="fa fa-image"></i> {{ _('Cover Image') }}</legend>
+
+      <div class="form-group">
+        <label class="control-label">
+          {{ _('Room Cover Image') }}
+        </label>
+        <span class="help-text" style="margin-bottom: 0.75rem; display: block;">
+          {{ _('Upload or enter a URL for the room cover image.') }}
+        </span>
+
+        <input type="file" id="room-thumbnail-file" accept="image/*" style="display: none;">
+        <div class="upload-dropzone" id="room-thumbnail-dropzone">
+          <div class="dropzone-content" id="room-dropzone-content">
+            {% if data.get('thumbnail_url') %}
+              <img src="{{ data.get('thumbnail_url') }}" alt="Cover" class="dropzone-preview-img">
+              <p class="dropzone-filename" style="margin-top: 0.5rem;">{{ _('Current image') }}</p>
+              <button type="button" class="btn btn-sm btn-danger room-remove-thumbnail" style="margin-top: 0.5rem;">
+                <i class="fa fa-trash"></i> {{ _('Remove') }}
+              </button>
+            {% else %}
+              <i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>
+              <p>{{ _('Drop an image here or click to browse') }}</p>
+              <p class="text-muted" style="font-size: 0.85rem;">{{ _('JPG, PNG or GIF — Max 5 MB') }}</p>
+            {% endif %}
+          </div>
+        </div>
+        <input type="hidden" id="room-thumbnail" name="thumbnail_url"
+               value="{{ data.get('thumbnail_url', '') }}">
+
+        <div style="margin-top: 0.75rem;">
+          <a href="#" class="text-muted room-toggle-url" style="font-size: 0.85rem;">
+            <i class="fa fa-link"></i> {{ _('Or enter a URL directly') }}
+          </a>
+          <div class="room-url-wrapper" style="display: none; margin-top: 0.5rem;">
+            <input type="url" class="form-control room-url-input"
+                   value="{{ data.get('thumbnail_url', '') }}"
+                   placeholder="https://example.com/image.jpg">
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    {# ── Publishing ── #}
+    <fieldset>
+      <legend><i class="fa fa-rocket"></i> {{ _('Publishing') }}</legend>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="control-label" for="room-status">{{ _('Status') }}</label>
+            <select id="room-status" name="status" class="form-control">
+              <option value="draft"{% if data.get('status', 'draft') == 'draft' %} selected{% endif %}>
+                📝 {{ _('Draft') }}
+              </option>
+              <option value="published"{% if data.get('status') == 'published' %} selected{% endif %}>
+                🌐 {{ _('Published') }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label class="control-label" for="room-order">{{ _('Priority') }}</label>
+            <input type="number" id="room-order" name="order_index"
+                   value="{{ data.get('order_index', 0) }}" class="form-control" min="0" max="999">
+            <span class="help-text">{{ _('Lower = higher priority.') }}</span>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group" style="padding-top: 1.8rem;">
+            <label class="fv-checkbox-label" style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 0.75rem 1rem;">
+              <input type="checkbox" name="is_featured" {% if data.get('is_featured') %}checked{% endif %}>
+              <span class="fv-checkbox-icon"><i class="fa fa-star"></i></span>
+              <span><strong>{{ _('Featured') }}</strong></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    {# ── Viewers in this Room (edit mode only) ── #}
+    {% if is_edit %}
+    <fieldset>
+      <legend><i class="fa fa-map"></i> {{ _('Viewers in this Room') }}</legend>
+
+      {% set room_viewers = data.get('viewers', []) %}
+      {% if room_viewers %}
+      <div class="fv-room-viewer-list" style="margin-bottom: 1.5rem;">
+        {% for viewer in room_viewers %}
+        <div class="fv-room-viewer-item">
+          <div class="fv-room-viewer-info">
+            <i class="fa {{ viewer.icon_class or h.get_viewer_category_icon(viewer.category) or 'fa-map' }}"
+               style="color: {{ h.get_viewer_category_color(viewer.category) }};"></i>
+            <span>{{ viewer.title }}</span>
+            {% if viewer.category %}
+            <small class="text-muted">({{ h.get_viewer_category_title(viewer.category) }})</small>
+            {% endif %}
+          </div>
+          <form method="post" action="{{ h.url_for('featured_viewers.rooms_remove_viewer', slug=data.slug) }}"
+                style="display: inline;"
+                onsubmit="return confirm('{{ _('Remove this viewer from the room?') }}');">
+            {{ h.csrf_input() if 'csrf_input' in h }}
+            <input type="hidden" name="viewer_id" value="{{ viewer.id }}">
+            <button type="submit" class="btn btn-sm btn-danger">
+              <i class="fa fa-times"></i>
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted" style="padding: 1rem; text-align: center; background: #f8f9fa; border-radius: 12px; border: 2px dashed #dee2e6;">
+        <i class="fa fa-info-circle"></i> {{ _('No viewers added yet. Save the room first, then add viewers below.') }}
+      </p>
+      {% endif %}
+
+      {# Add viewer form #}
+      {% if all_viewers is defined and all_viewers %}
+      <div class="fv-add-viewer-form" style="margin-top: 1rem;">
+        <form method="post" action="{{ h.url_for('featured_viewers.rooms_add_viewer', slug=data.slug) }}">
+          {{ h.csrf_input() if 'csrf_input' in h }}
+          <div class="input-group">
+            <select name="viewer_id" class="form-control">
+              <option value="">{{ _('Select a viewer to add...') }}</option>
+              {% set existing_ids = room_viewers|map(attribute='id')|list %}
+              {% for v in all_viewers %}
+                {% if v.id not in existing_ids %}
+                <option value="{{ v.id }}">{{ v.title }} ({{ h.get_viewer_category_title(v.category) }})</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <div class="input-group-btn">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa fa-plus"></i> {{ _('Add Viewer') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+    </fieldset>
+    {% endif %}
+
+    {# ── Form Actions ── #}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fa fa-save"></i>
+        {% if is_edit %}{{ _('Save Changes') }}{% else %}{{ _('Create Room') }}{% endif %}
+      </button>
+      <a href="{% if is_edit %}{{ h.url_for('featured_viewers.rooms_show', slug=data.slug) }}{% else %}{{ h.url_for('featured_viewers.rooms_index') }}{% endif %}"
+         class="btn btn-default btn-lg">
+        <i class="fa fa-times"></i> {{ _('Cancel') }}
+      </a>
+      {% if is_edit %}
+      <span class="pull-right" id="room-delete-placeholder"></span>
+      {% endif %}
+    </div>
+  </form>
+
+  {% if is_edit %}
+  <form id="room-delete-form" method="post"
+        action="{{ h.url_for('featured_viewers.rooms_delete', slug=data.slug) }}"
+        style="display: none;"
+        onsubmit="return confirm('{{ _('Delete this Map Room? Viewers inside will NOT be deleted.') }}');">
+    {{ h.csrf_input() if 'csrf_input' in h }}
+    <button type="submit" class="btn btn-danger btn-lg">
+      <i class="fa fa-trash"></i> {{ _('Delete Room') }}
+    </button>
+  </form>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var f = document.getElementById('room-delete-form');
+      var p = document.getElementById('room-delete-placeholder');
+      if (f && p) { f.style.display = 'inline'; p.appendChild(f); }
+    });
+  </script>
+  {% endif %}
+
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
+<link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
+
+<style>
+/* Room viewer list items */
+.fv-room-viewer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+.fv-room-viewer-item:hover {
+  border-color: #90caf9;
+  box-shadow: 0 2px 8px rgba(0,114,188,0.08);
+}
+.fv-room-viewer-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.fv-room-viewer-info i {
+  font-size: 1.2rem;
+}
+
+/* Dropzone (reuse from viewer edit) */
+.upload-dropzone {
+  border: 2px dashed #b0bec5;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: linear-gradient(135deg, #f8fafe 0%, #ffffff 100%);
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-dropzone:hover,
+.upload-dropzone.drag-over {
+  border-color: #0072BC;
+  background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%);
+}
+.upload-dropzone .dropzone-preview-img {
+  max-height: 120px;
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-generate slug from title
+  var titleInput = document.getElementById('room-title');
+  var slugInput = document.getElementById('room-slug');
+  if (titleInput && slugInput) {
+    titleInput.addEventListener('input', function() {
+      if (!slugInput.dataset.manualEdit) {
+        slugInput.value = titleInput.value.toLowerCase()
+          .replace(/[^\w\s-]/g, '').replace(/[-\s]+/g, '-').replace(/^-+|-+$/g, '');
+      }
+    });
+    slugInput.addEventListener('input', function() {
+      slugInput.dataset.manualEdit = 'true';
+    });
+  }
+
+  // Dropzone for room thumbnail
+  var dropzone = document.getElementById('room-thumbnail-dropzone');
+  var fileInput = document.getElementById('room-thumbnail-file');
+  var hiddenUrl = document.getElementById('room-thumbnail');
+
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', function() { fileInput.click(); });
+    dropzone.addEventListener('dragover', function(e) { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', function() { dropzone.classList.remove('drag-over'); });
+    dropzone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length) uploadRoomThumbnail(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', function() {
+      if (this.files.length) uploadRoomThumbnail(this.files[0]);
+    });
+  }
+
+  function uploadRoomThumbnail(file) {
+    if (!file.type.match(/^image\//)) { alert('Please select an image file.'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('Max 5 MB.'); return; }
+
+    var formData = new FormData();
+    formData.append('upload', file);
+
+    var content = document.getElementById('room-dropzone-content');
+    content.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i><p>Uploading...</p>';
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/pages_upload');
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        var resp = JSON.parse(xhr.responseText);
+        var url = resp.url || resp;
+        hiddenUrl.value = url;
+        content.innerHTML =
+          '<img src="' + url + '" alt="Cover" class="dropzone-preview-img">' +
+          '<p style="margin-top: 0.5rem;">' + file.name + '</p>' +
+          '<button type="button" class="btn btn-sm btn-danger room-remove-thumbnail" style="margin-top: 0.5rem;"><i class="fa fa-trash"></i> Remove</button>';
+      } else {
+        resetRoomDropzone();
+        alert('Upload failed.');
+      }
+    };
+    xhr.onerror = function() { resetRoomDropzone(); alert('Upload failed.'); };
+    xhr.send(formData);
+  }
+
+  function resetRoomDropzone() {
+    hiddenUrl.value = '';
+    document.getElementById('room-dropzone-content').innerHTML =
+      '<i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>' +
+      '<p>Drop an image here or click to browse</p>' +
+      '<p class="text-muted" style="font-size: 0.85rem;">JPG, PNG or GIF — Max 5 MB</p>';
+  }
+
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.room-remove-thumbnail')) {
+      e.stopPropagation();
+      resetRoomDropzone();
+    }
+    if (e.target.closest('.room-toggle-url')) {
+      e.preventDefault();
+      var wrapper = document.querySelector('.room-url-wrapper');
+      wrapper.style.display = wrapper.style.display === 'none' ? 'block' : 'none';
+    }
+  });
+
+  var urlInput = document.querySelector('.room-url-input');
+  if (urlInput) {
+    urlInput.addEventListener('change', function() { hiddenUrl.value = this.value; });
+  }
+});
+</script>
+{% endblock %}

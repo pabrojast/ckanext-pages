@@ -1,0 +1,147 @@
+{% extends "page.html" %}
+
+{% block title %}{{ room.title }} - {{ _('Map Rooms') }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          <li class="home"><a href="/"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
+          <li><a href="{{ h.url_for('featured_viewers.rooms_index') }}">{{ _('Map Rooms') }}</a></li>
+          <li class="active">{{ room.title }}</li>
+        </ol>
+      </nav>
+
+      <!-- Room Header -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          {% if room.thumbnail_url %}
+          <div class="section-title-bg" style="background-image: url('{{ room.thumbnail_url }}');"></div>
+          {% else %}
+          <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
+          {% endif %}
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            {% if room.category %}
+            <span class="badge" style="background: {{ h.get_viewer_category_color(room.category) }}; color: #fff; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; margin-bottom: 0.75rem; display: inline-block;">
+              <i class="fa {{ h.get_viewer_category_icon(room.category) }}"></i>
+              {{ h.get_viewer_category_title(room.category) }}
+            </span>
+            {% endif %}
+            <h1>{{ room.title }}</h1>
+            {% if room.description %}
+            <p class="section-title-description">{{ room.description|striptags|truncate(200) }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions bar -->
+      {% if can_edit %}
+      <div style="margin-bottom: 1.5rem; text-align: right;">
+        <a href="{{ h.url_for('featured_viewers.rooms_edit', slug=room.slug) }}" class="btn btn-default">
+          <i class="fa fa-pencil"></i> {{ _('Edit Room') }}
+        </a>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <div class="container">
+
+      {% if room.description %}
+      <div class="fv-room-description" style="margin-bottom: 2rem; padding: 1.5rem; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
+        {{ room.description|safe }}
+      </div>
+      {% endif %}
+
+      <!-- Viewers in this room -->
+      {% set viewers = room.get('viewers', []) %}
+      {% if viewers %}
+      <h2 style="margin-bottom: 1.5rem; color: #263238;">
+        <i class="fa fa-map" style="color: #0072BC;"></i>
+        {{ _('Viewers in this Room') }}
+        <small class="text-muted">({{ viewers|length }})</small>
+      </h2>
+
+      <div class="row fv-viewers-grid">
+        {% for viewer in viewers %}
+        <div class="col-md-6 col-lg-4" style="margin-bottom: 2rem;">
+          <div class="fv-card">
+            <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}" class="fv-card-link">
+              <div class="fv-card-image">
+                {% if viewer.thumbnail_url %}
+                <img src="{{ viewer.thumbnail_url }}" alt="{{ viewer.title }}" loading="lazy">
+                {% else %}
+                <div class="fv-card-placeholder">
+                  <i class="fa {{ viewer.icon_class or h.get_viewer_category_icon(viewer.category) or 'fa-map' }} fa-3x"></i>
+                </div>
+                {% endif %}
+                {% if viewer.category %}
+                <span class="fv-card-category" style="background: {{ h.get_viewer_category_color(viewer.category) }};">
+                  {{ h.get_viewer_category_title(viewer.category) }}
+                </span>
+                {% endif %}
+              </div>
+              <div class="fv-card-body">
+                <h3 class="fv-card-title">
+                  <i class="fa {{ viewer.icon_class or h.get_viewer_category_icon(viewer.category) or 'fa-map' }}"
+                     style="color: {{ h.get_viewer_category_color(viewer.category) }};"></i>
+                  {{ viewer.title }}
+                </h3>
+                {% if viewer.description %}
+                <p class="fv-card-desc">{{ viewer.description|striptags|truncate(100) }}</p>
+                {% endif %}
+                <div class="fv-card-meta">
+                  {% if viewer.view_count %}
+                  <span><i class="fa fa-eye"></i> {{ h.format_viewer_view_count(viewer.view_count) }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <div class="fv-empty-state" style="margin: 3rem 0;">
+        <i class="fa fa-map-o fa-4x" style="color: #b0bec5;"></i>
+        <h3>{{ _('No viewers in this room yet') }}</h3>
+        <p class="text-muted">{{ _('Viewers will appear here once they are added to this room.') }}</p>
+        {% if can_edit %}
+        <a href="{{ h.url_for('featured_viewers.rooms_edit', slug=room.slug) }}" class="btn btn-primary" style="margin-top: 1rem;">
+          <i class="fa fa-plus"></i> {{ _('Add Viewers') }}
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Back link -->
+      <div style="margin-top: 2rem; margin-bottom: 2rem;">
+        <a href="{{ h.url_for('featured_viewers.rooms_index') }}" class="btn btn-default">
+          <i class="fa fa-arrow-left"></i> {{ _('Back to Map Rooms') }}
+        </a>
+        <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default">
+          <i class="fa fa-th"></i> {{ _('All Viewers') }}
+        </a>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
+{% endblock %}

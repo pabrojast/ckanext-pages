@@ -1,0 +1,149 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Map Rooms') }} - {{ _('Featured Viewers') }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          <li class="home"><a href="/"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
+          <li class="active">{{ _('Map Rooms') }}</li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1><i class="fa fa-th-large"></i> {{ _('Map Rooms') }}</h1>
+            <p class="section-title-description">{{ _('Thematic collections of map viewers — explore curated sets of preloaded maps and data layers') }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="container">
+
+      <!-- Toolbar -->
+      <div class="fv-toolbar" style="margin-bottom: 2rem;">
+        <div class="row">
+          <div class="col-md-6">
+            <form method="get" class="fv-search-form">
+              <div class="input-group">
+                <input type="text" name="q" value="{{ q }}" class="form-control"
+                       placeholder="{{ _('Search map rooms...') }}">
+                <div class="input-group-btn">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6 text-right">
+            {% if can_create %}
+            <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-primary btn-lg">
+              <i class="fa fa-plus"></i> {{ _('Create Map Room') }}
+            </a>
+            {% endif %}
+            <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default btn-lg">
+              <i class="fa fa-map"></i> {{ _('All Viewers') }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Room Grid -->
+      {% if rooms %}
+      <div class="row fv-rooms-grid">
+        {% for room in rooms %}
+        <div class="col-md-6 col-lg-4" style="margin-bottom: 2rem;">
+          <div class="fv-room-card">
+            <a href="{{ h.url_for('featured_viewers.rooms_show', slug=room.slug) }}" class="fv-room-card-link">
+              <div class="fv-room-card-image">
+                {% if room.thumbnail_url %}
+                <img src="{{ room.thumbnail_url }}" alt="{{ room.title }}" loading="lazy">
+                {% else %}
+                <div class="fv-room-card-placeholder">
+                  <i class="fa fa-th-large fa-3x"></i>
+                </div>
+                {% endif %}
+                {% if room.category %}
+                <span class="fv-room-card-category"
+                      style="background: {{ h.get_viewer_category_color(room.category) }};">
+                  <i class="fa {{ h.get_viewer_category_icon(room.category) }}"></i>
+                  {{ h.get_viewer_category_title(room.category) }}
+                </span>
+                {% endif %}
+                {% if room.is_featured %}
+                <span class="fv-room-card-featured"><i class="fa fa-star"></i></span>
+                {% endif %}
+              </div>
+              <div class="fv-room-card-body">
+                <h3 class="fv-room-card-title">{{ room.title }}</h3>
+                {% if room.description %}
+                <p class="fv-room-card-desc">{{ room.description|striptags|truncate(120) }}</p>
+                {% endif %}
+                <div class="fv-room-card-meta">
+                  <span><i class="fa fa-map"></i> {{ room.viewer_count|default(0) }} {{ _('viewers') }}</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if total_pages > 1 %}
+      <nav class="text-center" style="margin-top: 2rem;">
+        <ul class="pagination">
+          {% if page > 1 %}
+          <li><a href="?page={{ page - 1 }}&q={{ q }}&category={{ category_filter }}">&laquo;</a></li>
+          {% endif %}
+          {% for p in range(1, total_pages + 1) %}
+          <li{% if p == page %} class="active"{% endif %}>
+            <a href="?page={{ p }}&q={{ q }}&category={{ category_filter }}">{{ p }}</a>
+          </li>
+          {% endfor %}
+          {% if page < total_pages %}
+          <li><a href="?page={{ page + 1 }}&q={{ q }}&category={{ category_filter }}">&raquo;</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <!-- Empty state -->
+      <div class="fv-empty-state">
+        <i class="fa fa-th-large fa-4x" style="color: #b0bec5;"></i>
+        <h3>{{ _('No Map Rooms Yet') }}</h3>
+        <p class="text-muted">{{ _('Map Rooms are curated collections of thematic viewers.') }}</p>
+        {% if can_create %}
+        <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-primary btn-lg" style="margin-top: 1rem;">
+          <i class="fa fa-plus"></i> {{ _('Create the First Map Room') }}
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
+{% endblock %}

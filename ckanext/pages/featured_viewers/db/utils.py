@@ -37,6 +37,8 @@ def init_tables(engine):
     from ckanext.pages.featured_viewers.db.models import (  # noqa: F401
         FeaturedViewer,
         ViewerDataset,
+        MapRoom,
+        MapRoomViewer,
     )
 
     try:
