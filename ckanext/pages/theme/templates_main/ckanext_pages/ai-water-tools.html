@@ -339,7 +339,7 @@
                       <i class="fa fa-microchip"></i> {{ _('AI Techniques:') }}
                       {% set techniques = c.page.ai_technique.split(',') if c.page.ai_technique else [] %}
                       {% for technique in techniques %}
-                        <span class="category-tag {{ get_technique_class(technique.strip()) }}">{{ technique.strip().replace('-', ' ').title() }}</span>{% if not loop.last %}, {% endif %}
+                        <span class="tech-tag {{ get_technique_class(technique.strip()) }}">{{ technique.strip().replace('-', ' ').title() }}</span>
                       {% endfor %}
                     </div>
                   {% endif %}
@@ -443,7 +443,7 @@
                             <div class="tech-info-value">
                               {% set techniques = c.page.ai_technique.split(',') if c.page.ai_technique else [] %}
                               {% for technique in techniques %}
-                                <span class="tech-tag {{ get_technique_class(technique.strip()) }}">{{ technique.strip() }}</span>{% if not loop.last %}, {% endif %}
+                                <span class="tech-tag {{ get_technique_class(technique.strip()) }}">{{ technique.strip().replace('-', ' ').title() }}</span>
                               {% endfor %}
                             </div>
                           </div>
@@ -458,7 +458,7 @@
                             <div class="tech-info-value">
                               {% set applications = c.page.water_application.split(',') if c.page.water_application else [] %}
                               {% for app in applications %}
-                                <span class="tech-tag">{{ app.strip() }}</span>{% if not loop.last %}, {% endif %}
+                                <span class="tech-tag">{{ app.strip().replace('-', ' ').title() }}</span>
                               {% endfor %}
                             </div>
                           </div>
@@ -483,7 +483,9 @@
                               {{ _('Maturity Level') }}
                             </div>
                             <div class="tech-info-value">
-                              {{ c.page.maturity_level }}
+                              <span class="badge-maturity maturity-{{ c.page.maturity_level }}">
+                                <i class="fa fa-signal"></i> {{ c.page.maturity_level.replace('-', ' ').title() }}
+                              </span>
                             </div>
                           </div>
                           {% endif %}
@@ -495,7 +497,9 @@
                               {{ _('Scalability') }}
                             </div>
                             <div class="tech-info-value">
-                              {{ c.page.scalability }}
+                              <span class="badge-scalability scalability-{{ c.page.scalability }}">
+                                <i class="fa fa-globe"></i> {{ c.page.scalability.replace('-', ' ').title() }}
+                              </span>
                             </div>
                           </div>
                           {% endif %}
@@ -533,7 +537,7 @@
                             <div class="tech-info-value">
                               {% set languages = c.page.programming_language.split(',') if c.page.programming_language else [] %}
                               {% for language in languages %}
-                                <span class="tech-tag">{{ language.strip() }}</span>{% if not loop.last %}, {% endif %}
+                                <span class="tech-tag">{{ language.strip() }}</span>
                               {% endfor %}
                             </div>
                           </div>
@@ -548,7 +552,7 @@
                             <div class="tech-info-value">
                               {% set platforms = c.page.platform.split(',') if c.page.platform else [] %}
                               {% for platform in platforms %}
-                                <span class="tech-tag">{{ platform.strip() }}</span>{% if not loop.last %}, {% endif %}
+                                <span class="tech-tag">{{ platform.strip() }}</span>
                               {% endfor %}
                             </div>
                           </div>
@@ -966,14 +970,20 @@
                         <a href="{{ h.url_for('pages.ai_water_tools_show', page=tool.name) }}" class="related-tool-card">
                             <h4>{{ tool.title or tool.name }}</h4>
                             {% if tool.excerpt %}
-                              <p>{{ tool.excerpt|truncate(100) }}</p>
+                              <p>{{ tool.excerpt|striptags|truncate(100) }}</p>
                             {% endif %}
+                            <div class="related-tool-badges">
                             {% if tool.ai_technique %}
-                              <span class="card-badge {{ get_technique_class(tool.ai_technique) }}">{{ tool.ai_technique }}</span>
+                              {% for technique in tool.ai_technique.split(',') if technique.strip() %}
+                                <span class="badge-technique {{ get_technique_class(technique.strip()) }}">{{ technique.strip().replace('-', ' ').title() }}</span>
+                              {% endfor %}
                             {% endif %}
                             {% if tool.water_application %}
-                              <span class="card-badge">{{ tool.water_application }}</span>
+                              {% for app in tool.water_application.split(',') if app.strip() %}
+                                <span class="water-app-badge">{{ app.strip().replace('-', ' ').title() }}</span>
+                              {% endfor %}
                             {% endif %}
+                            </div>
                         </a>
                         {% endfor %}
                       </div>

@@ -554,22 +554,26 @@
                                   </h3>
                                   <div class="ai-water-badges">
                                     {% if item.ai_technique %}
-                                      <span class="badge-ai-technique {{ get_technique_class(item.ai_technique) }}">
-                                        {{ item.ai_technique.replace('-', ' ').title() }}
-                                      </span>
+                                      {% for technique in item.ai_technique.split(',') if technique.strip() %}
+                                        <span class="badge-technique {{ get_technique_class(technique.strip()) }}">
+                                          {{ technique.strip().replace('-', ' ').title() }}
+                                        </span>
+                                      {% endfor %}
                                     {% endif %}
                                     {% if item.water_application %}
-                                      <span class="badge-water-app">
-                                        {{ item.water_application.replace('-', ' ').title() }}
-                                      </span>
+                                      {% for app in item.water_application.split(',') if app.strip() %}
+                                        <span class="water-app-badge">
+                                          {{ app.strip().replace('-', ' ').title() }}
+                                        </span>
+                                      {% endfor %}
                                     {% endif %}
                                     {% if item.maturity_level %}
-                                      <span class="badge-maturity badge-maturity-{{ item.maturity_level }}">
+                                      <span class="badge-maturity maturity-{{ item.maturity_level }}">
                                         {{ item.maturity_level.title() }}
                                       </span>
                                     {% endif %}
                                     {% if item.scalability %}
-                                      <span class="badge-scalability">
+                                      <span class="badge-scalability scalability-{{ item.scalability }}">
                                         <i class="fa fa-globe"></i> {{ item.scalability.title() }}
                                       </span>
                                     {% endif %}
