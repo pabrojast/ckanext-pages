@@ -1383,6 +1383,14 @@
   border-left: 6px solid var(--text-secondary);
 }
 
+.ai-water-module-framework {
+  border-left: 6px solid var(--unesco-blue-dark);
+}
+
+.ai-water-module-related {
+  border-left: 6px solid var(--unesco-blue-light);
+}
+
 /* ================================================================ */
 /* TECHNICAL INFO GRID (Detail View)                                */
 /* ================================================================ */

@@ -858,98 +858,135 @@
 
                 <!-- UNESCO AI for Water Framework -->
                 {% if c.page.get('technology_readiness_level') or c.page.get('ethical_compliance') or c.page.get('spatial_scale') or c.page.get('temporal_scale') or c.page.get('data_sources') or c.page.get('limitations') %}
-                <div class="panel panel-default unesco-framework-panel">
-                  <div class="panel-heading">
-                    <h3 class="panel-title"><i class="fa fa-university"></i> {{ _('UNESCO AI for Water Framework') }}</h3>
-                  </div>
-                  <div class="panel-body">
-                    <div class="row">
-                      {% if c.page.get('technology_readiness_level') %}
-                      <div class="col-md-4 col-sm-6">
-                        <div class="meta-item">
-                          <span class="meta-label"><i class="fa fa-signal"></i> {{ _('Technology Readiness Level') }}</span>
-                          {% set trl = c.page.get('technology_readiness_level', '') %}
-                          {% if trl == 'trl-1-3' %}
-                            <span class="badge badge-info">{{ _('TRL 1-3: Research') }}</span>
-                          {% elif trl == 'trl-4-6' %}
-                            <span class="badge badge-warning">{{ _('TRL 4-6: Prototype') }}</span>
-                          {% elif trl == 'trl-7-8' %}
-                            <span class="badge badge-primary">{{ _('TRL 7-8: Pre-operational') }}</span>
-                          {% elif trl == 'trl-9' %}
-                            <span class="badge badge-success">{{ _('TRL 9: Operational') }}</span>
+                <div class="ai-water-framework" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow ai-water-module-framework">
+                    <div class="module-content">
+                      <div class="ai-water-section-header">
+                        <div class="ai-water-section-icon">
+                          <i class="fa fa-university"></i>
+                        </div>
+                        <h2>{{ _('UNESCO AI for Water Framework') }}</h2>
+                      </div>
+                      <div class="framework-content">
+                        <div class="tech-info-grid">
+                          {% if c.page.get('technology_readiness_level') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-signal"></i>
+                              {{ _('Technology Readiness Level') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% set trl = c.page.get('technology_readiness_level', '') %}
+                              {% if trl == 'trl-1-3' %}
+                                <span class="badge badge-info">{{ _('TRL 1-3: Research') }}</span>
+                              {% elif trl == 'trl-4-6' %}
+                                <span class="badge badge-warning">{{ _('TRL 4-6: Prototype') }}</span>
+                              {% elif trl == 'trl-7-8' %}
+                                <span class="badge badge-primary">{{ _('TRL 7-8: Pre-operational') }}</span>
+                              {% elif trl == 'trl-9' %}
+                                <span class="badge badge-success">{{ _('TRL 9: Operational') }}</span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.get('spatial_scale') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-map-marker"></i>
+                              {{ _('Spatial Scale') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.get('spatial_scale', '').replace('-', ' ').title() }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.get('temporal_scale') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-clock-o"></i>
+                              {{ _('Temporal Scale') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.get('temporal_scale', '').replace('-', ' ').title() }}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.get('data_sources') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-database"></i>
+                              {{ _('Data Sources') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% for src in c.page.get('data_sources', '').split(',') if src.strip() %}
+                                <span class="tech-tag">{{ src.strip().replace('-', ' ').title() }}</span>
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.get('ethical_compliance') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-balance-scale"></i>
+                              {{ _('UNESCO Ethical Principles') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {% for principle in c.page.get('ethical_compliance', '').split(',') if principle.strip() %}
+                                <span class="tech-tag">{{ principle.strip().replace('-', ' ').title() }}</span>
+                              {% endfor %}
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.get('reference_doi') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-link"></i>
+                              {{ _('Reference DOI') }}
+                            </div>
+                            <div class="tech-info-value">
+                              <a href="https://doi.org/{{ c.page.get('reference_doi', '') }}" target="_blank" rel="noopener">
+                                {{ c.page.get('reference_doi', '') }}
+                              </a>
+                            </div>
+                          </div>
+                          {% endif %}
+
+                          {% if c.page.get('related_datasets') %}
+                          <div class="tech-info-item">
+                            <div class="tech-info-label">
+                              <i class="fa fa-table"></i>
+                              {{ _('Related Datasets') }}
+                            </div>
+                            <div class="tech-info-value">
+                              {{ c.page.get('related_datasets', '') }}
+                            </div>
+                          </div>
                           {% endif %}
                         </div>
-                      </div>
-                      {% endif %}
-                      {% if c.page.get('spatial_scale') %}
-                      <div class="col-md-4 col-sm-6">
-                        <div class="meta-item">
-                          <span class="meta-label"><i class="fa fa-map-marker"></i> {{ _('Spatial Scale') }}</span>
-                          <span class="meta-value">{{ c.page.get('spatial_scale', '').replace('-', ' ').title() }}</span>
+
+                        {% if c.page.get('open_science_compliance') %}
+                        <div style="margin-top: 1.5rem;">
+                          <span class="badge badge-success"><i class="fa fa-flask"></i> {{ _('Open Science Compliant') }}</span>
                         </div>
-                      </div>
-                      {% endif %}
-                      {% if c.page.get('temporal_scale') %}
-                      <div class="col-md-4 col-sm-6">
-                        <div class="meta-item">
-                          <span class="meta-label"><i class="fa fa-clock-o"></i> {{ _('Temporal Scale') }}</span>
-                          <span class="meta-value">{{ c.page.get('temporal_scale', '').replace('-', ' ').title() }}</span>
+                        {% endif %}
+
+                        {% if c.page.get('limitations') %}
+                        <div style="margin-top: 1.5rem;">
+                          <div class="tech-info-label" style="margin-bottom: 0.5rem;">
+                            <i class="fa fa-exclamation-triangle"></i>
+                            {{ _('Known Limitations') }}
+                          </div>
+                          <p class="limitations-text">{{ c.page.get('limitations', '') }}</p>
                         </div>
-                      </div>
-                      {% endif %}
-                    </div>
-
-                    {% if c.page.get('data_sources') %}
-                    <div class="meta-item" style="margin-top: 1rem;">
-                      <span class="meta-label"><i class="fa fa-database"></i> {{ _('Data Sources') }}</span>
-                      <div class="tag-badges">
-                        {% for src in c.page.get('data_sources', '').split(',') if src.strip() %}
-                          <span class="badge badge-default">{{ src.strip().replace('-', ' ').title() }}</span>
-                        {% endfor %}
+                        {% endif %}
                       </div>
                     </div>
-                    {% endif %}
-
-                    {% if c.page.get('ethical_compliance') %}
-                    <div class="meta-item" style="margin-top: 1rem;">
-                      <span class="meta-label"><i class="fa fa-balance-scale"></i> {{ _('UNESCO Ethical Principles') }}</span>
-                      <div class="tag-badges">
-                        {% for principle in c.page.get('ethical_compliance', '').split(',') if principle.strip() %}
-                          <span class="badge badge-unesco-ethics">{{ principle.strip().replace('-', ' ').title() }}</span>
-                        {% endfor %}
-                      </div>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.get('open_science_compliance') %}
-                    <div class="meta-item" style="margin-top: 1rem;">
-                      <span class="badge badge-success"><i class="fa fa-flask"></i> {{ _('Open Science Compliant') }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.get('reference_doi') %}
-                    <div class="meta-item" style="margin-top: 1rem;">
-                      <span class="meta-label"><i class="fa fa-link"></i> {{ _('Reference DOI') }}</span>
-                      <a href="https://doi.org/{{ c.page.get('reference_doi', '') }}" target="_blank" rel="noopener">
-                        {{ c.page.get('reference_doi', '') }}
-                      </a>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.get('related_datasets') %}
-                    <div class="meta-item" style="margin-top: 1rem;">
-                      <span class="meta-label"><i class="fa fa-table"></i> {{ _('Related Datasets') }}</span>
-                      <span class="meta-value">{{ c.page.get('related_datasets', '') }}</span>
-                    </div>
-                    {% endif %}
-
-                    {% if c.page.get('limitations') %}
-                    <div class="meta-item" style="margin-top: 1rem;">
-                      <span class="meta-label"><i class="fa fa-exclamation-triangle"></i> {{ _('Known Limitations') }}</span>
-                      <p class="meta-value limitations-text">{{ c.page.get('limitations', '') }}</p>
-                    </div>
-                    {% endif %}
-                  </div>
+                  </section>
                 </div>
                 {% endif %}
 
