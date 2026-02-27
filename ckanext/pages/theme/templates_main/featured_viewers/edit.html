@@ -136,6 +136,24 @@
           {{ _('Thematic category — determines the default icon and color scheme.') }}
         </span>
       </div>
+
+      {# Organization #}
+      <div class="form-group">
+        <label class="control-label" for="fv-organization">
+          <i class="fa fa-university"></i> {{ _('Organization') }}
+        </label>
+        <select id="fv-organization" name="organization_id" class="form-control">
+          <option value="">{{ _('Select organization...') }}</option>
+          {% for org in h.organizations_available('create_dataset') %}
+          <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
+            {{ org.title or org.name }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help-text">
+          {{ _('The organization responsible for this viewer.') }}
+        </span>
+      </div>
     </fieldset>
 
     {# ═══════════════════════════════════════════════ #}
@@ -797,6 +815,23 @@
       });
       $('#fv-edit-form').on('submit', function() {
         $descTextarea.val(descEditor.root.innerHTML);
+      });
+
+      // ══════════════════════════════════════════════
+      // Tab switching (manual fallback for Bootstrap tabs)
+      // ══════════════════════════════════════════════
+      $('#fv-map-tabs a[data-toggle="tab"]').on('click', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var target = $this.attr('href');
+
+        // Switch tab headers
+        $('#fv-map-tabs li').removeClass('active');
+        $this.parent('li').addClass('active');
+
+        // Switch tab content
+        $('.fv-tab-content .tab-pane').removeClass('active');
+        $(target).addClass('active');
       });
 
       // ══════════════════════════════════════════════
