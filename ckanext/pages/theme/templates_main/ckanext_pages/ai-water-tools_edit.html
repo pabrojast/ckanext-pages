@@ -1313,6 +1313,13 @@ textarea.form-control {
   height: 16px;
 }
 
+/* Remove CKAN's ::after colon from checkbox and radio labels */
+.checkbox-grid .checkbox-inline::after,
+.access-type-options .radio-inline::after,
+.checkbox-inline::after {
+  content: none !important;
+}
+
 /* Access Type Radio Buttons */
 .access-type-options .radio-inline {
   display: inline-flex;
