@@ -80,6 +80,21 @@ def pages_update_with_org_check(context, data_dict):
     # Get the page to check its organization and author
     page_name = data_dict.get('page')
     if not page_name:
+        # Creating new content: allow org members for water-family types
+        page_type = data_dict.get('page_type', '')
+        water_types = (
+            'water-news', 'water-events', 'water-publications',
+            'open-source-software', 'ai-water-tools',
+        )
+        if page_type in water_types:
+            try:
+                orgs = p.toolkit.get_action('organization_list_for_user')(
+                    {'user': user}, {'permission': 'read'}
+                )
+                if orgs:
+                    return {'success': True}
+            except Exception:
+                pass
         return {'success': False}
         
     try:
