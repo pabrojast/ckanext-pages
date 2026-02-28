@@ -216,7 +216,7 @@ def water_content_edit(context, data_dict):
     if not page:
         try:
             orgs = p.toolkit.get_action('organization_list_for_user')(
-                {'user': user}, {'permission': 'create_dataset'}
+                {'user': user}, {'permission': 'read'}
             )
             if orgs:
                 return {'success': True}
