@@ -116,9 +116,14 @@ def pages_update_with_org_check(context, data_dict):
         user_obj = model.User.get(user)
         if user_obj and page.user_id == user_obj.id:
             return {'success': True}
-            
-        # For open-source-software and ai-water-tools, check organization membership
-        if page.page_type in ('open-source-software', 'ai-water-tools') and page.ihp_organization:
+
+        # For water-family, open-source-software and ai-water-tools,
+        # check organization membership
+        org_page_types = (
+            'water-news', 'water-events', 'water-publications',
+            'open-source-software', 'ai-water-tools',
+        )
+        if page.page_type in org_page_types and page.ihp_organization:
             # Check if user is a member of the page's organization
             member_query = model.Session.query(model.Member).filter(
                 model.Member.table_name == 'user',
