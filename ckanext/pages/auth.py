@@ -47,6 +47,13 @@ def page_privacy(context, data_dict):
     # no org_id means it's a universal page
     if not org_id:
         if out and out.private:
+            # Allow authors to see their own private pages
+            user = context.get('user')
+            if user and out.user_id:
+                from ckan import model
+                user_obj = model.User.get(user)
+                if user_obj and out.user_id == user_obj.id:
+                    return {'success': True}
             return {'success': False}
         return {'success': True}
     group = context['model'].Group.get(org_id)
