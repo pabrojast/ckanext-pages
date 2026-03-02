@@ -246,12 +246,13 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         page_dict = {}
 
     # Check permissions based on page type
+    _page_type = 'page' if page_type == 'pages' else page_type
     permission_needed = 'ckanext_pages_update'
     if page_type in ['water-news', 'water-events', 'water-publications']:
         permission_needed = f'ckanext_{page_type.replace("-", "_")}_update'
     
     try:
-        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page, 'page_type': _page_type})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to create or edit a page'))
 
@@ -914,7 +915,7 @@ def pages_revisions(page, page_type='page'):
     if page_type in ['water-news', 'water-events', 'water-publications']:
         permission_needed = 'ckanext_%s_update' % page_type.replace('-', '_')
     try:
-        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page, 'page_type': page_type})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to view this page'))
 
@@ -944,7 +945,7 @@ def pages_revisions_preview(page, revision, page_type='page'):
     if page_type in ['water-news', 'water-events', 'water-publications']:
         permission_needed = 'ckanext_%s_update' % page_type.replace('-', '_')
     try:
-        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page, 'page_type': page_type})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to view this page'))
 
@@ -969,7 +970,7 @@ def pages_revision_restore(page, revision, page_type='page'):
     if page_type in ['water-news', 'water-events', 'water-publications']:
         permission_needed = 'ckanext_%s_update' % page_type.replace('-', '_')
     try:
-        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page})
+        tk.check_access(permission_needed, {'user': tk.g.user, 'page': page, 'page_type': page_type})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to view this page'))
 
