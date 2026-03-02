@@ -798,6 +798,45 @@ def is_sysadmin():
         return False
 
 
+def get_pending_approval_count():
+    """Return total pending approval count for sysadmins (used in header badge)."""
+    try:
+        import ckan.authz as authz
+        if not tk.g.user or not authz.is_sysadmin(tk.g.user):
+            return 0
+        from ckanext.pages.db import Page
+        from ckan import model
+        count = model.Session.query(Page).filter(
+            Page.page_type.in_(
+                ['water-news', 'water-events', 'water-publications']
+            ),
+            Page.private == True,
+            Page.submission_status == 'pending',
+            Page.group_id == None
+        ).count()
+        return count
+    except Exception:
+        return 0
+
+
+def user_can_create_dataset(user_id):
+    """Check if a user can create datasets in any organization."""
+    try:
+        if not user_id:
+            return False
+        from ckan import model
+        user = model.User.get(user_id)
+        if not user:
+            return False
+        orgs = tk.get_action('organization_list_for_user')(
+            {'user': user.name, 'ignore_auth': True},
+            {'permission': 'create_dataset'}
+        )
+        return len(orgs) > 0
+    except Exception:
+        return False
+
+
 def get_ihp_organizations():
     """Get all organizations that are marked as IHP WINS organizations"""
     try:
@@ -994,6 +1033,8 @@ class PagesPlugin(PagesPluginBase):
             'is_sysadmin': is_sysadmin,
             'get_ihp_organizations': get_ihp_organizations,
             'get_user_organization': get_user_organization,
+            'get_pending_approval_count': get_pending_approval_count,
+            'user_can_create_dataset': user_can_create_dataset,
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,
         }
