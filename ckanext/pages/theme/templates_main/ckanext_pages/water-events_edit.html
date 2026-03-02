@@ -8,8 +8,6 @@
   {% endif %}
 {% endblock %}
 
-{% set water_user_org = h.get_user_organization() %}
-
 {% block content %}
 
 <div class="homepage layout-1">
@@ -231,10 +229,10 @@
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-ihp-organization" class="control-label">{{ _('Primary Organization') }}</label>
-                                {% set current_org_id = data.ihp_organization or (water_user_org.id if water_user_org else '') %}
+                                {% set current_org_id = data.ihp_organization or (organization_list[0].id if organization_list else '') %}
                                 <select id="field-ihp-organization" name="ihp_organization" class="form-control">
                                   <option value="">{{ _('Select organization...') }}</option>
-                                  {% for org in h.get_ihp_organizations() %}
+                                  {% for org in organization_list|default([]) %}
                                     {% set option_id = org.id or org.name %}
                                     {% set option_title = org.title or org.display_name or org.name %}
                                     <option value="{{ option_id }}" {% if current_org_id == option_id %}selected{% endif %}>{{ option_title }}</option>
@@ -245,7 +243,7 @@
                               </div>
                               <div class="form-group">
                                 <label for="field-organization" class="control-label">{{ _('Displayed Organizer Name') }}</label>
-                                <input type="text" id="field-organization" name="organization" value="{{ data.organization or (water_user_org.title if water_user_org else '') }}" placeholder="{{ _('UNESCO, University, Company, etc.') }}" class="form-control">
+                                <input type="text" id="field-organization" name="organization" value="{{ data.organization or (organization_list[0].title if organization_list else '') }}" placeholder="{{ _('UNESCO, University, Company, etc.') }}" class="form-control">
                                 <div class="help-text">{{ _('How the primary organizer should appear on the public event page.') }}</div>
                                 {% if errors.organization %}<span class="error-block">{{ errors.organization }}</span>{% endif %}
                               </div>

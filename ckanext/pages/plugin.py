@@ -807,7 +807,7 @@ def get_ihp_organizations():
         orgs = model.Session.query(model.Group).filter(
             model.Group.type == 'organization',
             model.Group.state == 'active'
-        ).order_by(model.Group.display_name, model.Group.name).all()
+        ).order_by(model.Group.title, model.Group.name).all()
         
         # For now, return all organizations
         # In the future, you could add a custom field to mark IHP organizations
