@@ -261,7 +261,7 @@
                 name="organization_id"
                 class="form-control">
           <option value="">{{ _('Select organization...') }}</option>
-          {% for org in h.organizations_available('create_dataset') %}
+          {% for org in h.organizations_available('read') %}
           <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
             {{ org.title or org.name }}
           </option>

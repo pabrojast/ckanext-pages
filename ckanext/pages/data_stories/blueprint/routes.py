@@ -451,9 +451,21 @@ def create():
 
     # GET request - show form
     story_data = _build_story_context({})
+
+    # Auto-select organization if user belongs to exactly one
+    initial_data = {}
+    try:
+        user_orgs = tk.get_action('organization_list_for_user')(
+            {'user': tk.g.user}, {'permission': 'read'}
+        )
+        if len(user_orgs) == 1:
+            initial_data['organization_id'] = user_orgs[0].get('id')
+    except Exception:
+        pass
+
     extra_vars = {
         'story': story_data,
-        'data': {},
+        'data': initial_data,
         'errors': {},
         'error_summary': {},
         'is_new': True,
