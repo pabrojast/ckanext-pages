@@ -278,7 +278,12 @@
                                       <div class="input-group">
                                         <select id="member-state-select" class="form-control">
                                           <option value="">{{ _('Select a member state...') }}</option>
-                                          <option value="loading" disabled>{{ _('Loading member states...') }}</option>
+                                          {% for ms in member_states_list|default([]) %}
+                                            <option value="{{ ms.name }}" data-display="{{ ms.formatted_name }}">{{ ms.formatted_name }}</option>
+                                          {% endfor %}
+                                          {% if not member_states_list|default([]) %}
+                                            <option value="" disabled>{{ _('No member states available') }}</option>
+                                          {% endif %}
                                         </select>
                                         <div class="input-group-btn">
                                           <button type="button" class="btn btn-primary" id="add-member-state">
@@ -308,7 +313,12 @@
                                       <div class="input-group">
                                         <select id="initiative-select" class="form-control">
                                           <option value="">{{ _('Select an initiative...') }}</option>
-                                          <option value="loading" disabled>{{ _('Loading initiatives...') }}</option>
+                                          {% for ini in initiatives_list|default([]) %}
+                                            <option value="{{ ini.name }}" data-display="{{ ini.formatted_name }}">{{ ini.formatted_name }}</option>
+                                          {% endfor %}
+                                          {% if not initiatives_list|default([]) %}
+                                            <option value="" disabled>{{ _('No initiatives available') }}</option>
+                                          {% endif %}
                                         </select>
                                         <div class="input-group-btn">
                                           <button type="button" class="btn btn-primary" id="add-initiative">
@@ -1441,29 +1451,14 @@ select.form-control option:selected {
 
     // Países (grupos) e Iniciativas (grupos) opcionales
 
-    function fetchGroup(name, callback) {
-      $.ajax({
-        url: 'https://data.dev-wins.com/api/3/action/group_show',
-        data: { id: name, include_groups: true },
-        dataType: 'json',
-        success: function(resp){
-          if (resp.success && resp.result && resp.result.groups) {
-            callback(resp.result.groups);
-          } else { callback([]); }
-        },
-        error: function(){ callback([]); }
-      });
-    }
-
     function initCountriesAndInitiatives() {
-      // Member States (countries) - enhanced selector with chips
-      loadMemberStates();
-      // Initiatives - enhanced selector with chips
+      // Select options are populated server-side; just load existing selections
+      loadExistingMemberStates();
+      loadExistingInitiatives();
     }
 
     // --- Member States helpers (reuse OSS behavior) ---
     let selectedMemberStates = [];
-    let allMemberStateNames = [];
     let selectedInitiatives = [];
 
     function formatMemberStateName(name) {
@@ -1478,43 +1473,6 @@ select.form-control option:selected {
         .join(' ')
         .replace(/\s+/g, ' ')
         .trim();
-    }
-
-    function loadMemberStates() {
-      $.ajax({
-        url: 'https://data.dev-wins.com/api/3/action/group_show',
-        data: { id: 'member-states', include_groups: true },
-        dataType: 'json',
-        success: function(resp){
-          const $select = $('#member-state-select');
-          if (!$select.length) return;
-          $select.empty();
-          $select.append('<option value="">'+ '{{ _("Select a member state...") }}' +'</option>');
-          if (resp && resp.success && resp.result && resp.result.groups) {
-            const processed = resp.result.groups.map(function(g){
-              return {
-                name: g.name,
-                formatted_display_name: formatMemberStateName(g.name)
-              };
-            }).sort(function(a,b){ return a.formatted_display_name.localeCompare(b.formatted_display_name); });
-            allMemberStateNames = processed.map(function(g){ return g.name; });
-            allMemberStateNames.push('member-states');
-            processed.forEach(function(g){
-              $select.append('<option value="'+g.name+'" data-display="'+g.formatted_display_name+'">'+g.formatted_display_name+'</option>');
-            });
-            // Load existing from hidden if present
-            loadExistingMemberStates();
-            loadInitiatives();
-          } else {
-            $select.append('<option value="">'+ '{{ _("Error loading member states") }}' +'</option>');
-            loadInitiatives();
-          }
-        },
-        error: function(){
-          $('#member-state-select').html('<option value="">'+ '{{ _("Error loading member states") }}' +'</option>');
-          loadInitiatives();
-        }
-      });
     }
 
     function addMemberStateChip(state) {
@@ -1553,46 +1511,6 @@ select.form-control option:selected {
     // --- Initiatives helpers ---
     function formatInitiativeName(name) {
       return formatMemberStateName(name);
-    }
-
-    function loadInitiatives() {
-      $.ajax({
-        url: 'https://data.dev-wins.com/api/3/action/group_list',
-        data: { all_fields: true },
-        dataType: 'json',
-        success: function(resp){
-          const $select = $('#initiative-select');
-          if (!$select.length) return;
-          $select.empty();
-          $select.append('<option value="">'+ '{{ _("Select an initiative...") }}' +'</option>');
-          if (resp && resp.success && Array.isArray(resp.result)) {
-            const processed = resp.result
-              .filter(function(g){
-                if (!g || g.state === 'deleted') return false;
-                if (!g.name) return false;
-                if (g.name === 'member-states') return false;
-                if (allMemberStateNames.indexOf(g.name) !== -1) return false;
-                return true;
-              })
-              .map(function(g){
-                return {
-                  name: g.name,
-                  display_name: g.title || formatInitiativeName(g.name)
-                };
-              })
-              .sort(function(a,b){ return a.display_name.localeCompare(b.display_name); });
-            processed.forEach(function(g){
-              $select.append('<option value="'+g.name+'" data-display="'+g.display_name+'">'+g.display_name+'</option>');
-            });
-            loadExistingInitiatives();
-          } else {
-            $select.append('<option value="">'+ '{{ _("Error loading initiatives") }}' +'</option>');
-          }
-        },
-        error: function(){
-          $('#initiative-select').html('<option value="">'+ '{{ _("Error loading initiatives") }}' +'</option>');
-        }
-      });
     }
 
     function addInitiativeChip(item) {

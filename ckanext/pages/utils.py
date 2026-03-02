@@ -449,8 +449,9 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         except Exception:
             vars['organization_list'] = []
 
-    # Load member states server-side for open-source-software
-    if page_type in ['open-source-software', 'ai-water-tools']:
+    # Load member states server-side
+    if page_type in ['open-source-software', 'ai-water-tools',
+                      'water-publications']:
         try:
             context = {'user': tk.g.user}
             group_dict = tk.get_action('group_show')(
@@ -466,6 +467,31 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             )
         except Exception:
             vars['member_states_list'] = []
+
+    # Load initiatives server-side for water-publications
+    if page_type == 'water-publications':
+        try:
+            context = {'user': tk.g.user}
+            member_state_names = set(
+                g.get('name', '') for g in vars.get('member_states_list', [])
+            )
+            member_state_names.add('member-states')
+            all_groups = tk.get_action('group_list')(
+                context, {'all_fields': True}
+            )
+            initiatives = [
+                g for g in all_groups
+                if g.get('name') and g.get('state') != 'deleted'
+                and g['name'] not in member_state_names
+            ]
+            for g in initiatives:
+                g['formatted_name'] = g.get('title') or \
+                    _format_member_state_name(g.get('name', ''))
+            vars['initiatives_list'] = sorted(
+                initiatives, key=lambda g: g.get('formatted_name', '')
+            )
+        except Exception:
+            vars['initiatives_list'] = []
 
     return tk.render(
         'ckanext_pages/%s_edit.html' % page_type, extra_vars=vars)
