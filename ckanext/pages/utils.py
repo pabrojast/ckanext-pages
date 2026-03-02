@@ -301,7 +301,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 try:
                     orgs = tk.get_action('organization_list_for_user')(
                         {'user': tk.g.user} if tk.g.user else {},
-                        {'permission': 'create_dataset'}
+                        {'permission': 'read'}
                     )
                     if orgs:
                         primary_org = orgs[0]
@@ -402,7 +402,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             try:
                 orgs = tk.get_action('organization_list_for_user')(
                     {'user': tk.g.user} if tk.g.user else {},
-                    {'permission': 'create_dataset'}
+                    {'permission': 'read'}
                 )
                 if orgs:
                     primary_org = orgs[0]
@@ -442,7 +442,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 )
             else:
                 org_list = tk.get_action('organization_list_for_user')(
-                    context, {'permission': 'create_dataset'}
+                    context, {'permission': 'read'}
                 )
             vars['organization_list'] = [
                 o for o in org_list if o.get('state') == 'active'
