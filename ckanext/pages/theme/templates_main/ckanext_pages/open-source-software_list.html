@@ -94,7 +94,7 @@
                 <div class="section-title-content">
                   <h1>{{ _('Open-Source Tools for Water Management') }}</h1>
                   <p class="section-title-description">{{ _('Repository for Open Access Hydrological Modeling and Geospatial Tools for Water Management') }}</p>
-                  {% if h.check_access('ckanext_pages_update') %}
+                  {% if h.check_access('ckanext_pages_update', {'page_type': 'open-source-software'}) %}
                     <div class="header-action" style="margin-top: 2rem;">
                       <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-light btn-lg">
                         <span class="sr-only">{{ _('Submit application') }}</span>
@@ -589,7 +589,7 @@
                                     <i class="fa fa-eye"></i> {{ _('View Details') }}
                                   </a>
                                   
-                                  {% if h.check_access('ckanext_pages_update') %}
+                                  {% if h.check_access('ckanext_pages_update', {'page_type': 'open-source-software'}) %}
                                     <a href="{{ h.url_for('pages.open_source_software_edit', page=page.name) }}" 
                                        class="btn btn-default btn-sm btn-modern">
                                       <i class="fa fa-edit"></i> {{ _('Edit') }}
@@ -635,7 +635,7 @@
                           {{ _('No water management tools available at this time.') }}
                         {% endif %}
                       </p>
-                      {% if h.check_access('ckanext_pages_update') %}
+                      {% if h.check_access('ckanext_pages_update', {'page_type': 'open-source-software'}) %}
                         <a href="{{ h.url_for('pages.open_source_software_new') }}" class="btn btn-primary btn-lg">
                           <span class="sr-only">{{ _('Submit application') }}</span>
                           <i class="fa fa-plus"></i> {{ _('Add Tool Entry') }}

@@ -78,7 +78,7 @@
                 <div class="section-title-content">
                   <h1>{{ _('AI for Water Management') }}</h1>
                   <p class="section-title-description">{{ _('Database of AI tools and applications for water resource management') }}</p>
-                  {% if h.check_access('ckanext_pages_update') %}
+                  {% if h.check_access('ckanext_pages_update', {'page_type': 'ai-water-tools'}) %}
                     <div class="header-action" style="margin-top: 2rem;">
                       <a href="{{ h.url_for('pages.ai_water_tools_new') }}" class="btn btn-light btn-lg">
                         <span class="sr-only">{{ _('Submit AI tool') }}</span>
@@ -685,7 +685,7 @@
                                     <i class="fa fa-eye"></i> {{ _('View Details') }}
                                   </a>
 
-                                  {% if h.check_access('ckanext_pages_update') %}
+                                  {% if h.check_access('ckanext_pages_update', {'page_type': 'ai-water-tools'}) %}
                                     <a href="{{ h.url_for('pages.ai_water_tools_edit', page=item.name) }}"
                                        class="btn btn-default btn-sm btn-modern">
                                       <i class="fa fa-edit"></i> {{ _('Edit') }}
@@ -731,7 +731,7 @@
                           {{ _('No AI water management tools available at this time.') }}
                         {% endif %}
                       </p>
-                      {% if h.check_access('ckanext_pages_update') %}
+                      {% if h.check_access('ckanext_pages_update', {'page_type': 'ai-water-tools'}) %}
                         <a href="{{ h.url_for('pages.ai_water_tools_new') }}" class="btn btn-primary btn-lg">
                           <span class="sr-only">{{ _('Submit AI tool') }}</span>
                           <i class="fa fa-plus"></i> {{ _('Add AI Tool') }}

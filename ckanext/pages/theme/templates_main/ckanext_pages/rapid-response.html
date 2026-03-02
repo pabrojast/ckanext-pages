@@ -500,7 +500,7 @@
                           {% endif %}
                         </div>
                         <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_pages_update', {'page_type': 'rapid-response'}) %}
                             <div class="action-buttons">
                               <a href="{{ h.url_for('pages.rapid_response_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-edit"></i> {{ _('Edit') }}

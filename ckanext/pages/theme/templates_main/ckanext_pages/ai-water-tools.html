@@ -1047,7 +1047,7 @@
                           {% endif %}
                         </div>
                         <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_pages_update', {'page_type': 'ai-water-tools'}) %}
                             <div class="action-buttons">
                               <a href="{{ h.url_for('pages.ai_water_tools_edit', page=c.page.name) }}" class="btn btn-default btn-sm">
                                 <i class="fa fa-edit"></i> {{ _('Edit') }}

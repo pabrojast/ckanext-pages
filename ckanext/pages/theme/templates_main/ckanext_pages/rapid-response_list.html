@@ -60,7 +60,7 @@
                           <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Real-time emergency activations and response events for disasters') }}</p>
                         </div>
                         <div class="col-md-4 text-right">
-                          {% if h.check_access('ckanext_pages_update') %}
+                          {% if h.check_access('ckanext_pages_update', {'page_type': 'rapid-response'}) %}
                             <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary btn-lg">
                               <i class="fa fa-plus"></i> {{ _('Report New Event') }}
                             </a>
@@ -690,7 +690,7 @@
                                     <i class="fa fa-eye"></i> {{ _('View Details') }}
                                   </a>
                                   
-                                  {% if h.check_access('ckanext_pages_update') %}
+                                  {% if h.check_access('ckanext_pages_update', {'page_type': 'rapid-response'}) %}
                                     <a href="{{ h.url_for('pages.rapid_response_edit', page=page.name) }}" 
                                        class="btn btn-default btn-sm btn-modern">
                                       <i class="fa fa-edit"></i> {{ _('Update') }}
@@ -736,7 +736,7 @@
                           {{ _('No active emergency events at this time.') }}
                         {% endif %}
                       </p>
-                      {% if h.check_access('ckanext_pages_update') %}
+                      {% if h.check_access('ckanext_pages_update', {'page_type': 'rapid-response'}) %}
                         <a href="{{ h.url_for('pages.rapid_response_new') }}" class="btn btn-primary btn-lg">
                           <i class="fa fa-plus"></i> {{ _('Report Emergency Event') }}
                         </a>
