@@ -15,9 +15,8 @@
 <div class="homepage layout-1">
   <div id="content" class="container">
     {# Render flash messages explicitly for reliable display #}
-    {% set flash_messages = h.flash.pop_messages() %}
-    {% for message in flash_messages %}
-      <div class="alert alert-{{ message.category or 'info' }} alert-dismissible fade in"
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ category or 'info' }} alert-dismissible fade in"
            style="border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 0.75rem; margin-top: 0.5rem;">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
         {{ message }}
