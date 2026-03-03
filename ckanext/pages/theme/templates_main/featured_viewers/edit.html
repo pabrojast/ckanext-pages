@@ -245,23 +245,21 @@
     <fieldset>
       <legend><i class="fa fa-map"></i> {{ _('Map Configuration') }}</legend>
 
-      {# Tab navigation #}
-      <ul class="nav nav-tabs fv-config-tabs" id="fv-map-tabs" role="tablist">
-        <li role="presentation" class="active">
-          <a href="#fv-tab-simple" aria-controls="fv-tab-simple" role="tab" data-toggle="tab">
-            <i class="fa fa-link"></i> {{ _('Share Link') }}
-          </a>
-        </li>
-        <li role="presentation">
-          <a href="#fv-tab-advanced" aria-controls="fv-tab-advanced" role="tab" data-toggle="tab">
-            <i class="fa fa-code"></i> {{ _('Advanced Config') }}
-          </a>
-        </li>
-      </ul>
+      {# Tab navigation — datastories style #}
+      <div class="fv-map-tabs-nav" id="fv-map-tabs" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;">
+        <button type="button" class="fv-map-tab-btn active" data-target="#fv-tab-simple"
+                style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #0072BC; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+          <i class="fa fa-link"></i> {{ _('Share Link') }}
+        </button>
+        <button type="button" class="fv-map-tab-btn" data-target="#fv-tab-advanced"
+                style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #e9ecef; background: #f8f9fa; color: #6c757d; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+          <i class="fa fa-code"></i> {{ _('Advanced Config') }}
+        </button>
+      </div>
 
-      <div class="tab-content fv-tab-content">
+      <div class="fv-tab-content">
         {# Tab 1: Simple Share Link #}
-        <div role="tabpanel" class="tab-pane active" id="fv-tab-simple">
+        <div class="fv-tab-panel active" id="fv-tab-simple" style="display: block;">
           <div class="fv-tab-inner">
             <div class="form-group{% if errors.get('terria_share_link') %} has-error{% endif %}">
               <label class="control-label" for="fv-terria-link">
@@ -302,7 +300,7 @@
         </div>
 
         {# Tab 2: Advanced JSON Config #}
-        <div role="tabpanel" class="tab-pane" id="fv-tab-advanced">
+        <div class="fv-tab-panel" id="fv-tab-advanced" style="display: none;">
           <div class="fv-tab-inner">
             <div class="alert alert-info" style="border-radius: 10px; margin-bottom: 1.25rem;">
               <i class="fa fa-info-circle"></i>
@@ -623,28 +621,13 @@
   box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
 }
 
-/* ── Tabs ── */
-.fv-config-tabs {
-  border-bottom: 2px solid #E3F2FD;
-  margin-bottom: 0;
-}
-.fv-config-tabs > li > a {
-  border-radius: 10px 10px 0 0;
-  color: #546e7a;
-  font-weight: 600;
-  padding: 0.75rem 1.25rem;
-}
-.fv-config-tabs > li.active > a,
-.fv-config-tabs > li.active > a:focus,
-.fv-config-tabs > li.active > a:hover {
-  border-color: #E3F2FD #E3F2FD transparent;
-  color: #0072BC;
-  background: #f8fafe;
+/* ── Tabs (datastories style) ── */
+.fv-map-tab-btn:hover {
+  opacity: 0.85;
 }
 .fv-tab-content {
   border: 1px solid #E3F2FD;
-  border-top: none;
-  border-radius: 0 0 12px 12px;
+  border-radius: 12px;
   background: #f8fafe;
 }
 .fv-tab-inner {
@@ -818,20 +801,32 @@
       });
 
       // ══════════════════════════════════════════════
-      // Tab switching (manual fallback for Bootstrap tabs)
+      // Tab switching (datastories style)
       // ══════════════════════════════════════════════
-      $('#fv-map-tabs a[data-toggle="tab"]').on('click', function(e) {
+      $('#fv-map-tabs').on('click', '.fv-map-tab-btn', function(e) {
         e.preventDefault();
+        e.stopPropagation();
         var $this = $(this);
-        var target = $this.attr('href');
+        var target = $this.data('target');
 
-        // Switch tab headers
-        $('#fv-map-tabs li').removeClass('active');
-        $this.parent('li').addClass('active');
+        // Update button styles
+        $('#fv-map-tabs .fv-map-tab-btn').each(function() {
+          var isActive = ($(this).data('target') === target);
+          $(this).removeClass('active')
+            .css('background', isActive ? 'linear-gradient(135deg, #0072BC 0%, #005A9C 100%)' : '#f8f9fa')
+            .css('color', isActive ? 'white' : '#6c757d')
+            .css('border-color', isActive ? '#0072BC' : '#e9ecef');
+          if (isActive) $(this).addClass('active');
+        });
 
-        // Switch tab content
-        $('.fv-tab-content .tab-pane').removeClass('active');
-        $(target).addClass('active');
+        // Show/hide tab panels
+        $('.fv-tab-content .fv-tab-panel').each(function() {
+          if ('#' + $(this).attr('id') === target) {
+            $(this).show().addClass('active');
+          } else {
+            $(this).hide().removeClass('active');
+          }
+        });
       });
 
       // ══════════════════════════════════════════════
