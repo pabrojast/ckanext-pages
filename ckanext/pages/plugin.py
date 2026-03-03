@@ -814,6 +814,14 @@ def get_pending_approval_count():
             Page.submission_status == 'pending',
             Page.group_id == None
         ).count()
+        # Include pending data stories
+        try:
+            from ckanext.pages.data_stories.db.models import DataStory
+            count += model.Session.query(DataStory).filter(
+                DataStory.status.in_(['submitted', 'under_review'])
+            ).count()
+        except Exception:
+            pass
         return count
     except Exception:
         return 0
