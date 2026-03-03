@@ -6,37 +6,30 @@
   {% set pending_oss = h.get_pending_oss_count() %}
   {% if pending_count %}
   <li>
-    <a href="{{ h.url_for('pages.water_admin') }}" title="{{ _('Pending approvals') }}" style="position: relative;">
-      <i class="fa fa-bell"></i>
-      <span style="position: absolute; top: 2px; right: 0; background: #dc3545; color: #fff; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px;">{{ pending_count }}</span>
+    <a href="{{ h.url_for('pages.water_admin') }}" title="{{ _('Pending approvals') }}" style="position: relative; display: inline-block;">
+      <i class="fa fa-bell" aria-hidden="true"></i>
+      <span class="text">{{ _('Approvals') }}</span>
+      <span style="position: absolute; top: -4px; right: -8px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 10px; min-width: 18px; height: 18px; line-height: 18px; text-align: center; padding: 0 4px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">{{ pending_count }}</span>
     </a>
   </li>
   {% endif %}
   {% if pending_stories %}
   <li>
-    <a href="{{ h.url_for('data_stories.pending_review') }}" title="{{ _('Pending data stories') }}" style="position: relative;">
-      <i class="fa fa-book"></i>
-      <span style="position: absolute; top: 2px; right: 0; background: #ffc107; color: #2c3e50; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px; font-weight: 700;">{{ pending_stories }}</span>
+    <a href="{{ h.url_for('data_stories.pending_review') }}" title="{{ _('Pending data stories') }}" style="position: relative; display: inline-block;">
+      <i class="fa fa-book" aria-hidden="true"></i>
+      <span class="text">{{ _('Stories') }}</span>
+      <span style="position: absolute; top: -4px; right: -8px; background: #ffc107; color: #2c3e50; border-radius: 50%; font-size: 10px; min-width: 18px; height: 18px; line-height: 18px; text-align: center; padding: 0 4px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">{{ pending_stories }}</span>
     </a>
   </li>
   {% endif %}
   {% if pending_oss %}
   <li>
-    <a href="{{ h.url_for('pages.open_source_admin_dashboard') }}" title="{{ _('Pending open-source tools') }}" style="position: relative;">
-      <i class="fa fa-code"></i>
-      <span style="position: absolute; top: 2px; right: 0; background: #17a2b8; color: #fff; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px; font-weight: 700;">{{ pending_oss }}</span>
+    <a href="{{ h.url_for('pages.open_source_admin_dashboard') }}" title="{{ _('Pending open-source tools') }}" style="position: relative; display: inline-block;">
+      <i class="fa fa-code" aria-hidden="true"></i>
+      <span class="text">{{ _('Tools') }}</span>
+      <span style="position: absolute; top: -4px; right: -8px; background: #17a2b8; color: #fff; border-radius: 50%; font-size: 10px; min-width: 18px; height: 18px; line-height: 18px; text-align: center; padding: 0 4px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">{{ pending_oss }}</span>
     </a>
   </li>
   {% endif %}
-  <li>
-    <a href="{{ h.url_for('pages.pages_index') }}" title="{{ _('Pages') }}">
-      <i class="fa fa-file icon-file"></i>
-    </a>
-  </li>
-  <li>
-    <a href="{{ h.url_for('pages.blog_index') }}" title="{{ _('Blog') }}">
-      <i class="fa fa-pencil icon-pencil"></i>
-    </a>
-  </li>
   {{ super() }}
 {% endblock %}
