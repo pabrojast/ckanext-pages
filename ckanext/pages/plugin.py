@@ -808,7 +808,8 @@ def get_pending_approval_count():
         from ckan import model
         count = model.Session.query(Page).filter(
             Page.page_type.in_(
-                ['water-news', 'water-events', 'water-publications']
+                ['water-news', 'water-events', 'water-publications',
+                 'open-source-software']
             ),
             Page.private == True,
             Page.submission_status == 'pending',
@@ -837,6 +838,24 @@ def get_pending_stories_count():
         from ckan import model
         return model.Session.query(DataStory).filter(
             DataStory.status.in_(['submitted', 'under_review'])
+        ).count()
+    except Exception:
+        return 0
+
+
+def get_pending_oss_count():
+    """Return pending open-source-software count for sysadmins."""
+    try:
+        import ckan.authz as authz
+        if not tk.g.user or not authz.is_sysadmin(tk.g.user):
+            return 0
+        from ckanext.pages.db import Page
+        from ckan import model
+        return model.Session.query(Page).filter(
+            Page.page_type == 'open-source-software',
+            Page.private == True,
+            Page.submission_status == 'pending',
+            Page.group_id == None
         ).count()
     except Exception:
         return 0
@@ -1058,6 +1077,7 @@ class PagesPlugin(PagesPluginBase):
             'get_user_organization': get_user_organization,
             'get_pending_approval_count': get_pending_approval_count,
             'get_pending_stories_count': get_pending_stories_count,
+            'get_pending_oss_count': get_pending_oss_count,
             'user_can_create_dataset': user_can_create_dataset,
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,

@@ -3,6 +3,7 @@
 {% block header_account_logged %}
   {% set pending_count = h.get_pending_approval_count() %}
   {% set pending_stories = h.get_pending_stories_count() %}
+  {% set pending_oss = h.get_pending_oss_count() %}
   {% if pending_count %}
   <li>
     <a href="{{ h.url_for('pages.water_admin') }}" title="{{ _('Pending approvals') }}" style="position: relative;">
@@ -16,6 +17,14 @@
     <a href="{{ h.url_for('data_stories.pending_review') }}" title="{{ _('Pending data stories') }}" style="position: relative;">
       <i class="fa fa-book"></i>
       <span style="position: absolute; top: 2px; right: 0; background: #ffc107; color: #2c3e50; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px; font-weight: 700;">{{ pending_stories }}</span>
+    </a>
+  </li>
+  {% endif %}
+  {% if pending_oss %}
+  <li>
+    <a href="{{ h.url_for('pages.open_source_admin_dashboard') }}" title="{{ _('Pending open-source tools') }}" style="position: relative;">
+      <i class="fa fa-code"></i>
+      <span style="position: absolute; top: 2px; right: 0; background: #17a2b8; color: #fff; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px; font-weight: 700;">{{ pending_oss }}</span>
     </a>
   </li>
   {% endif %}
