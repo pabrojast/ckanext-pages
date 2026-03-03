@@ -827,6 +827,21 @@ def get_pending_approval_count():
         return 0
 
 
+def get_pending_stories_count():
+    """Return pending data stories count for sysadmins."""
+    try:
+        import ckan.authz as authz
+        if not tk.g.user or not authz.is_sysadmin(tk.g.user):
+            return 0
+        from ckanext.pages.data_stories.db.models import DataStory
+        from ckan import model
+        return model.Session.query(DataStory).filter(
+            DataStory.status.in_(['submitted', 'under_review'])
+        ).count()
+    except Exception:
+        return 0
+
+
 def user_can_create_dataset(user_id):
     """Check if a user can create datasets in any organization."""
     try:
@@ -1042,6 +1057,7 @@ class PagesPlugin(PagesPluginBase):
             'get_ihp_organizations': get_ihp_organizations,
             'get_user_organization': get_user_organization,
             'get_pending_approval_count': get_pending_approval_count,
+            'get_pending_stories_count': get_pending_stories_count,
             'user_can_create_dataset': user_can_create_dataset,
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,

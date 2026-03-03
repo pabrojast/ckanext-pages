@@ -2,11 +2,20 @@
 
 {% block header_account_logged %}
   {% set pending_count = h.get_pending_approval_count() %}
+  {% set pending_stories = h.get_pending_stories_count() %}
   {% if pending_count %}
   <li>
     <a href="{{ h.url_for('pages.water_admin') }}" title="{{ _('Pending approvals') }}" style="position: relative;">
       <i class="fa fa-bell"></i>
       <span style="position: absolute; top: 2px; right: 0; background: #dc3545; color: #fff; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px;">{{ pending_count }}</span>
+    </a>
+  </li>
+  {% endif %}
+  {% if pending_stories %}
+  <li>
+    <a href="{{ h.url_for('data_stories.pending_review') }}" title="{{ _('Pending data stories') }}" style="position: relative;">
+      <i class="fa fa-book"></i>
+      <span style="position: absolute; top: 2px; right: 0; background: #ffc107; color: #2c3e50; border-radius: 50%; font-size: 10px; min-width: 16px; height: 16px; line-height: 16px; text-align: center; padding: 0 3px; font-weight: 700;">{{ pending_stories }}</span>
     </a>
   </li>
   {% endif %}
