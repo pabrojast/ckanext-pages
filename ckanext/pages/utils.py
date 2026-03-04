@@ -437,10 +437,30 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         try:
             context = {'user': tk.g.user}
             if is_sysadmin:
-                org_list = tk.get_action('organization_list')(
-                    context, {'all_fields': True, 'include_extras': False}
-                )
+                # Sysadmin sees all orgs — use direct query to avoid N+1
+                try:
+                    org_rows = (
+                        model.Session.query(
+                            model.Group.id, model.Group.name, model.Group.title,
+                            model.Group.image_url, model.Group.state,
+                        )
+                        .filter(model.Group.type == 'organization',
+                                model.Group.state == 'active')
+                        .order_by(model.Group.title)
+                        .all()
+                    )
+                    org_list = [
+                        {'id': o.id, 'name': o.name, 'title': o.title or o.name,
+                         'display_name': o.title or o.name,
+                         'image_url': o.image_url or '', 'state': o.state}
+                        for o in org_rows
+                    ]
+                except Exception:
+                    org_list = tk.get_action('organization_list')(
+                        context, {'all_fields': True, 'include_extras': False}
+                    )
             else:
+                # Non-sysadmin: respect membership — DO NOT replace this call
                 org_list = tk.get_action('organization_list_for_user')(
                     context, {'permission': 'read'}
                 )
@@ -454,11 +474,27 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     if page_type in ['open-source-software', 'ai-water-tools',
                       'water-publications']:
         try:
-            context = {'user': tk.g.user}
-            group_dict = tk.get_action('group_show')(
-                context, {'id': 'member-states', 'include_groups': True}
-            )
-            groups = group_dict.get('groups', [])
+            # Direct DB query to avoid N+1 from group_show(include_groups=True)
+            ms_group = model.Group.get('member-states')
+            if ms_group:
+                members = (
+                    model.Session.query(model.Group.name, model.Group.title)
+                    .join(model.Member, model.Member.table_id == model.Group.id)
+                    .filter(
+                        model.Member.group_id == ms_group.id,
+                        model.Member.state == 'active',
+                        model.Member.table_name == 'group',
+                        model.Group.state == 'active',
+                    )
+                    .all()
+                )
+                groups = [
+                    {'name': g.name, 'title': g.title or g.name,
+                     'display_name': g.title or g.name}
+                    for g in members if g.name
+                ]
+            else:
+                groups = []
             for g in groups:
                 g['formatted_name'] = _format_member_state_name(
                     g.get('name', '')
@@ -472,18 +508,27 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     # Load initiatives server-side for water-publications
     if page_type == 'water-publications':
         try:
-            context = {'user': tk.g.user}
             member_state_names = set(
                 g.get('name', '') for g in vars.get('member_states_list', [])
             )
             member_state_names.add('member-states')
-            all_groups = tk.get_action('group_list')(
-                context, {'all_fields': True}
+            # Direct DB query to avoid N+1 from group_list(all_fields=True)
+            group_rows = (
+                model.Session.query(model.Group.name, model.Group.title,
+                                    model.Group.state)
+                .filter(
+                    model.Group.type == 'group',
+                    model.Group.state == 'active',
+                    ~model.Group.name.in_(member_state_names)
+                    if member_state_names else True,
+                )
+                .order_by(model.Group.title)
+                .all()
             )
             initiatives = [
-                g for g in all_groups
-                if g.get('name') and g.get('state') != 'deleted'
-                and g['name'] not in member_state_names
+                {'name': g.name, 'title': g.title or g.name,
+                 'display_name': g.title or g.name, 'state': g.state}
+                for g in group_rows if g.name
             ]
             for g in initiatives:
                 g['formatted_name'] = g.get('title') or \
