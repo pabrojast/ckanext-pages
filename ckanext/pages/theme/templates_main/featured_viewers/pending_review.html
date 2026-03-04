@@ -1,0 +1,112 @@
+{% extends "page.html" %}
+
+{% block title %}{{ _('Pending Review') }} - {{ _('Featured Viewers') }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          <li class="home"><a href="/"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
+          <li class="active">{{ _('Pending Review') }}</li>
+        </ol>
+      </nav>
+
+      <h1><i class="fa fa-clock-o" style="color: #ff9800;"></i> {{ _('Viewers Pending Review') }}</h1>
+      <p style="color: #666; margin-bottom: 2rem;">
+        {{ _('Review and approve viewer submissions from your organization.') }}
+        <span class="badge" style="background: #ff9800; color: white; font-size: 0.9rem; padding: 4px 10px; border-radius: 12px;">
+          {{ total_pending }} {{ _('pending') }}
+        </span>
+      </p>
+
+      {# Submitted viewers #}
+      {% if submitted_viewers %}
+      <h3 style="margin-top: 2rem; color: #ff9800;">
+        <i class="fa fa-paper-plane"></i> {{ _('Submitted') }}
+        <span class="badge" style="background: #ff9800;">{{ submitted_count }}</span>
+      </h3>
+      <div class="row">
+        {% for viewer in submitted_viewers %}
+        <div class="col-md-6 col-lg-4" style="margin-bottom: 1rem;">
+          <div style="border: 1px solid #ffe0b2; border-radius: 12px; padding: 1.25rem; background: #fff8e1;">
+            <h4 style="margin-top: 0;">
+              <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}">{{ viewer.title }}</a>
+            </h4>
+            <p style="color: #888; font-size: 0.85rem;">
+              {{ _('Category') }}: {{ (categories.get(viewer.category or 'general', {})).get('title', viewer.category or 'General') }}
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}" class="btn btn-sm btn-primary">
+                <i class="fa fa-eye"></i> {{ _('View') }}
+              </a>
+              <form method="post" action="{{ h.url_for('featured_viewers.review', slug=viewer.slug) }}" style="display: inline;">
+                {{ h.csrf_input() if 'csrf_input' in h }}
+                <input type="hidden" name="action" value="approve">
+                <button type="submit" class="btn btn-sm btn-success">
+                  <i class="fa fa-check"></i> {{ _('Approve') }}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {# Under review viewers #}
+      {% if review_viewers %}
+      <h3 style="margin-top: 2rem; color: #2196F3;">
+        <i class="fa fa-search"></i> {{ _('Under Review') }}
+        <span class="badge" style="background: #2196F3;">{{ review_count }}</span>
+      </h3>
+      <div class="row">
+        {% for viewer in review_viewers %}
+        <div class="col-md-6 col-lg-4" style="margin-bottom: 1rem;">
+          <div style="border: 1px solid #bbdefb; border-radius: 12px; padding: 1.25rem; background: #e3f2fd;">
+            <h4 style="margin-top: 0;">
+              <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}">{{ viewer.title }}</a>
+            </h4>
+            <p style="color: #888; font-size: 0.85rem;">
+              {{ _('Category') }}: {{ (categories.get(viewer.category or 'general', {})).get('title', viewer.category or 'General') }}
+            </p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a href="{{ h.url_for('featured_viewers.show', slug=viewer.slug) }}" class="btn btn-sm btn-primary">
+                <i class="fa fa-eye"></i> {{ _('View') }}
+              </a>
+              <form method="post" action="{{ h.url_for('featured_viewers.review', slug=viewer.slug) }}" style="display: inline;">
+                {{ h.csrf_input() if 'csrf_input' in h }}
+                <input type="hidden" name="action" value="approve">
+                <button type="submit" class="btn btn-sm btn-success">
+                  <i class="fa fa-check"></i> {{ _('Approve & Publish') }}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if not submitted_viewers and not review_viewers %}
+      <div style="text-align: center; padding: 4rem 2rem; color: #aaa;">
+        <i class="fa fa-check-circle fa-3x" style="color: #4CAF50; margin-bottom: 1rem;"></i>
+        <h3 style="color: #666;">{{ _('All caught up!') }}</h3>
+        <p>{{ _('No viewers pending review at this time.') }}</p>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+{% endblock %}

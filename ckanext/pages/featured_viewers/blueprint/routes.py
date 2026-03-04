@@ -96,12 +96,41 @@ def index():
 
     # Check if user can create
     can_create = False
+    can_review = False
+    my_drafts = []
+    pending_count = 0
     if g.userobj:
         try:
             tk.check_access('featured_viewer_create', context, {})
             can_create = True
         except tk.NotAuthorized:
             pass
+
+        can_review = _can_review_viewers(g.userobj)
+
+        # Get user's draft viewers
+        try:
+            draft_result = tk.get_action('featured_viewer_list')(list_context, {
+                'status': 'draft',
+                'author_id': g.userobj.id,
+                'limit': 10,
+            })
+            my_drafts = draft_result.get('viewers', [])
+        except Exception:
+            pass
+
+        # Get pending review count for reviewers
+        if can_review:
+            try:
+                sub_result = tk.get_action('featured_viewer_list')(list_context, {
+                    'status': 'submitted', 'limit': 1,
+                })
+                rev_result = tk.get_action('featured_viewer_list')(list_context, {
+                    'status': 'under_review', 'limit': 1,
+                })
+                pending_count = sub_result.get('count', 0) + rev_result.get('count', 0)
+            except Exception:
+                pass
 
     extra_vars = {
         'viewers': viewers,
@@ -116,6 +145,9 @@ def index():
         'facets': facets,
         'categories': VIEWER_CATEGORIES,
         'can_create': can_create,
+        'can_review': can_review,
+        'my_drafts': my_drafts,
+        'pending_count': pending_count,
     }
 
     return render_template('featured_viewers/list.html', **extra_vars)
@@ -158,12 +190,12 @@ def create():
             }
             return render_template('featured_viewers/edit.html', **extra_vars)
         except Exception as e:
-            log.error(f"Error creating viewer: {str(e)}")
+            log.error(f"Error creating viewer: {str(e)}", exc_info=True)
             flash(tk._('Error creating viewer: {}').format(str(e)), 'error')
             extra_vars = {
                 'data': data_dict,
                 'errors': {},
-                'error_summary': {},
+                'error_summary': {'Error': str(e)},
                 'is_new': True,
                 'categories': VIEWER_CATEGORIES,
             }
@@ -221,19 +253,41 @@ def show(slug):
 
     # Check edit permission
     can_edit = False
+    can_review = False
+    can_publish = False
+    is_author = False
     if g.userobj:
         try:
             tk.check_access('featured_viewer_update', context, {'id': viewer['id']})
             can_edit = True
         except tk.NotAuthorized:
             pass
+        try:
+            tk.check_access('featured_viewer_review', context, {'id': viewer['id']})
+            can_review = True
+        except tk.NotAuthorized:
+            pass
+        try:
+            tk.check_access('featured_viewer_approve', context, {'id': viewer['id']})
+            can_publish = True
+        except tk.NotAuthorized:
+            pass
+
+        from ckanext.pages.featured_viewers.auth.permissions import _is_viewer_author
+        is_author = _is_viewer_author(g.user, viewer)
 
     from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
+    from ckanext.pages.featured_viewers.logic.workflow import ViewerWorkflow
+    allowed_transitions = ViewerWorkflow.get_allowed_transitions(viewer.get('status', 'draft'))
 
     extra_vars = {
         'viewer': viewer,
         'can_edit': can_edit,
+        'can_review': can_review,
+        'can_publish': can_publish,
+        'is_author': is_author,
         'categories': VIEWER_CATEGORIES,
+        'allowed_transitions': allowed_transitions,
     }
 
     return render_template('featured_viewers/show.html', **extra_vars)
@@ -316,6 +370,207 @@ def delete(slug):
         tk.abort(403)
 
     return redirect(url_for('featured_viewers.index'))
+
+
+# ============================================================================
+# Workflow Routes (submit, publish, review, pending-review)
+# ============================================================================
+
+def _can_review_viewers(user_obj):
+    """Check if user can review viewers (sysadmin or org admin)."""
+    if not user_obj:
+        return False
+    if user_obj.sysadmin:
+        return True
+    from ckan import authz as _authz
+    return _authz.has_user_permission_for_some_org(user_obj.id, 'admin')
+
+
+@featured_viewers_blueprint.route('/<slug>/submit', methods=['POST'])
+def submit(slug):
+    """Submit a viewer for review."""
+    log.info(f"[FEATURED_VIEWERS_ROUTE] Submitting viewer: {slug}")
+
+    context = _get_context()
+
+    try:
+        viewer = tk.get_action('featured_viewer_show')(context, {'slug': slug})
+    except tk.ObjectNotFound:
+        tk.abort(404, tk._('Viewer not found'))
+
+    try:
+        tk.get_action('featured_viewer_submit')(context, {
+            'id': viewer['id'],
+        })
+        flash(tk._('Viewer submitted for review. An administrator will review it shortly.'), 'success')
+    except tk.ValidationError as e:
+        error_msg = '; '.join(e.error_summary.values()) if e.error_summary else str(e)
+        flash(tk._('Cannot submit viewer: {}').format(error_msg), 'error')
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to submit this viewer'))
+    except Exception as e:
+        log.error(f"[FEATURED_VIEWERS_ROUTE] Error submitting viewer {slug}: {str(e)}")
+        flash(tk._('Error submitting viewer: {}').format(str(e)), 'error')
+
+    return redirect(url_for('featured_viewers.show', slug=slug))
+
+
+@featured_viewers_blueprint.route('/<slug>/publish', methods=['POST'])
+def publish(slug):
+    """Publish a viewer directly (for sysadmins/org admins)."""
+    log.info(f"[FEATURED_VIEWERS_ROUTE] Publishing viewer: {slug}")
+
+    context = _get_context()
+
+    try:
+        viewer = tk.get_action('featured_viewer_show')(context, {'slug': slug})
+    except tk.ObjectNotFound:
+        tk.abort(404, tk._('Viewer not found'))
+
+    try:
+        tk.get_action('featured_viewer_approve')(context, {
+            'id': viewer['id'],
+        })
+        flash(tk._('Viewer published successfully'), 'success')
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to publish this viewer'))
+    except Exception as e:
+        log.error(f"Error publishing viewer: {str(e)}")
+        flash(tk._('Error publishing viewer: {}').format(str(e)), 'error')
+
+    return redirect(url_for('featured_viewers.show', slug=slug))
+
+
+@featured_viewers_blueprint.route('/<slug>/review', methods=['GET', 'POST'])
+def review(slug):
+    """Review a submitted viewer."""
+    log.info(f"[FEATURED_VIEWERS_ROUTE] Reviewing viewer: {slug}")
+
+    context = _get_context()
+
+    try:
+        viewer = tk.get_action('featured_viewer_show')(context, {'slug': slug})
+    except tk.ObjectNotFound:
+        tk.abort(404, tk._('Viewer not found'))
+
+    try:
+        tk.check_access('featured_viewer_review', context, {'id': viewer['id']})
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to review this viewer'))
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        try:
+            if action == 'start_review':
+                tk.get_action('featured_viewer_review')(context, {'id': viewer['id']})
+                flash(tk._('Review started'), 'success')
+
+            elif action == 'approve':
+                tk.get_action('featured_viewer_approve')(context, {'id': viewer['id']})
+                flash(tk._('Viewer approved and published'), 'success')
+                return redirect(url_for('featured_viewers.show', slug=slug))
+
+            elif action == 'request_changes':
+                required_changes = request.form.get('required_changes')
+                if not required_changes:
+                    flash(tk._('Please specify required changes'), 'error')
+                else:
+                    tk.get_action('featured_viewer_request_changes')(context, {
+                        'id': viewer['id'],
+                        'required_changes': required_changes,
+                    })
+                    flash(tk._('Changes requested'), 'success')
+                    return redirect(url_for('featured_viewers.show', slug=slug))
+
+        except tk.ValidationError as e:
+            error_msg = '; '.join(e.error_summary.values()) if e.error_summary else str(e)
+            flash(tk._('Error: {}').format(error_msg), 'error')
+        except Exception as e:
+            log.error(f"Error in review action: {str(e)}")
+            flash(tk._('Error: {}').format(str(e)), 'error')
+
+        # Reload viewer after action
+        try:
+            viewer = tk.get_action('featured_viewer_show')(context, {'slug': slug})
+        except Exception:
+            pass
+
+    from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
+
+    extra_vars = {
+        'viewer': viewer,
+        'categories': VIEWER_CATEGORIES,
+    }
+    return render_template('featured_viewers/show.html', **extra_vars)
+
+
+@featured_viewers_blueprint.route('/pending-review')
+def pending_review():
+    """List viewers pending review."""
+    log.info("[FEATURED_VIEWERS_ROUTE] Listing viewers pending review")
+
+    context = _get_context()
+
+    if not g.userobj:
+        flash(tk._('Please log in'), 'error')
+        return redirect(url_for('user.login'))
+
+    if not _can_review_viewers(g.userobj):
+        flash(tk._('You do not have permission to review viewers'), 'error')
+        return redirect(url_for('featured_viewers.index'))
+
+    list_context = dict(context)
+    list_context['ignore_auth'] = True
+
+    status_filter = request.args.get('status', '')
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 20))
+    offset = (page - 1) * limit
+
+    # Get submitted viewers
+    submitted_viewers = []
+    submitted_count = 0
+    try:
+        if not status_filter or status_filter == 'submitted':
+            result = tk.get_action('featured_viewer_list')(list_context, {
+                'status': 'submitted', 'limit': limit, 'offset': offset,
+            })
+            submitted_viewers = result.get('viewers', [])
+            submitted_count = result.get('count', 0)
+    except Exception as e:
+        log.error(f"Error listing submitted viewers: {str(e)}")
+        model.Session.rollback()
+
+    # Get under_review viewers
+    review_viewers = []
+    review_count = 0
+    try:
+        if not status_filter or status_filter == 'under_review':
+            result = tk.get_action('featured_viewer_list')(list_context, {
+                'status': 'under_review', 'limit': limit, 'offset': offset,
+            })
+            review_viewers = result.get('viewers', [])
+            review_count = result.get('count', 0)
+    except Exception as e:
+        log.error(f"Error listing under_review viewers: {str(e)}")
+        model.Session.rollback()
+
+    from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
+
+    extra_vars = {
+        'submitted_viewers': submitted_viewers,
+        'review_viewers': review_viewers,
+        'submitted_count': submitted_count,
+        'review_count': review_count,
+        'total_pending': submitted_count + review_count,
+        'status_filter': status_filter,
+        'page': page,
+        'limit': limit,
+        'categories': VIEWER_CATEGORIES,
+    }
+
+    return render_template('featured_viewers/pending_review.html', **extra_vars)
 
 
 # ============================================================================

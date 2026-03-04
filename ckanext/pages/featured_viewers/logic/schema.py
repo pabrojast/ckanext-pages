@@ -13,20 +13,21 @@ log = logging.getLogger(__name__)
 not_empty = get_validator('not_empty')
 ignore_missing = get_validator('ignore_missing')
 not_missing = get_validator('not_missing')
+unicode_safe = get_validator('unicode_safe')
 
 
 def featured_viewer_schema():
     """Validation schema for creating/updating a featured viewer."""
     return {
-        'title': [not_empty, str],
-        'slug': [ignore_missing, str],
-        'description': [ignore_missing, str],
-        'category': [ignore_missing, str],
-        'icon_class': [ignore_missing, str],
-        'thumbnail_url': [ignore_missing, str],
-        'terria_share_link': [ignore_missing, str],
-        'meta_description': [ignore_missing, str],
-        'organization_id': [ignore_missing, str],
+        'title': [not_empty, unicode_safe],
+        'slug': [ignore_missing, unicode_safe],
+        'description': [ignore_missing, unicode_safe],
+        'category': [ignore_missing, unicode_safe],
+        'icon_class': [ignore_missing, unicode_safe],
+        'thumbnail_url': [ignore_missing, unicode_safe],
+        'terria_share_link': [ignore_missing, unicode_safe],
+        'meta_description': [ignore_missing, unicode_safe],
+        'organization_id': [ignore_missing, unicode_safe],
     }
 
 
@@ -135,9 +136,9 @@ AVAILABLE_ICONS = [
 def map_room_schema():
     """Validation schema for creating/updating a map room."""
     return {
-        'title': [not_empty, str],
-        'slug': [ignore_missing, str],
-        'description': [ignore_missing, str],
-        'thumbnail_url': [ignore_missing, str],
-        'category': [ignore_missing, str],
+        'title': [not_empty, unicode_safe],
+        'slug': [ignore_missing, unicode_safe],
+        'description': [ignore_missing, unicode_safe],
+        'thumbnail_url': [ignore_missing, unicode_safe],
+        'category': [ignore_missing, unicode_safe],
     }

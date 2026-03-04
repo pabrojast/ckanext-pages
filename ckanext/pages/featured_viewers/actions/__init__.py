@@ -32,6 +32,13 @@ from ckanext.pages.featured_viewers.actions.delete import (
     map_room_delete,
 )
 
+from ckanext.pages.featured_viewers.actions.publish import (
+    featured_viewer_submit,
+    featured_viewer_review,
+    featured_viewer_approve,
+    featured_viewer_request_changes,
+)
+
 __all__ = [
     'featured_viewer_create',
     'featured_viewer_show',
@@ -41,6 +48,10 @@ __all__ = [
     'featured_viewer_record_view',
     'featured_viewer_link_dataset',
     'featured_viewer_unlink_dataset',
+    'featured_viewer_submit',
+    'featured_viewer_review',
+    'featured_viewer_approve',
+    'featured_viewer_request_changes',
     'map_room_create',
     'map_room_show',
     'map_room_list',

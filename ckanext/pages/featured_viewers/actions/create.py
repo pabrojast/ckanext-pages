@@ -100,7 +100,6 @@ def featured_viewer_create(context, data_dict):
     viewer.created_at = now
     viewer.updated_at = now
 
-    viewer.save()
     session = context.get('session', model.Session)
     session.add(viewer)
     session.commit()

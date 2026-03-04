@@ -127,9 +127,77 @@ def featured_viewer_link_dataset(context, data_dict):
     return featured_viewer_update(context, {'id': data_dict.get('viewer_id')})
 
 
+def _is_organization_admin(user_id, org_id):
+    """Check if user is an admin of the organization."""
+    if not user_id or not org_id:
+        return False
+    user = model.User.get(user_id)
+    if not user:
+        return False
+    return authz.has_user_permission_for_group_or_org(org_id, user.name, 'admin')
+
+
 def featured_viewer_unlink_dataset(context, data_dict):
     """Same as update."""
     return featured_viewer_update(context, {'id': data_dict.get('viewer_id')})
+
+
+# ── Workflow Auth ──
+
+def featured_viewer_submit(context, data_dict):
+    """Author can submit own viewers."""
+    return featured_viewer_update(context, data_dict)
+
+
+def featured_viewer_review(context, data_dict):
+    """Sysadmins and org admins can review."""
+    user = context.get('user')
+    if not user:
+        return {'success': False}
+    if _is_sysadmin(user):
+        return {'success': True}
+
+    viewer_id = data_dict.get('id')
+    if not viewer_id:
+        return {'success': False}
+
+    viewer = FeaturedViewer.get(id=viewer_id)
+    if not viewer:
+        return {'success': False}
+
+    if viewer.organization_id:
+        if _is_organization_admin(user, viewer.organization_id):
+            return {'success': True}
+
+    return {'success': False}
+
+
+def featured_viewer_approve(context, data_dict):
+    """Sysadmins and org admins can approve."""
+    user = context.get('user')
+    if not user:
+        return {'success': False}
+    if _is_sysadmin(user):
+        return {'success': True}
+
+    viewer_id = data_dict.get('id')
+    if not viewer_id:
+        return {'success': False}
+
+    viewer = FeaturedViewer.get(id=viewer_id)
+    if not viewer:
+        return {'success': False}
+
+    if viewer.organization_id:
+        if _is_organization_admin(user, viewer.organization_id):
+            return {'success': True}
+
+    return {'success': False}
+
+
+def featured_viewer_request_changes(context, data_dict):
+    """Same as review."""
+    return featured_viewer_review(context, data_dict)
 
 
 # ── Map Room Auth ──

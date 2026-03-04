@@ -73,12 +73,83 @@
           {% endfor %}
         </div>
 
-        <!-- Admin Actions -->
-        {% if can_edit %}
-        <div style="margin-top: 0.75rem;">
+        <!-- Admin Actions & Workflow -->
+        <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+          {% if can_edit %}
           <a href="{{ h.url_for('featured_viewers.edit', slug=viewer.slug) }}" class="fv-map-action-btn">
             <i class="fa fa-pencil"></i> {{ _('Edit Viewer') }}
           </a>
+          {% endif %}
+
+          {# Workflow actions based on current status #}
+          {% set status = viewer.status or 'draft' %}
+
+          {# Author can submit draft for review #}
+          {% if is_author and status == 'draft' %}
+          <form method="post" action="{{ h.url_for('featured_viewers.submit', slug=viewer.slug) }}" style="display: inline;">
+            {{ h.csrf_input() if 'csrf_input' in h }}
+            <button type="submit" class="fv-map-action-btn" style="background: #ff9800; color: white; border-color: #ff9800;">
+              <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+            </button>
+          </form>
+          {% endif %}
+
+          {# Reviewer can start review on submitted viewer #}
+          {% if can_review and status == 'submitted' %}
+          <form method="post" action="{{ h.url_for('featured_viewers.review', slug=viewer.slug) }}" style="display: inline;">
+            {{ h.csrf_input() if 'csrf_input' in h }}
+            <input type="hidden" name="action" value="start_review">
+            <button type="submit" class="fv-map-action-btn" style="background: #2196F3; color: white; border-color: #2196F3;">
+              <i class="fa fa-eye"></i> {{ _('Start Review') }}
+            </button>
+          </form>
+          {% endif %}
+
+          {# Reviewer can approve or request changes #}
+          {% if can_publish and status in ['submitted', 'under_review'] %}
+          <form method="post" action="{{ h.url_for('featured_viewers.review', slug=viewer.slug) }}" style="display: inline;">
+            {{ h.csrf_input() if 'csrf_input' in h }}
+            <input type="hidden" name="action" value="approve">
+            <button type="submit" class="fv-map-action-btn" style="background: #4CAF50; color: white; border-color: #4CAF50;">
+              <i class="fa fa-check"></i> {{ _('Approve & Publish') }}
+            </button>
+          </form>
+          <button type="button" class="fv-map-action-btn" style="background: #f44336; color: white; border-color: #f44336;"
+                  onclick="document.getElementById('fv-request-changes').style.display='block';">
+            <i class="fa fa-undo"></i> {{ _('Request Changes') }}
+          </button>
+          {% endif %}
+
+          {# Sysadmin/org admin can publish directly from draft #}
+          {% if can_publish and status == 'draft' %}
+          <form method="post" action="{{ h.url_for('featured_viewers.publish', slug=viewer.slug) }}" style="display: inline;">
+            {{ h.csrf_input() if 'csrf_input' in h }}
+            <button type="submit" class="fv-map-action-btn" style="background: #4CAF50; color: white; border-color: #4CAF50;">
+              <i class="fa fa-globe"></i> {{ _('Publish Directly') }}
+            </button>
+          </form>
+          {% endif %}
+        </div>
+
+        {# Request Changes Form (hidden by default) #}
+        {% if can_publish and viewer.status in ['submitted', 'under_review'] %}
+        <div id="fv-request-changes" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff3e0; border-radius: 8px; border: 1px solid #ffe0b2;">
+          <form method="post" action="{{ h.url_for('featured_viewers.review', slug=viewer.slug) }}">
+            {{ h.csrf_input() if 'csrf_input' in h }}
+            <input type="hidden" name="action" value="request_changes">
+            <div class="form-group">
+              <label><i class="fa fa-comment"></i> {{ _('Required Changes') }}</label>
+              <textarea name="required_changes" class="form-control" rows="3"
+                        placeholder="{{ _('Describe what needs to be changed...') }}" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-warning btn-sm">
+              <i class="fa fa-paper-plane"></i> {{ _('Send Request') }}
+            </button>
+            <button type="button" class="btn btn-default btn-sm"
+                    onclick="document.getElementById('fv-request-changes').style.display='none';">
+              {{ _('Cancel') }}
+            </button>
+          </form>
         </div>
         {% endif %}
       </div>

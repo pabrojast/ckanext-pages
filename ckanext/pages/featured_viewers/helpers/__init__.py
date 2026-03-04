@@ -43,6 +43,8 @@ def get_viewer_status_badge(status):
     """Get HTML class and label for a viewer status."""
     badges = {
         'draft': {'class': 'badge-draft', 'label': 'Draft', 'icon': 'fa-pencil'},
+        'submitted': {'class': 'badge-submitted', 'label': 'Submitted', 'icon': 'fa-paper-plane'},
+        'under_review': {'class': 'badge-review', 'label': 'Under Review', 'icon': 'fa-eye'},
         'published': {'class': 'badge-published', 'label': 'Published', 'icon': 'fa-check'},
         'archived': {'class': 'badge-archived', 'label': 'Archived', 'icon': 'fa-archive'},
     }
