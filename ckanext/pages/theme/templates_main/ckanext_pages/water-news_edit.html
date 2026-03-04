@@ -152,14 +152,34 @@
                             </div>
                           </div>
 
-                          <div class="form-group">
-                            <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
-                            <select id="field-private" name="private" class="wn-form-control">
-                              <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public – visible to everyone') }}</option>
-                              <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Private – only visible to staff from the host organization') }}</option>
-                            </select>
-                            <div class="help-text">{{ _('Use the action buttons below to decide whether you are saving a draft, submitting for validation or publishing (if allowed).') }}</div>
-                            {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
+                                <select id="field-private" name="private" class="wn-form-control">
+                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public – visible to everyone') }}</option>
+                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Private – only visible to staff from the host organization') }}</option>
+                                </select>
+                                <div class="help-text">{{ _('Use the action buttons below to decide whether you are saving a draft, submitting for validation or publishing (if allowed).') }}</div>
+                                {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-ihp-organization" class="control-label">{{ _('Organization') }}</label>
+                                {% set current_org_id = data.ihp_organization or (organization_list[0].id if organization_list else '') %}
+                                <select id="field-ihp-organization" name="ihp_organization" class="wn-form-control">
+                                  <option value="">{{ _('Select organization...') }}</option>
+                                  {% for org in organization_list|default([]) %}
+                                    {% set option_id = org.id or org.name %}
+                                    {% set option_title = org.title or org.display_name or org.name %}
+                                    <option value="{{ option_id }}" {% if current_org_id == option_id %}selected{% endif %}>{{ option_title }}</option>
+                                  {% endfor %}
+                                </select>
+                                <div class="help-text">{{ _('The organization that will own and manage this news article.') }}</div>
+                                {% if errors.ihp_organization %}<span class="error-block">{{ errors.ihp_organization }}</span>{% endif %}
+                              </div>
+                            </div>
                           </div>
                           </div>
                         </fieldset>
