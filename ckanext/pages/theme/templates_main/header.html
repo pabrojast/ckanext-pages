@@ -6,7 +6,7 @@
   {% set pending_oss = h.get_pending_oss_count() %}
   {% if pending_count %}
   <li>
-    <a href="{{ h.url_for('pages.water_admin') }}" title="{{ _('Pending approvals') }}" style="position: relative; display: inline-block;">
+    <a href="{{ h.url_for('pages.water_admin_dashboard') }}" title="{{ _('Pending approvals') }}" style="position: relative; display: inline-block;">
       <i class="fa fa-bell" aria-hidden="true"></i>
       <span class="text">{{ _('Approvals') }}</span>
       <span style="position: absolute; top: -4px; right: -8px; background: #dc3545; color: #fff; border-radius: 50%; font-size: 10px; min-width: 18px; height: 18px; line-height: 18px; text-align: center; padding: 0 4px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">{{ pending_count }}</span>
