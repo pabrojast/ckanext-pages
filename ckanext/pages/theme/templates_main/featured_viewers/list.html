@@ -61,6 +61,30 @@
             </section>
           </div>
 
+          <!-- My Drafts (visible to creator) -->
+          {% if my_drafts %}
+          <div class="my-drafts-section" style="margin-bottom: 2rem;">
+            <section class="module module-narrow">
+              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #FFF8E1 0%, #ffffff 100%); border-bottom: 3px solid #FFE082;">
+                <h2 style="margin: 0; color: #F57F17; font-size: 1.3rem;">
+                  <i class="fa fa-pencil-square-o" style="margin-right: 0.5rem;"></i>
+                  {{ _('My Drafts') }}
+                  <span class="badge" style="background: #F57F17; color: #fff; font-size: 0.75rem; margin-left: 0.5rem; border-radius: 10px; padding: 0.2rem 0.6rem;">{{ my_drafts|length }}</span>
+                </h2>
+              </div>
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <div class="row stories-grid">
+                  {% for viewer in my_drafts %}
+                  <div class="col-md-6 col-lg-4">
+                    {% include "featured_viewers/components/viewer_card.html" %}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </section>
+          </div>
+          {% endif %}
+
           <!-- Category Tabs -->
           <div class="fv-categories" style="margin-bottom: 1.5rem;">
             <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q) }}"
