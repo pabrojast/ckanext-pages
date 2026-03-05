@@ -4,6 +4,7 @@
 {% block styles %}
   {{ super() }}
   <link rel="stylesheet" href="{{ h.url_for_static('/css/open-source-software.css') }}">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 {% endblock %}
 
 {% block scripts %}
@@ -178,7 +179,7 @@
                                 <label for="software_category" class="control-label">{{ _('Categories') }}</label>
                                 <p class="help-block">{{ _('Select multiple categories that best describe this tool (hold Ctrl/Cmd to select multiple)') }}</p>
                                 {% set selected_categories = h.get_categories_list(data.get('software_category', '')) %}
-                                <select name="software_category" id="software_category" class="form-control" multiple>
+                                <select name="software_category" id="software_category" class="form-control" multiple size="7">
                                   <option value="programming" {% if 'programming' in selected_categories %}selected{% endif %}>{{ _('Programming') }}</option>
                                   <option value="collaboration-platforms" {% if 'collaboration-platforms' in selected_categories %}selected{% endif %}>{{ _('Collaboration Platforms') }}</option>
                                   <option value="geographic-information-systems" {% if 'geographic-information-systems' in selected_categories %}selected{% endif %}>{{ _('Geographic Information Systems') }}</option>
@@ -209,7 +210,7 @@
                               <div class="form-group">
                                 <label for="programming_language" class="control-label">{{ _('Programming Languages') }}</label>
                                 <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple languages') }}</p>
-                                <select name="programming_language" id="programming_language" class="form-control" multiple>
+                                <select name="programming_language" id="programming_language" class="form-control" multiple size="7">
                                   <option value="Python" {% if 'Python' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>Python</option>
                                   <option value="JavaScript" {% if 'JavaScript' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>JavaScript</option>
                                   <option value="R" {% if 'R' in (data.get('programming_language', '') or '').split(',') %}selected{% endif %}>R</option>
@@ -229,7 +230,7 @@
                               <div class="form-group">
                                 <label for="platform" class="control-label">{{ _('Platforms') }}</label>
                                 <p class="help-block">{{ _('Hold Ctrl/Cmd to select multiple platforms') }}</p>
-                                <select name="platform" id="platform" class="form-control" multiple>
+                                <select name="platform" id="platform" class="form-control" multiple size="7">
                                   <option value="Windows" {% if 'Windows' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Windows</option>
                                   <option value="Linux" {% if 'Linux' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>Linux</option>
                                   <option value="macOS" {% if 'macOS' in (data.get('platform', '') or '').split(',') %}selected{% endif %}>macOS</option>
@@ -972,6 +973,12 @@
 .form-control:hover {
   border-color: var(--unesco-blue-light);
   transform: translateY(-1px);
+}
+
+/* Multi-select dropdowns need proper height for visibility */
+select[multiple].form-control {
+  height: auto;
+  min-height: 160px;
 }
 
 textarea.form-control {
@@ -3047,7 +3054,20 @@ textarea[id="example_applications"] {
 .text-warning i {
   margin-right: 0.25rem;
 }
+
+/* Safety: constrain Quill SVG icons to prevent oversized rendering */
+.ql-snow .ql-picker-label svg,
+.ql-snow .ql-toolbar button svg,
+.ql-snow .ql-toolbar .ql-picker svg {
+  width: 18px !important;
+  height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+}
 </style>
+
+<!-- Quill Editor Integration (must load before form scripts) -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <!-- Enhanced Form JavaScript -->
 <script>
@@ -4175,8 +4195,4 @@ textarea[id="example_applications"] {
   </div>
 </div>
 
-<!-- Quill Editor Integration -->
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-
-{% endblock %} 
+{% endblock %}
