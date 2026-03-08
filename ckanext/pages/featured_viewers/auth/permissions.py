@@ -165,9 +165,15 @@ def featured_viewer_review(context, data_dict):
     if not viewer:
         return {'success': False}
 
+    user_obj = model.User.get(user)
+    if not user_obj:
+        return {'success': False}
+
     if viewer.organization_id:
         if _is_organization_admin(user, viewer.organization_id):
             return {'success': True}
+    elif authz.has_user_permission_for_some_org(user_obj.id, 'admin'):
+        return {'success': True}
 
     return {'success': False}
 
@@ -188,9 +194,15 @@ def featured_viewer_approve(context, data_dict):
     if not viewer:
         return {'success': False}
 
+    user_obj = model.User.get(user)
+    if not user_obj:
+        return {'success': False}
+
     if viewer.organization_id:
         if _is_organization_admin(user, viewer.organization_id):
             return {'success': True}
+    elif authz.has_user_permission_for_some_org(user_obj.id, 'admin'):
+        return {'success': True}
 
     return {'success': False}
 
