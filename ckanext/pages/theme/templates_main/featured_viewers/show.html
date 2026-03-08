@@ -48,7 +48,7 @@
         </h1>
 
         {% if viewer.description %}
-        <p class="fv-show-desc">{{ viewer.description }}</p>
+        <p class="fv-show-desc">{{ viewer.description|safe }}</p>
         {% endif %}
 
         <!-- Badges Row -->
@@ -218,7 +218,7 @@
           <div class="fv-info-panel">
             <h3><i class="fa fa-info-circle"></i> {{ _('About this Map Room') }}</h3>
             <div style="color: #555; line-height: 1.7;">
-              {{ viewer.meta_description }}
+              {{ viewer.meta_description|safe }}
             </div>
           </div>
           {% endif %}
@@ -235,7 +235,7 @@
                 <i class="fa fa-cube"></i> {{ ds.dataset_title or ds.dataset_id }}
               </a>
               {% if ds.description %}
-              <p>{{ ds.description }}</p>
+              <p>{{ ds.description|safe }}</p>
               {% endif %}
             </div>
             {% endfor %}
