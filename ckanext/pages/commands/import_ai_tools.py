@@ -91,6 +91,7 @@ def import_ai_tools(dry_run, update_existing):
             page_data = dict(tool)
             page_data['page'] = name
             page_data['publish_date'] = '2025-01-01'
+            page_data['submission_action'] = 'publish'
 
             logic.get_action('ckanext_pages_update')(dict(context), page_data)
 
