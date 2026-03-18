@@ -219,6 +219,9 @@ def strip_html_tags(content):
         return ''
     # Remove HTML tags
     clean_text = re.sub('<[^<]+?>', '', content)
+    # Decode HTML entities (e.g. &nbsp; &amp; &#160;) into characters
+    from html import unescape
+    clean_text = unescape(clean_text)
     # Replace multiple spaces/newlines with single spaces
     clean_text = re.sub(r'\s+', ' ', clean_text)
     # Strip leading/trailing whitespace
