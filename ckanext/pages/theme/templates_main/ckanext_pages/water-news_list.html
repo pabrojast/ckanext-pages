@@ -175,7 +175,7 @@
                               <div class="event-description-modern">
                                 {% set content_text = '' %}
                                 {% if page.excerpt %}
-                                  {% set content_text = page.excerpt %}
+                                  {% set content_text = page.excerpt | striptags %}
                                 {% elif page.content %}
                                   {% set content_text = (page.content|striptags) %}
                                 {% endif %}

@@ -274,7 +274,8 @@
                                 </div>
                               {% endif %}
                               {% if item.excerpt %}
-                                <p>{{ item.excerpt[:100] }}{% if item.excerpt|length > 100 %}...{% endif %}</p>
+                                {% set clean_excerpt = item.excerpt | striptags %}
+                                <p>{{ clean_excerpt[:100] }}{% if clean_excerpt|length > 100 %}...{% endif %}</p>
                               {% endif %}
                             </div>
                           </div>
