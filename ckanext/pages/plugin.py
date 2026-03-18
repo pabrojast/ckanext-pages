@@ -963,6 +963,75 @@ def get_user_organization():
         return None
 
 
+def get_pages_by_initiative(initiative_name, page_type=None):
+    """Get pages associated with a given initiative via the initiative_groups extras field.
+
+    Args:
+        initiative_name: The group name of the initiative (e.g. 'IslandWatch')
+        page_type: Optional filter by page type ('water-news', 'water-events', 'water-publications')
+
+    Returns:
+        List of page dicts with title, name, content, publish_date, created, page_type, extras
+    """
+    try:
+        import ckan.model as model
+        from ckanext.pages.db import Page
+
+        search_pattern = '"%s"' % initiative_name
+
+        query = model.Session.query(Page).filter(
+            Page.extras.like('%' + search_pattern + '%')
+        )
+
+        if page_type:
+            query = query.filter(Page.page_type == page_type)
+        else:
+            query = query.filter(
+                Page.page_type.in_(['water-news', 'water-events', 'water-publications'])
+            )
+
+        query = query.order_by(Page.created.desc())
+        pages = query.all()
+
+        results = []
+        for pg in pages:
+            extras = {}
+            if pg.extras:
+                try:
+                    extras = json.loads(pg.extras)
+                except (ValueError, TypeError):
+                    pass
+
+            initiative_groups = extras.get('initiative_groups', '[]')
+            if isinstance(initiative_groups, str):
+                try:
+                    initiative_groups = json.loads(initiative_groups)
+                except (ValueError, TypeError):
+                    initiative_groups = []
+
+            names = [g.get('name', '') if isinstance(g, dict) else str(g)
+                     for g in initiative_groups]
+            if initiative_name not in names:
+                continue
+
+            page_dict = {
+                'title': pg.title,
+                'name': pg.name,
+                'content': pg.content,
+                'publish_date': pg.publish_date.isoformat() if pg.publish_date else None,
+                'created': pg.created.isoformat() if pg.created else None,
+                'page_type': pg.page_type,
+            }
+            page_dict.update(extras)
+            results.append(page_dict)
+
+        return results
+
+    except Exception as e:
+        log.error("Error getting pages by initiative '%s': %s", initiative_name, str(e))
+        return []
+
+
 class PagesPluginBase(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.ITranslation, inherit=True)
 
@@ -1105,6 +1174,7 @@ class PagesPlugin(PagesPluginBase):
             'user_can_create_dataset': user_can_create_dataset,
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,
+            'get_pages_by_initiative': get_pages_by_initiative,
         }
 
         # Always add data stories helpers if available

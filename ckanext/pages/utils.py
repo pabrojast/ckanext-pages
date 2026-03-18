@@ -505,8 +505,8 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         except Exception:
             vars['member_states_list'] = []
 
-    # Load initiatives server-side for water-publications
-    if page_type == 'water-publications':
+    # Load initiatives server-side for water family content types
+    if page_type in ('water-publications', 'water-news', 'water-events'):
         try:
             member_state_names = set(
                 g.get('name', '') for g in vars.get('member_states_list', [])
