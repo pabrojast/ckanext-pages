@@ -508,10 +508,25 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     # Load initiatives server-side for water family content types
     if page_type in ('water-publications', 'water-news', 'water-events'):
         try:
-            member_state_names = set(
-                g.get('name', '') for g in vars.get('member_states_list', [])
-            )
-            member_state_names.add('member-states')
+            # Query member-state children directly from DB
+            member_state_names = {'member-states'}
+            ms_group = model.Group.get('member-states')
+            if ms_group:
+                ms_members = (
+                    model.Session.query(model.Group.name)
+                    .join(model.Member,
+                          model.Member.table_id == model.Group.id)
+                    .filter(
+                        model.Member.group_id == ms_group.id,
+                        model.Member.state == 'active',
+                        model.Member.table_name == 'group',
+                        model.Group.state == 'active',
+                    )
+                    .all()
+                )
+                member_state_names.update(
+                    g.name for g in ms_members if g.name
+                )
             # Direct DB query to avoid N+1 from group_list(all_fields=True)
             group_rows = (
                 model.Session.query(model.Group.name, model.Group.title,
