@@ -26,9 +26,35 @@
 }
 
 /* ============================================================
+   Global CRIDA scope overrides (beat CKAN base specificity)
+   ============================================================ */
+.crida-page {
+  color: var(--crida-gray-800);
+}
+
+.crida-page h1,
+.crida-page h2,
+.crida-page h3,
+.crida-page h4 {
+  color: var(--crida-gray-800);
+}
+
+.crida-page a {
+  color: var(--crida-primary);
+}
+
+.crida-page a:hover {
+  color: var(--crida-primary-dark);
+}
+
+.crida-page p {
+  color: var(--crida-gray-600);
+}
+
+/* ============================================================
    Hero / Banner Section
    ============================================================ */
-.crida-hero {
+.crida-page .crida-hero {
   position: relative;
   min-height: 380px;
   background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-dark) 100%);
@@ -38,37 +64,46 @@
   margin-bottom: 2rem;
 }
 
-.crida-hero-bg {
+.crida-page .crida-hero-bg {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.25;
+  opacity: 0.45;
   z-index: 0;
 }
 
-.crida-hero-overlay {
+.crida-page .crida-hero-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(0, 114, 188, 0.85) 0%, rgba(0, 90, 156, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.7) 0%, rgba(0, 90, 156, 0.8) 100%);
   z-index: 1;
 }
 
-.crida-hero-content {
+.crida-page .crida-hero-content {
   position: relative;
   z-index: 2;
   padding: 3rem 2rem;
   max-width: 800px;
 }
 
-.crida-hero h1 {
+.crida-page .crida-hero h1,
+.crida-page .crida-hero h2,
+.crida-page .crida-hero h3,
+.crida-page .crida-hero p,
+.crida-page .crida-hero span,
+.crida-page .crida-hero a {
+  color: #fff !important;
+}
+
+.crida-page .crida-hero h1 {
   font-size: 2.4rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.crida-hero .crida-subtitle {
+.crida-page .crida-hero .crida-subtitle {
   font-size: 1.15rem;
   opacity: 0.95;
   margin-bottom: 1rem;
@@ -76,19 +111,19 @@
   font-weight: 300;
 }
 
-.crida-hero .crida-meta {
+.crida-page .crida-hero .crida-meta {
   font-size: 0.9rem;
   opacity: 0.85;
 }
 
-.crida-hero .crida-meta i {
+.crida-page .crida-hero .crida-meta i {
   margin-right: 0.4rem;
 }
 
 /* ============================================================
    Stats Bar
    ============================================================ */
-.crida-stats-bar {
+.crida-page .crida-stats-bar {
   display: flex;
   gap: 1.5rem;
   padding: 1.5rem 0;
@@ -96,7 +131,7 @@
   flex-wrap: wrap;
 }
 
-.crida-stat-item {
+.crida-page .crida-stat-item {
   flex: 1;
   min-width: 150px;
   background: #fff;
@@ -108,21 +143,21 @@
   border-bottom: 3px solid var(--crida-primary);
 }
 
-.crida-stat-item:hover {
+.crida-page .crida-stat-item:hover {
   box-shadow: var(--crida-shadow-hover);
   transform: translateY(-2px);
 }
 
-.crida-stat-number {
+.crida-page .crida-stat-number {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--crida-primary);
+  color: var(--crida-primary) !important;
   line-height: 1.2;
 }
 
-.crida-stat-label {
+.crida-page .crida-stat-label {
   font-size: 0.85rem;
-  color: var(--crida-gray-600);
+  color: var(--crida-gray-600) !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 0.3rem;
@@ -158,15 +193,15 @@
   margin-bottom: 1rem;
 }
 
-.crida-map-header h2 {
+.crida-page .crida-map-header h2 {
   font-size: 1.4rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-gray-800) !important;
   margin: 0;
 }
 
-.crida-map-header h2 i {
-  color: var(--crida-primary);
+.crida-page .crida-map-header h2 i {
+  color: var(--crida-primary) !important;
   margin-right: 0.5rem;
 }
 
@@ -207,17 +242,17 @@
 /* ============================================================
    Case Study Cards
    ============================================================ */
-.crida-section-title {
+.crida-page .crida-section-title {
   font-size: 1.4rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-primary-dark) !important;
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--crida-primary-pale);
 }
 
-.crida-section-title i {
-  color: var(--crida-primary);
+.crida-page .crida-section-title i {
+  color: var(--crida-primary) !important;
   margin-right: 0.5rem;
 }
 
@@ -300,10 +335,10 @@
   margin-right: 0.3rem;
 }
 
-.crida-card h3 {
+.crida-page .crida-card h3 {
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-gray-800) !important;
   margin: 0 0 0.6rem 0;
   line-height: 1.4;
   display: -webkit-box;
@@ -312,13 +347,13 @@
   overflow: hidden;
 }
 
-.crida-card h3 a {
-  color: inherit;
+.crida-page .crida-card h3 a {
+  color: var(--crida-gray-800) !important;
   text-decoration: none;
 }
 
-.crida-card h3 a:hover {
-  color: var(--crida-primary);
+.crida-page .crida-card h3 a:hover {
+  color: var(--crida-primary) !important;
 }
 
 .crida-card-summary {
@@ -406,7 +441,7 @@
 /* ============================================================
    About Section
    ============================================================ */
-.crida-about-section {
+.crida-page .crida-about-section {
   background: #fff;
   border-radius: var(--crida-radius);
   padding: 2rem;
@@ -415,21 +450,25 @@
   border-left: 4px solid var(--crida-primary);
 }
 
-.crida-about-section h2 {
+.crida-page .crida-about-section h2 {
   font-size: 1.3rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-primary-dark) !important;
   margin-bottom: 1rem;
 }
 
-.crida-about-section p {
+.crida-page .crida-about-section h2 i {
+  color: var(--crida-primary) !important;
+}
+
+.crida-page .crida-about-section p {
   font-size: 0.95rem;
   line-height: 1.7;
-  color: var(--crida-gray-600);
+  color: var(--crida-gray-600) !important;
   margin-bottom: 0.8rem;
 }
 
-.crida-about-section p:last-child {
+.crida-page .crida-about-section p:last-child {
   margin-bottom: 0;
 }
 
@@ -464,23 +503,23 @@
   border-radius: 4px;
 }
 
-.crida-framework-card h4 {
+.crida-page .crida-framework-card h4 {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-gray-800) !important;
   margin-bottom: 0.5rem;
 }
 
-.crida-framework-card p {
+.crida-page .crida-framework-card p {
   font-size: 0.85rem;
-  color: var(--crida-gray-600);
+  color: var(--crida-gray-600) !important;
   line-height: 1.5;
 }
 
 /* ============================================================
    CTA Section
    ============================================================ */
-.crida-cta {
+.crida-page .crida-cta {
   background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-dark) 100%);
   color: #fff;
   border-radius: var(--crida-radius);
@@ -489,16 +528,18 @@
   margin-bottom: 2rem;
 }
 
-.crida-cta h3 {
+.crida-page .crida-cta h3 {
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: #fff !important;
 }
 
-.crida-cta p {
+.crida-page .crida-cta p {
   opacity: 0.9;
   margin-bottom: 1.2rem;
   font-size: 0.95rem;
+  color: #fff !important;
 }
 
 .crida-btn-primary {
@@ -559,15 +600,15 @@
   border-left: 4px solid #dc3545;
 }
 
-.crida-admin-panel h3 {
+.crida-page .crida-admin-panel h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-gray-800) !important;
   margin-bottom: 0.8rem;
 }
 
-.crida-admin-panel h3 i {
-  color: #dc3545;
+.crida-page .crida-admin-panel h3 i {
+  color: #dc3545 !important;
   margin-right: 0.4rem;
 }
 
@@ -600,7 +641,7 @@
 /* ============================================================
    Admin Dashboard
    ============================================================ */
-.crida-dashboard-header {
+.crida-page .crida-dashboard-header {
   background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-dark) 100%);
   color: #fff;
   border-radius: var(--crida-radius);
@@ -608,15 +649,17 @@
   margin-bottom: 2rem;
 }
 
-.crida-dashboard-header h1 {
+.crida-page .crida-dashboard-header h1 {
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 0.3rem;
+  color: #fff !important;
 }
 
-.crida-dashboard-header p {
+.crida-page .crida-dashboard-header p {
   opacity: 0.9;
   font-size: 0.95rem;
+  color: #fff !important;
 }
 
 .crida-pending-list {
@@ -716,17 +759,17 @@
   box-shadow: var(--crida-shadow);
 }
 
-.crida-detail-section h2 {
+.crida-page .crida-detail-section h2 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-primary-dark) !important;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--crida-primary-pale);
 }
 
-.crida-detail-section h2 i {
-  color: var(--crida-primary);
+.crida-page .crida-detail-section h2 i {
+  color: var(--crida-primary) !important;
   margin-right: 0.5rem;
 }
 
@@ -778,10 +821,10 @@
   margin-bottom: 1.5rem;
 }
 
-.crida-meta-card h3 {
+.crida-page .crida-meta-card h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--crida-gray-800);
+  color: var(--crida-primary-dark) !important;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--crida-primary-pale);
@@ -1059,9 +1102,9 @@
   display: block;
 }
 
-.crida-empty-state h3 {
+.crida-page .crida-empty-state h3 {
   font-size: 1.2rem;
-  color: var(--crida-gray-800);
+  color: var(--crida-gray-800) !important;
   margin-bottom: 0.5rem;
 }
 
@@ -1075,28 +1118,28 @@
    Responsive
    ============================================================ */
 @media (max-width: 768px) {
-  .crida-hero {
+  .crida-page .crida-hero {
     min-height: 280px;
   }
 
-  .crida-hero h1 {
+  .crida-page .crida-hero h1 {
     font-size: 1.6rem;
   }
 
-  .crida-hero-content {
+  .crida-page .crida-hero-content {
     padding: 2rem 1.2rem;
   }
 
-  .crida-stats-bar {
+  .crida-page .crida-stats-bar {
     gap: 0.8rem;
   }
 
-  .crida-stat-item {
+  .crida-page .crida-stat-item {
     min-width: 100px;
     padding: 0.8rem;
   }
 
-  .crida-stat-number {
+  .crida-page .crida-stat-number {
     font-size: 1.5rem;
   }
 
@@ -1124,7 +1167,7 @@
 }
 
 @media (max-width: 480px) {
-  .crida-hero h1 {
+  .crida-page .crida-hero h1 {
     font-size: 1.3rem;
   }
 
