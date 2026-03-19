@@ -372,20 +372,6 @@
             <div id="fv-advanced-map-preview" class="fv-map-preview" style="display: none;">
             </div>
 
-            <hr style="margin: 1.5rem 0;">
-
-            {# Map Layers - kept for compatibility #}
-            <div class="form-group">
-              <label class="control-label" for="fv-layers">
-                <i class="fa fa-layer-group"></i> {{ _('Map Layers') }}
-              </label>
-              <textarea id="fv-layers" name="map_layers" class="form-control code-editor" rows="5"
-                        placeholder='[{"name": "Precipitation", "type": "WMS", "url": "...", "visible": true}]'
-              >{% if data.get('map_layers') %}{{ data.get('map_layers') if data.get('map_layers') is string else data.get('map_layers')|tojson(indent=2) }}{% else %}[]{% endif %}</textarea>
-              <span class="help-text">
-                {{ _('JSON array describing map layers. Each entry: {name, type, url, visible}.') }}
-              </span>
-            </div>
           </div>
         </div>
 
