@@ -1228,6 +1228,9 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_pages_upload': actions.pages_upload,
             # Water Family Upload
             'ckanext_water_family_upload': actions.water_family_upload,
+            # Water Family Public API
+            'ckanext_water_family_list': actions.water_family_list,
+            'ckanext_water_family_show': actions.water_family_show,
             # Event Types Management
             'ckanext_event_types_list': actions.event_types_list,
             'ckanext_event_types_show': actions.event_types_show,
@@ -1328,6 +1331,8 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_group_pages_list': auth.group_pages_list,
             # Water Family specific permissions
             'ckanext_water_family_upload': auth.water_family_upload,
+            'ckanext_water_family_list': auth.water_family_api_list,
+            'ckanext_water_family_show': auth.water_family_api_show,
             'ckanext_water_news_update': auth.water_news_update,
             'ckanext_water_news_delete': auth.water_news_delete,
             'ckanext_water_events_update': auth.water_events_update,

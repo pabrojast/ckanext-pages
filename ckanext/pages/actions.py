@@ -820,6 +820,226 @@ def group_pages_list(context, data_dict):
     return _pages_list(context, data_dict)
 
 
+# Water Family Public API Actions
+
+WATER_FAMILY_TYPES = ['water-news', 'water-events', 'water-publications']
+WATER_FAMILY_LIST_MAX_LIMIT = 100
+WATER_FAMILY_LIST_DEFAULT_LIMIT = 20
+
+
+def _water_family_list(context, data_dict):
+    """Internal function to list water family content with filters.
+
+    Only returns public, approved content. Supports filtering by page_type,
+    initiative, member_state, organization, water_type, water_category,
+    full-text search, and pagination.
+    """
+    log = logging.getLogger(__name__)
+    search = {}
+
+    # Restrict to water family page types
+    page_type = data_dict.get('page_type')
+    if page_type:
+        if page_type not in WATER_FAMILY_TYPES:
+            raise p.toolkit.ValidationError(
+                {'page_type': ['Must be one of: %s' % ', '.join(WATER_FAMILY_TYPES)]}
+            )
+        search['page_type'] = page_type
+
+    # Security: only public, approved content
+    search['private'] = False
+    search['submission_status'] = 'approved'
+
+    # Water family specific filters
+    initiative = data_dict.get('initiative')
+    if initiative:
+        search['initiative'] = initiative
+
+    member_state = data_dict.get('member_state')
+    if member_state:
+        search['member_state'] = member_state
+
+    organization = data_dict.get('organization')
+    if organization:
+        search['ihp_organization'] = organization
+
+    # Common filters
+    q = data_dict.get('q')
+    if q:
+        search['q'] = q
+
+    water_type = data_dict.get('water_type')
+    if water_type:
+        search['water_type'] = water_type
+
+    water_category = data_dict.get('water_category')
+    if water_category:
+        search['water_category'] = water_category
+
+    # Ordering
+    order_publish_date = data_dict.get('order_publish_date', True)
+    if order_publish_date:
+        search['order_publish_date'] = True
+
+    # Pagination
+    limit = WATER_FAMILY_LIST_DEFAULT_LIMIT
+    if data_dict.get('limit') is not None:
+        try:
+            limit = min(max(0, tk.asint(data_dict['limit'])),
+                        WATER_FAMILY_LIST_MAX_LIMIT)
+        except (TypeError, ValueError):
+            log.warning("Invalid water_family_list limit: %r", data_dict.get('limit'))
+    search['limit'] = limit
+
+    offset = 0
+    if data_dict.get('offset') is not None:
+        try:
+            offset = max(0, tk.asint(data_dict['offset']))
+        except (TypeError, ValueError):
+            log.warning("Invalid water_family_list offset: %r", data_dict.get('offset'))
+    search['offset'] = offset
+
+    # No org_id means site-wide pages
+    search['group_id'] = None
+
+    try:
+        if not ensure_valid_session():
+            log.error("Database session invalid for water_family_list")
+            return {'count': 0, 'results': []}
+
+        # Get count without limit/offset for pagination metadata
+        count_search = {k: v for k, v in search.items()
+                        if k not in ('limit', 'offset')}
+        total_results = db.Page.pages(**count_search)
+        total_count = len(total_results)
+
+        # If no page_type specified, filter to water family types only
+        if not page_type:
+            total_results = [pg for pg in total_results
+                            if pg.page_type in WATER_FAMILY_TYPES]
+            total_count = len(total_results)
+
+        # Get paginated results
+        out = db.Page.pages(**search)
+
+        # Filter to water family types if no specific type requested
+        if not page_type:
+            out = [pg for pg in out if pg.page_type in WATER_FAMILY_TYPES]
+
+    except Exception as e:
+        log.error("Error in water_family_list: %s", str(e))
+        return {'count': 0, 'results': []}
+
+    out_list = []
+    for pg in out:
+        try:
+            parser = HTMLFirstImage()
+            if pg.content:
+                parser.feed(pg.content)
+            img = parser.first_image
+
+            pg_row = {
+                'title': pg.title,
+                'name': pg.name,
+                'content': pg.content,
+                'publish_date': pg.publish_date.isoformat() if pg.publish_date else None,
+                'page_type': pg.page_type,
+                'created': pg.created.isoformat() if pg.created else None,
+                'modified': pg.modified.isoformat() if pg.modified else None,
+                'ihp_organization': getattr(pg, 'ihp_organization', None),
+            }
+            if img:
+                pg_row['image'] = img
+
+            extras = pg.extras
+            if extras:
+                try:
+                    pg_row.update(json.loads(pg.extras))
+                except (ValueError, TypeError):
+                    pass
+
+            out_list.append(pg_row)
+        except Exception as e:
+            log.warning("Error processing page %s: %s",
+                        getattr(pg, 'name', 'unknown'), str(e))
+            continue
+
+    return {
+        'count': total_count,
+        'results': out_list,
+    }
+
+
+@tk.side_effect_free
+def water_family_list(context, data_dict):
+    """Public API: List water family content (news, events, publications).
+
+    Filterable by page_type, initiative, member_state, organization,
+    water_type, water_category, and free-text search. Only returns
+    public, approved content. No authentication required.
+
+    :param page_type: Filter by type (water-news, water-events, water-publications)
+    :param initiative: Filter by initiative name
+    :param member_state: Filter by member state name
+    :param organization: Filter by IHP organization ID
+    :param q: Free-text search query
+    :param water_type: Filter by water type
+    :param water_category: Filter by water category
+    :param limit: Max results (default 20, max 100)
+    :param offset: Pagination offset
+    :param order_publish_date: Order by publish date desc (default True)
+    :returns: dict with 'count' (total) and 'results' (list of page dicts)
+    """
+    try:
+        p.toolkit.check_access('ckanext_water_family_list', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized'))
+    return _water_family_list(context, data_dict)
+
+
+@tk.side_effect_free
+def water_family_show(context, data_dict):
+    """Public API: Show a single water family page by name/slug.
+
+    Only returns public, approved content. No authentication required.
+
+    :param page: Page name/slug (required)
+    :returns: dict with page details, or None if not found/not public
+    """
+    try:
+        p.toolkit.check_access('ckanext_water_family_show', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized'))
+
+    page_name = data_dict.get('page')
+    if not page_name:
+        raise p.toolkit.ValidationError({'page': ['Missing value']})
+
+    try:
+        if not ensure_valid_session():
+            return None
+
+        out = db.Page.get(name=page_name)
+        if not out:
+            return None
+
+        # Only return public, approved water family content
+        if out.page_type not in WATER_FAMILY_TYPES:
+            return None
+        if out.private:
+            return None
+        if getattr(out, 'submission_status', None) != 'approved':
+            return None
+
+        result = db.table_dictize(out, context)
+        return result
+
+    except Exception as e:
+        log = logging.getLogger(__name__)
+        log.error("Error in water_family_show: %s", str(e))
+        return None
+
+
 # Event Types Management Actions
 
 def _get_default_event_types():

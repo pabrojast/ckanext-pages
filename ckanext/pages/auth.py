@@ -156,6 +156,11 @@ pages_update = pages_update_with_org_check
 pages_delete = sysadmin
 pages_list = anyone
 pages_upload = pages_upload_auth
+
+# Water Family public API auth
+water_family_api_list = anyone
+water_family_api_show = anyone
+
 org_pages_show = page_privacy
 org_pages_update = page_group_admin
 org_pages_delete = page_group_admin

@@ -241,6 +241,41 @@ class Page(DomainObject, BaseModel):
                 )
                 query = query.filter(activity_filter)
             
+            # Water Family specific filters (stored in extras JSON)
+            # Filter by initiative (initiative_groups JSON array in extras)
+            initiative = kw.pop('initiative', None)
+            if initiative:
+                initiative_filter = sa.or_(
+                    cls.extras.ilike('%"name": "' + initiative + '"%'),
+                    cls.extras.ilike('%"initiative_groups"%' + initiative + '%'),
+                )
+                query = query.filter(initiative_filter)
+
+            # Filter by member state (country_groups JSON array in extras)
+            member_state = kw.pop('member_state', None)
+            if member_state:
+                member_state_filter = sa.or_(
+                    cls.extras.ilike('%"country_groups"%' + member_state + '%'),
+                    cls.extras.ilike('%"member_states"%' + member_state + '%'),
+                )
+                query = query.filter(member_state_filter)
+
+            # Filter by water_type (stored in extras JSON)
+            water_type = kw.pop('water_type', None)
+            if water_type:
+                water_type_filter = sa.or_(
+                    cls.extras.ilike('%"water_type": "' + water_type + '"%'),
+                    cls.extras.ilike('%"water_type":"' + water_type + '"%'),
+                )
+                query = query.filter(water_type_filter)
+
+            # Filter by water_category (stored in extras JSON, comma-separated)
+            water_category = kw.pop('water_category', None)
+            if water_category:
+                query = query.filter(
+                    cls.extras.ilike('%' + water_category + '%')
+                )
+
             # Open-source-software specific filters (stored in extras JSON)
             # Handle category filter (can be list or single value)
             category = kw.pop('category', None)
