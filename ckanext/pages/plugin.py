@@ -489,11 +489,20 @@ def get_recent_ai_water_tools(number=5, exclude=None):
 
 
 def safe_json_loads(json_string):
-    """Safely parse JSON string and return empty list if parsing fails"""
+    """Safely parse JSON string and return empty list if parsing fails.
+
+    Handles double-encoded JSON strings (e.g. a JSON array stored as a
+    JSON-encoded string inside the extras column) by parsing repeatedly
+    until the result is no longer a string.
+    """
     if not json_string:
         return []
     try:
-        return json.loads(json_string)
+        result = json.loads(json_string)
+        # Unwrap double (or triple) encoded JSON strings
+        while isinstance(result, str):
+            result = json.loads(result)
+        return result
     except (ValueError, TypeError, json.JSONDecodeError):
         return []
 

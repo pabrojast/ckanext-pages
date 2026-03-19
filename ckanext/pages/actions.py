@@ -433,6 +433,17 @@ def _pages_update(context, data_dict):
             # Handle datetime objects by converting to ISO format strings
             if isinstance(value, datetime.datetime):
                 extras[key] = value.isoformat()
+            elif isinstance(value, str):
+                # Deserialize JSON strings so json.dumps(extras) won't
+                # double-encode them (e.g. uploaded_images, timeline_events).
+                try:
+                    parsed = json.loads(value)
+                    if isinstance(parsed, (list, dict)):
+                        extras[key] = parsed
+                    else:
+                        extras[key] = value
+                except (ValueError, TypeError):
+                    extras[key] = value
             else:
                 extras[key] = value
     out.extras = json.dumps(extras)
