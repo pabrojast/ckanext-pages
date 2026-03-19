@@ -424,7 +424,18 @@ def _pages_update(context, data_dict):
             if item in ['submission_status', 'ihp_organization', 'private']:
                 log.info(f"[PAGES_UPDATE] Setting '{item}' attribute: {value} (from data_dict: {data_dict.get(item)}, from data: {data.get(item)})")
 
-    extras = {}
+    # Start with existing extras from DB to preserve fields not in the
+    # current form submission (prevents silent data loss on edit).
+    existing_extras = {}
+    if out.extras:
+        try:
+            existing_extras = json.loads(out.extras) if isinstance(out.extras, str) else out.extras
+            if not isinstance(existing_extras, dict):
+                existing_extras = {}
+        except (ValueError, TypeError):
+            existing_extras = {}
+
+    extras = existing_extras.copy()
 
     extra_keys = set(schema.keys()) - set(items + ['id', 'created'])
     for key in extra_keys:

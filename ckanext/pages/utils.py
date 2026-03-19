@@ -1407,7 +1407,7 @@ def process_water_family_metadata(data_dict, page_type):
     from datetime import datetime
 
     # Process JSON fields safely
-    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups']
+    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups', 'initiative_groups']
 
     for field in json_fields:
         if field in data_dict and isinstance(data_dict[field], str):
@@ -1460,7 +1460,7 @@ def _process_water_family_json_fields(page_dict):
     """Helper to safely parse JSON fields in water-family data."""
     import json
 
-    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups']
+    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups', 'initiative_groups']
 
     for field in json_fields:
         if field in page_dict and isinstance(page_dict[field], str):

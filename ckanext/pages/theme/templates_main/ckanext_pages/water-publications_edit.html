@@ -81,14 +81,14 @@
                         <!-- Publication Information removed: CKAN Dataset section below drives creation -->
 
                         <!-- Hidden fields required by pages backend (auto-filled from CKAN section) -->
-                        <input type="hidden" id="field-title" name="title" value="">
-                        <input type="hidden" id="field-name" name="name" value="">
-                        <input type="hidden" id="field-private" name="private" value="False">
-                        <input type="hidden" id="field-publish-date" name="publish_date" value="">
-                        <input type="hidden" id="field-content" name="content" value="">
-                        <input type="hidden" id="field-header-image" name="header_image" value="">
-                        <input type="hidden" id="field-publication-url" name="publication_url" value="">
-                        <input type="hidden" id="field-download-url" name="download_url" value="">
+                        <input type="hidden" id="field-title" name="title" value="{{ data.title or '' }}">
+                        <input type="hidden" id="field-name" name="name" value="{{ data.name or '' }}">
+                        <input type="hidden" id="field-private" name="private" value="{{ data.private|default('False') }}">
+                        <input type="hidden" id="field-publish-date" name="publish_date" value="{% if data.publish_date %}{{ data.publish_date[:10] }}{% endif %}">
+                        <input type="hidden" id="field-content" name="content" value="{{ data.content or '' }}">
+                        <input type="hidden" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}">
+                        <input type="hidden" id="field-publication-url" name="publication_url" value="{{ data.publication_url or '' }}">
+                        <input type="hidden" id="field-download-url" name="download_url" value="{{ data.download_url or '' }}">
 
                         <div class="water-form-progress" data-water-progress
                              data-label-pending="{{ _('Pending') }}"
@@ -159,7 +159,7 @@
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="dataset_url">{{ _('Add Link') }}</label>
-                                  <input type="url" id="dataset_url" name="dataset_url" class="form-control" placeholder="https://example.com/document.pdf">
+                                  <input type="url" id="dataset_url" name="dataset_url" class="form-control" value="{{ data.dataset_url or data.publication_url or '' }}" placeholder="https://example.com/document.pdf">
                                 </div>
                               </div>
                             </div>
@@ -168,15 +168,15 @@
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="dataset_title">{{ _('Dataset Title') }}</label>
-                                  <input type="text" id="dataset_title" name="dataset_title" class="form-control" value="" placeholder="{{ _('Auto-filled from file/link') }}">
+                                  <input type="text" id="dataset_title" name="dataset_title" class="form-control" value="{{ data.dataset_title or data.title or '' }}" placeholder="{{ _('Auto-filled from file/link') }}">
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="dataset_visibility">{{ _('Visibility') }}</label>
                                   <select id="dataset_visibility" name="dataset_visibility" class="form-control">
-                                    <option value="public" selected>{{ _('Public (CC-BY-SA license)') }}</option>
-                                    <option value="private">{{ _('Private') }}</option>
+                                    <option value="public" {{ 'selected' if not data.dataset_visibility or data.dataset_visibility == 'public' }}>{{ _('Public (CC-BY-SA license)') }}</option>
+                                    <option value="private" {{ 'selected' if data.dataset_visibility == 'private' }}>{{ _('Private') }}</option>
                                   </select>
                                 </div>
                               </div>
@@ -222,13 +222,13 @@
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="contact_name">{{ _('Contact name') }}</label>
-                                  <input type="text" id="contact_name" name="contact_name" class="form-control" value="" placeholder="{{ _('Auto-filled with your name') }}">
+                                  <input type="text" id="contact_name" name="contact_name" class="form-control" value="{{ data.contact_name or '' }}" placeholder="{{ _('Auto-filled with your name') }}">
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="contact_email">{{ _('Contact email') }}</label>
-                                  <input type="email" id="contact_email" name="contact_email" class="form-control" value="" placeholder="{{ _('Auto-filled with your email') }}">
+                                  <input type="email" id="contact_email" name="contact_email" class="form-control" value="{{ data.contact_email or '' }}" placeholder="{{ _('Auto-filled with your email') }}">
                                 </div>
                               </div>
                             </div>
@@ -237,13 +237,13 @@
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="dataset_description">{{ _('Dataset Description (optional)') }}</label>
-                                  <textarea id="dataset_description" name="dataset_description" rows="4" class="form-control" placeholder="{{ _('Dataset abstract') }}"></textarea>
+                                  <textarea id="dataset_description" name="dataset_description" rows="4" class="form-control" placeholder="{{ _('Dataset abstract') }}">{{ data.dataset_description or data.content or '' }}</textarea>
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="graphic_overview">{{ _('Graphic overview (optional)') }}</label>
-                                  <input type="url" id="graphic_overview" name="graphic_overview" class="form-control" placeholder="https://example.com/preview.jpg">
+                                  <input type="url" id="graphic_overview" name="graphic_overview" class="form-control" value="{{ data.graphic_overview or data.header_image or '' }}" placeholder="https://example.com/preview.jpg">
                                 </div>
                               </div>
                             </div>
@@ -262,7 +262,7 @@
                               <div class="col-md-4">
                                 <div class="form-group">
                                   <label class="control-label" for="creation_date">{{ _('Date of creation') }}</label>
-                                  <input type="date" id="creation_date" name="creation_date" class="form-control">
+                                  <input type="date" id="creation_date" name="creation_date" class="form-control" value="{% if data.creation_date %}{{ data.creation_date[:10] }}{% elif data.publish_date %}{{ data.publish_date[:10] }}{% endif %}">
                                 </div>
                               </div>
                             </div>
@@ -296,7 +296,7 @@
                                     <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
                                     </div>
 
-                                    <input type="hidden" id="country_groups" name="country_groups" value="{{ data.country_groups or '' }}">
+                                    <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups %}{{ data.country_groups }}{% endif %}">
                                   </div>
                                 </div>
                               </div>
@@ -331,7 +331,7 @@
                                     <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
                                     </div>
 
-                                    <input type="hidden" id="initiative_groups" name="initiative_groups" value="{{ data.initiative_groups or '' }}">
+                                    <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
                                   </div>
                                 </div>
                               </div>
@@ -1295,9 +1295,15 @@ select.form-control option:selected {
 
     function syncHiddenFromDatasetForm() {
       const title = ($('#dataset_title').val() || '').trim();
-      const slug = slugify(title);
-      $('#field-title').val(title || 'Untitled Document');
-      $('#field-name').val(slug);
+      // Only overwrite hidden fields when the dataset form has actual values;
+      // this prevents blanking out existing data loaded on edit.
+      if (title) {
+        const slug = slugify(title);
+        $('#field-title').val(title);
+        if (!$('#field-name').val()) {
+          $('#field-name').val(slug);
+        }
+      }
       const action = ($('#water-publications-action').val() || 'submit').toLowerCase();
       $('#field-private').val(action === 'publish' ? 'False' : 'True');
 
@@ -1305,7 +1311,7 @@ select.form-control option:selected {
       if (date) $('#field-publish-date').val(date);
 
       const desc = ($('#dataset_description').val() || '').trim();
-      $('#field-content').val(desc || title || '');
+      if (desc) $('#field-content').val(desc);
 
       const header = ($('#graphic_overview').val() || '').trim();
       if (header) $('#field-header-image').val(header);
