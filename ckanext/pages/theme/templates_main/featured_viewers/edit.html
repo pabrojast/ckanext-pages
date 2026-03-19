@@ -341,6 +341,9 @@
                 <button type="button" id="fv-json-preview" class="btn btn-success btn-xs" title="{{ _('Preview map from JSON') }}">
                   <i class="fa fa-eye"></i> {{ _('Preview Map') }}
                 </button>
+                <button type="button" id="fv-save-to-terria" class="btn btn-primary btn-xs" title="{{ _('Save config to Terria and get a short share link') }}">
+                  <i class="fa fa-cloud-upload"></i> {{ _('Save to Terria') }}
+                </button>
               </div>
               <textarea id="fv-terria-config" name="terria_config" class="form-control code-editor" rows="18"
                         placeholder='{{ _("Paste or fetch a Terria JSON config...") }}'
@@ -1383,6 +1386,59 @@
         advLiveTimer = setTimeout(function() {
           updateAdvGeneratedUrl();
         }, 400);
+      });
+
+      // Save to Terria (POST config to get short #share=ID link)
+      $('#fv-save-to-terria').on('click', function() {
+        var jsonText = $terriaConfig.val().trim();
+        if (!jsonText) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Enter a Terria JSON config first.") }}');
+          return;
+        }
+        var parsed;
+        try {
+          parsed = JSON.parse(jsonText);
+        } catch(e) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Invalid JSON:") }} ' + $('<span>').text(e.message).html());
+          return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ _("Saving...") }}');
+        showAdvStatus('loading', '<i class="fa fa-spinner fa-spin"></i> {{ _("Saving config to Terria...") }}');
+
+        $.ajax({
+          url: '/featured-viewers/api/save-to-terria',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ config: parsed, base_url: advBaseUrl }),
+          dataType: 'json',
+          timeout: 20000,
+          success: function(data) {
+            if (data.success) {
+              // Update fields with the clean share URL
+              var shareUrl = data.share_url;
+              $generatedUrl.val(shareUrl);
+              $openGeneratedUrl.attr('href', shareUrl).show();
+              $generatedUrlGroup.show();
+              $('#fv-terria-link').val(shareUrl);
+              advBaseUrl = data.base_url || advBaseUrl;
+              showAdvStatus('success',
+                '<i class="fa fa-check-circle"></i> {{ _("Saved! Share link:") }} <code>' +
+                $('<span>').text(shareUrl).html() + '</code>');
+            } else {
+              showAdvStatusSafe('error', 'fa-exclamation-triangle', data.error || '{{ _("Unknown error") }}');
+            }
+          },
+          error: function(xhr) {
+            var msg = '{{ _("Failed to save to Terria") }}';
+            try { msg = JSON.parse(xhr.responseText).error || msg; } catch(e) {}
+            showAdvStatusSafe('error', 'fa-exclamation-triangle', msg);
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fa fa-cloud-upload"></i> {{ _("Save to Terria") }}');
+          }
+        });
       });
 
       // If config already has content, show generated URL

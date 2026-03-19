@@ -995,6 +995,94 @@ def resolve_share_link():
         }), 500
 
 
+@featured_viewers_blueprint.route('/api/save-to-terria', methods=['POST'])
+def save_to_terria():
+    """
+    Save a Terria JSON config to the Terria share service.
+
+    Posts the config to Terria's /share endpoint and returns the
+    short share URL with #share=ID.
+
+    Request body (JSON):
+        config: Terria config object
+        base_url: (optional) Terria instance base URL
+
+    Returns:
+        JSON: {success: true, share_url: "https://.../#share=ID", share_id: "ID"}
+    """
+    if not g.user:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 403
+
+    try:
+        data = request.get_json(force=True)
+    except Exception:
+        return jsonify({'success': False, 'error': 'Invalid JSON body'}), 400
+
+    config = data.get('config')
+    if not config or not isinstance(config, dict):
+        return jsonify({'success': False, 'error': 'Missing or invalid config object'}), 400
+
+    base_url = (data.get('base_url') or 'https://map.dev-wins.com/').rstrip('/') + '/'
+
+    # Validate domain
+    allowed_domains = [
+        'map.dev-wins.com',
+        'terria.water-data.org',
+        'data210.dev-wins.com',
+    ]
+    try:
+        configured = tk.config.get('ckanext.pages.terria_base_url', '')
+        if configured:
+            configured_host = urllib.parse.urlparse(configured).netloc
+            if configured_host:
+                allowed_domains.append(configured_host)
+    except Exception:
+        pass
+
+    parsed_base = urllib.parse.urlparse(base_url)
+    if parsed_base.netloc not in allowed_domains:
+        return jsonify({
+            'success': False,
+            'error': 'Domain not allowed: {}'.format(parsed_base.netloc)
+        }), 400
+
+    try:
+        import requests as http_requests
+        share_endpoint = '{}share'.format(base_url)
+        log.info('Saving config to Terria share: %s', share_endpoint)
+
+        resp = http_requests.post(
+            share_endpoint,
+            json=config,
+            headers={'Content-Type': 'application/json'},
+            timeout=15,
+        )
+        resp.raise_for_status()
+
+        result = resp.json()
+        share_id = result.get('id')
+        if not share_id:
+            return jsonify({
+                'success': False,
+                'error': 'Terria did not return a share ID'
+            }), 502
+
+        share_url = '{}#share={}'.format(base_url, share_id)
+        return jsonify({
+            'success': True,
+            'share_id': share_id,
+            'share_url': share_url,
+            'base_url': base_url,
+        })
+
+    except Exception as e:
+        log.error('Error saving to Terria share: %s', str(e))
+        return jsonify({
+            'success': False,
+            'error': 'Failed to save config to Terria'
+        }), 500
+
+
 @featured_viewers_blueprint.route('/api/search-terria-datasets')
 def search_terria_datasets():
     """
