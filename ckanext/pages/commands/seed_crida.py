@@ -65,9 +65,13 @@ def get_commands():
 
 
 def _slugify(text):
-    """Create a URL-safe slug from text."""
+    """Create a URL-safe ASCII slug from text."""
+    import unicodedata
+    # Normalize unicode (e.g. í → i) then keep only ASCII
+    text = unicodedata.normalize('NFKD', text)
+    text = text.encode('ascii', 'ignore').decode('ascii')
     text = text.lower().strip()
-    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[^a-z0-9\s-]', '', text)
     text = re.sub(r'[\s_]+', '-', text)
     text = re.sub(r'-+', '-', text)
     return text[:100].strip('-')
@@ -207,8 +211,6 @@ def seed_crida(dry_run, update_existing):
                 'themes': json.dumps(item.get('themes', [])),
                 'partners': json.dumps(item.get('partners', [])),
                 'highlights': json.dumps(item.get('highlights', [])),
-                'case_study_url': item.get('url_unesco', ''),
-                'external_link': item.get('url_original', ''),
                 'crida_context': item.get('context', ''),
                 'crida_actions': item.get('actions', ''),
                 'crida_outcomes': item.get('outcomes', ''),
@@ -217,6 +219,13 @@ def seed_crida(dry_run, update_existing):
                 'publish_date': '2025-01-01',
                 'submission_action': 'publish',
             }
+
+            # Only include URL fields when non-empty to avoid
+            # url_validator rejecting blank strings
+            if item.get('url_unesco'):
+                page_data['case_study_url'] = item['url_unesco']
+            if item.get('url_original'):
+                page_data['external_link'] = item['url_original']
 
             if lat is not None:
                 page_data['latitude'] = str(lat)

@@ -280,8 +280,8 @@ def default_pages_schema():
         'crida_outcomes': [ignore_missing, unicode_safe],  # Results/outcomes
         'highlights': [ignore_missing, json_validator, unicode_safe],  # JSON array of CRIDA step highlights
         'image_credit': [ignore_missing, unicode_safe],
-        'case_study_url': [ignore_missing, url_validator, unicode_safe],  # UNESCO case study page
-        'external_link': [ignore_missing, url_validator, unicode_safe],  # External reference
+        'case_study_url': [ignore_missing, ignore_empty, url_validator, unicode_safe],  # UNESCO case study page
+        'external_link': [ignore_missing, ignore_empty, url_validator, unicode_safe],  # External reference
         'related_datasets_json': [ignore_missing, json_validator, unicode_safe],  # CKAN dataset IDs
         'related_documents_json': [ignore_missing, json_validator, unicode_safe],  # Document attachments
     }

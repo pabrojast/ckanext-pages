@@ -421,6 +421,10 @@ def crida_admin_reject(page):
     return utils.crida_admin_reject(page)
 
 
+def crida_admin_reseed():
+    return utils.crida_admin_reseed()
+
+
 def crida_geojson_api():
     return utils.crida_geojson_api()
 
@@ -590,4 +594,5 @@ pages.add_url_rule("/crida/case-studies_delete/<page>", view_func=crida_case_stu
 pages.add_url_rule("/crida/admin", view_func=crida_admin_dashboard, endpoint='crida_admin_dashboard')
 pages.add_url_rule("/crida/admin/approve/<page>", view_func=crida_admin_approve, endpoint='crida_admin_approve', methods=['POST'])
 pages.add_url_rule("/crida/admin/reject/<page>", view_func=crida_admin_reject, endpoint='crida_admin_reject', methods=['POST'])
+pages.add_url_rule("/crida/admin/reseed", view_func=crida_admin_reseed, endpoint='crida_admin_reseed', methods=['POST'])
 pages.add_url_rule("/crida/api/geojson", view_func=crida_geojson_api, endpoint='crida_geojson_api')
