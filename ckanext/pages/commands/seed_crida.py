@@ -49,14 +49,33 @@ COORDINATES = {
 
 # Map downloaded images to case study IDs
 IMAGE_MAP = {
-    "cl-limari": "/images/crida/crida-drought-adaptation-limar.jpg",
-    "zw-chimanimani": "/images/crida/comprehensive-resilience-build.jpg",
-    "zm-lusaka-iolanda": "/images/crida/resilient-water-and-energy-sup.jpg",
-    "lk-colombo": "/images/crida/climate-change-adaptation-muni.jpg",
-    "th-bangkok": "/images/crida/towards-climate-resilient-urba.jpg",
-    "ph-cebu": "/images/crida/water-security-case-study-central-cebu-p.jpg",
-    "th-udon-thani": "/images/crida/nature-based-solutions-adapt-climate-cha.jpg",
-    "ar-atuel": "/images/crida/crida-atuel-river-basin-argentina.jpg",
+    "cl-limari": "/images/crida/limari-chile.jpg",
+    "zw-chimanimani": "/images/crida/chimanimani-zimbabwe.jpg",
+    "zm-lusaka-iolanda": "/images/crida/zambia-water-energy.jpg",
+    "lk-colombo": "/images/crida/colombo-sri-lanka.jpg",
+    "th-bangkok": "/images/crida/bangkok-thailand.jpg",
+    "ph-cebu": "/images/crida/cebu-philippines.jpg",
+    "th-udon-thani": "/images/crida/udon-thani-nbs.jpg",
+    "co-magdalena-hydropower": "/images/crida/colombia-hydropower.jpg",
+    "ec-guayaquil-flood-resilience": "/images/crida/ecuador-flood-resilience.jpg",
+    "us-ca-tuolumne-merced": "/images/crida/california-tuolumne.jpg",
+    "us-ca-article": "/images/crida/california-crida.jpg",
+    "ca-us-glam": "/images/crida/great-lakes-glam.jpg",
+    "ga-ntoum": "/images/crida/gabon-ntoum.jpg",
+    "bt-nap": "/images/crida/bhutan-nap.jpg",
+    "za-be-resilient-program-article": "/images/crida/south-africa-resilient.jpg",
+    "za-luvuvhu": "/images/crida/south-africa-luvuvhu.jpg",
+    "za-marico": "/images/crida/south-africa-marico.jpg",
+    "za-eerste-cape-winelands": "/images/crida/south-africa-eerste.jpg",
+    "za-k2c": "/images/crida/south-africa-kruger.jpg",
+    "do-guayubin": "/images/crida/dominican-republic.jpg",
+    "ar-atuel": "/images/crida/argentina-atuel.jpg",
+    "mx-water-reserves": "/images/crida/mexico-water-reserves.jpg",
+    "se-municipal-dapp": "/images/crida/sweden-dapp.jpg",
+    "nl-waas-lower-rhine": "/images/crida/netherlands-waas.jpg",
+    "pe-chancay-lambayeque": "/images/crida/peru-chancay.jpg",
+    "ke-water-supply-demand": "/images/crida/kenya-nairobi.jpg",
+    "ua-tisza": "/images/crida/ukraine-tisza.jpg",
 }
 
 
@@ -78,7 +97,8 @@ def _slugify(text):
 
 
 def _load_data():
-    """Load and merge data from both data files."""
+    """Load and merge data from all data files (lat_lon, crida.json,
+    enriched content scraped from UNESCO pages)."""
     data_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)), 'data'
     )
@@ -99,14 +119,38 @@ def _load_data():
         with open(crida_file, 'r', encoding='utf-8') as f:
             crida_items = json.load(f)
 
+    # Load enriched content (scraped from UNESCO pages)
+    enriched_file = os.path.join(data_dir, 'crida_enriched.json')
+    enriched = {}
+    if os.path.exists(enriched_file):
+        with open(enriched_file, 'r', encoding='utf-8') as f:
+            enriched = json.load(f)
+
     # Merge crida.json into lat_lon items by matching title
     title_map = {}
     for item_id, item in items_by_id.items():
         title_map[item['title'].lower().strip()] = item_id
 
+    def _find_match(title):
+        """Find matching item by exact title or fuzzy word overlap."""
+        t = title.lower().strip()
+        if t in title_map:
+            return title_map[t]
+        # Fuzzy match by word overlap (threshold 40%)
+        words = set(t.split())
+        best_id, best_score = None, 0
+        for llt, lid in title_map.items():
+            llt_words = set(llt.split())
+            union = len(words | llt_words)
+            if union == 0:
+                continue
+            score = len(words & llt_words) / union
+            if score > best_score:
+                best_id, best_score = lid, score
+        return best_id if best_score >= 0.4 else None
+
     for cj in crida_items:
-        cj_title = cj['title'].lower().strip()
-        matched_id = title_map.get(cj_title)
+        matched_id = _find_match(cj['title'])
 
         if matched_id:
             # Merge extra fields from crida.json
@@ -141,6 +185,39 @@ def _load_data():
                 'outcomes': cj.get('outcomes', ''),
                 'image_credit': cj.get('image_credit', ''),
             }
+
+    # Merge enriched content from UNESCO scraping (highest priority)
+    for item_id, enr in enriched.items():
+        if item_id not in items_by_id:
+            continue
+        item = items_by_id[item_id]
+        # Enriched overview becomes the summary if richer
+        if enr.get('overview') and (
+            not item.get('summary')
+            or len(enr['overview']) > len(item.get('summary', ''))
+        ):
+            item['summary'] = enr['overview']
+        # Enriched context/actions/outcomes replace if richer
+        if enr.get('context') and (
+            not item.get('context')
+            or len(enr['context']) > len(item.get('context', ''))
+        ):
+            item['context'] = enr['context']
+        if enr.get('actions') and (
+            not item.get('actions')
+            or len(enr['actions']) > len(item.get('actions', ''))
+        ):
+            item['actions'] = enr['actions']
+        if enr.get('outcomes') and (
+            not item.get('outcomes')
+            or len(enr['outcomes']) > len(item.get('outcomes', ''))
+        ):
+            item['outcomes'] = enr['outcomes']
+        # Enriched highlights supplement existing ones
+        if enr.get('highlights'):
+            existing_hl = item.get('highlights', [])
+            if not existing_hl or len(enr['highlights']) > len(existing_hl):
+                item['highlights'] = enr['highlights']
 
     return items_by_id
 

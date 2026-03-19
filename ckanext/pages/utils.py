@@ -2846,6 +2846,107 @@ def ai_water_admin_change_org(page):
 # ============================================================
 
 
+def _auto_seed_crida_if_empty():
+    """Automatically seed CRIDA case studies from data files if none exist."""
+    import json as json_module
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        from ckanext.pages.commands.seed_crida import (
+            _load_data, _slugify, COORDINATES, IMAGE_MAP
+        )
+        import ckan.logic as logic
+
+        items = _load_data()
+        if not items:
+            return
+
+        site_user = logic.get_action('get_site_user')(
+            {'ignore_auth': True}, {}
+        )
+        context = {
+            'user': site_user['name'],
+            'ignore_auth': True,
+        }
+
+        created = 0
+        for item_id, item in items.items():
+            name = _slugify(item['title'])[:80] or item_id
+            try:
+                existing = None
+                try:
+                    existing = logic.get_action('ckanext_pages_show')(
+                        dict(context), {'page': name}
+                    )
+                except (logic.NotFound, KeyError):
+                    pass
+
+                if existing:
+                    continue
+
+                coords = COORDINATES.get(item_id, (None, None, ''))
+                lat, lon, coord_note = (
+                    coords if len(coords) == 3
+                    else (coords[0], coords[1], '')
+                )
+                header_image = IMAGE_MAP.get(item_id, '')
+
+                page_data = {
+                    'page': name,
+                    'name': name,
+                    'title': item['title'],
+                    'page_type': 'crida-case-study',
+                    'content': item.get('summary', ''),
+                    'excerpt': (item.get('summary', '')[:300]
+                                if item.get('summary') else ''),
+                    'country': item.get('country', ''),
+                    'crida_status': item.get('status', 'Finished'),
+                    'themes': json_module.dumps(
+                        item.get('themes', [])),
+                    'partners': json_module.dumps(
+                        item.get('partners', [])),
+                    'highlights': json_module.dumps(
+                        item.get('highlights', [])),
+                    'case_study_url': item.get('url_unesco', ''),
+                    'external_link': item.get('url_original', ''),
+                    'crida_context': item.get('context', ''),
+                    'crida_actions': item.get('actions', ''),
+                    'crida_outcomes': item.get('outcomes', ''),
+                    'image_credit': item.get('image_credit', ''),
+                    'header_image': header_image,
+                    'publish_date': '2025-01-01',
+                    'submission_action': 'publish',
+                }
+
+                if lat is not None:
+                    page_data['latitude'] = str(lat)
+                if lon is not None:
+                    page_data['longitude'] = str(lon)
+                if coord_note:
+                    page_data['coord_note'] = coord_note
+
+                logic.get_action('ckanext_pages_update')(
+                    dict(context), page_data
+                )
+                created += 1
+
+            except Exception as e:
+                logger.warning(
+                    'Auto-seed CRIDA: error importing %s: %s',
+                    name, str(e)
+                )
+
+        if created > 0:
+            logger.info(
+                'Auto-seeded %d CRIDA case studies from data files',
+                created
+            )
+
+    except Exception as e:
+        logger.warning('Auto-seed CRIDA failed: %s', str(e))
+
+
 def crida_main_page():
     """CRIDA main page showing interactive map and recent case studies."""
     import json as json_module
@@ -2862,6 +2963,21 @@ def crida_main_page():
         )
     except Exception:
         case_studies = []
+
+    # Auto-seed from data files if no case studies exist
+    if not case_studies:
+        _auto_seed_crida_if_empty()
+        try:
+            case_studies = tk.get_action('ckanext_pages_list')(
+                context={}, data_dict={
+                    'org_id': None,
+                    'page_type': 'crida-case-study',
+                    'order_publish_date': True,
+                    'private': False
+                }
+            )
+        except Exception:
+            case_studies = []
 
     # Generate GeoJSON for the map
     try:
@@ -2998,6 +3114,128 @@ def crida_admin_reject(page):
             tk.h.flash_error(_('Error rejecting content: %s') % str(e))
 
         return tk.redirect_to('pages.crida_admin_dashboard')
+
+    return tk.redirect_to('pages.crida_admin_dashboard')
+
+
+def crida_admin_reseed():
+    """Force re-seed all CRIDA case studies from data files."""
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized'))
+
+    import json as json_module
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        from ckanext.pages.commands.seed_crida import (
+            _load_data, _slugify, COORDINATES, IMAGE_MAP
+        )
+        import ckan.logic as logic
+
+        items = _load_data()
+        if not items:
+            tk.h.flash_error(_('No data files found to seed.'))
+            return tk.redirect_to('pages.crida_admin_dashboard')
+
+        site_user = logic.get_action('get_site_user')(
+            {'ignore_auth': True}, {}
+        )
+        context = {
+            'user': site_user['name'],
+            'ignore_auth': True,
+        }
+
+        created = 0
+        updated = 0
+        errors = 0
+
+        for item_id, item in items.items():
+            name = _slugify(item['title'])[:80] or item_id
+            try:
+                coords = COORDINATES.get(item_id, (None, None, ''))
+                lat, lon, coord_note = (
+                    coords if len(coords) == 3
+                    else (coords[0], coords[1], '')
+                )
+                header_image = IMAGE_MAP.get(item_id, '')
+
+                existing = None
+                try:
+                    existing = logic.get_action('ckanext_pages_show')(
+                        dict(context), {'page': name}
+                    )
+                except (logic.NotFound, KeyError):
+                    pass
+
+                page_data = {
+                    'page': name,
+                    'name': name,
+                    'title': item['title'],
+                    'page_type': 'crida-case-study',
+                    'content': item.get('summary', ''),
+                    'excerpt': (
+                        item.get('summary', '')[:300]
+                        if item.get('summary') else ''
+                    ),
+                    'country': item.get('country', ''),
+                    'crida_status': item.get('status', 'Finished'),
+                    'themes': json_module.dumps(
+                        item.get('themes', [])
+                    ),
+                    'partners': json_module.dumps(
+                        item.get('partners', [])
+                    ),
+                    'highlights': json_module.dumps(
+                        item.get('highlights', [])
+                    ),
+                    'case_study_url': item.get('url_unesco', ''),
+                    'external_link': item.get(
+                        'url_original', ''
+                    ),
+                    'crida_context': item.get('context', ''),
+                    'crida_actions': item.get('actions', ''),
+                    'crida_outcomes': item.get('outcomes', ''),
+                    'image_credit': item.get(
+                        'image_credit', ''
+                    ),
+                    'header_image': header_image,
+                    'publish_date': '2025-01-01',
+                    'submission_action': 'publish',
+                }
+
+                if lat is not None:
+                    page_data['latitude'] = str(lat)
+                if lon is not None:
+                    page_data['longitude'] = str(lon)
+                if coord_note:
+                    page_data['coord_note'] = coord_note
+
+                logic.get_action('ckanext_pages_update')(
+                    dict(context), page_data
+                )
+
+                if existing:
+                    updated += 1
+                else:
+                    created += 1
+
+            except Exception:
+                errors += 1
+                logger.exception(
+                    'Error re-seeding CRIDA: %s', name
+                )
+
+        tk.h.flash_success(
+            _('Re-seed complete: %d created, %d updated, '
+              '%d errors') % (created, updated, errors)
+        )
+
+    except Exception as e:
+        logger.exception('Error during CRIDA re-seed')
+        tk.h.flash_error(
+            _('Error during re-seed: %s') % str(e)
+        )
 
     return tk.redirect_to('pages.crida_admin_dashboard')
 
