@@ -1,0 +1,219 @@
+{% extends "ckanext_pages/edit_base.html" %}
+{% import 'macros/form.html' as form %}
+
+{% set page_type = 'crida-case-study' %}
+
+{% block title %}
+{% if page %}{{ _('Edit CRIDA Case Study') }}{% else %}{{ _('New CRIDA Case Study') }}{% endif %} - {{ super() }}
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/crida.css" />
+{% endblock %}
+
+{% block edit_form %}
+
+<form id="crida-case-study-form" class="dataset-form form-horizontal" method="post" enctype="multipart/form-data"
+      action="{% if page %}{{ h.url_for('pages.crida_case_study_edit', page=page) }}{% else %}{{ h.url_for('pages.crida_case_study_new') }}{% endif %}">
+
+  <input type="hidden" name="page_type" value="crida-case-study">
+  <input type="hidden" id="field-submission-action" name="submission_action" value="draft">
+
+  {# Basic Information #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-info-circle"></i> {{ _('Basic Information') }}</h3>
+
+    {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('Case study title'), value=data.title, error=errors.title, classes=['control-full'], attrs={'class': 'form-control'}) }}
+
+    {% set prefix = h.url_for('pages.crida_case_study_show', page='') %}
+    {% set domain = h.url_for('pages.crida_case_study_show', page='', qualified=true) %}
+    {{ form.prepend('name', id='field-name', label=_('URL'), prepend=prefix, placeholder=_('eg. limari-chile'), value=data.name, error=errors.name, classes=['control-full']) }}
+
+    <div class="row">
+      <div class="col-md-6">
+        {{ form.input('country', id='field-country', label=_('Country'), placeholder=_('e.g., Chile'), value=data.country, error=errors.country, classes=['control-full'], attrs={'class': 'form-control'}) }}
+      </div>
+      <div class="col-md-6">
+        <div class="form-group control-group">
+          <label for="field-crida-status" class="control-label">{{ _('Status') }}</label>
+          <div class="controls">
+            <select id="field-crida-status" class="form-control" name="crida_status">
+              <option value="">{{ _('Select status...') }}</option>
+              {% set statuses = [('Finished', _('Finished')), ('Ongoing', _('Ongoing')), ('Planned', _('Planned'))] %}
+              {% for val, label in statuses %}
+                <option value="{{ val }}" {% if data.crida_status == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{ form.markdown('excerpt', id='field-excerpt', label=_('Summary / Excerpt'), placeholder=_('Brief description of the case study (shown in cards and listings)'), value=data.excerpt, error=errors.excerpt) }}
+  </div>
+
+  {# Location / Coordinates #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-map-marker"></i> {{ _('Location') }}</h3>
+
+    <div class="crida-coord-display">
+      <div class="form-group">
+        {{ form.input('latitude', id='field-latitude', label=_('Latitude'), placeholder=_('e.g., -30.60'), value=data.latitude, error=errors.latitude, classes=['control-full'], attrs={'class': 'form-control', 'type': 'number', 'step': '0.0001', 'min': '-90', 'max': '90'}) }}
+      </div>
+      <div class="form-group">
+        {{ form.input('longitude', id='field-longitude', label=_('Longitude'), placeholder=_('e.g., -71.05'), value=data.longitude, error=errors.longitude, classes=['control-full'], attrs={'class': 'form-control', 'type': 'number', 'step': '0.0001', 'min': '-180', 'max': '180'}) }}
+      </div>
+    </div>
+
+    <div id="crida-coord-preview"></div>
+
+    {{ form.input('coord_note', id='field-coord-note', label=_('Coordinate Note'), placeholder=_('e.g., Approximate location (Limarí basin)'), value=data.coord_note, error=errors.coord_note, classes=['control-full'], attrs={'class': 'form-control'}) }}
+  </div>
+
+  {# CRIDA Content #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-file-text-o"></i> {{ _('Content') }}</h3>
+
+    {{ form.markdown('content', id='field-content', label=_('Overview'), placeholder=_('Main content and description'), value=data.content, error=errors.content) }}
+
+    {{ form.markdown('crida_context', id='field-crida-context', label=_('Context'), placeholder=_('Describe the context: challenges, vulnerabilities, and drivers'), value=data.crida_context, error=errors.crida_context) }}
+
+    {{ form.markdown('crida_actions', id='field-crida-actions', label=_('Actions Taken'), placeholder=_('Describe the CRIDA methodology steps and actions taken'), value=data.crida_actions, error=errors.crida_actions) }}
+
+    {{ form.markdown('crida_outcomes', id='field-crida-outcomes', label=_('Outcomes'), placeholder=_('Results and outcomes of the case study'), value=data.crida_outcomes, error=errors.crida_outcomes) }}
+  </div>
+
+  {# CRIDA Details #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-cogs"></i> {{ _('CRIDA Details') }}</h3>
+
+    {# Themes multi-select #}
+    <div class="form-group control-group">
+      <label class="control-label">{{ _('Themes') }}</label>
+      <input type="hidden" id="field-themes" name="themes" value="{{ data.themes or '[]' }}">
+      <div id="crida-themes-container"></div>
+      <p class="help-text">{{ _('Select the themes that apply to this case study') }}</p>
+    </div>
+
+    {# Partners #}
+    <div class="form-group control-group">
+      <label class="control-label">{{ _('Partners') }}</label>
+      <input type="hidden" id="field-partners" name="partners" value="{{ data.partners or '[]' }}">
+      <input type="text" id="crida-partner-input" class="form-control" placeholder="{{ _('Type a partner name and press Enter') }}">
+      <div id="crida-partners-container" style="margin-top:0.5rem;"></div>
+    </div>
+
+    {# Highlights #}
+    <div class="form-group control-group">
+      <label class="control-label">{{ _('CRIDA Highlights') }}</label>
+      <input type="hidden" id="field-highlights" name="highlights" value="{{ data.highlights or '[]' }}">
+      <div id="crida-highlights-container"></div>
+      <button type="button" id="crida-add-highlight" class="btn btn-sm btn-default" style="margin-top:0.5rem;">
+        <i class="fa fa-plus"></i> {{ _('Add Highlight') }}
+      </button>
+      <p class="help-text">{{ _('Key CRIDA steps and highlights (e.g., CRIDA Step 1: Decision context assessment)') }}</p>
+    </div>
+  </div>
+
+  {# Media & Images #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-image"></i> {{ _('Media') }}</h3>
+
+    {{ form.input('header_image', id='field-header-image', label=_('Header Image URL'), placeholder=_('URL of the header image or upload below'), value=data.header_image, error=errors.header_image, classes=['control-full'], attrs={'class': 'form-control'}) }}
+
+    {{ form.input('image_credit', id='field-image-credit', label=_('Image Credit'), placeholder=_('e.g., UNESCO / Francesco Fiondella'), value=data.image_credit, error=errors.image_credit, classes=['control-full'], attrs={'class': 'form-control'}) }}
+  </div>
+
+  {# References #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-link"></i> {{ _('References') }}</h3>
+
+    {{ form.input('case_study_url', id='field-case-study-url', label=_('UNESCO Case Study URL'), placeholder=_('https://www.unesco.org/en/crida/...'), value=data.case_study_url, error=errors.case_study_url, classes=['control-full'], attrs={'class': 'form-control'}) }}
+
+    {{ form.input('external_link', id='field-external-link', label=_('External Reference URL'), placeholder=_('https://...'), value=data.external_link, error=errors.external_link, classes=['control-full'], attrs={'class': 'form-control'}) }}
+  </div>
+
+  {# Related Data #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-database"></i> {{ _('Related Data') }}</h3>
+
+    {# Dataset Selector #}
+    <div class="form-group control-group">
+      <label class="control-label">{{ _('Related Datasets') }}</label>
+      <input type="hidden" id="field-related-datasets-json" name="related_datasets_json" value="{{ data.related_datasets_json or '[]' }}">
+      <div class="crida-dataset-selector">
+        <input type="text" id="crida-dataset-search" class="form-control crida-dataset-search" placeholder="{{ _('Search datasets...') }}">
+        <div id="crida-dataset-results" class="crida-dataset-results"></div>
+      </div>
+      <div id="crida-selected-datasets" class="crida-selected-datasets" style="margin-top:0.5rem;"></div>
+      <p class="help-text">{{ _('Search and link existing datasets to this case study') }}</p>
+    </div>
+
+    {# Document Upload #}
+    <div class="form-group control-group">
+      <label class="control-label">{{ _('Related Documents') }}</label>
+      <input type="hidden" id="field-related-documents-json" name="related_documents_json" value="{{ data.related_documents_json or '[]' }}">
+      <input type="file" id="crida-document-upload" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.zip">
+      <div id="crida-documents-list" style="margin-top:0.5rem;"></div>
+      <p class="help-text">{{ _('Upload documents related to this case study (PDF, DOC, Excel, CSV)') }}</p>
+    </div>
+  </div>
+
+  {# Organization (IHP) #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-building"></i> {{ _('Organization') }}</h3>
+
+    <div class="form-group control-group">
+      <label for="field-ihp-organization" class="control-label">{{ _('IHP Organization') }}</label>
+      <div class="controls">
+        <select id="field-ihp-organization" class="form-control" name="ihp_organization">
+          <option value="">{{ _('Select organization...') }}</option>
+          {% for org in h.get_ihp_organizations() %}
+            <option value="{{ org.id }}" {% if data.ihp_organization == org.id %}selected{% endif %}>{{ org.display_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  {# Publish Date #}
+  <div class="crida-form-section">
+    <h3><i class="fa fa-calendar"></i> {{ _('Publishing') }}</h3>
+
+    {{ form.input('publish_date', id='field-publish-date', label=_('Publish Date'), placeholder=_('YYYY-MM-DD'), value=data.publish_date, error=errors.publish_date, classes=['control-full'], attrs={'class': 'form-control', 'type': 'date'}) }}
+  </div>
+
+  {# Submission Actions #}
+  <div class="crida-form-section" style="border-left-color: var(--crida-primary);">
+    <h3><i class="fa fa-paper-plane"></i> {{ _('Save & Submit') }}</h3>
+
+    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-default crida-submit-action" data-action="draft">
+        <i class="fa fa-save"></i> {{ _('Save as Draft') }}
+      </button>
+
+      <button type="submit" class="btn btn-primary crida-submit-action" data-action="submit">
+        <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+      </button>
+
+      {% if h.is_sysadmin() %}
+      <button type="submit" class="btn btn-success crida-submit-action" data-action="publish">
+        <i class="fa fa-globe"></i> {{ _('Publish Now') }}
+      </button>
+      {% endif %}
+    </div>
+
+    <p class="help-text" style="margin-top:0.8rem;">
+      {{ _('Draft: Save privately. Submit: Send for admin review. Publish: Make immediately public (admin only).') }}
+    </p>
+  </div>
+
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="/js/crida-edit.js"></script>
+{% endblock %}

@@ -1,0 +1,279 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ c.page.title or c.page.name }} - {{ _('CRIDA Case Studies') }} - {{ super() }}
+{% endblock %}
+
+{% set cs_themes = h.json_loads(c.page.themes) if c.page.themes else [] %}
+{% set cs_partners = h.json_loads(c.page.partners) if c.page.partners else [] %}
+{% set cs_highlights = h.json_loads(c.page.highlights) if c.page.highlights else [] %}
+{% set cs_datasets = h.json_loads(c.page.related_datasets_json) if c.page.related_datasets_json else [] %}
+{% set cs_documents = h.json_loads(c.page.related_documents_json) if c.page.related_documents_json else [] %}
+{% set hero_image = c.page.header_image or '/images/crida/crida-hero.jpg' %}
+{% set has_context = h.has_meaningful_content(c.page.crida_context) %}
+{% set has_actions = h.has_meaningful_content(c.page.crida_actions) %}
+{% set has_outcomes = h.has_meaningful_content(c.page.crida_outcomes) %}
+{% set has_content = h.has_meaningful_content(c.page.content) %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/crida.css" />
+{% endblock %}
+
+{% block content %}
+
+<div class="crida-page">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      {# Breadcrumb #}
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
+          <li><a href="{{ h.url_for('pages.crida_case_studies_index') }}">{{ _('Case Studies') }}</a></li>
+          <li class="active">{{ c.page.title or c.page.name }}</li>
+        </ol>
+      </div>
+
+      {# Hero #}
+      <div class="crida-hero">
+        <div class="crida-hero-bg" style="background-image: url('{{ hero_image }}');"></div>
+        <div class="crida-hero-overlay"></div>
+        <div class="crida-hero-content">
+          <div style="margin-bottom:0.6rem;">
+            <span class="crida-status-badge {{ h.get_crida_status_class(c.page.crida_status) }}" style="font-size:0.82rem;">{{ c.page.crida_status or 'N/A' }}</span>
+            {% if c.page.country %}
+              <span style="margin-left:0.5rem;font-size:0.9rem;"><i class="fa fa-globe"></i> {{ c.page.country }}</span>
+            {% endif %}
+          </div>
+          <h1>{{ c.page.title or c.page.name }}</h1>
+          {% if c.page.excerpt %}
+            <p class="crida-subtitle">{{ c.page.excerpt }}</p>
+          {% endif %}
+          {% if c.page.image_credit %}
+            <div class="crida-meta"><i class="fa fa-camera"></i> {{ c.page.image_credit }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row">
+        {# Main Content #}
+        <div class="col-md-8 crida-detail-content">
+
+          {# Overview / Main Content #}
+          {% if has_content %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-file-text-o"></i> {{ _('Overview') }}</h2>
+            <div class="crida-detail-text">
+              {{ h.render_content(c.page.content) }}
+            </div>
+          </div>
+          {% endif %}
+
+          {# Context #}
+          {% if has_context %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-info-circle"></i> {{ _('Context') }}</h2>
+            <div class="crida-detail-text">
+              {{ h.render_content(c.page.crida_context) }}
+            </div>
+          </div>
+          {% endif %}
+
+          {# Actions Taken #}
+          {% if has_actions %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-cogs"></i> {{ _('Actions Taken') }}</h2>
+            <div class="crida-detail-text">
+              {{ h.render_content(c.page.crida_actions) }}
+            </div>
+          </div>
+          {% endif %}
+
+          {# Outcomes #}
+          {% if has_outcomes %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-check-circle"></i> {{ _('Outcomes') }}</h2>
+            <div class="crida-detail-text">
+              {{ h.render_content(c.page.crida_outcomes) }}
+            </div>
+          </div>
+          {% endif %}
+
+          {# CRIDA Highlights #}
+          {% if cs_highlights %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-star"></i> {{ _('CRIDA Highlights') }}</h2>
+            <ul class="crida-highlights-list">
+              {% for highlight in cs_highlights %}
+                {% if highlight %}
+                <li>{{ highlight }}</li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {# Related Datasets #}
+          {% if cs_datasets %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-database"></i> {{ _('Related Datasets') }}</h2>
+            <ul class="crida-related-datasets">
+              {% for ds in cs_datasets %}
+              <li>
+                <a href="/dataset/{{ ds.id }}">
+                  <i class="fa fa-external-link"></i> {{ ds.title or ds.id }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {# Related Documents #}
+          {% if cs_documents %}
+          <div class="crida-detail-section">
+            <h2><i class="fa fa-file-pdf-o"></i> {{ _('Related Documents') }}</h2>
+            <ul class="crida-related-datasets">
+              {% for doc in cs_documents %}
+              <li>
+                <a href="{{ doc.url }}" target="_blank">
+                  <i class="fa fa-download"></i> {{ doc.name or 'Document' }}
+                </a>
+                {% if doc.type %}
+                  <span style="font-size:0.78rem;color:#999;margin-left:0.5rem;">{{ doc.type }}</span>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          {# Edit / Revisions #}
+          <div style="margin-top:1rem;margin-bottom:2rem;">
+            {% if h.check_access('ckanext_pages_update', {'page': c.page.name, 'page_type': 'crida-case-study'}) %}
+              <a href="{{ h.url_for('pages.crida_case_study_edit', page=c.page.name) }}" class="btn btn-default">
+                <i class="fa fa-pencil"></i> {{ _('Edit') }}
+              </a>
+            {% endif %}
+            <a href="{{ h.url_for('pages.crida_case_study_revisions', page=c.page.name) }}" class="btn btn-default">
+              <i class="fa fa-history"></i> {{ _('Revisions') }}
+            </a>
+          </div>
+
+        </div>
+
+        {# Sidebar #}
+        <div class="col-md-4">
+          <div class="crida-sidebar">
+
+            {# Metadata Card #}
+            <div class="crida-meta-card">
+              <h3><i class="fa fa-info-circle"></i> {{ _('Case Study Details') }}</h3>
+
+              {% if c.page.country %}
+              <div class="crida-meta-item">
+                <i class="fa fa-globe"></i>
+                <span class="label">{{ _('Country') }}</span>
+                <span class="value">{{ c.page.country }}</span>
+              </div>
+              {% endif %}
+
+              {% if c.page.crida_status %}
+              <div class="crida-meta-item">
+                <i class="fa fa-signal"></i>
+                <span class="label">{{ _('Status') }}</span>
+                <span class="value"><span class="crida-status-badge {{ h.get_crida_status_class(c.page.crida_status) }}">{{ c.page.crida_status }}</span></span>
+              </div>
+              {% endif %}
+
+              {% if c.page.latitude and c.page.longitude %}
+              <div class="crida-meta-item">
+                <i class="fa fa-map-marker"></i>
+                <span class="label">{{ _('Location') }}</span>
+                <span class="value">{{ c.page.latitude }}, {{ c.page.longitude }}
+                  {% if c.page.coord_note %}
+                    <br><small style="color:#999;">{{ c.page.coord_note }}</small>
+                  {% endif %}
+                </span>
+              </div>
+              {% endif %}
+
+              {% if c.page.publish_date %}
+              <div class="crida-meta-item">
+                <i class="fa fa-calendar"></i>
+                <span class="label">{{ _('Published') }}</span>
+                <span class="value">{{ h.render_datetime(c.page.publish_date, date_format='%d %B %Y') }}</span>
+              </div>
+              {% endif %}
+            </div>
+
+            {# Themes #}
+            {% if cs_themes %}
+            <div class="crida-meta-card">
+              <h3><i class="fa fa-tags"></i> {{ _('Themes') }}</h3>
+              <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+                {% for theme in cs_themes %}
+                  <span class="crida-theme-tag"><i class="fa fa-tag"></i> {{ theme }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            {# Partners #}
+            {% if cs_partners %}
+            <div class="crida-meta-card">
+              <h3><i class="fa fa-handshake-o"></i> {{ _('Partners') }}</h3>
+              <div class="crida-partners-list">
+                {% for partner in cs_partners %}
+                  <span class="crida-partner-tag"><i class="fa fa-building-o"></i> {{ partner }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            {# External Links #}
+            {% if c.page.case_study_url or c.page.external_link %}
+            <div class="crida-meta-card">
+              <h3><i class="fa fa-external-link"></i> {{ _('References') }}</h3>
+              {% if c.page.case_study_url %}
+              <div class="crida-meta-item">
+                <i class="fa fa-link"></i>
+                <a href="{{ c.page.case_study_url }}" target="_blank" style="color:#0072BC;">{{ _('UNESCO Case Study Page') }}</a>
+              </div>
+              {% endif %}
+              {% if c.page.external_link %}
+              <div class="crida-meta-item">
+                <i class="fa fa-external-link"></i>
+                <a href="{{ c.page.external_link }}" target="_blank" style="color:#0072BC;">{{ _('External Reference') }}</a>
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            {# Mini Map #}
+            {% if c.page.latitude and c.page.longitude %}
+            <div class="crida-meta-card">
+              <h3><i class="fa fa-map"></i> {{ _('Location') }}</h3>
+              <div style="border-radius:6px;overflow:hidden;height:200px;">
+                <iframe src="https://www.openstreetmap.org/export/embed.html?bbox={{ (c.page.longitude|float - 3) }},{{ (c.page.latitude|float - 3) }},{{ (c.page.longitude|float + 3) }},{{ (c.page.latitude|float + 3) }}&layer=mapnik&marker={{ c.page.latitude }},{{ c.page.longitude }}" style="width:100%;height:100%;border:none;" loading="lazy"></iframe>
+              </div>
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+{% endblock %}

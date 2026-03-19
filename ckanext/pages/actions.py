@@ -300,7 +300,7 @@ def _pages_update(context, data_dict):
         if normalized_action in {'draft', 'submit', 'publish'}:
             submission_action = normalized_action
 
-    water_family_types = ['open-source-software', 'ai-water-tools', 'water-news', 'water-events', 'water-publications']
+    water_family_types = ['open-source-software', 'ai-water-tools', 'water-news', 'water-events', 'water-publications', 'crida-case-study']
     target_page_type = data.get('page_type') or data_dict.get('page_type')
     if not target_page_type and out:
         target_page_type = out.page_type
@@ -833,7 +833,7 @@ def group_pages_list(context, data_dict):
 
 # Water Family Public API Actions
 
-WATER_FAMILY_TYPES = ['water-news', 'water-events', 'water-publications']
+WATER_FAMILY_TYPES = ['water-news', 'water-events', 'water-publications', 'crida-case-study']
 WATER_FAMILY_LIST_MAX_LIMIT = 100
 WATER_FAMILY_LIST_DEFAULT_LIMIT = 20
 
@@ -1661,3 +1661,219 @@ def _build_water_file_metadata(data_dict, water_content_type, file_type, validat
     }
 
     return metadata
+
+
+# ============================================================
+# CRIDA Case Study Actions
+# ============================================================
+
+CRIDA_CASE_STUDY_TYPE = 'crida-case-study'
+
+
+def _crida_case_study_list(context, data_dict):
+    """Internal function to list CRIDA case studies.
+
+    Only returns public, approved content. Supports filtering by country,
+    theme, status, and search query.
+    """
+    import json as json_module
+    log = logging.getLogger(__name__)
+
+    search = {}
+    search['page_type'] = CRIDA_CASE_STUDY_TYPE
+    search['private'] = False
+    search['submission_status'] = 'approved'
+
+    q = data_dict.get('q')
+    if q:
+        search['q'] = q
+
+    country = data_dict.get('country')
+    if country:
+        search['country'] = country
+
+    order_by = data_dict.get('order_by', 'recent')
+    search['order_by'] = order_by
+
+    try:
+        limit = int(data_dict.get('limit', 100))
+        search['limit'] = max(1, min(limit, 500))
+    except (ValueError, TypeError):
+        search['limit'] = 100
+
+    try:
+        offset = int(data_dict.get('offset', 0))
+        search['offset'] = max(0, offset)
+    except (ValueError, TypeError):
+        search['offset'] = 0
+
+    try:
+        ensure_valid_session = getattr(
+            __import__('ckanext.pages.db', fromlist=['ensure_valid_session']),
+            'ensure_valid_session', lambda: None
+        )
+        ensure_valid_session()
+
+        out = db.Page.pages(**search)
+
+        results = [db.table_dictize(pg, context) for pg in out]
+
+        # Post-filter by theme and status if specified
+        theme = data_dict.get('theme')
+        crida_status = data_dict.get('crida_status')
+
+        if theme or crida_status:
+            filtered = []
+            for r in results:
+                if theme:
+                    themes_raw = r.get('themes', '[]')
+                    try:
+                        themes_list = json_module.loads(themes_raw) if isinstance(themes_raw, str) else themes_raw
+                    except Exception:
+                        themes_list = []
+                    if theme not in themes_list:
+                        continue
+                if crida_status:
+                    if r.get('crida_status', '') != crida_status:
+                        continue
+                filtered.append(r)
+            results = filtered
+
+        return results
+
+    except Exception as e:
+        log.error("Error in crida_case_study_list: %s", str(e))
+        return []
+
+
+def crida_case_study_list(context, data_dict):
+    """List CRIDA case studies (public API).
+
+    Returns only public, approved content. No authentication required.
+
+    :param q: Search query (optional)
+    :param country: Filter by country (optional)
+    :param theme: Filter by theme (optional)
+    :param crida_status: Filter by status - Finished, Ongoing, Planned (optional)
+    :param order_by: Sort order - recent, oldest (optional, default: recent)
+    :param limit: Max results (optional, default: 100)
+    :param offset: Pagination offset (optional, default: 0)
+    """
+    try:
+        p.toolkit.check_access('ckanext_crida_case_study_list', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    return _crida_case_study_list(context, data_dict)
+
+
+def crida_case_study_show(context, data_dict):
+    """Show a single CRIDA case study (public API).
+
+    Only returns public, approved content. No authentication required.
+    """
+    log = logging.getLogger(__name__)
+    try:
+        p.toolkit.check_access('ckanext_crida_case_study_show', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    page = data_dict.get('page')
+    if not page:
+        raise p.toolkit.ValidationError({'page': ['Missing value']})
+
+    try:
+        out = db.Page.get(name=page, page_type=CRIDA_CASE_STUDY_TYPE)
+        if not out:
+            raise p.toolkit.ObjectNotFound('CRIDA case study not found')
+
+        if out.private or getattr(out, 'submission_status', None) != 'approved':
+            raise p.toolkit.ObjectNotFound('CRIDA case study not found')
+
+        return db.table_dictize(out, context)
+
+    except p.toolkit.ObjectNotFound:
+        raise
+    except Exception as e:
+        log.error("Error in crida_case_study_show: %s", str(e))
+        raise p.toolkit.ObjectNotFound('CRIDA case study not found')
+
+
+def crida_geojson(context, data_dict):
+    """Generate GeoJSON FeatureCollection from approved CRIDA case studies.
+
+    Returns a GeoJSON object compatible with Terria and standard GIS tools.
+
+    :param country: Filter by country (optional)
+    :param theme: Filter by theme (optional)
+    :param crida_status: Filter by status (optional)
+    """
+    import json as json_module
+
+    try:
+        p.toolkit.check_access('ckanext_crida_geojson', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    case_studies = _crida_case_study_list(context, data_dict)
+
+    features = []
+    for cs in case_studies:
+        lat = cs.get('latitude')
+        lon = cs.get('longitude')
+
+        if not lat or not lon:
+            continue
+
+        try:
+            lat_f = float(lat)
+            lon_f = float(lon)
+        except (ValueError, TypeError):
+            continue
+
+        # Parse themes
+        themes_raw = cs.get('themes', '[]')
+        try:
+            themes_list = json_module.loads(themes_raw) if isinstance(themes_raw, str) else themes_raw
+        except Exception:
+            themes_list = []
+
+        # Parse partners
+        partners_raw = cs.get('partners', '[]')
+        try:
+            partners_list = json_module.loads(partners_raw) if isinstance(partners_raw, str) else partners_raw
+        except Exception:
+            partners_list = []
+
+        feature = {
+            "type": "Feature",
+            "properties": {
+                "country": cs.get('country', ''),
+                "title": cs.get('title', ''),
+                "status": cs.get('crida_status', ''),
+                "themes": themes_list,
+                "partners": partners_list,
+                "summary": cs.get('excerpt', '') or cs.get('content', '')[:200],
+                "url": '/crida/case-studies/' + cs.get('name', ''),
+                "case_study_url": cs.get('case_study_url', ''),
+                "image": cs.get('header_image', ''),
+                "coord_note": cs.get('coord_note', ''),
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [lon_f, lat_f]
+            }
+        }
+        features.append(feature)
+
+    return {
+        "type": "FeatureCollection",
+        "name": "unesco_crida_case_studies",
+        "crs": {
+            "type": "name",
+            "properties": {
+                "name": "EPSG:4326"
+            }
+        },
+        "features": features
+    }

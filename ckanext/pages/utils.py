@@ -2839,3 +2839,186 @@ def ai_water_admin_change_org(page):
             tk.h.flash_error(_('Error changing organization: {0}').format(str(e)))
 
     return tk.redirect_to('pages.ai_water_admin_dashboard')
+
+
+# ============================================================
+# CRIDA Case Study Utils
+# ============================================================
+
+
+def crida_main_page():
+    """CRIDA main page showing interactive map and recent case studies."""
+    import json as json_module
+
+    # Get recent approved case studies
+    try:
+        case_studies = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None,
+                'page_type': 'crida-case-study',
+                'order_publish_date': True,
+                'private': False
+            }
+        )
+    except Exception:
+        case_studies = []
+
+    # Generate GeoJSON for the map
+    try:
+        geojson_data = tk.get_action('ckanext_crida_geojson')(
+            context={}, data_dict={}
+        )
+    except Exception:
+        geojson_data = {"type": "FeatureCollection", "features": []}
+
+    # Compute stats
+    countries = set()
+    themes = set()
+    for cs in case_studies:
+        c = cs.get('country', '')
+        if c:
+            countries.add(c)
+        try:
+            t_raw = cs.get('themes', '[]')
+            t_list = json_module.loads(t_raw) if isinstance(t_raw, str) else t_raw
+            for t in (t_list or []):
+                themes.add(t)
+        except Exception:
+            pass
+
+    stats = {
+        'total': len(case_studies),
+        'countries': len(countries),
+        'themes': len(themes),
+    }
+
+    # Pending counts for admins
+    pending_count = 0
+    is_admin = authz.is_sysadmin(tk.g.user)
+    if is_admin:
+        try:
+            pending_count = len(_filter_non_admin_pages('crida-case-study'))
+        except Exception:
+            pass
+
+    return tk.render('ckanext_pages/crida.html', extra_vars={
+        'case_studies': case_studies[:6],
+        'all_case_studies': case_studies,
+        'geojson_data': json_module.dumps(geojson_data),
+        'stats': stats,
+        'pending_count': pending_count,
+    })
+
+
+def crida_admin_dashboard():
+    """Admin dashboard for approving/rejecting CRIDA case studies."""
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to access admin dashboard'))
+
+    try:
+        pending_cases = _filter_non_admin_pages('crida-case-study')
+    except Exception:
+        pending_cases = []
+
+    return tk.render('ckanext_pages/crida-admin-dashboard.html', extra_vars={
+        'pending_cases': pending_cases,
+    })
+
+
+def crida_admin_approve(page):
+    """Approve a CRIDA case study (make it public)."""
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to approve content'))
+
+    if tk.request.method == 'POST':
+        try:
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+
+            if not page_dict:
+                tk.h.flash_error(_('Content not found'))
+                return tk.redirect_to('pages.crida_admin_dashboard')
+
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['page_type'] = page_dict.get('page_type') or 'crida-case-study'
+
+            now = datetime.datetime.utcnow()
+            page_dict['private'] = False
+            page_dict['submission_status'] = 'approved'
+            page_dict['reviewed_at'] = now.isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+            page_dict['submitted_at'] = page_dict.get('submitted_at') or now.isoformat()
+            if not page_dict.get('publish_date'):
+                page_dict['publish_date'] = now.isoformat()
+
+            tk.get_action('ckanext_pages_update')(
+                context={}, data_dict=page_dict
+            )
+
+            tk.h.flash_success(_('CRIDA case study approved and published successfully'))
+
+        except Exception as e:
+            tk.h.flash_error(_('Error approving content: %s') % str(e))
+
+    return tk.redirect_to('pages.crida_admin_dashboard')
+
+
+def crida_admin_reject(page):
+    """Reject a CRIDA case study."""
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to reject content'))
+
+    if tk.request.method == 'POST':
+        try:
+            page_dict = tk.get_action('ckanext_pages_show')(
+                context={}, data_dict={'org_id': None, 'page': page}
+            )
+
+            if not page_dict:
+                tk.h.flash_error(_('Content not found'))
+                return tk.redirect_to('pages.crida_admin_dashboard')
+
+            now = datetime.datetime.utcnow()
+            page_dict['page'] = page
+            page_dict['org_id'] = None
+            page_dict['submission_status'] = 'rejected'
+            page_dict['private'] = True
+            page_dict['reviewed_at'] = now.isoformat()
+            page_dict['reviewed_by'] = tk.g.user
+
+            tk.get_action('ckanext_pages_update')(
+                context={}, data_dict=page_dict
+            )
+
+            tk.h.flash_success(_('Case study has been rejected. The author can edit and resubmit it.'))
+
+        except Exception as e:
+            tk.h.flash_error(_('Error rejecting content: %s') % str(e))
+
+        return tk.redirect_to('pages.crida_admin_dashboard')
+
+    return tk.redirect_to('pages.crida_admin_dashboard')
+
+
+def crida_geojson_api():
+    """API endpoint returning GeoJSON for Terria map integration."""
+    import json as json_module
+    from flask import Response
+
+    try:
+        geojson_data = tk.get_action('ckanext_crida_geojson')(
+            context={}, data_dict=dict(tk.request.args)
+        )
+    except Exception:
+        geojson_data = {"type": "FeatureCollection", "features": []}
+
+    return Response(
+        json_module.dumps(geojson_data),
+        mimetype='application/json',
+        headers={
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'public, max-age=300',
+        }
+    )

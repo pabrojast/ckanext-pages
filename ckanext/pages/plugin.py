@@ -810,6 +810,69 @@ def is_sysadmin():
         return False
 
 
+def get_recent_crida_case_studies(number=6, exclude=None):
+    """Get recent approved CRIDA case studies."""
+    try:
+        import ckan.plugins.toolkit as toolkit
+        results = toolkit.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None,
+                'page_type': 'crida-case-study',
+                'order_publish_date': True,
+                'private': False
+            }
+        )
+        if exclude:
+            results = [r for r in results if r.get('name') != exclude]
+        return results[:number]
+    except Exception:
+        return []
+
+
+def get_pending_crida_count():
+    """Return pending CRIDA case study count for sysadmins."""
+    try:
+        import ckan.authz as authz
+        if not tk.g.user or not authz.is_sysadmin(tk.g.user):
+            return 0
+        from ckanext.pages.db import Page
+        from ckan import model
+        return model.Session.query(Page).filter(
+            Page.page_type == 'crida-case-study',
+            Page.private == True,
+            Page.submission_status == 'pending',
+            Page.group_id == None
+        ).count()
+    except Exception:
+        return 0
+
+
+def get_crida_themes():
+    """Return list of available CRIDA themes."""
+    return [
+        'Drought',
+        'Urban Water Security',
+        'Flood',
+        'Nature Based Solutions',
+        'Transboundary Water',
+        'Demand Growth',
+        'Shared Vision Planning',
+        'Ecosystem Services',
+        'Climate Adaptation',
+        'Water-Energy Nexus',
+    ]
+
+
+def get_crida_status_class(status):
+    """Return CSS class for CRIDA status badge."""
+    status_map = {
+        'Finished': 'crida-status-finished',
+        'Ongoing': 'crida-status-ongoing',
+        'Planned': 'crida-status-planned',
+    }
+    return status_map.get(status, 'crida-status-default')
+
+
 def get_pending_approval_count():
     """Return total pending approval count for sysadmins (used in header badge)."""
     try:
@@ -821,7 +884,7 @@ def get_pending_approval_count():
         count = model.Session.query(Page).filter(
             Page.page_type.in_(
                 ['water-news', 'water-events', 'water-publications',
-                 'open-source-software']
+                 'open-source-software', 'crida-case-study']
             ),
             Page.private == True,
             Page.submission_status == 'pending',
@@ -1225,6 +1288,13 @@ class PagesPlugin(PagesPluginBase):
                 'fv_json_loads': fv_json_loads,
             })
 
+        helpers.update({
+            'get_recent_crida_case_studies': get_recent_crida_case_studies,
+            'get_pending_crida_count': get_pending_crida_count,
+            'get_crida_themes': get_crida_themes,
+            'get_crida_status_class': get_crida_status_class,
+        })
+
         return helpers
 
     def get_actions(self):
@@ -1246,6 +1316,10 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_event_types_create': actions.event_types_create,
             'ckanext_event_types_update': actions.event_types_update,
             'ckanext_event_types_delete': actions.event_types_delete,
+            # CRIDA Case Study API
+            'ckanext_crida_case_study_list': actions.crida_case_study_list,
+            'ckanext_crida_case_study_show': actions.crida_case_study_show,
+            'ckanext_crida_geojson': actions.crida_geojson,
         }
         if self.organization_pages:
             org_actions = {
@@ -1354,6 +1428,12 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_event_types_create': auth.event_types_create,
             'ckanext_event_types_update': auth.event_types_update,
             'ckanext_event_types_delete': auth.event_types_delete,
+            # CRIDA Case Study permissions
+            'ckanext_crida_case_study_list': auth.crida_case_study_list,
+            'ckanext_crida_case_study_show': auth.crida_case_study_show,
+            'ckanext_crida_case_study_update': auth.crida_case_study_update,
+            'ckanext_crida_case_study_delete': auth.crida_case_study_delete,
+            'ckanext_crida_geojson': auth.crida_geojson,
         }
 
         # Register data stories auth only when enabled

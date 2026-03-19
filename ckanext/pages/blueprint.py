@@ -375,6 +375,56 @@ def event_types_delete(event_type_id):
     return utils.event_types_delete(event_type_id)
 
 
+# --- CRIDA Case Study view functions ---
+
+def crida_index():
+    return utils.crida_main_page()
+
+
+def crida_case_studies_index():
+    return utils.pages_list_pages('crida-case-study')
+
+
+def crida_case_study_show(page):
+    return utils.pages_show(page, page_type='crida-case-study')
+
+
+def crida_case_study_edit(page=None, data=None, errors=None, error_summary=None):
+    return utils.pages_edit(page, data, errors, error_summary, 'crida-case-study')
+
+
+def crida_case_study_revisions(page):
+    return utils.pages_revisions(page, page_type='crida-case-study')
+
+
+def crida_case_study_revisions_preview(page, revision):
+    return utils.pages_revisions_preview(page, revision, page_type='crida-case-study')
+
+
+def crida_case_study_revision_restore(page, revision):
+    return utils.pages_revision_restore(page, revision, page_type='crida-case-study')
+
+
+def crida_case_study_delete(page):
+    return utils.pages_delete(page, page_type='crida-case-study')
+
+
+def crida_admin_dashboard():
+    return utils.crida_admin_dashboard()
+
+
+def crida_admin_approve(page):
+    return utils.crida_admin_approve(page)
+
+
+def crida_admin_reject(page):
+    return utils.crida_admin_reject(page)
+
+
+def crida_geojson_api():
+    return utils.crida_geojson_api()
+
+
 pages.add_url_rule("/pages", view_func=index, endpoint="pages_index")
 pages.add_url_rule("/pages/<page>", view_func=show)
 pages.add_url_rule("/pages/<page>/revisions", view_func=pages_revisions)
@@ -525,3 +575,19 @@ pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='
 pages.add_url_rule("/admin/event-types/new", view_func=event_types_new, endpoint='event_types_new', methods=['GET', 'POST'])
 pages.add_url_rule("/admin/event-types/edit/<event_type_id>", view_func=event_types_edit, endpoint='event_types_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/admin/event-types/delete/<event_type_id>", view_func=event_types_delete, endpoint='event_types_delete', methods=['GET', 'POST'])
+
+# CRIDA Case Study routes
+pages.add_url_rule("/crida", view_func=crida_index, endpoint='crida_index')
+pages.add_url_rule("/crida/case-studies", view_func=crida_case_studies_index, endpoint='crida_case_studies_index')
+pages.add_url_rule("/crida/case-studies/<page>", view_func=crida_case_study_show, endpoint='crida_case_study_show')
+pages.add_url_rule("/crida/case-studies/<page>/revisions", view_func=crida_case_study_revisions, endpoint='crida_case_study_revisions')
+pages.add_url_rule("/crida/case-studies/<page>/revisions/<revision>", view_func=crida_case_study_revisions_preview, endpoint='crida_case_study_revisions_preview')
+pages.add_url_rule("/crida/case-studies/<page>/revisions/<revision>/restore", view_func=crida_case_study_revision_restore, endpoint='crida_case_study_revision_restore', methods=['GET'])
+pages.add_url_rule("/crida/case-studies_edit", view_func=crida_case_study_edit, endpoint='crida_case_study_new', methods=['GET', 'POST'])
+pages.add_url_rule("/crida/case-studies_edit/", view_func=crida_case_study_edit, endpoint='crida_case_study_new_slash', methods=['GET', 'POST'])
+pages.add_url_rule("/crida/case-studies_edit/<page>", view_func=crida_case_study_edit, endpoint='crida_case_study_edit', methods=['GET', 'POST'])
+pages.add_url_rule("/crida/case-studies_delete/<page>", view_func=crida_case_study_delete, endpoint='crida_case_study_delete', methods=['GET', 'POST'])
+pages.add_url_rule("/crida/admin", view_func=crida_admin_dashboard, endpoint='crida_admin_dashboard')
+pages.add_url_rule("/crida/admin/approve/<page>", view_func=crida_admin_approve, endpoint='crida_admin_approve', methods=['POST'])
+pages.add_url_rule("/crida/admin/reject/<page>", view_func=crida_admin_reject, endpoint='crida_admin_reject', methods=['POST'])
+pages.add_url_rule("/crida/api/geojson", view_func=crida_geojson_api, endpoint='crida_geojson_api')

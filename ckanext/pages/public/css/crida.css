@@ -1,0 +1,1138 @@
+/* ============================================================
+   CRIDA - Climate Risk Informed Decision Analysis
+   Styles for the CRIDA Case Studies module
+   ============================================================ */
+
+/* Color Variables (using CSS custom properties) */
+:root {
+  --crida-primary: #0072BC;
+  --crida-primary-dark: #005A9C;
+  --crida-primary-light: #009EE0;
+  --crida-primary-pale: #E3F2FD;
+  --crida-green: #00A651;
+  --crida-green-light: #E8F5E9;
+  --crida-orange: #F7941D;
+  --crida-orange-light: #FFF3E0;
+  --crida-blue-light: #29ABE2;
+  --crida-blue-pale: #E1F5FE;
+  --crida-gray-100: #f8f9fa;
+  --crida-gray-200: #e9ecef;
+  --crida-gray-600: #6c757d;
+  --crida-gray-800: #343a40;
+  --crida-shadow: 0 2px 8px rgba(0, 114, 188, 0.12);
+  --crida-shadow-hover: 0 6px 20px rgba(0, 114, 188, 0.2);
+  --crida-radius: 8px;
+  --crida-transition: all 0.3s ease;
+}
+
+/* ============================================================
+   Hero / Banner Section
+   ============================================================ */
+.crida-hero {
+  position: relative;
+  min-height: 380px;
+  background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-dark) 100%);
+  color: #fff;
+  overflow: hidden;
+  border-radius: var(--crida-radius);
+  margin-bottom: 2rem;
+}
+
+.crida-hero-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  z-index: 0;
+}
+
+.crida-hero-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.85) 0%, rgba(0, 90, 156, 0.9) 100%);
+  z-index: 1;
+}
+
+.crida-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 3rem 2rem;
+  max-width: 800px;
+}
+
+.crida-hero h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.crida-hero .crida-subtitle {
+  font-size: 1.15rem;
+  opacity: 0.95;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.crida-hero .crida-meta {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.crida-hero .crida-meta i {
+  margin-right: 0.4rem;
+}
+
+/* ============================================================
+   Stats Bar
+   ============================================================ */
+.crida-stats-bar {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.crida-stat-item {
+  flex: 1;
+  min-width: 150px;
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.2rem 1.5rem;
+  box-shadow: var(--crida-shadow);
+  text-align: center;
+  transition: var(--crida-transition);
+  border-bottom: 3px solid var(--crida-primary);
+}
+
+.crida-stat-item:hover {
+  box-shadow: var(--crida-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.crida-stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--crida-primary);
+  line-height: 1.2;
+}
+
+.crida-stat-label {
+  font-size: 0.85rem;
+  color: var(--crida-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.3rem;
+}
+
+/* ============================================================
+   Map Section
+   ============================================================ */
+.crida-map-section {
+  margin-bottom: 2.5rem;
+}
+
+.crida-map-container {
+  width: 100%;
+  height: 500px;
+  border-radius: var(--crida-radius);
+  overflow: hidden;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+  position: relative;
+}
+
+.crida-map-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.crida-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.crida-map-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin: 0;
+}
+
+.crida-map-header h2 i {
+  color: var(--crida-primary);
+  margin-right: 0.5rem;
+}
+
+.crida-map-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.crida-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--crida-gray-600);
+}
+
+.crida-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.crida-legend-dot.finished {
+  background-color: var(--crida-green);
+}
+
+.crida-legend-dot.ongoing {
+  background-color: var(--crida-primary);
+}
+
+.crida-legend-dot.planned {
+  background-color: var(--crida-orange);
+}
+
+/* ============================================================
+   Case Study Cards
+   ============================================================ */
+.crida-section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--crida-primary-pale);
+}
+
+.crida-section-title i {
+  color: var(--crida-primary);
+  margin-right: 0.5rem;
+}
+
+.crida-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.crida-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  overflow: hidden;
+  box-shadow: var(--crida-shadow);
+  transition: var(--crida-transition);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--crida-gray-200);
+}
+
+.crida-card:hover {
+  box-shadow: var(--crida-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.crida-card-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, var(--crida-primary-pale) 0%, var(--crida-blue-pale) 100%);
+}
+
+.crida-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.crida-card:hover .crida-card-image img {
+  transform: scale(1.05);
+}
+
+.crida-card-image .crida-card-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--crida-primary);
+  font-size: 2.5rem;
+  opacity: 0.4;
+}
+
+.crida-card-body {
+  padding: 1.2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.crida-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+  gap: 0.5rem;
+}
+
+.crida-card-country {
+  font-size: 0.8rem;
+  color: var(--crida-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crida-card-country i {
+  margin-right: 0.3rem;
+}
+
+.crida-card h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin: 0 0 0.6rem 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.crida-card h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.crida-card h3 a:hover {
+  color: var(--crida-primary);
+}
+
+.crida-card-summary {
+  font-size: 0.88rem;
+  color: var(--crida-gray-600);
+  line-height: 1.55;
+  margin-bottom: 0.8rem;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.crida-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--crida-gray-200);
+  margin-top: auto;
+}
+
+.crida-card-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ============================================================
+   Status Badges
+   ============================================================ */
+.crida-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.crida-status-finished {
+  background: var(--crida-green-light);
+  color: var(--crida-green);
+}
+
+.crida-status-ongoing {
+  background: var(--crida-primary-pale);
+  color: var(--crida-primary);
+}
+
+.crida-status-planned {
+  background: var(--crida-orange-light);
+  color: var(--crida-orange);
+}
+
+.crida-status-default {
+  background: var(--crida-gray-200);
+  color: var(--crida-gray-600);
+}
+
+/* ============================================================
+   Theme Tags
+   ============================================================ */
+.crida-theme-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  background: var(--crida-primary-pale);
+  color: var(--crida-primary);
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.crida-theme-tag i {
+  margin-right: 0.25rem;
+  font-size: 0.65rem;
+}
+
+/* ============================================================
+   About Section
+   ============================================================ */
+.crida-about-section {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--crida-shadow);
+  border-left: 4px solid var(--crida-primary);
+}
+
+.crida-about-section h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 1rem;
+}
+
+.crida-about-section p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--crida-gray-600);
+  margin-bottom: 0.8rem;
+}
+
+.crida-about-section p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================
+   Frameworks Section
+   ============================================================ */
+.crida-frameworks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.crida-framework-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  box-shadow: var(--crida-shadow);
+  text-align: center;
+  transition: var(--crida-transition);
+}
+
+.crida-framework-card:hover {
+  box-shadow: var(--crida-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.crida-framework-card img {
+  max-height: 180px;
+  width: auto;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.crida-framework-card h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 0.5rem;
+}
+
+.crida-framework-card p {
+  font-size: 0.85rem;
+  color: var(--crida-gray-600);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   CTA Section
+   ============================================================ */
+.crida-cta {
+  background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-dark) 100%);
+  color: #fff;
+  border-radius: var(--crida-radius);
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.crida-cta h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.crida-cta p {
+  opacity: 0.9;
+  margin-bottom: 1.2rem;
+  font-size: 0.95rem;
+}
+
+.crida-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  color: var(--crida-primary);
+  padding: 0.7rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: var(--crida-transition);
+  border: none;
+  cursor: pointer;
+}
+
+.crida-btn-primary:hover {
+  background: var(--crida-primary-pale);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: var(--crida-primary-dark);
+  text-decoration: none;
+}
+
+.crida-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--crida-primary);
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: var(--crida-transition);
+  border: 2px solid var(--crida-primary);
+  cursor: pointer;
+}
+
+.crida-btn-outline:hover {
+  background: var(--crida-primary);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Admin Panel
+   ============================================================ */
+.crida-admin-panel {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--crida-shadow);
+  border-left: 4px solid #dc3545;
+}
+
+.crida-admin-panel h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 0.8rem;
+}
+
+.crida-admin-panel h3 i {
+  color: #dc3545;
+  margin-right: 0.4rem;
+}
+
+.crida-admin-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.crida-admin-stat {
+  background: var(--crida-gray-100);
+  padding: 0.8rem 1.2rem;
+  border-radius: 6px;
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+
+.crida-admin-stat .stat-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--crida-primary);
+}
+
+.crida-admin-stat .stat-text {
+  font-size: 0.8rem;
+  color: var(--crida-gray-600);
+}
+
+/* ============================================================
+   Admin Dashboard
+   ============================================================ */
+.crida-dashboard-header {
+  background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-dark) 100%);
+  color: #fff;
+  border-radius: var(--crida-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.crida-dashboard-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.crida-dashboard-header p {
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.crida-pending-list {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  box-shadow: var(--crida-shadow);
+  overflow: hidden;
+}
+
+.crida-pending-item {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--crida-gray-200);
+  gap: 1rem;
+  transition: var(--crida-transition);
+}
+
+.crida-pending-item:last-child {
+  border-bottom: none;
+}
+
+.crida-pending-item:hover {
+  background: var(--crida-gray-100);
+}
+
+.crida-pending-info {
+  flex: 1;
+}
+
+.crida-pending-info h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin: 0 0 0.3rem 0;
+}
+
+.crida-pending-info .meta {
+  font-size: 0.82rem;
+  color: var(--crida-gray-600);
+}
+
+.crida-pending-info .meta span {
+  margin-right: 1rem;
+}
+
+.crida-pending-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.crida-btn-approve {
+  background: var(--crida-green);
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--crida-transition);
+}
+
+.crida-btn-approve:hover {
+  background: #008f44;
+}
+
+.crida-btn-reject {
+  background: #fff;
+  color: #dc3545;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #dc3545;
+  cursor: pointer;
+  transition: var(--crida-transition);
+}
+
+.crida-btn-reject:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* ============================================================
+   Detail Page
+   ============================================================ */
+.crida-detail-content {
+  max-width: 900px;
+}
+
+.crida-detail-section {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--crida-shadow);
+}
+
+.crida-detail-section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--crida-primary-pale);
+}
+
+.crida-detail-section h2 i {
+  color: var(--crida-primary);
+  margin-right: 0.5rem;
+}
+
+.crida-detail-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.crida-highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.crida-highlights-list li {
+  padding: 0.6rem 0 0.6rem 1.5rem;
+  position: relative;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #444;
+  border-bottom: 1px solid var(--crida-gray-100);
+}
+
+.crida-highlights-list li:last-child {
+  border-bottom: none;
+}
+
+.crida-highlights-list li::before {
+  content: '\f00c';
+  font-family: 'FontAwesome';
+  position: absolute;
+  left: 0;
+  color: var(--crida-green);
+  font-size: 0.85rem;
+}
+
+/* Sidebar Metadata */
+.crida-sidebar {
+  position: sticky;
+  top: 1rem;
+}
+
+.crida-meta-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  box-shadow: var(--crida-shadow);
+  margin-bottom: 1.5rem;
+}
+
+.crida-meta-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--crida-primary-pale);
+}
+
+.crida-meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.88rem;
+}
+
+.crida-meta-item:last-child {
+  margin-bottom: 0;
+}
+
+.crida-meta-item i {
+  color: var(--crida-primary);
+  margin-top: 0.15rem;
+  min-width: 16px;
+  text-align: center;
+}
+
+.crida-meta-item .label {
+  color: var(--crida-gray-600);
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.crida-meta-item .value {
+  color: var(--crida-gray-800);
+  flex: 1;
+}
+
+/* Related Datasets */
+.crida-related-datasets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.crida-related-datasets li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--crida-gray-100);
+}
+
+.crida-related-datasets li:last-child {
+  border-bottom: none;
+}
+
+.crida-related-datasets a {
+  color: var(--crida-primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.crida-related-datasets a:hover {
+  text-decoration: underline;
+}
+
+.crida-related-datasets a i {
+  margin-right: 0.4rem;
+}
+
+/* Partners List */
+.crida-partners-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.crida-partner-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  background: var(--crida-gray-100);
+  color: var(--crida-gray-800);
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.crida-partner-tag i {
+  margin-right: 0.25rem;
+  color: var(--crida-primary);
+}
+
+/* ============================================================
+   Filter Section (List page)
+   ============================================================ */
+.crida-filters {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--crida-shadow);
+}
+
+.crida-filters h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 1rem;
+}
+
+.crida-filter-group {
+  margin-bottom: 1rem;
+}
+
+.crida-filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.crida-filter-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--crida-gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.crida-filter-group select,
+.crida-filter-group input {
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--crida-gray-200);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: var(--crida-transition);
+}
+
+.crida-filter-group select:focus,
+.crida-filter-group input:focus {
+  border-color: var(--crida-primary);
+  box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.15);
+  outline: none;
+}
+
+/* ============================================================
+   Edit Form
+   ============================================================ */
+.crida-form-section {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--crida-shadow);
+}
+
+.crida-form-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--crida-primary-pale);
+}
+
+.crida-form-section h3 i {
+  color: var(--crida-primary);
+  margin-right: 0.5rem;
+}
+
+.crida-coord-map {
+  width: 100%;
+  height: 300px;
+  border-radius: 6px;
+  border: 1px solid var(--crida-gray-200);
+  margin-bottom: 1rem;
+  cursor: crosshair;
+}
+
+.crida-coord-display {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.crida-coord-display .form-group {
+  flex: 1;
+}
+
+/* Dataset selector */
+.crida-dataset-selector {
+  position: relative;
+}
+
+.crida-dataset-search {
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--crida-gray-200);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.crida-dataset-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--crida-gray-200);
+  border-radius: 0 0 6px 6px;
+  box-shadow: var(--crida-shadow);
+  z-index: 100;
+  display: none;
+}
+
+.crida-dataset-results.active {
+  display: block;
+}
+
+.crida-dataset-result-item {
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--crida-gray-100);
+  transition: var(--crida-transition);
+}
+
+.crida-dataset-result-item:hover {
+  background: var(--crida-primary-pale);
+}
+
+.crida-selected-datasets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.crida-selected-dataset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--crida-primary-pale);
+  color: var(--crida-primary);
+  border-radius: 15px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.crida-selected-dataset .remove-btn {
+  cursor: pointer;
+  font-weight: 700;
+  margin-left: 0.3rem;
+  opacity: 0.7;
+}
+
+.crida-selected-dataset .remove-btn:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   Empty State
+   ============================================================ */
+.crida-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--crida-gray-600);
+}
+
+.crida-empty-state i {
+  font-size: 3rem;
+  color: var(--crida-primary);
+  opacity: 0.4;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.crida-empty-state h3 {
+  font-size: 1.2rem;
+  color: var(--crida-gray-800);
+  margin-bottom: 0.5rem;
+}
+
+.crida-empty-state p {
+  font-size: 0.9rem;
+  max-width: 400px;
+  margin: 0 auto 1rem;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 768px) {
+  .crida-hero {
+    min-height: 280px;
+  }
+
+  .crida-hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .crida-hero-content {
+    padding: 2rem 1.2rem;
+  }
+
+  .crida-stats-bar {
+    gap: 0.8rem;
+  }
+
+  .crida-stat-item {
+    min-width: 100px;
+    padding: 0.8rem;
+  }
+
+  .crida-stat-number {
+    font-size: 1.5rem;
+  }
+
+  .crida-map-container {
+    height: 350px;
+  }
+
+  .crida-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crida-frameworks {
+    grid-template-columns: 1fr;
+  }
+
+  .crida-pending-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .crida-pending-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .crida-hero h1 {
+    font-size: 1.3rem;
+  }
+
+  .crida-card-image {
+    height: 140px;
+  }
+
+  .crida-map-container {
+    height: 280px;
+  }
+}

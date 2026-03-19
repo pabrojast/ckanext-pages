@@ -1,0 +1,211 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('CRIDA - Climate Risk Informed Decision Analysis') }} - {{ super() }}
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/crida.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+
+<div class="crida-page">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      {# Breadcrumb #}
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li class="active"><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
+        </ol>
+      </div>
+
+      {# Hero Banner #}
+      <div class="crida-hero">
+        <div class="crida-hero-bg" style="background-image: url('/images/crida/crida-hero.jpg');"></div>
+        <div class="crida-hero-overlay"></div>
+        <div class="crida-hero-content">
+          <h1>{{ _('CRIDA') }}</h1>
+          <p class="crida-subtitle">{{ _('Climate Risk Informed Decision Analysis — A collaborative methodology for robust water management decisions under climate uncertainty.') }}</p>
+          <div class="crida-meta">
+            <i class="fa fa-globe"></i> {{ _('UNESCO International Hydrological Programme') }}
+          </div>
+        </div>
+      </div>
+
+      {# Admin Panel - sysadmin only #}
+      {% if h.is_sysadmin() and pending_count > 0 %}
+      <div class="crida-admin-panel">
+        <h3><i class="fa fa-shield"></i> {{ _('Administrator Panel') }}</h3>
+        <div class="crida-admin-stats">
+          <div class="crida-admin-stat">
+            <div class="stat-count">{{ pending_count }}</div>
+            <div class="stat-text">{{ _('Pending Approvals') }}</div>
+          </div>
+          <div class="crida-admin-stat">
+            <a href="{{ h.url_for('pages.crida_admin_dashboard') }}" class="crida-btn-outline" style="margin-top:0.3rem;">
+              <i class="fa fa-gavel"></i> {{ _('Review Submissions') }}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {# Stats Bar #}
+      <div class="crida-stats-bar">
+        <div class="crida-stat-item">
+          <div class="crida-stat-number">{{ stats.total }}</div>
+          <div class="crida-stat-label">{{ _('Case Studies') }}</div>
+        </div>
+        <div class="crida-stat-item">
+          <div class="crida-stat-number">{{ stats.countries }}</div>
+          <div class="crida-stat-label">{{ _('Countries') }}</div>
+        </div>
+        <div class="crida-stat-item">
+          <div class="crida-stat-number">{{ stats.themes }}</div>
+          <div class="crida-stat-label">{{ _('Themes') }}</div>
+        </div>
+      </div>
+
+      {# About Section #}
+      <div class="crida-about-section">
+        <h2><i class="fa fa-info-circle"></i> {{ _('What is CRIDA?') }}</h2>
+        <p>{{ _('CRIDA (Climate Risk Informed Decision Analysis) is a collaborative methodology developed by UNESCO, ICIWaRM, and partners to support robust water management decisions under climate uncertainty. Rather than relying on single climate projections, CRIDA uses bottom-up vulnerability assessments, stress testing, and adaptive planning pathways to identify decisions that perform well across a wide range of possible futures.') }}</p>
+        <p>{{ _('Since its inception, CRIDA has been recognized by the World Bank as an A+ method for developing resilience projects in the water sector and acknowledged by the Green Climate Fund (GCF) for adaptive planning in water project design.') }}</p>
+      </div>
+
+      {# Interactive Map #}
+      <div class="crida-map-section">
+        <div class="crida-map-header">
+          <h2><i class="fa fa-map"></i> {{ _('Case Studies Around the World') }}</h2>
+        </div>
+        <div class="crida-map-legend">
+          <div class="crida-legend-item">
+            <span class="crida-legend-dot finished"></span> {{ _('Finished') }}
+          </div>
+          <div class="crida-legend-item">
+            <span class="crida-legend-dot ongoing"></span> {{ _('Ongoing') }}
+          </div>
+          <div class="crida-legend-item">
+            <span class="crida-legend-dot planned"></span> {{ _('Planned') }}
+          </div>
+        </div>
+        <div class="crida-map-container">
+          <div id="crida-map" data-geojson='{{ geojson_data }}' style="width:100%;height:100%;"></div>
+        </div>
+      </div>
+
+      {# Recent Case Studies #}
+      <h2 class="crida-section-title">
+        <i class="fa fa-folder-open"></i> {{ _('Recent Case Studies') }}
+      </h2>
+
+      {% if case_studies %}
+      <div class="crida-cards-grid">
+        {% for cs in case_studies %}
+        {% set cs_themes = h.json_loads(cs.themes) if cs.themes else [] %}
+        <div class="crida-card" data-name="{{ cs.name }}" data-country="{{ cs.country }}" data-status="{{ cs.crida_status }}" data-themes="{{ cs_themes|join(',') }}" data-title="{{ cs.title }}">
+
+          <div class="crida-card-image">
+            {% if cs.header_image %}
+              <img src="{{ cs.header_image }}" alt="{{ cs.title }}" loading="lazy">
+            {% else %}
+              <div class="crida-card-placeholder">
+                <i class="fa fa-map-marker"></i>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="crida-card-body">
+            <div class="crida-card-header">
+              <span class="crida-card-country"><i class="fa fa-globe"></i> {{ cs.country }}</span>
+              <span class="crida-status-badge {{ h.get_crida_status_class(cs.crida_status) }}">{{ cs.crida_status or 'N/A' }}</span>
+            </div>
+
+            <h3><a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}">{{ cs.title }}</a></h3>
+
+            <p class="crida-card-summary">{{ cs.excerpt or h.strip_html_tags(cs.content)[:180] }}</p>
+
+            <div class="crida-card-footer">
+              <div class="crida-card-themes">
+                {% for theme in cs_themes[:3] %}
+                  <span class="crida-theme-tag"><i class="fa fa-tag"></i> {{ theme }}</span>
+                {% endfor %}
+              </div>
+              <a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}" class="crida-btn-outline" style="padding:0.3rem 0.8rem;font-size:0.78rem;">
+                {{ _('View') }} <i class="fa fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+      <div style="text-align:center; margin-bottom: 2rem;">
+        <a href="{{ h.url_for('pages.crida_case_studies_index') }}" class="crida-btn-outline">
+          <i class="fa fa-th-list"></i> {{ _('View All Case Studies') }}
+        </a>
+      </div>
+      {% else %}
+      <div class="crida-empty-state">
+        <i class="fa fa-map-marker"></i>
+        <h3>{{ _('No case studies yet') }}</h3>
+        <p>{{ _('Be the first to add a CRIDA case study to the platform.') }}</p>
+      </div>
+      {% endif %}
+
+      {# International Frameworks Section #}
+      <h2 class="crida-section-title">
+        <i class="fa fa-institution"></i> {{ _('CRIDA in International Frameworks') }}
+      </h2>
+      <div class="crida-frameworks">
+        <div class="crida-framework-card">
+          <div style="font-size:3rem;color:#0072BC;margin-bottom:1rem;"><i class="fa fa-bank"></i></div>
+          <h4>{{ _('World Bank Resilience Rating') }}</h4>
+          <p>{{ _('CRIDA is rated as an A+ method for developing resilient water projects by the World Bank\'s Resilience Rating System (2021).') }}</p>
+        </div>
+        <div class="crida-framework-card">
+          <div style="font-size:3rem;color:#00A651;margin-bottom:1rem;"><i class="fa fa-leaf"></i></div>
+          <h4>{{ _('Green Climate Fund') }}</h4>
+          <p>{{ _('CRIDA is acknowledged by the GCF as a method for addressing uncertainties in GCF water project design (2023).') }}</p>
+        </div>
+        <div class="crida-framework-card">
+          <div style="font-size:3rem;color:#F7941D;margin-bottom:1rem;"><i class="fa fa-users"></i></div>
+          <h4>{{ _('UNESCO IHP') }}</h4>
+          <p>{{ _('Developed under the UNESCO International Hydrological Programme with ICIWaRM, USACE, and global partners.') }}</p>
+        </div>
+      </div>
+
+      {# CTA Section #}
+      {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
+      <div class="crida-cta">
+        <h3>{{ _('Share Your CRIDA Experience') }}</h3>
+        <p>{{ _('Have you applied the CRIDA methodology? Share your case study with the global community.') }}</p>
+        <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-btn-primary">
+          <i class="fa fa-plus-circle"></i> {{ _('Add a Case Study') }}
+        </a>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/crida.js"></script>
+{% endblock %}

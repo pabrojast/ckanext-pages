@@ -1,0 +1,110 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('CRIDA Admin Dashboard') }} - {{ super() }}
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/crida.css" />
+{% endblock %}
+
+{% block content %}
+
+<div class="crida-page">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      {# Breadcrumb #}
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
+          <li class="active">{{ _('Admin Dashboard') }}</li>
+        </ol>
+      </div>
+
+      {# Header #}
+      <div class="crida-dashboard-header">
+        <h1><i class="fa fa-shield"></i> {{ _('CRIDA Admin Dashboard') }}</h1>
+        <p>{{ _('Review and approve submitted CRIDA case studies') }}</p>
+      </div>
+
+      {# Summary #}
+      <div class="crida-stats-bar">
+        <div class="crida-stat-item" style="border-bottom-color: #F7941D;">
+          <div class="crida-stat-number">{{ pending_cases|length }}</div>
+          <div class="crida-stat-label">{{ _('Pending Review') }}</div>
+        </div>
+      </div>
+
+      {# Pending Items #}
+      {% if pending_cases %}
+      <h2 class="crida-section-title"><i class="fa fa-clock-o"></i> {{ _('Pending Case Studies') }}</h2>
+      <div class="crida-pending-list">
+        {% for pg in pending_cases %}
+        <div class="crida-pending-item">
+          <div class="crida-pending-info">
+            <h4>
+              <a href="{{ h.url_for('pages.crida_case_study_show', page=pg.name) }}" style="color:#0072BC;">
+                {{ pg.title or pg.name }}
+              </a>
+            </h4>
+            <div class="meta">
+              {% if pg.country %}
+                <span><i class="fa fa-globe"></i> {{ pg.country }}</span>
+              {% endif %}
+              {% if pg.crida_status %}
+                <span class="crida-status-badge {{ h.get_crida_status_class(pg.crida_status) }}">{{ pg.crida_status }}</span>
+              {% endif %}
+              {% if pg.submitted_at %}
+                <span><i class="fa fa-clock-o"></i> {{ _('Submitted') }}: {{ h.render_datetime(pg.submitted_at, date_format='%d %b %Y') }}</span>
+              {% endif %}
+              {% if pg.user_id %}
+                <span><i class="fa fa-user"></i> {{ pg.user_id }}</span>
+              {% endif %}
+            </div>
+            {% if pg.excerpt %}
+              <p style="font-size:0.85rem;color:#666;margin-top:0.3rem;">{{ pg.excerpt[:200] }}{% if pg.excerpt|length > 200 %}...{% endif %}</p>
+            {% endif %}
+          </div>
+          <div class="crida-pending-actions">
+            <form action="{{ h.url_for('pages.crida_admin_approve', page=pg.name) }}" method="POST" style="display:inline;">
+              <button type="submit" class="crida-btn-approve" onclick="return confirm('Approve this case study?')">
+                <i class="fa fa-check"></i> {{ _('Approve') }}
+              </button>
+            </form>
+            <form action="{{ h.url_for('pages.crida_admin_reject', page=pg.name) }}" method="POST" style="display:inline;">
+              <button type="submit" class="crida-btn-reject" onclick="return confirm('Reject this case study?')">
+                <i class="fa fa-times"></i> {{ _('Reject') }}
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="crida-empty-state">
+        <i class="fa fa-check-circle"></i>
+        <h3>{{ _('All caught up!') }}</h3>
+        <p>{{ _('There are no pending case studies to review.') }}</p>
+      </div>
+      {% endif %}
+
+      <div style="margin-top:2rem;">
+        <a href="{{ h.url_for('pages.crida_index') }}" class="crida-btn-outline">
+          <i class="fa fa-arrow-left"></i> {{ _('Back to CRIDA') }}
+        </a>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+{% endblock %}

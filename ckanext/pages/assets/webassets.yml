@@ -76,6 +76,31 @@ open-source-software-css:
   contents:
     - css/open-source-software-edit.css
 
+# CRIDA module
+crida-css:
+  output: ckanext-pages/%(version)s_crida.css
+  filters: cssrewrite
+  contents:
+    - css/crida.css
+
+crida-js:
+  filters: rjsmin
+  output: ckanext-pages/%(version)s_crida.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/crida.js
+
+crida-edit-js:
+  filters: rjsmin
+  output: ckanext-pages/%(version)s_crida-edit.js
+  extra:
+    preload:
+      - base/main
+  contents:
+    - js/crida-edit.js
+
 # Quill editor functionality
 quill-js:
   filters: rjsmin

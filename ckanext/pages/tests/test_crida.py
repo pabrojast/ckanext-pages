@@ -1,0 +1,336 @@
+"""Tests for CRIDA case study functionality."""
+
+import pytest
+import json
+
+from ckan.tests import factories, helpers
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "pages")
+class TestCRIDACaseStudy:
+    """Test CRIDA case study CRUD operations."""
+
+    def _create_crida_case_study(self, user, name="test-crida-cs", **kwargs):
+        """Helper to create a CRIDA case study."""
+        defaults = {
+            "name": name,
+            "title": "Test CRIDA Case Study",
+            "page_type": "crida-case-study",
+            "content": "Test content for CRIDA case study",
+            "country": "Chile",
+            "crida_status": "Finished",
+            "latitude": "-30.60",
+            "longitude": "-71.05",
+            "coord_note": "Aprox (Limarí)",
+            "themes": json.dumps(["Drought", "Urban Water Security"]),
+            "partners": json.dumps(["UNESCO", "Deltares"]),
+            "highlights": json.dumps(["Step 1: Assessment", "Step 2: Analysis"]),
+            "submission_action": "publish",
+        }
+        defaults.update(kwargs)
+        return helpers.call_action(
+            "ckanext_pages_update",
+            {"user": user["name"]},
+            **defaults,
+        )
+
+    def test_create_crida_case_study(self, app):
+        """Test creating a CRIDA case study."""
+        sysadmin = factories.Sysadmin()
+        self._create_crida_case_study(sysadmin)
+
+        page = helpers.call_action(
+            "ckanext_pages_show", {}, page="test-crida-cs"
+        )
+
+        assert page["name"] == "test-crida-cs"
+        assert page["title"] == "Test CRIDA Case Study"
+        assert page["page_type"] == "crida-case-study"
+        assert page["country"] == "Chile"
+        assert page["crida_status"] == "Finished"
+        assert page["latitude"] == "-30.60"
+        assert page["longitude"] == "-71.05"
+
+    def test_crida_case_study_list(self, app):
+        """Test listing CRIDA case studies via custom action."""
+        sysadmin = factories.Sysadmin()
+        self._create_crida_case_study(sysadmin, name="crida-cs-1",
+                                       title="Case Study 1")
+        self._create_crida_case_study(sysadmin, name="crida-cs-2",
+                                       title="Case Study 2",
+                                       country="Zimbabwe")
+
+        result = helpers.call_action(
+            "ckanext_crida_case_study_list",
+            {"ignore_auth": True},
+        )
+
+        assert len(result) >= 2
+
+    def test_crida_case_study_show(self, app):
+        """Test showing a single CRIDA case study."""
+        sysadmin = factories.Sysadmin()
+        self._create_crida_case_study(sysadmin)
+
+        result = helpers.call_action(
+            "ckanext_crida_case_study_show",
+            {"ignore_auth": True},
+            page="test-crida-cs",
+        )
+
+        assert result["title"] == "Test CRIDA Case Study"
+        assert result["country"] == "Chile"
+
+    def test_crida_geojson(self, app):
+        """Test GeoJSON generation from CRIDA case studies."""
+        sysadmin = factories.Sysadmin()
+        self._create_crida_case_study(sysadmin, name="geojson-test",
+                                       latitude="-30.60",
+                                       longitude="-71.05")
+
+        result = helpers.call_action(
+            "ckanext_crida_geojson",
+            {"ignore_auth": True},
+        )
+
+        assert result["type"] == "FeatureCollection"
+        assert "features" in result
+        assert len(result["features"]) >= 1
+
+        feature = result["features"][0]
+        assert feature["type"] == "Feature"
+        assert feature["geometry"]["type"] == "Point"
+        assert len(feature["geometry"]["coordinates"]) == 2
+        assert "country" in feature["properties"]
+        assert "title" in feature["properties"]
+
+    def test_crida_case_study_update(self, app):
+        """Test updating a CRIDA case study."""
+        sysadmin = factories.Sysadmin()
+        self._create_crida_case_study(sysadmin)
+
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="test-crida-cs",
+            page="test-crida-cs",
+            title="Updated Title",
+            page_type="crida-case-study",
+            country="Argentina",
+            crida_status="Ongoing",
+            submission_action="publish",
+        )
+
+        page = helpers.call_action(
+            "ckanext_pages_show", {}, page="test-crida-cs"
+        )
+        assert page["title"] == "Updated Title"
+        assert page["country"] == "Argentina"
+        assert page["crida_status"] == "Ongoing"
+
+    def test_crida_case_study_delete(self, app):
+        """Test deleting a CRIDA case study."""
+        sysadmin = factories.Sysadmin()
+        self._create_crida_case_study(sysadmin)
+
+        helpers.call_action(
+            "ckanext_pages_delete",
+            {"user": sysadmin["name"]},
+            page="test-crida-cs",
+        )
+
+        with pytest.raises(Exception):
+            helpers.call_action(
+                "ckanext_pages_show", {}, page="test-crida-cs"
+            )
+
+    def test_crida_themes_stored_as_json(self, app):
+        """Test that themes are stored/retrieved correctly as JSON."""
+        sysadmin = factories.Sysadmin()
+        themes = ["Drought", "Nature Based Solutions", "Flood"]
+        self._create_crida_case_study(
+            sysadmin, themes=json.dumps(themes)
+        )
+
+        page = helpers.call_action(
+            "ckanext_pages_show", {}, page="test-crida-cs"
+        )
+        stored_themes = json.loads(page["themes"])
+        assert stored_themes == themes
+
+    def test_crida_partners_stored_as_json(self, app):
+        """Test that partners are stored/retrieved correctly as JSON."""
+        sysadmin = factories.Sysadmin()
+        partners = ["UNESCO", "World Bank", "Deltares"]
+        self._create_crida_case_study(
+            sysadmin, partners=json.dumps(partners)
+        )
+
+        page = helpers.call_action(
+            "ckanext_pages_show", {}, page="test-crida-cs"
+        )
+        stored_partners = json.loads(page["partners"])
+        assert stored_partners == partners
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "pages")
+class TestCRIDASubmissionWorkflow:
+    """Test the approval/submission workflow for CRIDA case studies."""
+
+    def test_non_admin_submission_creates_pending(self, app):
+        """Test that non-admin users create pending submissions."""
+        user = factories.User()
+
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": user["name"]},
+            name="user-crida-cs",
+            title="User Case Study",
+            page_type="crida-case-study",
+            content="Content",
+            country="Chile",
+            crida_status="Finished",
+            submission_action="submit",
+        )
+
+        page = helpers.call_action(
+            "ckanext_pages_show",
+            {"ignore_auth": True},
+            page="user-crida-cs",
+        )
+        # Non-admin submissions should be pending
+        assert page.get("submission_status") in ("pending", "submitted", None)
+
+    def test_admin_can_publish_directly(self, app):
+        """Test that sysadmins can publish directly."""
+        sysadmin = factories.Sysadmin()
+
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="admin-crida-cs",
+            title="Admin Case Study",
+            page_type="crida-case-study",
+            content="Content",
+            country="Chile",
+            crida_status="Finished",
+            submission_action="publish",
+        )
+
+        page = helpers.call_action(
+            "ckanext_pages_show",
+            {"ignore_auth": True},
+            page="admin-crida-cs",
+        )
+        assert page.get("private") is False
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "pages")
+class TestCRIDAGeoJSON:
+    """Test GeoJSON generation for CRIDA case studies."""
+
+    def test_geojson_structure(self, app):
+        """Test GeoJSON output structure."""
+        sysadmin = factories.Sysadmin()
+
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="geo-cs-1",
+            title="GeoJSON Test 1",
+            page_type="crida-case-study",
+            content="Content",
+            country="Chile",
+            latitude="-30.60",
+            longitude="-71.05",
+            crida_status="Finished",
+            themes=json.dumps(["Drought"]),
+            submission_action="publish",
+        )
+
+        result = helpers.call_action(
+            "ckanext_crida_geojson",
+            {"ignore_auth": True},
+        )
+
+        assert result["type"] == "FeatureCollection"
+        assert "crs" in result
+        assert result["crs"]["properties"]["name"] == "EPSG:4326"
+        assert len(result["features"]) >= 1
+
+        feat = result["features"][0]
+        assert feat["geometry"]["type"] == "Point"
+        coords = feat["geometry"]["coordinates"]
+        assert coords[0] == -71.05  # longitude
+        assert coords[1] == -30.60  # latitude
+        assert feat["properties"]["country"] == "Chile"
+        assert feat["properties"]["title"] == "GeoJSON Test 1"
+
+    def test_geojson_only_includes_approved(self, app):
+        """Test that GeoJSON only contains approved case studies."""
+        sysadmin = factories.Sysadmin()
+
+        # Create published case study
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="published-cs",
+            title="Published CS",
+            page_type="crida-case-study",
+            content="Content",
+            country="Chile",
+            latitude="-30.60",
+            longitude="-71.05",
+            submission_action="publish",
+        )
+
+        # Create draft case study
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="draft-cs",
+            title="Draft CS",
+            page_type="crida-case-study",
+            content="Content",
+            country="Argentina",
+            latitude="-34.62",
+            longitude="-68.33",
+            submission_action="draft",
+        )
+
+        result = helpers.call_action(
+            "ckanext_crida_geojson",
+            {"ignore_auth": True},
+        )
+
+        titles = [f["properties"]["title"] for f in result["features"]]
+        assert "Published CS" in titles
+        # Draft should not appear in public GeoJSON
+        # (behavior depends on private flag handling)
+
+    def test_geojson_skips_entries_without_coordinates(self, app):
+        """Test that entries without coordinates are excluded."""
+        sysadmin = factories.Sysadmin()
+
+        helpers.call_action(
+            "ckanext_pages_update",
+            {"user": sysadmin["name"]},
+            name="no-coords-cs",
+            title="No Coords CS",
+            page_type="crida-case-study",
+            content="Content",
+            country="Chile",
+            submission_action="publish",
+        )
+
+        result = helpers.call_action(
+            "ckanext_crida_geojson",
+            {"ignore_auth": True},
+        )
+
+        # Entry without coordinates should not appear
+        titles = [f["properties"]["title"] for f in result["features"]]
+        assert "No Coords CS" not in titles

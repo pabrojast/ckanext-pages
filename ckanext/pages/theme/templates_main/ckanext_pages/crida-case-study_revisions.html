@@ -1,0 +1,25 @@
+{% extends "ckanext_pages/page_revisions.html" %}
+
+{% block title %}
+{{ _('Revisions') }} - {{ c.page.title or c.page.name }} - {{ _('CRIDA Case Studies') }} - {{ super() }}
+{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+  <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
+  <li><a href="{{ h.url_for('pages.crida_case_studies_index') }}">{{ _('Case Studies') }}</a></li>
+  <li><a href="{{ h.url_for('pages.crida_case_study_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>
+  <li class="active">{{ _('Revisions') }}</li>
+{% endblock %}
+
+{% block revisions_title %}
+{{ _('Revision History') }} - {{ c.page.title or c.page.name }}
+{% endblock %}
+
+{% block revision_restore_url %}
+{{ h.url_for('pages.crida_case_study_revision_restore', page=c.page.name, revision=rev_id) }}
+{% endblock %}
+
+{% block revision_preview_url %}
+{{ h.url_for('pages.crida_case_study_revisions_preview', page=c.page.name, revision=rev_id) }}
+{% endblock %}

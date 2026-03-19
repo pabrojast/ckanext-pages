@@ -1,0 +1,183 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('CRIDA Case Studies') }} - {{ super() }}
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/css/crida.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+
+<div class="crida-page">
+  <div id="content" class="container">
+    {{ self.flash() }}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      {# Breadcrumb #}
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
+          <li class="active">{{ _('Case Studies') }}</li>
+        </ol>
+      </div>
+
+      {# Header #}
+      <div class="crida-hero" style="min-height:200px;">
+        <div class="crida-hero-bg" style="background-image: url('/images/crida/crida-hero.jpg');"></div>
+        <div class="crida-hero-overlay"></div>
+        <div class="crida-hero-content" style="padding:2rem;">
+          <h1>{{ _('CRIDA Case Studies') }}</h1>
+          <p class="crida-subtitle">{{ _('Explore case studies applying the CRIDA methodology worldwide') }}</p>
+        </div>
+      </div>
+
+      <div class="row">
+        {# Filter Sidebar #}
+        <div class="col-md-3">
+          <div class="crida-filters">
+            <h3><i class="fa fa-filter"></i> {{ _('Filters') }}</h3>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Search') }}</label>
+              <input type="text" id="crida-filter-search" placeholder="{{ _('Search case studies...') }}" class="form-control">
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Country') }}</label>
+              <select id="crida-filter-country" class="form-control">
+                <option value="">{{ _('All Countries') }}</option>
+                {% set countries_seen = [] %}
+                {% for pg in pages %}
+                  {% if pg.country and pg.country not in countries_seen %}
+                    {% if countries_seen.append(pg.country) %}{% endif %}
+                    <option value="{{ pg.country }}">{{ pg.country }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Theme') }}</label>
+              <select id="crida-filter-theme" class="form-control">
+                <option value="">{{ _('All Themes') }}</option>
+                {% for theme in h.get_crida_themes() %}
+                  <option value="{{ theme }}">{{ theme }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Status') }}</label>
+              <select id="crida-filter-status" class="form-control">
+                <option value="">{{ _('All Statuses') }}</option>
+                <option value="Finished">{{ _('Finished') }}</option>
+                <option value="Ongoing">{{ _('Ongoing') }}</option>
+                <option value="Planned">{{ _('Planned') }}</option>
+              </select>
+            </div>
+
+            <div style="margin-top:1rem;">
+              <a href="#" id="crida-clear-filters" class="crida-btn-outline" style="width:100%;text-align:center;padding:0.5rem;">
+                <i class="fa fa-times"></i> {{ _('Clear Filters') }}
+              </a>
+            </div>
+
+            <div style="margin-top:0.8rem;font-size:0.85rem;color:#6c757d;">
+              <span id="crida-results-count">{{ pages|length }}</span> {{ _('case studies') }}
+            </div>
+          </div>
+
+          {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
+          <div style="margin-top:1rem;">
+            <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-btn-primary" style="width:100%;text-align:center;justify-content:center;">
+              <i class="fa fa-plus-circle"></i> {{ _('Add Case Study') }}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
+        {# Cards Grid #}
+        <div class="col-md-9">
+          {% if pages %}
+          <div class="crida-cards-grid">
+            {% for pg in pages %}
+            {% set pg_themes = h.json_loads(pg.themes) if pg.themes else [] %}
+            <div class="crida-card" data-name="{{ pg.name }}" data-country="{{ pg.country }}" data-status="{{ pg.crida_status }}" data-themes="{{ pg_themes|join(',') }}" data-title="{{ pg.title }}">
+
+              <div class="crida-card-image">
+                {% if pg.header_image %}
+                  <img src="{{ pg.header_image }}" alt="{{ pg.title }}" loading="lazy">
+                {% else %}
+                  <div class="crida-card-placeholder">
+                    <i class="fa fa-map-marker"></i>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="crida-card-body">
+                <div class="crida-card-header">
+                  <span class="crida-card-country"><i class="fa fa-globe"></i> {{ pg.country }}</span>
+                  <span class="crida-status-badge {{ h.get_crida_status_class(pg.crida_status) }}">{{ pg.crida_status or 'N/A' }}</span>
+                </div>
+
+                <h3><a href="{{ h.url_for('pages.crida_case_study_show', page=pg.name) }}">{{ pg.title }}</a></h3>
+
+                <p class="crida-card-summary">{{ pg.excerpt or h.strip_html_tags(pg.content)[:180] }}</p>
+
+                <div class="crida-card-footer">
+                  <div class="crida-card-themes">
+                    {% for theme in pg_themes[:2] %}
+                      <span class="crida-theme-tag"><i class="fa fa-tag"></i> {{ theme }}</span>
+                    {% endfor %}
+                  </div>
+                  <a href="{{ h.url_for('pages.crida_case_study_show', page=pg.name) }}" class="crida-btn-outline" style="padding:0.3rem 0.8rem;font-size:0.78rem;">
+                    {{ _('View') }} <i class="fa fa-arrow-right"></i>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+            {% endfor %}
+          </div>
+
+          <div id="crida-empty-filter-state" class="crida-empty-state" style="display:none;">
+            <i class="fa fa-search"></i>
+            <h3>{{ _('No matching case studies') }}</h3>
+            <p>{{ _('Try adjusting your filters to find what you\'re looking for.') }}</p>
+          </div>
+
+          {% else %}
+          <div class="crida-empty-state">
+            <i class="fa fa-map-marker"></i>
+            <h3>{{ _('No case studies yet') }}</h3>
+            <p>{{ _('Be the first to add a CRIDA case study.') }}</p>
+            {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
+            <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-btn-primary">
+              <i class="fa fa-plus-circle"></i> {{ _('Add Case Study') }}
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="/js/crida.js"></script>
+{% endblock %}

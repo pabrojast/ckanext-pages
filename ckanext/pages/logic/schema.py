@@ -269,6 +269,21 @@ def default_pages_schema():
         'reference_doi': [ignore_missing, unicode_safe],
         'related_datasets': [ignore_missing, unicode_safe],
         'limitations': [ignore_missing, unicode_safe],
+        # CRIDA Case Study specific fields
+        'latitude': [ignore_missing, unicode_safe],
+        'longitude': [ignore_missing, unicode_safe],
+        'coord_note': [ignore_missing, unicode_safe],
+        'crida_status': [ignore_missing, unicode_safe],  # Finished, Ongoing, Planned
+        'themes': [ignore_missing, json_validator, unicode_safe],  # JSON array of themes
+        'crida_context': [ignore_missing, unicode_safe],  # Context description
+        'crida_actions': [ignore_missing, unicode_safe],  # Actions taken
+        'crida_outcomes': [ignore_missing, unicode_safe],  # Results/outcomes
+        'highlights': [ignore_missing, json_validator, unicode_safe],  # JSON array of CRIDA step highlights
+        'image_credit': [ignore_missing, unicode_safe],
+        'case_study_url': [ignore_missing, url_validator, unicode_safe],  # UNESCO case study page
+        'external_link': [ignore_missing, url_validator, unicode_safe],  # External reference
+        'related_datasets_json': [ignore_missing, json_validator, unicode_safe],  # CKAN dataset IDs
+        'related_documents_json': [ignore_missing, json_validator, unicode_safe],  # Document attachments
     }
 
 

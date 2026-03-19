@@ -315,3 +315,26 @@ def event_types_update(context, data_dict):
 def event_types_delete(context, data_dict):
     '''Only sysadmin can delete event types'''
     return sysadmin(context, data_dict)
+
+
+# CRIDA Case Study permissions
+crida_case_study_update = water_content_edit
+crida_case_study_delete = sysadmin
+
+
+@p.toolkit.auth_allow_anonymous_access
+def crida_case_study_list(context, data_dict):
+    '''Anyone can list CRIDA case studies (public API)'''
+    return {'success': True}
+
+
+@p.toolkit.auth_allow_anonymous_access
+def crida_case_study_show(context, data_dict):
+    '''Anyone can view CRIDA case studies (public API)'''
+    return {'success': True}
+
+
+@p.toolkit.auth_allow_anonymous_access
+def crida_geojson(context, data_dict):
+    '''Anyone can access the CRIDA GeoJSON endpoint'''
+    return {'success': True}
