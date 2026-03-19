@@ -1,0 +1,456 @@
+{
+  "source": {
+    "name": "UNESCO CRIDA case studies map/list",
+    "url": "https://www.unesco.org/en/crida/case-studies",
+    "count_listed": 23,
+    "notes": "Some map points link to external platforms; when available, UNESCO CRIDA hub pages were used for structured summaries."
+  },
+  "items": [
+    {
+      "id": "cl-limari",
+      "country": "Chile",
+      "title": "Crida For Drought Adaptation In The Limarí Watershed, Chile",
+      "status": "Finished",
+      "themes": ["Drought"],
+      "partners": ["Deltares"],
+      "url_original": "https://unesdoc.unesco.org/en (see map link: Climate change impacts on water security in Chile’s drylands)",
+      "url_unesco": "https://www.unesco.org/en/crida/crida-drought-adaptation-limari-watershed-chile",
+      "image_url": "https://media.unesco.org/sites/default/files/webform/hyd001/limari2.png",
+      "summary": "UNESCO implemented CRIDA in the Limarí watershed to improve drought and water resources management, using stress testing, adaptation options and pathways, and institutionalization recommendations.",
+      "highlights": [
+        "CRIDA Steps 1–2: decision context + bottom-up vulnerability assessment / stress test",
+        "CRIDA Steps 3–4: adaptation options combined into pathways, cost–benefit compared across climate scenarios",
+        "CRIDA Step 5: institutionalization into plans/budgets"
+      ],
+      "citations": ["turn8view0", "turn9view0"]
+    },
+    {
+      "id": "zw-chimanimani",
+      "country": "Zimbabwe",
+      "title": "Comprehensive Resilience Building in the Chimanimani District of Zimbabwe",
+      "status": "Finished",
+      "themes": ["Drought", "Nature Based Solutions"],
+      "partners": ["University of Cincinnati Research Institute", "AGWA", "TSURO"],
+      "url_original": "https://www.unesco.org/en/crida/case-studies/chimanimani",
+      "url_unesco": "https://www.unesco.org/en/crida/comprehensive-resilience-building-chimanimani-district-zimbabwe",
+      "image_url": "https://media.unesco.org/sites/default/files/webform/hyd001/chimanimani3.jpg",
+      "summary": "Integrated CRIDA-based work to improve resilience and water resource management after recurring cyclones/drought/flood impacts; prioritized nature-based drought adaptation actions (e.g., check dams).",
+      "highlights": [
+        "CRIDA Steps 1–2: decision context + climate stress test / medium-term vulnerability assessment",
+        "CRIDA Step 3: shortlist of nature-based adaptation options",
+        "CRIDA Step 4: compared decentralized check dams vs. large dam; identified complementary options (sand dams, small wetlands)"
+      ],
+      "citations": ["turn8view2", "turn6search4", "turn9view3"]
+    },
+    {
+      "id": "zm-lusaka-iolanda",
+      "country": "Zambia",
+      "title": "Resilient Water and Energy Supply for Zambia’s Capital in the Face of Drought",
+      "status": "Finished",
+      "themes": ["Drought", "Urban Water Security"],
+      "partners": ["Millenium Challenge Corporation", "Millenium Project Completion Agency", "US Army Corps of Engineers", "ICIWaRM"],
+      "url_original": "https://agwaguide.org (map: Climate proofing Zambia’s Iolanda water treatment plant)",
+      "url_unesco": "https://www.unesco.org/en/crida/resilient-water-and-energy-supply-zambias-capital-face-drought",
+      "image_url": null,
+      "summary": "Assessed drought-driven vulnerabilities affecting Lusaka’s water/energy nexus (hydropower dependency) and compared solution robustness and cost across climate futures for the Iolanda system.",
+      "highlights": [
+        "Used incremental cost analysis to compare options against future scenarios",
+        "Linked cost to long-term robustness; avoided unnecessary immediate measures"
+      ],
+      "citations": ["turn3search13", "turn5search16", "turn1view0"]
+    },
+    {
+      "id": "lk-colombo",
+      "country": "Sri Lanka",
+      "title": "Climate Change Adaptation for Municipal Water Supply in Colombo, Sri Lanka",
+      "status": "Finished",
+      "themes": ["Urban Water Security"],
+      "partners": ["Asian Institute of Technology"],
+      "url_original": "https://www.unesco.org/en/crida/climate-change-adaptation-municipal-water-supply-colombo-sri-lanka",
+      "url_unesco": "https://www.unesco.org/en/crida/climate-change-adaptation-municipal-water-supply-colombo-sri-lanka",
+      "image_url": null,
+      "summary": "Focused on climate risks to Colombo’s Kelani River water supply system and identified demand management–oriented adaptation measures under uncertainty.",
+      "highlights": [
+        "Stress-tested supply vs. demand growth under uncertain futures",
+        "Adaptation focus: demand management scenarios and minimum flow considerations"
+      ],
+      "citations": ["turn3search3", "turn5search8"]
+    },
+    {
+      "id": "th-bangkok",
+      "country": "Thailand",
+      "title": "Towards Climate-Resilient Urban Water Supply in Bangkok, Thailand",
+      "status": "Finished",
+      "themes": ["Urban Water Security"],
+      "partners": [],
+      "url_original": "https://www.sciencedirect.com (map: An evaluation of critical thresholds for Bangkok water supply utility)",
+      "url_unesco": "https://www.unesco.org/en/crida/towards-climate-resilient-urban-water-supply-bangkok-thailand",
+      "image_url": null,
+      "summary": "Scenario-based adaptation planning for Bangkok’s water supply in a data-scarce setting; identified key performance metrics and stress-tested vulnerabilities (e.g., salinity/turbidity/streamflow).",
+      "highlights": [
+        "Stakeholder-defined metrics and thresholds",
+        "Stress tests across plausible climate variability to reveal vulnerabilities"
+      ],
+      "citations": ["turn5search17", "turn4search13", "turn1view0"]
+    },
+    {
+      "id": "ph-cebu",
+      "country": "Philippines",
+      "title": "A water security case study for Central Cebu, Philippines",
+      "status": "Finished",
+      "themes": ["Urban Water Security"],
+      "partners": ["US Army Corps of Engineers", "Deltares"],
+      "url_original": "https://www.sciencedirect.com (map: A water security case study in the Philippines)",
+      "url_unesco": "https://www.unesco.org/en/crida/water-security-case-study-central-cebu-philippines",
+      "image_url": "https://media.unesco.org/sites/default/files/webform/hyd001/central-cebu-2.jpg",
+      "summary": "Re-analyzed a 2006 IWRM plan using CRIDA to better handle uncertainty, especially demand growth and saltwater intrusion risks, and to support flexible adaptation pathways.",
+      "highlights": [
+        "CRIDA Step 1: set goal (reliable/affordable supply) and key drivers",
+        "CRIDA Step 2: stress test + level-of-concern analysis under uncertainty",
+        "Showed CRIDA advantages over traditional IWRM for adaptive planning"
+      ],
+      "citations": ["turn8view1", "turn9view2", "turn4search4"]
+    },
+    {
+      "id": "th-udon-thani",
+      "country": "Thailand",
+      "title": "Nature-Based Solutions to Adapt to Climate Change and Rapid Urbanization",
+      "status": "Finished",
+      "themes": ["Drought", "Flood", "Nature Based Solutions", "Urban Water Security"],
+      "partners": ["U.S. Army Corps of Engineers"],
+      "url_original": "https://iciwarm.info (map: Reducing flood risk through green infrastructure in Udon Thani, Thailand)",
+      "url_unesco": "https://www.unesco.org/en/crida/nature-based-solutions-adapt-climate-change-and-rapid-urbanization",
+      "image_url": null,
+      "summary": "Applied CRIDA/decision-making under uncertainty to co-develop green infrastructure options and a shared resilience vision for a rapidly growing city facing floods and droughts.",
+      "highlights": [
+        "Multi-year stakeholder workshops with city leadership",
+        "Developed scenario bins representing alternative futures",
+        "Advanced to implementation commitments (wetland restoration, GI in downtown and peri-urban areas)"
+      ],
+      "citations": ["turn6search1", "turn3search6", "turn1view0"]
+    },
+    {
+      "id": "co-magdalena-hydropower",
+      "country": "Colombia",
+      "title": "Incorporating Climate Change into Colombia’s Hydropower Planning",
+      "status": "Finished",
+      "themes": ["Hydropower"],
+      "partners": ["IHE Delft Institute for Water Education", "ICIWaRM"],
+      "url_original": "https://www.researchgate.net (map: Decision making under future climate uncertainty… Magdalena river basin)",
+      "url_unesco": "https://www.unesco.org/en/crida/incorporating-climate-change-colombias-hydropower-planning",
+      "image_url": null,
+      "summary": "Bottom-up risk-based CRIDA application to test hydropower planning robustness under hydrological uncertainty and climate risks (e.g., drought) in the Magdalena River Basin.",
+      "highlights": [
+        "Tested planning strategy against uncertain futures",
+        "Focused on hydrological uncertainty and system resilience"
+      ],
+      "citations": ["turn4search0", "turn5search7", "turn1view0"]
+    },
+    {
+      "id": "mx-water-reserves",
+      "country": "Mexico",
+      "title": "Examining Mexico’s Water Reserves Program as an Ecosystem-Based Adaptation Instrument",
+      "status": "Finished",
+      "themes": ["Nature Based Solutions", "Ecosystem-based adaptation"],
+      "partners": [],
+      "url_original": "https://agwaguide.org (map: Eco-engineering… Mexico’s water reserves program)",
+      "url_unesco": null,
+      "url_reference_doc": "https://unesdoc.unesco.org/ark:/48223/pf0000389036",
+      "image_url": null,
+      "summary": "Case documented in CRIDA publications: assessed how allocating water reserves (environmental flows) can function as ecosystem-based adaptation supporting water security under climate uncertainty.",
+      "highlights": [
+        "Positioned water reserves as adaptation instrument",
+        "Linked environmental flow allocation to resilience and biodiversity co-benefits"
+      ],
+      "citations": ["turn7search1", "turn7search2", "turn1view0"]
+    },
+    {
+      "id": "ec-guayaquil-flood-resilience",
+      "country": "Ecuador",
+      "title": "Using Nature-Based Solutions for Flood Resilience",
+      "status": "Finished",
+      "themes": ["Flood", "Nature Based Solutions", "Urban resilience"],
+      "partners": [],
+      "url_original": "https://www.sciencedirect.com (map: An adaptation strategy for future climate change and improve city’s resilience to urban flooding)",
+      "url_unesco": "https://www.unesco.org/en/crida/using-nature-based-solutions-flood-resilience",
+      "image_url": null,
+      "summary": "CRIDA-driven co-design of nature-based flood measures and public-space redesign alternatives; used urban flood modelling and stakeholder evaluation to select a feasible pathway.",
+      "highlights": [
+        "Built urban flood model incl. return periods and sea-level anomalies",
+        "Compared gray-to-green intervention alternatives using resilience metrics",
+        "Institutional buy-in across municipal departments supported implementation"
+      ],
+      "citations": ["turn6search5", "turn4search12", "turn1view0"]
+    },
+    {
+      "id": "se-municipal-dapp",
+      "country": "Sweden",
+      "title": "Insights from testing a modified Dynamic Adaptive Policy Pathways approach for spatial planning at the municipal level",
+      "status": "Finished (study/publication)",
+      "themes": ["Spatial planning", "Sea-level rise adaptation", "Deep uncertainty"],
+      "partners": [],
+      "url_original": "https://www.mdpi.com/2071-1050/11/2/433",
+      "url_unesco": null,
+      "image_url": null,
+      "summary": "External publication referenced by the CRIDA map; explores applying an adaptive pathways approach in smaller municipalities for planning under uncertainty (e.g., sea-level rise).",
+      "highlights": [
+        "Tested simplified pathways approach in multiple municipal cases",
+        "Identified constraints/effort and organizational factors for uptake"
+      ],
+      "citations": ["turn7search4", "turn1view0"]
+    },
+    {
+      "id": "nl-waas-lower-rhine",
+      "country": "Netherlands",
+      "title": "Extensive simulations by Deltares of the “Waas” River, based on the lower Rhine",
+      "status": "Finished (documented in CRIDA guidance/publications)",
+      "themes": ["Flood", "Low flow / navigation", "System planning under uncertainty"],
+      "partners": ["Deltares"],
+      "url_original": "https://www.unesco.org/en/crida/case-studies (map item: Netherlands – Waas river/lower Rhine)",
+      "url_unesco": null,
+      "url_reference_doc": "https://unesdoc.unesco.org/ark:/48223/pf0000265895",
+      "image_url": null,
+      "summary": "Documented CRIDA example using a hypothetical ‘Waas River’ based on the Rhine; used extensive simulations to evaluate flood and drought/low-flow performance under uncertainty.",
+      "highlights": [
+        "Explicitly framed flood damages and navigation reliability problem statement",
+        "Used scenario-based analysis and monitoring/decision feedback concepts"
+      ],
+      "citations": ["turn7search15", "turn7search1", "turn1view0"]
+    },
+    {
+      "id": "us-ca-tuolumne-merced",
+      "country": "United States of America",
+      "title": "Tuolumne and Merced Watershed Studies (State Water Project CRIDA pilots)",
+      "status": "Finished",
+      "themes": ["Drought", "Watershed planning"],
+      "partners": [],
+      "url_original": "https://www.unesco.org/en/articles/unesco-demonstrates-crida-applications-california",
+      "url_unesco": "https://www.unesco.org/en/crida/tuolumne-and-merced-watershed-studies",
+      "image_url": null,
+      "summary": "California piloted CRIDA for watershed-scale adaptation planning using bottom-up vulnerability assessment and decision scaling; stress tests used paleo reconstructions and stochastic weather generation.",
+      "highlights": [
+        "Statewide bottom-up vulnerability assessment leading to pilot basins",
+        "Decision scaling and stress testing using advanced hydrologic inputs"
+      ],
+      "citations": ["turn4search7", "turn3search12", "turn2view1", "turn1view0"]
+    },
+    {
+      "id": "us-ca-article",
+      "country": "United States of America",
+      "title": "UNESCO demonstrates CRIDA Applications in California (article)",
+      "status": "Article",
+      "themes": ["Urban/watershed adaptation"],
+      "partners": [],
+      "url_original": "https://www.unesco.org/en/articles/unesco-demonstrates-crida-applications-california",
+      "url_unesco": "https://www.unesco.org/en/articles/unesco-demonstrates-crida-applications-california",
+      "image_url": null,
+      "summary": "Context article on CRIDA applications in California (linked from the CRIDA map for the State Water Project).",
+      "highlights": [],
+      "citations": ["turn2view1"]
+    },
+    {
+      "id": "ca-us-glam",
+      "country": "Canada and United States of America",
+      "title": "The creation of the Great Lakes Adaptive Management (GLAM) committee",
+      "status": "Finished",
+      "themes": ["Transboundary water", "Adaptive management"],
+      "partners": ["International Joint Commission (IJC) context"],
+      "url_original": "https://ijc.org (map item)",
+      "url_unesco": "https://www.unesco.org/en/crida/creation-great-lakes-adaptive-management-glam-committee",
+      "image_url": null,
+      "summary": "Created GLAM to support decision-making on water levels/flows and stakeholder impacts under persistent uncertainties, building on major bi-national studies.",
+      "highlights": [
+        "Institutionalized adaptive management above responsible parties",
+        "Supported by monitoring and modelling to manage uncertainty"
+      ],
+      "citations": ["turn4search16", "turn3search7", "turn1view0"]
+    },
+    {
+      "id": "pe-chancay-lambayeque",
+      "country": "Peru",
+      "title": "Assess the resilience of the Chancay-Lambayeque to future climate and demographic change",
+      "status": "Finished/Study (external platform)",
+      "themes": ["Water supply & demand", "Demographic change"],
+      "partners": [],
+      "url_original": "https://www.futurewater.eu (map item)",
+      "url_unesco": null,
+      "image_url": null,
+      "summary": "Map links to an external FutureWater resource; case focuses on resilience under combined climate and demographic pressures.",
+      "highlights": [],
+      "citations": ["turn1view0"]
+    },
+    {
+      "id": "ga-ntoum",
+      "country": "Gabon",
+      "title": "Seasonal limitations of freshwater availability in the face of climate change (Ntoum, Gabon)",
+      "status": "Finished",
+      "themes": ["Urban Water Security", "Demand growth"],
+      "partners": ["Deltares (context in page excerpt)"],
+      "url_original": "https://www.deltares.nl (map item)",
+      "url_unesco": "https://www.unesco.org/en/crida/seasonal-limitations-freshwater-availability-face-climate-change-ntoum-gabon",
+      "image_url": null,
+      "summary": "Developed water balance and hydrologic modelling to test reliability of the Ntoum drinking water plant under climate change and population-driven demand growth; identified demand growth as key risk driver.",
+      "highlights": [
+        "Synthetic weather + hydrological modelling for scenario testing",
+        "Concluded demand increase dominates reliability risk more than climate change"
+      ],
+      "citations": ["turn3search10", "turn5search2", "turn1view0"]
+    },
+    {
+      "id": "bt-nap",
+      "country": "Bhutan",
+      "title": "Assessment of climate risks on water resources for NAP for Bhutan",
+      "status": "Finished",
+      "themes": ["Hydropower", "National Adaptation Plan"],
+      "partners": ["Deltares"],
+      "url_original": "https://www.undp.org (map item)",
+      "url_unesco": "https://www.unesco.org/en/crida/assessment-climate-risks-water-resources-nap-bhutan",
+      "image_url": null,
+      "summary": "Risk assessment of climate impacts on Bhutan’s water resources in the NAP context; CRIDA not used explicitly but aligned analytical actions were applied (e.g., vulnerability/risk framing).",
+      "highlights": [
+        "Highlights cryosphere-related risks to discharge and hydropower",
+        "Bridges adaptation planning needs with water stress realities"
+      ],
+      "citations": ["turn5search10", "turn4search15", "turn1view0"]
+    },
+    {
+      "id": "za-be-resilient-program-article",
+      "country": "South Africa",
+      "title": "Be Resilient South Africa Project (article)",
+      "status": "Article",
+      "themes": ["Nature-based solutions", "Resilience building"],
+      "partners": [],
+      "url_original": "https://www.unesco.org/en/articles/be-resilient-south-africa-project",
+      "url_unesco": "https://www.unesco.org/en/articles/be-resilient-south-africa-project",
+      "image_url": null,
+      "summary": "UNESCO article describing the broader BE Resilient South Africa program, within which multiple CRIDA-lite/case studies were developed.",
+      "highlights": [],
+      "citations": ["turn2view2"]
+    },
+    {
+      "id": "za-luvuvhu",
+      "country": "South Africa",
+      "title": "Water scarcity in the Luvuvhu Catchment, Vhembe Biosphere Reserve",
+      "status": "Finished",
+      "themes": ["Drought", "Nature Based Solutions"],
+      "partners": ["University of Venda", "Vhembe Biosphere Reserve", "Deltares", "US Army Corps of Engineers", "University of Cincinnati"],
+      "url_original": "https://www.unesco.org/en/crida/water-scarcity-luvuvhu-catchment-vhembe-biosphere-reserve",
+      "url_unesco": "https://www.unesco.org/en/crida/water-scarcity-luvuvhu-catchment-vhembe-biosphere-reserve",
+      "image_url": null,
+      "summary": "CRIDA Steps 1–4 used to evaluate climate-driven water scarcity and compare adaptation pathways emphasizing nature-based solutions (e.g., invasive species removal, restoration, soil amendments).",
+      "highlights": [
+        "Stress tests project warmer/drier future and streamflow decline",
+        "Five stakeholder-developed NBS pathways, evaluated via models + scorecards"
+      ],
+      "citations": ["turn6search0", "turn4search6", "turn1view0"]
+    },
+    {
+      "id": "za-marico",
+      "country": "South Africa",
+      "title": "CRIDA lite in the Marico Biosphere Reserve",
+      "status": "Finished",
+      "themes": ["Nature Based Solutions", "Catchment restoration"],
+      "partners": [],
+      "url_original": "https://www.unesco.org/en/crida/crida-lite-marico-biosphere-reserve",
+      "url_unesco": "https://www.unesco.org/en/crida/crida-lite-marico-biosphere-reserve",
+      "image_url": null,
+      "summary": "CRIDA-Lite initiative targeting improved flow, water quality, biodiversity and reduced invasive alien plant impacts through catchment-focused interventions.",
+      "highlights": [
+        "Focus on ecological condition improvements and invasive plant management"
+      ],
+      "citations": ["turn4search14", "turn5search11"]
+    },
+    {
+      "id": "za-eerste-cape-winelands",
+      "country": "South Africa",
+      "title": "Towards Sustainable Water and Ecosystem Management along the Eerste River, Cape Winelands Biosphere Reserve",
+      "status": "Finished (CRIDA-lite scoped)",
+      "themes": ["Nature Based Solutions", "Ecosystem management"],
+      "partners": [],
+      "url_original": "https://www.unesco.org/en/crida/towards-sustainable-water-and-ecosystem-management-along-eerste-river-cape-winelands-biosphere",
+      "url_unesco": "https://www.unesco.org/en/crida/towards-sustainable-water-and-ecosystem-management-along-eerste-river-cape-winelands-biosphere",
+      "image_url": null,
+      "summary": "CRIDA-lite scoping of adaptation options and economic cost approaches to inform an adaptation pathway business case for long-term ecosystem and water resilience.",
+      "highlights": [
+        "Built shared understanding through engagement, interviews and literature",
+        "Connected local pathway ideas with broader planning efforts"
+      ],
+      "citations": ["turn5search13", "turn4search5"]
+    },
+    {
+      "id": "za-k2c",
+      "country": "South Africa",
+      "title": "Kruger to Canyons Biosphere Region",
+      "status": "Finished",
+      "themes": ["Nature Based Solutions"],
+      "partners": ["Krugers to Canyons Biosphere Region"],
+      "url_original": "https://www.unesco.org/en/crida/kruger-canyons-biosphere-region",
+      "url_unesco": "https://www.unesco.org/en/crida/kruger-canyons-biosphere-region",
+      "image_url": null,
+      "summary": "CRIDA-related work in a biodiversity-rich biosphere region supporting key catchments; focuses on ecosystem services and resilience co-benefits for livelihoods and adaptation.",
+      "highlights": [],
+      "citations": ["turn5search5"]
+    },
+    {
+      "id": "do-guayubin",
+      "country": "Dominican Republic",
+      "title": "Leveraging collaborative modeling to build a more equitable and resilient future",
+      "status": "Finished/Programmatic (training + watershed planning support)",
+      "themes": ["Collaborative planning", "Watershed management"],
+      "partners": ["Plan Sierra (context mentioned on page excerpt)"],
+      "url_original": "https://www.unesco.org/en/crida/leveraging-collaborative-modeling-build-more-equitable-and-resilient-future",
+      "url_unesco": "https://www.unesco.org/en/crida/leveraging-collaborative-modeling-build-more-equitable-and-resilient-future",
+      "image_url": null,
+      "summary": "CRIDA support for watershed planning in the Guayubín sub-basin (North Yaque River Basin), including capacity building and collaborative methodology application.",
+      "highlights": [
+        "CRIDA-linked training/certification elements documented on the page",
+        "Focus on collaborative modelling for equitable, resilient planning"
+      ],
+      "citations": ["turn4search3", "turn3search1"]
+    },
+    {
+      "id": "ke-water-supply-demand",
+      "country": "Kenya",
+      "title": "Adaptation to impacts of climate and demographic changes on water supply and demand",
+      "status": "Finished/Study (external platform)",
+      "themes": ["Urban Water Security", "Demand growth"],
+      "partners": [],
+      "url_original": "https://www.preventionweb.net (map item)",
+      "url_unesco": null,
+      "image_url": null,
+      "summary": "Map links to an external PreventionWeb resource about adaptation to combined climate and demographic impacts on water supply and demand.",
+      "highlights": [],
+      "citations": ["turn1view0"]
+    },
+    {
+      "id": "ar-atuel",
+      "country": "Argentina",
+      "title": "CRIDA for the Atuel River basin, Argentina",
+      "status": "Ongoing",
+      "themes": ["Drought"],
+      "partners": ["University of Cincinnati"],
+      "url_original": "https://www.unesco.org/en/crida/crida-atuel-river-basin-argentina",
+      "url_unesco": "https://www.unesco.org/en/crida/crida-atuel-river-basin-argentina",
+      "image_url": null,
+      "summary": "Ongoing CRIDA project to address water security challenges under climate change (reduced snow cover, multi-annual droughts), co-develop adaptation strategies and optimize basin management.",
+      "highlights": [
+        "Planning stakeholder engagement and building climate modelling inputs for later CRIDA steps"
+      ],
+      "citations": ["turn8view3", "turn4search9"]
+    },
+    {
+      "id": "ua-tisza",
+      "country": "Ukraine",
+      "title": "Shared vision planning for Europe’s Tisza river basin",
+      "status": "Finished/Study (external platform)",
+      "themes": ["Transboundary water", "Shared vision planning"],
+      "partners": [],
+      "url_original": "https://www.iwr.usace.army.mil (map item)",
+      "url_unesco": null,
+      "image_url": null,
+      "summary": "Map links to an external USACE IWR resource on shared vision planning for the Tisza basin (transboundary planning under uncertainty).",
+      "highlights": [],
+      "citations": ["turn1view0"]
+    }
+  ]
+}
