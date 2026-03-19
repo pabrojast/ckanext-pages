@@ -17,34 +17,45 @@ import ckan.logic as logic
 
 logger = logging.getLogger(__name__)
 
-# Approximate coordinates from the UNESCO CRIDA case studies map
+# Approximate coordinates from the UNESCO CRIDA case studies map.
+# Keys MUST match item IDs from crida_lat_lon data file.
 COORDINATES = {
     "cl-limari": (-30.60, -71.05, "Aprox (Limarí/Coquimbo)"),
     "zw-chimanimani": (-19.80, 32.87, "Aprox (Chimanimani)"),
     "zm-lusaka-iolanda": (-15.39, 28.32, "Aprox (Lusaka)"),
     "lk-colombo": (6.93, 79.86, "Aprox (Colombo)"),
     "th-bangkok": (13.76, 100.50, "Aprox (Bangkok)"),
-    "ph-cebu": (14.60, 121.00, "Aprox (Filipinas; punto representativo)"),
+    "ph-cebu": (10.32, 123.89, "Aprox (Central Cebu)"),
     "th-udon-thani": (17.42, 102.79, "Aprox (Udon Thani)"),
-    "co-magdalena": (4.70, -74.10, "Aprox (cuenca Magdalena)"),
-    "mx-reserves": (19.43, -99.13, "Aprox (México)"),
-    "ec-guayaquil": (-2.17, -79.92, "Aprox (Guayaquil)"),
-    "se-municipality": (59.33, 18.07, "Aprox (Suecia)"),
-    "nl-deltares-waas": (51.92, 4.48, "Aprox (zona delta Rin)"),
-    "us-ca-great-lakes-glam": (44.50, -84.50, "Aprox (Grandes Lagos)"),
-    "us-state-water-project": (38.58, -121.49, "Aprox (California)"),
-    "us-great-lakes-resilience": (44.50, -84.50, "Aprox (Grandes Lagos)"),
+    "co-magdalena-hydropower": (4.70, -74.10, "Aprox (cuenca Magdalena)"),
+    "mx-water-reserves": (19.43, -99.13, "Aprox (México)"),
+    "ec-guayaquil-flood-resilience": (-2.17, -79.92, "Aprox (Guayaquil)"),
+    "se-municipal-dapp": (59.33, 18.07, "Aprox (Suecia)"),
+    "nl-waas-lower-rhine": (51.92, 4.48, "Aprox (zona delta Rin)"),
+    "us-ca-tuolumne-merced": (38.58, -121.49, "Aprox (California)"),
+    "us-ca-article": (38.58, -121.49, "Aprox (California)"),
+    "ca-us-glam": (44.50, -84.50, "Aprox (Great Lakes)"),
     "pe-chancay-lambayeque": (-6.77, -79.84, "Aprox (Chancay-Lambayeque)"),
     "ga-ntoum": (0.39, 9.77, "Aprox (Gabon; Ntoum)"),
-    "bt-thimphu": (27.47, 89.64, "Aprox (Thimphu)"),
-    "za-biosphere": (-30.60, 22.90, "Aprox (Sudáfrica)"),
+    "bt-nap": (27.47, 89.64, "Aprox (Thimphu)"),
+    "za-be-resilient-program-article": (-30.60, 22.90, "Aprox (Sudáfrica)"),
+    "za-luvuvhu": (-22.90, 30.45, "Aprox (Vhembe Biosphere Reserve)"),
+    "za-marico": (-25.77, 26.40, "Aprox (Marico Biosphere Reserve)"),
+    "za-eerste-cape-winelands": (-33.94, 18.86, "Aprox (Cape Winelands)"),
+    "za-k2c": (-24.50, 31.10, "Aprox (Kruger to Canyons)"),
     "do-guayubin": (19.62, -71.33, "Aprox (Rep. Dominicana)"),
-    "ke-nairobi": (-1.29, 36.82, "Aprox (Nairobi)"),
+    "ke-water-supply-demand": (-1.29, 36.82, "Aprox (Nairobi)"),
     "ar-atuel": (-34.62, -68.33, "Aprox (cuenca Atuel)"),
     "ua-tisza": (48.62, 22.30, "Aprox (zona Tisza)"),
-    # Additional from crida.json matching
-    "us-great-lakes": (44.50, -84.50, "Aprox (Grandes Lagos)"),
-    "bd-dhaka": (23.81, 90.41, "Aprox (Dhaka)"),
+}
+
+# Explicit mapping from alternate crida.json titles to crida_lat_lon IDs,
+# for items where fuzzy matching fails (Jaccard < 0.4).
+TITLE_ALIASES = {
+    "eco-engineering: mexico water reserves program": "mx-water-reserves",
+    "decision making under climate uncertainty in the magdalena river basin":
+        "co-magdalena-hydropower",
+    "urban flood resilience strategy": "ec-guayaquil-flood-resilience",
 }
 
 # Map downloaded images to case study IDs
@@ -132,8 +143,11 @@ def _load_data():
         title_map[item['title'].lower().strip()] = item_id
 
     def _find_match(title):
-        """Find matching item by exact title or fuzzy word overlap."""
+        """Find matching item by alias, exact title, or fuzzy word overlap."""
         t = title.lower().strip()
+        # Check explicit aliases first
+        if t in TITLE_ALIASES:
+            return TITLE_ALIASES[t]
         if t in title_map:
             return title_map[t]
         # Fuzzy match by word overlap (threshold 40%)
