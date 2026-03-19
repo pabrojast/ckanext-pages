@@ -3118,6 +3118,128 @@ def crida_admin_reject(page):
     return tk.redirect_to('pages.crida_admin_dashboard')
 
 
+def crida_admin_reseed():
+    """Force re-seed all CRIDA case studies from data files."""
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized'))
+
+    import json as json_module
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        from ckanext.pages.commands.seed_crida import (
+            _load_data, _slugify, COORDINATES, IMAGE_MAP
+        )
+        import ckan.logic as logic
+
+        items = _load_data()
+        if not items:
+            tk.h.flash_error(_('No data files found to seed.'))
+            return tk.redirect_to('pages.crida_admin_dashboard')
+
+        site_user = logic.get_action('get_site_user')(
+            {'ignore_auth': True}, {}
+        )
+        context = {
+            'user': site_user['name'],
+            'ignore_auth': True,
+        }
+
+        created = 0
+        updated = 0
+        errors = 0
+
+        for item_id, item in items.items():
+            name = _slugify(item['title'])[:80] or item_id
+            try:
+                coords = COORDINATES.get(item_id, (None, None, ''))
+                lat, lon, coord_note = (
+                    coords if len(coords) == 3
+                    else (coords[0], coords[1], '')
+                )
+                header_image = IMAGE_MAP.get(item_id, '')
+
+                existing = None
+                try:
+                    existing = logic.get_action('ckanext_pages_show')(
+                        dict(context), {'page': name}
+                    )
+                except (logic.NotFound, KeyError):
+                    pass
+
+                page_data = {
+                    'page': name,
+                    'name': name,
+                    'title': item['title'],
+                    'page_type': 'crida-case-study',
+                    'content': item.get('summary', ''),
+                    'excerpt': (
+                        item.get('summary', '')[:300]
+                        if item.get('summary') else ''
+                    ),
+                    'country': item.get('country', ''),
+                    'crida_status': item.get('status', 'Finished'),
+                    'themes': json_module.dumps(
+                        item.get('themes', [])
+                    ),
+                    'partners': json_module.dumps(
+                        item.get('partners', [])
+                    ),
+                    'highlights': json_module.dumps(
+                        item.get('highlights', [])
+                    ),
+                    'case_study_url': item.get('url_unesco', ''),
+                    'external_link': item.get(
+                        'url_original', ''
+                    ),
+                    'crida_context': item.get('context', ''),
+                    'crida_actions': item.get('actions', ''),
+                    'crida_outcomes': item.get('outcomes', ''),
+                    'image_credit': item.get(
+                        'image_credit', ''
+                    ),
+                    'header_image': header_image,
+                    'publish_date': '2025-01-01',
+                    'submission_action': 'publish',
+                }
+
+                if lat is not None:
+                    page_data['latitude'] = str(lat)
+                if lon is not None:
+                    page_data['longitude'] = str(lon)
+                if coord_note:
+                    page_data['coord_note'] = coord_note
+
+                logic.get_action('ckanext_pages_update')(
+                    dict(context), page_data
+                )
+
+                if existing:
+                    updated += 1
+                else:
+                    created += 1
+
+            except Exception:
+                errors += 1
+                logger.exception(
+                    'Error re-seeding CRIDA: %s', name
+                )
+
+        tk.h.flash_success(
+            _('Re-seed complete: %d created, %d updated, '
+              '%d errors') % (created, updated, errors)
+        )
+
+    except Exception as e:
+        logger.exception('Error during CRIDA re-seed')
+        tk.h.flash_error(
+            _('Error during re-seed: %s') % str(e)
+        )
+
+    return tk.redirect_to('pages.crida_admin_dashboard')
+
+
 def crida_geojson_api():
     """API endpoint returning GeoJSON for Terria map integration."""
     import json as json_module

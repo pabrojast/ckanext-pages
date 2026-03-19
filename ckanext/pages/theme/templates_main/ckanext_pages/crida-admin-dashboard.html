@@ -96,6 +96,21 @@
       </div>
       {% endif %}
 
+      {# Admin Tools #}
+      <div class="crida-admin-tools" style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid #e0e0e0;">
+        <h3 style="color:#0072BC; margin-bottom:1rem;"><i class="fa fa-wrench"></i> {{ _('Admin Tools') }}</h3>
+        <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <form action="{{ h.url_for('pages.crida_admin_reseed') }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-warning" onclick="return confirm('{{ _('This will re-import all CRIDA case studies from data files (existing entries will be updated). Continue?') }}')">
+              <i class="fa fa-refresh"></i> {{ _('Force Re-seed Data') }}
+            </button>
+          </form>
+          <span style="color:#666; font-size:0.85rem;">
+            {{ _('Re-imports all case studies from data files, updating existing entries with enriched content and images.') }}
+          </span>
+        </div>
+      </div>
+
       <div style="margin-top:2rem;">
         <a href="{{ h.url_for('pages.crida_index') }}" class="crida-btn-outline">
           <i class="fa fa-arrow-left"></i> {{ _('Back to CRIDA') }}
