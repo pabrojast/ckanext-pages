@@ -4,8 +4,9 @@ Flask routes for Featured Viewers web interface.
 
 import json
 import logging
+import urllib.parse
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 import ckan.plugins.toolkit as tk
 from ckan.common import g
 from ckan import model
@@ -855,6 +856,221 @@ def rooms_remove_viewer(slug):
         flash(str(e), 'error')
 
     return redirect(url_for('featured_viewers.rooms_edit', slug=slug))
+
+
+# ============================================================================
+# API: Resolve Terria Share Link
+# ============================================================================
+
+@featured_viewers_blueprint.route('/api/resolve-share-link')
+def resolve_share_link():
+    """
+    Resolve a Terria share link and return the full JSON config.
+
+    Handles two formats:
+    - #share=ID  -> fetches from Terria server /share/{ID}
+    - #start=JSON -> decodes the URL-encoded JSON
+
+    Query params:
+        url: Full Terria share URL
+
+    Returns:
+        JSON: {success: true, config: {...}, base_url: "..."}
+    """
+    if not g.user:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 403
+
+    share_url = request.args.get('url', '').strip()
+    if not share_url:
+        return jsonify({'success': False, 'error': 'Missing url parameter'}), 400
+
+    try:
+        parsed = urllib.parse.urlparse(share_url)
+        fragment = parsed.fragment
+
+        # SSRF protection: only allow known Terria domains
+        allowed_domains = [
+            'map.dev-wins.com',
+            'terria.water-data.org',
+            'data210.dev-wins.com',
+        ]
+        try:
+            configured = tk.config.get('ckanext.pages.terria_base_url', '')
+            if configured:
+                from urllib.parse import urlparse as _urlparse
+                configured_host = _urlparse(configured).netloc
+                if configured_host:
+                    allowed_domains.append(configured_host)
+        except Exception:
+            pass
+
+        if not parsed.netloc or parsed.netloc not in allowed_domains:
+            return jsonify({
+                'success': False,
+                'error': 'Domain not allowed. Allowed: {}'.format(
+                    ', '.join(allowed_domains))
+            }), 400
+
+        if parsed.scheme not in ('http', 'https'):
+            return jsonify({
+                'success': False, 'error': 'Only http/https URLs are allowed'
+            }), 400
+
+        base_url = '{scheme}://{netloc}{path}'.format(
+            scheme=parsed.scheme,
+            netloc=parsed.netloc,
+            path=parsed.path.rstrip('/') + '/'
+        )
+
+        if not fragment:
+            return jsonify({
+                'success': False,
+                'error': 'URL has no fragment (#share= or #start=)'
+            }), 400
+
+        # Parse fragment as key=value params
+        hash_params = urllib.parse.parse_qs(fragment)
+
+        # Handle #share=ID
+        share_id = hash_params.get('share', [None])[0]
+        if share_id:
+            import requests as http_requests
+            endpoint = '{base}share/{sid}'.format(
+                base=base_url, sid=urllib.parse.quote(share_id, safe='')
+            )
+            log.info('Resolving Terria share link: %s', endpoint)
+            resp = http_requests.get(endpoint, timeout=15)
+            resp.raise_for_status()
+
+            config = resp.json()
+            return jsonify({
+                'success': True,
+                'config': config,
+                'base_url': base_url,
+                'source': 'share',
+            })
+
+        # Handle #start=JSON
+        start_value = hash_params.get('start', [None])[0]
+        if start_value:
+            # Try direct parse, then URL-decoded parse
+            config = None
+            candidates = [start_value]
+            if '%' in start_value:
+                try:
+                    candidates.append(urllib.parse.unquote(start_value))
+                except Exception:
+                    pass
+
+            for candidate in candidates:
+                try:
+                    config = json.loads(candidate)
+                    break
+                except (json.JSONDecodeError, TypeError):
+                    continue
+
+            if config is None:
+                return jsonify({
+                    'success': False,
+                    'error': 'Could not parse #start payload as JSON'
+                }), 400
+
+            return jsonify({
+                'success': True,
+                'config': config,
+                'base_url': base_url,
+                'source': 'start',
+            })
+
+        return jsonify({
+            'success': False,
+            'error': 'URL fragment must contain #share= or #start='
+        }), 400
+
+    except Exception as e:
+        log.error('Error resolving Terria share link: %s', str(e))
+        return jsonify({
+            'success': False,
+            'error': 'Failed to resolve share link'
+        }), 500
+
+
+@featured_viewers_blueprint.route('/api/search-terria-datasets')
+def search_terria_datasets():
+    """
+    Search CKAN datasets that have resources with terria-compatible formats.
+
+    Query params:
+        q: search query (default '')
+        limit: max results (default 10)
+
+    Returns:
+        JSON: {success: true, results: [{id, title, name, organization, resources: [...]}]}
+    """
+    if not g.user:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 403
+
+    q = request.args.get('q', '').strip()
+    limit = min(int(request.args.get('limit', 10)), 50)
+
+    try:
+        context = _get_context()
+        terria_formats = [
+            'shp', 'wms', 'wfs', 'kml', 'geojson', 'czml',
+            'wmts', 'tif', 'tiff', 'geotiff', 'cog', 'csv', 'json',
+            'esri rest'
+        ]
+
+        # Build fq to filter datasets with compatible resources
+        fq_parts = []
+        format_clauses = ' OR '.join(
+            'res_format:"{}"'.format(f) for f in terria_formats
+        )
+        fq_parts.append('({})'.format(format_clauses))
+
+        search_result = tk.get_action('package_search')(context, {
+            'q': q or '*:*',
+            'fq': ' '.join(fq_parts),
+            'rows': limit,
+            'include_private': False,
+        })
+
+        results = []
+        for pkg in search_result.get('results', []):
+            compatible_resources = []
+            for res in pkg.get('resources', []):
+                fmt = (res.get('format') or '').lower()
+                if fmt in terria_formats:
+                    compatible_resources.append({
+                        'id': res.get('id'),
+                        'name': res.get('name') or res.get('description') or res.get('url', ''),
+                        'format': res.get('format', ''),
+                        'url': res.get('url', ''),
+                    })
+
+            if compatible_resources:
+                org = pkg.get('organization') or {}
+                results.append({
+                    'id': pkg.get('id'),
+                    'title': pkg.get('title', ''),
+                    'name': pkg.get('name', ''),
+                    'organization': org.get('title', ''),
+                    'organization_image': org.get('image_display_url', ''),
+                    'resources': compatible_resources,
+                })
+
+        return jsonify({
+            'success': True,
+            'count': search_result.get('count', 0),
+            'results': results,
+        })
+
+    except Exception as e:
+        log.error('Error searching terria datasets: %s', str(e))
+        return jsonify({
+            'success': False,
+            'error': 'Failed to search datasets'
+        }), 500
 
 
 # ============================================================================

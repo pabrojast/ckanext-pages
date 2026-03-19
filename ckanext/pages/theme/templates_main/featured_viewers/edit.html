@@ -255,6 +255,10 @@
                 style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #e9ecef; background: #f8f9fa; color: #6c757d; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
           <i class="fa fa-code"></i> {{ _('Advanced Config') }}
         </button>
+        <button type="button" class="fv-map-tab-btn" data-target="#fv-tab-catalog"
+                style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #e9ecef; background: #f8f9fa; color: #6c757d; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+          <i class="fa fa-database"></i> {{ _('Catalog') }}
+        </button>
       </div>
 
       <div class="fv-tab-content">
@@ -302,11 +306,75 @@
         {# Tab 2: Advanced JSON Config #}
         <div class="fv-tab-panel" id="fv-tab-advanced" style="display: none;">
           <div class="fv-tab-inner">
-            <div class="alert alert-info" style="border-radius: 10px; margin-bottom: 1.25rem;">
-              <i class="fa fa-info-circle"></i>
-              {{ _('Advanced settings are optional. Most users only need the Share Link above.') }}
+
+            {# Fetch from share link #}
+            <div class="alert alert-info" style="border-radius: 10px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <i class="fa fa-info-circle"></i>
+                {{ _('Fetch the full Terria JSON config from the Share Link to view and edit it manually.') }}
+              </div>
+              <button type="button" id="fv-fetch-config" class="btn btn-primary btn-sm" style="white-space: nowrap;">
+                <i class="fa fa-download"></i> {{ _('Fetch Config from Share Link') }}
+              </button>
             </div>
 
+            {# Status indicator #}
+            <div id="fv-advanced-status" style="display: none; padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9em;"></div>
+
+            {# Terria JSON Config editor #}
+            <div class="form-group">
+              <label class="control-label" for="fv-terria-config">
+                <i class="fa fa-cog"></i> {{ _('Terria JSON Config') }}
+              </label>
+              {# Toolbar #}
+              <div style="display: flex; gap: 0.4rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                <button type="button" id="fv-json-format" class="btn btn-default btn-xs" title="{{ _('Format JSON') }}">
+                  <i class="fa fa-indent"></i> {{ _('Format') }}
+                </button>
+                <button type="button" id="fv-json-validate" class="btn btn-default btn-xs" title="{{ _('Validate JSON') }}">
+                  <i class="fa fa-check-circle"></i> {{ _('Validate') }}
+                </button>
+                <button type="button" id="fv-json-copy" class="btn btn-default btn-xs" title="{{ _('Copy JSON') }}">
+                  <i class="fa fa-clipboard"></i> {{ _('Copy') }}
+                </button>
+                <span style="flex: 1;"></span>
+                <button type="button" id="fv-json-preview" class="btn btn-success btn-xs" title="{{ _('Preview map from JSON') }}">
+                  <i class="fa fa-eye"></i> {{ _('Preview Map') }}
+                </button>
+              </div>
+              <textarea id="fv-terria-config" name="terria_config" class="form-control code-editor" rows="18"
+                        placeholder='{{ _("Paste or fetch a Terria JSON config...") }}'
+                        style="font-family: Monaco, Menlo, 'Ubuntu Mono', Consolas, monospace; font-size: 12px; line-height: 1.5; tab-size: 2;"
+              >{% if data.get('terria_config') %}{{ data.get('terria_config') if data.get('terria_config') is string else data.get('terria_config')|tojson(indent=2) }}{% else %}{% endif %}</textarea>
+              <span class="help-text">{{ _('Full Terria catalog configuration. Edit manually or fetch from Share Link.') }}</span>
+            </div>
+
+            {# Generated URL from JSON #}
+            <div class="form-group" id="fv-generated-url-group" style="display: none;">
+              <label class="control-label">
+                <i class="fa fa-link"></i> {{ _('Generated Terria URL') }}
+              </label>
+              <div class="input-group">
+                <input type="text" id="fv-generated-url" class="form-control" readonly
+                       placeholder="{{ _('URL will be generated from JSON above...') }}">
+                <div class="input-group-btn">
+                  <button type="button" id="fv-copy-generated-url" class="btn btn-default" title="{{ _('Copy URL') }}">
+                    <i class="fa fa-clipboard"></i>
+                  </button>
+                  <a id="fv-open-generated-url" href="#" target="_blank" class="btn btn-primary" title="{{ _('Open in Terria') }}" style="display: none;">
+                    <i class="fa fa-external-link"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {# Map preview from JSON #}
+            <div id="fv-advanced-map-preview" class="fv-map-preview" style="display: none;">
+            </div>
+
+            <hr style="margin: 1.5rem 0;">
+
+            {# Map Layers - kept for compatibility #}
             <div class="form-group">
               <label class="control-label" for="fv-layers">
                 <i class="fa fa-layer-group"></i> {{ _('Map Layers') }}
@@ -318,15 +386,43 @@
                 {{ _('JSON array describing map layers. Each entry: {name, type, url, visible}.') }}
               </span>
             </div>
+          </div>
+        </div>
 
+        {# Tab 3: Catalog Search #}
+        <div class="fv-tab-panel" id="fv-tab-catalog" style="display: none;">
+          <div class="fv-tab-inner">
+            <div class="alert alert-info" style="border-radius: 10px; margin-bottom: 1.25rem;">
+              <i class="fa fa-database"></i>
+              {{ _('Search datasets in the catalog that have geospatial resources compatible with Terria.') }}
+            </div>
+
+            {# Search bar #}
             <div class="form-group">
-              <label class="control-label" for="fv-terria-config">
-                <i class="fa fa-cog"></i> {{ _('Terria JSON Config') }}
-              </label>
-              <textarea id="fv-terria-config" name="terria_config" class="form-control code-editor" rows="4"
-                        placeholder='{}'
-              >{% if data.get('terria_config') %}{{ data.get('terria_config') if data.get('terria_config') is string else data.get('terria_config')|tojson(indent=2) }}{% else %}{}{% endif %}</textarea>
-              <span class="help-text">{{ _('Full Terria catalog configuration object (for power users).') }}</span>
+              <div class="input-group">
+                <input type="text" id="fv-catalog-search" class="form-control"
+                       placeholder="{{ _('Search datasets by name...') }}">
+                <div class="input-group-btn">
+                  <button type="button" id="fv-catalog-search-btn" class="btn btn-primary">
+                    <i class="fa fa-search"></i> {{ _('Search') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {# Loading indicator #}
+            <div id="fv-catalog-loading" style="display: none; text-align: center; padding: 2rem;">
+              <i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i>
+              <p style="margin-top: 0.5rem; color: #6c757d;">{{ _('Searching datasets...') }}</p>
+            </div>
+
+            {# Results #}
+            <div id="fv-catalog-results"></div>
+
+            {# Empty state #}
+            <div id="fv-catalog-empty" style="text-align: center; padding: 3rem 1rem; color: #9e9e9e;">
+              <i class="fa fa-search fa-3x" style="margin-bottom: 0.75rem; opacity: 0.5;"></i>
+              <p>{{ _('Search above to find datasets with geospatial resources') }}</p>
             </div>
           </div>
         </div>
@@ -759,6 +855,18 @@
   margin-bottom: 0.75rem;
   display: block;
 }
+.fv-catalog-dataset-header:hover {
+  background: #e3f2fd !important;
+}
+.fv-catalog-resource:last-child {
+  border-bottom: none !important;
+}
+.fv-catalog-resource:hover {
+  background: #f8fafe;
+}
+#fv-advanced-map-preview {
+  margin-top: 1rem;
+}
 </style>
 
 <!-- Scripts -->
@@ -1111,6 +1219,339 @@
         selectedTags = selectedTags.filter(function(t) { return t !== tag; });
         $(this).closest('.tag-item').remove();
         updateTagsField();
+      });
+
+      // ══════════════════════════════════════════════
+      // Advanced Config: Fetch, Edit, Preview
+      // ══════════════════════════════════════════════
+      var $advStatus = $('#fv-advanced-status');
+      var $terriaConfig = $('#fv-terria-config');
+      var $generatedUrlGroup = $('#fv-generated-url-group');
+      var $generatedUrl = $('#fv-generated-url');
+      var $openGeneratedUrl = $('#fv-open-generated-url');
+      var $advMapPreview = $('#fv-advanced-map-preview');
+      var advBaseUrl = 'https://map.dev-wins.com/';
+      var advLiveTimer = null;
+
+      function showAdvStatus(type, msg) {
+        var colors = {
+          success: { bg: '#d4edda', border: '#c3e6cb', color: '#155724' },
+          error:   { bg: '#f8d7da', border: '#f5c6cb', color: '#721c24' },
+          info:    { bg: '#d1ecf1', border: '#bee5eb', color: '#0c5460' },
+          loading: { bg: '#fff3cd', border: '#ffeaa7', color: '#856404' }
+        };
+        var c = colors[type] || colors.info;
+        $advStatus.css({ background: c.bg, borderColor: c.border, color: c.color, border: '1px solid ' + c.border, display: 'block' });
+        // Use text for untrusted content, html only for our own icons
+        $advStatus.html(msg);
+      }
+
+      function showAdvStatusSafe(type, icon, textMsg) {
+        // Safe version: icon is trusted HTML, textMsg is escaped
+        var safeText = $('<span>').text(textMsg).html();
+        showAdvStatus(type, '<i class="fa ' + icon + '"></i> ' + safeText);
+      }
+
+      function hideAdvStatus() { $advStatus.hide(); }
+
+      function updateAdvGeneratedUrl() {
+        var jsonText = $terriaConfig.val().trim();
+        if (!jsonText) {
+          $generatedUrlGroup.hide();
+          return;
+        }
+        try {
+          var parsed = JSON.parse(jsonText);
+          var encoded = encodeURIComponent(JSON.stringify(parsed));
+          var fullUrl = advBaseUrl + '#start=' + encoded;
+          $generatedUrl.val(fullUrl);
+          $openGeneratedUrl.attr('href', fullUrl).show();
+          $generatedUrlGroup.show();
+        } catch (e) {
+          $generatedUrlGroup.hide();
+        }
+      }
+
+      // Fetch Config from Share Link
+      $('#fv-fetch-config').on('click', function() {
+        var shareLink = $('#fv-terria-link').val().trim();
+        if (!shareLink) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Enter a Terria share link in the Share Link tab first.") }}');
+          return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ _("Fetching...") }}');
+        showAdvStatus('loading', '<i class="fa fa-spinner fa-spin"></i> {{ _("Resolving share link...") }}');
+
+        $.ajax({
+          url: '/featured-viewers/api/resolve-share-link',
+          data: { url: shareLink },
+          dataType: 'json',
+          timeout: 20000,
+          success: function(data) {
+            if (data.success) {
+              var formatted = JSON.stringify(data.config, null, 2);
+              $terriaConfig.val(formatted);
+              advBaseUrl = data.base_url || advBaseUrl;
+              updateAdvGeneratedUrl();
+              showAdvStatus('success', '<i class="fa fa-check-circle"></i> {{ _("Config loaded successfully from") }} <code>' + data.source + '</code>. {{ _("You can now edit it below.") }}');
+            } else {
+              showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> ' + (data.error || '{{ _("Unknown error") }}'));
+            }
+          },
+          error: function(xhr) {
+            var msg = '{{ _("Failed to fetch config") }}';
+            try { msg = JSON.parse(xhr.responseText).error || msg; } catch(e) {}
+            showAdvStatusSafe('error', 'fa-exclamation-triangle', msg);
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fa fa-download"></i> {{ _("Fetch Config from Share Link") }}');
+          }
+        });
+      });
+
+      // JSON Format
+      $('#fv-json-format').on('click', function() {
+        try {
+          var parsed = JSON.parse($terriaConfig.val());
+          $terriaConfig.val(JSON.stringify(parsed, null, 2));
+          updateAdvGeneratedUrl();
+          showAdvStatus('success', '<i class="fa fa-check-circle"></i> {{ _("JSON formatted successfully.") }}');
+        } catch(e) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Invalid JSON:") }} ' + e.message);
+        }
+      });
+
+      // JSON Validate
+      $('#fv-json-validate').on('click', function() {
+        try {
+          JSON.parse($terriaConfig.val());
+          showAdvStatus('success', '<i class="fa fa-check-circle"></i> {{ _("Valid JSON!") }}');
+        } catch(e) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Invalid JSON:") }} ' + e.message);
+        }
+      });
+
+      // JSON Copy
+      $('#fv-json-copy').on('click', function() {
+        var text = $terriaConfig.val();
+        if (!text) return;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text);
+        } else {
+          var $tmp = $('<textarea>').val(text).appendTo('body').select();
+          document.execCommand('copy');
+          $tmp.remove();
+        }
+        showAdvStatus('success', '<i class="fa fa-check-circle"></i> {{ _("JSON copied to clipboard.") }}');
+        setTimeout(hideAdvStatus, 2000);
+      });
+
+      // Copy generated URL
+      $('#fv-copy-generated-url').on('click', function() {
+        var url = $generatedUrl.val();
+        if (!url) return;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url);
+        } else {
+          var $tmp = $('<textarea>').val(url).appendTo('body').select();
+          document.execCommand('copy');
+          $tmp.remove();
+        }
+        showAdvStatus('success', '<i class="fa fa-check-circle"></i> {{ _("URL copied to clipboard.") }}');
+        setTimeout(hideAdvStatus, 2000);
+      });
+
+      // Preview Map from JSON
+      $('#fv-json-preview').on('click', function() {
+        updateAdvGeneratedUrl();
+        var url = $generatedUrl.val();
+        if (!url) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Enter valid JSON to preview.") }}');
+          return;
+        }
+        // Only allow http/https URLs
+        if (!/^https?:\/\//i.test(url)) {
+          showAdvStatus('error', '<i class="fa fa-exclamation-triangle"></i> {{ _("Invalid URL scheme.") }}');
+          return;
+        }
+        var embedUrl = url;
+        if (url.indexOf('#') !== -1 && url.indexOf('?') === -1) {
+          var parts = url.split('#');
+          embedUrl = parts[0] + '?hideWorkbench=1&hideExplorerPanel=1#' + parts[1];
+        }
+        var iframe = document.createElement('iframe');
+        iframe.src = embedUrl;
+        iframe.setAttribute('allow', 'geolocation');
+        iframe.setAttribute('loading', 'lazy');
+        iframe.setAttribute('title', 'Map Preview');
+        $advMapPreview.empty().append(iframe).show();
+      });
+
+      // Live update generated URL on JSON edit (debounced)
+      $terriaConfig.on('input', function() {
+        clearTimeout(advLiveTimer);
+        advLiveTimer = setTimeout(function() {
+          updateAdvGeneratedUrl();
+        }, 400);
+      });
+
+      // If config already has content, show generated URL
+      if ($terriaConfig.val().trim()) {
+        updateAdvGeneratedUrl();
+      }
+
+      // ══════════════════════════════════════════════
+      // Catalog Search
+      // ══════════════════════════════════════════════
+      var $catalogSearch = $('#fv-catalog-search');
+      var $catalogResults = $('#fv-catalog-results');
+      var $catalogLoading = $('#fv-catalog-loading');
+      var $catalogEmpty = $('#fv-catalog-empty');
+      var catalogTimer = null;
+
+      function searchCatalog(query) {
+        $catalogLoading.show();
+        $catalogResults.empty();
+        $catalogEmpty.hide();
+
+        $.ajax({
+          url: '/featured-viewers/api/search-terria-datasets',
+          data: { q: query || '', limit: 15 },
+          dataType: 'json',
+          timeout: 15000,
+          success: function(data) {
+            $catalogLoading.hide();
+            if (!data.success || !data.results || !data.results.length) {
+              $catalogEmpty.html(
+                '<i class="fa fa-inbox fa-3x" style="margin-bottom: 0.75rem; opacity: 0.5;"></i>' +
+                '<p>{{ _("No datasets found with geospatial resources.") }}</p>'
+              ).show();
+              return;
+            }
+            renderCatalogResults(data.results);
+          },
+          error: function() {
+            $catalogLoading.hide();
+            $catalogEmpty.html(
+              '<i class="fa fa-exclamation-triangle fa-3x" style="margin-bottom: 0.75rem; color: #e74c3c;"></i>' +
+              '<p>{{ _("Error searching datasets. Please try again.") }}</p>'
+            ).show();
+          }
+        });
+      }
+
+      function renderCatalogResults(datasets) {
+        var html = '';
+        datasets.forEach(function(ds) {
+          html += '<div class="fv-catalog-dataset" style="border: 1px solid #e9ecef; border-radius: 10px; margin-bottom: 0.75rem; overflow: hidden;">';
+          html += '<div class="fv-catalog-dataset-header" data-dataset-id="' + ds.id + '" style="padding: 0.75rem 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; background: #f8fafe; transition: background 0.2s;">';
+          html += '<i class="fa fa-chevron-right fv-catalog-chevron" style="transition: transform 0.2s; color: #0072BC;"></i>';
+          html += '<div style="flex: 1; min-width: 0;">';
+          html += '<strong style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + $('<span>').text(ds.title).html() + '</strong>';
+          if (ds.organization) {
+            html += '<small style="color: #6c757d;"><i class="fa fa-building-o"></i> ' + $('<span>').text(ds.organization).html() + '</small>';
+          }
+          html += '</div>';
+          html += '<span class="badge" style="background: #0072BC; color: white; border-radius: 12px; padding: 0.2rem 0.6rem; font-size: 0.75em;">' + ds.resources.length + ' {{ _("resources") }}</span>';
+          html += '</div>';
+
+          // Resources (collapsed by default)
+          html += '<div class="fv-catalog-resources" data-for="' + ds.id + '" style="display: none; padding: 0 1rem 0.75rem; border-top: 1px solid #e9ecef;">';
+          ds.resources.forEach(function(res) {
+            html += '<div class="fv-catalog-resource" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0;">';
+            html += '<i class="fa fa-file-o" style="color: #6c757d;"></i>';
+            html += '<div style="flex: 1; min-width: 0;">';
+            html += '<span style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9em;">' + $('<span>').text(res.name).html() + '</span>';
+            html += '<small style="color: #9e9e9e;">' + $('<span>').text(res.format).html() + '</small>';
+            html += '</div>';
+            html += '<button type="button" class="btn btn-primary btn-xs fv-select-resource" data-dataset-id="' + ds.id + '" data-dataset-name="' + $('<span>').text(ds.title).html() + '" data-resource-id="' + res.id + '" data-resource-name="' + $('<span>').text(res.name).html() + '">';
+            html += '<i class="fa fa-plus-circle"></i> {{ _("Select") }}</button>';
+            html += '</div>';
+          });
+          html += '</div>';
+          html += '</div>';
+        });
+        $catalogResults.html(html);
+      }
+
+      // Toggle dataset resources
+      $(document).on('click', '.fv-catalog-dataset-header', function() {
+        var dsId = $(this).data('dataset-id');
+        var $resources = $('.fv-catalog-resources[data-for="' + dsId + '"]');
+        var $chevron = $(this).find('.fv-catalog-chevron');
+        $resources.slideToggle(200);
+        $chevron.toggleClass('fa-chevron-right fa-chevron-down');
+      });
+
+      // Select resource -> load Terria JSON
+      $(document).on('click', '.fv-select-resource', function(e) {
+        e.stopPropagation();
+        var $btn = $(this);
+        var datasetId = $btn.data('dataset-id');
+        var resourceId = $btn.data('resource-id');
+        var datasetName = $btn.data('dataset-name');
+
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+        // Try to get Terria JSON from the terria_view API
+        $.ajax({
+          url: '/api/terria/dataset/' + datasetId,
+          dataType: 'json',
+          timeout: 15000,
+          success: function(terriaConfig) {
+            // Load into Advanced Config editor
+            var formatted = JSON.stringify(terriaConfig, null, 2);
+            $terriaConfig.val(formatted);
+            updateAdvGeneratedUrl();
+
+            // Switch to Advanced tab
+            $('#fv-map-tabs .fv-map-tab-btn[data-target="#fv-tab-advanced"]').trigger('click');
+            showAdvStatus('success', '<i class="fa fa-check-circle"></i> {{ _("Config loaded from dataset:") }} <strong>' + datasetName + '</strong>');
+          },
+          error: function() {
+            // Fallback: build a basic share link using dataset URL
+            var baseUrl = advBaseUrl;
+            var configUrl = window.location.origin + '/api/terria/dataset/' + datasetId;
+            var shareLink = baseUrl + '#start=' + encodeURIComponent(JSON.stringify({
+              "version": "8.0.0",
+              "initSources": [configUrl]
+            }));
+            $('#fv-terria-link').val(shareLink);
+
+            // Switch to Advanced tab and show message
+            $('#fv-map-tabs .fv-map-tab-btn[data-target="#fv-tab-advanced"]').trigger('click');
+            showAdvStatus('info', '<i class="fa fa-info-circle"></i> {{ _("Could not fetch Terria config directly. A reference link has been set in Share Link.") }}');
+          },
+          complete: function() {
+            $btn.prop('disabled', false).html('<i class="fa fa-plus-circle"></i> {{ _("Select") }}');
+          }
+        });
+      });
+
+      // Search button click
+      $('#fv-catalog-search-btn').on('click', function() {
+        searchCatalog($catalogSearch.val().trim());
+      });
+
+      // Enter key in search
+      $catalogSearch.on('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchCatalog($catalogSearch.val().trim());
+        }
+      });
+
+      // Debounced live search
+      $catalogSearch.on('input', function() {
+        clearTimeout(catalogTimer);
+        var val = $(this).val().trim();
+        if (val.length >= 2) {
+          catalogTimer = setTimeout(function() {
+            searchCatalog(val);
+          }, 500);
+        }
       });
 
     }); // document.ready
