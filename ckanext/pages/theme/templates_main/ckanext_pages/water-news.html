@@ -338,11 +338,14 @@
 /* Banner Section */
 .section-title {
   position: relative;
-  height: 350px;
+  min-height: 350px;
   overflow: hidden;
   border-radius: 16px;
   margin-bottom: 3rem;
   box-shadow: var(--shadow-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .section-title-bg {
@@ -372,15 +375,13 @@
 }
 
 .section-title-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   text-align: center;
   color: white;
   z-index: 10;
   width: 90%;
   max-width: 800px;
+  padding: 2.5rem 0;
 }
 
 .section-title-content h1 {
@@ -399,6 +400,10 @@
   text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
   font-weight: 300;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .section-title-meta-date {
@@ -892,7 +897,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .section-title {
-    height: 250px;
+    min-height: 250px;
     margin-bottom: 2rem;
   }
   
@@ -902,6 +907,7 @@
   
   .section-title-description {
     font-size: 1.1rem;
+    -webkit-line-clamp: 4;
   }
   
   .module-content {
@@ -956,7 +962,7 @@
 
 @media (max-width: 480px) {
   .section-title {
-    height: 200px;
+    min-height: 200px;
   }
   
   .section-title-content h1 {
