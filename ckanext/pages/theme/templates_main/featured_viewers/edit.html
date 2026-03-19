@@ -1253,6 +1253,8 @@
           $generatedUrl.val(fullUrl);
           $openGeneratedUrl.attr('href', fullUrl).show();
           $generatedUrlGroup.show();
+          // Sync with the share link field so the map renders on save
+          $('#fv-terria-link').val(fullUrl);
         } catch (e) {
           $generatedUrlGroup.hide();
         }
