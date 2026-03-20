@@ -12,10 +12,20 @@
     geojsonData: null,
 
     init: function() {
-      this.initMap();
+      try {
+        this.initMap();
+      } catch (e) {
+        console.error('CRIDA: Map initialization failed:', e);
+      }
       this.bindFilterEvents();
       this.bindCardHoverEvents();
       this.bindLoadMore();
+    },
+
+    initAnimatedCounters: function() {
+      if (window.CRIDA_Counters) {
+        window.CRIDA_Counters.initAnimatedCounters();
+      }
     },
 
     /**
@@ -139,7 +149,7 @@
               '</h4>' +
               '<div style="margin-bottom:0.4rem;">' +
                 '<span class="crida-status-badge crida-status-' +
-                  (status || 'default').toLowerCase() + '">' +
+                  (props.status || 'default').toLowerCase() + '">' +
                   (props.status || '') +
                 '</span>' +
                 ' <span style="color:#666;font-size:0.82rem;">' +
@@ -179,7 +189,7 @@
     bindFilterEvents: function() {
       var self = this;
 
-      $('#crida-filter-country, #crida-filter-theme, #crida-filter-status').on('change', function() {
+      $('#crida-filter-country, #crida-filter-theme, #crida-filter-status, #crida-filter-sector, #crida-filter-solution, #crida-filter-challenge, #crida-filter-region, #crida-filter-scale, #crida-filter-stage').on('change', function() {
         self.applyFilters();
       });
 
@@ -197,6 +207,12 @@
         $('#crida-filter-theme').val('');
         $('#crida-filter-status').val('');
         $('#crida-filter-search').val('');
+        $('#crida-filter-sector').val('');
+        $('#crida-filter-solution').val('');
+        $('#crida-filter-challenge').val('');
+        $('#crida-filter-region').val('');
+        $('#crida-filter-scale').val('');
+        $('#crida-filter-stage').val('');
         self.applyFilters();
       });
     },
@@ -209,6 +225,12 @@
       var theme = ($('#crida-filter-theme').val() || '').toLowerCase();
       var status = ($('#crida-filter-status').val() || '').toLowerCase();
       var search = ($('#crida-filter-search').val() || '').toLowerCase();
+      var sector = ($('#crida-filter-sector').val() || '').toLowerCase();
+      var solution = ($('#crida-filter-solution').val() || '').toLowerCase();
+      var challenge = ($('#crida-filter-challenge').val() || '').toLowerCase();
+      var region = ($('#crida-filter-region').val() || '').toLowerCase();
+      var scale = ($('#crida-filter-scale').val() || '').toLowerCase();
+      var stage = ($('#crida-filter-stage').val() || '').toLowerCase();
 
       var visibleCount = 0;
 
@@ -218,6 +240,12 @@
         var cardThemes = ($card.data('themes') || '').toString().toLowerCase();
         var cardStatus = ($card.data('status') || '').toString().toLowerCase();
         var cardTitle = ($card.data('title') || '').toString().toLowerCase();
+        var cardSector = ($card.data('sector') || '').toString().toLowerCase();
+        var cardSolution = ($card.data('solution') || '').toString().toLowerCase();
+        var cardChallenge = ($card.data('challenge') || '').toString().toLowerCase();
+        var cardRegion = ($card.data('region') || '').toString().toLowerCase();
+        var cardScale = ($card.data('scale') || '').toString().toLowerCase();
+        var cardStage = ($card.data('stage') || '').toString().toLowerCase();
 
         var show = true;
 
@@ -225,6 +253,12 @@
         if (theme && cardThemes.indexOf(theme) === -1) show = false;
         if (status && cardStatus !== status) show = false;
         if (search && cardTitle.indexOf(search) === -1 && cardCountry.indexOf(search) === -1) show = false;
+        if (sector && cardSector.indexOf(sector) === -1) show = false;
+        if (solution && cardSolution.indexOf(solution) === -1) show = false;
+        if (challenge && cardChallenge.indexOf(challenge) === -1) show = false;
+        if (region && cardRegion.indexOf(region) === -1) show = false;
+        if (scale && cardScale.indexOf(scale) === -1) show = false;
+        if (stage && cardStage.indexOf(stage) === -1) show = false;
 
         $card.toggle(show);
         if (show) visibleCount++;
@@ -373,6 +407,83 @@
     if ($('.crida-page').length || $('#crida-map').length) {
       CRIDA.init();
     }
+    // Animated counters
+    CRIDA.initAnimatedCounters();
   });
 
 })(jQuery);
+
+/* ============================================================
+   Animated Counter System (IntersectionObserver + easeOutExpo)
+   ============================================================ */
+(function() {
+  'use strict';
+
+  function easeOutExpo(t) {
+    return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  }
+
+  function animateCounter(el) {
+    var target = parseInt(el.getAttribute('data-target'), 10);
+    if (isNaN(target) || target <= 0) {
+      el.textContent = '0';
+      return;
+    }
+    var suffix = el.getAttribute('data-suffix') || '';
+    var duration = 2000;
+    var startTime = null;
+
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var value = Math.floor(easeOutExpo(progress) * target);
+      el.textContent = value.toLocaleString() + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = target.toLocaleString() + suffix;
+      }
+    }
+
+    el.textContent = '0';
+    requestAnimationFrame(step);
+  }
+
+  if (typeof window.CRIDA_Counters === 'undefined') {
+    window.CRIDA_Counters = {
+      initAnimatedCounters: function() {
+        var counters = document.querySelectorAll('.crida-stat-number[data-target]');
+        if (!counters.length) return;
+
+        if ('IntersectionObserver' in window) {
+          var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                entry.target.classList.add('counted');
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.3 });
+
+          counters.forEach(function(el) {
+            el.textContent = '0';
+            observer.observe(el);
+          });
+        } else {
+          // Fallback: animate all immediately
+          counters.forEach(function(el) { animateCounter(el); });
+        }
+      }
+    };
+  }
+
+  // Auto-init when DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      window.CRIDA_Counters.initAnimatedCounters();
+    });
+  } else {
+    window.CRIDA_Counters.initAnimatedCounters();
+  }
+})();

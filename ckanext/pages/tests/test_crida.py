@@ -334,3 +334,85 @@ class TestCRIDAGeoJSON:
         # Entry without coordinates should not appear
         titles = [f["properties"]["title"] for f in result["features"]]
         assert "No Coords CS" not in titles
+
+
+class TestCRIDACategoryHelpers:
+    """Test CRIDA category helper functions (no DB required)."""
+
+    def test_get_crida_sectors_returns_list(self):
+        from ckanext.pages.plugin import get_crida_sectors
+        sectors = get_crida_sectors()
+        assert isinstance(sectors, list)
+        assert len(sectors) >= 8
+        for s in sectors:
+            assert 'id' in s
+            assert 'label' in s
+            assert 'icon' in s
+            assert 'color' in s
+
+    def test_get_crida_stages_returns_list(self):
+        from ckanext.pages.plugin import get_crida_stages
+        stages = get_crida_stages()
+        assert isinstance(stages, list)
+        assert len(stages) >= 4
+        ids = [s['id'] for s in stages]
+        assert 'full-implementation' in ids
+        assert 'pilot-exploratory' in ids
+
+    def test_get_crida_regions_returns_list(self):
+        from ckanext.pages.plugin import get_crida_regions
+        regions = get_crida_regions()
+        assert isinstance(regions, list)
+        assert len(regions) == 5
+        ids = [r['id'] for r in regions]
+        assert 'africa' in ids
+        assert 'lac' in ids
+        assert 'asia-pacific' in ids
+
+    def test_get_crida_scales_returns_list(self):
+        from ckanext.pages.plugin import get_crida_scales
+        scales = get_crida_scales()
+        assert isinstance(scales, list)
+        assert len(scales) == 4
+
+    def test_get_crida_climate_challenges_returns_list(self):
+        from ckanext.pages.plugin import get_crida_climate_challenges
+        challenges = get_crida_climate_challenges()
+        assert isinstance(challenges, list)
+        assert len(challenges) >= 6
+        ids = [c['id'] for c in challenges]
+        assert 'drought' in ids
+        assert 'flooding' in ids
+
+    def test_get_crida_solution_types_returns_list(self):
+        from ckanext.pages.plugin import get_crida_solution_types
+        solutions = get_crida_solution_types()
+        assert isinstance(solutions, list)
+        assert len(solutions) >= 5
+        ids = [s['id'] for s in solutions]
+        assert 'nature-based' in ids
+        assert 'infrastructure' in ids
+
+    def test_get_crida_category_label_known(self):
+        from ckanext.pages.plugin import get_crida_category_label
+        label = get_crida_category_label('sector', 'water-supply')
+        assert label == 'Water Supply & Distribution'
+
+    def test_get_crida_category_label_unknown(self):
+        from ckanext.pages.plugin import get_crida_category_label
+        label = get_crida_category_label('sector', 'nonexistent')
+        assert label == 'nonexistent'
+
+    def test_get_crida_category_label_bad_type(self):
+        from ckanext.pages.plugin import get_crida_category_label
+        label = get_crida_category_label('invalid_type', 'something')
+        assert label == 'something'
+
+    def test_seed_category_map_covers_main_cases(self):
+        from ckanext.pages.commands.seed_crida import CATEGORY_MAP
+        assert len(CATEGORY_MAP) >= 27
+        for key, cats in CATEGORY_MAP.items():
+            assert 'sector' in cats, f"Missing sector for {key}"
+            assert 'region' in cats, f"Missing region for {key}"
+            assert isinstance(cats['sector'], list)
+            assert isinstance(cats.get('climate_challenge', []), list)

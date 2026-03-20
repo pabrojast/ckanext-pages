@@ -6,8 +6,8 @@
 
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" href="/css/crida.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  {% asset 'pages/leaflet-css' %}
+  {% asset 'pages/crida-css' %}
 {% endblock %}
 
 {% block content %}
@@ -60,19 +60,110 @@
       </div>
       {% endif %}
 
-      {# Stats Bar #}
-      <div class="crida-stats-bar">
+      {# Stats Bar — Animated Counters #}
+      <div class="crida-stats-bar crida-stats-bar-extended">
         <div class="crida-stat-item">
-          <div class="crida-stat-number">{{ stats.total }}</div>
+          <div class="crida-stat-number" data-target="{{ stats.total }}">0</div>
           <div class="crida-stat-label">{{ _('Case Studies') }}</div>
         </div>
         <div class="crida-stat-item">
-          <div class="crida-stat-number">{{ stats.countries }}</div>
+          <div class="crida-stat-number" data-target="{{ stats.countries }}">0</div>
           <div class="crida-stat-label">{{ _('Countries') }}</div>
         </div>
         <div class="crida-stat-item">
-          <div class="crida-stat-number">{{ stats.themes }}</div>
+          <div class="crida-stat-number" data-target="{{ stats.themes }}">0</div>
           <div class="crida-stat-label">{{ _('Themes') }}</div>
+        </div>
+        <div class="crida-stat-item">
+          <div class="crida-stat-number" data-target="{{ stats.partners }}">0</div>
+          <div class="crida-stat-label">{{ _('Partners') }}</div>
+        </div>
+        {% if stats.years_active > 0 %}
+        <div class="crida-stat-item">
+          <div class="crida-stat-number" data-target="{{ stats.years_active }}" data-suffix="+">0</div>
+          <div class="crida-stat-label">{{ _('Years Active') }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      {# Explore by Category #}
+      <div class="crida-category-explorer">
+        <h2><i class="fa fa-th-large"></i> {{ _('Explore by Category') }}</h2>
+
+        {# Sector #}
+        <div class="crida-cat-dimension">
+          <div class="crida-cat-dimension-title">{{ _('Water Sector') }}</div>
+          <div class="crida-category-grid">
+            {% for sec in h.get_crida_sectors() %}
+            <a href="{{ h.url_for('pages.crida_case_studies_index') }}?sector={{ sec.id }}" class="crida-category-card" style="border-left-color: {{ sec.color }};">
+              <div class="crida-cat-icon" style="background: {{ sec.color }};">
+                <i class="fa {{ sec.icon }}"></i>
+              </div>
+              <div class="crida-cat-info">
+                <div class="crida-cat-label">{{ _(sec.label) }}</div>
+                <div class="crida-cat-count"><strong>{{ category_counts.sector.get(sec.id, 0) }}</strong> {{ _('case studies') }}</div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Solution Type #}
+        <div class="crida-cat-dimension">
+          <div class="crida-cat-dimension-title">{{ _('Solution Type') }}</div>
+          <div class="crida-category-grid">
+            {% for sol in h.get_crida_solution_types() %}
+            <a href="{{ h.url_for('pages.crida_case_studies_index') }}?solution_type={{ sol.id }}" class="crida-category-card" style="border-left-color: {{ sol.color }};">
+              <div class="crida-cat-icon" style="background: {{ sol.color }};">
+                <i class="fa {{ sol.icon }}"></i>
+              </div>
+              <div class="crida-cat-info">
+                <div class="crida-cat-label">{{ _(sol.label) }}</div>
+                <div class="crida-cat-count"><strong>{{ category_counts.solution_type.get(sol.id, 0) }}</strong> {{ _('case studies') }}</div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        {# Climate Challenge + Scale (side by side in a compact row) #}
+        <div class="row">
+          <div class="col-md-6">
+            <div class="crida-cat-dimension">
+              <div class="crida-cat-dimension-title">{{ _('Climate Challenge') }}</div>
+              <div class="crida-category-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                {% for ch in h.get_crida_climate_challenges() %}
+                <a href="{{ h.url_for('pages.crida_case_studies_index') }}?climate_challenge={{ ch.id }}" class="crida-category-card" style="border-left-color: {{ ch.color }};">
+                  <div class="crida-cat-icon" style="background: {{ ch.color }}; width:38px; height:38px; font-size:1rem;">
+                    <i class="fa {{ ch.icon }}"></i>
+                  </div>
+                  <div class="crida-cat-info">
+                    <div class="crida-cat-label">{{ _(ch.label) }}</div>
+                    <div class="crida-cat-count"><strong>{{ category_counts.climate_challenge.get(ch.id, 0) }}</strong></div>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="crida-cat-dimension">
+              <div class="crida-cat-dimension-title">{{ _('Implementation Scale') }}</div>
+              <div class="crida-category-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+                {% for sc in h.get_crida_scales() %}
+                <a href="{{ h.url_for('pages.crida_case_studies_index') }}?scale={{ sc.id }}" class="crida-category-card" style="border-left-color: {{ sc.color }};">
+                  <div class="crida-cat-icon" style="background: {{ sc.color }}; width:38px; height:38px; font-size:1rem;">
+                    <i class="fa {{ sc.icon }}"></i>
+                  </div>
+                  <div class="crida-cat-info">
+                    <div class="crida-cat-label">{{ _(sc.label) }}</div>
+                    <div class="crida-cat-count"><strong>{{ category_counts.scale.get(sc.id, 0) }}</strong></div>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -141,6 +232,18 @@
                   <span class="crida-theme-tag"><i class="fa fa-tag"></i> {{ theme }}</span>
                 {% endfor %}
               </div>
+              {% set cs_sectors = h.json_loads(cs.sector) if cs.sector else [] %}
+              {% set cs_solutions = h.json_loads(cs.solution_type) if cs.solution_type else [] %}
+              {% if cs_sectors or cs_solutions %}
+              <div class="crida-card-badges">
+                {% for s in cs_sectors[:2] %}
+                  <span class="crida-badge crida-badge-sector"><i class="fa fa-tint"></i> {{ h.get_crida_category_label('sector', s) }}</span>
+                {% endfor %}
+                {% for s in cs_solutions[:1] %}
+                  <span class="crida-badge crida-badge-solution"><i class="fa fa-leaf"></i> {{ h.get_crida_category_label('solution_type', s) }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
               <a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}" class="crida-btn-outline" style="padding:0.3rem 0.8rem;font-size:0.78rem;">
                 {{ _('View') }} <i class="fa fa-arrow-right"></i>
               </a>
@@ -215,6 +318,6 @@
 
 {% block scripts %}
   {{ super() }}
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="/js/crida.js"></script>
+  {% asset 'pages/leaflet-js' %}
+  {% asset 'pages/crida-js' %}
 {% endblock %}

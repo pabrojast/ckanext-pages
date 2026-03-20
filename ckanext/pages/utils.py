@@ -2987,9 +2987,12 @@ def crida_main_page():
     except Exception:
         geojson_data = {"type": "FeatureCollection", "features": []}
 
-    # Compute stats
+    # Compute extended stats (animated KPIs)
     countries = set()
     themes = set()
+    partners_all = set()
+    sectors_all = set()
+    min_year = None
     for cs in case_studies:
         c = cs.get('country', '')
         if c:
@@ -3001,12 +3004,51 @@ def crida_main_page():
                 themes.add(t)
         except Exception:
             pass
+        # Partners
+        try:
+            p_raw = cs.get('partners', '[]')
+            p_list = json_module.loads(p_raw) if isinstance(p_raw, str) else p_raw
+            for p in (p_list or []):
+                if p and isinstance(p, str):
+                    partners_all.add(p.strip())
+        except Exception:
+            pass
+        # Sectors (from extras/category fields)
+        try:
+            s_raw = cs.get('sector', '[]')
+            s_list = json_module.loads(s_raw) if isinstance(s_raw, str) else s_raw
+            if isinstance(s_list, list):
+                for s in s_list:
+                    sectors_all.add(s)
+            elif s_raw and isinstance(s_raw, str) and s_raw != '[]':
+                sectors_all.add(s_raw)
+        except Exception:
+            pass
+        # Earliest year
+        try:
+            pd_val = cs.get('publish_date', '')
+            if pd_val:
+                yr = int(str(pd_val)[:4])
+                if min_year is None or yr < min_year:
+                    min_year = yr
+        except Exception:
+            pass
+
+    import datetime
+    current_year = datetime.datetime.utcnow().year
+    years_active = (current_year - min_year) if min_year else 0
 
     stats = {
         'total': len(case_studies),
         'countries': len(countries),
         'themes': len(themes),
+        'partners': len(partners_all),
+        'sectors': len(sectors_all),
+        'years_active': years_active,
     }
+
+    # Category counts for explorer section
+    category_counts = _compute_crida_category_counts(case_studies)
 
     # Pending counts for admins
     pending_count = 0
@@ -3022,8 +3064,35 @@ def crida_main_page():
         'all_case_studies': case_studies,
         'geojson_data': json_module.dumps(geojson_data),
         'stats': stats,
+        'category_counts': category_counts,
         'pending_count': pending_count,
     })
+
+
+def _compute_crida_category_counts(case_studies):
+    """Compute case study counts per category dimension for the explorer."""
+    import json as json_module
+    counts = {
+        'sector': {},
+        'crida_stage': {},
+        'region': {},
+        'scale': {},
+        'climate_challenge': {},
+        'solution_type': {},
+    }
+    for cs in case_studies:
+        for dim in counts:
+            try:
+                raw = cs.get(dim, '[]')
+                vals = json_module.loads(raw) if isinstance(raw, str) else raw
+                if isinstance(vals, list):
+                    for v in vals:
+                        counts[dim][v] = counts[dim].get(v, 0) + 1
+                elif vals and isinstance(vals, str) and vals != '[]':
+                    counts[dim][vals] = counts[dim].get(vals, 0) + 1
+            except Exception:
+                pass
+    return counts
 
 
 def crida_admin_dashboard():
@@ -3241,7 +3310,7 @@ def crida_admin_reseed():
 
 
 def crida_case_studies_api():
-    """API endpoint returning paginated case studies as JSON."""
+    """API endpoint returning paginated case studies as JSON with category filters."""
     import json as json_module
     from flask import Response
 
@@ -3257,6 +3326,14 @@ def crida_case_studies_api():
     limit = max(1, min(limit, 50))
     offset = max(0, offset)
 
+    # Category filter parameters
+    filter_sector = tk.request.args.get('sector', '').strip()
+    filter_stage = tk.request.args.get('crida_stage', '').strip()
+    filter_region = tk.request.args.get('region', '').strip()
+    filter_scale = tk.request.args.get('scale', '').strip()
+    filter_challenge = tk.request.args.get('climate_challenge', '').strip()
+    filter_solution = tk.request.args.get('solution_type', '').strip()
+
     try:
         all_case_studies = tk.get_action('ckanext_pages_list')(
             context={}, data_dict={
@@ -3268,6 +3345,39 @@ def crida_case_studies_api():
         )
     except Exception:
         all_case_studies = []
+
+    # Apply category filters
+    category_filters = {
+        'sector': filter_sector,
+        'crida_stage': filter_stage,
+        'region': filter_region,
+        'scale': filter_scale,
+        'climate_challenge': filter_challenge,
+        'solution_type': filter_solution,
+    }
+    active_filters = {k: v for k, v in category_filters.items() if v}
+
+    if active_filters:
+        filtered = []
+        for cs in all_case_studies:
+            match = True
+            for dim, val in active_filters.items():
+                try:
+                    raw = cs.get(dim, '[]')
+                    vals = json_module.loads(raw) if isinstance(raw, str) else raw
+                    if isinstance(vals, list):
+                        if val not in vals:
+                            match = False
+                            break
+                    elif vals != val:
+                        match = False
+                        break
+                except Exception:
+                    match = False
+                    break
+            if match:
+                filtered.append(cs)
+        all_case_studies = filtered
 
     total = len(all_case_studies)
     page_items = all_case_studies[offset:offset + limit]
@@ -3289,6 +3399,10 @@ def crida_case_studies_api():
             'excerpt': cs.get('excerpt', ''),
             'content': (cs.get('content') or '')[:180],
             'themes': themes,
+            'sector': cs.get('sector', '[]'),
+            'solution_type': cs.get('solution_type', '[]'),
+            'region': cs.get('region', ''),
+            'scale': cs.get('scale', ''),
             'url': tk.url_for('pages.crida_case_study_show', page=cs.get('name', '')),
         })
 

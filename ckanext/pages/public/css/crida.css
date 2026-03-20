@@ -1179,3 +1179,326 @@
     height: 280px;
   }
 }
+
+/* ============================================================
+   Category Explorer Section
+   ============================================================ */
+.crida-category-explorer {
+  margin-bottom: 2.5rem;
+}
+
+.crida-category-explorer h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--crida-gray-800);
+  margin-bottom: 1.2rem;
+}
+
+.crida-category-explorer h2 i {
+  color: var(--crida-primary);
+  margin-right: 0.5rem;
+}
+
+.crida-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.crida-category-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.2rem;
+  box-shadow: var(--crida-shadow);
+  cursor: pointer;
+  transition: var(--crida-transition);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.crida-category-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--crida-shadow-hover);
+  text-decoration: none;
+  color: inherit;
+}
+
+.crida-category-card:hover .crida-cat-icon {
+  transform: scale(1.15);
+}
+
+.crida-cat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #fff;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.crida-cat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.crida-cat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  line-height: 1.3;
+  margin-bottom: 0.15rem;
+}
+
+.crida-cat-count {
+  font-size: 0.75rem;
+  color: var(--crida-gray-600);
+}
+
+.crida-cat-count strong {
+  font-weight: 700;
+  color: var(--crida-primary);
+}
+
+/* Category dimension headers */
+.crida-cat-dimension {
+  margin-bottom: 1.5rem;
+}
+
+.crida-cat-dimension-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--crida-gray-600);
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--crida-gray-200);
+}
+
+/* ============================================================
+   Animated Counters
+   ============================================================ */
+.crida-stat-number[data-target] {
+  display: inline-block;
+}
+
+.crida-stat-number .counter-suffix {
+  font-size: 0.65em;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* ============================================================
+   Enhanced Stats Bar (extended KPIs)
+   ============================================================ */
+.crida-page .crida-stats-bar-extended {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 0;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.crida-page .crida-stats-bar-extended .crida-stat-item {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ============================================================
+   Category Badges (for cards)
+   ============================================================ */
+.crida-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.crida-badge i {
+  font-size: 0.62rem;
+}
+
+.crida-badge-sector {
+  background: var(--crida-primary-pale);
+  color: var(--crida-primary);
+}
+
+.crida-badge-solution {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.crida-badge-scale {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.crida-badge-challenge {
+  background: #FCE4EC;
+  color: #C62828;
+}
+
+.crida-badge-region {
+  background: #F3E5F5;
+  color: #6A1B9A;
+}
+
+.crida-badge-stage {
+  background: #E0F7FA;
+  color: #00695C;
+}
+
+/* Card category badges container */
+.crida-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+/* ============================================================
+   Filter sidebar enhancements
+   ============================================================ */
+.crida-filter-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--crida-gray-800);
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.crida-filter-divider {
+  border: none;
+  border-top: 1px solid var(--crida-gray-200);
+  margin: 0.8rem 0;
+}
+
+.crida-filter-section-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--crida-primary);
+  font-weight: 700;
+  margin: 0.8rem 0 0.4rem;
+}
+
+/* ============================================================
+   Category Form Section (edit template)
+   ============================================================ */
+.crida-category-select-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.crida-multi-check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.crida-multi-check label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--crida-gray-100);
+  border: 1px solid var(--crida-gray-200);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: var(--crida-transition);
+  font-weight: 400;
+}
+
+.crida-multi-check label:hover {
+  background: var(--crida-primary-pale);
+  border-color: var(--crida-primary);
+}
+
+.crida-multi-check input[type="checkbox"] {
+  display: none;
+}
+
+.crida-multi-check input[type="checkbox"]:checked + span {
+  color: #fff;
+}
+
+.crida-multi-check label:has(input:checked) {
+  background: var(--crida-primary);
+  border-color: var(--crida-primary);
+  color: #fff;
+}
+
+.crida-multi-check label i {
+  font-size: 0.72rem;
+}
+
+/* ============================================================
+   Responsive: Category Explorer
+   ============================================================ */
+@media (max-width: 992px) {
+  .crida-category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  .crida-category-select-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .crida-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem;
+  }
+
+  .crida-cat-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .crida-cat-label {
+    font-size: 0.78rem;
+  }
+
+  .crida-page .crida-stats-bar-extended .crida-stat-item {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .crida-category-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .crida-category-card {
+    padding: 0.8rem;
+    gap: 0.6rem;
+  }
+
+  .crida-cat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+}

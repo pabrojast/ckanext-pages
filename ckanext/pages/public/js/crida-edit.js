@@ -18,6 +18,7 @@
       this.initDocumentUpload();
       this.initSubmissionButtons();
       this.initHighlightsRepeater();
+      this.initCategoryCheckboxes();
       this.loadExistingData();
     },
 
@@ -443,6 +444,27 @@
         highlights.push('');
         renderHighlights();
       }
+    },
+
+    /**
+     * Sync multi-select checkbox groups to their hidden JSON fields.
+     */
+    initCategoryCheckboxes: function() {
+      var mappings = [
+        { checks: 'sector_check', hidden: '#field-sector' },
+        { checks: 'solution_check', hidden: '#field-solution-type' },
+        { checks: 'challenge_check', hidden: '#field-climate-challenge' },
+      ];
+
+      mappings.forEach(function(m) {
+        $('input[name="' + m.checks + '"]').on('change', function() {
+          var selected = [];
+          $('input[name="' + m.checks + '"]:checked').each(function() {
+            selected.push($(this).val());
+          });
+          $(m.hidden).val(JSON.stringify(selected));
+        });
+      });
     },
 
     /**

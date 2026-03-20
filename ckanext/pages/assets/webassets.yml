@@ -76,6 +76,18 @@ open-source-software-css:
   contents:
     - css/open-source-software-edit.css
 
+# Leaflet map library (local copy)
+leaflet-css:
+  output: ckanext-pages/%(version)s_leaflet.css
+  filters: cssrewrite
+  contents:
+    - vendor/leaflet/leaflet.css
+
+leaflet-js:
+  output: ckanext-pages/%(version)s_leaflet.js
+  contents:
+    - vendor/leaflet/leaflet.js
+
 # CRIDA module
 crida-css:
   output: ckanext-pages/%(version)s_crida.css

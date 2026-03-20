@@ -6,8 +6,8 @@
 
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" href="/css/crida.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  {% asset 'pages/leaflet-css' %}
+  {% asset 'pages/crida-css' %}
 {% endblock %}
 
 {% block content %}
@@ -85,6 +85,69 @@
               </select>
             </div>
 
+            <hr class="crida-filter-divider">
+            <div class="crida-filter-section-title">{{ _('Categories') }}</div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Sector') }}</label>
+              <select id="crida-filter-sector" class="form-control">
+                <option value="">{{ _('All Sectors') }}</option>
+                {% for sec in h.get_crida_sectors() %}
+                  <option value="{{ sec.id }}">{{ sec.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Solution Type') }}</label>
+              <select id="crida-filter-solution" class="form-control">
+                <option value="">{{ _('All Solutions') }}</option>
+                {% for sol in h.get_crida_solution_types() %}
+                  <option value="{{ sol.id }}">{{ sol.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Climate Challenge') }}</label>
+              <select id="crida-filter-challenge" class="form-control">
+                <option value="">{{ _('All Challenges') }}</option>
+                {% for ch in h.get_crida_climate_challenges() %}
+                  <option value="{{ ch.id }}">{{ ch.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Region') }}</label>
+              <select id="crida-filter-region" class="form-control">
+                <option value="">{{ _('All Regions') }}</option>
+                {% for reg in h.get_crida_regions() %}
+                  <option value="{{ reg.id }}">{{ reg.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('Scale') }}</label>
+              <select id="crida-filter-scale" class="form-control">
+                <option value="">{{ _('All Scales') }}</option>
+                {% for sc in h.get_crida_scales() %}
+                  <option value="{{ sc.id }}">{{ sc.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="crida-filter-group">
+              <label>{{ _('CRIDA Stage') }}</label>
+              <select id="crida-filter-stage" class="form-control">
+                <option value="">{{ _('All Stages') }}</option>
+                {% for st in h.get_crida_stages() %}
+                  <option value="{{ st.id }}">{{ st.label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
             <div style="margin-top:1rem;">
               <a href="#" id="crida-clear-filters" class="crida-btn-outline" style="width:100%;text-align:center;padding:0.5rem;">
                 <i class="fa fa-times"></i> {{ _('Clear Filters') }}
@@ -111,7 +174,10 @@
           <div class="crida-cards-grid">
             {% for pg in pages %}
             {% set pg_themes = h.json_loads(pg.themes) if pg.themes else [] %}
-            <div class="crida-card" data-name="{{ pg.name }}" data-country="{{ pg.country }}" data-status="{{ pg.crida_status }}" data-themes="{{ pg_themes|join(',') }}" data-title="{{ pg.title }}">
+            {% set pg_sectors = h.json_loads(pg.sector) if pg.sector else [] %}
+            {% set pg_solutions = h.json_loads(pg.solution_type) if pg.solution_type else [] %}
+            {% set pg_challenges = h.json_loads(pg.climate_challenge) if pg.climate_challenge else [] %}
+            <div class="crida-card" data-name="{{ pg.name }}" data-country="{{ pg.country }}" data-status="{{ pg.crida_status }}" data-themes="{{ pg_themes|join(',') }}" data-title="{{ pg.title }}" data-sector="{{ pg_sectors|join(',') }}" data-solution="{{ pg_solutions|join(',') }}" data-challenge="{{ pg_challenges|join(',') }}" data-region="{{ pg.region or '' }}" data-scale="{{ pg.scale or '' }}" data-stage="{{ pg.crida_stage or '' }}">
 
               <div class="crida-card-image">
                 {% if pg.header_image %}
@@ -139,6 +205,16 @@
                       <span class="crida-theme-tag"><i class="fa fa-tag"></i> {{ theme }}</span>
                     {% endfor %}
                   </div>
+                  {% if pg_sectors or pg_solutions %}
+                  <div class="crida-card-badges">
+                    {% for s in pg_sectors[:2] %}
+                      <span class="crida-badge crida-badge-sector"><i class="fa fa-tint"></i> {{ h.get_crida_category_label('sector', s) }}</span>
+                    {% endfor %}
+                    {% for s in pg_solutions[:1] %}
+                      <span class="crida-badge crida-badge-solution"><i class="fa fa-leaf"></i> {{ h.get_crida_category_label('solution_type', s) }}</span>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
                   <a href="{{ h.url_for('pages.crida_case_study_show', page=pg.name) }}" class="crida-btn-outline" style="padding:0.3rem 0.8rem;font-size:0.78rem;">
                     {{ _('View') }} <i class="fa fa-arrow-right"></i>
                   </a>
@@ -179,5 +255,5 @@
 
 {% block scripts %}
   {{ super() }}
-  <script src="/js/crida.js"></script>
+  {% asset 'pages/crida-js' %}
 {% endblock %}

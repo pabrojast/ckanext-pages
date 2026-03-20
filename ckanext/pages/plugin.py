@@ -873,6 +873,125 @@ def get_crida_status_class(status):
     return status_map.get(status, 'crida-status-default')
 
 
+def get_crida_sectors():
+    """Return CRIDA water sectors with metadata for UI display."""
+    return [
+        {'id': 'water-supply', 'label': 'Water Supply & Distribution',
+         'icon': 'fa-tint', 'color': '#0072BC'},
+        {'id': 'flood-management', 'label': 'Flood Management',
+         'icon': 'fa-water', 'color': '#29ABE2'},
+        {'id': 'drought-resilience', 'label': 'Drought Resilience',
+         'icon': 'fa-sun-o', 'color': '#F7941D'},
+        {'id': 'hydropower-energy', 'label': 'Hydropower & Energy',
+         'icon': 'fa-bolt', 'color': '#FFC107'},
+        {'id': 'irrigation-agriculture', 'label': 'Irrigation & Agriculture',
+         'icon': 'fa-leaf', 'color': '#4CAF50'},
+        {'id': 'ecosystem-biodiversity', 'label': 'Ecosystem & Biodiversity',
+         'icon': 'fa-tree', 'color': '#00A651'},
+        {'id': 'urban-water', 'label': 'Urban Water Management',
+         'icon': 'fa-building', 'color': '#7B1FA2'},
+        {'id': 'transboundary', 'label': 'Transboundary Waters',
+         'icon': 'fa-globe', 'color': '#005A9C'},
+    ]
+
+
+def get_crida_stages():
+    """Return CRIDA methodology stages with metadata."""
+    return [
+        {'id': 'full-implementation', 'label': 'Full Implementation (5 Steps)',
+         'icon': 'fa-check-circle', 'color': '#00A651'},
+        {'id': 'vulnerability-assessment', 'label': 'Vulnerability Assessment (Steps 1-2)',
+         'icon': 'fa-search', 'color': '#0072BC'},
+        {'id': 'adaptation-planning', 'label': 'Adaptation Planning (Steps 1-4)',
+         'icon': 'fa-map', 'color': '#F7941D'},
+        {'id': 'pilot-exploratory', 'label': 'Pilot / Exploratory',
+         'icon': 'fa-flask', 'color': '#9C27B0'},
+    ]
+
+
+def get_crida_regions():
+    """Return UNESCO regions with metadata."""
+    return [
+        {'id': 'africa', 'label': 'Africa',
+         'icon': 'fa-globe', 'color': '#F7941D'},
+        {'id': 'asia-pacific', 'label': 'Asia & Pacific',
+         'icon': 'fa-globe', 'color': '#E91E63'},
+        {'id': 'lac', 'label': 'Latin America & Caribbean',
+         'icon': 'fa-globe', 'color': '#00A651'},
+        {'id': 'europe-na', 'label': 'Europe & North America',
+         'icon': 'fa-globe', 'color': '#0072BC'},
+        {'id': 'arab-states', 'label': 'Arab States',
+         'icon': 'fa-globe', 'color': '#9C6A3C'},
+    ]
+
+
+def get_crida_scales():
+    """Return CRIDA implementation scales with metadata."""
+    return [
+        {'id': 'local', 'label': 'Local (City / Municipality)',
+         'icon': 'fa-map-pin', 'color': '#29ABE2'},
+        {'id': 'basin', 'label': 'Basin / Watershed',
+         'icon': 'fa-map', 'color': '#0072BC'},
+        {'id': 'national', 'label': 'National',
+         'icon': 'fa-flag', 'color': '#F7941D'},
+        {'id': 'transboundary', 'label': 'Transboundary / Regional',
+         'icon': 'fa-exchange', 'color': '#005A9C'},
+    ]
+
+
+def get_crida_climate_challenges():
+    """Return climate challenges addressed by CRIDA with metadata."""
+    return [
+        {'id': 'drought', 'label': 'Drought',
+         'icon': 'fa-sun-o', 'color': '#F7941D'},
+        {'id': 'flooding', 'label': 'Flooding',
+         'icon': 'fa-tint', 'color': '#29ABE2'},
+        {'id': 'sea-level-rise', 'label': 'Sea Level Rise / Saltwater Intrusion',
+         'icon': 'fa-anchor', 'color': '#0072BC'},
+        {'id': 'extreme-weather', 'label': 'Extreme Weather Events',
+         'icon': 'fa-bolt', 'color': '#E91E63'},
+        {'id': 'temperature-rise', 'label': 'Temperature Rise',
+         'icon': 'fa-thermometer-three-quarters', 'color': '#FF5722'},
+        {'id': 'glacial-retreat', 'label': 'Glacial Retreat',
+         'icon': 'fa-snowflake-o', 'color': '#00BCD4'},
+    ]
+
+
+def get_crida_solution_types():
+    """Return CRIDA solution types with metadata."""
+    return [
+        {'id': 'nature-based', 'label': 'Nature-Based Solutions (NbS)',
+         'icon': 'fa-leaf', 'color': '#00A651'},
+        {'id': 'infrastructure', 'label': 'Infrastructure (Grey Solutions)',
+         'icon': 'fa-building', 'color': '#6c757d'},
+        {'id': 'policy-governance', 'label': 'Policy & Governance',
+         'icon': 'fa-gavel', 'color': '#0072BC'},
+        {'id': 'hybrid', 'label': 'Hybrid Approaches',
+         'icon': 'fa-refresh', 'color': '#9C27B0'},
+        {'id': 'technology', 'label': 'Technology & Innovation',
+         'icon': 'fa-lightbulb-o', 'color': '#F7941D'},
+    ]
+
+
+def get_crida_category_label(category_type, category_id):
+    """Return the human-readable label for a CRIDA category value."""
+    getters = {
+        'sector': get_crida_sectors,
+        'crida_stage': get_crida_stages,
+        'region': get_crida_regions,
+        'scale': get_crida_scales,
+        'climate_challenge': get_crida_climate_challenges,
+        'solution_type': get_crida_solution_types,
+    }
+    getter = getters.get(category_type)
+    if not getter:
+        return category_id
+    for item in getter():
+        if item['id'] == category_id:
+            return item['label']
+    return category_id
+
+
 def get_pending_approval_count():
     """Return total pending approval count for sysadmins (used in header badge)."""
     try:
@@ -1293,6 +1412,13 @@ class PagesPlugin(PagesPluginBase):
             'get_pending_crida_count': get_pending_crida_count,
             'get_crida_themes': get_crida_themes,
             'get_crida_status_class': get_crida_status_class,
+            'get_crida_sectors': get_crida_sectors,
+            'get_crida_stages': get_crida_stages,
+            'get_crida_regions': get_crida_regions,
+            'get_crida_scales': get_crida_scales,
+            'get_crida_climate_challenges': get_crida_climate_challenges,
+            'get_crida_solution_types': get_crida_solution_types,
+            'get_crida_category_label': get_crida_category_label,
         })
 
         return helpers

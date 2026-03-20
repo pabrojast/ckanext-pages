@@ -103,6 +103,226 @@ IMAGE_MAP = {
         "/images/crida/ecuador-flood-resilience.jpg",
 }
 
+# Category classification for each case study (specialist-curated)
+CATEGORY_MAP = {
+    "cl-limari": {
+        "sector": ["water-supply", "drought-resilience", "irrigation-agriculture"],
+        "crida_stage": "full-implementation",
+        "region": "lac",
+        "scale": "basin",
+        "climate_challenge": ["drought"],
+        "solution_type": ["infrastructure", "policy-governance"],
+    },
+    "zw-chimanimani": {
+        "sector": ["flood-management", "drought-resilience", "ecosystem-biodiversity"],
+        "crida_stage": "full-implementation",
+        "region": "africa",
+        "scale": "local",
+        "climate_challenge": ["drought", "flooding", "extreme-weather"],
+        "solution_type": ["nature-based"],
+    },
+    "zm-lusaka-iolanda": {
+        "sector": ["water-supply", "hydropower-energy"],
+        "crida_stage": "full-implementation",
+        "region": "africa",
+        "scale": "local",
+        "climate_challenge": ["drought"],
+        "solution_type": ["infrastructure", "hybrid"],
+    },
+    "lk-colombo": {
+        "sector": ["water-supply", "urban-water"],
+        "crida_stage": "full-implementation",
+        "region": "asia-pacific",
+        "scale": "basin",
+        "climate_challenge": ["flooding", "drought"],
+        "solution_type": ["policy-governance"],
+    },
+    "th-bangkok": {
+        "sector": ["water-supply", "urban-water"],
+        "crida_stage": "adaptation-planning",
+        "region": "asia-pacific",
+        "scale": "local",
+        "climate_challenge": ["sea-level-rise", "drought"],
+        "solution_type": ["infrastructure", "hybrid"],
+    },
+    "ph-cebu": {
+        "sector": ["water-supply"],
+        "crida_stage": "full-implementation",
+        "region": "asia-pacific",
+        "scale": "basin",
+        "climate_challenge": ["drought", "sea-level-rise"],
+        "solution_type": ["hybrid", "infrastructure"],
+    },
+    "th-udon-thani": {
+        "sector": ["urban-water", "flood-management"],
+        "crida_stage": "adaptation-planning",
+        "region": "asia-pacific",
+        "scale": "local",
+        "climate_challenge": ["flooding", "drought"],
+        "solution_type": ["nature-based"],
+    },
+    "co-magdalena-hydropower": {
+        "sector": ["hydropower-energy", "transboundary"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "lac",
+        "scale": "basin",
+        "climate_challenge": ["extreme-weather"],
+        "solution_type": ["infrastructure", "policy-governance"],
+    },
+    "mx-water-reserves": {
+        "sector": ["ecosystem-biodiversity", "water-supply"],
+        "crida_stage": "adaptation-planning",
+        "region": "lac",
+        "scale": "national",
+        "climate_challenge": ["drought"],
+        "solution_type": ["nature-based", "policy-governance"],
+    },
+    "ec-guayaquil-flood-resilience": {
+        "sector": ["flood-management", "urban-water"],
+        "crida_stage": "adaptation-planning",
+        "region": "lac",
+        "scale": "local",
+        "climate_challenge": ["flooding", "extreme-weather"],
+        "solution_type": ["hybrid", "infrastructure"],
+    },
+    "se-municipal-dapp": {
+        "sector": ["water-supply", "urban-water"],
+        "crida_stage": "adaptation-planning",
+        "region": "europe-na",
+        "scale": "local",
+        "climate_challenge": ["extreme-weather", "temperature-rise"],
+        "solution_type": ["policy-governance"],
+    },
+    "nl-waas-lower-rhine": {
+        "sector": ["flood-management", "transboundary"],
+        "crida_stage": "adaptation-planning",
+        "region": "europe-na",
+        "scale": "transboundary",
+        "climate_challenge": ["flooding", "sea-level-rise"],
+        "solution_type": ["hybrid", "policy-governance"],
+    },
+    "us-ca-tuolumne-merced": {
+        "sector": ["water-supply", "ecosystem-biodiversity"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "europe-na",
+        "scale": "basin",
+        "climate_challenge": ["drought", "temperature-rise"],
+        "solution_type": ["policy-governance"],
+    },
+    "us-ca-article": {
+        "sector": ["water-supply"],
+        "crida_stage": "pilot-exploratory",
+        "region": "europe-na",
+        "scale": "basin",
+        "climate_challenge": ["drought"],
+        "solution_type": ["policy-governance"],
+    },
+    "ca-us-glam": {
+        "sector": ["transboundary", "ecosystem-biodiversity"],
+        "crida_stage": "adaptation-planning",
+        "region": "europe-na",
+        "scale": "transboundary",
+        "climate_challenge": ["temperature-rise", "extreme-weather"],
+        "solution_type": ["policy-governance", "technology"],
+    },
+    "pe-chancay-lambayeque": {
+        "sector": ["irrigation-agriculture", "water-supply"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "lac",
+        "scale": "basin",
+        "climate_challenge": ["drought", "glacial-retreat"],
+        "solution_type": ["infrastructure", "policy-governance"],
+    },
+    "ga-ntoum": {
+        "sector": ["water-supply"],
+        "crida_stage": "pilot-exploratory",
+        "region": "africa",
+        "scale": "local",
+        "climate_challenge": ["extreme-weather"],
+        "solution_type": ["infrastructure"],
+    },
+    "bt-nap": {
+        "sector": ["water-supply", "ecosystem-biodiversity"],
+        "crida_stage": "adaptation-planning",
+        "region": "asia-pacific",
+        "scale": "national",
+        "climate_challenge": ["glacial-retreat", "flooding"],
+        "solution_type": ["policy-governance", "nature-based"],
+    },
+    "za-be-resilient-program-article": {
+        "sector": ["water-supply", "ecosystem-biodiversity"],
+        "crida_stage": "pilot-exploratory",
+        "region": "africa",
+        "scale": "national",
+        "climate_challenge": ["drought"],
+        "solution_type": ["policy-governance"],
+    },
+    "za-luvuvhu": {
+        "sector": ["ecosystem-biodiversity", "water-supply"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "africa",
+        "scale": "basin",
+        "climate_challenge": ["drought", "temperature-rise"],
+        "solution_type": ["nature-based"],
+    },
+    "za-marico": {
+        "sector": ["ecosystem-biodiversity"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "africa",
+        "scale": "basin",
+        "climate_challenge": ["drought"],
+        "solution_type": ["nature-based", "policy-governance"],
+    },
+    "za-eerste-cape-winelands": {
+        "sector": ["water-supply", "irrigation-agriculture"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "africa",
+        "scale": "basin",
+        "climate_challenge": ["drought"],
+        "solution_type": ["hybrid"],
+    },
+    "za-k2c": {
+        "sector": ["ecosystem-biodiversity", "transboundary"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "africa",
+        "scale": "basin",
+        "climate_challenge": ["drought", "temperature-rise"],
+        "solution_type": ["nature-based"],
+    },
+    "do-guayubin": {
+        "sector": ["flood-management", "water-supply"],
+        "crida_stage": "adaptation-planning",
+        "region": "lac",
+        "scale": "basin",
+        "climate_challenge": ["flooding", "extreme-weather"],
+        "solution_type": ["infrastructure", "nature-based"],
+    },
+    "ke-water-supply-demand": {
+        "sector": ["water-supply", "urban-water"],
+        "crida_stage": "vulnerability-assessment",
+        "region": "africa",
+        "scale": "local",
+        "climate_challenge": ["drought"],
+        "solution_type": ["policy-governance", "infrastructure"],
+    },
+    "ar-atuel": {
+        "sector": ["transboundary", "irrigation-agriculture"],
+        "crida_stage": "adaptation-planning",
+        "region": "lac",
+        "scale": "basin",
+        "climate_challenge": ["drought", "glacial-retreat"],
+        "solution_type": ["policy-governance"],
+    },
+    "ua-tisza": {
+        "sector": ["flood-management", "transboundary"],
+        "crida_stage": "pilot-exploratory",
+        "region": "europe-na",
+        "scale": "transboundary",
+        "climate_challenge": ["flooding", "extreme-weather"],
+        "solution_type": ["policy-governance", "nature-based"],
+    },
+}
+
 
 def get_commands():
     return [seed_crida]
@@ -324,6 +544,18 @@ def seed_crida(dry_run, update_existing):
                 'publish_date': '2025-01-01',
                 'submission_action': 'publish',
             }
+
+            # Add category classification if available
+            cats = CATEGORY_MAP.get(item_id, {})
+            if cats:
+                page_data['sector'] = json.dumps(cats.get('sector', []))
+                page_data['crida_stage'] = cats.get('crida_stage', '')
+                page_data['region'] = cats.get('region', '')
+                page_data['scale'] = cats.get('scale', '')
+                page_data['climate_challenge'] = json.dumps(
+                    cats.get('climate_challenge', []))
+                page_data['solution_type'] = json.dumps(
+                    cats.get('solution_type', []))
 
             # Only include URL fields when non-empty to avoid
             # url_validator rejecting blank strings
