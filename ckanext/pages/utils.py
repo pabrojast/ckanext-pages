@@ -2854,7 +2854,7 @@ def _auto_seed_crida_if_empty():
 
     try:
         from ckanext.pages.commands.seed_crida import (
-            _load_data, _slugify, COORDINATES, IMAGE_MAP
+            _load_data, _slugify, COORDINATES, IMAGE_MAP, CATEGORY_MAP
         )
         import ckan.logic as logic
 
@@ -2918,6 +2918,20 @@ def _auto_seed_crida_if_empty():
                     'publish_date': '2025-01-01',
                     'submission_action': 'publish',
                 }
+
+                # Add category classification if available
+                cats = CATEGORY_MAP.get(item_id, {})
+                if cats:
+                    page_data['sector'] = json_module.dumps(
+                        cats.get('sector', []))
+                    page_data['crida_stage'] = cats.get(
+                        'crida_stage', '')
+                    page_data['region'] = cats.get('region', '')
+                    page_data['scale'] = cats.get('scale', '')
+                    page_data['climate_challenge'] = json_module.dumps(
+                        cats.get('climate_challenge', []))
+                    page_data['solution_type'] = json_module.dumps(
+                        cats.get('solution_type', []))
 
                 if lat is not None:
                     page_data['latitude'] = str(lat)
@@ -3198,7 +3212,7 @@ def crida_admin_reseed():
 
     try:
         from ckanext.pages.commands.seed_crida import (
-            _load_data, _slugify, COORDINATES, IMAGE_MAP
+            _load_data, _slugify, COORDINATES, IMAGE_MAP, CATEGORY_MAP
         )
         import ckan.logic as logic
 
@@ -3272,6 +3286,20 @@ def crida_admin_reseed():
                     'publish_date': '2025-01-01',
                     'submission_action': 'publish',
                 }
+
+                # Add category classification if available
+                cats = CATEGORY_MAP.get(item_id, {})
+                if cats:
+                    page_data['sector'] = json_module.dumps(
+                        cats.get('sector', []))
+                    page_data['crida_stage'] = cats.get(
+                        'crida_stage', '')
+                    page_data['region'] = cats.get('region', '')
+                    page_data['scale'] = cats.get('scale', '')
+                    page_data['climate_challenge'] = json_module.dumps(
+                        cats.get('climate_challenge', []))
+                    page_data['solution_type'] = json_module.dumps(
+                        cats.get('solution_type', []))
 
                 if lat is not None:
                     page_data['latitude'] = str(lat)

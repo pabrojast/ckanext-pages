@@ -1027,13 +1027,13 @@
 }
 
 /* -- Category Explorer ------------------------------------- */
-.crida-category-explorer { margin-bottom: 3rem; }
+.crida-category-explorer { margin-bottom: 2rem; }
 
 .crida-category-explorer h2 {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--crida-gray-900);
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .crida-category-explorer h2 i {
@@ -1041,6 +1041,80 @@
   margin-right: 0.5rem;
 }
 
+/* Compact chip grid layout */
+.crida-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.crida-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  background: #fff;
+  border: 1px solid var(--crida-gray-200);
+  border-left: 3px solid var(--chip-color, var(--crida-primary));
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: var(--crida-gray-700);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.crida-chip:hover {
+  background: color-mix(in srgb, var(--chip-color, var(--crida-primary)) 10%, #fff);
+  border-color: var(--chip-color, var(--crida-primary));
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: var(--crida-gray-800);
+}
+
+.crida-chip i {
+  color: var(--chip-color, var(--crida-primary));
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.crida-chip-label {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.crida-chip-count {
+  background: var(--crida-gray-100);
+  color: var(--crida-gray-500);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+.crida-chip:hover .crida-chip-count {
+  background: var(--chip-color, var(--crida-primary));
+  color: #fff;
+}
+
+.crida-cat-dimension--compact { margin-bottom: 0.9rem; }
+
+.crida-cat-dimension--compact .crida-cat-dimension-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--crida-gray-400);
+  margin-bottom: 0.45rem;
+  font-weight: 700;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--crida-gray-200);
+}
+
+/* Legacy card styles kept for case study list page */
 .crida-category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -1354,6 +1428,7 @@
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
   .crida-category-select-grid { grid-template-columns: 1fr; }
+  .crida-chip { font-size: 0.72rem; padding: 0.25rem 0.55rem; }
 
   .crida-page .crida-hero-content {
     padding: 3rem 2rem 2.5rem;
@@ -1482,6 +1557,7 @@
 
   .crida-stat-item,
   .crida-category-card,
+  .crida-chip,
   .crida-framework-card,
   .crida-btn-primary,
   .crida-btn-outline,
