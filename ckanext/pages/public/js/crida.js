@@ -390,7 +390,7 @@
       if (cs.header_image) {
         imageHtml = '<img src="' + cs.header_image + '" alt="' + (cs.title || '') + '" loading="lazy">';
       } else {
-        imageHtml = '<div class="crida-card-placeholder"><i class="fa fa-map-marker"></i></div>';
+        imageHtml = '<div class="crida-card-placeholder"><i class="fa fa-globe"></i></div>';
       }
 
       var themeTags = '';

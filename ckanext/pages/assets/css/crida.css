@@ -156,18 +156,18 @@
 
 .crida-page .crida-hero .crida-meta i { margin-right: 0; }
 
-/* -- Stats Bar — Glass floating cards ---------------------- */
+/* -- Stats Bar — Connected gradient bar -------------------- */
 .crida-page .crida-stats-bar {
   display: flex;
-  gap: 1rem;
+  gap: 0;
   padding: 0;
   margin-top: -2.5rem;
   margin-bottom: 3rem;
   flex-wrap: wrap;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  overflow: visible;
+  background: linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 55%, #0891B2 100%);
+  border-radius: var(--crida-radius-lg);
+  box-shadow: var(--crida-shadow-lg), 0 4px 20px rgba(0,114,188,0.2);
+  overflow: hidden;
   border: none;
   position: relative;
   z-index: 3;
@@ -176,41 +176,42 @@
 .crida-page .crida-stat-item {
   flex: 1;
   min-width: 120px;
-  background: var(--crida-glass-strong);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: var(--crida-radius);
-  padding: 1.5rem 1rem;
-  box-shadow: var(--crida-shadow), 0 0 0 1px rgba(255,255,255,0.6);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 0;
+  padding: 1.8rem 1rem;
+  box-shadow: none;
   text-align: center;
-  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
-              box-shadow 0.3s cubic-bezier(0.16,1,0.3,1);
-  border: 1px solid var(--crida-gray-200);
-  border-right: 1px solid var(--crida-gray-200);
+  transition: background 0.3s ease;
+  border: none;
+  border-right: 1px solid rgba(255,255,255,0.15);
 }
 
-.crida-page .crida-stat-item:last-child { border-right: 1px solid var(--crida-gray-200); }
+.crida-page .crida-stat-item:last-child { border-right: none; }
 
 .crida-page .crida-stat-item:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--crida-shadow-hover), var(--crida-shadow-glow);
+  transform: none;
+  box-shadow: none;
+  background: rgba(255,255,255,0.08);
 }
 
 .crida-page .crida-stat-number {
   font-size: 2.2rem;
   font-weight: 900;
-  color: var(--crida-primary) !important;
+  color: #fff !important;
   line-height: 1.1;
   letter-spacing: -0.03em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .crida-page .crida-stat-label {
-  font-size: 0.7rem;
-  color: var(--crida-gray-500) !important;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.75) !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 0.4rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* -- Map Section ------------------------------------------- */
@@ -331,7 +332,7 @@
   height: 200px;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(135deg, var(--crida-gray-100) 0%, var(--crida-gray-50) 100%);
+  background: linear-gradient(135deg, #E3F2FD 0%, #E0F7FA 40%, #F0F9FF 100%);
 }
 
 .crida-card-image img {
@@ -348,8 +349,33 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--crida-gray-300);
-  font-size: 2.5rem;
+  background: linear-gradient(135deg, #E3F2FD 0%, #E0F7FA 40%, #F0F9FF 100%);
+  color: var(--crida-primary-light);
+  font-size: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.crida-card-image .crida-card-placeholder::before {
+  content: '';
+  position: absolute;
+  top: -20%; right: -20%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(0,114,188,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.crida-card-image .crida-card-placeholder::after {
+  content: '';
+  position: absolute;
+  bottom: -10%; left: -10%;
+  width: 40%;
+  height: 40%;
+  background: radial-gradient(circle, rgba(8,145,178,0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .crida-card-body {
@@ -422,6 +448,11 @@
   min-width: 0;
 }
 
+/* Hide redundant badge section — info already in chips & theme tags */
+.crida-card-badges {
+  display: none;
+}
+
 /* -- Status Badges ----------------------------------------- */
 .crida-status-badge {
   display: inline-flex;
@@ -459,17 +490,17 @@
   color: var(--crida-gray-400);
 }
 
-/* -- About Section — Glass card ----------------------------- */
+/* -- About Section — Accent card with gradient ------------- */
 .crida-page .crida-about-section {
-  background: var(--crida-glass-strong);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, #fff 0%, var(--crida-primary-pale) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-radius: var(--crida-radius-lg);
-  padding: 2.5rem 2.5rem;
+  padding: 2.5rem 2.5rem 2.5rem 3rem;
   margin-bottom: 3rem;
   box-shadow: var(--crida-shadow);
   border: 1px solid var(--crida-gray-200);
-  border-left: 4px solid var(--crida-primary);
+  border-left: 5px solid var(--crida-primary);
   position: relative;
   overflow: hidden;
 }
@@ -477,9 +508,19 @@
 .crida-page .crida-about-section::before {
   content: '';
   position: absolute;
-  top: -30px; right: -30px;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(0,114,188,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.crida-page .crida-about-section::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: 30%;
   width: 120px; height: 120px;
-  background: radial-gradient(circle, rgba(0,114,188,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(8,145,178,0.05) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -531,8 +572,9 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 4px;
+  height: 5px;
   background: var(--fw-accent, var(--crida-primary));
+  border-radius: 0;
 }
 
 .crida-framework-card:nth-child(1) { --fw-accent: var(--crida-primary); }
@@ -1149,13 +1191,22 @@
 }
 
 /* -- Category Explorer ------------------------------------- */
-.crida-category-explorer { margin-bottom: 2rem; }
+.crida-category-explorer {
+  background: #fff;
+  border-radius: var(--crida-radius-lg);
+  padding: 2rem 2.2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+}
 
 .crida-category-explorer h2 {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
   color: var(--crida-gray-900);
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid var(--crida-gray-100);
 }
 
 .crida-category-explorer h2 i {
@@ -1167,19 +1218,19 @@
 .crida-chip-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .crida-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.65rem;
-  background: #fff;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--crida-gray-50);
   border: 1px solid var(--crida-gray-200);
   border-left: 3px solid var(--chip-color, var(--crida-primary));
-  border-radius: 20px;
-  font-size: 0.75rem;
+  border-radius: var(--crida-radius-sm);
+  font-size: 0.8rem;
   color: var(--crida-gray-700);
   text-decoration: none;
   transition: all 0.2s ease;
@@ -1198,21 +1249,21 @@
 
 .crida-chip i {
   color: var(--chip-color, var(--crida-primary));
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   flex-shrink: 0;
 }
 
 .crida-chip-label {
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
 }
 
 .crida-chip-count {
-  background: var(--crida-gray-100);
-  color: var(--crida-gray-500);
-  font-size: 0.65rem;
+  background: var(--crida-gray-200);
+  color: var(--crida-gray-600);
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 0.1rem 0.4rem;
+  padding: 0.12rem 0.45rem;
   border-radius: 10px;
   min-width: 1.2rem;
   text-align: center;
@@ -1223,17 +1274,29 @@
   color: #fff;
 }
 
-.crida-cat-dimension--compact { margin-bottom: 0.9rem; }
+.crida-cat-dimension--compact { margin-bottom: 1.2rem; }
 
 .crida-cat-dimension--compact .crida-cat-dimension-title {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--crida-gray-400);
-  margin-bottom: 0.45rem;
+  color: var(--crida-gray-500);
+  margin-bottom: 0.6rem;
   font-weight: 700;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--crida-gray-200);
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--crida-gray-200);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.crida-cat-dimension--compact .crida-cat-dimension-title::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: var(--crida-primary);
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 /* Legacy card styles kept for case study list page */
@@ -1550,7 +1613,7 @@
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
   .crida-category-select-grid { grid-template-columns: 1fr; }
-  .crida-chip { font-size: 0.72rem; padding: 0.25rem 0.55rem; }
+  .crida-chip { font-size: 0.76rem; padding: 0.35rem 0.65rem; }
 
   .crida-page .crida-hero-content {
     padding: 3.5rem 2rem 3rem;
@@ -1559,8 +1622,12 @@
   .crida-page .crida-hero h1 { font-size: 2.4rem; }
 
   .crida-page .crida-stats-bar {
-    gap: 0.8rem;
     margin-top: -2rem;
+    border-radius: var(--crida-radius);
+  }
+
+  .crida-category-explorer {
+    padding: 1.5rem;
   }
 }
 
@@ -1583,14 +1650,16 @@
 
   .crida-page .crida-stats-bar {
     flex-direction: row;
-    gap: 0.6rem;
+    flex-wrap: wrap;
     margin-top: -1.5rem;
+    border-radius: var(--crida-radius-sm);
   }
 
   .crida-page .crida-stat-item {
     min-width: 0;
-    padding: 1rem 0.6rem;
-    border-radius: var(--crida-radius-sm);
+    padding: 1.2rem 0.6rem;
+    border-right: 1px solid rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
   }
 
   .crida-page .crida-stat-number { font-size: 1.6rem; }
@@ -1634,6 +1703,10 @@
   .crida-page .crida-cta {
     padding: 2rem 1.5rem;
   }
+
+  .crida-category-explorer {
+    padding: 1.2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1644,11 +1717,18 @@
 
   .crida-page .crida-stats-bar {
     flex-direction: column;
-    gap: 0.5rem;
     margin-top: -1rem;
+    border-radius: var(--crida-radius-sm);
   }
 
-  .crida-page .crida-stat-item { min-width: auto; }
+  .crida-page .crida-stat-item {
+    min-width: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 1rem 0.8rem;
+  }
+
+  .crida-page .crida-stat-item:last-child { border-bottom: none; }
 
   .crida-category-grid {
     grid-template-columns: 1fr 1fr;
@@ -1664,6 +1744,10 @@
     width: 30px;
     height: 30px;
     font-size: 0.82rem;
+  }
+
+  .crida-category-explorer {
+    padding: 1rem;
   }
 }
 
@@ -1702,7 +1786,8 @@
   .crida-btn-primary,
   .crida-btn-outline,
   .crida-card,
-  .crida-card-image img {
+  .crida-card-image img,
+  .crida-framework-icon {
     transition: none !important;
   }
 }
