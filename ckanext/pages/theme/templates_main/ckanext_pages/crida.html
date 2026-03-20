@@ -526,17 +526,33 @@
 
     /* ── Contribute CTA ───────────────────────────────────────────── */
     .crida-cta-section {
-      background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-light) 100%);
+      position: relative;
       border-radius: var(--crida-radius);
-      padding: 3rem;
+      padding: 3.5rem 3rem;
       text-align: center;
       color: var(--crida-white);
       margin-bottom: 3rem;
+      overflow: hidden;
+    }
+    .crida-cta-bg {
+      position: absolute; inset: 0;
+      background: url('/images/crida/crida-hero.jpg') center/cover no-repeat;
+    }
+    .crida-cta-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(0,90,156,0.93) 0%,
+        rgba(0,114,188,0.88) 40%,
+        rgba(0,158,224,0.80) 100%);
+    }
+    .crida-cta-content {
+      position: relative; z-index: 2;
     }
     .crida-cta-section h2 {
       font-size: 1.6rem;
       font-weight: 800;
       margin: 0 0 0.8rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
     .crida-cta-section p {
       font-size: 0.95rem;
@@ -552,17 +568,20 @@
       flex-wrap: wrap;
     }
     .crida-cta-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.6rem 1.3rem;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
       border-radius: 50px;
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       text-decoration: none;
       transition: var(--crida-transition);
       border: 2px solid rgba(255,255,255,0.4);
       color: var(--crida-white);
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.12);
       backdrop-filter: blur(4px);
+    }
+    .crida-cta-btn i.fa {
+      font-size: 1rem;
     }
     .crida-cta-btn:hover {
       background: var(--crida-white);
@@ -570,11 +589,13 @@
       border-color: var(--crida-white);
       text-decoration: none;
       transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
     .crida-cta-btn--primary {
       background: var(--crida-white);
       color: var(--crida-primary);
       border-color: var(--crida-white);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
     }
     .crida-cta-btn--primary:hover {
       background: var(--crida-primary-pale);
@@ -644,7 +665,7 @@
       .crida-hero-content { padding: 2rem 1.5rem; }
       .crida-hero h1 { font-size: 1.7rem; }
       .crida-stats { grid-template-columns: repeat(3, 1fr); }
-      .crida-cta-section { padding: 2rem 1.5rem; }
+      .crida-cta-section { padding: 2.5rem 1.5rem; }
       .crida-members-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 480px) {
@@ -993,18 +1014,22 @@
 
       {# ── Contribute CTA ──────────────────────────────────────────── #}
       <div class="crida-cta-section crida-reveal">
-        <h2>{{ _('Contribute to CRIDA') }}</h2>
-        <p>{{ _('Share your experience, data, and research with the global CRIDA community.') }}</p>
-        <div class="crida-cta-actions">
-          <a href="{{ h.url_for('pages.water_news_new') }}" class="crida-cta-btn crida-cta-btn--primary">
-            <i class="fa fa-bullhorn"></i> {{ _('Share News') }}
-          </a>
-          <a href="{{ h.url_for('pages.water_events_new') }}" class="crida-cta-btn">
-            <i class="fa fa-calendar-plus-o"></i> {{ _('Post Event') }}
-          </a>
-          <a href="{{ h.url_for('pages.water_publications_new') }}" class="crida-cta-btn">
-            <i class="fa fa-file-text-o"></i> {{ _('Submit Publication') }}
-          </a>
+        <div class="crida-cta-bg"></div>
+        <div class="crida-cta-overlay"></div>
+        <div class="crida-cta-content">
+          <h2><i class="fa fa-handshake-o"></i> {{ _('Contribute to CRIDA') }}</h2>
+          <p>{{ _('Share your experience, data, and research with the global CRIDA community.') }}</p>
+          <div class="crida-cta-actions">
+            <a href="{{ h.url_for('pages.water_news_new') }}" class="crida-cta-btn crida-cta-btn--primary">
+              <i class="fa fa-bullhorn"></i> {{ _('Share News') }}
+            </a>
+            <a href="{{ h.url_for('pages.water_events_new') }}" class="crida-cta-btn">
+              <i class="fa fa-calendar-plus-o"></i> {{ _('Post Event') }}
+            </a>
+            <a href="{{ h.url_for('pages.water_publications_new') }}" class="crida-cta-btn">
+              <i class="fa fa-file-text-o"></i> {{ _('Submit Publication') }}
+            </a>
+          </div>
         </div>
       </div>
 

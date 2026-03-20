@@ -148,7 +148,7 @@ Usage:
       <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
       </div>
 
-      <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
+      <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
     </div>
   </div>
 

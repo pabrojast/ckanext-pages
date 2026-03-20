@@ -331,7 +331,7 @@
                           </div>
 
                           <!-- Hidden fields for uploaded images -->
-                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images else "" }}'>
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images is defined and data.uploaded_images else "" }}'>
                           </div>
                         </fieldset>
 
