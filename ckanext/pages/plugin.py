@@ -1340,6 +1340,7 @@ class PagesPlugin(PagesPluginBase):
             'get_recent_open_source_software': get_recent_open_source_software,
             'get_recent_ai_water_tools': get_recent_ai_water_tools,
             'json_loads': safe_json_loads,
+            'safe_json_loads': safe_json_loads,
             'get_event_status': get_event_status,
             'get_event_status_badge_class': get_event_status_badge_class,
             'count_unique_countries': count_unique_countries,
