@@ -10,6 +10,11 @@
   {% asset 'pages/crida-css' %}
 {% endblock %}
 
+{% block head_extras %}
+  {{ super() }}
+  <meta name="view-transition" content="same-origin" />
+{% endblock %}
+
 {% block content %}
 
 <div class="crida-page">

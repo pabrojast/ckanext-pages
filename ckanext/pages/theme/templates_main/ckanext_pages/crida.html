@@ -10,6 +10,11 @@
   {% asset 'pages/crida-css' %}
 {% endblock %}
 
+{% block head_extras %}
+  {{ super() }}
+  <meta name="view-transition" content="same-origin" />
+{% endblock %}
+
 {% block content %}
 
 <div class="crida-page">
@@ -61,25 +66,25 @@
       {% endif %}
 
       {# Stats Bar — Animated Counters #}
-      <div class="crida-stats-bar crida-stats-bar-extended">
-        <div class="crida-stat-item">
+      <div class="crida-stats-bar crida-stats-bar-extended crida-reveal" data-reveal-stagger>
+        <div class="crida-stat-item crida-reveal-child">
           <div class="crida-stat-number" data-target="{{ stats.total }}">0</div>
           <div class="crida-stat-label">{{ _('Case Studies') }}</div>
         </div>
-        <div class="crida-stat-item">
+        <div class="crida-stat-item crida-reveal-child">
           <div class="crida-stat-number" data-target="{{ stats.countries }}">0</div>
           <div class="crida-stat-label">{{ _('Countries') }}</div>
         </div>
-        <div class="crida-stat-item">
+        <div class="crida-stat-item crida-reveal-child">
           <div class="crida-stat-number" data-target="{{ stats.themes }}">0</div>
           <div class="crida-stat-label">{{ _('Themes') }}</div>
         </div>
-        <div class="crida-stat-item">
+        <div class="crida-stat-item crida-reveal-child">
           <div class="crida-stat-number" data-target="{{ stats.partners }}">0</div>
           <div class="crida-stat-label">{{ _('Partners') }}</div>
         </div>
         {% if stats.years_active > 0 %}
-        <div class="crida-stat-item">
+        <div class="crida-stat-item crida-reveal-child">
           <div class="crida-stat-number" data-target="{{ stats.years_active }}" data-suffix="+">0</div>
           <div class="crida-stat-label">{{ _('Years Active') }}</div>
         </div>
@@ -87,7 +92,7 @@
       </div>
 
       {# Explore by Category #}
-      <div class="crida-category-explorer">
+      <div class="crida-category-explorer crida-reveal">
         <h2><i class="fa fa-th-large"></i> {{ _('Explore by Category') }}</h2>
 
         {# Sector #}
@@ -168,14 +173,14 @@
       </div>
 
       {# About Section #}
-      <div class="crida-about-section">
+      <div class="crida-about-section crida-reveal--from-left">
         <h2><i class="fa fa-info-circle"></i> {{ _('What is CRIDA?') }}</h2>
         <p>{{ _('CRIDA (Climate Risk Informed Decision Analysis) is a collaborative methodology developed by UNESCO, ICIWaRM, and partners to support robust water management decisions under climate uncertainty. Rather than relying on single climate projections, CRIDA uses bottom-up vulnerability assessments, stress testing, and adaptive planning pathways to identify decisions that perform well across a wide range of possible futures.') }}</p>
         <p>{{ _('Since its inception, CRIDA has been recognized by the World Bank as an A+ method for developing resilience projects in the water sector and acknowledged by the Green Climate Fund (GCF) for adaptive planning in water project design.') }}</p>
       </div>
 
       {# Interactive Map #}
-      <div class="crida-map-section">
+      <div class="crida-map-section crida-reveal--scale-in">
         <div class="crida-map-header">
           <h2><i class="fa fa-map"></i> {{ _('Case Studies Around the World') }}</h2>
         </div>
@@ -196,12 +201,12 @@
       </div>
 
       {# Recent Case Studies #}
-      <h2 class="crida-section-title">
+      <h2 class="crida-section-title crida-reveal">
         <i class="fa fa-folder-open"></i> {{ _('Recent Case Studies') }}
       </h2>
 
       {% if case_studies %}
-      <div class="crida-cards-grid" id="crida-case-studies-grid">
+      <div class="crida-cards-grid crida-reveal" id="crida-case-studies-grid">
         {% for cs in case_studies %}
         {% set cs_themes = h.json_loads(cs.themes) if cs.themes else [] %}
         <div class="crida-card" data-name="{{ cs.name }}" data-country="{{ cs.country }}" data-status="{{ cs.crida_status }}" data-themes="{{ cs_themes|join(',') }}" data-title="{{ cs.title }}">
@@ -277,21 +282,21 @@
       {% endif %}
 
       {# International Frameworks Section #}
-      <h2 class="crida-section-title">
+      <h2 class="crida-section-title crida-reveal">
         <i class="fa fa-institution"></i> {{ _('CRIDA in International Frameworks') }}
       </h2>
-      <div class="crida-frameworks">
-        <div class="crida-framework-card">
+      <div class="crida-frameworks crida-reveal" data-reveal-stagger>
+        <div class="crida-framework-card crida-reveal-child">
           <div style="font-size:3rem;color:#0072BC;margin-bottom:1rem;"><i class="fa fa-bank"></i></div>
           <h4>{{ _('World Bank Resilience Rating') }}</h4>
           <p>{{ _('CRIDA is rated as an A+ method for developing resilient water projects by the World Bank\'s Resilience Rating System (2021).') }}</p>
         </div>
-        <div class="crida-framework-card">
+        <div class="crida-framework-card crida-reveal-child">
           <div style="font-size:3rem;color:#00A651;margin-bottom:1rem;"><i class="fa fa-leaf"></i></div>
           <h4>{{ _('Green Climate Fund') }}</h4>
           <p>{{ _('CRIDA is acknowledged by the GCF as a method for addressing uncertainties in GCF water project design (2023).') }}</p>
         </div>
-        <div class="crida-framework-card">
+        <div class="crida-framework-card crida-reveal-child">
           <div style="font-size:3rem;color:#F7941D;margin-bottom:1rem;"><i class="fa fa-users"></i></div>
           <h4>{{ _('UNESCO IHP') }}</h4>
           <p>{{ _('Developed under the UNESCO International Hydrological Programme with ICIWaRM, USACE, and global partners.') }}</p>
@@ -300,7 +305,7 @@
 
       {# CTA Section #}
       {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
-      <div class="crida-cta">
+      <div class="crida-cta crida-reveal--scale-in">
         <h3>{{ _('Share Your CRIDA Experience') }}</h3>
         <p>{{ _('Have you applied the CRIDA methodology? Share your case study with the global community.') }}</p>
         <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-btn-primary">

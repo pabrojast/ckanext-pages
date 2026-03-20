@@ -6,6 +6,75 @@
 (function($) {
   'use strict';
 
+  /* ===========================================================
+     View Transitions API — helper with progressive enhancement
+     =========================================================== */
+  function cridaViewTransition(callback) {
+    if (document.startViewTransition) {
+      document.startViewTransition(function() {
+        callback();
+        return Promise.resolve();
+      });
+    } else {
+      callback();
+    }
+  }
+
+  /* ===========================================================
+     Scroll-Reveal — IntersectionObserver driven
+     =========================================================== */
+  function initScrollReveal() {
+    var revealEls = document.querySelectorAll(
+      '.crida-reveal, .crida-reveal--from-left, .crida-reveal--from-right, .crida-reveal--scale-in'
+    );
+    if (!revealEls.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      revealEls.forEach(function(el) { el.classList.add('crida-reveal--visible'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+
+          // Stagger children if container has [data-reveal-stagger]
+          if (el.hasAttribute('data-reveal-stagger')) {
+            var children = el.querySelectorAll('.crida-reveal-child');
+            children.forEach(function(child, i) {
+              child.style.setProperty('--reveal-delay', (i * 80) + 'ms');
+              child.classList.add('crida-reveal--visible');
+            });
+          }
+
+          el.classList.add('crida-reveal--visible');
+          observer.unobserve(el);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealEls.forEach(function(el) { observer.observe(el); });
+  }
+
+  /* ===========================================================
+     Assign dynamic view-transition-name to cards for cross-page
+     =========================================================== */
+  function assignCardTransitionNames() {
+    document.querySelectorAll('.crida-card[data-name]').forEach(function(card) {
+      var name = card.getAttribute('data-name');
+      if (name) {
+        var img = card.querySelector('.crida-card-image');
+        if (img) {
+          img.style.viewTransitionName = 'crida-card-' + name.replace(/[^a-z0-9-]/g, '-');
+        }
+      }
+    });
+  }
+
   var CRIDA = {
     map: null,
     markers: [],
@@ -20,6 +89,10 @@
       this.bindFilterEvents();
       this.bindCardHoverEvents();
       this.bindLoadMore();
+
+      // View Transitions enhancements
+      assignCardTransitionNames();
+      initScrollReveal();
     },
 
     initAnimatedCounters: function() {
@@ -218,7 +291,7 @@
     },
 
     /**
-     * Apply filters to the visible cards.
+     * Apply filters to the visible cards using View Transitions.
      */
     applyFilters: function() {
       var country = ($('#crida-filter-country').val() || '').toLowerCase();
@@ -234,45 +307,51 @@
 
       var visibleCount = 0;
 
-      $('.crida-card').each(function() {
-        var $card = $(this);
-        var cardCountry = ($card.data('country') || '').toString().toLowerCase();
-        var cardThemes = ($card.data('themes') || '').toString().toLowerCase();
-        var cardStatus = ($card.data('status') || '').toString().toLowerCase();
-        var cardTitle = ($card.data('title') || '').toString().toLowerCase();
-        var cardSector = ($card.data('sector') || '').toString().toLowerCase();
-        var cardSolution = ($card.data('solution') || '').toString().toLowerCase();
-        var cardChallenge = ($card.data('challenge') || '').toString().toLowerCase();
-        var cardRegion = ($card.data('region') || '').toString().toLowerCase();
-        var cardScale = ($card.data('scale') || '').toString().toLowerCase();
-        var cardStage = ($card.data('stage') || '').toString().toLowerCase();
+      cridaViewTransition(function() {
+        $('.crida-card').each(function() {
+          var $card = $(this);
+          var cardCountry = ($card.data('country') || '').toString().toLowerCase();
+          var cardThemes = ($card.data('themes') || '').toString().toLowerCase();
+          var cardStatus = ($card.data('status') || '').toString().toLowerCase();
+          var cardTitle = ($card.data('title') || '').toString().toLowerCase();
+          var cardSector = ($card.data('sector') || '').toString().toLowerCase();
+          var cardSolution = ($card.data('solution') || '').toString().toLowerCase();
+          var cardChallenge = ($card.data('challenge') || '').toString().toLowerCase();
+          var cardRegion = ($card.data('region') || '').toString().toLowerCase();
+          var cardScale = ($card.data('scale') || '').toString().toLowerCase();
+          var cardStage = ($card.data('stage') || '').toString().toLowerCase();
 
-        var show = true;
+          var show = true;
 
-        if (country && cardCountry.indexOf(country) === -1) show = false;
-        if (theme && cardThemes.indexOf(theme) === -1) show = false;
-        if (status && cardStatus !== status) show = false;
-        if (search && cardTitle.indexOf(search) === -1 && cardCountry.indexOf(search) === -1) show = false;
-        if (sector && cardSector.indexOf(sector) === -1) show = false;
-        if (solution && cardSolution.indexOf(solution) === -1) show = false;
-        if (challenge && cardChallenge.indexOf(challenge) === -1) show = false;
-        if (region && cardRegion.indexOf(region) === -1) show = false;
-        if (scale && cardScale.indexOf(scale) === -1) show = false;
-        if (stage && cardStage.indexOf(stage) === -1) show = false;
+          if (country && cardCountry.indexOf(country) === -1) show = false;
+          if (theme && cardThemes.indexOf(theme) === -1) show = false;
+          if (status && cardStatus !== status) show = false;
+          if (search && cardTitle.indexOf(search) === -1 && cardCountry.indexOf(search) === -1) show = false;
+          if (sector && cardSector.indexOf(sector) === -1) show = false;
+          if (solution && cardSolution.indexOf(solution) === -1) show = false;
+          if (challenge && cardChallenge.indexOf(challenge) === -1) show = false;
+          if (region && cardRegion.indexOf(region) === -1) show = false;
+          if (scale && cardScale.indexOf(scale) === -1) show = false;
+          if (stage && cardStage.indexOf(stage) === -1) show = false;
 
-        $card.toggle(show);
-        if (show) visibleCount++;
+          if (show) {
+            $card.removeClass('crida-card--hidden').addClass('crida-card--visible');
+            visibleCount++;
+          } else {
+            $card.removeClass('crida-card--visible').addClass('crida-card--hidden');
+          }
+        });
+
+        // Update count
+        $('#crida-results-count').text(visibleCount);
+
+        // Show/hide empty state
+        if (visibleCount === 0) {
+          $('#crida-empty-filter-state').show();
+        } else {
+          $('#crida-empty-filter-state').hide();
+        }
       });
-
-      // Update count
-      $('#crida-results-count').text(visibleCount);
-
-      // Show/hide empty state
-      if (visibleCount === 0) {
-        $('#crida-empty-filter-state').show();
-      } else {
-        $('#crida-empty-filter-state').hide();
-      }
     },
 
     /**
@@ -301,10 +380,12 @@
     /**
      * Build a card HTML string from a case study object returned by the API.
      */
-    buildCardHtml: function(cs) {
+    buildCardHtml: function(cs, staggerIndex) {
       var themes = cs.themes || [];
       var statusClass = 'crida-status-' + (cs.crida_status || 'default').toLowerCase().replace(/\s+/g, '-');
       var summary = cs.excerpt || (cs.content ? cs.content.substring(0, 180) : '');
+      var cardSlug = (cs.name || '').replace(/[^a-z0-9-]/g, '-');
+      var staggerDelay = (staggerIndex || 0) * 60;
 
       var imageHtml;
       if (cs.header_image) {
@@ -318,12 +399,13 @@
         themeTags += '<span class="crida-theme-tag"><i class="fa fa-tag"></i> ' + themes[i] + '</span>';
       }
 
-      return '<div class="crida-card" data-name="' + (cs.name || '') + '"' +
+      return '<div class="crida-card crida-card--entering" data-name="' + (cs.name || '') + '"' +
         ' data-country="' + (cs.country || '') + '"' +
         ' data-status="' + (cs.crida_status || '') + '"' +
         ' data-themes="' + themes.join(',') + '"' +
-        ' data-title="' + (cs.title || '') + '" style="opacity:0;transform:translateY(20px);transition:opacity 0.4s,transform 0.4s;">' +
-        '<div class="crida-card-image">' + imageHtml + '</div>' +
+        ' data-title="' + (cs.title || '') + '"' +
+        ' style="--stagger-delay:' + staggerDelay + 'ms;">' +
+        '<div class="crida-card-image" style="view-transition-name:crida-card-' + cardSlug + ';">' + imageHtml + '</div>' +
         '<div class="crida-card-body">' +
           '<div class="crida-card-header">' +
             '<span class="crida-card-country"><i class="fa fa-globe"></i> ' + (cs.country || '') + '</span>' +
@@ -342,7 +424,7 @@
     },
 
     /**
-     * Bind "Load More" button click to fetch additional case studies via AJAX.
+     * Bind "Load More" button click with View Transitions and stagger.
      */
     bindLoadMore: function() {
       var self = this;
@@ -367,19 +449,21 @@
             var $grid = $('#crida-case-studies-grid');
             var newCards = [];
 
-            (data.results || []).forEach(function(cs) {
-              var cardHtml = self.buildCardHtml(cs);
-              var $card = $(cardHtml);
-              $grid.append($card);
-              newCards.push($card);
+            cridaViewTransition(function() {
+              (data.results || []).forEach(function(cs, i) {
+                var cardHtml = self.buildCardHtml(cs, i);
+                var $card = $(cardHtml);
+                $grid.append($card);
+                newCards.push($card);
+              });
             });
 
-            // Animate new cards in
-            setTimeout(function() {
+            // Stagger entrance animation
+            requestAnimationFrame(function() {
               newCards.forEach(function($card) {
-                $card.css({ opacity: 1, transform: 'translateY(0)' });
+                $card.removeClass('crida-card--entering').addClass('crida-card--entered');
               });
-            }, 50);
+            });
 
             var newOffset = offset + (data.results || []).length;
             $btn.data('offset', newOffset);
@@ -391,6 +475,9 @@
               $btn.find('.crida-load-more-count').text('(' + remaining + ' remaining)');
               $btn.prop('disabled', false);
             }
+
+            // Assign view-transition-name to new cards
+            assignCardTransitionNames();
           },
           error: function() {
             $btn.prop('disabled', false);

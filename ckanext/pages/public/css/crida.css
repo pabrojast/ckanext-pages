@@ -1299,6 +1299,215 @@
 }
 
 /* ============================================================
+   View Transitions API — Cross-document navigation
+   ============================================================ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: crida-vt-fade-out 250ms ease-out;
+}
+
+::view-transition-new(root) {
+  animation: crida-vt-fade-in 250ms ease-in;
+}
+
+::view-transition-old(crida-hero-image) {
+  animation: crida-vt-scale-out 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-new(crida-hero-image) {
+  animation: crida-vt-scale-in 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(crida-card-img),
+::view-transition-new(crida-card-img) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes crida-vt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes crida-vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes crida-vt-scale-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes crida-vt-scale-in {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Named view-transition for hero (used in both pages) */
+.crida-hero {
+  view-transition-name: crida-hero-image;
+}
+
+/* ============================================================
+   Scroll-Reveal Micro-animations
+   ============================================================ */
+.crida-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.crida-reveal--from-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.crida-reveal--from-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.crida-reveal--scale-in {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.crida-reveal--visible,
+.crida-reveal--from-left.crida-reveal--visible,
+.crida-reveal--from-right.crida-reveal--visible,
+.crida-reveal--scale-in.crida-reveal--visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+}
+
+/* Stagger children within a reveal container */
+.crida-reveal-child {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.crida-reveal-child.crida-reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   Filter Transition Classes (replace display:none)
+   ============================================================ */
+.crida-card.crida-card--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.crida-card.crida-card--hidden {
+  opacity: 0;
+  transform: translateY(8px) scale(0.97);
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  transition: opacity 0.25s ease-out,
+              transform 0.25s ease-out;
+}
+
+/* Stagger entrance for load-more cards */
+.crida-card--entering {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.crida-card--entered {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--stagger-delay, 0ms);
+}
+
+/* ============================================================
+   Reduced Motion — respect user preference
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(crida-hero-image),
+  ::view-transition-new(crida-hero-image),
+  ::view-transition-old(crida-card-img),
+  ::view-transition-new(crida-card-img) {
+    animation-duration: 0.01ms !important;
+  }
+
+  .crida-reveal,
+  .crida-reveal--from-left,
+  .crida-reveal--from-right,
+  .crida-reveal--scale-in,
+  .crida-reveal-child {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .crida-card.crida-card--visible {
+    transition: none;
+  }
+
+  .crida-card.crida-card--hidden {
+    transition: none;
+  }
+
+  .crida-card--entering {
+    opacity: 1;
+    transform: none;
+  }
+
+  .crida-card--entered {
+    transition: none;
+  }
+
+  .crida-stat-item,
+  .crida-category-card,
+  .crida-framework-card,
+  .crida-btn-primary,
+  .crida-btn-outline,
+  .crida-card,
+  .crida-card-image img {
+    transition: none !important;
+  }
+}
+
+/* ============================================================
    Enhanced Stats Bar (extended KPIs)
    ============================================================ */
 .crida-page .crida-stats-bar-extended {
