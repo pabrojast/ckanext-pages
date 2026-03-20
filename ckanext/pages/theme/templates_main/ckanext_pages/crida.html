@@ -6,7 +6,6 @@
 
 {% block styles %}
   {{ super() }}
-  {% asset 'pages/leaflet-css' %}
 {% endblock %}
 
 {% block head_extras %}
@@ -355,80 +354,6 @@
       margin-bottom: 0.5rem;
     }
 
-    /* ── Case Study Cards ─────────────────────────────────────────── */
-    .crida-cs-card {
-      background: var(--crida-white);
-      border-radius: var(--crida-radius);
-      overflow: hidden;
-      box-shadow: var(--crida-shadow);
-      border: 1px solid var(--crida-border);
-      transition: var(--crida-transition);
-      display: flex;
-      flex-direction: column;
-    }
-    .crida-cs-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--crida-shadow-hover);
-    }
-    .crida-cs-image {
-      height: 160px;
-      background: linear-gradient(135deg, var(--crida-primary-pale), #DBEAFE);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-    .crida-cs-image img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-    }
-    .crida-cs-image .placeholder-icon {
-      font-size: 2.5rem;
-      color: var(--crida-primary);
-      opacity: 0.4;
-    }
-    .crida-cs-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
-    .crida-cs-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 0.6rem;
-      gap: 0.4rem;
-    }
-    .crida-cs-country {
-      font-size: 0.75rem;
-      color: var(--crida-text-secondary);
-      display: flex; align-items: center; gap: 0.3rem;
-    }
-    .crida-status {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.15rem 0.5rem;
-      border-radius: 50px;
-    }
-    .crida-status--finished { background: var(--crida-accent-light); color: #15803D; }
-    .crida-status--ongoing { background: var(--crida-primary-pale); color: var(--crida-primary); }
-    .crida-status--planned { background: var(--crida-orange-light); color: #B45309; }
-    .crida-cs-body h3 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      line-height: 1.35;
-      color: var(--crida-text);
-      margin: 0 0 0.5rem;
-      flex: 1;
-    }
-    .crida-cs-body h3 a { color: inherit; text-decoration: none; }
-    .crida-cs-body h3 a:hover { color: var(--crida-primary); }
-    .crida-cs-themes {
-      display: flex; flex-wrap: wrap; gap: 0.3rem;
-      margin-top: auto;
-    }
-    .crida-cs-theme {
-      font-size: 0.68rem;
-      background: var(--crida-bg);
-      color: var(--crida-text-secondary);
-      padding: 0.15rem 0.5rem;
-      border-radius: 50px;
-    }
-
     /* ── Dataset Cards ────────────────────────────────────────────── */
     .crida-dataset-card {
       background: var(--crida-white);
@@ -472,43 +397,6 @@
       border-radius: 4px;
       background: var(--crida-primary-pale);
       color: var(--crida-primary);
-    }
-
-    /* ── Map Section ──────────────────────────────────────────────── */
-    .crida-map-wrapper {
-      background: var(--crida-white);
-      border-radius: var(--crida-radius);
-      box-shadow: var(--crida-shadow);
-      border: 1px solid var(--crida-border);
-      overflow: hidden;
-      margin-bottom: 2rem;
-    }
-    .crida-map-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0.8rem 1.2rem;
-      background: var(--crida-bg);
-      border-bottom: 1px solid var(--crida-border);
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .crida-map-legend {
-      display: flex; gap: 1rem;
-      font-size: 0.78rem;
-      color: var(--crida-text-secondary);
-    }
-    .crida-legend-dot {
-      display: inline-block;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      margin-right: 0.3rem;
-      vertical-align: middle;
-    }
-    .crida-legend-dot--finished { background: #00A651; }
-    .crida-legend-dot--ongoing { background: #0072BC; }
-    .crida-legend-dot--planned { background: #F59E0B; }
-    #crida-map {
-      width: 100%;
-      height: 380px;
     }
 
     /* ── Members Grid ─────────────────────────────────────────────── */
@@ -758,7 +646,6 @@
       .crida-stats { grid-template-columns: repeat(3, 1fr); }
       .crida-cta-section { padding: 2rem 1.5rem; }
       .crida-members-grid { grid-template-columns: repeat(2, 1fr); }
-      #crida-map { height: 280px; }
     }
     @media (max-width: 480px) {
       .crida-stats { grid-template-columns: repeat(2, 1fr); }
@@ -798,10 +685,7 @@
           <h1>{{ _('Climate Risk Informed Decision Analysis') }}</h1>
           <p class="crida-hero-subtitle">{{ _('A collaborative methodology for robust water management decisions under climate uncertainty. Connecting communities, data, and research worldwide.') }}</p>
           <div class="crida-hero-actions">
-            <a href="#crida-case-studies" class="crida-hero-btn crida-hero-btn--primary">
-              <i class="fa fa-map-marker"></i> {{ _('Explore Case Studies') }}
-            </a>
-            <a href="#crida-datasets" class="crida-hero-btn crida-hero-btn--outline">
+            <a href="#crida-datasets" class="crida-hero-btn crida-hero-btn--primary">
               <i class="fa fa-database"></i> {{ _('View Datasets') }}
             </a>
             <a href="https://www.unesco.org/en/crida" target="_blank" class="crida-hero-btn crida-hero-btn--outline">
@@ -811,29 +695,8 @@
         </div>
       </div>
 
-      {# ── Admin Alert ─────────────────────────────────────────────── #}
-      {% if h.is_sysadmin() and pending_count > 0 %}
-      <div class="crida-admin-alert">
-        <i class="fa fa-exclamation-triangle"></i>
-        <span><strong>{{ pending_count }}</strong> {{ _('case studies pending review') }}</span>
-        <a href="{{ h.url_for('pages.crida_admin_dashboard') }}">
-          <i class="fa fa-gavel"></i> {{ _('Review') }}
-        </a>
-      </div>
-      {% endif %}
-
       {# ── Stats Bar ───────────────────────────────────────────────── #}
       <div class="crida-stats crida-reveal">
-        <div class="crida-stat-card">
-          <div class="crida-stat-icon crida-stat-icon--blue"><i class="fa fa-folder-open"></i></div>
-          <div class="crida-stat-number" data-target="{{ stats.case_studies }}">0</div>
-          <div class="crida-stat-label">{{ _('Case Studies') }}</div>
-        </div>
-        <div class="crida-stat-card">
-          <div class="crida-stat-icon crida-stat-icon--green"><i class="fa fa-globe"></i></div>
-          <div class="crida-stat-number" data-target="{{ stats.countries }}">0</div>
-          <div class="crida-stat-label">{{ _('Countries') }}</div>
-        </div>
         <div class="crida-stat-card">
           <div class="crida-stat-icon crida-stat-icon--purple"><i class="fa fa-database"></i></div>
           <div class="crida-stat-number" data-target="{{ stats.datasets }}">0</div>
@@ -997,71 +860,6 @@
         </div>
       </div>
 
-      {# ── Case Studies + Map ──────────────────────────────────────── #}
-      <div class="crida-section crida-reveal" id="crida-case-studies">
-        <div class="crida-section-header">
-          <h2 class="crida-section-title">
-            <span class="crida-section-icon crida-section-icon--blue"><i class="fa fa-folder-open"></i></span>
-            {{ _('Case Studies') }}
-          </h2>
-          <a href="{{ h.url_for('pages.crida_case_studies_index') }}" class="crida-view-all">
-            {{ _('Explore All') }} ({{ stats.case_studies }}) <i class="fa fa-arrow-right"></i>
-          </a>
-        </div>
-
-        {# Map #}
-        <div class="crida-map-wrapper">
-          <div class="crida-map-bar">
-            <span style="font-size:0.85rem;font-weight:600;color:var(--crida-text);">
-              <i class="fa fa-map"></i> {{ _('Case Studies Around the World') }}
-            </span>
-            <div class="crida-map-legend">
-              <span><span class="crida-legend-dot crida-legend-dot--finished"></span> {{ _('Finished') }}</span>
-              <span><span class="crida-legend-dot crida-legend-dot--ongoing"></span> {{ _('Ongoing') }}</span>
-              <span><span class="crida-legend-dot crida-legend-dot--planned"></span> {{ _('Planned') }}</span>
-            </div>
-          </div>
-          <div id="crida-map" data-geojson='{{ geojson_data }}'></div>
-        </div>
-
-        {# Case Study Cards #}
-        {% if case_studies %}
-        <div class="crida-grid-3">
-          {% for cs in case_studies %}
-          {% set cs_themes = h.safe_json_loads(cs.get('themes', '[]')) if cs.get('themes') else [] %}
-          <div class="crida-cs-card">
-            <div class="crida-cs-image">
-              {% if cs.get('header_image') %}
-                <img src="{{ cs.header_image }}" alt="{{ cs.title }}" loading="lazy">
-              {% else %}
-                <i class="fa fa-globe placeholder-icon"></i>
-              {% endif %}
-            </div>
-            <div class="crida-cs-body">
-              <div class="crida-cs-header">
-                <span class="crida-cs-country"><i class="fa fa-map-marker"></i> {{ cs.get('country', 'N/A') }}</span>
-                {% set status = cs.get('crida_status', '') %}
-                <span class="crida-status crida-status--{{ status|lower if status else 'planned' }}">{{ status or 'N/A' }}</span>
-              </div>
-              <h3><a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}">{{ cs.title }}</a></h3>
-              <div class="crida-cs-themes">
-                {% for theme in cs_themes[:3] %}
-                  <span class="crida-cs-theme">{{ theme }}</span>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        {% else %}
-        <div class="crida-empty">
-          <i class="fa fa-map-marker"></i>
-          <h4>{{ _('No case studies yet') }}</h4>
-          <p>{{ _('Be the first to add a CRIDA case study.') }}</p>
-        </div>
-        {% endif %}
-      </div>
-
       {# ── Datasets ────────────────────────────────────────────────── #}
       <div class="crida-section crida-reveal" id="crida-datasets">
         <div class="crida-section-header">
@@ -1198,12 +996,7 @@
         <h2>{{ _('Contribute to CRIDA') }}</h2>
         <p>{{ _('Share your experience, data, and research with the global CRIDA community.') }}</p>
         <div class="crida-cta-actions">
-          {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
-          <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-cta-btn crida-cta-btn--primary">
-            <i class="fa fa-plus-circle"></i> {{ _('Submit Case Study') }}
-          </a>
-          {% endif %}
-          <a href="{{ h.url_for('pages.water_news_new') }}" class="crida-cta-btn">
+          <a href="{{ h.url_for('pages.water_news_new') }}" class="crida-cta-btn crida-cta-btn--primary">
             <i class="fa fa-bullhorn"></i> {{ _('Share News') }}
           </a>
           <a href="{{ h.url_for('pages.water_events_new') }}" class="crida-cta-btn">
@@ -1223,7 +1016,6 @@
 
 {% block scripts %}
   {{ super() }}
-  {% asset 'pages/leaflet-js' %}
   <script>
   document.addEventListener('DOMContentLoaded', function() {
 
@@ -1277,64 +1069,6 @@
         }
       }
       requestAnimationFrame(step);
-    }
-
-    /* ── Leaflet Map ───────────────────────────────────────────── */
-    var mapEl = document.getElementById('crida-map');
-    if (mapEl && typeof L !== 'undefined') {
-      try {
-        var geojson = JSON.parse(mapEl.getAttribute('data-geojson') || '{"type":"FeatureCollection","features":[]}');
-        var map = L.map('crida-map', {
-          scrollWheelZoom: false,
-          zoomControl: true,
-          attributionControl: false
-        }).setView([20, 0], 2);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 18,
-          attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
-
-        var statusColors = {
-          'Finished': '#00A651',
-          'Ongoing': '#0072BC',
-          'Planned': '#F59E0B'
-        };
-
-        if (geojson.features && geojson.features.length > 0) {
-          var bounds = [];
-          geojson.features.forEach(function(feature) {
-            if (!feature.geometry || !feature.geometry.coordinates) return;
-            var coords = feature.geometry.coordinates;
-            var props = feature.properties || {};
-            var color = statusColors[props.status] || '#0072BC';
-            var marker = L.circleMarker([coords[1], coords[0]], {
-              radius: 7,
-              fillColor: color,
-              color: '#fff',
-              weight: 2,
-              fillOpacity: 0.85
-            }).addTo(map);
-            bounds.push([coords[1], coords[0]]);
-
-            var popup = '<div style="font-size:0.85rem;max-width:220px;">'
-              + '<strong>' + (props.title || '') + '</strong><br>'
-              + '<span style="color:#64748B;">' + (props.country || '') + '</span>';
-            if (props.status) {
-              popup += ' &middot; <span style="color:' + color + ';font-weight:600;">' + props.status + '</span>';
-            }
-            popup += '</div>';
-            marker.bindPopup(popup);
-          });
-          if (bounds.length > 0) {
-            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 5 });
-          }
-        }
-
-        setTimeout(function() { map.invalidateSize(); }, 300);
-      } catch(e) {
-        console.warn('CRIDA map init error:', e);
-      }
     }
 
   });

@@ -2963,45 +2963,9 @@ def _auto_seed_crida_if_empty():
 
 def crida_main_page():
     """CRIDA initiative hub — aggregates all content related to the CRIDA group."""
-    import json as json_module
     from ckanext.pages.plugin import get_pages_by_initiative
 
-    # ── 1. Case Studies ─────────────────────────────────────────────
-    try:
-        case_studies = tk.get_action('ckanext_pages_list')(
-            context={}, data_dict={
-                'org_id': None,
-                'page_type': 'crida-case-study',
-                'order_publish_date': True,
-                'private': False
-            }
-        )
-    except Exception:
-        case_studies = []
-
-    if not case_studies:
-        _auto_seed_crida_if_empty()
-        try:
-            case_studies = tk.get_action('ckanext_pages_list')(
-                context={}, data_dict={
-                    'org_id': None,
-                    'page_type': 'crida-case-study',
-                    'order_publish_date': True,
-                    'private': False
-                }
-            )
-        except Exception:
-            case_studies = []
-
-    # ── 2. GeoJSON for map ──────────────────────────────────────────
-    try:
-        geojson_data = tk.get_action('ckanext_crida_geojson')(
-            context={}, data_dict={}
-        )
-    except Exception:
-        geojson_data = {"type": "FeatureCollection", "features": []}
-
-    # ── 3. CKAN Group data (datasets & members) ────────────────────
+    # ── 1. CKAN Group data (datasets & members) ────────────────────
     group_dict = {}
     group_datasets = []
     group_members = []
@@ -3060,17 +3024,9 @@ def crida_main_page():
         crida_publications = []
 
     # ── 5. Compute stats ───────────────────────────────────────────
-    countries = set()
-    for cs in case_studies:
-        c = cs.get('country', '')
-        if c:
-            countries.add(c)
-
     all_datasets_count = len(group_dict.get('packages', []))
 
     stats = {
-        'case_studies': len(case_studies),
-        'countries': len(countries),
         'datasets': all_datasets_count,
         'news': len(get_pages_by_initiative('crida', 'water-news')),
         'events': len(get_pages_by_initiative('crida', 'water-events')),
@@ -3078,18 +3034,7 @@ def crida_main_page():
         'members': len(group_members),
     }
 
-    # ── 6. Admin pending counts ────────────────────────────────────
-    pending_count = 0
-    is_admin = authz.is_sysadmin(tk.g.user)
-    if is_admin:
-        try:
-            pending_count = len(_filter_non_admin_pages('crida-case-study'))
-        except Exception:
-            pass
-
     return tk.render('ckanext_pages/crida.html', extra_vars={
-        'case_studies': case_studies[:6],
-        'geojson_data': json_module.dumps(geojson_data),
         'stats': stats,
         'group_dict': group_dict,
         'group_datasets': group_datasets,
@@ -3097,7 +3042,6 @@ def crida_main_page():
         'crida_news': crida_news,
         'crida_events': crida_events,
         'crida_publications': crida_publications,
-        'pending_count': pending_count,
     })
 
 
