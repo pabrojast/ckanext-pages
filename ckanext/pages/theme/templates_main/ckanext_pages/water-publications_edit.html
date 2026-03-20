@@ -302,41 +302,6 @@
                               </div>
                             </div>
 
-                            <div class="row">
-                              <div class="col-md-12">
-                                <div class="form-group">
-                                  <label class="control-label">{{ _('Initiatives') }}</label>
-                                  <p class="help-text">{{ _('Select the initiatives associated with this publication') }}</p>
-
-                                  <div class="initiatives-container">
-                                    <div class="initiative-selector">
-                                      <div class="input-group">
-                                        <select id="initiative-select" class="form-control">
-                                          <option value="">{{ _('Select an initiative...') }}</option>
-                                          {% for ini in initiatives_list|default([]) %}
-                                            <option value="{{ ini.name }}" data-display="{{ ini.formatted_name }}">{{ ini.formatted_name }}</option>
-                                          {% endfor %}
-                                          {% if not initiatives_list|default([]) %}
-                                            <option value="" disabled>{{ _('No initiatives available') }}</option>
-                                          {% endif %}
-                                        </select>
-                                        <div class="input-group-btn">
-                                          <button type="button" class="btn btn-primary" id="add-initiative">
-                                            <i class="fa fa-plus"></i> {{ _('Add') }}
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
-                                    </div>
-
-                                    <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
                             <div class="alert alert-info" style="margin-top: 10px;">
                               <i class="fa fa-info-circle"></i>
                               {{ _('On save, data will be uploaded and the Dataset created. If DOI service is available a DOI and link will be generated.') }}
@@ -808,9 +773,8 @@ select.form-control option:selected {
   border-left: 4px solid var(--unesco-blue);
 }
 
-/* Member States + Initiatives styling (coherent with Open Source Software form) */
-.member-states-container,
-.initiatives-container {
+/* Member States styling (coherent with Open Source Software form) */
+.member-states-container {
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   border: 1px solid #e9ecef;
   border-radius: 12px;
@@ -818,24 +782,19 @@ select.form-control option:selected {
   box-shadow: var(--shadow-light);
 }
 
-.member-state-selector,
-.initiative-selector { margin-bottom: 1.5rem; }
+.member-state-selector { margin-bottom: 1.5rem; }
 
-.member-state-selector .input-group,
-.initiative-selector .input-group { width: 100%; }
+.member-state-selector .input-group { width: 100%; }
 
-.member-state-selector .form-control,
-.initiative-selector .form-control { border-radius: 12px 0 0 12px; }
+.member-state-selector .form-control { border-radius: 12px 0 0 12px; }
 
-.member-state-selector .btn,
-.initiative-selector .btn {
+.member-state-selector .btn {
   border-radius: 0 12px 12px 0;
   padding: 12px 20px;
   font-weight: 600;
 }
 
-.selected-member-states,
-.selected-initiatives {
+.selected-member-states {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -843,8 +802,7 @@ select.form-control option:selected {
   padding: 0.5rem 0;
 }
 
-.member-state-item,
-.initiative-item {
+.member-state-item {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -857,29 +815,24 @@ select.form-control option:selected {
   box-shadow: var(--shadow-light);
 }
 
-.member-state-item:hover,
-.initiative-item:hover {
+.member-state-item:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-medium);
   background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
   color: white;
 }
 
-.member-state-item:hover .member-state-name,
-.initiative-item:hover .initiative-name { color: white; }
+.member-state-item:hover .member-state-name { color: white; }
 
-.member-state-item:hover .remove-member-state,
-.initiative-item:hover .remove-initiative {
+.member-state-item:hover .remove-member-state {
   background: white;
   color: var(--unesco-blue);
   border-color: white;
 }
 
-.member-state-name,
-.initiative-name { font-weight: 600; color: var(--unesco-blue); }
+.member-state-name { font-weight: 600; color: var(--unesco-blue); }
 
-.remove-member-state,
-.remove-initiative {
+.remove-member-state {
   background: transparent;
   border: 1px solid #dc3545;
   color: #dc3545;
@@ -891,11 +844,9 @@ select.form-control option:selected {
   min-width: auto;
 }
 
-.remove-member-state:hover,
-.remove-initiative:hover { background: #dc3545; color: white; transform: scale(1.05); }
+.remove-member-state:hover { background: #dc3545; color: white; transform: scale(1.05); }
 
-.selected-member-states:empty::before,
-.selected-initiatives:empty::before {
+.selected-member-states:empty::before {
   content: "{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}";
   color: var(--text-secondary);
   font-style: italic;
@@ -903,10 +854,6 @@ select.form-control option:selected {
   display: block;
   text-align: center;
   padding: 1rem;
-}
-
-.selected-initiatives:empty::before {
-  content: "{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}";
 }
 
 /* Breadcrumb styling */
@@ -1460,12 +1407,10 @@ select.form-control option:selected {
     function initCountriesAndInitiatives() {
       // Select options are populated server-side; just load existing selections
       loadExistingMemberStates();
-      loadExistingInitiatives();
     }
 
     // --- Member States helpers (reuse OSS behavior) ---
     let selectedMemberStates = [];
-    let selectedInitiatives = [];
 
     function formatMemberStateName(name) {
       if (!name) return name;
@@ -1514,44 +1459,6 @@ select.form-control option:selected {
       } catch(e) { /* ignore */ }
     }
 
-    // --- Initiatives helpers ---
-    function formatInitiativeName(name) {
-      return formatMemberStateName(name);
-    }
-
-    function addInitiativeChip(item) {
-      const itemId = 'initiative-' + item.name;
-      if ($('#'+itemId).length) return;
-      const html = `
-        <div class="initiative-item" id="${itemId}" data-initiative-name="${item.name}">
-          <span class="initiative-name">${item.display_name||formatInitiativeName(item.name)}</span>
-          <button type="button" class="btn btn-sm btn-danger remove-initiative" data-initiative-name="${item.name}">
-            <i class="fa fa-times"></i>
-          </button>
-        </div>`;
-      $('#selected-initiatives').append(html);
-    }
-
-    function updateInitiativeGroupsHidden() {
-      $('#initiative_groups').val(JSON.stringify(selectedInitiatives.map(function(s){
-        return { name: s.name };
-      })));
-    }
-
-    function loadExistingInitiatives() {
-      const current = $('#initiative_groups').val();
-      if (!current) return;
-      try {
-        const arr = JSON.parse(current);
-        if (Array.isArray(arr)) {
-          selectedInitiatives = arr.map(function(x){
-            return { name: x.name, display_name: formatInitiativeName(x.name) };
-          });
-          selectedInitiatives.forEach(addInitiativeChip);
-        }
-      } catch(e) { /* ignore */ }
-    }
-
     $(document).on('click', '#add-member-state', function(){
       const $select = $('#member-state-select');
       const opt = $select.find('option:selected');
@@ -1573,29 +1480,6 @@ select.form-control option:selected {
       $('#member-state-' + name).remove();
       selectedMemberStates = selectedMemberStates.filter(function(s){ return s.name !== name; });
       updateCountryGroupsHidden();
-    });
-
-    $(document).on('click', '#add-initiative', function(){
-      const $select = $('#initiative-select');
-      const opt = $select.find('option:selected');
-      const name = opt.val();
-      if (!name) return;
-      if (selectedInitiatives.some(function(s){ return s.name === name; })) {
-        alert('{{ _("This initiative has already been added") }}');
-        return;
-      }
-      const item = { name: name, display_name: opt.data('display') };
-      selectedInitiatives.push(item);
-      addInitiativeChip(item);
-      updateInitiativeGroupsHidden();
-      $select.val('');
-    });
-
-    $(document).on('click', '.remove-initiative', function(){
-      const name = $(this).data('initiative-name');
-      $('#initiative-' + name).remove();
-      selectedInitiatives = selectedInitiatives.filter(function(s){ return s.name !== name; });
-      updateInitiativeGroupsHidden();
     });
 
     // Fecha de creación por defecto (hoy)
