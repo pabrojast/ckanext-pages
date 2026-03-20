@@ -7,17 +7,770 @@
 {% block styles %}
   {{ super() }}
   {% asset 'pages/leaflet-css' %}
-  {% asset 'pages/crida-css' %}
 {% endblock %}
 
 {% block head_extras %}
   {{ super() }}
   <meta name="view-transition" content="same-origin" />
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       CRIDA Initiative Hub — Modern Redesign
+       ════════════════════════════════════════════════════════════════ */
+    :root {
+      --crida-primary: #0072BC;
+      --crida-primary-dark: #005A9C;
+      --crida-primary-light: #009EE0;
+      --crida-primary-pale: #E3F2FD;
+      --crida-accent: #00A651;
+      --crida-accent-light: #E8F5E9;
+      --crida-orange: #F59E0B;
+      --crida-orange-light: #FFF8E1;
+      --crida-purple: #7C3AED;
+      --crida-purple-light: #F3E8FF;
+      --crida-red: #EF4444;
+      --crida-text: #1E293B;
+      --crida-text-secondary: #64748B;
+      --crida-bg: #F8FAFC;
+      --crida-white: #FFFFFF;
+      --crida-border: #E2E8F0;
+      --crida-radius: 16px;
+      --crida-radius-sm: 10px;
+      --crida-radius-xs: 6px;
+      --crida-shadow: 0 4px 24px rgba(0,114,188,0.08);
+      --crida-shadow-hover: 0 8px 40px rgba(0,114,188,0.15);
+      --crida-shadow-strong: 0 12px 48px rgba(0,114,188,0.18);
+      --crida-transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .crida-hub { background: var(--crida-bg); }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .crida-hero {
+      position: relative;
+      min-height: 420px;
+      border-radius: var(--crida-radius);
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .crida-hero-bg {
+      position: absolute; inset: 0;
+      background: url('/images/crida/crida-hero.jpg') center/cover no-repeat;
+    }
+    .crida-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(0,90,156,0.92) 0%,
+        rgba(0,114,188,0.85) 40%,
+        rgba(0,158,224,0.75) 100%);
+    }
+    .crida-hero-content {
+      position: relative; z-index: 2;
+      padding: 3.5rem 3rem;
+      max-width: 720px;
+      color: var(--crida-white);
+    }
+    .crida-hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin-bottom: 1.2rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .crida-hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    }
+    .crida-hero-subtitle {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: 0.92;
+      margin-bottom: 1.8rem;
+      max-width: 600px;
+    }
+    .crida-hero-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .crida-hero-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: var(--crida-transition);
+      cursor: pointer;
+      border: none;
+    }
+    .crida-hero-btn--primary {
+      background: var(--crida-white);
+      color: var(--crida-primary);
+    }
+    .crida-hero-btn--primary:hover {
+      background: var(--crida-primary-pale);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      color: var(--crida-primary-dark);
+      text-decoration: none;
+    }
+    .crida-hero-btn--outline {
+      background: transparent;
+      color: var(--crida-white);
+      border: 2px solid rgba(255,255,255,0.5);
+    }
+    .crida-hero-btn--outline:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: var(--crida-white);
+      transform: translateY(-2px);
+      color: var(--crida-white);
+      text-decoration: none;
+    }
+
+    /* ── Admin Panel ──────────────────────────────────────────────── */
+    .crida-admin-alert {
+      display: flex; align-items: center; gap: 1rem;
+      background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+      border: 1px solid #F59E0B;
+      border-radius: var(--crida-radius-sm);
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+      color: #92400E;
+    }
+    .crida-admin-alert i { font-size: 1.3rem; }
+    .crida-admin-alert a {
+      margin-left: auto;
+      background: #F59E0B; color: white;
+      padding: 0.4rem 1rem; border-radius: 50px;
+      font-weight: 600; font-size: 0.82rem;
+      text-decoration: none;
+      transition: var(--crida-transition);
+    }
+    .crida-admin-alert a:hover { background: #D97706; color: white; text-decoration: none; }
+
+    /* ── Stats Bar ────────────────────────────────────────────────── */
+    .crida-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .crida-stat-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius-sm);
+      padding: 1.3rem 1rem;
+      text-align: center;
+      box-shadow: var(--crida-shadow);
+      transition: var(--crida-transition);
+      border: 1px solid var(--crida-border);
+    }
+    .crida-stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--crida-shadow-hover);
+    }
+    .crida-stat-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 0.7rem;
+    }
+    .crida-stat-icon--blue { background: var(--crida-primary-pale); color: var(--crida-primary); }
+    .crida-stat-icon--green { background: var(--crida-accent-light); color: var(--crida-accent); }
+    .crida-stat-icon--orange { background: var(--crida-orange-light); color: var(--crida-orange); }
+    .crida-stat-icon--purple { background: var(--crida-purple-light); color: var(--crida-purple); }
+    .crida-stat-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--crida-text);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .crida-stat-label {
+      font-size: 0.75rem;
+      color: var(--crida-text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Section Headers ──────────────────────────────────────────── */
+    .crida-section {
+      margin-bottom: 3rem;
+    }
+    .crida-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .crida-section-title {
+      display: flex; align-items: center; gap: 0.7rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--crida-text);
+      margin: 0;
+    }
+    .crida-section-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .crida-section-icon--blue { background: var(--crida-primary-pale); color: var(--crida-primary); }
+    .crida-section-icon--green { background: var(--crida-accent-light); color: var(--crida-accent); }
+    .crida-section-icon--orange { background: var(--crida-orange-light); color: var(--crida-orange); }
+    .crida-section-icon--purple { background: var(--crida-purple-light); color: var(--crida-purple); }
+    .crida-view-all {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      background: var(--crida-primary-pale);
+      color: var(--crida-primary);
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-decoration: none;
+      transition: var(--crida-transition);
+      border: 1px solid transparent;
+    }
+    .crida-view-all:hover {
+      background: var(--crida-primary);
+      color: var(--crida-white);
+      text-decoration: none;
+    }
+
+    /* ── Content Cards Grid ───────────────────────────────────────── */
+    .crida-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3rem;
+    }
+    .crida-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.3rem;
+    }
+
+    /* ── News Cards ───────────────────────────────────────────────── */
+    .crida-news-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius);
+      padding: 1.5rem;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      transition: var(--crida-transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .crida-news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--crida-shadow-hover);
+      border-color: var(--crida-primary-pale);
+    }
+    .crida-card-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .crida-card-date {
+      font-size: 0.78rem;
+      color: var(--crida-text-secondary);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .crida-card-type {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+    }
+    .crida-card-type--news { background: var(--crida-primary-pale); color: var(--crida-primary); }
+    .crida-card-type--event { background: var(--crida-orange-light); color: #B45309; }
+    .crida-card-type--publication { background: var(--crida-purple-light); color: var(--crida-purple); }
+    .crida-card-type--dataset { background: var(--crida-accent-light); color: #15803D; }
+    .crida-news-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--crida-text);
+      margin: 0 0 0.6rem;
+    }
+    .crida-news-card h3 a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .crida-news-card h3 a:hover { color: var(--crida-primary); }
+    .crida-card-excerpt {
+      font-size: 0.88rem;
+      color: var(--crida-text-secondary);
+      line-height: 1.55;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+    .crida-card-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--crida-primary);
+      text-decoration: none;
+      transition: var(--crida-transition);
+    }
+    .crida-card-link:hover { color: var(--crida-primary-dark); text-decoration: none; }
+    .crida-card-link i { transition: transform 0.2s; }
+    .crida-card-link:hover i { transform: translateX(3px); }
+
+    /* ── Event Cards ──────────────────────────────────────────────── */
+    .crida-event-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius);
+      padding: 1.5rem;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      border-left: 4px solid var(--crida-orange);
+      transition: var(--crida-transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .crida-event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--crida-shadow-hover);
+    }
+    .crida-event-location {
+      font-size: 0.78rem;
+      color: var(--crida-text-secondary);
+      display: flex; align-items: center; gap: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Case Study Cards ─────────────────────────────────────────── */
+    .crida-cs-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius);
+      overflow: hidden;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      transition: var(--crida-transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .crida-cs-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--crida-shadow-hover);
+    }
+    .crida-cs-image {
+      height: 160px;
+      background: linear-gradient(135deg, var(--crida-primary-pale), #DBEAFE);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .crida-cs-image img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .crida-cs-image .placeholder-icon {
+      font-size: 2.5rem;
+      color: var(--crida-primary);
+      opacity: 0.4;
+    }
+    .crida-cs-body { padding: 1.2rem; flex: 1; display: flex; flex-direction: column; }
+    .crida-cs-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.6rem;
+      gap: 0.4rem;
+    }
+    .crida-cs-country {
+      font-size: 0.75rem;
+      color: var(--crida-text-secondary);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .crida-status {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+    }
+    .crida-status--finished { background: var(--crida-accent-light); color: #15803D; }
+    .crida-status--ongoing { background: var(--crida-primary-pale); color: var(--crida-primary); }
+    .crida-status--planned { background: var(--crida-orange-light); color: #B45309; }
+    .crida-cs-body h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--crida-text);
+      margin: 0 0 0.5rem;
+      flex: 1;
+    }
+    .crida-cs-body h3 a { color: inherit; text-decoration: none; }
+    .crida-cs-body h3 a:hover { color: var(--crida-primary); }
+    .crida-cs-themes {
+      display: flex; flex-wrap: wrap; gap: 0.3rem;
+      margin-top: auto;
+    }
+    .crida-cs-theme {
+      font-size: 0.68rem;
+      background: var(--crida-bg);
+      color: var(--crida-text-secondary);
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+    }
+
+    /* ── Dataset Cards ────────────────────────────────────────────── */
+    .crida-dataset-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius);
+      padding: 1.5rem;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      border-left: 4px solid var(--crida-accent);
+      transition: var(--crida-transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .crida-dataset-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--crida-shadow-hover);
+    }
+    .crida-dataset-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--crida-text);
+      margin: 0 0 0.5rem;
+      line-height: 1.35;
+    }
+    .crida-dataset-card h3 a { color: inherit; text-decoration: none; }
+    .crida-dataset-card h3 a:hover { color: var(--crida-primary); }
+    .crida-dataset-org {
+      font-size: 0.78rem;
+      color: var(--crida-text-secondary);
+      margin-bottom: 0.7rem;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .crida-dataset-formats {
+      display: flex; flex-wrap: wrap; gap: 0.3rem;
+      margin-top: auto;
+    }
+    .crida-format-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--crida-primary-pale);
+      color: var(--crida-primary);
+    }
+
+    /* ── Map Section ──────────────────────────────────────────────── */
+    .crida-map-wrapper {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius);
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .crida-map-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1.2rem;
+      background: var(--crida-bg);
+      border-bottom: 1px solid var(--crida-border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .crida-map-legend {
+      display: flex; gap: 1rem;
+      font-size: 0.78rem;
+      color: var(--crida-text-secondary);
+    }
+    .crida-legend-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 0.3rem;
+      vertical-align: middle;
+    }
+    .crida-legend-dot--finished { background: #00A651; }
+    .crida-legend-dot--ongoing { background: #0072BC; }
+    .crida-legend-dot--planned { background: #F59E0B; }
+    #crida-map {
+      width: 100%;
+      height: 380px;
+    }
+
+    /* ── Members Grid ─────────────────────────────────────────────── */
+    .crida-members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .crida-member-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius-sm);
+      padding: 1.3rem;
+      text-align: center;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      transition: var(--crida-transition);
+    }
+    .crida-member-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--crida-shadow-hover);
+    }
+    .crida-member-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      margin: 0 auto 0.8rem;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--crida-primary-pale), #DBEAFE);
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid var(--crida-white);
+      box-shadow: 0 2px 8px rgba(0,114,188,0.15);
+    }
+    .crida-member-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .crida-member-avatar .avatar-placeholder {
+      font-size: 1.5rem;
+      color: var(--crida-primary);
+      font-weight: 700;
+    }
+    .crida-member-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--crida-text);
+      margin-bottom: 0.2rem;
+    }
+    .crida-member-role {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.15rem 0.6rem;
+      border-radius: 50px;
+      display: inline-block;
+    }
+    .crida-member-role--admin { background: var(--crida-primary-pale); color: var(--crida-primary); }
+    .crida-member-role--editor { background: var(--crida-accent-light); color: #15803D; }
+    .crida-member-role--member { background: var(--crida-bg); color: var(--crida-text-secondary); }
+
+    /* ── About Section ────────────────────────────────────────────── */
+    .crida-about {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    .crida-about-text {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius);
+      padding: 2rem;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+    }
+    .crida-about-text h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--crida-text);
+      margin: 0 0 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .crida-about-text p {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: var(--crida-text-secondary);
+      margin-bottom: 0.8rem;
+    }
+    .crida-about-text p:last-child { margin-bottom: 0; }
+    .crida-about-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .crida-recognition-card {
+      background: var(--crida-white);
+      border-radius: var(--crida-radius-sm);
+      padding: 1.2rem;
+      box-shadow: var(--crida-shadow);
+      border: 1px solid var(--crida-border);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      transition: var(--crida-transition);
+    }
+    .crida-recognition-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--crida-shadow-hover);
+    }
+    .crida-recognition-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .crida-recognition-card h4 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--crida-text);
+      margin: 0 0 0.2rem;
+    }
+    .crida-recognition-card p {
+      font-size: 0.78rem;
+      color: var(--crida-text-secondary);
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    /* ── Contribute CTA ───────────────────────────────────────────── */
+    .crida-cta-section {
+      background: linear-gradient(135deg, var(--crida-primary) 0%, var(--crida-primary-light) 100%);
+      border-radius: var(--crida-radius);
+      padding: 3rem;
+      text-align: center;
+      color: var(--crida-white);
+      margin-bottom: 3rem;
+    }
+    .crida-cta-section h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 0 0.8rem;
+    }
+    .crida-cta-section p {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      margin-bottom: 1.5rem;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    .crida-cta-actions {
+      display: flex; justify-content: center; gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .crida-cta-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.3rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: var(--crida-transition);
+      border: 2px solid rgba(255,255,255,0.4);
+      color: var(--crida-white);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(4px);
+    }
+    .crida-cta-btn:hover {
+      background: var(--crida-white);
+      color: var(--crida-primary);
+      border-color: var(--crida-white);
+      text-decoration: none;
+      transform: translateY(-2px);
+    }
+    .crida-cta-btn--primary {
+      background: var(--crida-white);
+      color: var(--crida-primary);
+      border-color: var(--crida-white);
+    }
+    .crida-cta-btn--primary:hover {
+      background: var(--crida-primary-pale);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    /* ── Info Tip ──────────────────────────────────────────────────── */
+    .crida-info-tip {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: var(--crida-primary-pale);
+      border-radius: var(--crida-radius-xs);
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      color: var(--crida-primary-dark);
+      margin-top: 1rem;
+      border: 1px solid #BBDEFB;
+    }
+    .crida-info-tip i { font-size: 0.9rem; flex-shrink: 0; }
+
+    /* ── Empty State ──────────────────────────────────────────────── */
+    .crida-empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--crida-text-secondary);
+    }
+    .crida-empty i {
+      font-size: 2.5rem;
+      opacity: 0.3;
+      margin-bottom: 0.8rem;
+    }
+    .crida-empty h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--crida-text);
+      margin: 0 0 0.3rem;
+    }
+    .crida-empty p {
+      font-size: 0.85rem;
+      margin: 0;
+    }
+
+    /* ── Scroll Reveal ────────────────────────────────────────────── */
+    .crida-reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .crida-reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Counter Animation ────────────────────────────────────────── */
+    .crida-stat-number.counting {
+      color: var(--crida-primary);
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 992px) {
+      .crida-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .crida-about { grid-template-columns: 1fr; }
+      .crida-hero h1 { font-size: 2rem; }
+    }
+    @media (max-width: 768px) {
+      .crida-grid-3, .crida-grid-2 { grid-template-columns: 1fr; }
+      .crida-hero { min-height: 340px; }
+      .crida-hero-content { padding: 2rem 1.5rem; }
+      .crida-hero h1 { font-size: 1.7rem; }
+      .crida-stats { grid-template-columns: repeat(3, 1fr); }
+      .crida-cta-section { padding: 2rem 1.5rem; }
+      .crida-members-grid { grid-template-columns: repeat(2, 1fr); }
+      #crida-map { height: 280px; }
+    }
+    @media (max-width: 480px) {
+      .crida-stats { grid-template-columns: repeat(2, 1fr); }
+      .crida-hero h1 { font-size: 1.4rem; }
+      .crida-hero-actions { flex-direction: column; }
+      .crida-members-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-
-<div class="crida-page">
+<div class="crida-hub">
   <div id="content" class="container">
     {{ self.flash() }}
   </div>
@@ -26,7 +779,7 @@
   <div class="main">
     <div class="container">
 
-      {# Breadcrumb #}
+      {# ── Breadcrumb ──────────────────────────────────────────────── #}
       <div class="toolbar" role="navigation" aria-label="Breadcrumb">
         <ol class="breadcrumb">
           <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
@@ -34,287 +787,556 @@
         </ol>
       </div>
 
-      {# Hero Banner — Mesh gradient with glass meta badge #}
+      {# ── Hero Banner ─────────────────────────────────────────────── #}
       <div class="crida-hero">
-        <div class="crida-hero-bg" style="background-image: url('/images/crida/crida-hero.jpg');"></div>
+        <div class="crida-hero-bg"></div>
         <div class="crida-hero-overlay"></div>
         <div class="crida-hero-content">
-          <div class="crida-meta">
+          <div class="crida-hero-badge">
             <i class="fa fa-globe"></i> {{ _('UNESCO International Hydrological Programme') }}
           </div>
           <h1>{{ _('Climate Risk Informed Decision Analysis') }}</h1>
-          <p class="crida-subtitle">{{ _('A collaborative methodology for robust water management decisions under climate uncertainty.') }}</p>
-        </div>
-      </div>
-
-      {# Admin Panel - sysadmin only #}
-      {% if h.is_sysadmin() and pending_count > 0 %}
-      <div class="crida-admin-panel">
-        <h3><i class="fa fa-shield"></i> {{ _('Administrator Panel') }}</h3>
-        <div class="crida-admin-stats">
-          <div class="crida-admin-stat">
-            <div class="stat-count">{{ pending_count }}</div>
-            <div class="stat-text">{{ _('Pending Approvals') }}</div>
-          </div>
-          <div class="crida-admin-stat">
-            <a href="{{ h.url_for('pages.crida_admin_dashboard') }}" class="crida-btn-outline" style="margin-top:0.3rem;">
-              <i class="fa fa-gavel"></i> {{ _('Review Submissions') }}
+          <p class="crida-hero-subtitle">{{ _('A collaborative methodology for robust water management decisions under climate uncertainty. Connecting communities, data, and research worldwide.') }}</p>
+          <div class="crida-hero-actions">
+            <a href="#crida-case-studies" class="crida-hero-btn crida-hero-btn--primary">
+              <i class="fa fa-map-marker"></i> {{ _('Explore Case Studies') }}
+            </a>
+            <a href="#crida-datasets" class="crida-hero-btn crida-hero-btn--outline">
+              <i class="fa fa-database"></i> {{ _('View Datasets') }}
+            </a>
+            <a href="https://www.unesco.org/en/crida" target="_blank" class="crida-hero-btn crida-hero-btn--outline">
+              <i class="fa fa-external-link"></i> {{ _('UNESCO CRIDA') }}
             </a>
           </div>
         </div>
       </div>
+
+      {# ── Admin Alert ─────────────────────────────────────────────── #}
+      {% if h.is_sysadmin() and pending_count > 0 %}
+      <div class="crida-admin-alert">
+        <i class="fa fa-exclamation-triangle"></i>
+        <span><strong>{{ pending_count }}</strong> {{ _('case studies pending review') }}</span>
+        <a href="{{ h.url_for('pages.crida_admin_dashboard') }}">
+          <i class="fa fa-gavel"></i> {{ _('Review') }}
+        </a>
+      </div>
       {% endif %}
 
-      {# Stats Bar — Animated Counters #}
-      <div class="crida-stats-bar crida-stats-bar-extended crida-reveal" data-reveal-stagger>
-        <div class="crida-stat-item crida-reveal-child">
-          <div class="crida-stat-number" data-target="{{ stats.total }}">0</div>
+      {# ── Stats Bar ───────────────────────────────────────────────── #}
+      <div class="crida-stats crida-reveal">
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--blue"><i class="fa fa-folder-open"></i></div>
+          <div class="crida-stat-number" data-target="{{ stats.case_studies }}">0</div>
           <div class="crida-stat-label">{{ _('Case Studies') }}</div>
         </div>
-        <div class="crida-stat-item crida-reveal-child">
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--green"><i class="fa fa-globe"></i></div>
           <div class="crida-stat-number" data-target="{{ stats.countries }}">0</div>
           <div class="crida-stat-label">{{ _('Countries') }}</div>
         </div>
-        <div class="crida-stat-item crida-reveal-child">
-          <div class="crida-stat-number" data-target="{{ stats.themes }}">0</div>
-          <div class="crida-stat-label">{{ _('Themes') }}</div>
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--purple"><i class="fa fa-database"></i></div>
+          <div class="crida-stat-number" data-target="{{ stats.datasets }}">0</div>
+          <div class="crida-stat-label">{{ _('Datasets') }}</div>
         </div>
-        <div class="crida-stat-item crida-reveal-child">
-          <div class="crida-stat-number" data-target="{{ stats.partners }}">0</div>
-          <div class="crida-stat-label">{{ _('Partners') }}</div>
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--blue"><i class="fa fa-newspaper-o"></i></div>
+          <div class="crida-stat-number" data-target="{{ stats.news }}">0</div>
+          <div class="crida-stat-label">{{ _('News') }}</div>
         </div>
-        {% if stats.years_active > 0 %}
-        <div class="crida-stat-item crida-reveal-child">
-          <div class="crida-stat-number" data-target="{{ stats.years_active }}" data-suffix="+">0</div>
-          <div class="crida-stat-label">{{ _('Years Active') }}</div>
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--orange"><i class="fa fa-calendar"></i></div>
+          <div class="crida-stat-number" data-target="{{ stats.events }}">0</div>
+          <div class="crida-stat-label">{{ _('Events') }}</div>
+        </div>
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--purple"><i class="fa fa-book"></i></div>
+          <div class="crida-stat-number" data-target="{{ stats.publications }}">0</div>
+          <div class="crida-stat-label">{{ _('Publications') }}</div>
+        </div>
+        <div class="crida-stat-card">
+          <div class="crida-stat-icon crida-stat-icon--green"><i class="fa fa-users"></i></div>
+          <div class="crida-stat-number" data-target="{{ stats.members }}">0</div>
+          <div class="crida-stat-label">{{ _('Members') }}</div>
+        </div>
+      </div>
+
+      {# ── About CRIDA ─────────────────────────────────────────────── #}
+      <div class="crida-about crida-reveal">
+        <div class="crida-about-text">
+          <h2><i class="fa fa-info-circle" style="color:var(--crida-primary);"></i> {{ _('What is CRIDA?') }}</h2>
+          <p>{{ _('CRIDA (Climate Risk Informed Decision Analysis) is a collaborative methodology developed by UNESCO, ICIWaRM, and partners to support robust water management decisions under climate uncertainty.') }}</p>
+          <p>{{ _('Rather than relying on single climate projections, CRIDA uses bottom-up vulnerability assessments, stress testing, and adaptive planning pathways to identify decisions that perform well across a wide range of possible futures.') }}</p>
+          {% if group_dict.get('description') %}
+          <p>{{ group_dict.description }}</p>
+          {% endif %}
+        </div>
+        <div class="crida-about-sidebar">
+          <div class="crida-recognition-card">
+            <div class="crida-recognition-icon crida-stat-icon--blue"><i class="fa fa-bank"></i></div>
+            <div>
+              <h4>{{ _('World Bank A+') }}</h4>
+              <p>{{ _('Rated A+ for developing resilient water projects (2021)') }}</p>
+            </div>
+          </div>
+          <div class="crida-recognition-card">
+            <div class="crida-recognition-icon crida-stat-icon--green"><i class="fa fa-leaf"></i></div>
+            <div>
+              <h4>{{ _('Green Climate Fund') }}</h4>
+              <p>{{ _('Acknowledged for adaptive planning in GCF water projects (2023)') }}</p>
+            </div>
+          </div>
+          <div class="crida-recognition-card">
+            <div class="crida-recognition-icon crida-stat-icon--orange"><i class="fa fa-university"></i></div>
+            <div>
+              <h4>{{ _('UNESCO IHP') }}</h4>
+              <p>{{ _('Developed under the International Hydrological Programme') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Latest News ─────────────────────────────────────────────── #}
+      <div class="crida-section crida-reveal" id="crida-news">
+        <div class="crida-section-header">
+          <h2 class="crida-section-title">
+            <span class="crida-section-icon crida-section-icon--blue"><i class="fa fa-newspaper-o"></i></span>
+            {{ _('Latest News') }}
+          </h2>
+          {% if crida_news %}
+          <a href="{{ h.url_for('pages.water_news_index') }}" class="crida-view-all">
+            {{ _('View All News') }} <i class="fa fa-arrow-right"></i>
+          </a>
+          {% endif %}
+        </div>
+
+        {% if crida_news %}
+        <div class="crida-grid-3">
+          {% for item in crida_news %}
+          <div class="crida-news-card">
+            <div class="crida-card-meta">
+              <span class="crida-card-date">
+                <i class="fa fa-calendar-o"></i>
+                {% if item.publish_date %}{{ h.render_datetime(item.publish_date, '%b %d, %Y') }}{% else %}{{ _('Recent') }}{% endif %}
+              </span>
+              <span class="crida-card-type crida-card-type--news">{{ _('News') }}</span>
+            </div>
+            <h3><a href="{{ h.url_for('pages.water_news_show', page=item.name) }}">{{ item.title }}</a></h3>
+            <p class="crida-card-excerpt">{{ (item.content|striptags)[:160] }}{% if item.content|striptags|length > 160 %}...{% endif %}</p>
+            <a href="{{ h.url_for('pages.water_news_show', page=item.name) }}" class="crida-card-link">
+              {{ _('Read More') }} <i class="fa fa-arrow-right"></i>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="crida-empty">
+          <i class="fa fa-newspaper-o"></i>
+          <h4>{{ _('No news yet') }}</h4>
+          <p>{{ _('News related to CRIDA will appear here.') }}</p>
+        </div>
+        {% endif %}
+        <div class="crida-info-tip">
+          <i class="fa fa-lightbulb-o"></i>
+          {{ _('To publish CRIDA news, go to') }}
+          <a href="{{ h.url_for('pages.water_news_new') }}"><strong>{{ _('Water News') }}</strong></a>
+          {{ _('and select the CRIDA initiative.') }}
+        </div>
+      </div>
+
+      {# ── Upcoming Events ─────────────────────────────────────────── #}
+      <div class="crida-section crida-reveal" id="crida-events">
+        <div class="crida-section-header">
+          <h2 class="crida-section-title">
+            <span class="crida-section-icon crida-section-icon--orange"><i class="fa fa-calendar"></i></span>
+            {{ _('Events') }}
+          </h2>
+          {% if crida_events %}
+          <a href="{{ h.url_for('pages.water_events_index') }}" class="crida-view-all">
+            {{ _('View All Events') }} <i class="fa fa-arrow-right"></i>
+          </a>
+          {% endif %}
+        </div>
+
+        {% if crida_events %}
+        <div class="crida-grid-3">
+          {% for item in crida_events %}
+          <div class="crida-event-card">
+            <div class="crida-card-meta">
+              <span class="crida-card-date">
+                <i class="fa fa-clock-o"></i>
+                {% if item.publish_date %}{{ h.render_datetime(item.publish_date, '%b %d, %Y') }}{% else %}{{ _('Upcoming') }}{% endif %}
+              </span>
+              <span class="crida-card-type crida-card-type--event">{{ _('Event') }}</span>
+            </div>
+            {% if item.get('location') %}
+            <div class="crida-event-location">
+              <i class="fa fa-map-marker"></i> {{ item.location }}
+            </div>
+            {% endif %}
+            <h3><a href="{{ h.url_for('pages.water_events_show', page=item.name) }}">{{ item.title }}</a></h3>
+            <p class="crida-card-excerpt">{{ (item.content|striptags)[:140] }}{% if item.content|striptags|length > 140 %}...{% endif %}</p>
+            <a href="{{ h.url_for('pages.water_events_show', page=item.name) }}" class="crida-card-link">
+              {{ _('Learn More') }} <i class="fa fa-arrow-right"></i>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="crida-empty">
+          <i class="fa fa-calendar-o"></i>
+          <h4>{{ _('No events yet') }}</h4>
+          <p>{{ _('Events related to CRIDA will appear here.') }}</p>
+        </div>
+        {% endif %}
+        <div class="crida-info-tip">
+          <i class="fa fa-lightbulb-o"></i>
+          {{ _('To post a CRIDA event, go to') }}
+          <a href="{{ h.url_for('pages.water_events_new') }}"><strong>{{ _('Water Events') }}</strong></a>
+          {{ _('and select the CRIDA initiative.') }}
+        </div>
+      </div>
+
+      {# ── Case Studies + Map ──────────────────────────────────────── #}
+      <div class="crida-section crida-reveal" id="crida-case-studies">
+        <div class="crida-section-header">
+          <h2 class="crida-section-title">
+            <span class="crida-section-icon crida-section-icon--blue"><i class="fa fa-folder-open"></i></span>
+            {{ _('Case Studies') }}
+          </h2>
+          <a href="{{ h.url_for('pages.crida_case_studies_index') }}" class="crida-view-all">
+            {{ _('Explore All') }} ({{ stats.case_studies }}) <i class="fa fa-arrow-right"></i>
+          </a>
+        </div>
+
+        {# Map #}
+        <div class="crida-map-wrapper">
+          <div class="crida-map-bar">
+            <span style="font-size:0.85rem;font-weight:600;color:var(--crida-text);">
+              <i class="fa fa-map"></i> {{ _('Case Studies Around the World') }}
+            </span>
+            <div class="crida-map-legend">
+              <span><span class="crida-legend-dot crida-legend-dot--finished"></span> {{ _('Finished') }}</span>
+              <span><span class="crida-legend-dot crida-legend-dot--ongoing"></span> {{ _('Ongoing') }}</span>
+              <span><span class="crida-legend-dot crida-legend-dot--planned"></span> {{ _('Planned') }}</span>
+            </div>
+          </div>
+          <div id="crida-map" data-geojson='{{ geojson_data }}'></div>
+        </div>
+
+        {# Case Study Cards #}
+        {% if case_studies %}
+        <div class="crida-grid-3">
+          {% for cs in case_studies %}
+          {% set cs_themes = h.safe_json_loads(cs.get('themes', '[]')) if cs.get('themes') else [] %}
+          <div class="crida-cs-card">
+            <div class="crida-cs-image">
+              {% if cs.get('header_image') %}
+                <img src="{{ cs.header_image }}" alt="{{ cs.title }}" loading="lazy">
+              {% else %}
+                <i class="fa fa-globe placeholder-icon"></i>
+              {% endif %}
+            </div>
+            <div class="crida-cs-body">
+              <div class="crida-cs-header">
+                <span class="crida-cs-country"><i class="fa fa-map-marker"></i> {{ cs.get('country', 'N/A') }}</span>
+                {% set status = cs.get('crida_status', '') %}
+                <span class="crida-status crida-status--{{ status|lower if status else 'planned' }}">{{ status or 'N/A' }}</span>
+              </div>
+              <h3><a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}">{{ cs.title }}</a></h3>
+              <div class="crida-cs-themes">
+                {% for theme in cs_themes[:3] %}
+                  <span class="crida-cs-theme">{{ theme }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="crida-empty">
+          <i class="fa fa-map-marker"></i>
+          <h4>{{ _('No case studies yet') }}</h4>
+          <p>{{ _('Be the first to add a CRIDA case study.') }}</p>
         </div>
         {% endif %}
       </div>
 
-      {# Explore by Category — Compact chips layout #}
-      <div class="crida-category-explorer crida-reveal">
-        <h2><i class="fa fa-th-large"></i> {{ _('Explore by Category') }}</h2>
+      {# ── Datasets ────────────────────────────────────────────────── #}
+      <div class="crida-section crida-reveal" id="crida-datasets">
+        <div class="crida-section-header">
+          <h2 class="crida-section-title">
+            <span class="crida-section-icon crida-section-icon--green"><i class="fa fa-database"></i></span>
+            {{ _('Datasets') }}
+          </h2>
+          {% if group_datasets %}
+          <a href="/group/crida" class="crida-view-all">
+            {{ _('View All') }} ({{ stats.datasets }}) <i class="fa fa-arrow-right"></i>
+          </a>
+          {% endif %}
+        </div>
 
-        <div class="row">
-          {# Sector #}
-          <div class="col-md-6">
-            <div class="crida-cat-dimension crida-cat-dimension--compact">
-              <div class="crida-cat-dimension-title">{{ _('Water Sector') }}</div>
-              <div class="crida-chip-grid">
-                {% for sec in h.get_crida_sectors() %}
-                <a href="{{ h.url_for('pages.crida_case_studies_index') }}?sector={{ sec.id }}" class="crida-chip" style="--chip-color: {{ sec.color }};">
-                  <i class="fa {{ sec.icon }}"></i>
-                  <span class="crida-chip-label">{{ _(sec.label) }}</span>
-                  <span class="crida-chip-count">{{ category_counts.sector.get(sec.id, 0) }}</span>
-                </a>
-                {% endfor %}
-              </div>
+        {% if group_datasets %}
+        <div class="crida-grid-3">
+          {% for ds in group_datasets %}
+          <div class="crida-dataset-card">
+            <div class="crida-card-meta">
+              <span class="crida-card-date">
+                <i class="fa fa-clock-o"></i>
+                {% if ds.get('metadata_modified') %}{{ h.render_datetime(ds.metadata_modified, '%b %d, %Y') }}{% endif %}
+              </span>
+              <span class="crida-card-type crida-card-type--dataset">{{ _('Dataset') }}</span>
             </div>
-          </div>
-
-          {# Solution Type #}
-          <div class="col-md-6">
-            <div class="crida-cat-dimension crida-cat-dimension--compact">
-              <div class="crida-cat-dimension-title">{{ _('Solution Type') }}</div>
-              <div class="crida-chip-grid">
-                {% for sol in h.get_crida_solution_types() %}
-                <a href="{{ h.url_for('pages.crida_case_studies_index') }}?solution_type={{ sol.id }}" class="crida-chip" style="--chip-color: {{ sol.color }};">
-                  <i class="fa {{ sol.icon }}"></i>
-                  <span class="crida-chip-label">{{ _(sol.label) }}</span>
-                  <span class="crida-chip-count">{{ category_counts.solution_type.get(sol.id, 0) }}</span>
-                </a>
-                {% endfor %}
-              </div>
+            <h3><a href="/dataset/{{ ds.get('name', ds.get('id', '')) }}">{{ ds.get('title', ds.get('name', '')) }}</a></h3>
+            {% if ds.get('organization') %}
+            <div class="crida-dataset-org">
+              <i class="fa fa-building-o"></i> {{ ds.organization.get('title', ds.organization.get('name', '')) if ds.organization is mapping else '' }}
             </div>
-          </div>
-        </div>
-
-        <div class="row">
-          {# Climate Challenge #}
-          <div class="col-md-6">
-            <div class="crida-cat-dimension crida-cat-dimension--compact">
-              <div class="crida-cat-dimension-title">{{ _('Climate Challenge') }}</div>
-              <div class="crida-chip-grid">
-                {% for ch in h.get_crida_climate_challenges() %}
-                <a href="{{ h.url_for('pages.crida_case_studies_index') }}?climate_challenge={{ ch.id }}" class="crida-chip" style="--chip-color: {{ ch.color }};">
-                  <i class="fa {{ ch.icon }}"></i>
-                  <span class="crida-chip-label">{{ _(ch.label) }}</span>
-                  <span class="crida-chip-count">{{ category_counts.climate_challenge.get(ch.id, 0) }}</span>
-                </a>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-
-          {# Implementation Scale #}
-          <div class="col-md-6">
-            <div class="crida-cat-dimension crida-cat-dimension--compact">
-              <div class="crida-cat-dimension-title">{{ _('Implementation Scale') }}</div>
-              <div class="crida-chip-grid">
-                {% for sc in h.get_crida_scales() %}
-                <a href="{{ h.url_for('pages.crida_case_studies_index') }}?scale={{ sc.id }}" class="crida-chip" style="--chip-color: {{ sc.color }};">
-                  <i class="fa {{ sc.icon }}"></i>
-                  <span class="crida-chip-label">{{ _(sc.label) }}</span>
-                  <span class="crida-chip-count">{{ category_counts.scale.get(sc.id, 0) }}</span>
-                </a>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {# About Section #}
-      <div class="crida-about-section crida-reveal--from-left">
-        <h2><i class="fa fa-info-circle"></i> {{ _('What is CRIDA?') }}</h2>
-        <p>{{ _('CRIDA (Climate Risk Informed Decision Analysis) is a collaborative methodology developed by UNESCO, ICIWaRM, and partners to support robust water management decisions under climate uncertainty. Rather than relying on single climate projections, CRIDA uses bottom-up vulnerability assessments, stress testing, and adaptive planning pathways to identify decisions that perform well across a wide range of possible futures.') }}</p>
-        <p>{{ _('Since its inception, CRIDA has been recognized by the World Bank as an A+ method for developing resilience projects in the water sector and acknowledged by the Green Climate Fund (GCF) for adaptive planning in water project design.') }}</p>
-      </div>
-
-      {# Interactive Map #}
-      <div class="crida-map-section crida-reveal--scale-in">
-        <div class="crida-map-header">
-          <h2><i class="fa fa-map"></i> {{ _('Case Studies Around the World') }}</h2>
-        </div>
-        <div class="crida-map-legend">
-          <div class="crida-legend-item">
-            <span class="crida-legend-dot finished"></span> {{ _('Finished') }}
-          </div>
-          <div class="crida-legend-item">
-            <span class="crida-legend-dot ongoing"></span> {{ _('Ongoing') }}
-          </div>
-          <div class="crida-legend-item">
-            <span class="crida-legend-dot planned"></span> {{ _('Planned') }}
-          </div>
-        </div>
-        <div class="crida-map-container">
-          <div id="crida-map" data-geojson='{{ geojson_data }}' style="width:100%;height:100%;"></div>
-        </div>
-      </div>
-
-      {# Recent Case Studies #}
-      <h2 class="crida-section-title crida-reveal">
-        <i class="fa fa-folder-open"></i> {{ _('Recent Case Studies') }}
-      </h2>
-
-      {% if case_studies %}
-      <div class="crida-cards-grid crida-reveal" id="crida-case-studies-grid">
-        {% for cs in case_studies %}
-        {% set cs_themes = h.json_loads(cs.themes) if cs.themes else [] %}
-        <div class="crida-card" data-name="{{ cs.name }}" data-country="{{ cs.country }}" data-status="{{ cs.crida_status }}" data-themes="{{ cs_themes|join(',') }}" data-title="{{ cs.title }}">
-
-          <div class="crida-card-image">
-            {% if cs.header_image %}
-              <img src="{{ cs.header_image }}" alt="{{ cs.title }}" loading="lazy">
-            {% else %}
-              <div class="crida-card-placeholder">
-                <i class="fa fa-globe"></i>
-              </div>
             {% endif %}
-          </div>
-
-          <div class="crida-card-body">
-            <div class="crida-card-header">
-              <span class="crida-card-country"><i class="fa fa-globe"></i> {{ cs.country }}</span>
-              <span class="crida-status-badge {{ h.get_crida_status_class(cs.crida_status) }}">{{ cs.crida_status or 'N/A' }}</span>
+            <div class="crida-dataset-formats">
+              {% for res in (ds.get('resources', []))[:4] %}
+                {% if res.get('format') %}
+                <span class="crida-format-badge">{{ res.format }}</span>
+                {% endif %}
+              {% endfor %}
             </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="crida-empty">
+          <i class="fa fa-database"></i>
+          <h4>{{ _('No datasets yet') }}</h4>
+          <p>{{ _('Datasets associated with the CRIDA group will appear here.') }}</p>
+        </div>
+        {% endif %}
+      </div>
 
-            <h3><a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}">{{ cs.title }}</a></h3>
+      {# ── Publications ────────────────────────────────────────────── #}
+      <div class="crida-section crida-reveal" id="crida-publications">
+        <div class="crida-section-header">
+          <h2 class="crida-section-title">
+            <span class="crida-section-icon crida-section-icon--purple"><i class="fa fa-book"></i></span>
+            {{ _('Publications') }}
+          </h2>
+          {% if crida_publications %}
+          <a href="{{ h.url_for('pages.water_publications_index') }}" class="crida-view-all">
+            {{ _('View All Publications') }} <i class="fa fa-arrow-right"></i>
+          </a>
+          {% endif %}
+        </div>
 
-            <p class="crida-card-summary">{{ cs.excerpt or h.strip_html_tags(cs.content)[:180] }}</p>
+        {% if crida_publications %}
+        <div class="crida-grid-3">
+          {% for item in crida_publications %}
+          <div class="crida-news-card">
+            <div class="crida-card-meta">
+              <span class="crida-card-date">
+                <i class="fa fa-calendar-o"></i>
+                {% if item.publish_date %}{{ h.render_datetime(item.publish_date, '%b %d, %Y') }}{% else %}{{ _('Recent') }}{% endif %}
+              </span>
+              <span class="crida-card-type crida-card-type--publication">{{ _('Publication') }}</span>
+            </div>
+            <h3><a href="{{ h.url_for('pages.water_publications_show', page=item.name) }}">{{ item.title }}</a></h3>
+            <p class="crida-card-excerpt">{{ (item.content|striptags)[:160] }}{% if item.content|striptags|length > 160 %}...{% endif %}</p>
+            <a href="{{ h.url_for('pages.water_publications_show', page=item.name) }}" class="crida-card-link">
+              {{ _('Read More') }} <i class="fa fa-arrow-right"></i>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="crida-empty">
+          <i class="fa fa-book"></i>
+          <h4>{{ _('No publications yet') }}</h4>
+          <p>{{ _('Publications related to CRIDA will appear here.') }}</p>
+        </div>
+        {% endif %}
+        <div class="crida-info-tip">
+          <i class="fa fa-lightbulb-o"></i>
+          {{ _('To submit a CRIDA publication, go to') }}
+          <a href="{{ h.url_for('pages.water_publications_new') }}"><strong>{{ _('Water Publications') }}</strong></a>
+          {{ _('and select the CRIDA initiative.') }}
+        </div>
+      </div>
 
-            <div class="crida-card-footer">
-              <div class="crida-card-themes">
-                {% for theme in cs_themes[:3] %}
-                  <span class="crida-theme-tag"><i class="fa fa-tag"></i> {{ theme }}</span>
-                {% endfor %}
-              </div>
-              {% set cs_sectors = h.json_loads(cs.sector) if cs.sector else [] %}
-              {% set cs_solutions = h.json_loads(cs.solution_type) if cs.solution_type else [] %}
-              {% if cs_sectors or cs_solutions %}
-              <div class="crida-card-badges">
-                {% for s in cs_sectors[:2] %}
-                  <span class="crida-badge crida-badge-sector"><i class="fa fa-tint"></i> {{ h.get_crida_category_label('sector', s) }}</span>
-                {% endfor %}
-                {% for s in cs_solutions[:1] %}
-                  <span class="crida-badge crida-badge-solution"><i class="fa fa-leaf"></i> {{ h.get_crida_category_label('solution_type', s) }}</span>
-                {% endfor %}
-              </div>
+      {# ── Members ─────────────────────────────────────────────────── #}
+      {% if group_members %}
+      <div class="crida-section crida-reveal" id="crida-members">
+        <div class="crida-section-header">
+          <h2 class="crida-section-title">
+            <span class="crida-section-icon crida-section-icon--green"><i class="fa fa-users"></i></span>
+            {{ _('Members') }}
+          </h2>
+          <a href="/group/about/crida" class="crida-view-all">
+            {{ _('View Group') }} <i class="fa fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <div class="crida-members-grid">
+          {% for member in group_members %}
+          <div class="crida-member-card">
+            <div class="crida-member-avatar">
+              {% if member.image_url %}
+                <img src="{{ member.image_url }}" alt="{{ member.display_name }}">
+              {% elif member.email_hash %}
+                <img src="https://gravatar.com/avatar/{{ member.email_hash }}?s=128&d=identicon" alt="{{ member.display_name }}">
+              {% else %}
+                <span class="avatar-placeholder">{{ member.display_name[:1]|upper }}</span>
               {% endif %}
-              <a href="{{ h.url_for('pages.crida_case_study_show', page=cs.name) }}" class="crida-btn-outline" style="padding:0.3rem 0.8rem;font-size:0.78rem;">
-                {{ _('View') }} <i class="fa fa-arrow-right"></i>
-              </a>
             </div>
+            <div class="crida-member-name">{{ member.display_name }}</div>
+            <span class="crida-member-role crida-member-role--{{ member.capacity }}">{{ member.capacity|title }}</span>
           </div>
-
-        </div>
-        {% endfor %}
-      </div>
-
-      {% if stats.total > case_studies|length %}
-      <div style="text-align:center; margin-bottom: 2rem;" id="crida-load-more-wrapper">
-        <button id="crida-load-more" class="crida-btn-outline"
-                data-offset="{{ case_studies|length }}"
-                data-total="{{ stats.total }}"
-                data-api-url="{{ h.url_for('pages.crida_case_studies_api') }}">
-          <i class="fa fa-plus-circle"></i> {{ _('Load More Case Studies') }}
-          <span class="crida-load-more-count">({{ stats.total - case_studies|length }} {{ _('remaining') }})</span>
-        </button>
-        <div id="crida-load-more-spinner" style="display:none; margin-top:1rem;">
-          <i class="fa fa-spinner fa-spin fa-2x" style="color:#0072BC;"></i>
+          {% endfor %}
         </div>
       </div>
       {% endif %}
-      {% else %}
-      <div class="crida-empty-state">
-        <i class="fa fa-map-marker"></i>
-        <h3>{{ _('No case studies yet') }}</h3>
-        <p>{{ _('Be the first to add a CRIDA case study to the platform.') }}</p>
-      </div>
-      {% endif %}
 
-      {# International Frameworks Section #}
-      <h2 class="crida-section-title crida-reveal">
-        <i class="fa fa-institution"></i> {{ _('CRIDA in International Frameworks') }}
-      </h2>
-      <div class="crida-frameworks crida-reveal" data-reveal-stagger>
-        <div class="crida-framework-card crida-reveal-child">
-          <div class="crida-framework-icon"><i class="fa fa-bank"></i></div>
-          <h4>{{ _('World Bank Resilience Rating') }}</h4>
-          <p>{{ _('CRIDA is rated as an A+ method for developing resilient water projects by the World Bank\'s Resilience Rating System (2021).') }}</p>
-        </div>
-        <div class="crida-framework-card crida-reveal-child">
-          <div class="crida-framework-icon crida-framework-icon--green"><i class="fa fa-leaf"></i></div>
-          <h4>{{ _('Green Climate Fund') }}</h4>
-          <p>{{ _('CRIDA is acknowledged by the GCF as a method for addressing uncertainties in GCF water project design (2023).') }}</p>
-        </div>
-        <div class="crida-framework-card crida-reveal-child">
-          <div class="crida-framework-icon crida-framework-icon--orange"><i class="fa fa-users"></i></div>
-          <h4>{{ _('UNESCO IHP') }}</h4>
-          <p>{{ _('Developed under the UNESCO International Hydrological Programme with ICIWaRM, USACE, and global partners.') }}</p>
+      {# ── Contribute CTA ──────────────────────────────────────────── #}
+      <div class="crida-cta-section crida-reveal">
+        <h2>{{ _('Contribute to CRIDA') }}</h2>
+        <p>{{ _('Share your experience, data, and research with the global CRIDA community.') }}</p>
+        <div class="crida-cta-actions">
+          {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
+          <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-cta-btn crida-cta-btn--primary">
+            <i class="fa fa-plus-circle"></i> {{ _('Submit Case Study') }}
+          </a>
+          {% endif %}
+          <a href="{{ h.url_for('pages.water_news_new') }}" class="crida-cta-btn">
+            <i class="fa fa-bullhorn"></i> {{ _('Share News') }}
+          </a>
+          <a href="{{ h.url_for('pages.water_events_new') }}" class="crida-cta-btn">
+            <i class="fa fa-calendar-plus-o"></i> {{ _('Post Event') }}
+          </a>
+          <a href="{{ h.url_for('pages.water_publications_new') }}" class="crida-cta-btn">
+            <i class="fa fa-file-text-o"></i> {{ _('Submit Publication') }}
+          </a>
         </div>
       </div>
-
-      {# CTA Section #}
-      {% if h.check_access('ckanext_pages_update', {'page_type': 'crida-case-study'}) %}
-      <div class="crida-cta crida-reveal--scale-in">
-        <h3>{{ _('Share Your CRIDA Experience') }}</h3>
-        <p>{{ _('Have you applied the CRIDA methodology? Share your case study with the global community.') }}</p>
-        <a href="{{ h.url_for('pages.crida_case_study_new') }}" class="crida-btn-primary">
-          <i class="fa fa-plus-circle"></i> {{ _('Add a Case Study') }}
-        </a>
-      </div>
-      {% endif %}
 
     </div>
   </div>
   {% endblock %}
 </div>
-
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
   {% asset 'pages/leaflet-js' %}
-  {% asset 'pages/crida-js' %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+
+    /* ── Scroll Reveal ─────────────────────────────────────────── */
+    var reveals = document.querySelectorAll('.crida-reveal');
+    if ('IntersectionObserver' in window) {
+      var revealObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      reveals.forEach(function(el) { revealObs.observe(el); });
+    } else {
+      reveals.forEach(function(el) { el.classList.add('visible'); });
+    }
+
+    /* ── Counter Animation ─────────────────────────────────────── */
+    var counters = document.querySelectorAll('.crida-stat-number[data-target]');
+    if ('IntersectionObserver' in window) {
+      var counterObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            counterObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+      counters.forEach(function(el) { counterObs.observe(el); });
+    } else {
+      counters.forEach(function(el) { el.textContent = el.getAttribute('data-target'); });
+    }
+
+    function animateCounter(el) {
+      var target = parseInt(el.getAttribute('data-target'), 10) || 0;
+      if (target === 0) { el.textContent = '0'; return; }
+      el.classList.add('counting');
+      var duration = 1200;
+      var start = performance.now();
+      function step(now) {
+        var progress = Math.min((now - start) / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * ease);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          el.textContent = target;
+          el.classList.remove('counting');
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* ── Leaflet Map ───────────────────────────────────────────── */
+    var mapEl = document.getElementById('crida-map');
+    if (mapEl && typeof L !== 'undefined') {
+      try {
+        var geojson = JSON.parse(mapEl.getAttribute('data-geojson') || '{"type":"FeatureCollection","features":[]}');
+        var map = L.map('crida-map', {
+          scrollWheelZoom: false,
+          zoomControl: true,
+          attributionControl: false
+        }).setView([20, 0], 2);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        var statusColors = {
+          'Finished': '#00A651',
+          'Ongoing': '#0072BC',
+          'Planned': '#F59E0B'
+        };
+
+        if (geojson.features && geojson.features.length > 0) {
+          var bounds = [];
+          geojson.features.forEach(function(feature) {
+            if (!feature.geometry || !feature.geometry.coordinates) return;
+            var coords = feature.geometry.coordinates;
+            var props = feature.properties || {};
+            var color = statusColors[props.status] || '#0072BC';
+            var marker = L.circleMarker([coords[1], coords[0]], {
+              radius: 7,
+              fillColor: color,
+              color: '#fff',
+              weight: 2,
+              fillOpacity: 0.85
+            }).addTo(map);
+            bounds.push([coords[1], coords[0]]);
+
+            var popup = '<div style="font-size:0.85rem;max-width:220px;">'
+              + '<strong>' + (props.title || '') + '</strong><br>'
+              + '<span style="color:#64748B;">' + (props.country || '') + '</span>';
+            if (props.status) {
+              popup += ' &middot; <span style="color:' + color + ';font-weight:600;">' + props.status + '</span>';
+            }
+            popup += '</div>';
+            marker.bindPopup(popup);
+          });
+          if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 5 });
+          }
+        }
+
+        setTimeout(function() { map.invalidateSize(); }, 300);
+      } catch(e) {
+        console.warn('CRIDA map init error:', e);
+      }
+    }
+
+  });
+  </script>
 {% endblock %}
