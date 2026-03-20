@@ -1,46 +1,54 @@
 /* ============================================================
    CRIDA - Climate Risk Informed Decision Analysis
-   Modern, professional design inspired by UNESCO
+   2026 Design — Glassmorphism, mesh gradients, modern typo
    ============================================================ */
 
 /* -- Design Tokens ----------------------------------------- */
 :root {
   --crida-primary: #0072BC;
-  --crida-primary-dark: #005A9C;
+  --crida-primary-dark: #004E8C;
   --crida-primary-light: #4DA3D4;
   --crida-primary-pale: #EBF5FB;
-  --crida-green: #27AE60;
-  --crida-green-light: #EAFAF1;
-  --crida-orange: #E67E22;
-  --crida-orange-light: #FDF2E9;
-  --crida-blue-light: #5DADE2;
-  --crida-blue-pale: #EBF5FB;
-  --crida-gray-50: #FAFBFC;
-  --crida-gray-100: #F5F7F9;
-  --crida-gray-200: #E8ECF0;
-  --crida-gray-300: #D1D9E0;
-  --crida-gray-400: #A0AEC0;
-  --crida-gray-600: #5A6778;
-  --crida-gray-800: #2D3748;
-  --crida-gray-900: #1A202C;
-  --crida-shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
-  --crida-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
-  --crida-shadow-hover: 0 4px 16px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.03);
-  --crida-shadow-lg: 0 8px 28px rgba(0,0,0,0.10);
-  --crida-radius: 10px;
-  --crida-radius-sm: 6px;
-  --crida-radius-lg: 14px;
-  --crida-transition: all 0.2s ease;
-  --crida-transition-slow: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  --crida-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --crida-green: #10B981;
+  --crida-green-light: #ECFDF5;
+  --crida-orange: #F59E0B;
+  --crida-orange-light: #FFFBEB;
+  --crida-blue-light: #38BDF8;
+  --crida-blue-pale: #F0F9FF;
+  --crida-gray-50: #F8FAFC;
+  --crida-gray-100: #F1F5F9;
+  --crida-gray-200: #E2E8F0;
+  --crida-gray-300: #CBD5E1;
+  --crida-gray-400: #94A3B8;
+  --crida-gray-500: #64748B;
+  --crida-gray-600: #475569;
+  --crida-gray-700: #334155;
+  --crida-gray-800: #1E293B;
+  --crida-gray-900: #0F172A;
+  --crida-shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
+  --crida-shadow: 0 1px 3px rgba(15,23,42,0.06), 0 4px 12px rgba(15,23,42,0.04);
+  --crida-shadow-hover: 0 8px 30px rgba(0,114,188,0.12), 0 2px 6px rgba(15,23,42,0.04);
+  --crida-shadow-lg: 0 12px 40px rgba(15,23,42,0.12);
+  --crida-shadow-glow: 0 0 40px rgba(0,114,188,0.15);
+  --crida-radius: 14px;
+  --crida-radius-sm: 8px;
+  --crida-radius-lg: 20px;
+  --crida-radius-xl: 28px;
+  --crida-transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  --crida-transition-slow: all 0.4s cubic-bezier(0.16,1,0.3,1);
+  --crida-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --crida-glass: rgba(255,255,255,0.7);
+  --crida-glass-border: rgba(255,255,255,0.5);
+  --crida-glass-strong: rgba(255,255,255,0.85);
 }
 
 /* -- Global scope overrides -------------------------------- */
 .crida-page {
-  color: var(--crida-gray-800);
+  color: var(--crida-gray-700);
   font-family: var(--crida-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 .crida-page h1,
@@ -48,23 +56,23 @@
 .crida-page h3,
 .crida-page h4 {
   color: var(--crida-gray-900);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
-.crida-page a { color: var(--crida-primary); transition: color 0.15s ease; }
+.crida-page a { color: var(--crida-primary); transition: color 0.2s ease; }
 .crida-page a:hover { color: var(--crida-primary-dark); }
-.crida-page p { color: var(--crida-gray-600); line-height: 1.7; }
+.crida-page p { color: var(--crida-gray-600); line-height: 1.75; }
 
 /* -- Hero / Banner ----------------------------------------- */
 .crida-page .crida-hero {
   position: relative;
-  min-height: 400px;
-  background: var(--crida-primary-dark);
+  min-height: 440px;
+  background: var(--crida-gray-900);
   color: #fff;
   overflow: hidden;
   border-radius: 0;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
 }
@@ -74,27 +82,27 @@
   top: 0; left: 0; right: 0; bottom: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.5;
+  opacity: 0.35;
   z-index: 0;
+  filter: saturate(0.7);
 }
 
 .crida-page .crida-hero-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(0,72,120,0.88) 0%,
-    rgba(0,90,156,0.72) 40%,
-    rgba(0,114,188,0.6) 100%
-  );
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(0,114,188,0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(56,189,248,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(16,185,129,0.15) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(15,23,42,0.7) 0%, rgba(15,23,42,0.5) 100%);
   z-index: 1;
 }
 
 .crida-page .crida-hero-content {
   position: relative;
   z-index: 2;
-  padding: 4rem 2.5rem 3.5rem;
-  max-width: 760px;
+  padding: 5rem 3rem 4rem;
+  max-width: 780px;
   margin: 0 auto 0 0;
 }
 
@@ -108,81 +116,101 @@
 }
 
 .crida-page .crida-hero h1 {
-  font-size: 2.6rem;
-  font-weight: 800;
-  margin-bottom: 0.7rem;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  text-shadow: none;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .crida-page .crida-hero .crida-subtitle {
-  font-size: 1.1rem;
-  opacity: 0.92;
-  margin-bottom: 1.2rem;
+  font-size: 1.15rem;
+  opacity: 0.85;
+  margin-bottom: 1.5rem;
   line-height: 1.7;
   font-weight: 400;
-  max-width: 620px;
+  max-width: 600px;
 }
 
 .crida-page .crida-hero .crida-meta {
-  font-size: 0.85rem;
-  opacity: 0.78;
-  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  opacity: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.45rem 1rem;
+  border-radius: 50px;
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
-.crida-page .crida-hero .crida-meta i { margin-right: 0.4rem; }
+.crida-page .crida-hero .crida-meta i { margin-right: 0; }
 
-/* -- Stats Bar --------------------------------------------- */
+/* -- Stats Bar — Glass floating cards ---------------------- */
 .crida-page .crida-stats-bar {
   display: flex;
-  gap: 0;
+  gap: 1rem;
   padding: 0;
+  margin-top: -2.5rem;
   margin-bottom: 3rem;
   flex-wrap: wrap;
-  background: #fff;
-  border-radius: var(--crida-radius-lg);
-  box-shadow: var(--crida-shadow);
-  overflow: hidden;
-  border: 1px solid var(--crida-gray-200);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  border: none;
+  position: relative;
+  z-index: 3;
 }
 
 .crida-page .crida-stat-item {
   flex: 1;
-  min-width: 130px;
-  background: transparent;
-  border-radius: 0;
-  padding: 1.5rem 1.2rem;
-  box-shadow: none;
+  min-width: 120px;
+  background: var(--crida-glass-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--crida-radius);
+  padding: 1.5rem 1rem;
+  box-shadow: var(--crida-shadow), 0 0 0 1px rgba(255,255,255,0.6);
   text-align: center;
-  transition: background 0.2s ease;
-  border-bottom: none;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.3s cubic-bezier(0.16,1,0.3,1);
+  border: 1px solid var(--crida-gray-200);
   border-right: 1px solid var(--crida-gray-200);
 }
 
-.crida-page .crida-stat-item:last-child { border-right: none; }
+.crida-page .crida-stat-item:last-child { border-right: 1px solid var(--crida-gray-200); }
 
 .crida-page .crida-stat-item:hover {
-  background: var(--crida-gray-50);
-  box-shadow: none;
-  transform: none;
+  transform: translateY(-4px);
+  box-shadow: var(--crida-shadow-hover), var(--crida-shadow-glow);
 }
 
 .crida-page .crida-stat-number {
-  font-size: 2.1rem;
-  font-weight: 800;
+  font-size: 2.2rem;
+  font-weight: 900;
   color: var(--crida-primary) !important;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .crida-page .crida-stat-label {
-  font-size: 0.72rem;
-  color: var(--crida-gray-400) !important;
+  font-size: 0.7rem;
+  color: var(--crida-gray-500) !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-top: 0.35rem;
-  font-weight: 600;
+  margin-top: 0.4rem;
+  font-weight: 700;
 }
 
 /* -- Map Section ------------------------------------------- */
@@ -193,7 +221,7 @@
   height: 500px;
   border-radius: var(--crida-radius-lg);
   overflow: hidden;
-  box-shadow: var(--crida-shadow);
+  box-shadow: var(--crida-shadow-lg);
   border: 1px solid var(--crida-gray-200);
   position: relative;
 }
@@ -209,7 +237,7 @@
 
 .crida-page .crida-map-header h2 {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin: 0;
 }
@@ -221,7 +249,7 @@
 
 .crida-map-legend {
   display: flex;
-  gap: 1.2rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
   margin-top: 0.8rem;
 }
@@ -229,9 +257,10 @@
 .crida-legend-item {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   font-size: 0.82rem;
   color: var(--crida-gray-600);
+  font-weight: 500;
 }
 
 .crida-legend-dot {
@@ -239,20 +268,32 @@
   height: 10px;
   border-radius: 50%;
   display: inline-block;
+  box-shadow: 0 0 6px currentColor;
 }
 
-.crida-legend-dot.finished  { background-color: var(--crida-green); }
-.crida-legend-dot.ongoing   { background-color: var(--crida-primary); }
-.crida-legend-dot.planned   { background-color: var(--crida-orange); }
+.crida-legend-dot.finished  { background-color: var(--crida-green); color: var(--crida-green); }
+.crida-legend-dot.ongoing   { background-color: var(--crida-primary); color: var(--crida-primary); }
+.crida-legend-dot.planned   { background-color: var(--crida-orange); color: var(--crida-orange); }
 
 /* -- Section Title ----------------------------------------- */
 .crida-page .crida-section-title {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin-bottom: 1.5rem;
   padding-bottom: 0.6rem;
-  border-bottom: 2px solid var(--crida-gray-200);
+  border-bottom: none;
+  position: relative;
+}
+
+.crida-page .crida-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--crida-primary), var(--crida-blue-light));
+  border-radius: 3px;
 }
 
 .crida-page .crida-section-title i {
@@ -270,10 +311,11 @@
 
 .crida-card {
   background: #fff;
-  border-radius: var(--crida-radius);
+  border-radius: var(--crida-radius-lg);
   overflow: hidden;
   box-shadow: var(--crida-shadow);
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.35s cubic-bezier(0.16,1,0.3,1);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--crida-gray-200);
@@ -281,7 +323,7 @@
 
 .crida-card:hover {
   box-shadow: var(--crida-shadow-hover);
-  transform: translateY(-3px);
+  transform: translateY(-6px);
 }
 
 .crida-card-image {
@@ -289,17 +331,17 @@
   height: 200px;
   overflow: hidden;
   position: relative;
-  background: var(--crida-gray-100);
+  background: linear-gradient(135deg, var(--crida-gray-100) 0%, var(--crida-gray-50) 100%);
 }
 
 .crida-card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
 }
 
-.crida-card:hover .crida-card-image img { transform: scale(1.04); }
+.crida-card:hover .crida-card-image img { transform: scale(1.06); }
 
 .crida-card-image .crida-card-placeholder {
   display: flex;
@@ -311,7 +353,7 @@
 }
 
 .crida-card-body {
-  padding: 1.2rem 1.35rem 1.35rem;
+  padding: 1.3rem 1.5rem 1.5rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -326,9 +368,9 @@
 }
 
 .crida-card-country {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--crida-primary);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -337,10 +379,10 @@
 
 .crida-page .crida-card h3 {
   font-size: 1.06rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin: 0 0 0.5rem 0;
-  line-height: 1.4;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -352,8 +394,8 @@
 
 .crida-card-summary {
   font-size: 0.87rem;
-  color: var(--crida-gray-600);
-  line-height: 1.6;
+  color: var(--crida-gray-500);
+  line-height: 1.65;
   margin-bottom: 0.8rem;
   flex: 1;
   display: -webkit-box;
@@ -367,7 +409,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 0.8rem;
-  border-top: 1px solid var(--crida-gray-200);
+  border-top: 1px solid var(--crida-gray-100);
   margin-top: auto;
   gap: 0.5rem;
 }
@@ -384,9 +426,9 @@
 .crida-status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.22rem 0.6rem;
-  border-radius: 20px;
-  font-size: 0.68rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 50px;
+  font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -402,35 +444,49 @@
 .crida-theme-tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.15rem 0.5rem;
+  padding: 0.2rem 0.55rem;
   background: var(--crida-gray-100);
   color: var(--crida-gray-600);
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 500;
+  border-radius: 50px;
+  font-size: 0.68rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .crida-theme-tag i {
   margin-right: 0.2rem;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   color: var(--crida-gray-400);
 }
 
-/* -- About Section ----------------------------------------- */
+/* -- About Section — Glass card ----------------------------- */
 .crida-page .crida-about-section {
-  background: var(--crida-gray-50);
+  background: var(--crida-glass-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--crida-radius-lg);
   padding: 2.5rem 2.5rem;
   margin-bottom: 3rem;
-  box-shadow: none;
+  box-shadow: var(--crida-shadow);
   border: 1px solid var(--crida-gray-200);
   border-left: 4px solid var(--crida-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.crida-page .crida-about-section::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(0,114,188,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .crida-page .crida-about-section h2 {
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin-bottom: 1rem;
 }
@@ -449,28 +505,43 @@
 
 .crida-page .crida-about-section p:last-child { margin-bottom: 0; }
 
-/* -- Frameworks -------------------------------------------- */
+/* -- Frameworks — Bento cards ------------------------------ */
 .crida-frameworks {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  gap: 1.2rem;
   margin-bottom: 3rem;
 }
 
 .crida-framework-card {
   background: #fff;
-  border-radius: var(--crida-radius);
+  border-radius: var(--crida-radius-lg);
   padding: 2rem 1.8rem;
   box-shadow: var(--crida-shadow);
   text-align: center;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.35s cubic-bezier(0.16,1,0.3,1);
   border: 1px solid var(--crida-gray-200);
-  border-top: 3px solid var(--crida-primary);
+  border-top: none;
+  position: relative;
+  overflow: hidden;
 }
+
+.crida-framework-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--fw-accent, var(--crida-primary));
+}
+
+.crida-framework-card:nth-child(1) { --fw-accent: var(--crida-primary); }
+.crida-framework-card:nth-child(2) { --fw-accent: var(--crida-green); }
+.crida-framework-card:nth-child(3) { --fw-accent: var(--crida-orange); }
 
 .crida-framework-card:hover {
   box-shadow: var(--crida-shadow-hover);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
 .crida-framework-card img {
@@ -480,45 +551,81 @@
   border-radius: var(--crida-radius-sm);
 }
 
+.crida-framework-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--crida-primary);
+  background: var(--crida-primary-pale);
+  margin: 0 auto 1.2rem;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+.crida-framework-card:hover .crida-framework-icon { transform: scale(1.1) rotate(-3deg); }
+
+.crida-framework-icon--green { color: var(--crida-green); background: var(--crida-green-light); }
+.crida-framework-icon--orange { color: var(--crida-orange); background: var(--crida-orange-light); }
+
 .crida-page .crida-framework-card h4 {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin-bottom: 0.5rem;
 }
 
 .crida-page .crida-framework-card p {
   font-size: 0.88rem;
-  color: var(--crida-gray-600) !important;
-  line-height: 1.65;
+  color: var(--crida-gray-500) !important;
+  line-height: 1.7;
 }
 
-/* -- CTA Section ------------------------------------------- */
+/* -- CTA Section — Modern gradient + glow ------------------ */
 .crida-page .crida-cta {
-  background: linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 100%);
+  background:
+    radial-gradient(ellipse 100% 80% at 20% 100%, rgba(16,185,129,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 0%, rgba(56,189,248,0.2) 0%, transparent 50%),
+    linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 50%, #0891B2 100%);
   color: #fff;
-  border-radius: var(--crida-radius-lg);
-  padding: 3rem 2.5rem;
+  border-radius: var(--crida-radius-xl);
+  padding: 3.5rem 2.5rem;
   text-align: center;
   margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.crida-page .crida-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .crida-page .crida-cta h3 {
-  font-size: 1.45rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 900;
   margin-bottom: 0.6rem;
   color: #fff !important;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  position: relative;
 }
 
 .crida-page .crida-cta p {
-  opacity: 0.9;
+  opacity: 0.88;
   margin-bottom: 1.5rem;
   font-size: 1rem;
   color: #fff !important;
   max-width: 520px;
   margin-left: auto;
   margin-right: auto;
+  position: relative;
 }
 
 /* -- Buttons ----------------------------------------------- */
@@ -528,21 +635,22 @@
   gap: 0.5rem;
   background: #fff;
   color: var(--crida-primary-dark);
-  padding: 0.72rem 1.8rem;
+  padding: 0.8rem 2rem;
   border-radius: 50px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.92rem;
   text-decoration: none;
-  transition: var(--crida-transition);
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.3s cubic-bezier(0.16,1,0.3,1);
   border: none;
   cursor: pointer;
   letter-spacing: 0.01em;
+  position: relative;
 }
 
 .crida-btn-primary:hover {
-  background: var(--crida-primary-pale);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.25);
   color: var(--crida-primary-dark);
   text-decoration: none;
 }
@@ -553,9 +661,9 @@
   gap: 0.4rem;
   background: transparent;
   color: var(--crida-primary);
-  padding: 0.5rem 1.1rem;
+  padding: 0.5rem 1.2rem;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
   text-decoration: none;
   transition: var(--crida-transition);
@@ -567,6 +675,7 @@
   background: var(--crida-primary);
   color: #fff;
   text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0,114,188,0.25);
 }
 
 /* -- Admin Panel ------------------------------------------- */
@@ -577,18 +686,18 @@
   margin-bottom: 2rem;
   box-shadow: var(--crida-shadow);
   border: 1px solid var(--crida-gray-200);
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid #EF4444;
 }
 
 .crida-page .crida-admin-panel h3 {
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin-bottom: 0.8rem;
 }
 
 .crida-page .crida-admin-panel h3 i {
-  color: #dc3545 !important;
+  color: #EF4444 !important;
   margin-right: 0.4rem;
 }
 
@@ -610,18 +719,20 @@
 
 .crida-admin-stat .stat-count {
   font-size: 1.5rem;
-  font-weight: 800;
+  font-weight: 900;
   color: var(--crida-primary);
 }
 
 .crida-admin-stat .stat-text {
   font-size: 0.78rem;
-  color: var(--crida-gray-600);
+  color: var(--crida-gray-500);
 }
 
 /* -- Admin Dashboard --------------------------------------- */
 .crida-page .crida-dashboard-header {
-  background: linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 100%);
+  background:
+    radial-gradient(ellipse 80% 60% at 80% 0%, rgba(56,189,248,0.2) 0%, transparent 50%),
+    linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 100%);
   color: #fff;
   border-radius: var(--crida-radius-lg);
   padding: 2.5rem;
@@ -630,13 +741,13 @@
 
 .crida-page .crida-dashboard-header h1 {
   font-size: 1.8rem;
-  font-weight: 800;
+  font-weight: 900;
   margin-bottom: 0.3rem;
   color: #fff !important;
 }
 
 .crida-page .crida-dashboard-header p {
-  opacity: 0.9;
+  opacity: 0.88;
   font-size: 0.95rem;
   color: #fff !important;
 }
@@ -653,9 +764,9 @@
   display: flex;
   align-items: center;
   padding: 1.2rem 1.5rem;
-  border-bottom: 1px solid var(--crida-gray-200);
+  border-bottom: 1px solid var(--crida-gray-100);
   gap: 1rem;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
 }
 
 .crida-pending-item:last-child { border-bottom: none; }
@@ -672,7 +783,7 @@
 
 .crida-pending-info .meta {
   font-size: 0.82rem;
-  color: var(--crida-gray-600);
+  color: var(--crida-gray-500);
 }
 
 .crida-pending-info .meta span { margin-right: 1rem; }
@@ -683,29 +794,29 @@
   background: var(--crida-green);
   color: #fff;
   padding: 0.4rem 1rem;
-  border-radius: 20px;
+  border-radius: 50px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   cursor: pointer;
   transition: var(--crida-transition);
 }
 
-.crida-btn-approve:hover { background: #219a52; }
+.crida-btn-approve:hover { background: #059669; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
 
 .crida-btn-reject {
   background: #fff;
-  color: #dc3545;
+  color: #EF4444;
   padding: 0.4rem 1rem;
-  border-radius: 20px;
+  border-radius: 50px;
   font-size: 0.82rem;
-  font-weight: 600;
-  border: 1px solid #dc3545;
+  font-weight: 700;
+  border: 1px solid #EF4444;
   cursor: pointer;
   transition: var(--crida-transition);
 }
 
-.crida-btn-reject:hover { background: #dc3545; color: #fff; }
+.crida-btn-reject:hover { background: #EF4444; color: #fff; }
 
 /* -- Detail Page ------------------------------------------- */
 .crida-detail-content { max-width: 900px; }
@@ -721,11 +832,22 @@
 
 .crida-page .crida-detail-section h2 {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--crida-gray-900) !important;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--crida-gray-200);
+  border-bottom: none;
+  position: relative;
+}
+
+.crida-page .crida-detail-section h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 32px;
+  height: 2px;
+  background: var(--crida-primary);
+  border-radius: 2px;
 }
 
 .crida-page .crida-detail-section h2 i {
@@ -735,8 +857,8 @@
 
 .crida-detail-text {
   font-size: 0.95rem;
-  line-height: 1.8;
-  color: var(--crida-gray-800);
+  line-height: 1.85;
+  color: var(--crida-gray-700);
 }
 
 .crida-highlights-list {
@@ -1431,21 +1553,28 @@
   .crida-chip { font-size: 0.72rem; padding: 0.25rem 0.55rem; }
 
   .crida-page .crida-hero-content {
-    padding: 3rem 2rem 2.5rem;
+    padding: 3.5rem 2rem 3rem;
+  }
+
+  .crida-page .crida-hero h1 { font-size: 2.4rem; }
+
+  .crida-page .crida-stats-bar {
+    gap: 0.8rem;
+    margin-top: -2rem;
   }
 }
 
 @media (max-width: 768px) {
   .crida-page .crida-hero {
-    min-height: 300px;
+    min-height: 340px;
     margin-left: -15px;
     margin-right: -15px;
   }
 
-  .crida-page .crida-hero h1 { font-size: 1.8rem; }
+  .crida-page .crida-hero h1 { font-size: 2rem; }
 
   .crida-page .crida-hero-content {
-    padding: 2.5rem 1.5rem 2rem;
+    padding: 3rem 1.5rem 2.5rem;
   }
 
   .crida-page .crida-hero .crida-subtitle {
@@ -1453,12 +1582,15 @@
   }
 
   .crida-page .crida-stats-bar {
-    border-radius: var(--crida-radius);
+    flex-direction: row;
+    gap: 0.6rem;
+    margin-top: -1.5rem;
   }
 
   .crida-page .crida-stat-item {
-    min-width: 100px;
-    padding: 1rem 0.8rem;
+    min-width: 0;
+    padding: 1rem 0.6rem;
+    border-radius: var(--crida-radius-sm);
   }
 
   .crida-page .crida-stat-number { font-size: 1.6rem; }
@@ -1509,6 +1641,14 @@
   .crida-page .crida-hero .crida-subtitle { font-size: 0.92rem; }
   .crida-card-image { height: 160px; }
   .crida-map-container { height: 280px; }
+
+  .crida-page .crida-stats-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: -1rem;
+  }
+
+  .crida-page .crida-stat-item { min-width: auto; }
 
   .crida-category-grid {
     grid-template-columns: 1fr 1fr;
