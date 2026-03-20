@@ -380,12 +380,11 @@
     /**
      * Build a card HTML string from a case study object returned by the API.
      */
-    buildCardHtml: function(cs, staggerIndex) {
+    buildCardHtml: function(cs) {
       var themes = cs.themes || [];
       var statusClass = 'crida-status-' + (cs.crida_status || 'default').toLowerCase().replace(/\s+/g, '-');
       var summary = cs.excerpt || (cs.content ? cs.content.substring(0, 180) : '');
       var cardSlug = (cs.name || '').replace(/[^a-z0-9-]/g, '-');
-      var staggerDelay = (staggerIndex || 0) * 60;
 
       var imageHtml;
       if (cs.header_image) {
@@ -399,12 +398,12 @@
         themeTags += '<span class="crida-theme-tag"><i class="fa fa-tag"></i> ' + themes[i] + '</span>';
       }
 
-      return '<div class="crida-card crida-card--entering" data-name="' + (cs.name || '') + '"' +
+      return '<div class="crida-card" data-name="' + (cs.name || '') + '"' +
         ' data-country="' + (cs.country || '') + '"' +
         ' data-status="' + (cs.crida_status || '') + '"' +
         ' data-themes="' + themes.join(',') + '"' +
         ' data-title="' + (cs.title || '') + '"' +
-        ' style="--stagger-delay:' + staggerDelay + 'ms;">' +
+        ' style="opacity:0; transform:translateY(20px);">' +
         '<div class="crida-card-image" style="view-transition-name:crida-card-' + cardSlug + ';">' + imageHtml + '</div>' +
         '<div class="crida-card-body">' +
           '<div class="crida-card-header">' +
@@ -424,7 +423,7 @@
     },
 
     /**
-     * Bind "Load More" button click with View Transitions and stagger.
+     * Bind "Load More" button click with staggered entrance animation.
      */
     bindLoadMore: function() {
       var self = this;
@@ -449,20 +448,23 @@
             var $grid = $('#crida-case-studies-grid');
             var newCards = [];
 
-            cridaViewTransition(function() {
-              (data.results || []).forEach(function(cs, i) {
-                var cardHtml = self.buildCardHtml(cs, i);
-                var $card = $(cardHtml);
-                $grid.append($card);
-                newCards.push($card);
-              });
+            (data.results || []).forEach(function(cs) {
+              var cardHtml = self.buildCardHtml(cs);
+              var $card = $(cardHtml);
+              $grid.append($card);
+              newCards.push($card);
             });
 
-            // Stagger entrance animation
-            requestAnimationFrame(function() {
-              newCards.forEach(function($card) {
-                $card.removeClass('crida-card--entering').addClass('crida-card--entered');
-              });
+            // Force layout calculation then animate in with stagger
+            $grid[0].offsetHeight; // force reflow
+            newCards.forEach(function($card, i) {
+              setTimeout(function() {
+                $card.css({
+                  opacity: '1',
+                  transform: 'translateY(0)',
+                  transition: 'opacity 0.4s ease, transform 0.4s ease'
+                });
+              }, i * 80);
             });
 
             var newOffset = offset + (data.results || []).length;
@@ -476,7 +478,6 @@
               $btn.prop('disabled', false);
             }
 
-            // Assign view-transition-name to new cards
             assignCardTransitionNames();
           },
           error: function() {
