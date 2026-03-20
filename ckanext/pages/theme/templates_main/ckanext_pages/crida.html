@@ -110,7 +110,7 @@
       </h2>
 
       {% if case_studies %}
-      <div class="crida-cards-grid">
+      <div class="crida-cards-grid" id="crida-case-studies-grid">
         {% for cs in case_studies %}
         {% set cs_themes = h.json_loads(cs.themes) if cs.themes else [] %}
         <div class="crida-card" data-name="{{ cs.name }}" data-country="{{ cs.country }}" data-status="{{ cs.crida_status }}" data-themes="{{ cs_themes|join(',') }}" data-title="{{ cs.title }}">
@@ -151,11 +151,20 @@
         {% endfor %}
       </div>
 
-      <div style="text-align:center; margin-bottom: 2rem;">
-        <a href="{{ h.url_for('pages.crida_case_studies_index') }}" class="crida-btn-outline">
-          <i class="fa fa-th-list"></i> {{ _('View All Case Studies') }}
-        </a>
+      {% if stats.total > case_studies|length %}
+      <div style="text-align:center; margin-bottom: 2rem;" id="crida-load-more-wrapper">
+        <button id="crida-load-more" class="crida-btn-outline"
+                data-offset="{{ case_studies|length }}"
+                data-total="{{ stats.total }}"
+                data-api-url="{{ h.url_for('pages.crida_case_studies_api') }}">
+          <i class="fa fa-plus-circle"></i> {{ _('Load More Case Studies') }}
+          <span class="crida-load-more-count">({{ stats.total - case_studies|length }} {{ _('remaining') }})</span>
+        </button>
+        <div id="crida-load-more-spinner" style="display:none; margin-top:1rem;">
+          <i class="fa fa-spinner fa-spin fa-2x" style="color:#0072BC;"></i>
+        </div>
       </div>
+      {% endif %}
       {% else %}
       <div class="crida-empty-state">
         <i class="fa fa-map-marker"></i>

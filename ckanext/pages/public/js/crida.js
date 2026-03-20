@@ -15,6 +15,7 @@
       this.initMap();
       this.bindFilterEvents();
       this.bindCardHoverEvents();
+      this.bindLoadMore();
     },
 
     /**
@@ -246,7 +247,7 @@
     bindCardHoverEvents: function() {
       var self = this;
 
-      $('.crida-card').on('mouseenter', function() {
+      $(document).on('mouseenter', '.crida-card', function() {
         var name = $(this).data('name');
         if (!name || !self.markers.length) return;
 
@@ -256,9 +257,113 @@
             m.marker.setStyle({ radius: 12, weight: 3, fillOpacity: 1 });
           }
         });
-      }).on('mouseleave', function() {
+      }).on('mouseleave', '.crida-card', function() {
         self.markers.forEach(function(m) {
           m.marker.setStyle({ radius: 8, weight: 2, fillOpacity: 0.85 });
+        });
+      });
+    },
+
+    /**
+     * Build a card HTML string from a case study object returned by the API.
+     */
+    buildCardHtml: function(cs) {
+      var themes = cs.themes || [];
+      var statusClass = 'crida-status-' + (cs.crida_status || 'default').toLowerCase().replace(/\s+/g, '-');
+      var summary = cs.excerpt || (cs.content ? cs.content.substring(0, 180) : '');
+
+      var imageHtml;
+      if (cs.header_image) {
+        imageHtml = '<img src="' + cs.header_image + '" alt="' + (cs.title || '') + '" loading="lazy">';
+      } else {
+        imageHtml = '<div class="crida-card-placeholder"><i class="fa fa-map-marker"></i></div>';
+      }
+
+      var themeTags = '';
+      for (var i = 0; i < Math.min(themes.length, 3); i++) {
+        themeTags += '<span class="crida-theme-tag"><i class="fa fa-tag"></i> ' + themes[i] + '</span>';
+      }
+
+      return '<div class="crida-card" data-name="' + (cs.name || '') + '"' +
+        ' data-country="' + (cs.country || '') + '"' +
+        ' data-status="' + (cs.crida_status || '') + '"' +
+        ' data-themes="' + themes.join(',') + '"' +
+        ' data-title="' + (cs.title || '') + '" style="opacity:0;transform:translateY(20px);transition:opacity 0.4s,transform 0.4s;">' +
+        '<div class="crida-card-image">' + imageHtml + '</div>' +
+        '<div class="crida-card-body">' +
+          '<div class="crida-card-header">' +
+            '<span class="crida-card-country"><i class="fa fa-globe"></i> ' + (cs.country || '') + '</span>' +
+            '<span class="crida-status-badge ' + statusClass + '">' + (cs.crida_status || 'N/A') + '</span>' +
+          '</div>' +
+          '<h3><a href="' + cs.url + '">' + (cs.title || '') + '</a></h3>' +
+          '<p class="crida-card-summary">' + summary + '</p>' +
+          '<div class="crida-card-footer">' +
+            '<div class="crida-card-themes">' + themeTags + '</div>' +
+            '<a href="' + cs.url + '" class="crida-btn-outline" style="padding:0.3rem 0.8rem;font-size:0.78rem;">' +
+              'View <i class="fa fa-arrow-right"></i>' +
+            '</a>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    },
+
+    /**
+     * Bind "Load More" button click to fetch additional case studies via AJAX.
+     */
+    bindLoadMore: function() {
+      var self = this;
+      var $btn = $('#crida-load-more');
+      if (!$btn.length) return;
+
+      $btn.on('click', function(e) {
+        e.preventDefault();
+        var offset = parseInt($btn.data('offset'), 10) || 0;
+        var total = parseInt($btn.data('total'), 10) || 0;
+        var apiUrl = $btn.data('api-url');
+        var limit = 6;
+
+        $btn.prop('disabled', true);
+        $('#crida-load-more-spinner').show();
+
+        $.ajax({
+          url: apiUrl,
+          data: { offset: offset, limit: limit },
+          dataType: 'json',
+          success: function(data) {
+            var $grid = $('#crida-case-studies-grid');
+            var newCards = [];
+
+            (data.results || []).forEach(function(cs) {
+              var cardHtml = self.buildCardHtml(cs);
+              var $card = $(cardHtml);
+              $grid.append($card);
+              newCards.push($card);
+            });
+
+            // Animate new cards in
+            setTimeout(function() {
+              newCards.forEach(function($card) {
+                $card.css({ opacity: 1, transform: 'translateY(0)' });
+              });
+            }, 50);
+
+            var newOffset = offset + (data.results || []).length;
+            $btn.data('offset', newOffset);
+
+            if (!data.has_more) {
+              $('#crida-load-more-wrapper').fadeOut(300);
+            } else {
+              var remaining = total - newOffset;
+              $btn.find('.crida-load-more-count').text('(' + remaining + ' remaining)');
+              $btn.prop('disabled', false);
+            }
+          },
+          error: function() {
+            $btn.prop('disabled', false);
+          },
+          complete: function() {
+            $('#crida-load-more-spinner').hide();
+          }
         });
       });
     },

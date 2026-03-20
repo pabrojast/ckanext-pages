@@ -47,6 +47,13 @@ COORDINATES = {
     "ke-water-supply-demand": (-1.29, 36.82, "Aprox (Nairobi)"),
     "ar-atuel": (-34.62, -68.33, "Aprox (cuenca Atuel)"),
     "ua-tisza": (48.62, 22.30, "Aprox (zona Tisza)"),
+    # Orphan crida.json items (different titles, same locations)
+    "eco-engineering-mexico-water-reserves-pr": (
+        19.43, -99.13, "Aprox (México)"),
+    "decision-making-under-climate-uncertaint": (
+        4.70, -74.10, "Aprox (cuenca Magdalena)"),
+    "urban-flood-resilience-strategy": (
+        -2.17, -79.92, "Aprox (Guayaquil)"),
 }
 
 # Explicit mapping from alternate crida.json titles to crida_lat_lon IDs,
@@ -87,6 +94,13 @@ IMAGE_MAP = {
     "pe-chancay-lambayeque": "/images/crida/peru-chancay.jpg",
     "ke-water-supply-demand": "/images/crida/kenya-nairobi.jpg",
     "ua-tisza": "/images/crida/ukraine-tisza.jpg",
+    # Orphan crida.json items reuse same location images
+    "eco-engineering-mexico-water-reserves-pr":
+        "/images/crida/mexico-water-reserves.jpg",
+    "decision-making-under-climate-uncertaint":
+        "/images/crida/colombia-hydropower.jpg",
+    "urban-flood-resilience-strategy":
+        "/images/crida/ecuador-flood-resilience.jpg",
 }
 
 

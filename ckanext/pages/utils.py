@@ -3240,6 +3240,73 @@ def crida_admin_reseed():
     return tk.redirect_to('pages.crida_admin_dashboard')
 
 
+def crida_case_studies_api():
+    """API endpoint returning paginated case studies as JSON."""
+    import json as json_module
+    from flask import Response
+
+    try:
+        offset = int(tk.request.args.get('offset', 0))
+    except (ValueError, TypeError):
+        offset = 0
+    try:
+        limit = int(tk.request.args.get('limit', 6))
+    except (ValueError, TypeError):
+        limit = 6
+
+    limit = max(1, min(limit, 50))
+    offset = max(0, offset)
+
+    try:
+        all_case_studies = tk.get_action('ckanext_pages_list')(
+            context={}, data_dict={
+                'org_id': None,
+                'page_type': 'crida-case-study',
+                'order_publish_date': True,
+                'private': False
+            }
+        )
+    except Exception:
+        all_case_studies = []
+
+    total = len(all_case_studies)
+    page_items = all_case_studies[offset:offset + limit]
+
+    results = []
+    for cs in page_items:
+        themes = []
+        try:
+            raw = cs.get('themes', '[]')
+            themes = json_module.loads(raw) if isinstance(raw, str) else (raw or [])
+        except Exception:
+            pass
+        results.append({
+            'name': cs.get('name', ''),
+            'title': cs.get('title', ''),
+            'country': cs.get('country', ''),
+            'crida_status': cs.get('crida_status', ''),
+            'header_image': cs.get('header_image', ''),
+            'excerpt': cs.get('excerpt', ''),
+            'content': (cs.get('content') or '')[:180],
+            'themes': themes,
+            'url': tk.url_for('pages.crida_case_study_show', page=cs.get('name', '')),
+        })
+
+    payload = {
+        'results': results,
+        'total': total,
+        'offset': offset,
+        'limit': limit,
+        'has_more': (offset + limit) < total,
+    }
+
+    return Response(
+        json_module.dumps(payload),
+        mimetype='application/json',
+        headers={'Cache-Control': 'public, max-age=60'},
+    )
+
+
 def crida_geojson_api():
     """API endpoint returning GeoJSON for Terria map integration."""
     import json as json_module
