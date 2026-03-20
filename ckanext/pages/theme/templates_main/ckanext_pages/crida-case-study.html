@@ -47,17 +47,17 @@
       </div>
 
       {# Hero #}
-      <div class="crida-hero">
+      <div class="crida-hero" style="min-height:320px;">
         <div class="crida-hero-bg" style="background-image: url('{{ hero_image }}');"></div>
         <div class="crida-hero-overlay"></div>
-        <div class="crida-hero-content">
-          <div style="margin-bottom:0.6rem;">
-            <span class="crida-status-badge {{ h.get_crida_status_class(c.page.crida_status) }}" style="font-size:0.82rem;">{{ c.page.crida_status or 'N/A' }}</span>
+        <div class="crida-hero-content" style="padding:3rem 2.5rem;">
+          <div style="margin-bottom:0.8rem;">
+            <span class="crida-status-badge {{ h.get_crida_status_class(c.page.crida_status) }}" style="font-size:0.78rem;">{{ c.page.crida_status or 'N/A' }}</span>
             {% if c.page.country %}
-              <span style="margin-left:0.5rem;font-size:0.9rem;"><i class="fa fa-globe"></i> {{ c.page.country }}</span>
+              <span style="margin-left:0.6rem;font-size:0.9rem;opacity:0.85;"><i class="fa fa-globe"></i> {{ c.page.country }}</span>
             {% endif %}
           </div>
-          <h1>{{ c.page.title or c.page.name }}</h1>
+          <h1 style="font-size:2.2rem;">{{ c.page.title or c.page.name }}</h1>
           {% if c.page.excerpt %}
             <p class="crida-subtitle">{{ c.page.excerpt }}</p>
           {% endif %}
@@ -152,7 +152,7 @@
                   <i class="fa fa-download"></i> {{ doc.name or 'Document' }}
                 </a>
                 {% if doc.type %}
-                  <span style="font-size:0.78rem;color:#999;margin-left:0.5rem;">{{ doc.type }}</span>
+                  <span style="font-size:0.78rem;color:var(--crida-gray-400);margin-left:0.5rem;">{{ doc.type }}</span>
                 {% endif %}
               </li>
               {% endfor %}
@@ -204,7 +204,7 @@
                 <span class="label">{{ _('Location') }}</span>
                 <span class="value">{{ c.page.latitude }}, {{ c.page.longitude }}
                   {% if c.page.coord_note %}
-                    <br><small style="color:#999;">{{ c.page.coord_note }}</small>
+                    <br><small style="color:var(--crida-gray-400);">{{ c.page.coord_note }}</small>
                   {% endif %}
                 </span>
               </div>
@@ -250,13 +250,13 @@
               {% if c.page.case_study_url %}
               <div class="crida-meta-item">
                 <i class="fa fa-link"></i>
-                <a href="{{ c.page.case_study_url }}" target="_blank" style="color:#0072BC;">{{ _('UNESCO Case Study Page') }}</a>
+                <a href="{{ c.page.case_study_url }}" target="_blank" style="color:var(--crida-primary);">{{ _('UNESCO Case Study Page') }}</a>
               </div>
               {% endif %}
               {% if c.page.external_link %}
               <div class="crida-meta-item">
                 <i class="fa fa-external-link"></i>
-                <a href="{{ c.page.external_link }}" target="_blank" style="color:#0072BC;">{{ _('External Reference') }}</a>
+                <a href="{{ c.page.external_link }}" target="_blank" style="color:var(--crida-primary);">{{ _('External Reference') }}</a>
               </div>
               {% endif %}
             </div>

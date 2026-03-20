@@ -43,7 +43,7 @@
           if (el.hasAttribute('data-reveal-stagger')) {
             var children = el.querySelectorAll('.crida-reveal-child');
             children.forEach(function(child, i) {
-              child.style.setProperty('--reveal-delay', (i * 80) + 'ms');
+              child.style.setProperty('--reveal-delay', (i * 60) + 'ms');
               child.classList.add('crida-reveal--visible');
             });
           }
@@ -518,7 +518,7 @@
       return;
     }
     var suffix = el.getAttribute('data-suffix') || '';
-    var duration = 2000;
+    var duration = 1600;
     var startTime = null;
 
     function step(timestamp) {

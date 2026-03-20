@@ -36,11 +36,11 @@
       </div>
 
       {# Header #}
-      <div class="crida-hero" style="min-height:200px;">
+      <div class="crida-hero" style="min-height:240px;">
         <div class="crida-hero-bg" style="background-image: url('/images/crida/crida-hero.jpg');"></div>
         <div class="crida-hero-overlay"></div>
-        <div class="crida-hero-content" style="padding:2rem;">
-          <h1>{{ _('CRIDA Case Studies') }}</h1>
+        <div class="crida-hero-content" style="padding:2.5rem;">
+          <h1 style="font-size:2rem;">{{ _('CRIDA Case Studies') }}</h1>
           <p class="crida-subtitle">{{ _('Explore case studies applying the CRIDA methodology worldwide') }}</p>
         </div>
       </div>
@@ -154,12 +154,12 @@
             </div>
 
             <div style="margin-top:1rem;">
-              <a href="#" id="crida-clear-filters" class="crida-btn-outline" style="width:100%;text-align:center;padding:0.5rem;">
+              <a href="#" id="crida-clear-filters" class="crida-btn-outline" style="width:100%;text-align:center;padding:0.5rem;justify-content:center;">
                 <i class="fa fa-times"></i> {{ _('Clear Filters') }}
               </a>
             </div>
 
-            <div style="margin-top:0.8rem;font-size:0.85rem;color:#6c757d;">
+            <div style="margin-top:0.8rem;font-size:0.82rem;color:var(--crida-gray-400);">
               <span id="crida-results-count">{{ pages|length }}</span> {{ _('case studies') }}
             </div>
           </div>
