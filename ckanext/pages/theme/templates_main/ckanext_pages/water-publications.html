@@ -70,6 +70,100 @@
                 </div>
                 {% endif %}
 
+                <!-- Bibliographic Information -->
+                {% if c.page.publication_type or c.page.year or c.page.journal or c.page.conference or c.page.volume or c.page.issue or c.page.pages or c.page.doi or c.page.isbn %}
+                <div class="water-publication-biblio" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-biblio">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-book"></i>
+                        </div>
+                        <h2>{{ _('Bibliographic Information') }}</h2>
+                      </div>
+                      <div class="publication-details-table">
+                        {% if c.page.publication_type %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-tag"></i> {{ _('Publication Type') }}
+                          </div>
+                          <div class="publication-detail-value">
+                            {% set pub_type_labels = {
+                              'report': _('Report'),
+                              'paper': _('Research Paper'),
+                              'book': _('Book'),
+                              'chapter': _('Book Chapter'),
+                              'thesis': _('Thesis/Dissertation'),
+                              'policy-brief': _('Policy Brief'),
+                              'technical-document': _('Technical Document'),
+                              'manual': _('Manual/Guide'),
+                              'proceedings': _('Conference Proceedings'),
+                              'other': _('Other')
+                            } %}
+                            {{ pub_type_labels.get(c.page.publication_type, c.page.publication_type) }}
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.year %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-calendar"></i> {{ _('Publication Year') }}
+                          </div>
+                          <div class="publication-detail-value">{{ c.page.year }}</div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.journal %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-newspaper-o"></i> {{ _('Journal') }}
+                          </div>
+                          <div class="publication-detail-value">{{ c.page.journal }}</div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.conference %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-microphone"></i> {{ _('Conference') }}
+                          </div>
+                          <div class="publication-detail-value">{{ c.page.conference }}</div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.volume or c.page.issue or c.page.pages %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-list-ol"></i> {{ _('Volume / Issue / Pages') }}
+                          </div>
+                          <div class="publication-detail-value">
+                            {% if c.page.volume %}{{ _('Vol.') }} {{ c.page.volume }}{% endif %}
+                            {% if c.page.issue %}{% if c.page.volume %}, {% endif %}{{ _('Issue') }} {{ c.page.issue }}{% endif %}
+                            {% if c.page.pages %}{% if c.page.volume or c.page.issue %}, {% endif %}{{ _('pp.') }} {{ c.page.pages }}{% endif %}
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.doi %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-link"></i> {{ _('DOI') }}
+                          </div>
+                          <div class="publication-detail-value">
+                            <a href="https://doi.org/{{ c.page.doi }}" target="_blank" rel="noopener">{{ c.page.doi }}</a>
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.isbn %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-barcode"></i> {{ _('ISBN') }}
+                          </div>
+                          <div class="publication-detail-value">{{ c.page.isbn }}</div>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
                 <!-- Publication Details -->
                 {% if c.page.publication_details %}
                 <div class="water-publication-details" style="margin-bottom: 3rem;">
@@ -79,7 +173,7 @@
                         <div class="water-section-icon">
                           <i class="fa fa-info-circle"></i>
                         </div>
-                        <h2>{{ _('Publication Details') }}</h2>
+                        <h2>{{ _('Additional Publication Details') }}</h2>
                       </div>
                       <div class="publication-details-content">
                         {% set detail_lines = c.page.publication_details.split('\n') if c.page.publication_details else [] %}
@@ -222,6 +316,42 @@
                       </div>
                       <div class="water-content-body">
                         {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Dataset Integration -->
+                {% if c.page.dataset_title or c.page.dataset_url %}
+                <div class="water-publication-dataset" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-dataset">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-database"></i>
+                        </div>
+                        <h2>{{ _('Associated Dataset') }}</h2>
+                      </div>
+                      <div class="publication-details-table">
+                        {% if c.page.dataset_title %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-file-text"></i> {{ _('Dataset Title') }}
+                          </div>
+                          <div class="publication-detail-value">{{ c.page.dataset_title }}</div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.dataset_url %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-external-link"></i> {{ _('Dataset URL') }}
+                          </div>
+                          <div class="publication-detail-value">
+                            <a href="{{ c.page.dataset_url }}" target="_blank" rel="noopener">{{ c.page.dataset_url }}</a>
+                          </div>
+                        </div>
+                        {% endif %}
                       </div>
                     </div>
                   </section>
