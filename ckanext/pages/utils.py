@@ -472,7 +472,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     # Load member states server-side
     if page_type in ['open-source-software', 'ai-water-tools',
-                      'water-publications']:
+                      'water-publications', 'water-news', 'water-events']:
         try:
             # Direct DB query to avoid N+1 from group_show(include_groups=True)
             ms_group = model.Group.get('member-states')

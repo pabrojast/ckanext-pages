@@ -302,6 +302,42 @@
                               </div>
                             </div>
 
+                            <!-- Associated Initiatives -->
+                            <div class="row" style="margin-top: 1.5rem;">
+                              <div class="col-md-12">
+                                <div class="form-group">
+                                  <label class="control-label">{{ _('Associated Initiatives') }}</label>
+                                  <p class="help-text">{{ _('Select the initiatives (e.g. IslandWatch, Riverwatch, Be Resilient) associated with this publication. This enables the content to appear on initiative pages and be available via API.') }}</p>
+
+                                  <div class="initiatives-container">
+                                    <div class="initiative-selector">
+                                      <div class="input-group">
+                                        <select id="initiative-select" class="form-control">
+                                          <option value="">{{ _('Select an initiative...') }}</option>
+                                          {% for ini in initiatives_list|default([]) %}
+                                            <option value="{{ ini.name }}" data-display="{{ ini.formatted_name }}">{{ ini.formatted_name }}</option>
+                                          {% endfor %}
+                                          {% if not initiatives_list|default([]) %}
+                                            <option value="" disabled>{{ _('No initiatives available') }}</option>
+                                          {% endif %}
+                                        </select>
+                                        <div class="input-group-btn">
+                                          <button type="button" class="btn btn-primary" id="add-initiative">
+                                            <i class="fa fa-plus"></i> {{ _('Add') }}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
+                                    </div>
+
+                                    <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
                             <div class="alert alert-info" style="margin-top: 10px;">
                               <i class="fa fa-info-circle"></i>
                               {{ _('On save, data will be uploaded and the Dataset created. If DOI service is available a DOI and link will be generated.') }}
@@ -848,6 +884,89 @@ select.form-control option:selected {
 
 .selected-member-states:empty::before {
   content: "{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}";
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 0.9rem;
+  display: block;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Initiatives styling (coherent with Member States) */
+.initiatives-container {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+}
+
+.initiative-selector { margin-bottom: 1.5rem; }
+
+.initiative-selector .input-group { width: 100%; }
+
+.initiative-selector .form-control { border-radius: 12px 0 0 12px; }
+
+.initiative-selector .btn {
+  border-radius: 0 12px 12px 0;
+  padding: 12px 20px;
+  font-weight: 600;
+}
+
+.selected-initiatives {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-height: 45px;
+  padding: 0.5rem 0;
+}
+
+.initiative-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+  border: 2px solid #43a047;
+  border-radius: 20px;
+  padding: 6px 12px 6px 16px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+
+.initiative-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+  background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+  color: white;
+}
+
+.initiative-item:hover .initiative-name { color: white; }
+
+.initiative-item:hover .remove-initiative {
+  background: white;
+  color: #43a047;
+  border-color: white;
+}
+
+.initiative-name { font-weight: 600; color: #2e7d32; }
+
+.remove-initiative {
+  background: transparent;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+  min-width: auto;
+}
+
+.remove-initiative:hover { background: #dc3545; color: white; transform: scale(1.05); }
+
+.selected-initiatives:empty::before {
+  content: "{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}";
   color: var(--text-secondary);
   font-style: italic;
   font-size: 0.9rem;
@@ -1407,6 +1526,7 @@ select.form-control option:selected {
     function initCountriesAndInitiatives() {
       // Select options are populated server-side; just load existing selections
       loadExistingMemberStates();
+      loadExistingInitiatives();
     }
 
     // --- Member States helpers (reuse OSS behavior) ---
@@ -1480,6 +1600,79 @@ select.form-control option:selected {
       $('#member-state-' + name).remove();
       selectedMemberStates = selectedMemberStates.filter(function(s){ return s.name !== name; });
       updateCountryGroupsHidden();
+    });
+
+    // --- Initiative helpers (same pattern as member states) ---
+    let selectedInitiatives = [];
+
+    function formatInitiativeName(name) {
+      if (!name) return name;
+      return name
+        .split('-')
+        .map(function(word){
+          const lower = word.toLowerCase();
+          if (['of','and','the','de','da','du'].indexOf(lower) !== -1) return lower;
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function addInitiativeChip(item) {
+      const itemId = 'initiative-' + item.name.replace(/[^a-zA-Z0-9]/g, '-');
+      if ($('#'+itemId).length) return;
+      const html = `
+        <div class="initiative-item" id="${itemId}" data-initiative-name="${item.name}">
+          <span class="initiative-name">${item.display_name||formatInitiativeName(item.name)}</span>
+          <button type="button" class="btn btn-sm btn-danger remove-initiative" data-initiative-name="${item.name}">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>`;
+      $('#selected-initiatives').append(html);
+    }
+
+    function updateInitiativeGroupsHidden() {
+      $('#initiative_groups').val(JSON.stringify(selectedInitiatives.map(function(s){
+        return { name: s.name };
+      })));
+    }
+
+    function loadExistingInitiatives() {
+      const current = $('#initiative_groups').val();
+      if (!current) return;
+      try {
+        const arr = JSON.parse(current);
+        if (Array.isArray(arr)) {
+          selectedInitiatives = arr.map(function(x){
+            return { name: x.name, display_name: formatInitiativeName(x.name) };
+          });
+          selectedInitiatives.forEach(addInitiativeChip);
+        }
+      } catch(e) { /* ignore */ }
+    }
+
+    $(document).on('click', '#add-initiative', function(){
+      const $select = $('#initiative-select');
+      const opt = $select.find('option:selected');
+      const name = opt.val();
+      if (!name) return;
+      if (selectedInitiatives.some(function(s){ return s.name === name; })) {
+        alert('{{ _("This initiative has already been added") }}');
+        return;
+      }
+      const initiative = { name: name, display_name: opt.data('display') || formatInitiativeName(name) };
+      selectedInitiatives.push(initiative);
+      addInitiativeChip(initiative);
+      updateInitiativeGroupsHidden();
+      $select.val('');
+    });
+
+    $(document).on('click', '.remove-initiative', function(){
+      const name = $(this).data('initiative-name');
+      selectedInitiatives = selectedInitiatives.filter(function(s){ return s.name !== name; });
+      $(this).closest('.initiative-item').remove();
+      updateInitiativeGroupsHidden();
     });
 
     // Fecha de creación por defecto (hoy)
