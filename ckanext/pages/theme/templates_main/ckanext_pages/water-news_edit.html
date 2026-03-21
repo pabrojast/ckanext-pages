@@ -410,8 +410,7 @@
                         <!-- Action Buttons -->
                         <div class="form-actions">
                           <input type="hidden" name="page_type" value="water-news">
-                          <div class="btn-toolbar" role="toolbar">
-                            <div class="btn-group" role="group">
+                          <div class="btn-toolbar" role="toolbar" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: center;">
                               <button type="submit" class="btn btn-default btn-lg" data-water-action="draft">
                                 <i class="fa fa-save"></i> {{ page and _('Save as Draft') or _('Save Draft') }}
                               </button>
@@ -423,23 +422,20 @@
                                   <i class="fa fa-check"></i> {{ _('Publish Now') }}
                                 </button>
                               {% endif %}
-                            </div>
-                            <div class="btn-group" role="group">
                               {% if page %}
-                                <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}" class="btn btn-default">
+                                <a href="{{ h.url_for('pages.water_news_show', page=page.name) }}" class="btn btn-default btn-lg">
                                   <i class="fa fa-times"></i> {{ _('Cancel') }}
                                 </a>
                                 {% if h.check_access('ckanext_pages_delete') %}
-                                  <a href="{{ h.url_for('pages.water_news_delete', page=page.name) }}" class="btn btn-danger" data-confirm="{{ _('Are you sure you want to delete this news article?') }}">
+                                  <a href="{{ h.url_for('pages.water_news_delete', page=page.name) }}" class="btn btn-danger btn-lg" data-confirm="{{ _('Are you sure you want to delete this news article?') }}">
                                     <i class="fa fa-trash"></i> {{ _('Delete Article') }}
                                   </a>
                                 {% endif %}
                               {% else %}
-                                <a href="{{ h.url_for('pages.water_news_index') }}" class="btn btn-default">
+                                <a href="{{ h.url_for('pages.water_news_index') }}" class="btn btn-default btn-lg">
                                   <i class="fa fa-times"></i> {{ _('Cancel') }}
                                 </a>
                               {% endif %}
-                            </div>
                           </div>
                         </div>
 
@@ -994,6 +990,65 @@ select.wn-form-control option:selected {
   text-align: center;
 }
 
+.form-actions .btn {
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.form-actions .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.form-actions .btn-default {
+  background: #ffffff;
+  border: 2px solid #dee2e6;
+  color: var(--text-primary);
+}
+
+.form-actions .btn-default:hover {
+  background: #f8f9fa;
+  border-color: var(--unesco-blue);
+  color: var(--unesco-blue);
+}
+
+.form-actions .btn-primary {
+  background: linear-gradient(135deg, var(--unesco-blue) 0%, var(--unesco-blue-dark) 100%);
+  border: 2px solid var(--unesco-blue);
+  color: #ffffff;
+}
+
+.form-actions .btn-primary:hover {
+  background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, #004080 100%);
+  border-color: var(--unesco-blue-dark);
+}
+
+.form-actions .btn-success {
+  background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);
+  border: 2px solid #43a047;
+  color: #ffffff;
+}
+
+.form-actions .btn-success:hover {
+  background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+  border-color: #2e7d32;
+}
+
+.form-actions .btn-danger {
+  background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+  border: 2px solid #e53935;
+  color: #ffffff;
+}
+
+.form-actions .btn-danger:hover {
+  background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+  border-color: #c62828;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .section-title {
@@ -1008,10 +1063,14 @@ select.wn-form-control option:selected {
     padding: 1.5rem;
   }
   
+  .form-actions .btn-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .form-actions .btn {
     display: block;
     width: 100%;
-    margin: 0.5rem 0;
   }
   
   .toolbar .breadcrumb li {
