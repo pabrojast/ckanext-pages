@@ -1859,13 +1859,22 @@
   color: #fff;
 }
 
+.crida-hub .crida-hero h1,
+.crida-hub .crida-hero h2,
+.crida-hub .crida-hero h3,
+.crida-hub .crida-hero p,
+.crida-hub .crida-hero span,
+.crida-hub .crida-hero a {
+  color: #fff !important;
+}
+
 .crida-hub .crida-hero h1 {
   font-size: 2.6rem;
   font-weight: 800;
   line-height: 1.15;
   margin: 0 0 1rem;
   letter-spacing: -0.02em;
-  color: #fff;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.15);
 }
 
 .crida-hub .crida-hero-subtitle {
@@ -1874,7 +1883,6 @@
   opacity: 0.92;
   margin-bottom: 1.8rem;
   max-width: 600px;
-  color: #fff;
 }
 
 .crida-hub .crida-hero-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
@@ -1893,14 +1901,14 @@
 
 .crida-hub .crida-hero-btn--primary {
   background: #fff;
-  color: var(--crida-primary);
+  color: var(--crida-primary) !important;
 }
 
 .crida-hub .crida-hero-btn--primary:hover {
   background: var(--crida-primary-pale);
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  color: var(--crida-primary-dark);
+  color: var(--crida-primary-dark) !important;
   text-decoration: none;
 }
 
@@ -2353,7 +2361,7 @@
 .crida-hub .crida-member-role--editor { background: var(--crida-accent-light); color: #15803D; }
 .crida-hub .crida-member-role--member { background: var(--crida-gray-100); color: var(--crida-gray-500); }
 
-/* -- CTA Section (pure gradient, no image) ----------------- */
+/* -- CTA Section (image bg + overlay, matches hero) -------- */
 .crida-hub .crida-cta-section {
   position: relative;
   border-radius: var(--crida-radius-xl);
@@ -2362,32 +2370,37 @@
   color: #fff;
   margin-bottom: 3rem;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 100% 80% at 20% 100%, rgba(16,185,129,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse 80% 60% at 80% 0%, rgba(56,189,248,0.2) 0%, transparent 50%),
-    linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 50%, var(--crida-teal) 100%);
 }
 
-.crida-hub .crida-cta-section::before {
-  content: '';
-  position: absolute;
-  top: -50%; right: -20%;
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
-  border-radius: 50%;
-  pointer-events: none;
+.crida-hub .crida-cta-bg {
+  position: absolute; inset: 0;
+  background: url('/images/crida/crida-hero.jpg') center/cover no-repeat;
+}
+
+.crida-hub .crida-cta-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg,
+    rgba(0,90,156,0.92) 0%,
+    rgba(0,114,188,0.88) 40%,
+    rgba(0,158,224,0.82) 100%);
 }
 
 .crida-hub .crida-cta-content {
   position: relative; z-index: 2;
 }
 
+.crida-hub .crida-cta-section h2,
+.crida-hub .crida-cta-section p,
+.crida-hub .crida-cta-section span {
+  color: #fff !important;
+}
+
 .crida-hub .crida-cta-section h2 {
   font-size: 1.6rem;
   font-weight: 800;
   margin: 0 0 0.8rem;
-  color: #fff;
   letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .crida-hub .crida-cta-section p {
@@ -2398,7 +2411,6 @@
   margin-left: auto;
   margin-right: auto;
   line-height: 1.6;
-  color: #fff;
 }
 
 .crida-hub .crida-cta-actions {
@@ -2422,7 +2434,7 @@
 
 .crida-hub .crida-cta-btn:hover {
   background: #fff;
-  color: var(--crida-primary);
+  color: var(--crida-primary) !important;
   border-color: #fff;
   text-decoration: none;
   transform: translateY(-2px);
@@ -2431,7 +2443,7 @@
 
 .crida-hub .crida-cta-btn--primary {
   background: #fff;
-  color: var(--crida-primary);
+  color: var(--crida-primary) !important;
   border-color: #fff;
   box-shadow: 0 2px 12px rgba(0,0,0,0.1);
 }
@@ -2439,7 +2451,7 @@
 .crida-hub .crida-cta-btn--primary:hover {
   background: var(--crida-primary-pale);
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  color: var(--crida-primary-dark);
+  color: var(--crida-primary-dark) !important;
 }
 
 /* -- Info Tip ---------------------------------------------- */
