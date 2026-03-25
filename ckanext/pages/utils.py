@@ -113,6 +113,11 @@ def pages_list_pages(page_type):
         data_dict['q'] = tk.request.args.get('q')
     if tk.request.args.get('event_type'):
         data_dict['event_type'] = tk.request.args.get('event_type')
+    # Water family advanced filters (initiative, member_state)
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        for param in ['initiative', 'member_state']:
+            if tk.request.args.get(param):
+                data_dict[param] = tk.request.args.get(param)
     if tk.request.args.get('order_by'):
         data_dict['order_by'] = tk.request.args.get('order_by')
     else:
@@ -200,6 +205,10 @@ def pages_list_pages(page_type):
         tk.c.upcoming_count = sum(
             1 for page in tk.c.page.items if _is_water_family_event_upcoming(page)
         )
+
+    # Load member states and initiatives for water-family filter dropdowns
+    if page_type in ['water-news', 'water-events', 'water-publications']:
+        _load_water_family_filter_options()
 
     if page_type == 'blog':
         return tk.render('ckanext_pages/blog_list.html')
@@ -1443,6 +1452,61 @@ def process_water_family_metadata(data_dict, page_type):
         _process_water_publications_metadata(data_dict)
 
     return data_dict
+
+
+def _load_water_family_filter_options():
+    """Load member states and initiatives lists for water-family filter dropdowns."""
+    from ckan import model
+
+    ms_members = []
+    member_state_names = {'member-states'}
+
+    # Load member states
+    try:
+        ms_group = model.Group.get('member-states')
+        if ms_group:
+            ms_members = (
+                model.Session.query(model.Group.name, model.Group.title)
+                .join(model.Member,
+                      model.Member.table_id == model.Group.id)
+                .filter(
+                    model.Member.group_id == ms_group.id,
+                    model.Member.state == 'active',
+                    model.Member.table_name == 'group',
+                    model.Group.state == 'active',
+                )
+                .order_by(model.Group.title)
+                .all()
+            )
+            tk.c.member_states_list = [
+                {'name': g.name, 'title': g.title or g.name}
+                for g in ms_members
+            ]
+            member_state_names.update(g.name for g in ms_members)
+        else:
+            tk.c.member_states_list = []
+    except Exception:
+        tk.c.member_states_list = []
+
+    # Load initiatives (groups that are not member states)
+    try:
+        group_rows = (
+            model.Session.query(model.Group.name, model.Group.title)
+            .filter(
+                model.Group.type == 'group',
+                model.Group.state == 'active',
+                ~model.Group.name.in_(member_state_names)
+                if member_state_names else True,
+            )
+            .order_by(model.Group.title)
+            .all()
+        )
+        tk.c.initiatives_list = [
+            {'name': g.name, 'title': g.title or g.name}
+            for g in group_rows
+        ]
+    except Exception:
+        tk.c.initiatives_list = []
 
 
 def _is_water_family_event_upcoming(page):

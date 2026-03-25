@@ -121,17 +121,17 @@
                 {% endif %}
 
                 <!-- Filter and Search -->
-                {% if c.page.items or request.args.q %}
+                {% if c.page.items or request.args.q or request.args.initiative or request.args.member_state %}
                 <div class="water-events-filters wf-filters" style="margin-bottom: 2rem;">
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <form method="get" class="form-inline">
                         <div class="row">
-                          <div class="col-md-4">
+                          <div class="col-md-3">
                             <div class="form-group" style="width: 100%;">
                               <label for="q" class="sr-only">{{ _('Search') }}</label>
-                              <input type="text" name="q" id="q" class="form-control" style="width: 100%;" 
-                                     placeholder="{{ _('Search events...') }}" 
+                              <input type="text" name="q" id="q" class="form-control" style="width: 100%;"
+                                     placeholder="{{ _('Search events...') }}"
                                      value="{{ request.args.q or '' }}">
                             </div>
                           </div>
@@ -170,7 +170,7 @@
                               {% endfor %}
                             </select>
                           </div>
-                          <div class="col-md-3">
+                          <div class="col-md-2">
                             <select name="order_by" class="form-control">
                               <option value="">{{ _('Sort by...') }}</option>
                               <option value="recent" {% if request.args.order_by == 'recent' %}selected{% endif %}>{{ _('Most Recent') }}</option>
@@ -179,12 +179,63 @@
                             </select>
                           </div>
                           <div class="col-md-2">
-                            <button type="submit" class="btn btn-default btn-block">
+                            <button type="button" class="btn btn-default btn-block wf-toggle-filters">
+                              <i class="fa fa-sliders"></i> {{ _('Filters') }}
+                            </button>
+                          </div>
+                          <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-block">
                               <i class="fa fa-search"></i> {{ _('Filter') }}
                             </button>
                           </div>
                         </div>
+                        {# ── Advanced Filters (collapsible) ── #}
+                        <div class="wf-advanced-filters" style="display: none;">
+                          <div class="row">
+                            <div class="col-md-4">
+                              <label class="wf-filter-label">{{ _('Initiative') }}</label>
+                              <select name="initiative" class="form-control">
+                                <option value="">{{ _('All Initiatives') }}</option>
+                                {% for init in c.initiatives_list %}
+                                  <option value="{{ init.name }}" {% if request.args.initiative == init.name %}selected{% endif %}>{{ init.title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="wf-filter-label">{{ _('Member State') }}</label>
+                              <select name="member_state" class="form-control">
+                                <option value="">{{ _('All Member States') }}</option>
+                                {% for ms in c.member_states_list %}
+                                  <option value="{{ ms.name }}" {% if request.args.member_state == ms.name %}selected{% endif %}>{{ ms.title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="wf-filter-label">&nbsp;</label>
+                              <a href="{{ request.path }}" class="btn btn-default btn-block">
+                                <i class="fa fa-times"></i> {{ _('Clear Filters') }}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
                       </form>
+                      {# ── Active filter chips ── #}
+                      {% if request.args.initiative or request.args.member_state or request.args.q or request.args.event_type %}
+                      <div class="wf-active-chips">
+                        {% if request.args.q %}
+                          <span class="wf-active-filters-badge"><i class="fa fa-search"></i> "{{ request.args.q }}"</span>
+                        {% endif %}
+                        {% if request.args.event_type %}
+                          <span class="wf-active-filters-badge"><i class="fa fa-tag"></i> {{ request.args.event_type }}</span>
+                        {% endif %}
+                        {% if request.args.initiative %}
+                          <span class="wf-active-filters-badge"><i class="fa fa-flag"></i> {{ request.args.initiative }}</span>
+                        {% endif %}
+                        {% if request.args.member_state %}
+                          <span class="wf-active-filters-badge"><i class="fa fa-globe"></i> {{ request.args.member_state }}</span>
+                        {% endif %}
+                      </div>
+                      {% endif %}
                     </div>
                   </section>
                 </div>

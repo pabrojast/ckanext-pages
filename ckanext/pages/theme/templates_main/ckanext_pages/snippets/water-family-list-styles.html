@@ -771,12 +771,83 @@
     font-size: 1.35rem;
   }
 }
+
+/* ── Advanced Filters ── */
+.water-family-list .wf-toggle-filters {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.water-family-list .wf-toggle-filters.active {
+  background: var(--wf-primary);
+  color: #fff;
+  border-color: var(--wf-primary);
+}
+
+.water-family-list .wf-advanced-filters {
+  padding-top: 1.2rem;
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--wf-border);
+}
+
+.water-family-list .wf-advanced-filters[style*="block"] {
+  animation: wf-slide-down 0.25s ease;
+}
+
+@keyframes wf-slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.water-family-list .wf-filter-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--wf-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.water-family-list .wf-active-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--wf-border);
+}
+
+.water-family-list .wf-active-filters-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(0, 114, 188, 0.08);
+  border-radius: 50px;
+  font-size: 0.78rem;
+  color: var(--wf-primary);
+  font-weight: 600;
+  border: 1px solid rgba(0, 114, 188, 0.12);
+}
+
+.water-family-list .wf-active-filters-badge i {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .water-family-list .wf-advanced-filters .row > [class*="col-"] {
+    margin-bottom: 0.75rem;
+  }
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Auto-submit filters on change
+  // Auto-submit filters on change (skip selects inside advanced panel to avoid premature submits)
   document.querySelectorAll('.water-family-list .wf-filters form select').forEach(function (element) {
+    if (element.closest('.wf-advanced-filters')) return;
     element.addEventListener('change', function () {
       var form = this.closest('form');
       if (form) {
@@ -784,6 +855,29 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // Toggle advanced filters panel
+  document.querySelectorAll('.wf-toggle-filters').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var panel = this.closest('form').querySelector('.wf-advanced-filters');
+      if (panel) {
+        var isHidden = panel.style.display === 'none' || !panel.style.display;
+        panel.style.display = isHidden ? 'block' : 'none';
+        this.classList.toggle('active', isHidden);
+      }
+    });
+  });
+
+  // Auto-expand advanced filters if any advanced filter is active
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('initiative') || urlParams.get('member_state')) {
+    document.querySelectorAll('.wf-advanced-filters').forEach(function(panel) {
+      panel.style.display = 'block';
+    });
+    document.querySelectorAll('.wf-toggle-filters').forEach(function(btn) {
+      btn.classList.add('active');
+    });
+  }
 
   // "Read more" functionality for excerpts
   document.addEventListener('click', function(e) {
