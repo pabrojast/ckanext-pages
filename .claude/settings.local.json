@@ -23,7 +23,9 @@
       "Bash(flake8:*)",
       "Bash(sqlite3:*)",
       "Bash(psql:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(kubectl -n ckan get pods -l app=ckan --no-headers)",
+      "Bash(kubectl -n ckan get pods --no-headers)"
     ],
     "deny": [],
     "additionalDirectories": [

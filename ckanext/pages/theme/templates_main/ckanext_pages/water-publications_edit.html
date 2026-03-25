@@ -210,7 +210,7 @@
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="organization_id">{{ _('Organization') }}</label>
-                                  <select id="organization_id" name="organization_id" class="form-control">
+                                  <select id="organization_id" name="organization_id" class="form-control" data-selected="{{ data.organization_id or '' }}">
                                     <option value="">{{ _('Loading organizations...') }}</option>
                                   </select>
                                   <div class="help-text">{{ _('Only your organizations are listed (those where you can create datasets)') }}</div>
@@ -1117,21 +1117,30 @@ select.form-control option:selected {
     
     // Form validation
     $('form').on('submit', function(e) {
+      // Ensure hidden fields are synced from the visible dataset form before validation
+      syncHiddenFromDatasetForm();
+
       var title = $('#field-title').val().trim();
       var name = $('#field-name').val().trim();
-      
+
       if (!title) {
         alert('{{ _("Please enter a publication title") }}');
-        $('#field-title').focus();
+        $('#dataset_title').focus();
         e.preventDefault();
         return false;
       }
-      
-      if (!name) {
-        alert('{{ _("Please enter a URL name") }}');
-        $('#field-name').focus();
-        e.preventDefault();
-        return false;
+
+      if (!name || name.length < 2) {
+        // Auto-generate from title as fallback
+        var generated = slugify(title);
+        if (generated && generated.length >= 2) {
+          $('#field-name').val(generated);
+        } else {
+          alert('{{ _("The URL name must be at least 2 characters long. Please provide a longer title.") }}');
+          $('#dataset_title').focus();
+          e.preventDefault();
+          return false;
+        }
       }
     });
     
@@ -1351,12 +1360,15 @@ select.form-control option:selected {
     }
 
     function slugify(text) {
-      return (text || '')
+      var slug = (text || '')
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .trim()
         .replace(/\s+/g, '-')
-        .replace(/-+/g, '-') || 'document';
+        .replace(/-+/g, '-');
+      // CKAN name_validator requires at least 2 characters
+      if (slug.length < 2) slug = 'document';
+      return slug;
     }
 
     function syncHiddenFromDatasetForm() {
@@ -1366,7 +1378,9 @@ select.form-control option:selected {
       if (title) {
         const slug = slugify(title);
         $('#field-title').val(title);
-        if (!$('#field-name').val()) {
+        var currentName = $('#field-name').val();
+        // Set name if empty or if current name is too short for CKAN validation
+        if (!currentName || currentName.length < 2) {
           $('#field-name').val(slug);
         }
       }
@@ -1498,6 +1512,7 @@ select.form-control option:selected {
         success: function(resp){
           const $sel = $('#organization_id');
           if (!$sel.length) return;
+          var previousValue = $sel.data('selected') || '';
           $sel.empty();
           if (resp.success && Array.isArray(resp.result) && resp.result.length > 0) {
             if (resp.result.length > 1) {
@@ -1508,7 +1523,11 @@ select.form-control option:selected {
               const label = (org.display_name||org.title||org.name);
               $sel.append('<option value="'+id+'">'+label+'</option>');
             });
-            if (resp.result.length === 1) {
+            // Restore previously selected organization (e.g. after validation error)
+            if (previousValue) {
+              $sel.val(previousValue);
+            }
+            if (!$sel.val() && resp.result.length === 1) {
               $sel.val(resp.result[0].id || resp.result[0].name);
             }
           } else {

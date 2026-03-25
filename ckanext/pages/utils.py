@@ -284,10 +284,13 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         if submission_action:
             page_dict['submission_action'] = submission_action
 
-        if not page_dict.get('name') and page_dict.get('title'):
+        if (not page_dict.get('name') or len(page_dict.get('name', '')) < 2) and page_dict.get('title'):
             generated_name = _slugify_title(page_dict['title'])
-            if generated_name:
+            if generated_name and len(generated_name) >= 2:
                 page_dict['name'] = generated_name
+            elif not page_dict.get('name'):
+                # Fallback: use 'document' prefix if slug is too short
+                page_dict['name'] = 'document'
 
         # For water family content, set as private by default for non-admin users
         if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools'] and not page:
