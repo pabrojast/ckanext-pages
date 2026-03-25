@@ -14,6 +14,11 @@
 {% set has_gallery = event_uploaded_images and event_uploaded_images|length > 0 %}
 {% set has_external_images = h.has_meaningful_content(c.page.image_carousel) %}
 {% set has_meta = h.has_meaningful_content(c.page.location) or h.has_meaningful_content(c.page.event_format) or h.has_meaningful_content(c.page.organization) or h.has_meaningful_content(c.page.co_organizers) %}
+{% set member_states_raw = c.page.country_groups if c.page.country_groups is defined else None %}
+{% set initiatives_raw = c.page.initiative_groups if c.page.initiative_groups is defined else None %}
+{% set member_states = h.json_loads(member_states_raw) if member_states_raw and member_states_raw is string else (member_states_raw if member_states_raw else []) %}
+{% set initiatives = h.json_loads(initiatives_raw) if initiatives_raw and initiatives_raw is string else (initiatives_raw if initiatives_raw else []) %}
+{% set has_associations = (member_states and member_states|length > 0) or (initiatives and initiatives|length > 0) %}
 
 {% block content %}
 
@@ -285,6 +290,52 @@
                 </div>
                 {% endif %}
 
+                <!-- Member States & Initiatives -->
+                {% if has_associations %}
+                <div class="water-event-associations" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-associations">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-globe"></i>
+                        </div>
+                        <h2>{{ _('Member States & Initiatives') }}</h2>
+                      </div>
+                      <div class="row">
+                        {% if member_states and member_states|length > 0 %}
+                        <div class="{% if initiatives and initiatives|length > 0 %}col-md-6{% else %}col-md-12{% endif %}">
+                          <h4 style="color: var(--unesco-blue); font-weight: 700; margin-bottom: 1rem;">
+                            <i class="fa fa-flag"></i> {{ _('Member States') }}
+                          </h4>
+                          <div class="association-chips">
+                            {% for state in member_states %}
+                              <span class="association-chip member-state-chip">
+                                {{ h.format_member_state_name(state.name) if state.name is defined else state }}
+                              </span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if initiatives and initiatives|length > 0 %}
+                        <div class="{% if member_states and member_states|length > 0 %}col-md-6{% else %}col-md-12{% endif %}">
+                          <h4 style="color: #2e7d32; font-weight: 700; margin-bottom: 1rem;">
+                            <i class="fa fa-rocket"></i> {{ _('Initiatives') }}
+                          </h4>
+                          <div class="association-chips">
+                            {% for ini in initiatives %}
+                              <span class="association-chip initiative-chip">
+                                {{ h.format_member_state_name(ini.name) if ini.name is defined else ini }}
+                              </span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
                 <!-- Actions and Metadata -->
                 <div class="water-event-actions" style="margin-bottom: 3rem;">
                   <section class="module module-narrow">
@@ -504,6 +555,37 @@
 
 .water-module-additional {
   border-left: 6px solid var(--text-secondary);
+}
+
+.water-module-associations {
+  border-left: 6px solid #43a047;
+}
+
+.association-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.association-chip {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.member-state-chip {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue);
+  color: var(--unesco-blue-dark);
+}
+
+.initiative-chip {
+  background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+  border: 2px solid #43a047;
+  color: #2e7d32;
 }
 
 /* Event Details Table */

@@ -767,6 +767,23 @@ def get_severity_class(severity):
     return severity_classes.get(severity, '')
 
 
+_LOWERCASE_WORDS = {'of', 'and', 'the', 'de', 'da', 'du'}
+
+
+def format_member_state_name(name):
+    """Convert a slug like 'united-states' to 'United States'."""
+    if not name:
+        return name
+    words = name.split('-')
+    result = []
+    for i, word in enumerate(words):
+        if i > 0 and word.lower() in _LOWERCASE_WORDS:
+            result.append(word.lower())
+        else:
+            result.append(word.capitalize())
+    return ' '.join(result)
+
+
 def get_event_types(active_only=True):
     """Get list of event types for templates"""
     try:
@@ -1367,6 +1384,7 @@ class PagesPlugin(PagesPluginBase):
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,
             'get_pages_by_initiative': get_pages_by_initiative,
+            'format_member_state_name': format_member_state_name,
         }
 
         # Always add data stories helpers if available
