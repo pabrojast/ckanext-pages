@@ -775,16 +775,16 @@ def get_event_types(active_only=True):
         )
         return event_types
     except:
-        # Fallback to default types
+        # Fallback to default water event types
         return [
-            {'id': 'tropical-cyclone', 'name': 'tropical-cyclone', 'title': 'Tropical Cyclone', 'title_plural': 'Tropical Cyclones'},
-            {'id': 'earthquake', 'name': 'earthquake', 'title': 'Earthquake', 'title_plural': 'Earthquakes'},
-            {'id': 'tsunami', 'name': 'tsunami', 'title': 'Tsunami', 'title_plural': 'Tsunamis'},
-            {'id': 'flood', 'name': 'flood', 'title': 'Flood', 'title_plural': 'Floods'},
-            {'id': 'wildfire', 'name': 'wildfire', 'title': 'Wildfire', 'title_plural': 'Wildfires'},
-            {'id': 'volcanic-eruption', 'name': 'volcanic-eruption', 'title': 'Volcanic Eruption', 'title_plural': 'Volcanic Eruptions'},
-            {'id': 'drought', 'name': 'drought', 'title': 'Drought', 'title_plural': 'Droughts'},
-            {'id': 'armed-conflict', 'name': 'armed-conflict', 'title': 'Armed Conflict', 'title_plural': 'Armed Conflicts'}
+            {'id': 'conference', 'name': 'conference', 'title': 'Conference', 'title_plural': 'Conferences'},
+            {'id': 'workshop', 'name': 'workshop', 'title': 'Workshop', 'title_plural': 'Workshops'},
+            {'id': 'seminar', 'name': 'seminar', 'title': 'Seminar', 'title_plural': 'Seminars'},
+            {'id': 'training', 'name': 'training', 'title': 'Training', 'title_plural': 'Trainings'},
+            {'id': 'webinar', 'name': 'webinar', 'title': 'Webinar', 'title_plural': 'Webinars'},
+            {'id': 'meeting', 'name': 'meeting', 'title': 'Meeting', 'title_plural': 'Meetings'},
+            {'id': 'prize-award', 'name': 'prize-award', 'title': 'Prize Award', 'title_plural': 'Prize Awards'},
+            {'id': 'ceremony', 'name': 'ceremony', 'title': 'Ceremony', 'title_plural': 'Ceremonies'}
         ]
 
 

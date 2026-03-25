@@ -20,7 +20,7 @@
             <div class="toolbar" role="navigation" aria-label="Breadcrumb">
                 <ol class="breadcrumb">                 
                     <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
-                    <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_events_index') }}">{{ _('Water Events') }}</a></li>
                     <li class="active">{{ _('Manage Event Types') }}</li>
                 </ol>
             </div>
@@ -28,11 +28,11 @@
             <!-- Header Section -->
             <section class="module module-narrow module-shallow">
               <div class="section-title" style="margin-bottom: 2rem;">
-                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-bg" style="background-image: url('/images/water-events-header.jpg');"></div>
                 <div class="section-title-overlay"></div>
                 <div class="section-title-content">
                   <h1>{{ _('Manage Event Types') }}</h1>
-                  <p class="section-title-description">{{ _('Configure emergency event types for the rapid response system') }}</p>
+                  <p class="section-title-description">{{ _('Configure event types for water events') }}</p>
                 </div>
               </div>
             </section>
@@ -49,7 +49,7 @@
                       <div class="row">
                         <div class="col-md-8">
                           <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Event Types Configuration') }}</h2>
-                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Manage the types of emergency events available in the system') }}</p>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Manage the types of events available in the water events system') }}</p>
                         </div>
                         <div class="col-md-4 text-right">
                           {% if c.is_sysadmin %}
@@ -76,7 +76,7 @@
                             <div class="event-type-icon-container">
                               <div class="event-type-icon" 
                                    style="background-color: {{ event_type.color or '#007bff' }};">
-                                <i class="fa {{ event_type.icon or 'fa-exclamation-triangle' }}"></i>
+                                <i class="fa {{ event_type.icon or 'fa-calendar' }}"></i>
                               </div>
                               {% if not event_type.active %}
                                 <div class="inactive-badge">{{ _('Inactive') }}</div>
@@ -180,7 +180,7 @@
                           <p>{{ _('Default event types are provided by the system and cannot be deleted. They can be edited to change their display name, description, icon, and color.') }}</p>
                           
                           <h4>{{ _('Custom Event Types') }}</h4>
-                          <p>{{ _('You can create custom event types for specific emergency scenarios that are not covered by the default types.') }}</p>
+                          <p>{{ _('You can create custom event types for specific scenarios that are not covered by the default types.') }}</p>
                         </div>
                         <div class="col-md-6">
                           <h4>{{ _('Event Type Properties') }}</h4>

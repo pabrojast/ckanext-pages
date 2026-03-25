@@ -1791,3 +1791,774 @@
     transition: none !important;
   }
 }
+
+/* ============================================================
+   CRIDA Hub Page (.crida-hub)
+   Initiative hub — distinct from case-studies list (.crida-page)
+   ============================================================ */
+
+/* -- Hub Design Tokens (extend root) ----------------------- */
+:root {
+  --crida-teal: #0891B2;
+  --crida-teal-light: #E0F7FA;
+  --crida-purple: #7C3AED;
+  --crida-purple-light: #F3E8FF;
+  --crida-accent: #00A651;
+  --crida-accent-light: #E8F5E9;
+  --crida-radius-xs: 6px;
+}
+
+.crida-hub {
+  background: var(--crida-gray-50);
+  color: var(--crida-gray-700);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* -- Hub Hero ---------------------------------------------- */
+.crida-hub .crida-hero {
+  position: relative;
+  min-height: 420px;
+  border-radius: var(--crida-radius-lg);
+  overflow: hidden;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.crida-hub .crida-hero-bg {
+  position: absolute; inset: 0;
+  background: url('/images/crida/crida-hero.jpg') center/cover no-repeat;
+}
+
+.crida-hub .crida-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg,
+    rgba(0,90,156,0.92) 0%,
+    rgba(0,114,188,0.85) 40%,
+    rgba(0,158,224,0.75) 100%);
+}
+
+.crida-hub .crida-hero-content {
+  position: relative; z-index: 2;
+  padding: 3.5rem 3rem;
+  max-width: 720px;
+  color: #fff;
+}
+
+.crida-hub .crida-hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 1.2rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.crida-hub .crida-hero h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.crida-hub .crida-hero-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  opacity: 0.92;
+  margin-bottom: 1.8rem;
+  max-width: 600px;
+  color: #fff;
+}
+
+.crida-hub .crida-hero-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+.crida-hub .crida-hero-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: var(--crida-transition);
+  cursor: pointer;
+  border: none;
+}
+
+.crida-hub .crida-hero-btn--primary {
+  background: #fff;
+  color: var(--crida-primary);
+}
+
+.crida-hub .crida-hero-btn--primary:hover {
+  background: var(--crida-primary-pale);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  color: var(--crida-primary-dark);
+  text-decoration: none;
+}
+
+.crida-hub .crida-hero-btn--outline {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+
+.crida-hub .crida-hero-btn--outline:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: #fff;
+  transform: translateY(-2px);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* -- Stats Bar (gradient, overlaps hero) ------------------- */
+.crida-hub .crida-stats-bar {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  margin-top: -2.5rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 55%, var(--crida-teal) 100%);
+  border-radius: var(--crida-radius-lg);
+  box-shadow: var(--crida-shadow-lg), 0 4px 20px rgba(0,114,188,0.2);
+  overflow: hidden;
+  position: relative;
+  z-index: 3;
+}
+
+.crida-hub .crida-stat-item {
+  flex: 1;
+  min-width: 120px;
+  padding: 1.8rem 1rem;
+  text-align: center;
+  transition: background 0.3s ease;
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+
+.crida-hub .crida-stat-item:last-child { border-right: none; }
+
+.crida-hub .crida-stat-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.crida-hub .crida-stat-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.crida-hub .crida-stat-number.counting {
+  color: rgba(255,255,255,0.7);
+}
+
+.crida-hub .crida-stat-label {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.4rem;
+  font-weight: 600;
+}
+
+/* -- Section Headers --------------------------------------- */
+.crida-hub .crida-section {
+  margin-bottom: 3rem;
+}
+
+.crida-hub .crida-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.crida-hub .crida-section-title {
+  display: flex; align-items: center; gap: 0.7rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--crida-gray-900);
+  margin: 0;
+}
+
+.crida-hub .crida-section-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+
+.crida-hub .crida-section-icon--blue { background: var(--crida-primary-pale); color: var(--crida-primary); }
+.crida-hub .crida-section-icon--green { background: var(--crida-accent-light); color: var(--crida-accent); }
+.crida-hub .crida-section-icon--orange { background: var(--crida-orange-light); color: var(--crida-orange); }
+.crida-hub .crida-section-icon--purple { background: var(--crida-purple-light); color: var(--crida-purple); }
+.crida-hub .crida-section-icon--teal { background: var(--crida-teal-light); color: var(--crida-teal); }
+
+.crida-hub .crida-view-all {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  background: var(--crida-primary-pale);
+  color: var(--crida-primary);
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: var(--crida-transition);
+  border: 1px solid transparent;
+}
+
+.crida-hub .crida-view-all:hover {
+  background: var(--crida-primary);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* -- Content Cards Grid ------------------------------------ */
+.crida-hub .crida-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.3rem;
+}
+
+.crida-hub .crida-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.3rem;
+}
+
+/* -- News Cards -------------------------------------------- */
+.crida-hub .crida-news-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+  transition: var(--crida-transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.crida-hub .crida-news-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--crida-shadow-hover);
+  border-color: var(--crida-primary-pale);
+}
+
+.crida-hub .crida-card-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.crida-hub .crida-card-date {
+  font-size: 0.78rem;
+  color: var(--crida-gray-500);
+  display: flex; align-items: center; gap: 0.3rem;
+}
+
+.crida-hub .crida-card-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+}
+
+.crida-hub .crida-card-type--news { background: var(--crida-primary-pale); color: var(--crida-primary); }
+.crida-hub .crida-card-type--event { background: var(--crida-orange-light); color: #B45309; }
+.crida-hub .crida-card-type--publication { background: var(--crida-purple-light); color: var(--crida-purple); }
+.crida-hub .crida-card-type--dataset { background: var(--crida-accent-light); color: #15803D; }
+
+.crida-hub .crida-news-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--crida-gray-900);
+  margin: 0 0 0.6rem;
+}
+
+.crida-hub .crida-news-card h3 a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.crida-hub .crida-news-card h3 a:hover { color: var(--crida-primary); }
+
+.crida-hub .crida-card-excerpt {
+  font-size: 0.88rem;
+  color: var(--crida-gray-500);
+  line-height: 1.55;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.crida-hub .crida-card-link {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--crida-primary);
+  text-decoration: none;
+  transition: var(--crida-transition);
+}
+
+.crida-hub .crida-card-link:hover { color: var(--crida-primary-dark); text-decoration: none; }
+.crida-hub .crida-card-link i { transition: transform 0.2s; }
+.crida-hub .crida-card-link:hover i { transform: translateX(3px); }
+
+/* -- Event Cards ------------------------------------------- */
+.crida-hub .crida-event-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+  border-left: 4px solid var(--crida-orange);
+  transition: var(--crida-transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.crida-hub .crida-event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--crida-shadow-hover);
+}
+
+.crida-hub .crida-event-location {
+  font-size: 0.78rem;
+  color: var(--crida-gray-500);
+  display: flex; align-items: center; gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* -- Dataset Cards ----------------------------------------- */
+.crida-hub .crida-dataset-card {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 1.5rem;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+  border-left: 4px solid var(--crida-accent);
+  transition: var(--crida-transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.crida-hub .crida-dataset-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--crida-shadow-hover);
+}
+
+.crida-hub .crida-dataset-card h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--crida-gray-900);
+  margin: 0 0 0.5rem;
+  line-height: 1.35;
+}
+
+.crida-hub .crida-dataset-card h3 a { color: inherit; text-decoration: none; }
+.crida-hub .crida-dataset-card h3 a:hover { color: var(--crida-primary); }
+
+.crida-hub .crida-dataset-org {
+  font-size: 0.78rem;
+  color: var(--crida-gray-500);
+  margin-bottom: 0.7rem;
+  display: flex; align-items: center; gap: 0.3rem;
+}
+
+.crida-hub .crida-dataset-formats {
+  display: flex; flex-wrap: wrap; gap: 0.3rem;
+  margin-top: auto;
+}
+
+.crida-hub .crida-format-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--crida-primary-pale);
+  color: var(--crida-primary);
+}
+
+/* -- About Section ----------------------------------------- */
+.crida-hub .crida-about {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.crida-hub .crida-about-text {
+  background: #fff;
+  border-radius: var(--crida-radius);
+  padding: 2rem;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+}
+
+.crida-hub .crida-about-text h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--crida-gray-900);
+  margin: 0 0 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+.crida-hub .crida-about-text h2 i {
+  color: var(--crida-primary);
+  margin-right: 0.3rem;
+}
+
+.crida-hub .crida-about-text p {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--crida-gray-600);
+  margin-bottom: 0.8rem;
+}
+
+.crida-hub .crida-about-text p:last-child { margin-bottom: 0; }
+
+.crida-hub .crida-about-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.crida-hub .crida-recognition-card {
+  background: #fff;
+  border-radius: var(--crida-radius-sm);
+  padding: 1.2rem;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  transition: var(--crida-transition);
+}
+
+.crida-hub .crida-recognition-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--crida-shadow-hover);
+}
+
+.crida-hub .crida-recognition-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.crida-hub .crida-stat-icon--blue { background: var(--crida-primary-pale); color: var(--crida-primary); }
+.crida-hub .crida-stat-icon--green { background: var(--crida-accent-light); color: var(--crida-accent); }
+.crida-hub .crida-stat-icon--orange { background: var(--crida-orange-light); color: var(--crida-orange); }
+
+.crida-hub .crida-recognition-card h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--crida-gray-900);
+  margin: 0 0 0.2rem;
+}
+
+.crida-hub .crida-recognition-card p {
+  font-size: 0.78rem;
+  color: var(--crida-gray-500);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* -- Members Grid ------------------------------------------ */
+.crida-hub .crida-members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.crida-hub .crida-member-card {
+  background: #fff;
+  border-radius: var(--crida-radius-sm);
+  padding: 1.3rem;
+  text-align: center;
+  box-shadow: var(--crida-shadow);
+  border: 1px solid var(--crida-gray-200);
+  transition: var(--crida-transition);
+}
+
+.crida-hub .crida-member-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--crida-shadow-hover);
+}
+
+.crida-hub .crida-member-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 0.8rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--crida-primary-pale), #DBEAFE);
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid var(--crida-primary-pale);
+  box-shadow: 0 4px 12px rgba(0,114,188,0.12);
+}
+
+.crida-hub .crida-member-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.crida-hub .crida-member-avatar .avatar-placeholder {
+  font-size: 1.5rem;
+  color: var(--crida-primary);
+  font-weight: 700;
+}
+
+.crida-hub .crida-member-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--crida-gray-900);
+  margin-bottom: 0.3rem;
+}
+
+.crida-hub .crida-member-role {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.65rem;
+  border-radius: 50px;
+  display: inline-block;
+  margin-top: 0.2rem;
+}
+
+.crida-hub .crida-member-role--admin {
+  background: linear-gradient(135deg, var(--crida-primary-pale), #DBEAFE);
+  color: var(--crida-primary-dark);
+  border: 1px solid rgba(0,114,188,0.15);
+}
+
+.crida-hub .crida-member-role--editor { background: var(--crida-accent-light); color: #15803D; }
+.crida-hub .crida-member-role--member { background: var(--crida-gray-100); color: var(--crida-gray-500); }
+
+/* -- CTA Section (pure gradient, no image) ----------------- */
+.crida-hub .crida-cta-section {
+  position: relative;
+  border-radius: var(--crida-radius-xl);
+  padding: 3.5rem 3rem;
+  text-align: center;
+  color: #fff;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 100% 80% at 20% 100%, rgba(16,185,129,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 80% 0%, rgba(56,189,248,0.2) 0%, transparent 50%),
+    linear-gradient(135deg, var(--crida-primary-dark) 0%, var(--crida-primary) 50%, var(--crida-teal) 100%);
+}
+
+.crida-hub .crida-cta-section::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.crida-hub .crida-cta-content {
+  position: relative; z-index: 2;
+}
+
+.crida-hub .crida-cta-section h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 0.8rem;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.crida-hub .crida-cta-section p {
+  font-size: 0.95rem;
+  opacity: 0.88;
+  margin-bottom: 1.5rem;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  color: #fff;
+}
+
+.crida-hub .crida-cta-actions {
+  display: flex; justify-content: center; gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.crida-hub .crida-cta-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: var(--crida-transition);
+  border: 2px solid rgba(255,255,255,0.4);
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(4px);
+}
+
+.crida-hub .crida-cta-btn:hover {
+  background: #fff;
+  color: var(--crida-primary);
+  border-color: #fff;
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.crida-hub .crida-cta-btn--primary {
+  background: #fff;
+  color: var(--crida-primary);
+  border-color: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.crida-hub .crida-cta-btn--primary:hover {
+  background: var(--crida-primary-pale);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  color: var(--crida-primary-dark);
+}
+
+/* -- Info Tip ---------------------------------------------- */
+.crida-hub .crida-info-tip {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--crida-primary-pale);
+  border-radius: var(--crida-radius-xs);
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  color: var(--crida-primary-dark);
+  margin-top: 1rem;
+  border: 1px solid #BBDEFB;
+}
+
+.crida-hub .crida-info-tip i { font-size: 0.9rem; flex-shrink: 0; }
+
+/* -- Empty State (improved) -------------------------------- */
+.crida-hub .crida-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, var(--crida-gray-50) 0%, #fff 100%);
+  border-radius: var(--crida-radius);
+  border: 1px dashed var(--crida-gray-200);
+}
+
+.crida-hub .crida-empty-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--crida-primary-pale);
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.crida-hub .crida-empty-icon i {
+  font-size: 1.5rem;
+  color: var(--crida-primary);
+  opacity: 0.6;
+}
+
+.crida-hub .crida-empty h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--crida-gray-700);
+  margin: 0 0 0.4rem;
+}
+
+.crida-hub .crida-empty p {
+  font-size: 0.88rem;
+  color: var(--crida-gray-400);
+  margin: 0;
+}
+
+/* -- Scroll Reveal ----------------------------------------- */
+.crida-hub .crida-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.crida-hub .crida-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* -- Hub Responsive ---------------------------------------- */
+@media (max-width: 992px) {
+  .crida-hub .crida-grid-3 {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .crida-hub .crida-about { grid-template-columns: 1fr; }
+  .crida-hub .crida-hero h1 { font-size: 2rem; }
+  .crida-hub .crida-stats-bar {
+    margin-top: -2rem;
+    border-radius: var(--crida-radius);
+  }
+}
+
+@media (max-width: 768px) {
+  .crida-hub .crida-grid-3,
+  .crida-hub .crida-grid-2 { grid-template-columns: 1fr; }
+  .crida-hub .crida-hero {
+    min-height: 340px;
+    border-radius: var(--crida-radius);
+  }
+  .crida-hub .crida-hero-content { padding: 2rem 1.5rem; }
+  .crida-hub .crida-hero h1 { font-size: 1.7rem; }
+  .crida-hub .crida-stats-bar {
+    margin-top: -1.5rem;
+    border-radius: var(--crida-radius-sm);
+    flex-wrap: wrap;
+  }
+  .crida-hub .crida-stat-item {
+    min-width: 33.33%;
+    padding: 1.2rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .crida-hub .crida-stat-number { font-size: 1.6rem; }
+  .crida-hub .crida-cta-section { padding: 2.5rem 1.5rem; }
+  .crida-hub .crida-members-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .crida-hub .crida-stats-bar { flex-direction: column; margin-top: -1rem; }
+  .crida-hub .crida-stat-item {
+    min-width: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 1rem 0.8rem;
+  }
+  .crida-hub .crida-stat-item:last-child { border-bottom: none; }
+  .crida-hub .crida-hero h1 { font-size: 1.4rem; }
+  .crida-hub .crida-hero-actions { flex-direction: column; }
+  .crida-hub .crida-members-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crida-hub .crida-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
