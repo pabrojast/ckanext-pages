@@ -1,0 +1,1080 @@
+{% extends "page.html" %}
+
+{% block title %}
+  {{ _('Share Publication') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.water_publications_index') }}">{{ _('Publications') }}</a></li>
+                    <li class="active">{{ _('Quick Share') }}</li>
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="qs-header">
+                <div class="qs-header-icon">
+                  <i class="fa fa-cloud-upload"></i>
+                </div>
+                <h1>{{ _('Share a Publication') }}</h1>
+                <p class="qs-header-desc">{{ _('Upload a document or paste a link to share it with the IHP Water Family community. It takes less than a minute.') }}</p>
+                <a href="{{ h.url_for('pages.water_publications_new') }}?mode=advanced" class="qs-advanced-link">
+                  <i class="fa fa-cogs"></i> {{ _('Need more options? Use the advanced form') }}
+                </a>
+              </div>
+            </section>
+        </div>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+
+              <form method="post" enctype="multipart/form-data" id="water-publications-form" class="qs-form">
+                {{ h.csrf_input() if 'csrf_input' in h }}
+                <input type="hidden" name="submission_action" id="water-publications-action" value="submit">
+                <input type="hidden" id="field-title" name="title" value="{{ data.title or '' }}">
+                <input type="hidden" id="field-name" name="name" value="{{ data.name or '' }}">
+                <input type="hidden" id="field-private" name="private" value="True">
+                <input type="hidden" id="field-publish-date" name="publish_date" value="">
+                <input type="hidden" id="field-content" name="content" value="{{ data.content or '' }}">
+                <input type="hidden" id="field-header-image" name="header_image" value="">
+                <input type="hidden" id="field-publication-url" name="publication_url" value="">
+                <input type="hidden" id="field-download-url" name="download_url" value="">
+                <input type="hidden" name="page_type" value="water-publications">
+                <input type="hidden" id="document_mimetype" name="document_mimetype" value="">
+                <input type="hidden" id="document_format" name="document_format" value="">
+                <input type="hidden" name="country_groups" id="country_groups" value="">
+                <input type="hidden" name="initiative_groups" id="initiative_groups" value="">
+                <input type="hidden" name="uploaded_images" id="uploaded-images-data" value="">
+                <input type="hidden" id="contact_name" name="contact_name" value="">
+                <input type="hidden" id="contact_email" name="contact_email" value="">
+                <input type="hidden" id="dataset_language" name="dataset_language" value="http://publications.europa.eu/resource/authority/language/ENG">
+                <input type="hidden" id="creation_date" name="creation_date" value="">
+                <input type="hidden" id="dataset_visibility" name="dataset_visibility" value="public">
+
+                <!-- Error Summary -->
+                {% if error_summary %}
+                  <div class="error-summary alert alert-danger">
+                    <p class="alert-heading"><strong>{{ _('Something went wrong:') }}</strong></p>
+                    <ul>
+                      {% for key, error in error_summary.items() %}
+                        <li>{{ error }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
+
+                <!-- Step Indicators -->
+                <div class="qs-steps-indicator">
+                  <div class="qs-step-dot active" data-step="1">
+                    <span class="qs-dot-number">1</span>
+                    <span class="qs-dot-label">{{ _('Upload') }}</span>
+                  </div>
+                  <div class="qs-step-line"></div>
+                  <div class="qs-step-dot" data-step="2">
+                    <span class="qs-dot-number">2</span>
+                    <span class="qs-dot-label">{{ _('Details') }}</span>
+                  </div>
+                  <div class="qs-step-line"></div>
+                  <div class="qs-step-dot" data-step="3">
+                    <span class="qs-dot-number">3</span>
+                    <span class="qs-dot-label">{{ _('Submit') }}</span>
+                  </div>
+                </div>
+
+                <!-- STEP 1: Upload File or Add Link -->
+                <div class="qs-step" id="qs-step-1">
+                  <h2 class="qs-step-title">
+                    <i class="fa fa-file-text-o"></i> {{ _('Upload your document or paste a link') }}
+                  </h2>
+
+                  <div class="qs-upload-area" id="qs-dropzone">
+                    <div class="qs-upload-content" id="qs-upload-prompt">
+                      <i class="fa fa-cloud-upload fa-3x qs-upload-icon"></i>
+                      <h3>{{ _('Drag and drop your file here') }}</h3>
+                      <p class="text-muted">{{ _('or') }}</p>
+                      <label for="dataset_upload" class="btn btn-primary btn-lg qs-browse-btn">
+                        <i class="fa fa-folder-open"></i> {{ _('Choose File') }}
+                      </label>
+                      <input type="file" id="dataset_upload" name="dataset_upload" style="position: absolute; left: -9999px;"
+                             aria-label="{{ _('Upload document file') }}">
+                      <p class="qs-file-hint">{{ _('PDF, Word, Excel, PowerPoint, images and more') }}</p>
+                    </div>
+                    <div class="qs-file-preview" id="qs-file-preview" style="display: none;">
+                      <div class="qs-file-info">
+                        <i class="fa fa-file-o fa-3x qs-file-icon"></i>
+                        <div class="qs-file-details">
+                          <p class="qs-file-name"></p>
+                          <p class="qs-file-size text-muted"></p>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" id="qs-remove-file" aria-label="{{ _('Remove file') }}">
+                          <i class="fa fa-trash"></i> {{ _('Remove') }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="qs-divider">
+                    <span>{{ _('or paste a URL') }}</span>
+                  </div>
+
+                  <div class="qs-url-input">
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-addon"><i class="fa fa-link"></i></span>
+                      <input type="url" id="dataset_url" name="dataset_url" class="form-control"
+                             placeholder="https://example.com/document.pdf"
+                             value="{{ data.dataset_url or data.publication_url or '' }}"
+                             aria-label="{{ _('Document URL') }}">
+                    </div>
+                  </div>
+
+                  <div class="qs-step-actions">
+                    <button type="button" class="btn btn-primary btn-lg qs-next-btn" id="qs-next-1" disabled>
+                      {{ _('Continue') }} <i class="fa fa-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- STEP 2: Title & Description -->
+                <div class="qs-step" id="qs-step-2" style="display: none;">
+                  <h2 class="qs-step-title">
+                    <i class="fa fa-pencil"></i> {{ _('Add a title and description') }}
+                  </h2>
+
+                  <div class="form-group">
+                    <label for="dataset_title" class="qs-label">
+                      {{ _('Title') }} <span class="qs-required">*</span>
+                    </label>
+                    <input type="text" id="dataset_title" name="dataset_title" class="form-control input-lg"
+                           value="{{ data.dataset_title or data.title or '' }}"
+                           placeholder="{{ _('e.g., Water Quality Assessment Report 2024') }}"
+                           aria-required="true">
+                    <p class="qs-field-hint">{{ _('A clear, descriptive title for your publication') }}</p>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="dataset_description" class="qs-label">
+                      {{ _('Description') }} <small class="text-muted">({{ _('optional') }})</small>
+                    </label>
+                    <textarea id="dataset_description" name="dataset_description" rows="3" class="form-control"
+                              placeholder="{{ _('Brief summary of the publication content...') }}">{{ data.dataset_description or data.content or '' }}</textarea>
+                  </div>
+
+                  {% if organization_list|default([]) | length > 1 %}
+                  <div class="form-group">
+                    <label for="organization_id" class="qs-label">
+                      {{ _('Organization') }}
+                    </label>
+                    <select id="organization_id" name="organization_id" class="form-control">
+                      <option value="">{{ _('Select your organization...') }}</option>
+                      {% for org in organization_list %}
+                        <option value="{{ org.id or org.name }}"
+                                {{ 'selected' if data.organization_id == (org.id or org.name) }}>
+                          {{ org.display_name or org.title or org.name }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  {% elif organization_list|default([]) | length == 1 %}
+                    <input type="hidden" id="organization_id" name="organization_id"
+                           value="{{ organization_list[0].id or organization_list[0].name }}">
+                    <div class="qs-org-badge">
+                      <i class="fa fa-building-o"></i>
+                      {{ _('Publishing as:') }}
+                      <strong>{{ organization_list[0].display_name or organization_list[0].title or organization_list[0].name }}</strong>
+                    </div>
+                  {% else %}
+                    <input type="hidden" id="organization_id" name="organization_id" value="">
+                  {% endif %}
+
+                  <div class="qs-step-actions">
+                    <button type="button" class="btn btn-default btn-lg qs-back-btn" id="qs-back-2">
+                      <i class="fa fa-arrow-left"></i> {{ _('Back') }}
+                    </button>
+                    <button type="button" class="btn btn-primary btn-lg qs-next-btn" id="qs-next-2" disabled>
+                      {{ _('Continue') }} <i class="fa fa-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- STEP 3: Review & Submit -->
+                <div class="qs-step" id="qs-step-3" style="display: none;">
+                  <h2 class="qs-step-title">
+                    <i class="fa fa-check-circle"></i> {{ _('Review and submit') }}
+                  </h2>
+
+                  <div class="qs-review-card">
+                    <div class="qs-review-item">
+                      <span class="qs-review-label"><i class="fa fa-file-o"></i> {{ _('Document') }}</span>
+                      <span class="qs-review-value" id="qs-review-file">—</span>
+                    </div>
+                    <div class="qs-review-item">
+                      <span class="qs-review-label"><i class="fa fa-heading"></i> {{ _('Title') }}</span>
+                      <span class="qs-review-value" id="qs-review-title">—</span>
+                    </div>
+                    <div class="qs-review-item" id="qs-review-desc-row">
+                      <span class="qs-review-label"><i class="fa fa-align-left"></i> {{ _('Description') }}</span>
+                      <span class="qs-review-value" id="qs-review-desc">—</span>
+                    </div>
+                    <div class="qs-review-item" id="qs-review-org-row">
+                      <span class="qs-review-label"><i class="fa fa-building-o"></i> {{ _('Organization') }}</span>
+                      <span class="qs-review-value" id="qs-review-org">—</span>
+                    </div>
+                  </div>
+
+                  <div class="qs-submit-info">
+                    <i class="fa fa-info-circle"></i>
+                    {% if h.is_sysadmin() %}
+                      {{ _('As an administrator, you can publish immediately or save as a draft.') }}
+                    {% else %}
+                      {{ _('Your publication will be submitted for review. An administrator will approve it before it becomes publicly visible.') }}
+                    {% endif %}
+                  </div>
+
+                  <div class="qs-step-actions qs-submit-actions">
+                    <button type="button" class="btn btn-default btn-lg qs-back-btn" id="qs-back-3">
+                      <i class="fa fa-arrow-left"></i> {{ _('Back') }}
+                    </button>
+
+                    <button type="submit" class="btn btn-default btn-lg" data-water-action="draft">
+                      <i class="fa fa-save"></i> {{ _('Save Draft') }}
+                      <span class="qs-btn-hint">{{ _('Only you can see it') }}</span>
+                    </button>
+
+                    {% if h.is_sysadmin() %}
+                      <button type="submit" class="btn btn-success btn-lg" data-water-action="publish">
+                        <i class="fa fa-check"></i> {{ _('Publish Now') }}
+                        <span class="qs-btn-hint">{{ _('Visible to everyone immediately') }}</span>
+                      </button>
+                    {% else %}
+                      <button type="submit" class="btn btn-primary btn-lg" data-water-action="submit">
+                        <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+                        <span class="qs-btn-hint">{{ _('An admin will review and approve') }}</span>
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+
+              </form>
+
+            </div>
+          </div>
+        </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Quick Share CSS -->
+<style>
+/* ===== Quick Share Variables ===== */
+:root {
+  --qs-blue: #0072BC;
+  --qs-blue-dark: #005A9C;
+  --qs-blue-light: #009EE0;
+  --qs-blue-pale: #E3F2FD;
+  --qs-green: #43a047;
+  --qs-green-pale: #e8f5e9;
+  --qs-gray: #f8f9fa;
+  --qs-text: #2c3e50;
+  --qs-text-muted: #6c757d;
+  --qs-radius: 16px;
+  --qs-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --qs-shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+}
+
+/* ===== Header ===== */
+.qs-header {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+}
+
+.qs-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--qs-blue) 0%, var(--qs-blue-light) 100%);
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0,114,188,0.3);
+}
+
+.qs-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--qs-text);
+  margin: 0 0 0.5rem;
+}
+
+.qs-header-desc {
+  font-size: 1.1rem;
+  color: var(--qs-text-muted);
+  max-width: 600px;
+  margin: 0 auto 1rem;
+  line-height: 1.5;
+}
+
+.qs-advanced-link {
+  display: inline-block;
+  color: var(--qs-blue);
+  font-size: 0.9rem;
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.qs-advanced-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+  color: var(--qs-blue-dark);
+}
+
+/* ===== Steps Indicator ===== */
+.qs-steps-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0 2rem;
+  gap: 0;
+}
+
+.qs-step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.qs-dot-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #999;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.qs-step-dot.active .qs-dot-number {
+  background: linear-gradient(135deg, var(--qs-blue), var(--qs-blue-light));
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0,114,188,0.35);
+}
+
+.qs-step-dot.completed .qs-dot-number {
+  background: var(--qs-green);
+  color: #fff;
+}
+
+.qs-dot-label {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+
+.qs-step-dot.active .qs-dot-label,
+.qs-step-dot.completed .qs-dot-label {
+  color: var(--qs-text);
+}
+
+.qs-step-line {
+  flex: 0 0 60px;
+  height: 3px;
+  background: #e0e0e0;
+  margin: 0 0.5rem;
+  margin-bottom: 1.2rem;
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+
+.qs-step-line.active {
+  background: var(--qs-blue);
+}
+
+/* ===== Step Cards ===== */
+.qs-step {
+  background: #fff;
+  border-radius: var(--qs-radius);
+  padding: 2rem 2.5rem;
+  box-shadow: var(--qs-shadow);
+  margin-bottom: 2rem;
+  border-left: 5px solid var(--qs-blue);
+  animation: qs-fadeIn 0.3s ease;
+}
+
+@keyframes qs-fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.qs-step-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--qs-text);
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--qs-blue-pale);
+}
+
+.qs-step-title i {
+  color: var(--qs-blue);
+  margin-right: 0.5rem;
+}
+
+/* ===== Upload Area ===== */
+.qs-upload-area {
+  border: 3px dashed #c5d8e8;
+  border-radius: var(--qs-radius);
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: var(--qs-gray);
+}
+
+.qs-upload-area:hover,
+.qs-upload-area.dragover {
+  border-color: var(--qs-blue);
+  background: var(--qs-blue-pale);
+  transform: translateY(-2px);
+  box-shadow: var(--qs-shadow);
+}
+
+.qs-upload-icon {
+  color: var(--qs-blue);
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.qs-upload-content h3 {
+  font-size: 1.2rem;
+  color: var(--qs-text);
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.qs-browse-btn {
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  padding: 0.6rem 2rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--qs-blue), var(--qs-blue-light));
+  border: none;
+}
+
+.qs-browse-btn:hover {
+  background: linear-gradient(135deg, var(--qs-blue-dark), var(--qs-blue));
+}
+
+.qs-file-hint {
+  font-size: 0.85rem;
+  color: var(--qs-text-muted);
+  margin: 0.5rem 0 0;
+}
+
+/* File Preview */
+.qs-file-preview {
+  padding: 1rem 0;
+}
+
+.qs-file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border: 2px solid var(--qs-green);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+}
+
+.qs-file-icon {
+  color: var(--qs-blue);
+}
+
+.qs-file-details {
+  flex: 1;
+  text-align: left;
+}
+
+.qs-file-name {
+  font-weight: 600;
+  color: var(--qs-text);
+  margin: 0;
+  word-break: break-all;
+}
+
+.qs-file-size {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+}
+
+/* Divider */
+.qs-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: var(--qs-text-muted);
+  font-size: 0.9rem;
+}
+
+.qs-divider::before,
+.qs-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.qs-divider span {
+  padding: 0 1rem;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* URL Input */
+.qs-url-input .input-group-addon {
+  background: var(--qs-blue-pale);
+  color: var(--qs-blue);
+  border-color: #ddd;
+}
+
+.qs-url-input .form-control {
+  border-radius: 0 8px 8px 0;
+  border: 2px solid #ddd;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+}
+
+.qs-url-input .form-control:focus {
+  border-color: var(--qs-blue);
+  box-shadow: 0 0 0 3px rgba(0,114,188,0.1);
+}
+
+/* ===== Step Actions ===== */
+.qs-step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.qs-next-btn,
+.qs-back-btn {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.6rem 2rem;
+  transition: all 0.2s;
+}
+
+.qs-next-btn {
+  background: linear-gradient(135deg, var(--qs-blue), var(--qs-blue-light));
+  border: none;
+  color: #fff;
+}
+
+.qs-next-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc;
+  color: #999;
+}
+
+.qs-next-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,114,188,0.3);
+}
+
+.qs-back-btn {
+  background: #fff;
+  border: 2px solid #ddd;
+  color: var(--qs-text-muted);
+}
+
+.qs-back-btn:hover {
+  border-color: var(--qs-blue);
+  color: var(--qs-blue);
+}
+
+/* ===== Form Fields ===== */
+.qs-label {
+  font-weight: 600;
+  color: var(--qs-text);
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.qs-required {
+  color: #dc3545;
+}
+
+.qs-field-hint {
+  font-size: 0.85rem;
+  color: var(--qs-text-muted);
+  margin-top: 0.3rem;
+}
+
+.qs-form .form-control {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.qs-form .form-control:focus {
+  border-color: var(--qs-blue);
+  box-shadow: 0 0 0 3px rgba(0,114,188,0.1);
+}
+
+.qs-org-badge {
+  background: var(--qs-blue-pale);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: var(--qs-text);
+  margin-top: 0.5rem;
+}
+
+.qs-org-badge i {
+  color: var(--qs-blue);
+  margin-right: 0.3rem;
+}
+
+/* ===== Review Card ===== */
+.qs-review-card {
+  background: var(--qs-gray);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e0e0e0;
+}
+
+.qs-review-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.qs-review-item:last-child {
+  border-bottom: none;
+}
+
+.qs-review-label {
+  flex: 0 0 140px;
+  font-weight: 600;
+  color: var(--qs-text-muted);
+  font-size: 0.9rem;
+}
+
+.qs-review-label i {
+  margin-right: 0.4rem;
+  color: var(--qs-blue);
+}
+
+.qs-review-value {
+  flex: 1;
+  color: var(--qs-text);
+  word-break: break-word;
+}
+
+.qs-submit-info {
+  background: var(--qs-blue-pale);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  color: var(--qs-blue-dark);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.qs-submit-info i {
+  margin-right: 0.4rem;
+}
+
+/* Submit Actions */
+.qs-submit-actions {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.qs-submit-actions .btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 180px;
+  border-radius: 12px;
+  padding: 0.8rem 1.5rem;
+}
+
+.qs-btn-hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.qs-submit-actions .btn-primary {
+  background: linear-gradient(135deg, var(--qs-blue), var(--qs-blue-light));
+  border: none;
+}
+
+.qs-submit-actions .btn-success {
+  background: linear-gradient(135deg, #43a047, #66bb6a);
+  border: none;
+}
+
+/* ===== Mobile Responsive ===== */
+@media (max-width: 768px) {
+  .qs-header h1 {
+    font-size: 1.5rem;
+  }
+  .qs-step {
+    padding: 1.5rem 1.25rem;
+  }
+  .qs-upload-area {
+    padding: 2rem 1rem;
+  }
+  .qs-step-actions {
+    flex-direction: column;
+  }
+  .qs-step-actions .btn {
+    width: 100%;
+  }
+  .qs-submit-actions .btn {
+    min-width: unset;
+    width: 100%;
+  }
+  .qs-review-item {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .qs-review-label {
+    flex: none;
+  }
+  .qs-steps-indicator {
+    gap: 0;
+  }
+  .qs-step-line {
+    flex: 0 0 30px;
+  }
+  .qs-dot-label {
+    font-size: 0.65rem;
+  }
+  .col-md-8.col-md-offset-2 {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 15px;
+  }
+}
+</style>
+
+<!-- Quick Share JavaScript -->
+<script>
+(function() {
+  function waitForJQuery(cb) {
+    if (typeof jQuery !== 'undefined') cb(jQuery);
+    else setTimeout(function(){ waitForJQuery(cb); }, 50);
+  }
+
+  waitForJQuery(function($) {
+    var currentStep = 1;
+    var hasFile = false;
+    var hasUrl = false;
+
+    // MIME map for format detection
+    var mimeFallback = {
+      'txt':'text/plain','doc':'application/msword','docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'xls':'application/vnd.ms-excel','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'ppt':'application/vnd.ms-powerpoint','pptx':'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'pdf':'application/pdf','jpg':'image/jpeg','jpeg':'image/jpeg','png':'image/png','gif':'image/gif',
+      'zip':'application/zip','rar':'application/vnd.rar','7z':'application/x-7z-compressed',
+      'mp4':'video/mp4','mp3':'audio/mpeg','csv':'text/csv','xml':'text/xml','odt':'application/vnd.oasis.opendocument.text',
+      'ods':'application/vnd.oasis.opendocument.spreadsheet','odp':'application/vnd.oasis.opendocument.presentation',
+      'tar':'application/x-tar','gz':'application/gzip','tgz':'application/gzip','webm':'video/webm',
+      'bmp':'image/bmp','tif':'image/tiff','tiff':'image/tiff','svg':'image/svg+xml'
+    };
+
+    function slugify(text) {
+      var slug = (text || '').toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+      return slug.length < 2 ? 'document' : slug;
+    }
+
+    function guessFromFilename(filename) {
+      if (!filename) return;
+      var base = filename.split('?')[0].split('#')[0];
+      var name = base.split('/').pop();
+      var parts = name.split('.');
+      var ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
+      if (ext) {
+        $('#document_format').val(ext);
+        var mt = mimeFallback[ext];
+        if (mt) $('#document_mimetype').val(mt);
+      }
+      var title = name.replace(/\.[^/.]+$/, '').replace(/[\-_]+/g, ' ').trim();
+      if (title && !$('#dataset_title').val()) {
+        $('#dataset_title').val(title);
+      }
+    }
+
+    function syncHidden() {
+      var title = ($('#dataset_title').val() || '').trim();
+      if (title) {
+        $('#field-title').val(title);
+        var currentName = $('#field-name').val();
+        if (!currentName || currentName.length < 2) {
+          $('#field-name').val(slugify(title));
+        }
+      }
+      var desc = ($('#dataset_description').val() || '').trim();
+      if (desc) $('#field-content').val(desc);
+
+      var link = ($('#dataset_url').val() || '').trim();
+      if (link) {
+        $('#field-publication-url').val(link);
+        $('#field-download-url').val(link);
+      }
+
+      var today = new Date();
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var dd = String(today.getDate()).padStart(2, '0');
+      var dateStr = today.getFullYear() + '-' + mm + '-' + dd;
+      if (!$('#creation_date').val()) $('#creation_date').val(dateStr);
+      if (!$('#field-publish-date').val()) $('#field-publish-date').val(dateStr);
+
+      var action = ($('#water-publications-action').val() || 'submit').toLowerCase();
+      $('#field-private').val(action === 'publish' ? 'False' : 'True');
+    }
+
+    // Auto-fill contact from user
+    function autofillContact() {
+      var user = '{{ g.user|default("", true) }}';
+      if (!user) return;
+      $.ajax({
+        url: '/api/3/action/user_show',
+        data: { id: user },
+        dataType: 'json'
+      }).done(function(resp) {
+        if (resp && resp.success && resp.result) {
+          $('#contact_name').val(resp.result.fullname || resp.result.name || '');
+          $('#contact_email').val(resp.result.email || '');
+        }
+      });
+    }
+
+    // Step navigation
+    function goToStep(step) {
+      if (step < 1 || step > 3) return;
+      currentStep = step;
+      $('.qs-step').hide();
+      $('#qs-step-' + step).show().css('animation', 'qs-fadeIn 0.3s ease');
+
+      // Update indicators
+      $('.qs-step-dot').each(function() {
+        var s = parseInt($(this).data('step'));
+        $(this).toggleClass('active', s === step);
+        $(this).toggleClass('completed', s < step);
+      });
+      $('.qs-step-line').each(function(i) {
+        $(this).toggleClass('active', i < step - 1);
+      });
+
+      if (step === 3) {
+        updateReview();
+        syncHidden();
+      }
+
+      $('html, body').animate({ scrollTop: $('.qs-steps-indicator').offset().top - 20 }, 300);
+    }
+
+    function updateStep1Button() {
+      var urlVal = ($('#dataset_url').val() || '').trim();
+      hasUrl = urlVal.length > 5;
+      var enabled = hasFile || hasUrl;
+      $('#qs-next-1').prop('disabled', !enabled);
+    }
+
+    function updateStep2Button() {
+      var titleVal = ($('#dataset_title').val() || '').trim();
+      $('#qs-next-2').prop('disabled', titleVal.length < 2);
+    }
+
+    function updateReview() {
+      var fileInput = document.getElementById('dataset_upload');
+      var fname = (fileInput && fileInput.files && fileInput.files[0])
+        ? fileInput.files[0].name
+        : ($('#dataset_url').val() || '—');
+      $('#qs-review-file').text(fname);
+      $('#qs-review-title').text($('#dataset_title').val() || '—');
+
+      var desc = ($('#dataset_description').val() || '').trim();
+      if (desc) {
+        $('#qs-review-desc').text(desc.length > 150 ? desc.substring(0, 150) + '...' : desc);
+        $('#qs-review-desc-row').show();
+      } else {
+        $('#qs-review-desc-row').hide();
+      }
+
+      var orgSelect = $('#organization_id');
+      if (orgSelect.is('select') && orgSelect.find('option:selected').val()) {
+        $('#qs-review-org').text(orgSelect.find('option:selected').text());
+        $('#qs-review-org-row').show();
+      } else if (orgSelect.is('input[type=hidden]') && orgSelect.val()) {
+        var orgBadge = $('.qs-org-badge strong').text();
+        $('#qs-review-org').text(orgBadge || orgSelect.val());
+        $('#qs-review-org-row').show();
+      } else {
+        $('#qs-review-org-row').hide();
+      }
+    }
+
+    // File size formatting
+    function formatSize(bytes) {
+      var k = 1024;
+      var units = ['Bytes', 'KB', 'MB', 'GB'];
+      var i = Math.floor(Math.log(Math.max(bytes, 1)) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + units[i];
+    }
+
+    function showFilePreview(file) {
+      $('.qs-file-name').text(file.name);
+      $('.qs-file-size').text(formatSize(file.size));
+      $('#qs-upload-prompt').hide();
+      $('#qs-file-preview').show();
+      hasFile = true;
+      updateStep1Button();
+    }
+
+    // Dropzone events
+    var dz = document.getElementById('qs-dropzone');
+    var fileInput = document.getElementById('dataset_upload');
+
+    if (dz && fileInput) {
+      dz.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dz.classList.add('dragover');
+      });
+      dz.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+      });
+      dz.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          fileInput.files = e.dataTransfer.files;
+          var f = e.dataTransfer.files[0];
+          $('#dataset_url').val('');
+          hasUrl = false;
+          guessFromFilename(f.name);
+          showFilePreview(f);
+        }
+      });
+      dz.addEventListener('click', function(e) {
+        if (e.target.closest && (e.target.closest('.qs-browse-btn') || e.target.closest('#qs-remove-file'))) return;
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          $('#dataset_url').val('');
+          hasUrl = false;
+          guessFromFilename(this.files[0].name);
+          showFilePreview(this.files[0]);
+        }
+      });
+    }
+
+    $('#qs-remove-file').on('click', function(e) {
+      e.stopPropagation();
+      if (fileInput) fileInput.value = '';
+      hasFile = false;
+      $('#qs-file-preview').hide();
+      $('#qs-upload-prompt').show();
+      updateStep1Button();
+    });
+
+    // URL input
+    $('#dataset_url').on('input change', function() {
+      updateStep1Button();
+      var val = ($(this).val() || '').trim();
+      if (val) guessFromFilename(val);
+    });
+
+    // Title input
+    $('#dataset_title').on('input', function() {
+      updateStep2Button();
+    });
+
+    // Navigation buttons
+    $('#qs-next-1').on('click', function() { goToStep(2); });
+    $('#qs-back-2').on('click', function() { goToStep(1); });
+    $('#qs-next-2').on('click', function() { goToStep(3); });
+    $('#qs-back-3').on('click', function() { goToStep(2); });
+
+    // Submission action buttons
+    $('[data-water-action]').on('click', function() {
+      var action = $(this).data('water-action');
+      $('#water-publications-action').val(action);
+      $('#field-private').val(action === 'publish' ? 'False' : 'True');
+    });
+
+    // Form validation on submit
+    $('form').on('submit', function(e) {
+      syncHidden();
+      var title = $('#field-title').val().trim();
+      if (!title) {
+        e.preventDefault();
+        goToStep(2);
+        $('#dataset_title').focus();
+        return false;
+      }
+      var name = $('#field-name').val().trim();
+      if (!name || name.length < 2) {
+        $('#field-name').val(slugify(title));
+      }
+    });
+
+    // Initialize
+    autofillContact();
+    updateStep1Button();
+    updateStep2Button();
+
+    // If URL already has data (edit mode / validation error), enable buttons
+    if ($('#dataset_url').val()) updateStep1Button();
+    if ($('#dataset_title').val()) updateStep2Button();
+  });
+})();
+</script>
+
+{% endblock %}

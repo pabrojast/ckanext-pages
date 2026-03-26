@@ -54,8 +54,11 @@
                         </div>
                         <div class="col-md-4 text-right">
                           {% if h.check_access('ckanext_water_publications_update') %}
-                            <a href="{{ h.url_for('pages.water_publications_new') }}" class="btn btn-primary btn-lg">
-                              <i class="fa fa-plus"></i> {{ _('Share Publication') }}
+                            <a href="{{ h.url_for('pages.water_publications_quick') }}" class="btn btn-primary btn-lg" style="margin-right: 0.5rem;">
+                              <i class="fa fa-cloud-upload"></i> {{ _('Quick Share') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.water_publications_new') }}?mode=advanced" class="btn btn-default" title="{{ _('Advanced form with all options') }}">
+                              <i class="fa fa-cogs"></i> {{ _('Advanced') }}
                             </a>
                           {% endif %}
                         </div>
@@ -440,8 +443,8 @@
                         {% endif %}
                       </p>
                       {% if h.check_access('ckanext_water_publications_update') %}
-                        <a href="{{ h.url_for('pages.water_publications_new') }}" class="btn btn-primary btn-lg">
-                          <i class="fa fa-plus"></i> {{ _('Share Publication') }}
+                        <a href="{{ h.url_for('pages.water_publications_quick') }}" class="btn btn-primary btn-lg">
+                          <i class="fa fa-cloud-upload"></i> {{ _('Quick Share') }}
                         </a>
                       {% endif %}
                     </div>

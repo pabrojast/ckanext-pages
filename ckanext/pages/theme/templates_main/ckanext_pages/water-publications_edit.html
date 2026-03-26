@@ -51,6 +51,14 @@
                 </div>
               </div>
             </section>
+
+            {% if not page %}
+            <div class="text-center" style="margin-bottom: 1.5rem;">
+              <a href="{{ h.url_for('pages.water_publications_quick') }}" class="btn btn-default">
+                <i class="fa fa-bolt"></i> {{ _('Looking for something simpler? Try Quick Share') }}
+              </a>
+            </div>
+            {% endif %}
           </div>
         
           <div class="container">
@@ -121,9 +129,9 @@
 
                         <!-- CKAN Dataset (Documents) -->
                         <fieldset class="form-section water-form-section">
-                          <legend>{{ _('CKAN Dataset (Documents)') }}</legend>
+                          <legend>{{ _('Publication Details') }}</legend>
                           <div class="form-section-content">
-                            <p class="help-block">{{ _('When saving this publication a CKAN dataset of type "documents" will be created using the file or link below.') }}</p>
+                            <p class="help-block">{{ _('Upload a file or provide a link. A dataset will be created automatically to catalog your publication.') }}</p>
 
                             <div class="row">
                               <div class="col-md-6">
@@ -138,7 +146,8 @@
                                         <i class="fa fa-folder-open"></i> {{ _('Browse File') }}
                                       </label>
                                       <input type="file" id="dataset_upload" name="dataset_upload" class="upload-file-input" style="position: absolute; left: -9999px;">
-                                      <p class="text-muted small">{{ _('Supported common document formats (PDF, DOCX, PPTX, XLSX, images, archives, etc.)') }}</p>
+                                      <p class="text-muted small">{{ _('PDF, Word, Excel, PowerPoint, images, archives and more') }}</p>
+                                      <p class="text-muted small"><i class="fa fa-info-circle"></i> {{ _('Maximum file size depends on server configuration') }}</p>
                                     </div>
                                     <div class="file-preview" id="dataset-file-preview" style="display: none;">
                                       <div class="file-info">
@@ -151,6 +160,12 @@
                                           <i class="fa fa-trash"></i> {{ _('Remove') }}
                                         </button>
                                       </div>
+                                    </div>
+                                    <div class="dataset-upload-progress" id="dataset-upload-progress" style="display:none;">
+                                      <div class="progress" style="margin:0.5rem 0;border-radius:8px;height:8px;">
+                                        <div class="progress-bar" style="width:0%;transition:width 0.3s;background:linear-gradient(90deg,var(--unesco-blue),var(--unesco-blue-light));border-radius:8px;"></div>
+                                      </div>
+                                      <p class="text-muted small" id="dataset-upload-status" style="margin:0;"></p>
                                     </div>
                                   </div>
                                   <div class="help-text">{{ _('Selecting a file will clear the link (and vice versa). Type and extension are detected automatically.') }}</div>
@@ -167,14 +182,13 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_title">{{ _('Dataset Title') }}</label>
+                                  <label class="control-label" for="dataset_title">{{ _('Title') }}</label>
                                   <input type="text" id="dataset_title" name="dataset_title" class="form-control" value="{{ data.dataset_title or data.title or '' }}" placeholder="{{ _('Auto-filled from file/link') }}">
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_visibility">{{ _('Visibility') }}</label>
-                                  <select id="dataset_visibility" name="dataset_visibility" class="form-control">
+                                  <label class="control-label" for="dataset_visibility">{{ _('Visibility') }}</label>                                  <select id="dataset_visibility" name="dataset_visibility" class="form-control">
                                     <option value="public" {{ 'selected' if not data.dataset_visibility or data.dataset_visibility == 'public' }}>{{ _('Public (CC-BY-SA license)') }}</option>
                                     <option value="private" {{ 'selected' if data.dataset_visibility == 'private' }}>{{ _('Private') }}</option>
                                   </select>
@@ -185,7 +199,7 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="document_format">{{ _('Document type (extension)') }}</label>
+                                  <label class="control-label" for="document_format">{{ _('Document type') }}</label>
                                   <select id="document_format" name="document_format" class="form-control">
                                     <option value="">{{ _('Select a type...') }}</option>
                                     <option>txt</option><option>log</option><option>doc</option><option>docx</option>
@@ -211,9 +225,20 @@
                                 <div class="form-group">
                                   <label class="control-label" for="organization_id">{{ _('Organization') }}</label>
                                   <select id="organization_id" name="organization_id" class="form-control" data-selected="{{ data.organization_id or '' }}">
-                                    <option value="">{{ _('Loading organizations...') }}</option>
+                                    {% if organization_list|default([]) | length > 1 %}
+                                      <option value="">{{ _('Select Organization') }}</option>
+                                    {% endif %}
+                                    {% for org in organization_list|default([]) %}
+                                      <option value="{{ org.id or org.name }}"
+                                              {{ 'selected' if (data.organization_id or '') == (org.id or org.name) }}>
+                                        {{ org.display_name or org.title or org.name }}
+                                      </option>
+                                    {% endfor %}
+                                    {% if not organization_list|default([]) %}
+                                      <option value="">{{ _('No organizations available') }}</option>
+                                    {% endif %}
                                   </select>
-                                  <div class="help-text">{{ _('Only your organizations are listed (those where you can create datasets)') }}</div>
+                                  <div class="help-text">{{ _('The organization that will own this publication') }}</div>
                                 </div>
                               </div>
                             </div>
@@ -236,13 +261,13 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="dataset_description">{{ _('Dataset Description (optional)') }}</label>
-                                  <textarea id="dataset_description" name="dataset_description" rows="4" class="form-control" placeholder="{{ _('Dataset abstract') }}">{{ data.dataset_description or data.content or '' }}</textarea>
+                                  <label class="control-label" for="dataset_description">{{ _('Summary / Abstract') }} <small class="text-muted">({{ _('optional') }})</small></label>
+                                  <textarea id="dataset_description" name="dataset_description" rows="4" class="form-control" placeholder="{{ _('Brief description of the publication...') }}">{{ data.dataset_description or data.content or '' }}</textarea>
                                 </div>
                               </div>
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="graphic_overview">{{ _('Graphic overview (optional)') }}</label>
+                                  <label class="control-label" for="graphic_overview">{{ _('Cover image') }} <small class="text-muted">({{ _('optional') }})</small></label>
                                   <input type="url" id="graphic_overview" name="graphic_overview" class="form-control" value="{{ data.graphic_overview or data.header_image or '' }}" placeholder="https://example.com/preview.jpg">
                                 </div>
                               </div>
@@ -256,12 +281,17 @@
                                     <option value="http://publications.europa.eu/resource/authority/language/ENG" selected>English</option>
                                     <option value="http://publications.europa.eu/resource/authority/language/SPA">Español</option>
                                     <option value="http://publications.europa.eu/resource/authority/language/FRA">Français</option>
+                                    <option value="http://publications.europa.eu/resource/authority/language/POR">Português</option>
+                                    <option value="http://publications.europa.eu/resource/authority/language/ARA">العربية (Arabic)</option>
+                                    <option value="http://publications.europa.eu/resource/authority/language/ZHO">中文 (Chinese)</option>
+                                    <option value="http://publications.europa.eu/resource/authority/language/RUS">Русский (Russian)</option>
+                                    <option value="http://publications.europa.eu/resource/authority/language/DEU">Deutsch</option>
                                   </select>
                                 </div>
                               </div>
                               <div class="col-md-4">
                                 <div class="form-group">
-                                  <label class="control-label" for="creation_date">{{ _('Date of creation') }}</label>
+                                  <label class="control-label" for="creation_date">{{ _('Publication date') }}</label>
                                   <input type="date" id="creation_date" name="creation_date" class="form-control" value="{% if data.creation_date %}{{ data.creation_date[:10] }}{% elif data.publish_date %}{{ data.publish_date[:10] }}{% endif %}">
                                 </div>
                               </div>
@@ -271,15 +301,23 @@
                               <div class="col-md-12">
                                 <div class="form-group">
                                   <label class="control-label">{{ _('Member States') }}</label>
-                                  <p class="help-text">{{ _('Select the member states associated with this publication') }}</p>
+                                  <p class="help-text">{{ _('UNESCO member states associated with this publication. This helps users find publications by country.') }}</p>
 
                                   <div class="member-states-container">
+                                    <div class="region-quick-select" style="margin-bottom:0.75rem;">
+                                      <span class="text-muted small" style="margin-right:0.5rem;"><i class="fa fa-globe"></i> {{ _('Quick select by region:') }}</span>
+                                      <button type="button" class="btn btn-xs btn-default region-btn" data-region="africa">{{ _('Africa') }}</button>
+                                      <button type="button" class="btn btn-xs btn-default region-btn" data-region="asia-pacific">{{ _('Asia-Pacific') }}</button>
+                                      <button type="button" class="btn btn-xs btn-default region-btn" data-region="europe">{{ _('Europe') }}</button>
+                                      <button type="button" class="btn btn-xs btn-default region-btn" data-region="lac">{{ _('LAC') }}</button>
+                                      <button type="button" class="btn btn-xs btn-default region-btn" data-region="arab">{{ _('Arab States') }}</button>
+                                    </div>
                                     <div class="member-state-selector">
                                       <div class="input-group">
                                         <select id="member-state-select" class="form-control">
                                           <option value="">{{ _('Select a member state...') }}</option>
                                           {% for ms in member_states_list|default([]) %}
-                                            <option value="{{ ms.name }}" data-display="{{ ms.formatted_name }}">{{ ms.formatted_name }}</option>
+                                            <option value="{{ ms.name }}" data-display="{{ ms.formatted_name }}" data-region="{{ ms.region|default('') }}">{{ ms.formatted_name }}</option>
                                           {% endfor %}
                                           {% if not member_states_list|default([]) %}
                                             <option value="" disabled>{{ _('No member states available') }}</option>
@@ -307,7 +345,7 @@
                               <div class="col-md-12">
                                 <div class="form-group">
                                   <label class="control-label">{{ _('Associated Initiatives') }}</label>
-                                  <p class="help-text">{{ _('Select the initiatives (e.g. IslandWatch, Riverwatch, Be Resilient) associated with this publication. This enables the content to appear on initiative pages and be available via API.') }}</p>
+                                  <p class="help-text">{{ _('IHP programmes such as IslandWatch, RiverWatch, Be Resilient, etc. This enables the content to appear on initiative pages.') }}</p>
 
                                   <div class="initiatives-container">
                                     <div class="initiative-selector">
@@ -340,7 +378,7 @@
 
                             <div class="alert alert-info" style="margin-top: 10px;">
                               <i class="fa fa-info-circle"></i>
-                              {{ _('On save, data will be uploaded and the Dataset created. If DOI service is available a DOI and link will be generated.') }}
+                              {{ _('When you save, your publication will be cataloged automatically. If DOI service is available, a DOI will be generated.') }}
                             </div>
 
                           </div>
@@ -355,13 +393,16 @@
                           <div class="btn-toolbar" role="toolbar" style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
                               <button type="submit" class="btn btn-default btn-lg" data-water-action="draft">
                                 <i class="fa fa-save"></i> {{ page and _('Save as Draft') or _('Save Draft') }}
+                                <small class="btn-hint-text" style="display:block;font-size:0.7rem;font-weight:400;opacity:0.8;margin-top:2px;">{{ _('Only you can see it. Edit anytime.') }}</small>
                               </button>
                               <button type="submit" class="btn btn-primary btn-lg" data-water-action="submit">
-                                <i class="fa fa-paper-plane"></i> {{ _('Submit for Validation') }}
+                                <i class="fa fa-paper-plane"></i> {{ _('Submit for Review') }}
+                                <small class="btn-hint-text" style="display:block;font-size:0.7rem;font-weight:400;opacity:0.8;margin-top:2px;">{{ _('An admin will review and approve') }}</small>
                               </button>
                               {% if h.is_sysadmin() %}
                                 <button type="submit" class="btn btn-success btn-lg" data-water-action="publish">
                                   <i class="fa fa-check"></i> {{ _('Publish Now') }}
+                                  <small class="btn-hint-text" style="display:block;font-size:0.7rem;font-weight:400;opacity:0.8;margin-top:2px;">{{ _('Visible to everyone immediately') }}</small>
                                 </button>
                               {% endif %}
                               {% if page %}
@@ -818,6 +859,29 @@ select.form-control option:selected {
   box-shadow: var(--shadow-light);
 }
 
+.region-quick-select {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.region-btn {
+  border-radius: 20px;
+  font-size: 0.8rem;
+  padding: 3px 12px;
+  border: 1px solid var(--unesco-blue);
+  color: var(--unesco-blue);
+  background: #fff;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.region-btn:hover {
+  background: var(--unesco-blue);
+  color: #fff;
+}
+
 .member-state-selector { margin-bottom: 1.5rem; }
 
 .member-state-selector .input-group { width: 100%; }
@@ -1141,6 +1205,23 @@ select.form-control option:selected {
           e.preventDefault();
           return false;
         }
+      }
+
+      // Show upload progress if file is attached
+      var fileInput = document.getElementById('dataset_upload');
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        var $progress = $('#dataset-upload-progress');
+        var $status = $('#dataset-upload-status');
+        var fName = fileInput.files[0].name;
+        var fSize = fileInput.files[0].size;
+        var units = ['Bytes','KB','MB','GB'];
+        var i = Math.floor(Math.log(Math.max(fSize,1)) / Math.log(1024));
+        var sizeStr = (fSize/Math.pow(1024,i)).toFixed(1)+' '+units[i];
+        $status.html('<i class="fa fa-spinner fa-spin"></i> {{ _("Uploading") }} <strong>' + fName + '</strong> (' + sizeStr + ')...');
+        $progress.show();
+        $progress.find('.progress-bar').css('width', '30%');
+        // Disable buttons to prevent double submit
+        $(this).find('button[type=submit]').prop('disabled', true).css('opacity', '0.6');
       }
     });
     
@@ -1621,6 +1702,41 @@ select.form-control option:selected {
       updateCountryGroupsHidden();
     });
 
+    // --- Region quick-select for Member States ---
+    $(document).on('click', '.region-btn', function(){
+      var region = $(this).data('region');
+      var $select = $('#member-state-select');
+      var regionOptions = [];
+
+      // Collect all options matching the region keyword
+      $select.find('option').each(function(){
+        var val = $(this).val();
+        var display = ($(this).data('display') || $(this).text() || '').toLowerCase();
+        if (!val) return;
+        // Use data-region attribute if available, otherwise match by option presence
+        regionOptions.push({
+          name: val,
+          display_name: $(this).data('display') || formatMemberStateName(val)
+        });
+      });
+
+      // Since we can't reliably match regions from names alone, use the server-side
+      // data attribute approach: add each option that the region button targets
+      var added = 0;
+      $select.find('option[data-region="' + region + '"]').each(function(){
+        var val = $(this).val();
+        if (!val) return;
+        if (selectedMemberStates.some(function(s){ return s.name === val; })) return;
+        var state = { name: val, display_name: $(this).data('display') || formatMemberStateName(val) };
+        selectedMemberStates.push(state);
+        addMemberStateChip(state);
+        added++;
+      });
+      if (added > 0) {
+        updateCountryGroupsHidden();
+      }
+    });
+
     // --- Initiative helpers (same pattern as member states) ---
     let selectedInitiatives = [];
 
@@ -1709,11 +1825,80 @@ select.form-control option:selected {
     $('#dataset_title, #dataset_description, #graphic_overview, #dataset_url').on('input change', syncHiddenFromDatasetForm);
     $('#dataset_visibility, #creation_date').on('change', syncHiddenFromDatasetForm);
 
+    // ===== Auto-save with localStorage =====
+    var AUTOSAVE_KEY = 'wp_autosave_' + ($('#field-name').val() || 'new');
+    var AUTOSAVE_INTERVAL = 30000;
+
+    function autosaveForm() {
+      try {
+        var formData = {};
+        $('#water-publications-form').find('input, select, textarea').each(function() {
+          var $el = $(this);
+          var name = $el.attr('name');
+          if (name && $el.attr('type') !== 'file') {
+            formData[name] = $el.val();
+          }
+        });
+        formData._timestamp = Date.now();
+        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(formData));
+      } catch(e) { /* localStorage not available */ }
+    }
+
+    function checkAutosaveRestore() {
+      try {
+        var saved = localStorage.getItem(AUTOSAVE_KEY);
+        if (!saved) return;
+        var formData = JSON.parse(saved);
+        var age = Date.now() - (formData._timestamp || 0);
+        if (age > 86400000) {
+          localStorage.removeItem(AUTOSAVE_KEY);
+          return;
+        }
+        if (formData.title || formData.dataset_title) {
+          var ageMin = Math.round(age / 60000);
+          var msg = '{{ _("We found unsaved changes from") }} ' + ageMin + ' {{ _("minutes ago. Restore?") }}';
+          if (confirm(msg)) {
+            Object.keys(formData).forEach(function(k) {
+              if (k === '_timestamp') return;
+              var $el = $('#water-publications-form').find('[name="' + k + '"]');
+              if ($el.length && $el.attr('type') !== 'file') {
+                $el.val(formData[k]);
+              }
+            });
+            syncHiddenFromDatasetForm();
+          } else {
+            localStorage.removeItem(AUTOSAVE_KEY);
+          }
+        }
+      } catch(e) { /* ignore */ }
+    }
+
+    // Only restore on new publications (not editing)
+    {% if not page %}
+    checkAutosaveRestore();
+    {% endif %}
+    setInterval(autosaveForm, AUTOSAVE_INTERVAL);
+
+    // Clear autosave on successful submit
+    $('form').on('submit', function() {
+      try { localStorage.removeItem(AUTOSAVE_KEY); } catch(e) {}
+    });
+
     // Inicializar
     loadUploadedImages();
     preventSelectReset();
-    loadOrganizations();
     initCountriesAndInitiatives();
+
+    // Auto-select org if only one and no selection
+    (function() {
+      var $sel = $('#organization_id');
+      if ($sel.length && !$sel.val() && $sel.find('option[value!=""]').length === 1) {
+        $sel.val($sel.find('option[value!=""]').first().val());
+      }
+      // Restore previously selected value
+      var prev = $sel.data('selected');
+      if (prev) $sel.val(prev);
+    })();
 
     console.log('Water Publications edit form initialized with documents dataset support');
     // Primera sincronización

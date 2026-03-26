@@ -159,7 +159,16 @@ def water_publications_show(page):
 
 
 def water_publications_edit(page=None, data=None, errors=None, error_summary=None):
+    mode = request.args.get('mode', '')
+    if not page and mode != 'advanced':
+        return utils.pages_edit(page, data, errors, error_summary, 'water-publications',
+                                quick_mode=True)
     return utils.pages_edit(page, data, errors, error_summary, 'water-publications')
+
+
+def water_publications_quick(data=None, errors=None, error_summary=None):
+    return utils.pages_edit(None, data, errors, error_summary, 'water-publications',
+                            quick_mode=True)
 
 
 def water_publications_revisions(page):
@@ -521,7 +530,8 @@ pages.add_url_rule("/water-publications/<page>/revisions", view_func=water_publi
 pages.add_url_rule("/water-publications/<page>/revisions/<revision>", view_func=water_publications_revisions_preview, endpoint='water_publications_revisions_preview')
 pages.add_url_rule("/water-publications/<page>/revisions/<revision>/restore", view_func=water_publications_revision_restore, endpoint='water_publications_revision_restore', methods=['GET'])
 pages.add_url_rule("/water-publications_edit", view_func=water_publications_edit, endpoint='water_publications_new', methods=['GET', 'POST'])
-pages.add_url_rule("/water-publications_edit/", view_func=water_publications_edit, endpoint='water_publications_new', methods=['GET', 'POST'])
+pages.add_url_rule("/water-publications_edit/", view_func=water_publications_edit, endpoint='water_publications_new_slash', methods=['GET', 'POST'])
+pages.add_url_rule("/water-publications/new/quick", view_func=water_publications_quick, endpoint='water_publications_quick', methods=['GET', 'POST'])
 pages.add_url_rule("/water-publications_edit/<page>", view_func=water_publications_edit, endpoint='water_publications_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/water-publications_delete/<page>", view_func=water_publications_delete, endpoint='water_publications_delete', methods=['GET', 'POST'])
 

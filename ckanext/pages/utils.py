@@ -30,6 +30,78 @@ def _format_member_state_name(name):
     return ' '.join(result)
 
 
+# UNESCO region classification for member states (simplified)
+_UNESCO_REGIONS = {
+    'africa': {
+        'algeria', 'angola', 'benin', 'botswana', 'burkina-faso', 'burundi',
+        'cabo-verde', 'cape-verde', 'cameroon', 'central-african-republic',
+        'chad', 'comoros', 'congo', 'democratic-republic-of-the-congo',
+        'cote-d-ivoire', 'ivory-coast', 'djibouti', 'egypt', 'equatorial-guinea',
+        'eritrea', 'eswatini', 'swaziland', 'ethiopia', 'gabon', 'gambia',
+        'ghana', 'guinea', 'guinea-bissau', 'kenya', 'lesotho', 'liberia',
+        'libya', 'madagascar', 'malawi', 'mali', 'mauritania', 'mauritius',
+        'morocco', 'mozambique', 'namibia', 'niger', 'nigeria', 'rwanda',
+        'sao-tome-and-principe', 'senegal', 'seychelles', 'sierra-leone',
+        'somalia', 'south-africa', 'south-sudan', 'sudan', 'tanzania',
+        'togo', 'tunisia', 'uganda', 'zambia', 'zimbabwe',
+        'republic-of-the-congo', 'united-republic-of-tanzania',
+    },
+    'asia-pacific': {
+        'afghanistan', 'australia', 'bangladesh', 'bhutan', 'brunei',
+        'brunei-darussalam', 'cambodia', 'china', 'cook-islands', 'fiji',
+        'india', 'indonesia', 'iran', 'japan', 'kazakhstan', 'kiribati',
+        'korea', 'republic-of-korea', 'kyrgyzstan', 'lao', 'laos',
+        'malaysia', 'maldives', 'marshall-islands', 'micronesia', 'mongolia',
+        'myanmar', 'nauru', 'nepal', 'new-zealand', 'niue', 'pakistan',
+        'palau', 'papua-new-guinea', 'philippines', 'samoa', 'singapore',
+        'solomon-islands', 'sri-lanka', 'tajikistan', 'thailand',
+        'timor-leste', 'tonga', 'turkmenistan', 'tuvalu', 'uzbekistan',
+        'vanuatu', 'viet-nam', 'vietnam',
+        'democratic-peoples-republic-of-korea',
+    },
+    'europe': {
+        'albania', 'andorra', 'armenia', 'austria', 'azerbaijan', 'belarus',
+        'belgium', 'bosnia-and-herzegovina', 'bulgaria', 'croatia', 'cyprus',
+        'czechia', 'czech-republic', 'denmark', 'estonia', 'finland',
+        'france', 'georgia', 'germany', 'greece', 'hungary', 'iceland',
+        'ireland', 'israel', 'italy', 'latvia', 'lithuania', 'luxembourg',
+        'malta', 'moldova', 'monaco', 'montenegro', 'netherlands',
+        'north-macedonia', 'norway', 'poland', 'portugal', 'romania',
+        'russian-federation', 'russia', 'san-marino', 'serbia', 'slovakia',
+        'slovenia', 'spain', 'sweden', 'switzerland', 'turkey', 'turkiye',
+        'ukraine', 'united-kingdom',
+    },
+    'lac': {
+        'antigua-and-barbuda', 'argentina', 'bahamas', 'barbados', 'belize',
+        'bolivia', 'brazil', 'chile', 'colombia', 'costa-rica', 'cuba',
+        'dominica', 'dominican-republic', 'ecuador', 'el-salvador',
+        'grenada', 'guatemala', 'guyana', 'haiti', 'honduras', 'jamaica',
+        'mexico', 'nicaragua', 'panama', 'paraguay', 'peru',
+        'saint-kitts-and-nevis', 'saint-lucia',
+        'saint-vincent-and-the-grenadines', 'suriname',
+        'trinidad-and-tobago', 'uruguay', 'venezuela',
+    },
+    'arab': {
+        'algeria', 'bahrain', 'comoros', 'djibouti', 'egypt', 'iraq',
+        'jordan', 'kuwait', 'lebanon', 'libya', 'mauritania', 'morocco',
+        'oman', 'palestine', 'qatar', 'saudi-arabia', 'somalia', 'sudan',
+        'syria', 'syrian-arab-republic', 'tunisia', 'united-arab-emirates',
+        'yemen',
+    },
+}
+
+
+def _get_unesco_region(slug):
+    """Return the UNESCO region for a member-state slug, or empty string."""
+    if not slug:
+        return ''
+    s = slug.lower().strip()
+    for region, members in _UNESCO_REGIONS.items():
+        if s in members:
+            return region
+    return ''
+
+
 def _get_open_source_admin_organizations():
     """Return organization options and lookup mapping for admin dashboard."""
     try:
@@ -227,7 +299,8 @@ def pages_list_pages(page_type):
     return tk.render('ckanext_pages/pages_list.html')
 
 
-def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type='pages'):
+def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type='pages',
+               quick_mode=False):
 
     def _slugify_title(value):
         import re
@@ -387,23 +460,35 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
                 status = page_dict.get('submission_status')
                 is_private = page_dict.get('private') in [True, 'True', 'true', 1]
+                page_title = page_dict.get('title', page_dict.get('name', ''))
                 if status == 'approved' and not is_private:
-                    tk.h.flash_success(_('Content published successfully'))
+                    tk.h.flash_success(
+                        _('✅ "%s" has been published successfully and is now visible to everyone.') % page_title
+                    )
                 elif status == 'pending':
-                    tk.h.flash_success(_('Content submitted for review. It will be published after admin approval.'))
+                    tk.h.flash_success(
+                        _('📤 "%s" has been submitted for review. An administrator will review and approve it.') % page_title
+                    )
                 elif status == 'draft' or is_private:
-                    tk.h.flash_success(_('Content saved as draft'))
+                    tk.h.flash_success(
+                        _('📝 "%s" has been saved as a draft. Only you can see it. You can edit it anytime.') % page_title
+                    )
                 elif is_sysadmin:
-                    tk.h.flash_success(_('Content updated successfully'))
+                    tk.h.flash_success(
+                        _('✅ "%s" has been updated successfully.') % page_title
+                    )
                 else:
-                    tk.h.flash_success(_('Content submitted for review. It will be published after admin approval.'))
+                    tk.h.flash_success(
+                        _('📤 "%s" has been submitted for review.') % page_title
+                    )
 
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
             tk.h.flash_error(error_summary)
             return pages_edit(
-                page, data, errors, error_summary, page_type=page_type)
+                page, data, errors, error_summary, page_type=page_type,
+                quick_mode=quick_mode)
 
         # Handle redirects for different page types
         endpoint = 'show' if page_type in ('pages', 'page') else '%s_show' % page_type
@@ -530,6 +615,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 g['formatted_name'] = _format_member_state_name(
                     g.get('name', '')
                 )
+                g['region'] = _get_unesco_region(g.get('name', ''))
             vars['member_states_list'] = sorted(
                 groups, key=lambda g: g.get('formatted_name', '')
             )
@@ -585,8 +671,11 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         except Exception:
             vars['initiatives_list'] = []
 
-    return tk.render(
-        'ckanext_pages/%s_edit.html' % page_type, extra_vars=vars)
+    template_name = 'ckanext_pages/%s_edit.html' % page_type
+    if quick_mode and page_type == 'water-publications' and not page:
+        template_name = 'ckanext_pages/water-publications_quick.html'
+
+    return tk.render(template_name, extra_vars=vars)
 
 
 def _resolve_documents_dataset_type():
