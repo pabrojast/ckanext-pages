@@ -4,6 +4,12 @@
 {{ c.page.title or c.page.name }} - {{ _('IHP Water Family Publications') }} - {{ super() }}
 {% endblock %}
 
+{% set member_states_raw = c.page.country_groups if c.page.country_groups is defined else None %}
+{% set initiatives_raw = c.page.initiative_groups if c.page.initiative_groups is defined else None %}
+{% set member_states = h.json_loads(member_states_raw) if member_states_raw and member_states_raw is string else (member_states_raw if member_states_raw else []) %}
+{% set initiatives = h.json_loads(initiatives_raw) if initiatives_raw and initiatives_raw is string else (initiatives_raw if initiatives_raw else []) %}
+{% set has_associations = (member_states and member_states|length > 0) or (initiatives and initiatives|length > 0) %}
+
 {% block content %}
 
 <div class="homepage layout-1">
@@ -349,6 +355,71 @@
                           </div>
                           <div class="publication-detail-value">
                             <a href="{{ c.page.dataset_url }}" target="_blank" rel="noopener">{{ c.page.dataset_url }}</a>
+                          </div>
+                        </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Organization -->
+                {% if h.has_meaningful_content(c.page.organization) %}
+                <div class="water-publication-organization" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-overview">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-building"></i>
+                        </div>
+                        <h2>{{ _('Organization') }}</h2>
+                      </div>
+                      <div class="water-content-body">
+                        <p>{{ c.page.organization }}</p>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Member States & Initiatives -->
+                {% if has_associations %}
+                <div class="water-publication-associations" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-overview">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-globe"></i>
+                        </div>
+                        <h2>{{ _('Member States & Initiatives') }}</h2>
+                      </div>
+                      <div class="row">
+                        {% if member_states and member_states|length > 0 %}
+                        <div class="{% if initiatives and initiatives|length > 0 %}col-md-6{% else %}col-md-12{% endif %}">
+                          <h4 style="color: var(--unesco-blue, #0072BC); font-weight: 700; margin-bottom: 1rem;">
+                            <i class="fa fa-flag"></i> {{ _('Member States') }}
+                          </h4>
+                          <div class="association-chips">
+                            {% for state in member_states %}
+                              <span class="association-chip member-state-chip">
+                                {{ h.format_member_state_name(state.name) if state.name is defined else state }}
+                              </span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if initiatives and initiatives|length > 0 %}
+                        <div class="{% if member_states and member_states|length > 0 %}col-md-6{% else %}col-md-12{% endif %}">
+                          <h4 style="color: #2e7d32; font-weight: 700; margin-bottom: 1rem;">
+                            <i class="fa fa-rocket"></i> {{ _('Initiatives') }}
+                          </h4>
+                          <div class="association-chips">
+                            {% for ini in initiatives %}
+                              <span class="association-chip initiative-chip">
+                                {{ h.format_member_state_name(ini.name) if ini.name is defined else ini }}
+                              </span>
+                            {% endfor %}
                           </div>
                         </div>
                         {% endif %}
@@ -933,6 +1004,43 @@ float: inherit !important;
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+}
+
+/* Association Chips (Member States & Initiatives) */
+.association-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.association-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.member-state-chip {
+  background: var(--unesco-blue-pale, #E3F2FD);
+  color: var(--unesco-blue-dark, #005A9C);
+  border: 1px solid rgba(0, 114, 188, 0.15);
+}
+
+.member-state-chip:hover {
+  background: rgba(0, 114, 188, 0.15);
+}
+
+.initiative-chip {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.15);
+}
+
+.initiative-chip:hover {
+  background: rgba(46, 125, 50, 0.15);
 }
 </style>
 

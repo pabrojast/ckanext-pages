@@ -355,7 +355,7 @@ def _pages_update(context, data_dict):
 
     # Ensure organization handling for open-source-software and water-family types
     if data.get('page_type') in water_family_types:
-        # Non-admins: force the organization to the user's primary organization
+        # Non-admins: validate the selected org belongs to the user
         is_admin = False
         try:
             is_admin = tk.check_access('sysadmin', context, {})
@@ -363,12 +363,34 @@ def _pages_update(context, data_dict):
             is_admin = False
 
         if not is_admin:
-            user_org = _get_user_organization(context['user'])
-            if user_org:
-                if data.get('ihp_organization') != user_org.id:
-                    data['ihp_organization'] = user_org.id
-                log = logging.getLogger(__name__)
-                log.info(f"Enforced organization to {user_org.title or user_org.display_name or user_org.name} for user {context['user']}")
+            # Get ALL organizations the user belongs to
+            user_org_ids = set()
+            try:
+                user_obj = model.User.get(context['user'])
+                if user_obj:
+                    member_orgs = model.Session.query(model.Member.group_id).filter(
+                        model.Member.table_name == 'user',
+                        model.Member.table_id == user_obj.id,
+                        model.Member.group_id.in_(
+                            model.Session.query(model.Group.id).filter(
+                                model.Group.type == 'organization',
+                                model.Group.state == 'active'
+                            )
+                        )
+                    ).all()
+                    user_org_ids = {m.group_id for m in member_orgs}
+            except Exception:
+                pass
+
+            submitted_org = data.get('ihp_organization')
+            if submitted_org and submitted_org in user_org_ids:
+                # User selected one of their own orgs — allow it
+                log.info(f"User {context['user']} selected valid organization {submitted_org}")
+            elif user_org_ids:
+                # Invalid or missing org — default to first user org
+                fallback_org_id = next(iter(user_org_ids))
+                data['ihp_organization'] = fallback_org_id
+                log.info(f"Defaulted organization to {fallback_org_id} for user {context['user']}")
         else:
             # Admins: if missing, try to default to user's org to avoid empty values
             if not data.get('ihp_organization'):
@@ -376,7 +398,8 @@ def _pages_update(context, data_dict):
                 if user_org:
                     data['ihp_organization'] = user_org.id
                     log = logging.getLogger(__name__)
-                    log.info(f"Defaulted organization to {user_org.title or user_org.display_name or user_org.name} for admin {context['user']}")
+                    org_label = user_org.title or user_org.display_name or user_org.name
+                    log.info(f"Defaulted organization to {org_label} for admin {context['user']}")
 
     # backward compatible with older version where page_type does not exist
     workflow_computed_fields = {'submission_status', 'private', 'submitted_at', 'reviewed_at', 'reviewed_by'}

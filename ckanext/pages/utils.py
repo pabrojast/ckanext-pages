@@ -308,7 +308,23 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 page_dict['private'] = True
 
         if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
-            # Ensure we store the organization id of the submitter when missing
+            # Map organization_id (from dropdown) to ihp_organization (model column)
+            if page_dict.get('organization_id') and not page_dict.get('ihp_organization'):
+                page_dict['ihp_organization'] = page_dict['organization_id']
+                # Resolve org display name for the organization text field
+                try:
+                    org_obj = tk.get_action('organization_show')(
+                        {'ignore_auth': True},
+                        {'id': page_dict['organization_id']}
+                    )
+                    if org_obj:
+                        page_dict['organization'] = (
+                            org_obj.get('title') or org_obj.get('display_name') or org_obj.get('name')
+                        )
+                except Exception:
+                    pass
+
+            # Fallback: auto-set from user's primary org when no org provided
             if not page_dict.get('ihp_organization'):
                 try:
                     orgs = tk.get_action('organization_list_for_user')(
@@ -422,6 +438,9 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                     data.setdefault('organization', primary_org.get('title') or primary_org.get('display_name') or primary_org.get('name'))
             except Exception:
                 pass
+        # Ensure organization_id is set for the edit form dropdown
+        if data.get('ihp_organization') and not data.get('organization_id'):
+            data['organization_id'] = data['ihp_organization']
 
     errors = errors or {}
     error_summary = error_summary or {}
