@@ -1,46 +1,43 @@
-# Repository Guidelines
+# AGENTS.md
 
-## Project Structure & Module Organization
-- Source lives in `ckanext/pages/`:
-  - `plugin.py` (entry point `pages`), `blueprint.py` (routes), `actions.py` (logic), `logic/` (schemas), `validators.py`.
-  - Frontend: `assets/` and `public/` (JS/CSS/images), templates in `theme/` (Jinja).
-  - Migrations in `migration/` (Alembic), CLI in `commands/`.
-- Tests in `ckanext/pages/tests/`; test config `test.ini`.
-- Packaging via `setup.py`; i18n in `setup.cfg` and `ckanext/pages/i18n/`.
+## Alcance
 
-## Build, Test, and Development Commands
-- Create dev env (editable install):
-  - `pip install -r requirements.txt -r dev-requirements.txt`
-  - `pip install -e .`
-- Lint code (mirrors CI): `flake8 . --count --max-line-length=127 --exclude ckan`
-- Init test DB (CKAN ≥ 2.9):
-  - `ckan -c test.ini db init`
-  - `ckan -c test.ini db upgrade -p pages`
-- Run tests with coverage:
-  - `pytest --ckan-ini=test.ini --cov=ckanext.pages --cov-report=term-missing ckanext/pages/tests`
+Este repo contiene `ckanext-pages`, una extensión CKAN con un núcleo CMS y módulos especializados. La documentación para humanos vive en `docs/obsidian-vault/` y debe mantenerse como referencia principal.
 
-## Coding Style & Naming Conventions
-- Python 3.9–3.10; follow PEP 8. Indentation: 4 spaces; line length: 127.
-- Use descriptive names (e.g., `pages_update`, not `upd`).
-- Keep template overrides minimal; follow CKAN Jinja block conventions.
-- JS/CSS in `assets/` follow CKAN webassets patterns; prefer small, focused modules.
+Para contexto funcional y técnico:
 
-## Testing Guidelines
-- Frameworks: `pytest`, `pytest-ckan`, `pytest-cov`.
-- Name tests `test_*.py` in `ckanext/pages/tests/`.
-- Aim to cover new logic, validators, and routes; add fixtures in `fixtures.py` if needed.
-- Use CKAN factories/helpers; mark config with `@pytest.mark.ckan_config` when required.
+- empieza por `docs/obsidian-vault/Index.md`
+- usa `docs/obsidian-vault/Convenciones de la Vault.md` para convenciones
+- usa `docs/obsidian-vault/Guia de Mantenimiento.md` para saber qué actualizar
 
-## Commit & Pull Request Guidelines
-- Commits: imperative, concise, and scoped (e.g., "Fix z-index overlap in dropdown").
-- PRs include summary, rationale, before/after (screenshots for UI), test notes, and linked issues.
-- Update `README.md` when behavior or configuration changes.
+## Orden recomendado de trabajo
 
-## Security & Configuration Tips
-- Do not commit secrets. Use `test.ini` for local runs; production config is external.
-- Database changes go through `migration/` and `ckan -c test.ini db upgrade -p pages`.
+1. Explorar el código y la vault.
+2. Planificar el cambio.
+3. Implementar un parche mínimo y focalizado.
+4. Verificar con lint, tests o comprobaciones proporcionales al cambio.
+5. Documentar o actualizar la vault si el cambio afecta comportamiento relevante.
 
-## Agent-Specific Instructions
-- Keep patches focused; preserve existing structure and naming.
-- Conform to `flake8`; avoid unrelated changes.
-- Place new tests under `ckanext/pages/tests/` and run the commands above before proposing changes.
+## Reglas operativas
+
+- No inventes comportamiento, rutas, permisos ni despliegue.
+- Mantén consistencia con `CLAUDE.md`; si un detalle pertenece a la vault, refiérelo en vez de duplicarlo.
+- Mantén cambios mínimos y focalizados; evita mezclar refactors no pedidos.
+
+## Obligación documental
+
+- Actualiza `docs/obsidian-vault/` cuando cambien arquitectura, comandos, configuración, variables de entorno, testing, flujos importantes, persistencia o deployment.
+- Sigue las convenciones de `docs/obsidian-vault/Convenciones de la Vault.md` en vez de redefinirlas aquí.
+
+## Convención para dudas y supuestos
+
+- Duda no resuelta en la vault: `Pendiente por confirmar`
+- Deducción razonable en la vault: `Inferencia`
+
+## Checklist antes de cerrar una tarea
+
+- El cambio está acotado al objetivo.
+- No se inventó comportamiento no observado.
+- La verificación ejecutada quedó clara.
+- La vault fue revisada y actualizada si correspondía.
+- `AGENTS.md`, `CLAUDE.md` y la vault siguen siendo coherentes entre sí.
