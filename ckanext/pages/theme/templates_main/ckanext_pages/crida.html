@@ -43,7 +43,7 @@
           <h1>{{ _('Climate Risk Informed Decision Analysis') }}</h1>
           <p class="crida-hero-subtitle">{{ _('A collaborative methodology for robust water management decisions under climate uncertainty. Connecting communities, data, and research worldwide.') }}</p>
           <div class="crida-hero-actions">
-            <a href="#crida-datasets" class="crida-hero-btn crida-hero-btn--primary">
+            <a href="/group/crida" class="crida-hero-btn crida-hero-btn--primary">
               <i class="fa fa-database"></i> {{ _('View Datasets') }}
             </a>
             <a href="https://www.unesco.org/en/crida" target="_blank" class="crida-hero-btn crida-hero-btn--outline">
@@ -55,26 +55,26 @@
 
       {# ── Stats Bar (gradient, overlaps hero) ────────────────────── #}
       <div class="crida-stats-bar crida-reveal">
-        <div class="crida-stat-item">
+        <a href="/group/crida" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.datasets }}">0</div>
           <div class="crida-stat-label">{{ _('Datasets') }}</div>
-        </div>
-        <div class="crida-stat-item">
+        </a>
+        <a href="/group/crida/news" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.news }}">0</div>
           <div class="crida-stat-label">{{ _('News') }}</div>
-        </div>
-        <div class="crida-stat-item">
+        </a>
+        <a href="/group/crida/events" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.events }}">0</div>
           <div class="crida-stat-label">{{ _('Events') }}</div>
-        </div>
-        <div class="crida-stat-item">
+        </a>
+        <a href="/group/crida/publications" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.publications }}">0</div>
           <div class="crida-stat-label">{{ _('Publications') }}</div>
-        </div>
-        <div class="crida-stat-item">
+        </a>
+        <a href="/group/crida/members" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.members }}">0</div>
           <div class="crida-stat-label">{{ _('Members') }}</div>
-        </div>
+        </a>
       </div>
 
       {# ── About CRIDA ─────────────────────────────────────────────── #}

@@ -1899,12 +1899,12 @@
   border: none;
 }
 
-.crida-hub .crida-hero-btn--primary {
+.crida-hub .crida-hero .crida-hero-btn--primary {
   background: #fff;
   color: var(--crida-primary) !important;
 }
 
-.crida-hub .crida-hero-btn--primary:hover {
+.crida-hub .crida-hero .crida-hero-btn--primary:hover {
   background: var(--crida-primary-pale);
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
@@ -1976,6 +1976,15 @@
   letter-spacing: 0.08em;
   margin-top: 0.4rem;
   font-weight: 600;
+}
+
+a.crida-stat-link,
+a.crida-stat-link:hover,
+a.crida-stat-link:focus,
+a.crida-stat-link:active {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 /* -- Section Headers --------------------------------------- */
