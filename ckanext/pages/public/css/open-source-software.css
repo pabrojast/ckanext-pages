@@ -2189,8 +2189,7 @@
   z-index: auto;
 }
 
-.software-filters .unified-dropdown-menu,
-.software-filters .dropdown-menu {
+.software-filters .unified-dropdown-menu {
   z-index: 10020 !important; /* Highest within filters */
   position: absolute !important;
 }
@@ -2206,13 +2205,11 @@
 }
 
 /* When a dropdown is open, elevate its container */
-.software-filters .filters-grid .filter-item:has(.dropdown.show),
 .software-filters .filters-grid .filter-item:has(.unified-dropdown.show) { 
   z-index: 1000 !important; 
 }
 
 /* Dropdown menus should be above everything in the filter area */
-.software-filters .filters-grid .filter-item .dropdown.show .dropdown-menu,
 .software-filters .filters-grid .filter-item .unified-dropdown.show .unified-dropdown-menu {
   z-index: 1100 !important;
 }
@@ -2237,7 +2234,6 @@
     z-index: auto;
   }
   
-  .software-filters .filters-grid .filter-item .dropdown.show,
   .software-filters .filters-grid .filter-item .unified-dropdown.show {
     position: relative;
     z-index: 1000 !important;

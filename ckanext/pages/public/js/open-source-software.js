@@ -130,14 +130,14 @@
       });
       
       // Select All functionality
-      $('.select-all-btn').on('click', function(e) {
+      $('.multi-select-dropdown .select-all-btn').on('click', function(e) {
         e.preventDefault();
         var $dropdown = $(this).closest('.multi-select-dropdown');
         $dropdown.find('input[type="checkbox"]').prop('checked', true).trigger('change');
       });
       
       // Clear All functionality
-      $('.clear-all-btn').on('click', function(e) {
+      $('.multi-select-dropdown .clear-all-btn').on('click', function(e) {
         e.preventDefault();
         var $dropdown = $(this).closest('.multi-select-dropdown');
         $dropdown.find('input[type="checkbox"]').prop('checked', false).trigger('change');

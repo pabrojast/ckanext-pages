@@ -173,13 +173,13 @@
                           <div class="filters-grid">
                             <!-- Categories Filter (multi-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-tags"></i></span>
                                   <span class="filter-text">{{ _('All Categories') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-header">
                                     <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
                                     <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
@@ -229,13 +229,13 @@
 
                             <!-- Languages Filter (multi-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-code"></i></span>
                                   <span class="filter-text">{{ _('All Languages') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-header">
                                     <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
                                     <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
@@ -255,13 +255,13 @@
 
                             <!-- Access Type (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-unlock"></i></span>
                                   <span class="filter-text">{{ _('All Access Types') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     <label class="unified-option">
                                       <input type="radio" name="access_type" value="" {% if not request.args.access_type %}checked{% endif %}>
@@ -282,13 +282,13 @@
 
                             <!-- Development Status (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-heartbeat"></i></span>
                                   <span class="filter-text">{{ _('All Status') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set status = request.args.development_status %}
                                     <label class="unified-option">
@@ -315,13 +315,13 @@
 
                             <!-- License (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-certificate"></i></span>
                                   <span class="filter-text">{{ _('All Licenses') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set lic = request.args.license %}
                                     <label class="unified-option">
@@ -341,13 +341,13 @@
 
                             <!-- Platform (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-desktop"></i></span>
                                   <span class="filter-text">{{ _('All Platforms') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set plat = request.args.platform %}
                                     <label class="unified-option">
@@ -367,13 +367,13 @@
 
                             <!-- Attribution (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-user-check"></i></span>
                                   <span class="filter-text">{{ _('All Attribution') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set attr = request.args.attribution %}
                                     <label class="unified-option">

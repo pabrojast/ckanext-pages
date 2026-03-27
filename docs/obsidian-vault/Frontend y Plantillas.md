@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-03-26
+Actualizado: 2026-03-27
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -107,6 +107,11 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - Si cambias formularios del módulo base, probablemente tocarás `utils.py`, schema y `ckanext_pages/*_edit.html`.
 - Si cambias comportamiento JS de formularios enriquecidos, revisar `public/js/*-edit.js` y `water-form-enhancements.js`.
 - Si cambias listados o cards de módulos opcionales, tocar sus templates dedicados en `templates_main/data_stories` o `templates_main/featured_viewers`.
+
+## Notas de interacción
+
+- `ckanext_pages/open-source-software_list.html` usa dropdowns custom de filtros (`.unified-dropdown` y `.unified-dropdown-menu`) controlados por `public/js/open-source-software.js`.
+- Inferencia: estos filtros deben permanecer desacoplados de `Bootstrap` (`.dropdown`, `.dropdown-menu`, `data-toggle="dropdown"`) para no interferir con el menú principal de navegación.
 
 ## Pendiente por confirmar
 
