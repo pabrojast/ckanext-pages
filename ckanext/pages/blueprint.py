@@ -160,6 +160,8 @@ def water_publications_show(page):
 
 def water_publications_edit(page=None, data=None, errors=None, error_summary=None):
     mode = request.args.get('mode', '')
+    if not page and mode == 'advanced':
+        return redirect('/documents/new')
     if not page and mode != 'advanced':
         return utils.pages_edit(page, data, errors, error_summary, 'water-publications',
                                 quick_mode=True)

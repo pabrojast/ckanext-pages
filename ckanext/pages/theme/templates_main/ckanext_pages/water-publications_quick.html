@@ -34,7 +34,7 @@
                 </div>
                 <h1>{{ _('Share a Publication') }}</h1>
                 <p class="qs-header-desc">{{ _('Upload a document or paste a link to share it with the IHP Water Family community. It takes less than a minute.') }}</p>
-                <a href="{{ h.url_for('pages.water_publications_new') }}?mode=advanced" class="qs-advanced-link">
+                <a href="/documents/new" class="qs-advanced-link">
                   <i class="fa fa-cogs"></i> {{ _('Need more options? Use the advanced form') }}
                 </a>
               </div>
@@ -42,8 +42,8 @@
         </div>
 
         <div class="container">
-          <div class="row">
-            <div class="col-md-8 col-md-offset-2">
+          <div class="row qs-form-row">
+            <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
 
               <form method="post" enctype="multipart/form-data" id="water-publications-form" class="qs-form">
                 {{ h.csrf_input() if 'csrf_input' in h }}
@@ -203,6 +203,21 @@
                     <input type="hidden" id="organization_id" name="organization_id" value="">
                   {% endif %}
 
+                  {% if initiatives_list|default([]) %}
+                  <div class="form-group">
+                    <label for="qs_initiative" class="qs-label">
+                      {{ _('Initiative') }} <small class="text-muted">({{ _('optional') }})</small>
+                    </label>
+                    <select id="qs_initiative" class="form-control">
+                      <option value="">{{ _('Select an initiative...') }}</option>
+                      {% for ini in initiatives_list %}
+                        <option value="{{ ini.name }}">{{ ini.formatted_name or ini.title or ini.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <p class="qs-field-hint">{{ _('Link this publication to an IHP initiative (e.g., CRIDA, FRIEND, G-WADI)') }}</p>
+                  </div>
+                  {% endif %}
+
                   <div class="qs-step-actions">
                     <button type="button" class="btn btn-default btn-lg qs-back-btn" id="qs-back-2">
                       <i class="fa fa-arrow-left"></i> {{ _('Back') }}
@@ -235,6 +250,10 @@
                     <div class="qs-review-item" id="qs-review-org-row">
                       <span class="qs-review-label"><i class="fa fa-building-o"></i> {{ _('Organization') }}</span>
                       <span class="qs-review-value" id="qs-review-org">—</span>
+                    </div>
+                    <div class="qs-review-item" id="qs-review-initiative-row" style="display:none;">
+                      <span class="qs-review-label"><i class="fa fa-flag"></i> {{ _('Initiative') }}</span>
+                      <span class="qs-review-value" id="qs-review-initiative">—</span>
                     </div>
                   </div>
 
@@ -791,11 +810,21 @@
   .qs-dot-label {
     font-size: 0.65rem;
   }
-  .col-md-8.col-md-offset-2 {
+  .col-md-8.col-md-offset-2,
+  .col-lg-8.col-lg-offset-2,
+  .col-md-10.col-md-offset-1 {
     width: 100%;
     margin-left: 0;
     padding: 0 15px;
   }
+}
+</style>
+
+<style>
+/* ===== Centering fix ===== */
+.qs-form-row {
+  display: flex;
+  justify-content: center;
 }
 </style>
 
@@ -874,6 +903,12 @@
 
       var action = ($('#water-publications-action').val() || 'submit').toLowerCase();
       $('#field-private').val(action === 'publish' ? 'False' : 'True');
+
+      // Sync initiative
+      var ini = $('#qs_initiative').val();
+      if (ini) {
+        $('#initiative_groups').val(JSON.stringify([ini]));
+      }
     }
 
     // Auto-fill contact from user
@@ -908,6 +943,10 @@
       $('.qs-step-line').each(function(i) {
         $(this).toggleClass('active', i < step - 1);
       });
+
+      if (step === 2) {
+        updateStep2Button();
+      }
 
       if (step === 3) {
         updateReview();
@@ -955,6 +994,15 @@
         $('#qs-review-org-row').show();
       } else {
         $('#qs-review-org-row').hide();
+      }
+
+      // Initiative
+      var iniSelect = $('#qs_initiative');
+      if (iniSelect.length && iniSelect.val()) {
+        $('#qs-review-initiative').text(iniSelect.find('option:selected').text());
+        $('#qs-review-initiative-row').show();
+      } else {
+        $('#qs-review-initiative-row').hide();
       }
     }
 
