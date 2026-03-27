@@ -95,7 +95,7 @@ Prefijo: `/featured-viewers`
 
 Rutas detectadas:
 
-- `/`
+- `/` — listado público, acepta filtros `category`, `initiative`, `q`, `sort`
 - `/list`
 - `/new`
 - `/<slug>`
@@ -105,16 +105,20 @@ Rutas detectadas:
 - `/<slug>/publish`
 - `/<slug>/review`
 - `/pending-review`
-- `/rooms/`
-- `/rooms/new`
+- `/rooms/` — listado de map rooms, acepta filtros `initiative`, `q`
+- `/rooms/new` — creación de room con selección de viewers (checkboxes)
 - `/rooms/<slug>`
-- `/rooms/<slug>/edit`
+- `/rooms/<slug>/edit` — edición de room con selección de viewers (checkboxes)
 - `/rooms/<slug>/delete`
-- `/rooms/<slug>/add-viewer`
-- `/rooms/<slug>/remove-viewer`
+- `/rooms/<slug>/add-viewer` — API legacy, mantiene compatibilidad
+- `/rooms/<slug>/remove-viewer` — API legacy, mantiene compatibilidad
 - `/api/resolve-share-link`
 - `/api/save-to-terria`
 - `/api/search-terria-datasets`
+
+Acciones CKAN relevantes:
+
+- `sync_room_viewers` — sincroniza viewers de un room en una sola operación (agrega nuevos, elimina quitados)
 
 ## Acciones CKAN relevantes
 

@@ -23,6 +23,7 @@ def featured_viewer_schema():
         'slug': [ignore_missing, unicode_safe],
         'description': [ignore_missing, unicode_safe],
         'category': [ignore_missing, unicode_safe],
+        'initiative': [ignore_missing, unicode_safe],
         'icon_class': [ignore_missing, unicode_safe],
         'thumbnail_url': [ignore_missing, unicode_safe],
         'terria_share_link': [ignore_missing, unicode_safe],
@@ -141,4 +142,5 @@ def map_room_schema():
         'description': [ignore_missing, unicode_safe],
         'thumbnail_url': [ignore_missing, unicode_safe],
         'category': [ignore_missing, unicode_safe],
+        'initiative': [ignore_missing, unicode_safe],
     }

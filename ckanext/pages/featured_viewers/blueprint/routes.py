@@ -44,6 +44,7 @@ def index():
     limit = int(request.args.get('limit', 18))
     sort = request.args.get('sort', 'order')
     category_filter = request.args.get('category', '')
+    initiative_filter = request.args.get('initiative', '')
     q = request.args.get('q', '')
 
     offset = (page - 1) * limit
@@ -58,6 +59,8 @@ def index():
 
     if category_filter:
         data_dict['category'] = category_filter
+    if initiative_filter:
+        data_dict['initiative'] = initiative_filter
 
     # Use ignore_auth for public listing
     list_context = dict(context)
@@ -142,6 +145,7 @@ def index():
         'limit': limit,
         'sort': sort,
         'category_filter': category_filter,
+        'initiative_filter': initiative_filter,
         'q': q,
         'facets': facets,
         'categories': VIEWER_CATEGORIES,
@@ -588,6 +592,7 @@ def rooms_index():
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 18))
     category_filter = request.args.get('category', '')
+    initiative_filter = request.args.get('initiative', '')
     q = request.args.get('q', '')
     offset = (page - 1) * limit
 
@@ -599,6 +604,8 @@ def rooms_index():
     }
     if category_filter:
         data_dict['category'] = category_filter
+    if initiative_filter:
+        data_dict['initiative'] = initiative_filter
 
     try:
         result = tk.get_action('map_room_list')(list_context, data_dict)
@@ -629,6 +636,7 @@ def rooms_index():
         'total_pages': total_pages,
         'limit': limit,
         'category_filter': category_filter,
+        'initiative_filter': initiative_filter,
         'q': q,
         'categories': VIEWER_CATEGORIES,
         'can_create': can_create,
@@ -652,11 +660,28 @@ def rooms_create():
 
     from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES, AVAILABLE_ICONS
 
+    # Fetch all published viewers for the viewer selector
+    all_viewers = []
+    try:
+        viewer_result = tk.get_action('featured_viewer_list')(
+            {'ignore_auth': True}, {'status': 'published', 'limit': 200}
+        )
+        all_viewers = viewer_result.get('viewers', [])
+    except Exception:
+        pass
+
     if request.method == 'POST':
         data_dict = _extract_room_form_data(request.form)
+        viewer_ids = data_dict.pop('viewer_ids', [])
 
         try:
             room = tk.get_action('map_room_create')(context, data_dict)
+            # Sync selected viewers
+            if viewer_ids:
+                tk.get_action('sync_room_viewers')(context, {
+                    'room_id': room['id'],
+                    'viewer_ids': viewer_ids,
+                })
             flash(tk._('Map Room created successfully'), 'success')
             return redirect(url_for('featured_viewers.rooms_show', slug=room['slug']))
         except tk.ValidationError as e:
@@ -667,6 +692,7 @@ def rooms_create():
                 'is_new': True,
                 'categories': VIEWER_CATEGORIES,
                 'available_icons': AVAILABLE_ICONS,
+                'all_viewers': all_viewers,
             }
             return render_template('featured_viewers/rooms/edit.html', **extra_vars)
         except Exception as e:
@@ -679,6 +705,7 @@ def rooms_create():
                 'is_new': True,
                 'categories': VIEWER_CATEGORIES,
                 'available_icons': AVAILABLE_ICONS,
+                'all_viewers': all_viewers,
             }
             return render_template('featured_viewers/rooms/edit.html', **extra_vars)
 
@@ -689,6 +716,7 @@ def rooms_create():
         'is_new': True,
         'categories': VIEWER_CATEGORIES,
         'available_icons': AVAILABLE_ICONS,
+        'all_viewers': all_viewers,
     }
     return render_template('featured_viewers/rooms/edit.html', **extra_vars)
 
@@ -759,13 +787,27 @@ def rooms_edit(slug):
 
     if request.method == 'POST':
         data_dict = _extract_room_form_data(request.form)
+        viewer_ids = data_dict.pop('viewer_ids', [])
         data_dict['id'] = room['id']
 
         try:
             updated = tk.get_action('map_room_update')(context, data_dict)
+            # Sync selected viewers
+            tk.get_action('sync_room_viewers')(context, {
+                'room_id': room['id'],
+                'viewer_ids': viewer_ids,
+            })
             flash(tk._('Map Room updated'), 'success')
             return redirect(url_for('featured_viewers.rooms_show', slug=updated['slug']))
         except tk.ValidationError as e:
+            all_viewers = []
+            try:
+                viewer_result = tk.get_action('featured_viewer_list')(
+                    {'ignore_auth': True}, {'status': 'published', 'limit': 200}
+                )
+                all_viewers = viewer_result.get('viewers', [])
+            except Exception:
+                pass
             extra_vars = {
                 'data': {**room, **data_dict},
                 'errors': e.error_dict,
@@ -773,6 +815,7 @@ def rooms_edit(slug):
                 'is_new': False,
                 'categories': VIEWER_CATEGORIES,
                 'available_icons': AVAILABLE_ICONS,
+                'all_viewers': all_viewers,
             }
             return render_template('featured_viewers/rooms/edit.html', **extra_vars)
 
@@ -1172,6 +1215,7 @@ def _extract_form_data(form):
         'slug': form.get('slug', '').strip(),
         'description': form.get('description', '').strip(),
         'category': form.get('category', 'general'),
+        'initiative': form.get('initiative', '').strip() or None,
         'icon_class': form.get('icon_class', '').strip(),
         'thumbnail_url': form.get('thumbnail_url', '').strip(),
         'terria_share_link': form.get('terria_share_link', '').strip(),
@@ -1215,6 +1259,7 @@ def _extract_room_form_data(form):
         'description': form.get('description', '').strip(),
         'thumbnail_url': form.get('thumbnail_url', '').strip(),
         'category': form.get('category', 'general'),
+        'initiative': form.get('initiative', '').strip() or None,
         'status': form.get('status', 'draft'),
         'is_featured': form.get('is_featured') == 'on',
     }
@@ -1224,5 +1269,8 @@ def _extract_room_form_data(form):
         data_dict['order_index'] = int(order)
     except (ValueError, TypeError):
         data_dict['order_index'] = 0
+
+    # Collect selected viewer IDs from checkboxes
+    data_dict['viewer_ids'] = form.getlist('viewer_ids')
 
     return data_dict

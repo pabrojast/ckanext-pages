@@ -130,8 +130,11 @@ Características:
 
 - tablas propias
 - blueprint `/featured-viewers`
-- map rooms
+- map rooms (colecciones de viewers)
 - acciones CRUD y publish/review
+- campo `initiative` en viewers y map rooms para organizar por iniciativa (CRIDA, FRIEND, etc.)
+- selección de viewers al crear o editar un map room mediante checkboxes (sin flujo multi-paso)
+- filtro por iniciativa en listados de viewers y map rooms
 
 Se activa con:
 

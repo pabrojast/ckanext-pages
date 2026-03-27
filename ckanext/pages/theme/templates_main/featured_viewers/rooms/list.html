@@ -39,8 +39,9 @@
       <!-- Toolbar -->
       <div class="fv-toolbar" style="margin-bottom: 2rem;">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <form method="get" class="fv-search-form">
+              {% if initiative_filter %}<input type="hidden" name="initiative" value="{{ initiative_filter }}">{% endif %}
               <div class="input-group">
                 <input type="text" name="q" value="{{ q }}" class="form-control"
                        placeholder="{{ _('Search map rooms...') }}">
@@ -52,7 +53,23 @@
               </div>
             </form>
           </div>
-          <div class="col-md-6 text-right">
+          <div class="col-md-3">
+            <form method="get" id="initiative-filter-form">
+              {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+              <select name="initiative" class="form-control" onchange="this.form.submit();">
+                <option value="">{{ _('All Initiatives') }}</option>
+                {% for ini in h.get_available_initiatives() %}
+                <option value="{{ ini.name }}"{% if initiative_filter == ini.name %} selected{% endif %}>{{ ini.title }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
+          <div class="col-md-5 text-right">
+            {% if initiative_filter or q %}
+            <a href="{{ h.url_for('featured_viewers.rooms_index') }}" class="btn btn-default btn-lg" style="margin-right: 0.5rem;">
+              <i class="fa fa-times"></i> {{ _('Clear') }}
+            </a>
+            {% endif %}
             {% if can_create %}
             <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-primary btn-lg">
               <i class="fa fa-plus"></i> {{ _('Create Map Room') }}

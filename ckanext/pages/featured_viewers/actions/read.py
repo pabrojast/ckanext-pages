@@ -85,6 +85,10 @@ def featured_viewer_list(context, data_dict):
     if category:
         query = query.filter(FeaturedViewer.category == category)
 
+    initiative = data_dict.get('initiative')
+    if initiative:
+        query = query.filter(FeaturedViewer.initiative == initiative)
+
     is_featured = data_dict.get('is_featured')
     if is_featured is not None:
         query = query.filter(FeaturedViewer.is_featured == is_featured)
@@ -247,6 +251,10 @@ def map_room_list(context, data_dict):
         query = query.filter(MapRoom.status == status)
     if category:
         query = query.filter(MapRoom.category == category)
+
+    initiative = data_dict.get('initiative')
+    if initiative:
+        query = query.filter(MapRoom.initiative == initiative)
 
     total = query.count()
     rooms = query.order_by(MapRoom.order_index, MapRoom.title)\

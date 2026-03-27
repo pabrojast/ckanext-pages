@@ -64,6 +64,8 @@ def featured_viewer_update(context, data_dict):
         viewer.description = data['description']
     if 'category' in data:
         viewer.category = data['category']
+    if 'initiative' in data:
+        viewer.initiative = data['initiative'] or None
     if 'icon_class' in data:
         viewer.icon_class = data['icon_class']
     if 'thumbnail_url' in data:
@@ -203,7 +205,7 @@ def map_room_update(context, data_dict):
     if not room:
         raise tk.ObjectNotFound('Map room not found')
 
-    for field in ('title', 'description', 'thumbnail_url', 'category'):
+    for field in ('title', 'description', 'thumbnail_url', 'category', 'initiative'):
         if field in data_dict:
             setattr(room, field, data_dict[field])
 
@@ -287,4 +289,57 @@ def map_room_remove_viewer(context, data_dict):
     session.delete(link)
     session.commit()
 
+    return {'success': True}
+
+
+def sync_room_viewers(context, data_dict):
+    """
+    Synchronize the viewers in a map room: add new ones, remove deselected ones.
+
+    Args:
+        room_id: Map room ID (required)
+        viewer_ids: List of viewer IDs that should be in the room (required)
+    """
+    from ckanext.pages.featured_viewers.db.models import (
+        MapRoom, MapRoomViewer, FeaturedViewer,
+    )
+
+    tk.check_access('map_room_update', context, data_dict)
+
+    room_id = data_dict.get('room_id')
+    room = MapRoom.get(id=room_id)
+    if not room:
+        raise tk.ObjectNotFound('Map room not found')
+
+    desired_ids = set(data_dict.get('viewer_ids') or [])
+    session = context.get('session', model.Session)
+
+    # Current links
+    existing_links = session.query(MapRoomViewer).filter(
+        MapRoomViewer.room_id == room.id
+    ).all()
+    existing_ids = {link.viewer_id for link in existing_links}
+
+    # Remove viewers no longer selected
+    for link in existing_links:
+        if link.viewer_id not in desired_ids:
+            session.delete(link)
+
+    # Add new viewers
+    order = len(existing_ids)
+    for vid in desired_ids:
+        if vid not in existing_ids:
+            viewer = FeaturedViewer.get(id=vid)
+            if not viewer:
+                continue
+            link = MapRoomViewer()
+            link.id = make_uuid()
+            link.room_id = room.id
+            link.viewer_id = vid
+            link.order_index = order
+            link.created_at = datetime.datetime.utcnow()
+            session.add(link)
+            order += 1
+
+    session.commit()
     return {'success': True}

@@ -25,6 +25,7 @@ from ckanext.pages.featured_viewers.actions.update import (
     map_room_update,
     map_room_add_viewer,
     map_room_remove_viewer,
+    sync_room_viewers,
 )
 
 from ckanext.pages.featured_viewers.actions.delete import (
@@ -59,4 +60,5 @@ __all__ = [
     'map_room_delete',
     'map_room_add_viewer',
     'map_room_remove_viewer',
+    'sync_room_viewers',
 ]

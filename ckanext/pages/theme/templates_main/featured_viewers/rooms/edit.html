@@ -120,6 +120,24 @@
           {% endfor %}
         </select>
       </div>
+
+      <div class="form-group">
+        <label class="control-label" for="room-initiative">
+          <i class="fa fa-flag"></i> {{ _('Initiative') }}
+        </label>
+        <select id="room-initiative" name="initiative" class="form-control">
+          <option value="">{{ _('— No initiative —') }}</option>
+          {% for ini in h.get_available_initiatives() %}
+          <option value="{{ ini.name }}"{% if data.get('initiative') == ini.name %} selected{% endif %}>
+            {{ ini.title }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Optionally associate this room with an initiative (e.g., CRIDA, FRIEND).') }}
+        </span>
+      </div>
     </fieldset>
 
     {# ── Cover Image ── #}
@@ -204,66 +222,95 @@
       </div>
     </fieldset>
 
-    {# ── Viewers in this Room (edit mode only) ── #}
-    {% if is_edit %}
+    {# ── Viewers in this Room ── #}
+    {% if all_viewers is defined and all_viewers %}
     <fieldset>
       <legend><i class="fa fa-map"></i> {{ _('Viewers in this Room') }}</legend>
 
       {% set room_viewers = data.get('viewers', []) %}
-      {% if room_viewers %}
-      <div class="fv-room-viewer-list" style="margin-bottom: 1.5rem;">
-        {% for viewer in room_viewers %}
-        <div class="fv-room-viewer-item">
-          <div class="fv-room-viewer-info">
-            <i class="fa {{ viewer.icon_class or h.get_viewer_category_icon(viewer.category) or 'fa-map' }}"
-               style="color: {{ h.get_viewer_category_color(viewer.category) }};"></i>
-            <span>{{ viewer.title }}</span>
-            {% if viewer.category %}
-            <small class="text-muted">({{ h.get_viewer_category_title(viewer.category) }})</small>
-            {% endif %}
-          </div>
-          <form method="post" action="{{ h.url_for('featured_viewers.rooms_remove_viewer', slug=data.slug) }}"
-                style="display: inline;"
-                onsubmit="return confirm('{{ _('Remove this viewer from the room?') }}');">
-            {{ h.csrf_input() if 'csrf_input' in h }}
-            <input type="hidden" name="viewer_id" value="{{ viewer.id }}">
-            <button type="submit" class="btn btn-sm btn-danger">
-              <i class="fa fa-times"></i>
-            </button>
-          </form>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="text-muted" style="padding: 1rem; text-align: center; background: #f8f9fa; border-radius: 12px; border: 2px dashed #dee2e6;">
-        <i class="fa fa-info-circle"></i> {{ _('No viewers added yet. Save the room first, then add viewers below.') }}
-      </p>
-      {% endif %}
+      {% set existing_ids = room_viewers|map(attribute='id')|list %}
 
-      {# Add viewer form #}
-      {% if all_viewers is defined and all_viewers %}
-      <div class="fv-add-viewer-form" style="margin-top: 1rem;">
-        <form method="post" action="{{ h.url_for('featured_viewers.rooms_add_viewer', slug=data.slug) }}">
-          {{ h.csrf_input() if 'csrf_input' in h }}
-          <div class="input-group">
-            <select name="viewer_id" class="form-control">
-              <option value="">{{ _('Select a viewer to add...') }}</option>
-              {% set existing_ids = room_viewers|map(attribute='id')|list %}
-              {% for v in all_viewers %}
-                {% if v.id not in existing_ids %}
-                <option value="{{ v.id }}">{{ v.title }} ({{ h.get_viewer_category_title(v.category) }})</option>
-                {% endif %}
+      <div class="fv-viewer-selector">
+        <div class="fv-selector-toolbar" style="margin-bottom: 1rem;">
+          <input type="text" id="fv-viewer-search" class="form-control"
+                 placeholder="{{ _('Search viewers by name...') }}"
+                 style="max-width: 400px;">
+          <small class="text-muted" style="display: block; margin-top: 0.5rem;">
+            <i class="fa fa-check-square-o"></i>
+            <span id="fv-selected-count">{{ existing_ids|length }}</span> {{ _('viewer(s) selected') }}
+          </small>
+        </div>
+
+        <div class="fv-viewer-grid" id="fv-viewer-grid">
+          {% for cat_id, cat in categories.items() %}
+            {% set cat_viewers = all_viewers|selectattr('category', 'equalto', cat_id)|list %}
+            {% if cat_viewers %}
+            <div class="fv-selector-category" data-category="{{ cat_id }}">
+              <h4 class="fv-selector-cat-title" style="color: {{ cat.color }};">
+                <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
+                <small class="text-muted">({{ cat_viewers|length }})</small>
+              </h4>
+              <div class="fv-selector-items">
+                {% for v in cat_viewers %}
+                <label class="fv-selector-item" data-title="{{ v.title|lower }}">
+                  <input type="checkbox" name="viewer_ids" value="{{ v.id }}"
+                         {% if v.id in existing_ids %}checked{% endif %}>
+                  <span class="fv-selector-item-content">
+                    {% if v.thumbnail_url %}
+                    <img src="{{ v.thumbnail_url }}" alt="" class="fv-selector-thumb">
+                    {% else %}
+                    <span class="fv-selector-thumb-placeholder">
+                      <i class="fa {{ cat.icon }}"></i>
+                    </span>
+                    {% endif %}
+                    <span class="fv-selector-item-info">
+                      <strong>{{ v.title }}</strong>
+                      {% if v.description %}
+                      <small>{{ v.description|striptags|truncate(80) }}</small>
+                      {% endif %}
+                    </span>
+                  </span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+
+          {# Viewers without category or unknown category #}
+          {% set uncategorized = [] %}
+          {% set known_cats = categories.keys()|list %}
+          {% for v in all_viewers %}
+            {% if v.category not in known_cats %}
+              {% if uncategorized.append(v) %}{% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if uncategorized %}
+          <div class="fv-selector-category" data-category="other">
+            <h4 class="fv-selector-cat-title" style="color: #6c757d;">
+              <i class="fa fa-map"></i> {{ _('Other') }}
+              <small class="text-muted">({{ uncategorized|length }})</small>
+            </h4>
+            <div class="fv-selector-items">
+              {% for v in uncategorized %}
+              <label class="fv-selector-item" data-title="{{ v.title|lower }}">
+                <input type="checkbox" name="viewer_ids" value="{{ v.id }}"
+                       {% if v.id in existing_ids %}checked{% endif %}>
+                <span class="fv-selector-item-content">
+                  <span class="fv-selector-thumb-placeholder">
+                    <i class="fa fa-map"></i>
+                  </span>
+                  <span class="fv-selector-item-info">
+                    <strong>{{ v.title }}</strong>
+                  </span>
+                </span>
+              </label>
               {% endfor %}
-            </select>
-            <div class="input-group-btn">
-              <button type="submit" class="btn btn-primary">
-                <i class="fa fa-plus"></i> {{ _('Add Viewer') }}
-              </button>
             </div>
           </div>
-        </form>
+          {% endif %}
+        </div>
       </div>
-      {% endif %}
     </fieldset>
     {% endif %}
 
@@ -317,7 +364,7 @@
 <link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
 
 <style>
-/* Room viewer list items */
+/* Room viewer list items (legacy compat) */
 .fv-room-viewer-item {
   display: flex;
   align-items: center;
@@ -341,6 +388,90 @@
 .fv-room-viewer-info i {
   font-size: 1.2rem;
 }
+
+/* Viewer Selector (checkbox grid) */
+.fv-viewer-selector { margin-top: 0.5rem; }
+
+.fv-selector-cat-title {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid #e9ecef;
+}
+.fv-selector-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+}
+.fv-selector-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: #fff;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+.fv-selector-item:hover {
+  border-color: #90caf9;
+  background: #f0f7ff;
+}
+.fv-selector-item input[type="checkbox"] { margin: 0; flex-shrink: 0; }
+.fv-selector-item input[type="checkbox"]:checked + .fv-selector-item-content {
+  font-weight: 600;
+}
+.fv-selector-item:has(input:checked) {
+  border-color: #0072BC;
+  background: linear-gradient(135deg, #E3F2FD 0%, #fff 100%);
+}
+.fv-selector-item-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+.fv-selector-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.fv-selector-thumb-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #E3F2FD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0072BC;
+}
+.fv-selector-item-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fv-selector-item-info strong {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fv-selector-item-info small {
+  color: #6c757d;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fv-selector-item.fv-hidden { display: none; }
 
 /* Dropzone (reuse from viewer edit) */
 .upload-dropzone {
@@ -459,6 +590,36 @@ document.addEventListener('DOMContentLoaded', function() {
   if (urlInput) {
     urlInput.addEventListener('change', function() { hiddenUrl.value = this.value; });
   }
+
+  // Viewer search filter
+  var searchInput = document.getElementById('fv-viewer-search');
+  var countSpan = document.getElementById('fv-selected-count');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var q = this.value.toLowerCase();
+      var items = document.querySelectorAll('.fv-selector-item');
+      items.forEach(function(item) {
+        var title = item.getAttribute('data-title') || '';
+        item.classList.toggle('fv-hidden', q && title.indexOf(q) === -1);
+      });
+      // Hide empty categories
+      document.querySelectorAll('.fv-selector-category').forEach(function(cat) {
+        var visible = cat.querySelectorAll('.fv-selector-item:not(.fv-hidden)').length;
+        cat.style.display = visible ? '' : 'none';
+      });
+    });
+  }
+
+  // Update selected count on checkbox changes
+  function updateSelectedCount() {
+    if (countSpan) {
+      var checked = document.querySelectorAll('input[name="viewer_ids"]:checked').length;
+      countSpan.textContent = checked;
+    }
+  }
+  document.addEventListener('change', function(e) {
+    if (e.target.name === 'viewer_ids') updateSelectedCount();
+  });
 });
 </script>
 {% endblock %}

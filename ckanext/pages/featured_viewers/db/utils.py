@@ -49,7 +49,30 @@ def init_tables(engine):
         BaseModel = declarative_base(metadata=metadata)
 
     BaseModel.metadata.create_all(engine)
+
+    # Add new columns to existing tables (safe to run multiple times)
+    _add_column_if_not_exists(engine, 'featured_viewers', 'initiative', 'VARCHAR(100)')
+    _add_column_if_not_exists(engine, 'map_rooms', 'initiative', 'VARCHAR(100)')
+
     log.info("Featured Viewers tables initialized")
+
+
+def _add_column_if_not_exists(engine, table, column, col_type):
+    """Add a column to an existing table if it doesn't already exist."""
+    from sqlalchemy import text
+    try:
+        engine.execute(text(
+            f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {col_type}"
+        ))
+    except Exception:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text(
+                    f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {col_type}"
+                ))
+                conn.commit()
+        except Exception as e:
+            log.debug(f"Column {column} on {table} may already exist: {e}")
 
 
 def table_dictize(obj, context: Dict[str, Any], **kwargs) -> Dict[str, Any]:

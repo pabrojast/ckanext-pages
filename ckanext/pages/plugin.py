@@ -75,6 +75,7 @@ try:
         format_viewer_view_count,
         get_available_icons,
         json_loads as fv_json_loads,
+        get_available_initiatives,
     )
     from ckanext.pages.featured_viewers import actions as fv_actions
     from ckanext.pages.featured_viewers import auth as fv_auth
@@ -1424,6 +1425,7 @@ class PagesPlugin(PagesPluginBase):
                 'format_viewer_view_count': format_viewer_view_count,
                 'get_available_icons': get_available_icons,
                 'fv_json_loads': fv_json_loads,
+                'get_available_initiatives': get_available_initiatives,
             })
 
         helpers.update({
@@ -1538,6 +1540,7 @@ class PagesPlugin(PagesPluginBase):
                 'map_room_delete': fv_actions.map_room_delete,
                 'map_room_add_viewer': fv_actions.map_room_add_viewer,
                 'map_room_remove_viewer': fv_actions.map_room_remove_viewer,
+                'sync_room_viewers': fv_actions.sync_room_viewers,
             }
             actions_dict.update(featured_viewers_actions)
         return actions_dict

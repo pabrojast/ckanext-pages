@@ -52,6 +52,7 @@ class FeaturedViewer(DomainObject, BaseModel):
 
     # Categorization
     category = Column(String(100), index=True)
+    initiative = Column(String(100), nullable=True, index=True)
     icon_class = Column(String(100))
     thumbnail_url = Column(Text)
 
@@ -91,6 +92,7 @@ class FeaturedViewer(DomainObject, BaseModel):
     __table_args__ = (
         Index('idx_featured_viewers_status', 'status'),
         Index('idx_featured_viewers_category', 'category'),
+        Index('idx_featured_viewers_initiative', 'initiative'),
         Index('idx_featured_viewers_author', 'author_id'),
         Index('idx_featured_viewers_featured', 'is_featured'),
         Index('idx_featured_viewers_order', 'order_index'),
@@ -186,6 +188,7 @@ class MapRoom(DomainObject, BaseModel):
     description = Column(Text)
     thumbnail_url = Column(Text)
     category = Column(String(100), index=True)
+    initiative = Column(String(100), nullable=True, index=True)
     status = Column(String(50), default='draft', index=True)
     is_featured = Column(Boolean, default=False)
     order_index = Column(Integer, default=0)
@@ -215,6 +218,7 @@ class MapRoom(DomainObject, BaseModel):
     __table_args__ = (
         Index('idx_map_rooms_status', 'status'),
         Index('idx_map_rooms_category', 'category'),
+        Index('idx_map_rooms_initiative', 'initiative'),
     )
 
     def __repr__(self):

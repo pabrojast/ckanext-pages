@@ -116,7 +116,7 @@
                   <input type="hidden" name="category" value="{{ category_filter }}">
                   {% endif %}
                   <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label for="q" class="sr-only">{{ _('Search') }}</label>
                         <input type="text" name="q" id="q" class="form-control"
@@ -124,6 +124,17 @@
                       </div>
                     </div>
                     <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="initiative" class="sr-only">{{ _('Initiative') }}</label>
+                        <select name="initiative" id="initiative" class="form-control">
+                          <option value="">{{ _('All Initiatives') }}</option>
+                          {% for ini in h.get_available_initiatives() %}
+                          <option value="{{ ini.name }}"{% if initiative_filter == ini.name %} selected{% endif %}>{{ ini.title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
                       <div class="form-group">
                         <label for="sort" class="sr-only">{{ _('Sort by') }}</label>
                         <select name="sort" id="sort" class="form-control">
@@ -138,7 +149,7 @@
                       <button type="submit" class="btn btn-primary btn-block">
                         <i class="fa fa-search"></i> {{ _('Search') }}
                       </button>
-                      {% if q or category_filter %}
+                      {% if q or category_filter or initiative_filter %}
                       <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default btn-block" style="margin-top: 0.5rem;">
                         <i class="fa fa-times"></i> {{ _('Clear') }}
                       </a>

@@ -137,6 +137,24 @@
         </span>
       </div>
 
+      {# Initiative #}
+      <div class="form-group">
+        <label class="control-label" for="fv-initiative">
+          <i class="fa fa-flag"></i> {{ _('Initiative') }}
+        </label>
+        <select id="fv-initiative" name="initiative" class="form-control">
+          <option value="">{{ _('— No initiative —') }}</option>
+          {% for ini in h.get_available_initiatives() %}
+          <option value="{{ ini.name }}"{% if data.get('initiative') == ini.name %} selected{% endif %}>
+            {{ ini.title }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help-text">
+          {{ _('Optionally associate this viewer with an initiative (e.g., CRIDA, FRIEND).') }}
+        </span>
+      </div>
+
       {# Organization #}
       <div class="form-group">
         <label class="control-label" for="fv-organization">

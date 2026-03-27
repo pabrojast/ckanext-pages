@@ -76,12 +76,14 @@ Estas tablas se crean mediante `init_tables(model.meta.engine)`, no por migracio
 
 Tablas detectadas en `ckanext/pages/featured_viewers/db/models.py`:
 
-- `featured_viewers`
+- `featured_viewers` — columnas incluyen `initiative` (String(100), nullable, indexada)
 - `viewer_datasets`
-- `map_rooms`
+- `map_rooms` — columnas incluyen `initiative` (String(100), nullable, indexada)
 - `map_room_viewers`
 
 También se crean con `init_tables(model.meta.engine)`.
+
+Las columnas `initiative` se agregan mediante `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` dentro de `init_tables()` para compatibilidad con bases de datos existentes (sin Alembic).
 
 ## Event Types
 

@@ -87,3 +87,22 @@ def json_loads(value):
         return json.loads(value)
     except Exception:
         return []
+
+
+def get_available_initiatives():
+    """Return list of CKAN groups usable as initiatives for viewers/rooms."""
+    from ckan import model
+    try:
+        group_rows = (
+            model.Session.query(model.Group.name, model.Group.title)
+            .filter(model.Group.state == 'active')
+            .filter(model.Group.type == 'group')
+            .order_by(model.Group.title)
+            .all()
+        )
+        return [
+            {'name': g.name, 'title': g.title or g.name}
+            for g in group_rows
+        ]
+    except Exception:
+        return []

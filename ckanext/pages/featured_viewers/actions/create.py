@@ -76,6 +76,7 @@ def featured_viewer_create(context, data_dict):
     viewer.slug = data['slug']
     viewer.description = data.get('description', '')
     viewer.category = data.get('category', 'general')
+    viewer.initiative = data.get('initiative') or data_dict.get('initiative') or None
     viewer.icon_class = data.get('icon_class', '')
     viewer.thumbnail_url = data.get('thumbnail_url', '')
     viewer.terria_share_link = data.get('terria_share_link', '')
@@ -161,6 +162,7 @@ def map_room_create(context, data_dict):
     room.description = data.get('description', '')
     room.thumbnail_url = data.get('thumbnail_url', '')
     room.category = data.get('category', 'general')
+    room.initiative = data.get('initiative') or data_dict.get('initiative') or None
     room.author_id = user_obj.id
     room.status = data_dict.get('status', 'draft')
     room.is_featured = bool(data_dict.get('is_featured', False))
