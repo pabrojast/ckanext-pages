@@ -95,7 +95,7 @@ Prefijo: `/featured-viewers`
 
 Rutas detectadas:
 
-- `/` — listado público, acepta filtros `category`, `initiative`, `q`, `sort`
+- `/` — landing unificada: carga rooms (máx 6) + viewers paginados, initiative pills (JS), buscador que filtra ambos. Acepta filtros `category`, `initiative`, `q`, `sort`
 - `/list`
 - `/new`
 - `/<slug>`

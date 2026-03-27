@@ -20,284 +20,587 @@
         </ol>
       </nav>
 
-      <!-- Hero Banner -->
-      <section class="module module-narrow module-shallow">
-        <div class="section-title" style="margin-bottom: 2rem;">
+      {# ================================================================ #}
+      {# HERO BANNER — compact with unified search                        #}
+      {# ================================================================ #}
+      <section class="fv-hero-banner">
+        <div class="section-title" style="margin-bottom: 0;">
           <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
           <div class="section-title-overlay"></div>
           <div class="section-title-content">
             <h1>{{ _('Featured Viewers & Map Rooms') }}</h1>
-            <p class="section-title-description">{{ _('Explore thematical map rooms with preloaded maps and data layers for water-related monitoring and analysis.') }}</p>
+            <p class="section-title-description">{{ _('Explore curated map collections and individual thematic viewers for water-related monitoring and analysis.') }}</p>
+
+            <!-- Unified Search -->
+            <form method="get" class="fv-hero-search" style="max-width: 600px; margin: 1.5rem auto 0;">
+              <div class="input-group input-group-lg">
+                <input type="text" name="q" class="form-control" value="{{ q or '' }}"
+                       placeholder="{{ _('Search map rooms and viewers...') }}"
+                       style="border-radius: 25px 0 0 25px; border: 2px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.95); font-size: 1rem; padding: 0.6rem 1.5rem;">
+                <div class="input-group-btn">
+                  <button type="submit" class="btn btn-primary"
+                          style="border-radius: 0 25px 25px 0; padding: 0.6rem 1.5rem; background: #0072BC; border-color: #0072BC;">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </section>
     </div>
 
     <div class="container">
-      <div class="row">
-        <div class="col-md-12">
 
-          <!-- Action Bar -->
-          <div class="fv-actions-bar" style="margin-bottom: 3rem;">
-            <section class="module module-narrow">
-              <div class="module-content" style="padding: 1.5rem 2.5rem;">
-                <div class="row">
-                  <div class="col-md-8">
-                    <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Thematic Map Rooms') }}</h2>
-                    <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Discover interactive map viewers for water-related monitoring and analysis') }}</p>
-                  </div>
-                  <div class="col-md-4 text-right">
-                    {% if can_create %}
-                    <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary btn-lg">
-                      <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
-                    </a>
-                    {% endif %}
-                    <a href="{{ h.url_for('featured_viewers.rooms_index') }}" class="btn btn-default btn-lg">
-                      <i class="fa fa-th-large"></i> {{ _('Map Rooms') }}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
+      {# ================================================================ #}
+      {# INITIATIVE PILLS — horizontal filter, no page reload             #}
+      {# ================================================================ #}
+      {% if initiatives %}
+      <div class="fv-initiative-pills" style="margin: 1.5rem 0; text-align: center;">
+        <button class="fv-pill active" data-initiative="all"
+                onclick="filterByInitiative('all')">
+          <i class="fa fa-th"></i> {{ _('All') }}
+        </button>
+        {% for ini in initiatives %}
+        <button class="fv-pill {% if initiative_filter == ini.name %}active{% endif %}" data-initiative="{{ ini.name }}"
+                onclick="filterByInitiative('{{ ini.name }}')">
+          <i class="fa fa-flag"></i> {{ ini.title }}
+        </button>
+        {% endfor %}
 
-          <!-- My Drafts (visible to creator) -->
-          {% if my_drafts %}
-          <div class="my-drafts-section" style="margin-bottom: 2rem;">
-            <section class="module module-narrow">
-              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #FFF8E1 0%, #ffffff 100%); border-bottom: 3px solid #FFE082;">
-                <h2 style="margin: 0; color: #F57F17; font-size: 1.3rem;">
-                  <i class="fa fa-pencil-square-o" style="margin-right: 0.5rem;"></i>
-                  {{ _('My Drafts') }}
-                  <span class="badge" style="background: #F57F17; color: #fff; font-size: 0.75rem; margin-left: 0.5rem; border-radius: 10px; padding: 0.2rem 0.6rem;">{{ my_drafts|length }}</span>
-                </h2>
-              </div>
-              <div class="module-content" style="padding: 1.5rem 2.5rem;">
-                <div class="row stories-grid">
-                  {% for viewer in my_drafts %}
-                  <div class="col-md-6 col-lg-4">
-                    {% include "featured_viewers/components/viewer_card.html" %}
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-            </section>
+        {% if q or category_filter or initiative_filter %}
+        <a href="{{ h.url_for('featured_viewers.index') }}" class="fv-pill fv-pill-clear" title="{{ _('Clear all filters') }}">
+          <i class="fa fa-times"></i> {{ _('Clear') }}
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# ================================================================ #}
+      {# ACTION BAR — create/admin buttons                                #}
+      {# ================================================================ #}
+      {% if can_create or can_review %}
+      <div class="fv-admin-bar" style="margin-bottom: 1.5rem; text-align: right;">
+        {% if can_create %}
+        <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary">
+          <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
+        </a>
+        <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-default">
+          <i class="fa fa-plus"></i> {{ _('Create Map Room') }}
+        </a>
+        {% endif %}
+        {% if can_review and pending_count > 0 %}
+        <a href="{{ h.url_for('featured_viewers.pending_review') }}" class="btn btn-warning">
+          <i class="fa fa-gavel"></i> {{ _('Pending Review') }}
+          <span class="badge">{{ pending_count }}</span>
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# ================================================================ #}
+      {# MAP ROOMS SECTION — prominent, shown first on page 1             #}
+      {# ================================================================ #}
+      {% if rooms and page == 1 %}
+      <section class="fv-rooms-section" style="margin-bottom: 3rem;">
+        <div class="fv-section-header" style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; border: none;">
+              <i class="fa fa-th-large" style="margin-right: 0.5rem;"></i>
+              {{ _('Map Room Collections') }}
+            </h2>
+            <p style="margin: 0.3rem 0 0 0; color: #6c757d; font-size: 0.95rem;">{{ _('Curated sets of thematic maps ready to explore') }}</p>
           </div>
+          {% if rooms_total > 6 %}
+          <a href="{{ h.url_for('featured_viewers.rooms_index') }}" class="btn btn-default">
+            {{ _('View all') }} ({{ rooms_total }}) <i class="fa fa-arrow-right"></i>
+          </a>
           {% endif %}
+        </div>
 
-          <!-- Category Tabs -->
-          <div class="fv-categories" style="margin-bottom: 1.5rem;">
-            <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q) }}"
-               class="fv-category-tab {% if not category_filter %}active{% endif %}">
-              <i class="fa fa-th"></i> {{ _('All') }}
-              <span class="fv-cat-count">{{ total_count }}</span>
-            </a>
-            {% for cat_id, cat in categories.items() %}
-              {% set cat_count = facets.get('categories', {}).get(cat_id, 0) %}
-              {% if cat_count > 0 or not category_filter %}
-              <a href="{{ h.url_for('featured_viewers.index', category=cat_id, sort=sort, q=q) }}"
-                 class="fv-category-tab {% if category_filter == cat_id %}active{% endif %}"
-                 {% if category_filter == cat_id %}style="background: {{ cat.color }}; border-color: {{ cat.color }}; color: #fff;"{% endif %}>
-                <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
-                {% if cat_count > 0 %}
-                <span class="fv-cat-count">{{ cat_count }}</span>
-                {% endif %}
-              </a>
+        <div class="row fv-rooms-grid">
+          {% for room in rooms %}
+          <div class="col-md-6 col-lg-4 fv-room-item" data-initiative="{{ room.initiative or '' }}">
+            {% include "featured_viewers/components/room_card.html" %}
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if rooms_total > 6 %}
+        <div class="text-center" style="margin-top: 1.5rem;">
+          <a href="{{ h.url_for('featured_viewers.rooms_index') }}" class="btn btn-default btn-lg">
+            <i class="fa fa-th-large"></i> {{ _('Browse all {count} Map Rooms').format(count=rooms_total) }}
+          </a>
+        </div>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      {# ================================================================ #}
+      {# VIEWERS SECTION — individual viewers with category tabs           #}
+      {# ================================================================ #}
+      <section class="fv-viewers-section">
+        <div class="fv-section-header" style="margin-bottom: 1.5rem;">
+          <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; border: none;">
+            <i class="fa fa-map" style="margin-right: 0.5rem;"></i>
+            {{ _('Individual Viewers') }}
+          </h2>
+          <p style="margin: 0.3rem 0 0 0; color: #6c757d; font-size: 0.95rem;">{{ _('Explore thematic map viewers with preloaded data layers') }}</p>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="fv-categories" style="margin-bottom: 1.5rem;">
+          <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q, initiative=initiative_filter) }}"
+             class="fv-category-tab {% if not category_filter %}active{% endif %}">
+            <i class="fa fa-th"></i> {{ _('All') }}
+            <span class="fv-cat-count">{{ total_count }}</span>
+          </a>
+          {% for cat_id, cat in categories.items() %}
+            {% set cat_count = facets.get('categories', {}).get(cat_id, 0) %}
+            {% if cat_count > 0 or not category_filter %}
+            <a href="{{ h.url_for('featured_viewers.index', category=cat_id, sort=sort, q=q, initiative=initiative_filter) }}"
+               class="fv-category-tab {% if category_filter == cat_id %}active{% endif %}"
+               {% if category_filter == cat_id %}style="background: {{ cat.color }}; border-color: {{ cat.color }}; color: #fff;"{% endif %}>
+              <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
+              {% if cat_count > 0 %}
+              <span class="fv-cat-count">{{ cat_count }}</span>
               {% endif %}
-            {% endfor %}
-          </div>
-
-          <!-- Filters -->
-          <div class="data-stories-filters" style="margin-bottom: 2rem;">
-            <section class="module module-narrow">
-              <div class="module-content" style="padding: 1.5rem 2.5rem;">
-                <form method="get">
-                  {% if category_filter %}
-                  <input type="hidden" name="category" value="{{ category_filter }}">
-                  {% endif %}
-                  <div class="row">
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label for="q" class="sr-only">{{ _('Search') }}</label>
-                        <input type="text" name="q" id="q" class="form-control"
-                               placeholder="{{ _('Search viewers...') }}" value="{{ q or '' }}">
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="form-group">
-                        <label for="initiative" class="sr-only">{{ _('Initiative') }}</label>
-                        <select name="initiative" id="initiative" class="form-control">
-                          <option value="">{{ _('All Initiatives') }}</option>
-                          {% for ini in h.get_available_initiatives() %}
-                          <option value="{{ ini.name }}"{% if initiative_filter == ini.name %} selected{% endif %}>{{ ini.title }}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-2">
-                      <div class="form-group">
-                        <label for="sort" class="sr-only">{{ _('Sort by') }}</label>
-                        <select name="sort" id="sort" class="form-control">
-                          <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
-                          <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
-                          <option value="order"{% if sort == 'order' %} selected{% endif %}>{{ _('Recommended') }}</option>
-                          <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('Alphabetical') }}</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fa fa-search"></i> {{ _('Search') }}
-                      </button>
-                      {% if q or category_filter or initiative_filter %}
-                      <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default btn-block" style="margin-top: 0.5rem;">
-                        <i class="fa fa-times"></i> {{ _('Clear') }}
-                      </a>
-                      {% endif %}
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </section>
-          </div>
-
-          <!-- Featured Viewers (page 1 only) -->
-          {% if featured_viewers and page == 1 and not category_filter and not q %}
-          <div class="featured-stories" style="margin-bottom: 3rem;">
-            <section class="module module-narrow">
-              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
-                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
-                  <i class="fa fa-star" style="color: #FFB800; margin-right: 0.5rem;"></i>
-                  {{ _('Featured Map Rooms') }}
-                </h2>
-              </div>
-              <div class="module-content" style="padding: 2rem 2.5rem;">
-                <div class="row stories-grid">
-                  {% for viewer in featured_viewers %}
-                  <div class="col-md-6 col-lg-4">
-                    {% include "featured_viewers/components/viewer_card.html" %}
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-            </section>
-          </div>
-          {% endif %}
-
-          <!-- Viewer list -->
-          <div class="story-list">
-            {% if page > 1 or featured_viewers %}
-            <section class="module module-narrow" style="margin-bottom: 2rem;">
-              <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-bottom: 2px solid #e9ecef;">
-                <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">{{ _('All Viewers') }}</h2>
-              </div>
-            </section>
+            </a>
             {% endif %}
+          {% endfor %}
+        </div>
 
+        <!-- Sort control -->
+        <div class="fv-sort-bar" style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+          <div class="results-info" style="color: #6c757d; font-size: 0.9rem;">
             {% if total_count > 0 %}
               {% set end_count = page * limit %}
               {% if end_count > total_count %}{% set end_count = total_count %}{% endif %}
-              <div class="results-info" style="padding: 1rem 0; margin-bottom: 1.5rem; color: #6c757d;">
-                <i class="fa fa-info-circle"></i>
-                {{ _('Showing {start} – {end} of {total} viewers').format(
-                  start=(page - 1) * limit + 1,
-                  end=end_count,
-                  total=total_count
-                ) }}
-              </div>
-
-              <div class="row stories-grid">
-                {% for viewer in viewers %}
-                <div class="col-md-6 col-lg-4">
-                  {% include "featured_viewers/components/viewer_card.html" %}
-                </div>
-                {% endfor %}
-              </div>
-
-              <!-- Pagination -->
-              {% if total_pages > 1 %}
-              <nav aria-label="Viewer pagination" style="margin-top: 3rem;">
-                <section class="module module-narrow">
-                  <div class="module-content" style="padding: 1.5rem 2.5rem; text-align: center;">
-                    <ul class="pagination" style="margin: 0; justify-content: center;">
-                      {% if page > 1 %}
-                      <li>
-                        <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, q=q) }}"
-                           aria-label="{{ _('Previous') }}"
-                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
-                          <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
-                        </a>
-                      </li>
-                      {% endif %}
-
-                      {% for p in range(1, total_pages + 1) %}
-                        {% if p == page %}
-                        <li class="active">
-                          <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
-                        </li>
-                        {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
-                        <li>
-                          <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, q=q) }}"
-                             style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
-                        </li>
-                        {% elif p == 4 or p == total_pages - 3 %}
-                        <li class="disabled"><span style="padding: 0.5rem 0.75rem;">...</span></li>
-                        {% endif %}
-                      {% endfor %}
-
-                      {% if page < total_pages %}
-                      <li>
-                        <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, q=q) }}"
-                           aria-label="{{ _('Next') }}"
-                           style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
-                          {{ _('Next') }} <i class="fa fa-chevron-right"></i>
-                        </a>
-                      </li>
-                      {% endif %}
-                    </ul>
-                  </div>
-                </section>
-              </nav>
-              {% endif %}
-
-            {% else %}
-              <div class="empty-state">
-                <section class="module module-narrow">
-                  <div class="module-content" style="padding: 4rem 2.5rem; text-align: center;">
-                    <i class="fa fa-map-o fa-5x" style="color: #e9ecef; margin-bottom: 1.5rem;"></i>
-                    <h3 style="color: #6c757d; margin-bottom: 1rem;">{{ _('No viewers found') }}</h3>
-                    <p style="color: #6c757d; margin-bottom: 1.5rem;">
-                      {% if q or category_filter %}
-                        {{ _('Try adjusting your search or filters') }}
-                      {% else %}
-                        {{ _('No featured viewers match your current filters.') }}
-                      {% endif %}
-                    </p>
-                    {% if q or category_filter %}
-                    <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default" style="margin-right: 0.5rem;">
-                      <i class="fa fa-times"></i> {{ _('Clear filters') }}
-                    </a>
-                    {% endif %}
-                    {% if can_create %}
-                    <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary btn-lg">
-                      <i class="fa fa-plus"></i> {{ _('Create the first viewer') }}
-                    </a>
-                    {% endif %}
-                  </div>
-                </section>
-              </div>
+              <i class="fa fa-info-circle"></i>
+              {{ _('Showing {start}–{end} of {total} viewers').format(
+                start=(page - 1) * limit + 1,
+                end=end_count,
+                total=total_count
+              ) }}
             {% endif %}
           </div>
-
+          <form method="get" class="fv-sort-form" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            {% if category_filter %}<input type="hidden" name="category" value="{{ category_filter }}">{% endif %}
+            {% if initiative_filter %}<input type="hidden" name="initiative" value="{{ initiative_filter }}">{% endif %}
+            {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+            <label for="sort" style="margin: 0; color: #6c757d; white-space: nowrap; font-size: 0.9rem;">{{ _('Sort:') }}</label>
+            <select name="sort" id="sort" class="form-control input-sm" onchange="this.form.submit();"
+                    style="width: auto; display: inline-block;">
+              <option value="order"{% if sort == 'order' %} selected{% endif %}>{{ _('Recommended') }}</option>
+              <option value="recent"{% if sort == 'recent' %} selected{% endif %}>{{ _('Most Recent') }}</option>
+              <option value="popular"{% if sort == 'popular' %} selected{% endif %}>{{ _('Most Popular') }}</option>
+              <option value="alphabetical"{% if sort == 'alphabetical' %} selected{% endif %}>{{ _('A → Z') }}</option>
+            </select>
+          </form>
         </div>
-      </div>
+
+        <!-- Viewer Grid -->
+        {% if total_count > 0 %}
+        <div class="row stories-grid">
+          {% for viewer in viewers %}
+          <div class="col-md-6 col-lg-4 fv-viewer-item" data-initiative="{{ viewer.initiative or '' }}">
+            {% include "featured_viewers/components/viewer_card.html" %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <nav aria-label="Viewer pagination" style="margin-top: 3rem;">
+          <section class="module module-narrow">
+            <div class="module-content" style="padding: 1.5rem 2.5rem; text-align: center;">
+              <ul class="pagination" style="margin: 0; justify-content: center;">
+                {% if page > 1 %}
+                <li>
+                  <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, q=q) }}"
+                     aria-label="{{ _('Previous') }}"
+                     style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                    <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
+                  </a>
+                </li>
+                {% endif %}
+
+                {% for p in range(1, total_pages + 1) %}
+                  {% if p == page %}
+                  <li class="active">
+                    <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
+                  </li>
+                  {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
+                  <li>
+                    <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, q=q) }}"
+                       style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
+                  </li>
+                  {% elif p == 4 or p == total_pages - 3 %}
+                  <li class="disabled"><span style="padding: 0.5rem 0.75rem;">...</span></li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page < total_pages %}
+                <li>
+                  <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, q=q) }}"
+                     aria-label="{{ _('Next') }}"
+                     style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                    {{ _('Next') }} <i class="fa fa-chevron-right"></i>
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </section>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty state -->
+        <div class="empty-state">
+          <section class="module module-narrow">
+            <div class="module-content" style="padding: 4rem 2.5rem; text-align: center;">
+              <i class="fa fa-map-o fa-5x" style="color: #e9ecef; margin-bottom: 1.5rem;"></i>
+              <h3 style="color: #6c757d; margin-bottom: 1rem;">{{ _('No viewers found') }}</h3>
+              <p style="color: #6c757d; margin-bottom: 1.5rem;">
+                {% if q or category_filter or initiative_filter %}
+                  {{ _('Try adjusting your search or filters') }}
+                {% else %}
+                  {{ _('No featured viewers are available yet.') }}
+                {% endif %}
+              </p>
+              {% if q or category_filter or initiative_filter %}
+              <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default" style="margin-right: 0.5rem;">
+                <i class="fa fa-times"></i> {{ _('Clear filters') }}
+              </a>
+              {% endif %}
+              {% if can_create %}
+              <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary btn-lg">
+                <i class="fa fa-plus"></i> {{ _('Create the first viewer') }}
+              </a>
+              {% endif %}
+            </div>
+          </section>
+        </div>
+        {% endif %}
+      </section>
+
+      {# ================================================================ #}
+      {# MY DRAFTS — collapsible, at the bottom, only if has items        #}
+      {# ================================================================ #}
+      {% if my_drafts %}
+      <section class="fv-drafts-section" style="margin-top: 3rem;">
+        <details class="fv-drafts-details">
+          <summary class="fv-drafts-summary">
+            <i class="fa fa-pencil-square-o"></i>
+            {{ _('My Drafts') }}
+            <span class="badge" style="background: #F57F17; color: #fff; font-size: 0.75rem; margin-left: 0.5rem; border-radius: 10px; padding: 0.2rem 0.6rem;">{{ my_drafts|length }}</span>
+          </summary>
+          <div class="fv-drafts-content">
+            <div class="row stories-grid">
+              {% for viewer in my_drafts %}
+              <div class="col-md-6 col-lg-4">
+                {% include "featured_viewers/components/viewer_card.html" %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </details>
+      </section>
+      {% endif %}
+
     </div>
   </div>
   {% endblock %}
 </div>
 
-<!-- Load shared design system CSS and featured-viewers specific CSS -->
+<!-- Stylesheets -->
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
 <link rel="stylesheet" type="text/css" href="/css/featured-viewers.css" />
+
+<!-- Initiative pills filtering + room card styles -->
+<style>
+/* ── Initiative Pills ── */
+.fv-initiative-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 1rem 0;
+}
+.fv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.fv-pill:hover {
+  border-color: #0072BC;
+  color: #0072BC;
+  background: #E3F2FD;
+}
+.fv-pill.active {
+  background: #0072BC;
+  border-color: #0072BC;
+  color: #fff;
+}
+.fv-pill-clear {
+  border-color: #ffcdd2;
+  color: #c62828;
+  text-decoration: none;
+}
+.fv-pill-clear:hover {
+  background: #ffebee;
+  border-color: #c62828;
+  color: #c62828;
+  text-decoration: none;
+}
+
+/* ── Room Card Hero ── */
+.room-card-hero {
+  margin-bottom: 1.5rem;
+}
+.room-card-inner {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.room-card-inner:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,114,188,0.15);
+}
+.room-card-image {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0072BC 0%, #00A5E3 100%);
+}
+.room-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.room-card-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255,255,255,0.4);
+  font-size: 3rem;
+}
+.room-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+}
+.room-viewer-count {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0,0,0,0.3);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+.room-featured-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: #FFB800;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.room-card-body {
+  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.room-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.room-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.room-initiative-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.room-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.3;
+}
+.room-card-title a {
+  color: #1a1a2e;
+  text-decoration: none;
+}
+.room-card-title a:hover {
+  color: #0072BC;
+}
+.room-card-desc {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+  flex: 1;
+}
+.room-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0072BC;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: gap 0.2s ease;
+}
+.room-card-cta:hover {
+  gap: 0.7rem;
+  text-decoration: none;
+  color: #005A9C;
+}
+
+/* ── Drafts Collapsible ── */
+.fv-drafts-details {
+  border: 2px solid #FFE082;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.fv-drafts-summary {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #FFF8E1 0%, #ffffff 100%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #F57F17;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.fv-drafts-summary::-webkit-details-marker { display: none; }
+.fv-drafts-summary::before {
+  content: '▸';
+  transition: transform 0.2s ease;
+  font-size: 0.85rem;
+}
+.fv-drafts-details[open] .fv-drafts-summary::before {
+  transform: rotate(90deg);
+}
+.fv-drafts-content {
+  padding: 1.5rem;
+}
+
+/* ── Admin Bar ── */
+.fv-admin-bar .btn { margin-left: 0.5rem; }
+
+/* ── Section headers ── */
+.fv-section-header { border-bottom: 2px solid #E3F2FD; padding-bottom: 1rem; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .fv-initiative-pills { gap: 0.3rem; }
+  .fv-pill { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+  .room-card-image { height: 160px; }
+  .fv-section-header { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+  .fv-admin-bar { text-align: left; }
+  .fv-admin-bar .btn { margin: 0 0.5rem 0.5rem 0; }
+}
+</style>
+
+<script>
+// Initiative pills: client-side filtering
+function filterByInitiative(initiative) {
+  // Update pill states
+  document.querySelectorAll('.fv-pill').forEach(function(pill) {
+    pill.classList.remove('active');
+    if (pill.dataset.initiative === initiative) pill.classList.add('active');
+  });
+
+  // Filter room cards
+  document.querySelectorAll('.fv-room-item').forEach(function(item) {
+    if (initiative === 'all' || !item.dataset.initiative || item.dataset.initiative === initiative) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+
+  // Filter viewer cards
+  document.querySelectorAll('.fv-viewer-item').forEach(function(item) {
+    if (initiative === 'all' || !item.dataset.initiative || item.dataset.initiative === initiative) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+
+  // For server-side filtering on pagination, update URL
+  if (initiative !== 'all') {
+    var url = new URL(window.location);
+    url.searchParams.set('initiative', initiative);
+    window.history.replaceState({}, '', url);
+  } else {
+    var url = new URL(window.location);
+    url.searchParams.delete('initiative');
+    window.history.replaceState({}, '', url);
+  }
+}
+
+// On page load, activate correct pill from URL
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var ini = params.get('initiative');
+  if (ini) {
+    filterByInitiative(ini);
+  }
+})();
+</script>
+
 <script src="/js/featured-viewers.js"></script>
 {% endblock %}

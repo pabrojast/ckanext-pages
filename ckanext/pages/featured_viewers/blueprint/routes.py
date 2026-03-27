@@ -37,7 +37,7 @@ def _get_context():
 @featured_viewers_blueprint.route('/')
 @featured_viewers_blueprint.route('/list')
 def index():
-    """List all published featured viewers."""
+    """List all published featured viewers and map rooms (unified landing)."""
     context = _get_context()
 
     page = int(request.args.get('page', 1))
@@ -95,6 +95,31 @@ def index():
             log.error(f"Error getting featured viewers: {str(e)}")
             model.Session.rollback()
 
+    # Get map rooms for landing section (page 1 only)
+    rooms = []
+    rooms_total = 0
+    if page == 1:
+        rooms_data_dict = {
+            'limit': 6,
+            'offset': 0,
+            'status': 'published',
+        }
+        if q:
+            rooms_data_dict['q'] = q
+        if initiative_filter:
+            rooms_data_dict['initiative'] = initiative_filter
+        try:
+            rooms_result = tk.get_action('map_room_list')(list_context, rooms_data_dict)
+            rooms = rooms_result.get('rooms', [])
+            rooms_total = rooms_result.get('count', 0)
+        except Exception as e:
+            log.error(f"Error listing rooms for landing: {str(e)}")
+            model.Session.rollback()
+
+    # Get available initiatives for pills
+    from ckanext.pages.featured_viewers.helpers import get_available_initiatives
+    initiatives = get_available_initiatives()
+
     # Get categories for filter tabs
     from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
 
@@ -139,6 +164,9 @@ def index():
     extra_vars = {
         'viewers': viewers,
         'featured_viewers': featured_viewers,
+        'rooms': rooms,
+        'rooms_total': rooms_total,
+        'initiatives': initiatives,
         'total_count': total_count,
         'page': page,
         'total_pages': total_pages,

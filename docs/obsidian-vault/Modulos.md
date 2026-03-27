@@ -136,6 +136,15 @@ Características:
 - selección de viewers al crear o editar un map room mediante checkboxes (sin flujo multi-paso)
 - filtro por iniciativa en listados de viewers y map rooms
 
+Landing unificada (`/featured-viewers/`):
+
+- hero compacto con buscador unificado (filtra rooms y viewers)
+- pills horizontales de iniciativas (filtrado client-side JS)
+- sección prominente de Map Rooms (cards grandes, máx 6, con conteo de viewers)
+- sección de viewers individuales con category tabs y paginación
+- sección My Drafts colapsable al final (solo para creadores)
+- componente `room_card.html` diferenciado de `viewer_card.html`
+
 Se activa con:
 
 - `ckanext.featured_viewers.enabled`

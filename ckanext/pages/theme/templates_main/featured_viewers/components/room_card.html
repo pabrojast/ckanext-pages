@@ -1,0 +1,69 @@
+{#
+Room card component — displays a map room as a prominent collection card.
+Larger and more visual than viewer cards to establish hierarchy.
+
+Variables:
+- room: Room dict with all fields including viewer_count
+#}
+
+{% set cat_info = h.get_viewer_category_info(room.category or 'general') %}
+
+<div class="room-card-hero" data-initiative="{{ room.initiative or '' }}">
+  <article class="room-card-inner">
+    <!-- Thumbnail -->
+    <div class="room-card-image">
+      {% if room.thumbnail_url %}
+      <img src="{{ room.thumbnail_url }}" alt="{{ room.title }}" loading="lazy">
+      {% else %}
+      <div class="room-card-placeholder">
+        <i class="fa fa-th-large"></i>
+      </div>
+      {% endif %}
+
+      <!-- Overlay with viewer count -->
+      <div class="room-card-overlay">
+        <span class="room-viewer-count">
+          <i class="fa fa-map"></i>
+          {{ room.viewer_count or 0 }} {{ _('maps') }}
+        </span>
+      </div>
+
+      <!-- Featured badge -->
+      {% if room.is_featured %}
+      <div class="room-featured-badge">
+        <i class="fa fa-star"></i>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Content -->
+    <div class="room-card-body">
+      <!-- Category + Initiative badges -->
+      <div class="room-card-badges">
+        <span class="room-cat-badge" style="background: {{ cat_info.color }};">
+          <i class="fa {{ cat_info.icon }}"></i> {{ cat_info.title }}
+        </span>
+        {% if room.initiative %}
+        <span class="room-initiative-badge">
+          <i class="fa fa-flag"></i> {{ room.initiative }}
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Title -->
+      <h3 class="room-card-title">
+        <a href="{{ h.url_for('featured_viewers.rooms_show', slug=room.slug) }}">{{ room.title }}</a>
+      </h3>
+
+      <!-- Description -->
+      {% if room.description %}
+      <p class="room-card-desc">{{ h.markdown_extract(room.description, extract_length=120) }}</p>
+      {% endif %}
+
+      <!-- CTA -->
+      <a href="{{ h.url_for('featured_viewers.rooms_show', slug=room.slug) }}" class="room-card-cta">
+        {{ _('Explore Collection') }} <i class="fa fa-arrow-right"></i>
+      </a>
+    </div>
+  </article>
+</div>
