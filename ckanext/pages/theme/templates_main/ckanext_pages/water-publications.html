@@ -232,18 +232,77 @@
                 </div>
                 {% endif %}
 
-                <!-- Download & Access -->
-                {% if c.page.publication_url or c.page.download_url %}
-                <div class="water-publication-access" style="margin-bottom: 3rem;">
+                <!-- Document Viewer & Access -->
+                {% set doc_url = c.page.download_url or c.page.publication_url or '' %}
+                {% set doc_format = (c.page.document_format or '')|lower %}
+                {% if not doc_format and doc_url %}
+                  {% set doc_format = doc_url.split('.')[-1].split('?')[0]|lower if '.' in doc_url.split('/')[-1] else '' %}
+                {% endif %}
+                {% set is_pdf = doc_format == 'pdf' or 'pdf' in (c.page.document_mimetype or '')|lower %}
+                {% set is_image = doc_format in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'] %}
+
+                {% if doc_url %}
+                <div class="water-publication-viewer" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-access">
                     <div class="module-content">
                       <div class="water-section-header">
                         <div class="water-section-icon">
-                          <i class="fa fa-download"></i>
+                          <i class="fa fa-{% if is_pdf %}file-pdf-o{% elif is_image %}image{% else %}file-o{% endif %}"></i>
                         </div>
-                        <h2>{{ _('Access Publication') }}</h2>
+                        <h2>{{ _('Document') }}</h2>
                       </div>
-                      <div class="access-buttons" style="text-align: center; margin-top: 2rem;">
+
+                      {% if is_pdf %}
+                      {# ── Inline PDF Viewer ── #}
+                      <div class="wp-pdf-viewer-wrap">
+                        <iframe id="wp-pdf-iframe"
+                                src="/pdfjs/web/viewer.html?file={{ doc_url|urlencode }}#pagemode=none"
+                                class="wp-pdf-iframe"
+                                frameborder="0" allowfullscreen>
+                        </iframe>
+                        <div id="wp-pdf-fallback" class="wp-pdf-fallback" style="display:none;">
+                          <i class="fa fa-file-pdf-o fa-4x" style="color:#dc3545; margin-bottom:1rem;"></i>
+                          <h4>{{ _('PDF preview not available') }}</h4>
+                          <p class="text-muted">{{ _('The document could not be previewed. Use the buttons below to access it.') }}</p>
+                        </div>
+                      </div>
+                      {% elif is_image %}
+                      {# ── Inline Image Preview ── #}
+                      <div class="wp-image-preview">
+                        <img src="{{ doc_url }}" alt="{{ c.page.title }}" class="img-responsive"
+                             style="max-width:100%; max-height:600px; border-radius:8px; margin:1rem auto; display:block;">
+                      </div>
+                      {% else %}
+                      {# ── Non-viewable format: file card ── #}
+                      <div class="wp-file-card">
+                        <div class="wp-file-card-icon">
+                          {% if doc_format in ['doc', 'docx'] %}
+                            <i class="fa fa-file-word-o fa-3x" style="color:#2b579a;"></i>
+                          {% elif doc_format in ['xls', 'xlsx', 'csv'] %}
+                            <i class="fa fa-file-excel-o fa-3x" style="color:#217346;"></i>
+                          {% elif doc_format in ['ppt', 'pptx'] %}
+                            <i class="fa fa-file-powerpoint-o fa-3x" style="color:#d24726;"></i>
+                          {% elif doc_format in ['zip', 'rar', '7z', 'tar', 'gz'] %}
+                            <i class="fa fa-file-archive-o fa-3x" style="color:#f0ad4e;"></i>
+                          {% elif doc_format in ['mp4', 'webm', 'avi', 'mov'] %}
+                            <i class="fa fa-file-video-o fa-3x" style="color:#5bc0de;"></i>
+                          {% elif doc_format in ['mp3', 'wav', 'ogg'] %}
+                            <i class="fa fa-file-audio-o fa-3x" style="color:#9b59b6;"></i>
+                          {% else %}
+                            <i class="fa fa-file-o fa-3x" style="color:#6c757d;"></i>
+                          {% endif %}
+                        </div>
+                        <div class="wp-file-card-info">
+                          <p class="wp-file-card-name">{{ c.page.title }}</p>
+                          {% if doc_format %}
+                            <span class="wp-file-card-badge">{{ doc_format|upper }}</span>
+                          {% endif %}
+                        </div>
+                      </div>
+                      {% endif %}
+
+                      {# ── Always show access buttons below ── #}
+                      <div class="access-buttons" style="text-align: center; margin-top: 1.5rem;">
                         {% if c.page.publication_url %}
                           <a href="{{ c.page.publication_url }}" target="_blank" class="btn btn-primary btn-lg" style="margin: 0.5rem;">
                             <i class="fa fa-external-link"></i> {{ _('Read Online') }}
@@ -251,10 +310,12 @@
                         {% endif %}
                         {% if c.page.download_url %}
                           <a href="{{ c.page.download_url }}" target="_blank" class="btn btn-success btn-lg" style="margin: 0.5rem;">
-                            <i class="fa fa-download"></i> {{ _('Download PDF') }}
+                            <i class="fa fa-download"></i> {{ _('Download') }}
+                            {% if doc_format %}<small>({{ doc_format|upper }})</small>{% endif %}
                           </a>
                         {% endif %}
                       </div>
+
                     </div>
                   </section>
                 </div>
@@ -365,7 +426,41 @@
                 {% endif %}
 
                 <!-- Organization -->
-                {% if h.has_meaningful_content(c.page.organization) %}
+                {% if org_details %}
+                <div class="water-publication-organization" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-overview">
+                    <div class="module-content">
+                      <div class="water-section-header">
+                        <div class="water-section-icon">
+                          <i class="fa fa-building"></i>
+                        </div>
+                        <h2>{{ _('Organization') }}</h2>
+                      </div>
+                      <div class="wp-org-grid">
+                        <a href="/organization/{{ org_details.name }}" class="wp-card wp-card--org">
+                          <div class="wp-card-img">
+                            {% if org_details.image_display_url %}
+                              <img src="{{ org_details.image_display_url }}" alt="{{ org_details.display_name or org_details.title }}">
+                            {% else %}
+                              <i class="fa fa-building"></i>
+                            {% endif %}
+                          </div>
+                          <div class="wp-card-body">
+                            <h3 class="wp-card-title">{{ org_details.display_name or org_details.title or org_details.name }}</h3>
+                            {% if org_details.description %}
+                              <p class="wp-card-desc">{{ h.markdown_extract(org_details.description, 120) }}</p>
+                            {% endif %}
+                          </div>
+                          <div class="wp-card-footer">
+                            <span class="wp-card-link-hint"><i class="fa fa-external-link"></i> {{ _('View organization') }}</span>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% elif h.has_meaningful_content(c.page.organization) %}
+                {# Fallback to plain text if no org_details resolved #}
                 <div class="water-publication-organization" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-overview">
                     <div class="module-content">
@@ -384,46 +479,70 @@
                 {% endif %}
 
                 <!-- Member States & Initiatives -->
-                {% if has_associations %}
+                {% set has_ms = member_state_details|default([])|length > 0 %}
+                {% set has_ini = initiative_details|default([])|length > 0 %}
+                {% if has_ms or has_ini %}
                 <div class="water-publication-associations" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-overview">
                     <div class="module-content">
+
+                      {% if has_ini %}
+                      <div class="water-section-header">
+                        <div class="water-section-icon" style="background:#e8f5e9; color:#2e7d32;">
+                          <i class="fa fa-lightbulb-o"></i>
+                        </div>
+                        <h2>{{ _('Initiatives') }}</h2>
+                      </div>
+                      <div class="wp-card-grid">
+                        {% for ini in initiative_details %}
+                        <a href="/initiatives/{{ ini.name }}" class="wp-card wp-card--initiative">
+                          <div class="wp-card-img">
+                            {% if ini.image_display_url %}
+                              <img src="{{ ini.image_display_url }}" alt="{{ ini.display_name }}">
+                            {% else %}
+                              <i class="fa fa-lightbulb-o"></i>
+                            {% endif %}
+                          </div>
+                          <div class="wp-card-body">
+                            <h3 class="wp-card-title">{{ ini.display_name or ini.title or ini.name }}</h3>
+                            {% if ini.description %}
+                              <p class="wp-card-desc">{{ ini.description[:80] }}{% if ini.description|length > 80 %}…{% endif %}</p>
+                            {% endif %}
+                          </div>
+                          <div class="wp-card-footer">
+                            <span class="wp-card-link-hint"><i class="fa fa-arrow-right"></i> {{ _('View initiative') }}</span>
+                          </div>
+                        </a>
+                        {% endfor %}
+                      </div>
+                      {% endif %}
+
+                      {% if has_ms %}
+                      {% if has_ini %}<hr style="margin:1.5rem 0; border-color:#eee;">{% endif %}
                       <div class="water-section-header">
                         <div class="water-section-icon">
                           <i class="fa fa-globe"></i>
                         </div>
-                        <h2>{{ _('Member States & Initiatives') }}</h2>
+                        <h2>{{ _('Member States') }}</h2>
                       </div>
-                      <div class="row">
-                        {% if member_states and member_states|length > 0 %}
-                        <div class="{% if initiatives and initiatives|length > 0 %}col-md-6{% else %}col-md-12{% endif %}">
-                          <h4 style="color: var(--unesco-blue, #0072BC); font-weight: 700; margin-bottom: 1rem;">
-                            <i class="fa fa-flag"></i> {{ _('Member States') }}
-                          </h4>
-                          <div class="association-chips">
-                            {% for state in member_states %}
-                              <span class="association-chip member-state-chip">
-                                {{ h.format_member_state_name(state.name) if state.name is defined else state }}
-                              </span>
-                            {% endfor %}
+                      <div class="wp-card-grid">
+                        {% for ms in member_state_details %}
+                        <a href="/memberstates/{{ ms.name }}" class="wp-card wp-card--memberstate">
+                          <div class="wp-card-img">
+                            {% if ms.image_display_url %}
+                              <img src="{{ ms.image_display_url }}" alt="{{ ms.display_name }}">
+                            {% else %}
+                              <i class="fa fa-globe"></i>
+                            {% endif %}
                           </div>
-                        </div>
-                        {% endif %}
-                        {% if initiatives and initiatives|length > 0 %}
-                        <div class="{% if member_states and member_states|length > 0 %}col-md-6{% else %}col-md-12{% endif %}">
-                          <h4 style="color: #2e7d32; font-weight: 700; margin-bottom: 1rem;">
-                            <i class="fa fa-rocket"></i> {{ _('Initiatives') }}
-                          </h4>
-                          <div class="association-chips">
-                            {% for ini in initiatives %}
-                              <span class="association-chip initiative-chip">
-                                {{ h.format_member_state_name(ini.name) if ini.name is defined else ini }}
-                              </span>
-                            {% endfor %}
+                          <div class="wp-card-body">
+                            <h3 class="wp-card-title">{{ ms.display_name }}</h3>
                           </div>
-                        </div>
-                        {% endif %}
+                        </a>
+                        {% endfor %}
                       </div>
+                      {% endif %}
+
                     </div>
                   </section>
                 </div>
@@ -1006,41 +1125,146 @@ float: inherit !important;
   }
 }
 
-/* Association Chips (Member States & Initiatives) */
-.association-chips {
+/* ── PDF Viewer ── */
+.wp-pdf-viewer-wrap {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+  border: 1px solid #e0e0e0;
+}
+.wp-pdf-iframe {
+  width: 100%;
+  height: 75vh;
+  min-height: 500px;
+  display: block;
+  border: none;
+}
+.wp-pdf-fallback {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: #f9f9f9;
+}
+.wp-image-preview {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* ── Non-PDF File Card ── */
+.wp-file-card {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.association-chip {
-  display: inline-flex;
   align-items: center;
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  background: var(--unesco-gray, #f8f9fa);
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
 }
-
-.member-state-chip {
+.wp-file-card-info { flex: 1; }
+.wp-file-card-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+  color: var(--text-primary, #2c3e50);
+}
+.wp-file-card-badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
   background: var(--unesco-blue-pale, #E3F2FD);
-  color: var(--unesco-blue-dark, #005A9C);
-  border: 1px solid rgba(0, 114, 188, 0.15);
+  color: var(--unesco-blue, #0072BC);
+  letter-spacing: 0.04em;
 }
 
-.member-state-chip:hover {
-  background: rgba(0, 114, 188, 0.15);
+/* ── Shared Card Grid (org, member states, initiatives) ── */
+.wp-org-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 1rem;
+}
+.wp-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 1rem;
+}
+.wp-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.wp-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: inherit;
+}
+.wp-card-img {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #f9f9f9;
+}
+.wp-card-img img {
+  max-height: 76px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.wp-card-img .fa {
+  font-size: 36px;
+  color: #ccc;
+}
+.wp-card--org .wp-card-img { height: 110px; }
+.wp-card--org .wp-card-img .fa { color: var(--unesco-blue, #0072BC); opacity: 0.4; }
+.wp-card--initiative .wp-card-img .fa { color: #2e7d32; opacity: 0.5; }
+.wp-card--memberstate .wp-card-img .fa { color: var(--unesco-blue, #0072BC); opacity: 0.4; }
+.wp-card-body {
+  flex: 1;
+  padding: 10px 12px 6px;
+}
+.wp-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  line-height: 1.3;
+  color: var(--text-primary, #2c3e50);
+}
+.wp-card-desc {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+.wp-card-footer {
+  padding: 6px 12px 10px;
+}
+.wp-card-link-hint {
+  font-size: 12px;
+  color: var(--unesco-blue, #0072BC);
+  font-weight: 500;
+}
+.wp-card:hover .wp-card-link-hint {
+  text-decoration: underline;
 }
 
-.initiative-chip {
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid rgba(46, 125, 50, 0.15);
-}
-
-.initiative-chip:hover {
-  background: rgba(46, 125, 50, 0.15);
+@media (max-width: 768px) {
+  .wp-pdf-iframe { height: 50vh; min-height: 350px; }
+  .wp-card-grid, .wp-org-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .wp-card-img { height: 70px; padding: 8px; }
+  .wp-card-img img { max-height: 54px; }
+  .wp-card-img .fa { font-size: 28px; }
 }
 </style>
 
@@ -1127,6 +1351,31 @@ float: inherit !important;
       }
     });
     
+    // PDF viewer fallback
+    var pdfIframe = document.getElementById('wp-pdf-iframe');
+    var pdfFallback = document.getElementById('wp-pdf-fallback');
+    if (pdfIframe && pdfFallback) {
+      pdfIframe.onerror = function() {
+        pdfIframe.style.display = 'none';
+        pdfFallback.style.display = 'block';
+      };
+      // Also test with a timeout — if iframe doesn't load in 8s, show fallback
+      setTimeout(function() {
+        try {
+          // If iframe loaded but has no content, show fallback
+          if (pdfIframe.contentWindow &&
+              pdfIframe.contentWindow.document &&
+              pdfIframe.contentWindow.document.body &&
+              pdfIframe.contentWindow.document.body.innerHTML === '') {
+            pdfIframe.style.display = 'none';
+            pdfFallback.style.display = 'block';
+          }
+        } catch(e) {
+          // Cross-origin — viewer loaded fine, do nothing
+        }
+      }, 8000);
+    }
+
     // Debug info
     console.log('Water Publications gallery initialized');
     console.log('Gallery images found:', $('.gallery-image').length);

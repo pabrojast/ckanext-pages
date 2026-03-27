@@ -218,6 +218,31 @@
                   </div>
                   {% endif %}
 
+                  {% if member_states_list|default([]) %}
+                  <div class="form-group">
+                    <label for="qs_member_state" class="qs-label">
+                      {{ _('Member States') }} <small class="text-muted">({{ _('optional') }})</small>
+                    </label>
+                    <div class="qs-ms-selector">
+                      <div class="input-group">
+                        <select id="qs_member_state" class="form-control">
+                          <option value="">{{ _('Search and add a country...') }}</option>
+                          {% for ms in member_states_list %}
+                            <option value="{{ ms.name }}" data-display="{{ ms.formatted_name }}">{{ ms.formatted_name }}</option>
+                          {% endfor %}
+                        </select>
+                        <span class="input-group-btn">
+                          <button type="button" class="btn btn-primary" id="qs-add-ms">
+                            <i class="fa fa-plus"></i>
+                          </button>
+                        </span>
+                      </div>
+                      <div id="qs-ms-chips" class="qs-ms-chips"></div>
+                    </div>
+                    <p class="qs-field-hint">{{ _('Countries associated with this publication') }}</p>
+                  </div>
+                  {% endif %}
+
                   <div class="qs-step-actions">
                     <button type="button" class="btn btn-default btn-lg qs-back-btn" id="qs-back-2">
                       <i class="fa fa-arrow-left"></i> {{ _('Back') }}
@@ -252,8 +277,12 @@
                       <span class="qs-review-value" id="qs-review-org">—</span>
                     </div>
                     <div class="qs-review-item" id="qs-review-initiative-row" style="display:none;">
-                      <span class="qs-review-label"><i class="fa fa-flag"></i> {{ _('Initiative') }}</span>
+                      <span class="qs-review-label"><i class="fa fa-lightbulb-o"></i> {{ _('Initiative') }}</span>
                       <span class="qs-review-value" id="qs-review-initiative">—</span>
+                    </div>
+                    <div class="qs-review-item" id="qs-review-ms-row" style="display:none;">
+                      <span class="qs-review-label"><i class="fa fa-globe"></i> {{ _('Member States') }}</span>
+                      <span class="qs-review-value" id="qs-review-ms">—</span>
                     </div>
                   </div>
 
@@ -826,6 +855,33 @@
   display: flex;
   justify-content: center;
 }
+/* ===== Member State Chips ===== */
+.qs-ms-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.qs-ms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: var(--qs-blue-pale, #E3F2FD);
+  color: var(--qs-blue-dark, #005A9C);
+  border: 1px solid rgba(0,114,188,0.15);
+  animation: qs-fadeIn 0.2s ease;
+}
+.qs-ms-chip .qs-ms-remove {
+  cursor: pointer;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-left: 0.2rem;
+}
+.qs-ms-chip .qs-ms-remove:hover { opacity: 1; }
 </style>
 
 <!-- Quick Share JavaScript -->
@@ -908,6 +964,15 @@
       var ini = $('#qs_initiative').val();
       if (ini) {
         $('#initiative_groups').val(JSON.stringify([ini]));
+      }
+
+      // Sync member states
+      var msChips = [];
+      $('#qs-ms-chips .qs-ms-chip').each(function() {
+        msChips.push($(this).data('value'));
+      });
+      if (msChips.length) {
+        $('#country_groups').val(JSON.stringify(msChips));
       }
     }
 
@@ -1004,6 +1069,18 @@
       } else {
         $('#qs-review-initiative-row').hide();
       }
+
+      // Member States
+      var msNames = [];
+      $('#qs-ms-chips .qs-ms-chip').each(function() {
+        msNames.push($(this).data('display'));
+      });
+      if (msNames.length) {
+        $('#qs-review-ms').text(msNames.join(', '));
+        $('#qs-review-ms-row').show();
+      } else {
+        $('#qs-review-ms-row').hide();
+      }
     }
 
     // File size formatting
@@ -1082,6 +1159,33 @@
     // Title input
     $('#dataset_title').on('input', function() {
       updateStep2Button();
+    });
+
+    // Member States selector
+    function addMemberState(val, display) {
+      if (!val) return;
+      if ($('#qs-ms-chips .qs-ms-chip[data-value="' + val + '"]').length) return;
+      var chip = $('<span class="qs-ms-chip"></span>')
+        .attr('data-value', val)
+        .attr('data-display', display)
+        .html(display + ' <i class="fa fa-times qs-ms-remove"></i>');
+      chip.find('.qs-ms-remove').on('click', function() { chip.remove(); });
+      $('#qs-ms-chips').append(chip);
+      $('#qs_member_state').val('');
+    }
+    $('#qs-add-ms').on('click', function() {
+      var sel = $('#qs_member_state');
+      var val = sel.val();
+      if (!val) return;
+      var display = sel.find('option:selected').data('display') || sel.find('option:selected').text();
+      addMemberState(val, display);
+    });
+    // Also add on Enter in select
+    $('#qs_member_state').on('change', function() {
+      var val = $(this).val();
+      if (!val) return;
+      var display = $(this).find('option:selected').data('display') || $(this).find('option:selected').text();
+      addMemberState(val, display);
     });
 
     // Navigation buttons

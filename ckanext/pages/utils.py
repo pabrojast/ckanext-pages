@@ -980,6 +980,108 @@ def _generate_unique_dataset_name(base_name):
     return f"{base_name}-{str(uuid.uuid4())[:6]}"
 
 
+def _enrich_publication_display(_page):
+    """Resolve org, member-state and initiative slugs into full objects
+    for rich card display on the publication view page."""
+    from ckan import model
+    result = {
+        'org_details': None,
+        'member_state_details': [],
+        'initiative_details': [],
+    }
+
+    # --- Organization details ---
+    org_id = (_page.get('organization_id') or _page.get('ihp_organization')
+              or '').strip()
+    if org_id:
+        try:
+            org = tk.get_action('organization_show')(
+                {'ignore_auth': True},
+                {'id': org_id, 'include_datasets': False}
+            )
+            result['org_details'] = org
+        except Exception:
+            pass
+
+    # --- Resolve groups (member states + initiatives) ---
+    def _parse_group_list(raw):
+        if not raw:
+            return []
+        if isinstance(raw, str):
+            try:
+                import json
+                raw = json.loads(raw)
+            except (json.JSONDecodeError, ValueError):
+                return []
+        if not isinstance(raw, list):
+            return []
+        names = []
+        for item in raw:
+            if isinstance(item, dict):
+                names.append(item.get('name', ''))
+            elif isinstance(item, str):
+                names.append(item)
+        return [n for n in names if n]
+
+    ms_slugs = _parse_group_list(_page.get('country_groups'))
+    ini_slugs = _parse_group_list(_page.get('initiative_groups'))
+
+    all_slugs = list(set(ms_slugs + ini_slugs))
+    if all_slugs:
+        try:
+            groups = (
+                model.Session.query(
+                    model.Group.name,
+                    model.Group.title,
+                    model.Group.image_url,
+                    model.Group.description,
+                )
+                .filter(
+                    model.Group.name.in_(all_slugs),
+                    model.Group.state == 'active',
+                )
+                .all()
+            )
+            group_map = {}
+            for g in groups:
+                img_url = g.image_url or ''
+                if img_url and not img_url.startswith(('http://', 'https://')):
+                    img_url = '/uploads/group/' + img_url
+                group_map[g.name] = {
+                    'name': g.name,
+                    'title': g.title or g.name,
+                    'display_name': g.title or
+                    _format_member_state_name(g.name),
+                    'image_display_url': img_url,
+                    'description': g.description or '',
+                }
+        except Exception:
+            group_map = {}
+
+        result['member_state_details'] = [
+            group_map.get(s, {
+                'name': s,
+                'display_name': _format_member_state_name(s),
+                'title': _format_member_state_name(s),
+                'image_display_url': '',
+                'description': '',
+            })
+            for s in ms_slugs
+        ]
+        result['initiative_details'] = [
+            group_map.get(s, {
+                'name': s,
+                'display_name': s,
+                'title': s,
+                'image_display_url': '',
+                'description': '',
+            })
+            for s in ini_slugs
+        ]
+
+    return result
+
+
 def _inject_views_into_page(_page):
     # this is a good proxy to a version of CKAN with views enabled.
     if not p.plugin_loaded('image_view'):
@@ -1087,7 +1189,14 @@ def pages_show(page=None, page_type='page'):
     tk.c.page = _page
     _inject_views_into_page(_page)
 
-    return tk.render('ckanext_pages/%s.html' % page_type)
+    extra_vars = {}
+
+    # Enrich water-publications with org/group details for display
+    if page_type == 'water-publications':
+        extra_vars.update(_enrich_publication_display(_page))
+
+    return tk.render('ckanext_pages/%s.html' % page_type,
+                     extra_vars=extra_vars)
 
 
 def pages_revisions(page, page_type='page'):
