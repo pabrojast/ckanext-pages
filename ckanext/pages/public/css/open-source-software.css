@@ -1724,6 +1724,8 @@
 
 .regular-content {
   margin-top: 1rem;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .regular-content h1,
@@ -1767,12 +1769,38 @@
 .regular-content ol {
   margin-bottom: 1rem;
   padding-left: 2rem;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.regular-content ul ul,
+.regular-content ul ol,
+.regular-content ol ul,
+.regular-content ol ol {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .regular-content li {
   margin-bottom: 0.5rem;
   line-height: 1.6;
   color: var(--text-primary);
+}
+
+.regular-content li,
+.regular-content li p,
+.regular-content li span,
+.regular-content li a,
+.regular-content li strong,
+.regular-content li em,
+.regular-content li code {
+  font-size: inherit !important;
+  line-height: inherit;
+  color: inherit;
+}
+
+.regular-content li p {
+  margin-bottom: 0.35rem;
 }
 
 .regular-content blockquote {

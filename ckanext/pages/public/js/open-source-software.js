@@ -66,6 +66,57 @@
           button.classList.remove('expanded');
         }
       };
+
+      function normalizeOrderedListsIn(container) {
+        if (!container || !container.children || !container.children.length) {
+          return;
+        }
+
+        var nextStart = null;
+
+        Array.prototype.forEach.call(container.children, function(child) {
+          if (child.tagName === 'OL') {
+            var itemCount = Array.prototype.filter.call(child.children, function(item) {
+              return item.tagName === 'LI';
+            }).length;
+
+            if (!itemCount) {
+              return;
+            }
+
+            if (nextStart !== null && !child.hasAttribute('start')) {
+              child.setAttribute('start', String(nextStart));
+            }
+
+            var currentStart = parseInt(child.getAttribute('start'), 10);
+            if (isNaN(currentStart) || currentStart < 1) {
+              currentStart = 1;
+            }
+
+            nextStart = currentStart + itemCount;
+
+            Array.prototype.forEach.call(child.children, function(listItem) {
+              if (listItem.tagName === 'LI') {
+                normalizeOrderedListsIn(listItem);
+              }
+            });
+
+            return;
+          }
+
+          normalizeOrderedListsIn(child);
+        });
+      }
+
+      function normalizeOrderedLists() {
+        var containers = document.querySelectorAll(
+          '.regular-content, .installation-content, .learning-resources-content, .requirements-content'
+        );
+
+        Array.prototype.forEach.call(containers, function(container) {
+          normalizeOrderedListsIn(container);
+        });
+      }
       
       // ================================================================
       // MULTI-SELECT DROPDOWN FUNCTIONALITY
@@ -410,6 +461,7 @@
       // Initialize all functionality
       enhanceResourceLinks();
       initializeFileUploads();
+      normalizeOrderedLists();
       
       // ================================================================
       // FILTER RESET FUNCTIONALITY
