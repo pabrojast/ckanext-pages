@@ -1472,6 +1472,7 @@ def water_family_upload(context, data_dict):
             - upload: File object to upload
             - water_content_type: Type of water content (water-news, water-events, water-publications)
             - file_type: Type of file (image, document, thumbnail)
+            - asset_role: Optional semantic role for the asset (e.g. agenda_document)
             - is_logo: Boolean, if True processes image as logo (optional)
             - add_background: Boolean, add white background to logo (optional)
 
@@ -1492,6 +1493,7 @@ def water_family_upload(context, data_dict):
     # Extract water-specific parameters
     water_content_type = data_dict.get('water_content_type', '')
     file_type = data_dict.get('file_type', 'image')
+    asset_role = data_dict.get('asset_role', '')
 
     # Validate water content type
     valid_water_types = ['water-news', 'water-events', 'water-publications']
@@ -1499,7 +1501,7 @@ def water_family_upload(context, data_dict):
         log.error(f"[WATER_FAMILY_UPLOAD] Invalid water_content_type: {water_content_type}")
         return {'uploaded': 0, 'error': {'message': f'Invalid water content type: {water_content_type}'}}
 
-    log.info(f"[WATER_FAMILY_UPLOAD] Water content type: {water_content_type}, file type: {file_type}")
+    log.info(f"[WATER_FAMILY_UPLOAD] Water content type: {water_content_type}, file type: {file_type}, asset role: {asset_role}")
 
     try:
         # Authorization check - use water-specific auth
@@ -1510,7 +1512,7 @@ def water_family_upload(context, data_dict):
             raise p.toolkit.NotAuthorized(p.toolkit._('Not authorized to upload files for water content'))
 
         # Validate file type and size based on water content type and file type
-        validation_result = _validate_water_file(data_dict, water_content_type, file_type)
+        validation_result = _validate_water_file(data_dict, water_content_type, file_type, asset_role=asset_role)
         if not validation_result['valid']:
             log.error(f"[WATER_FAMILY_UPLOAD] Validation failed: {validation_result['message']}")
             return {'uploaded': 0, 'error': {'message': validation_result['message']}}
@@ -1585,13 +1587,14 @@ def water_family_upload(context, data_dict):
     return {'url': image_url, 'fileName': upload.filename, 'uploaded': 1, 'metadata': metadata}
 
 
-def _validate_water_file(data_dict, water_content_type, file_type):
+def _validate_water_file(data_dict, water_content_type, file_type, asset_role=''):
     """Validate file for water-family content.
 
     Args:
         data_dict: Request data containing file info
         water_content_type: Type of water content (water-news, water-events, water-publications)
         file_type: Type of file (image, document, thumbnail)
+        asset_role: Optional semantic role for the file
 
     Returns:
         Dict with validation result:
@@ -1615,7 +1618,10 @@ def _validate_water_file(data_dict, water_content_type, file_type):
         max_document_size = 30  # Allow larger PDFs for publications
 
     # Determine allowed extensions and max size based on file type
-    if file_type == 'document':
+    if water_content_type == 'water-events' and asset_role == 'agenda_document':
+        allowed_extensions = ['pdf'] + allowed_image_extensions
+        max_size = max_document_size
+    elif file_type == 'document':
         allowed_extensions = allowed_document_extensions
         max_size = max_document_size
     else:  # image, thumbnail, or default
@@ -1686,6 +1692,7 @@ def _build_water_file_metadata(data_dict, water_content_type, file_type, validat
     metadata = {
         'water_content_type': water_content_type,
         'file_type': file_type,
+        'asset_role': data_dict.get('asset_role', ''),
         'original_filename': filename,
         'file_extension': file_ext,
         'mime_type': mime_type,

@@ -410,10 +410,10 @@
                               <div id="agenda-upload-feedback" class="text-muted" style="margin-top:0.75rem;">
                                 {% if data.agenda_document %}
                                   <i class="fa fa-file-alt"></i>
-                                  <a href="{{ data.agenda_document }}" target="_blank" rel="noopener">{{ _('View current agenda document') }}</a>
+                                  <a href="{{ data.agenda_document }}" target="_blank" rel="noopener">{{ _('View current agenda file') }}</a>
                                   <button type="button" class="btn btn-link btn-sm" id="agenda-clear" style="margin-left: 0.75rem;">{{ _('Remove') }}</button>
                                 {% else %}
-                                  {{ _('No document uploaded yet.') }}
+                                  {{ _('No file uploaded yet.') }}
                                 {% endif %}
                               </div>
                             </div>
@@ -1388,11 +1388,15 @@ select.form-control option:selected {
       });
     }
 
-    function uploadAsset(file, fileType, onSuccess, onFailure) {
+    function uploadAsset(file, fileType, onSuccess, onFailure, options) {
+      options = options || {};
       const formData = new FormData();
       formData.append('upload', file);
       formData.append('water_content_type', 'water-events');
       formData.append('file_type', fileType || 'document');
+      if (options.assetRole) {
+        formData.append('asset_role', options.assetRole);
+      }
 
       $.ajax({
         url: '/water_family_upload',
@@ -1413,6 +1417,27 @@ select.form-control option:selected {
           }
         }
       });
+    }
+
+    function getLowercaseFileExtension(file) {
+      const fileName = file && file.name ? file.name : '';
+      return fileName.indexOf('.') >= 0 ? fileName.split('.').pop().toLowerCase() : '';
+    }
+
+    function inferAgendaUploadType(file) {
+      const fileType = (file && file.type ? file.type : '').toLowerCase();
+      const extension = getLowercaseFileExtension(file);
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
+      if (fileType.startsWith('image/') || imageExtensions.indexOf(extension) !== -1) {
+        return 'image';
+      }
+
+      if (fileType === 'application/pdf' || extension === 'pdf') {
+        return 'document';
+      }
+
+      return null;
     }
     
     // Add uploaded image preview
@@ -1495,14 +1520,24 @@ select.form-control option:selected {
         return;
       }
 
-      uploadAsset(file, 'document', function(response) {
+      const agendaFileType = inferAgendaUploadType(file);
+      if (!agendaFileType) {
+        alert('{{ _('Please upload a PDF or a valid image file for the agenda/flyer.') }}');
+        this.value = '';
+        return;
+      }
+
+      uploadAsset(file, agendaFileType, function(response) {
         $('#field-agenda-document').val(response.url);
         $('#agenda-upload-feedback').html(
-          '<i class="fa fa-file-alt"></i> <a href="' + response.url + '" target="_blank" rel="noopener">{{ _('View agenda document') }}</a>' +
+          '<i class="fa fa-file-alt"></i> <a href="' + response.url + '" target="_blank" rel="noopener">{{ _('View agenda file') }}</a>' +
           '<button type="button" class="btn btn-link btn-sm" id="agenda-clear" style="margin-left: 0.75rem;">{{ _('Remove') }}</button>'
         );
-      }, function() {
-        alert('{{ _('Unable to upload agenda document. Please try again.') }}');
+      }, function(errorMessage) {
+        const baseMessage = '{{ _('Unable to upload the agenda file. Please try again.') }}';
+        alert(errorMessage ? `${baseMessage}\n${errorMessage}` : baseMessage);
+      }, {
+        assetRole: 'agenda_document'
       });
 
       this.value = '';
@@ -1511,7 +1546,7 @@ select.form-control option:selected {
     $(document).on('click', '#agenda-clear', function(e) {
       e.preventDefault();
       $('#field-agenda-document').val('');
-      $('#agenda-upload-feedback').text('{{ _('No document uploaded yet.') }}');
+      $('#agenda-upload-feedback').text('{{ _('No file uploaded yet.') }}');
     });
 
     $('#header-image-trigger').on('click', function(e) {

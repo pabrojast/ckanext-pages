@@ -282,6 +282,24 @@ class TestPages():
         assert 'Chile' in response.body
         assert 'Crida' in response.body
 
+    def test_water_events_agenda_upload_validation_accepts_images(self):
+        from ckanext.pages import actions
+
+        class DummyUpload(object):
+            filename = 'agenda-flyer.png'
+
+        result = actions._validate_water_file(
+            {'upload': DummyUpload(), 'asset_role': 'agenda_document'},
+            'water-events',
+            'image',
+            asset_role='agenda_document',
+        )
+
+        assert result['valid'] is True
+        assert result['max_size_mb'] == 20
+        assert 'pdf' in result['allowed_extensions']
+        assert 'png' in result['allowed_extensions']
+
     def test_open_source_admin_dashboard_shows_organization_labels(self, app):
         sysadmin = factories.Sysadmin()
         org = factories.Organization()
