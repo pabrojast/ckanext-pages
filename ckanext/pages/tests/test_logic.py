@@ -243,6 +243,45 @@ class TestPages():
         assert 'Chile' in response.body
         assert 'Crida' in response.body
 
+    def test_water_events_show_renders_uploaded_gallery_and_associations(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        slug = 'water-events-gallery'
+
+        app.post(
+            toolkit.url_for('pages.water_events_new'),
+            params={
+                'title': 'Water Events Gallery',
+                'name': slug,
+                'content': 'Water event content with gallery.',
+                'publish_date': '2025-01-01',
+                'submission_action': 'publish',
+                'uploaded_images': json.dumps([
+                    {
+                        'url': 'https://example.com/event-gallery-image.jpg',
+                        'alt': 'Event gallery image',
+                        'caption': 'Event gallery caption'
+                    }
+                ]),
+                'country_groups': json.dumps([{'name': 'chile'}]),
+                'initiative_groups': json.dumps([{'name': 'crida'}]),
+            },
+            extra_environ=env,
+            status=302,
+        )
+
+        response = app.get(
+            toolkit.url_for('pages.water_events_show', page=slug),
+            extra_environ=env,
+            status=200,
+        )
+
+        assert 'https://example.com/event-gallery-image.jpg' in response.body
+        assert 'Event gallery caption' in response.body
+        assert 'Member States &amp; Initiatives' in response.body
+        assert 'Chile' in response.body
+        assert 'Crida' in response.body
+
     def test_open_source_admin_dashboard_shows_organization_labels(self, app):
         sysadmin = factories.Sysadmin()
         org = factories.Organization()

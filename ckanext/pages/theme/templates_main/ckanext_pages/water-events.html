@@ -4,7 +4,8 @@
 {{ c.page.title or c.page.name }} - {{ _('IHP Water Family Events') }} - {{ super() }}
 {% endblock %}
 
-{% set event_uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
+{% set event_uploaded_images_raw = c.page.uploaded_images if c.page.uploaded_images is defined else None %}
+{% set event_uploaded_images = h.json_loads(event_uploaded_images_raw) if event_uploaded_images_raw and event_uploaded_images_raw is string else (event_uploaded_images_raw if event_uploaded_images_raw else []) %}
 {% set hero_image = c.page.header_image or (event_uploaded_images[0]['url'] if event_uploaded_images else None) %}
 {% set has_content = h.has_meaningful_content(c.page.content) %}
 {% set has_details = h.has_meaningful_content(c.page.event_details) %}
@@ -323,8 +324,10 @@
                           </h4>
                           <div class="association-chips">
                             {% for ini in initiatives %}
+                              {% set ini_name = ini.name if ini.name is defined else ini %}
+                              {% set ini_label = ini.display_name if ini.display_name is defined and ini.display_name else (ini.title if ini.title is defined and ini.title else h.format_member_state_name(ini_name)) %}
                               <span class="association-chip initiative-chip">
-                                {{ h.format_member_state_name(ini.name) if ini.name is defined else ini }}
+                                {{ ini_label }}
                               </span>
                             {% endfor %}
                           </div>

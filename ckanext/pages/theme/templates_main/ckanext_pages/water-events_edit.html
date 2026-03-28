@@ -1595,6 +1595,7 @@ select.form-control option:selected {
 
     // --- Member States helpers ---
     var selectedMemberStates = [];
+    var allMemberStatesValue = '__all_member_states__';
 
     function formatMemberStateName(name) {
       if (!name) return name;
@@ -1603,6 +1604,54 @@ select.form-control option:selected {
         if (['of','and','the','de','da','du'].indexOf(lower) !== -1) return lower;
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       }).join(' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function normalizeAssociationItems(rawValue, formatter) {
+      if (!rawValue) return [];
+
+      var parsed = rawValue;
+      if (typeof rawValue === 'string') {
+        try {
+          parsed = JSON.parse(rawValue);
+        } catch (e) {
+          return [];
+        }
+      }
+
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed.map(function(item) {
+        var name = '';
+        var displayName = '';
+
+        if (typeof item === 'string') {
+          name = item;
+        } else if (item && typeof item === 'object') {
+          name = item.name || item.id || '';
+          displayName = item.display_name || item.title || '';
+        }
+
+        if (!name) return null;
+
+        return {
+          name: name,
+          display_name: displayName || formatter(name)
+        };
+      }).filter(Boolean);
+    }
+
+    function getAvailableMemberStates() {
+      return $('#member-state-select option').map(function() {
+        var $option = $(this);
+        var name = $option.val();
+        if (!name || name === allMemberStatesValue) {
+          return null;
+        }
+        return {
+          name: name,
+          display_name: $option.data('display') || formatMemberStateName(name)
+        };
+      }).get().filter(Boolean);
     }
 
     function addMemberStateChip(state) {
@@ -1620,15 +1669,12 @@ select.form-control option:selected {
     }
 
     function loadExistingMemberStates() {
-      var current = $('#country_groups').val();
-      if (!current) return;
-      try {
-        var arr = JSON.parse(current);
-        if (Array.isArray(arr)) {
-          selectedMemberStates = arr.map(function(x){ return { name: x.name, display_name: formatMemberStateName(x.name) }; });
-          selectedMemberStates.forEach(addMemberStateChip);
-        }
-      } catch(e) { /* ignore */ }
+      selectedMemberStates = normalizeAssociationItems(
+        $('#country_groups').val(),
+        formatMemberStateName
+      );
+      selectedMemberStates.forEach(addMemberStateChip);
+      updateCountryGroupsHidden();
     }
 
     $(document).on('click', '#add-member-state', function(){
@@ -1636,6 +1682,14 @@ select.form-control option:selected {
       var opt = $select.find('option:selected');
       var name = opt.val();
       if (!name) return;
+      if (name === allMemberStatesValue) {
+        selectedMemberStates = getAvailableMemberStates();
+        $('#selected-member-states').empty();
+        selectedMemberStates.forEach(addMemberStateChip);
+        updateCountryGroupsHidden();
+        $select.val('');
+        return;
+      }
       if (selectedMemberStates.some(function(s){ return s.name === name; })) {
         alert('{{ _("This member state has already been added") }}');
         return;
@@ -1681,15 +1735,12 @@ select.form-control option:selected {
     }
 
     function loadExistingInitiatives() {
-      var current = $('#initiative_groups').val();
-      if (!current) return;
-      try {
-        var arr = JSON.parse(current);
-        if (Array.isArray(arr)) {
-          selectedInitiatives = arr.map(function(x){ return { name: x.name, display_name: formatInitiativeName(x.name) }; });
-          selectedInitiatives.forEach(addInitiativeChip);
-        }
-      } catch(e) { /* ignore */ }
+      selectedInitiatives = normalizeAssociationItems(
+        $('#initiative_groups').val(),
+        formatInitiativeName
+      );
+      selectedInitiatives.forEach(addInitiativeChip);
+      updateInitiativeGroupsHidden();
     }
 
     $(document).on('click', '#add-initiative', function(){
@@ -1712,6 +1763,14 @@ select.form-control option:selected {
       var name = $(this).data('initiative-name');
       selectedInitiatives = selectedInitiatives.filter(function(s){ return s.name !== name; });
       $(this).closest('.initiative-item').remove();
+      updateInitiativeGroupsHidden();
+    });
+
+    $('#water-events-form').on('submit', function() {
+      if (!$('#uploaded-images-data').val()) {
+        $('#uploaded-images-data').val('[]');
+      }
+      updateCountryGroupsHidden();
       updateInitiativeGroupsHidden();
     });
 
