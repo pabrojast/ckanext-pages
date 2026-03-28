@@ -7,6 +7,7 @@ except ImportError:
 import pytest
 from collections import OrderedDict
 import datetime
+import json
 
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
@@ -201,6 +202,46 @@ class TestPages():
         )
         assert page['submission_status'] == 'pending'
         assert page['private'] in (True, 'True', 'true', 1)
+
+    def test_water_news_show_renders_uploaded_gallery_and_associations(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        slug = 'water-news-gallery'
+
+        app.post(
+            toolkit.url_for('pages.water_news_new'),
+            params={
+                'title': 'Water News Gallery',
+                'name': slug,
+                'content': 'Water news content with gallery.',
+                'excerpt': 'Short summary',
+                'publish_date': '2025-01-01',
+                'submission_action': 'publish',
+                'uploaded_images': json.dumps([
+                    {
+                        'url': 'https://example.com/gallery-image.jpg',
+                        'alt': 'Gallery image',
+                        'caption': 'Gallery caption'
+                    }
+                ]),
+                'country_groups': json.dumps([{'name': 'chile'}]),
+                'initiative_groups': json.dumps([{'name': 'crida'}]),
+            },
+            extra_environ=env,
+            status=302,
+        )
+
+        response = app.get(
+            toolkit.url_for('pages.water_news_show', page=slug),
+            extra_environ=env,
+            status=200,
+        )
+
+        assert 'https://example.com/gallery-image.jpg' in response.body
+        assert 'Gallery caption' in response.body
+        assert 'Member States &amp; Initiatives' in response.body
+        assert 'Chile' in response.body
+        assert 'Crida' in response.body
 
     def test_open_source_admin_dashboard_shows_organization_labels(self, app):
         sysadmin = factories.Sysadmin()

@@ -500,6 +500,8 @@ def safe_json_loads(json_string):
     """
     if not json_string:
         return []
+    if isinstance(json_string, (list, dict)):
+        return json_string
     try:
         result = json.loads(json_string)
         # Unwrap double (or triple) encoded JSON strings

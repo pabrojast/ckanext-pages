@@ -331,7 +331,7 @@
                           </div>
 
                           <!-- Hidden fields for uploaded images -->
-                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images is defined and data.uploaded_images else "" }}'>
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images is defined and data.uploaded_images else "[]" }}'>
                           </div>
                         </fieldset>
 
@@ -343,13 +343,14 @@
                           <!-- Member States -->
                           <div class="form-group">
                             <label class="control-label">{{ _('Member States') }}</label>
-                            <p class="help-text">{{ _('Select the member states associated with this news article') }}</p>
+                            <p class="help-text">{{ _('Optional. Select the member states associated with this news article, or use All member states to link every country.') }}</p>
 
                             <div class="member-states-container">
                               <div class="member-state-selector">
                                 <div class="input-group">
                                   <select id="member-state-select" class="form-control">
                                     <option value="">{{ _('Select a member state...') }}</option>
+                                    <option value="__all_member_states__" data-display="{{ _('All member states') }}">{{ _('All member states') }}</option>
                                     {% for ms in member_states_list|default([]) %}
                                       <option value="{{ ms.name }}" data-display="{{ ms.formatted_name }}">{{ ms.formatted_name }}</option>
                                     {% endfor %}
@@ -368,7 +369,7 @@
                               <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
                               </div>
 
-                              <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% endif %}">
+                              <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 
@@ -400,7 +401,7 @@
                               <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
                               </div>
 
-                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
+                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 
@@ -1698,6 +1699,7 @@ select.wn-form-control option:selected {
 
     // --- Member States helpers ---
     var selectedMemberStates = [];
+    var allMemberStatesValue = '__all_member_states__';
 
     function formatMemberStateName(name) {
       if (!name) return name;
@@ -1706,6 +1708,54 @@ select.wn-form-control option:selected {
         if (['of','and','the','de','da','du'].indexOf(lower) !== -1) return lower;
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       }).join(' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function normalizeAssociationItems(rawValue, formatter) {
+      if (!rawValue) return [];
+
+      var parsed = rawValue;
+      if (typeof rawValue === 'string') {
+        try {
+          parsed = JSON.parse(rawValue);
+        } catch (e) {
+          return [];
+        }
+      }
+
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed.map(function(item) {
+        var name = '';
+        var displayName = '';
+
+        if (typeof item === 'string') {
+          name = item;
+        } else if (item && typeof item === 'object') {
+          name = item.name || item.id || '';
+          displayName = item.display_name || item.title || '';
+        }
+
+        if (!name) return null;
+
+        return {
+          name: name,
+          display_name: displayName || formatter(name)
+        };
+      }).filter(Boolean);
+    }
+
+    function getAvailableMemberStates() {
+      return $('#member-state-select option').map(function() {
+        var $option = $(this);
+        var name = $option.val();
+        if (!name || name === allMemberStatesValue) {
+          return null;
+        }
+        return {
+          name: name,
+          display_name: $option.data('display') || formatMemberStateName(name)
+        };
+      }).get().filter(Boolean);
     }
 
     function addMemberStateChip(state) {
@@ -1723,15 +1773,12 @@ select.wn-form-control option:selected {
     }
 
     function loadExistingMemberStates() {
-      var current = $('#country_groups').val();
-      if (!current) return;
-      try {
-        var arr = JSON.parse(current);
-        if (Array.isArray(arr)) {
-          selectedMemberStates = arr.map(function(x){ return { name: x.name, display_name: formatMemberStateName(x.name) }; });
-          selectedMemberStates.forEach(addMemberStateChip);
-        }
-      } catch(e) { /* ignore */ }
+      selectedMemberStates = normalizeAssociationItems(
+        $('#country_groups').val(),
+        formatMemberStateName
+      );
+      selectedMemberStates.forEach(addMemberStateChip);
+      updateCountryGroupsHidden();
     }
 
     $(document).on('click', '#add-member-state', function(){
@@ -1739,6 +1786,14 @@ select.wn-form-control option:selected {
       var opt = $select.find('option:selected');
       var name = opt.val();
       if (!name) return;
+      if (name === allMemberStatesValue) {
+        selectedMemberStates = getAvailableMemberStates();
+        $('#selected-member-states').empty();
+        selectedMemberStates.forEach(addMemberStateChip);
+        updateCountryGroupsHidden();
+        $select.val('');
+        return;
+      }
       if (selectedMemberStates.some(function(s){ return s.name === name; })) {
         alert('{{ _("This member state has already been added") }}');
         return;
@@ -1784,15 +1839,12 @@ select.wn-form-control option:selected {
     }
 
     function loadExistingInitiatives() {
-      var current = $('#initiative_groups').val();
-      if (!current) return;
-      try {
-        var arr = JSON.parse(current);
-        if (Array.isArray(arr)) {
-          selectedInitiatives = arr.map(function(x){ return { name: x.name, display_name: formatInitiativeName(x.name) }; });
-          selectedInitiatives.forEach(addInitiativeChip);
-        }
-      } catch(e) { /* ignore */ }
+      selectedInitiatives = normalizeAssociationItems(
+        $('#initiative_groups').val(),
+        formatInitiativeName
+      );
+      selectedInitiatives.forEach(addInitiativeChip);
+      updateInitiativeGroupsHidden();
     }
 
     $(document).on('click', '#add-initiative', function(){
@@ -1815,6 +1867,14 @@ select.wn-form-control option:selected {
       var name = $(this).data('initiative-name');
       selectedInitiatives = selectedInitiatives.filter(function(s){ return s.name !== name; });
       $(this).closest('.initiative-item').remove();
+      updateInitiativeGroupsHidden();
+    });
+
+    $('#water-news-form').on('submit', function() {
+      if (!$('#uploaded-images-data').val()) {
+        $('#uploaded-images-data').val('[]');
+      }
+      updateCountryGroupsHidden();
       updateInitiativeGroupsHidden();
     });
 

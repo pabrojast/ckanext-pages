@@ -389,7 +389,7 @@
                           </div>
 
                           <!-- Hidden fields for uploaded images -->
-                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images is defined and data.uploaded_images else "" }}'>
+                          <input type="hidden" id="uploaded-images-data" name="uploaded_images" value='{{ data.uploaded_images|tojson|safe if data.uploaded_images is defined and data.uploaded_images else "[]" }}'>
                           </div>
                         </fieldset>
 
@@ -486,13 +486,14 @@
                           <!-- Member States -->
                           <div class="form-group">
                             <label class="control-label">{{ _('Member States') }}</label>
-                            <p class="help-text">{{ _('Select the member states associated with this event') }}</p>
+                            <p class="help-text">{{ _('Optional. Select the member states associated with this event, or use All member states to link every country.') }}</p>
 
                             <div class="member-states-container">
                               <div class="member-state-selector">
                                 <div class="input-group">
                                   <select id="member-state-select" class="form-control">
                                     <option value="">{{ _('Select a member state...') }}</option>
+                                    <option value="__all_member_states__" data-display="{{ _('All member states') }}">{{ _('All member states') }}</option>
                                     {% for ms in member_states_list|default([]) %}
                                       <option value="{{ ms.name }}" data-display="{{ ms.formatted_name }}">{{ ms.formatted_name }}</option>
                                     {% endfor %}
@@ -511,7 +512,7 @@
                               <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
                               </div>
 
-                              <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% endif %}">
+                              <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 
@@ -543,7 +544,7 @@
                               <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
                               </div>
 
-                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% endif %}">
+                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 

@@ -4,7 +4,8 @@
 {{ c.page.title or c.page.name }} - {{ _('IHP Water Family News') }} - {{ super() }}
 {% endblock %}
 
-{% set news_uploaded_images = h.json_loads(c.page.uploaded_images) if c.page.uploaded_images else [] %}
+{% set news_uploaded_images_raw = c.page.uploaded_images if c.page.uploaded_images is defined else None %}
+{% set news_uploaded_images = h.json_loads(news_uploaded_images_raw) if news_uploaded_images_raw and news_uploaded_images_raw is string else (news_uploaded_images_raw if news_uploaded_images_raw else []) %}
 {% set news_hero_image = c.page.header_image or (news_uploaded_images[0]['url'] if news_uploaded_images else None) %}
 {% set has_content = h.has_meaningful_content(c.page.content) %}
 {% set has_excerpt = h.has_meaningful_content(c.page.excerpt) %}
@@ -13,6 +14,11 @@
 {% set has_additional = h.has_meaningful_content(c.page.additional_content) or c.page.news_attachment %}
 {% set has_links = h.has_meaningful_content(c.page.external_links) %}
 {% set has_author = h.has_meaningful_content(c.page.author) %}
+{% set member_states_raw = c.page.country_groups if c.page.country_groups is defined else None %}
+{% set initiatives_raw = c.page.initiative_groups if c.page.initiative_groups is defined else None %}
+{% set member_states = h.json_loads(member_states_raw) if member_states_raw and member_states_raw is string else (member_states_raw if member_states_raw else []) %}
+{% set initiatives = h.json_loads(initiatives_raw) if initiatives_raw and initiatives_raw is string else (initiatives_raw if initiatives_raw else []) %}
+{% set has_associations = (member_states and member_states|length > 0) or (initiatives and initiatives|length > 0) %}
 
 {% block content %}
 
@@ -195,6 +201,50 @@
                           {{ h.render_markdown(c.page.additional_content, allow_html=True) | safe }}
                         {% endif %}
                       </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                {% if has_associations %}
+                <div class="news-associations" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow news-module-links">
+                    <div class="module-content">
+                      <div class="news-section-header">
+                        <div class="news-section-icon">
+                          <i class="fa fa-globe"></i>
+                        </div>
+                        <h2>{{ _('Member States & Initiatives') }}</h2>
+                      </div>
+
+                      {% if member_states %}
+                      <div style="margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 0.75rem 0; font-size: 1.15rem;">
+                          <i class="fa fa-flag"></i> {{ _('Member States') }}
+                        </h3>
+                        <div class="association-chips">
+                          {% for item in member_states %}
+                            {% set item_name = item.name if item is mapping else item %}
+                            <span class="association-chip member-state-chip">{{ item_name|replace('-', ' ')|title }}</span>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      {% endif %}
+
+                      {% if initiatives %}
+                      <div>
+                        <h3 style="margin: 0 0 0.75rem 0; font-size: 1.15rem;">
+                          <i class="fa fa-rocket"></i> {{ _('Initiatives') }}
+                        </h3>
+                        <div class="association-chips">
+                          {% for item in initiatives %}
+                            {% set item_name = item.name if item is mapping else item %}
+                            {% set item_label = item.display_name if item is mapping and item.display_name else (item.title if item is mapping and item.title else item_name|replace('-', ' ')|title) %}
+                            <span class="association-chip initiative-chip">{{ item_label }}</span>
+                          {% endfor %}
+                        </div>
+                      </div>
+                      {% endif %}
                     </div>
                   </section>
                 </div>
@@ -558,6 +608,32 @@
 
 .news-module-related {
   border-left: 6px solid var(--unesco-blue-dark);
+}
+
+.association-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.association-chip {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.member-state-chip {
+  background: linear-gradient(135deg, var(--unesco-blue-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--unesco-blue);
+  color: var(--unesco-blue-dark);
+}
+
+.initiative-chip {
+  background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+  border: 2px solid #43a047;
+  color: #2e7d32;
 }
 
 /* Article Meta Information - Professional Design */
