@@ -2168,54 +2168,53 @@
 /* Z-INDEX FIXES FOR FILTER DROPDOWNS                               */
 /* ================================================================ */
 
-.ai-tools-filters,
-.ai-tools-filters .module,
-.ai-tools-filters .module-content {
+.ai-water-filters,
+.ai-water-filters .module,
+.ai-water-filters .module-content,
+.ai-water-filters .unified-filters-container {
   position: relative;
   z-index: 10000;
+  overflow: visible;
 }
 
-.ai-tools-filters .unified-dropdown {
+.ai-water-filters .unified-dropdown {
   position: relative;
   z-index: auto;
 }
 
-.ai-tools-filters .unified-dropdown-menu,
-.ai-tools-filters .dropdown-menu {
+.ai-water-filters .unified-dropdown-menu {
   z-index: 10020 !important;
   position: absolute !important;
 }
 
-.ai-tools-filters .filters-grid {
+.ai-water-filters .filters-grid {
   position: relative;
+  align-items: start;
 }
 
-.ai-tools-filters .filters-grid .filter-item {
+.ai-water-filters .filters-grid .filter-item {
   position: relative;
   z-index: 1;
 }
 
-.ai-tools-filters .filters-grid .filter-item:has(.dropdown.show),
-.ai-tools-filters .filters-grid .filter-item:has(.unified-dropdown.show) {
+.ai-water-filters .filters-grid .filter-item:has(.unified-dropdown.show) {
   z-index: 1000 !important;
 }
 
-.ai-tools-filters .filters-grid .filter-item .dropdown.show .dropdown-menu,
-.ai-tools-filters .filters-grid .filter-item .unified-dropdown.show .unified-dropdown-menu {
+.ai-water-filters .filters-grid .filter-item .unified-dropdown.show .unified-dropdown-menu {
   z-index: 1100 !important;
 }
 
-.ai-tools-filters .unified-dropdown.show {
+.ai-water-filters .unified-dropdown.show {
   z-index: 1001 !important;
 }
 
 @supports not selector(:has(*)) {
-  .ai-tools-filters .filters-grid .filter-item {
+  .ai-water-filters .filters-grid .filter-item {
     z-index: auto;
   }
 
-  .ai-tools-filters .filters-grid .filter-item .dropdown.show,
-  .ai-tools-filters .filters-grid .filter-item .unified-dropdown.show {
+  .ai-water-filters .filters-grid .filter-item .unified-dropdown.show {
     position: relative;
     z-index: 1000 !important;
   }

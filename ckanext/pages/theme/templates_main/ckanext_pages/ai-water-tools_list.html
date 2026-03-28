@@ -157,13 +157,13 @@
 
                             <!-- AI Technique (multi-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-brain"></i></span>
                                   <span class="filter-text">{{ _('AI Technique') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-header">
                                     <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
                                     <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
@@ -196,13 +196,13 @@
 
                             <!-- Water Application (multi-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-tint"></i></span>
                                   <span class="filter-text">{{ _('Water Application') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-header">
                                     <button type="button" class="btn btn-link btn-sm select-all-btn">{{ _('All') }}</button>
                                     <button type="button" class="btn btn-link btn-sm clear-all-btn">{{ _('None') }}</button>
@@ -244,13 +244,13 @@
 
                             <!-- Maturity Level (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-signal"></i></span>
                                   <span class="filter-text">{{ _('Maturity Level') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set maturity = request.args.maturity_level %}
                                     <label class="unified-option">
@@ -275,13 +275,13 @@
 
                             <!-- Scalability (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-globe"></i></span>
                                   <span class="filter-text">{{ _('Scalability') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set scale = request.args.scalability %}
                                     <label class="unified-option">
@@ -306,13 +306,13 @@
 
                             <!-- Access Type (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-unlock"></i></span>
                                   <span class="filter-text">{{ _('All Access Types') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     <label class="unified-option">
                                       <input type="radio" name="access_type" value="" {% if not request.args.access_type %}checked{% endif %}>
@@ -336,13 +336,13 @@
 
                             <!-- Development Status (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-heartbeat"></i></span>
                                   <span class="filter-text">{{ _('All Status') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set status = request.args.development_status %}
                                     <label class="unified-option">
@@ -369,13 +369,13 @@
 
                             <!-- License (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-certificate"></i></span>
                                   <span class="filter-text">{{ _('All Licenses') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set lic = request.args.license %}
                                     <label class="unified-option">
@@ -395,13 +395,13 @@
 
                             <!-- TRL (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-signal"></i></span>
                                   <span class="filter-text">{{ _('TRL') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set trl = request.args.technology_readiness_level %}
                                     <label class="unified-option">
@@ -426,13 +426,13 @@
 
                             <!-- Spatial Scale (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-map-marker"></i></span>
                                   <span class="filter-text">{{ _('Spatial Scale') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set spatial = request.args.spatial_scale %}
                                     <label class="unified-option">
@@ -458,13 +458,13 @@
 
                             <!-- Temporal Scale (single-select) -->
                             <div class="filter-item">
-                              <div class="dropdown unified-dropdown">
-                                <button type="button" class="unified-filter-btn" data-toggle="dropdown">
+                              <div class="unified-dropdown">
+                                <button type="button" class="unified-filter-btn">
                                   <span class="filter-icon"><i class="fa fa-clock-o"></i></span>
                                   <span class="filter-text">{{ _('Temporal Scale') }}</span>
                                   <span class="filter-caret"><i class="fa fa-chevron-down"></i></span>
                                 </button>
-                                <div class="dropdown-menu unified-dropdown-menu">
+                                <div class="unified-dropdown-menu">
                                   <div class="unified-dropdown-content">
                                     {% set temporal = request.args.temporal_scale %}
                                     <label class="unified-option">

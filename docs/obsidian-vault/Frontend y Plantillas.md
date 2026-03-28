@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-03-27
+Actualizado: 2026-03-28
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -113,6 +113,7 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - `ckanext_pages/open-source-software_list.html` usa dropdowns custom de filtros (`.unified-dropdown` y `.unified-dropdown-menu`) controlados por `public/js/open-source-software.js`.
 - Inferencia: estos filtros deben permanecer desacoplados de `Bootstrap` (`.dropdown`, `.dropdown-menu`, `data-toggle="dropdown"`) para no interferir con el menú principal de navegación.
 - `ckanext_pages/open-source-software.html` reutiliza `public/js/open-source-software.js` y `public/css/open-source-software.css` para normalizar listas ordenadas partidas por el editor y mantener la tipografía de listas consistente con el texto del bloque.
+- `ckanext_pages/ai-water-tools_list.html` usa el mismo patrón de dropdown custom para filtros y depende de `public/js/ai-water-tools.js` más reglas de stacking en `public/css/ai-water-tools.css` bajo el contenedor real `.ai-water-filters`.
 
 ## Pendiente por confirmar
 

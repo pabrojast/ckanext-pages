@@ -66,6 +66,8 @@
       // UNIFIED DROPDOWN SYSTEM
       // ================================================================
 
+      var filtersSelector = '.ai-water-filters';
+
       $('.unified-filter-btn').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -75,9 +77,9 @@
         var $filterItem = $dropdown.closest('.filter-item');
 
         // Close all other dropdowns
-        $('.unified-dropdown').not($dropdown).removeClass('show');
-        $('.unified-dropdown-menu').not($menu).hide();
-        $('.filter-item').not($filterItem).css('z-index', '1');
+        $(filtersSelector + ' .unified-dropdown').not($dropdown).removeClass('show');
+        $(filtersSelector + ' .unified-dropdown-menu').not($menu).hide();
+        $(filtersSelector + ' .filter-item').not($filterItem).css('z-index', '1');
 
         $dropdown.toggleClass('show');
         $menu.toggle();
@@ -150,9 +152,9 @@
       // Close dropdowns on outside click
       $(document).on('click', function(e) {
         if (!$(e.target).closest('.unified-dropdown, .unified-filters-container').length) {
-          $('.unified-dropdown').removeClass('show');
-          $('.unified-dropdown-menu').hide();
-          $('.filter-item').css('z-index', '1');
+          $(filtersSelector + ' .unified-dropdown').removeClass('show');
+          $(filtersSelector + ' .unified-dropdown-menu').hide();
+          $(filtersSelector + ' .filter-item').css('z-index', '1');
         }
       });
 
