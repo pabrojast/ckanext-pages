@@ -417,6 +417,47 @@ class TestPages():
 
         assert not missing, f"Missing dataset fields in schema: {missing}"
 
+    def test_water_publication_create_retries_use_latest_title_for_slug(self, app):
+        user = factories.Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': user['name']},
+            name='duplicate-publication',
+            page='duplicate-publication',
+            title='Existing Publication',
+            content='Existing content',
+            page_type='water-publications',
+            publication_url='https://example.com/existing.pdf',
+            private=False,
+            submission_status='approved',
+        )
+
+        response = app.post(
+            toolkit.url_for('pages.water_publications_quick'),
+            params={
+                'title': 'Fresh Publication Title',
+                'dataset_title': 'Fresh Publication Title',
+                'name': 'duplicate-publication',
+                'dataset_url': 'https://example.com/fresh.pdf',
+                'publication_url': 'https://example.com/fresh.pdf',
+                'submission_action': 'publish',
+            },
+            extra_environ=env,
+            status=302,
+        )
+
+        assert 'fresh-publication-title' in response.location
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {}, page='fresh-publication-title'
+        )
+
+        assert page['name'] == 'fresh-publication-title'
+        assert page['title'] == 'Fresh Publication Title'
+        assert page['publication_url'] == 'https://example.com/fresh.pdf'
+
     def test_cannot_create_page_with_same_name(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}

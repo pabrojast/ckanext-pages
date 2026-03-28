@@ -936,10 +936,7 @@
       var title = ($('#dataset_title').val() || '').trim();
       if (title) {
         $('#field-title').val(title);
-        var currentName = $('#field-name').val();
-        if (!currentName || currentName.length < 2) {
-          $('#field-name').val(slugify(title));
-        }
+        $('#field-name').val(slugify(title));
       }
       var desc = ($('#dataset_description').val() || '').trim();
       if (desc) $('#field-content').val(desc);
@@ -1159,6 +1156,7 @@
     // Title input
     $('#dataset_title').on('input', function() {
       updateStep2Button();
+      syncHidden();
     });
 
     // Member States selector

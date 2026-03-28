@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-03-26
+Actualizado: 2026-03-28
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -57,6 +57,10 @@ Se dispara si el formulario trae:
 - flag de creación de dataset
 - archivo
 - o link de dataset/documento
+
+Punto relevante:
+
+- en creación de `water-publications`, el `name` se vuelve a derivar del título actual en cada intento para no arrastrar slugs ocultos viejos entre reintentos del formulario
 
 ## 5. Workflow Open Source Software
 

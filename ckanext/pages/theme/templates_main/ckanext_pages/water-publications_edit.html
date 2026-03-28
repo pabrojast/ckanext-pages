@@ -1113,6 +1113,7 @@ select.form-control option:selected {
   }
   
   waitForJQuery(function($) {
+    const regenerateSlugOnCreate = {{ 'true' if not page else 'false' }};
     
     // Auto-generate URL slug from title
     $('#field-title').on('input', function() {
@@ -1460,8 +1461,9 @@ select.form-control option:selected {
         const slug = slugify(title);
         $('#field-title').val(title);
         var currentName = $('#field-name').val();
-        // Set name if empty or if current name is too short for CKAN validation
-        if (!currentName || currentName.length < 2) {
+        // New water publications do not expose manual slug editing, so keep the
+        // hidden name aligned with the latest title on each retry.
+        if (regenerateSlugOnCreate || !currentName || currentName.length < 2) {
           $('#field-name').val(slug);
         }
       }

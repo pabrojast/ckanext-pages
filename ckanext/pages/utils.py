@@ -366,7 +366,12 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         if submission_action:
             page_dict['submission_action'] = submission_action
 
-        if (not page_dict.get('name') or len(page_dict.get('name', '')) < 2) and page_dict.get('title'):
+        should_regenerate_name = (
+            page_type == 'water-publications' and not page and page_dict.get('title')
+        )
+        if should_regenerate_name or (
+            (not page_dict.get('name') or len(page_dict.get('name', '')) < 2) and page_dict.get('title')
+        ):
             generated_name = _slugify_title(page_dict['title'])
             if generated_name and len(generated_name) >= 2:
                 page_dict['name'] = generated_name
