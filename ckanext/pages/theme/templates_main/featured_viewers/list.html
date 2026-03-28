@@ -53,12 +53,30 @@
     <div class="container">
 
       {# ================================================================ #}
-      {# FILTERS — initiative + member state searchable dropdowns         #}
+      {# CATEGORY TABS — filter BOTH map rooms and viewers                 #}
+      {# ================================================================ #}
+      <div class="fv-categories" style="margin: 1.5rem 0 1rem 0;">
+        <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter) }}"
+           class="fv-category-tab {% if not category_filter %}active{% endif %}">
+          <i class="fa fa-th"></i> {{ _('All') }}
+        </a>
+        {% for cat_id, cat in categories.items() %}
+        <a href="{{ h.url_for('featured_viewers.index', category=cat_id, sort=sort, q=q, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter) }}"
+           class="fv-category-tab {% if category_filter == cat_id %}active{% endif %}"
+           {% if category_filter == cat_id %}style="background: {{ cat.color }}; border-color: {{ cat.color }}; color: #fff;"{% endif %}>
+          <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
+        </a>
+        {% endfor %}
+      </div>
+
+      {# ================================================================ #}
+      {# FILTERS — initiative + member state + organization dropdowns      #}
       {# ================================================================ #}
       {% set has_initiatives = initiatives | length > 0 %}
       {% set has_member_states = member_states is defined and member_states | length > 0 %}
-      {% if has_initiatives or has_member_states %}
-      <div class="fv-filter-bar" style="margin: 1.5rem 0; display: flex; align-items: center; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
+      {% set has_organizations = organizations is defined and organizations | length > 0 %}
+      {% if has_initiatives or has_member_states or has_organizations %}
+      <div class="fv-filter-bar" style="margin: 0.5rem 0 1.5rem 0; display: flex; align-items: center; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
 
         {# Initiative dropdown #}
         {% if has_initiatives %}
@@ -112,8 +130,34 @@
         </div>
         {% endif %}
 
+        {# Organization dropdown #}
+        {% if has_organizations %}
+        <div class="fv-searchable-dropdown" data-filter-name="organization">
+          <label class="fv-filter-label">
+            <i class="fa fa-building"></i> {{ _('Organization') }}
+          </label>
+          <div class="fv-dropdown-wrap">
+            <input type="text" class="form-control fv-dropdown-input" data-target="organization"
+                   placeholder="{{ _('All organizations') }}"
+                   autocomplete="off"
+                   value="{% if organization_filter %}{% for org in organizations %}{% if org.id == organization_filter %}{{ org.title }}{% endif %}{% endfor %}{% endif %}">
+            <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
+            <ul class="fv-dropdown-list" data-list="organization">
+              <li data-value="" class="fv-dd-option {% if not organization_filter %}fv-dd-active{% endif %}">
+                <i class="fa fa-building"></i> {{ _('All Organizations') }}
+              </li>
+              {% for org in organizations %}
+              <li data-value="{{ org.id }}" class="fv-dd-option {% if organization_filter == org.id %}fv-dd-active{% endif %}">
+                {{ org.title }}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
         {# Active filters summary + clear #}
-        {% if initiative_filter or member_state_filter %}
+        {% if initiative_filter or member_state_filter or organization_filter %}
         <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default" style="border-radius: 20px; align-self: flex-end; margin-bottom: 2px;">
           <i class="fa fa-times"></i> {{ _('Clear filters') }}
         </a>
@@ -166,7 +210,7 @@
 
         <div class="row fv-rooms-grid">
           {% for room in rooms %}
-          <div class="col-md-6 col-lg-4 fv-room-item" data-initiative="{{ room.initiative or '' }}">
+          <div class="col-md-6 col-lg-4 fv-room-item" data-initiative="{{ room.initiative or '' }}" data-category="{{ room.category or '' }}">
             {% include "featured_viewers/components/room_card.html" %}
           </div>
           {% endfor %}
@@ -194,28 +238,6 @@
           <p style="margin: 0.3rem 0 0 0; color: #6c757d; font-size: 0.95rem;">{{ _('Explore thematic map viewers with preloaded data layers') }}</p>
         </div>
 
-        <!-- Category Tabs -->
-        <div class="fv-categories" style="margin-bottom: 1.5rem;">
-          <a href="{{ h.url_for('featured_viewers.index', sort=sort, q=q, initiative=initiative_filter) }}"
-             class="fv-category-tab {% if not category_filter %}active{% endif %}">
-            <i class="fa fa-th"></i> {{ _('All') }}
-            <span class="fv-cat-count">{{ total_count }}</span>
-          </a>
-          {% for cat_id, cat in categories.items() %}
-            {% set cat_count = facets.get('categories', {}).get(cat_id, 0) %}
-            {% if cat_count > 0 or not category_filter %}
-            <a href="{{ h.url_for('featured_viewers.index', category=cat_id, sort=sort, q=q, initiative=initiative_filter) }}"
-               class="fv-category-tab {% if category_filter == cat_id %}active{% endif %}"
-               {% if category_filter == cat_id %}style="background: {{ cat.color }}; border-color: {{ cat.color }}; color: #fff;"{% endif %}>
-              <i class="fa {{ cat.icon }}"></i> {{ cat.title }}
-              {% if cat_count > 0 %}
-              <span class="fv-cat-count">{{ cat_count }}</span>
-              {% endif %}
-            </a>
-            {% endif %}
-          {% endfor %}
-        </div>
-
         <!-- Sort control -->
         <div class="fv-sort-bar" style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
           <div class="results-info" style="color: #6c757d; font-size: 0.9rem;">
@@ -233,6 +255,8 @@
           <form method="get" class="fv-sort-form" style="display: inline-flex; align-items: center; gap: 0.5rem;">
             {% if category_filter %}<input type="hidden" name="category" value="{{ category_filter }}">{% endif %}
             {% if initiative_filter %}<input type="hidden" name="initiative" value="{{ initiative_filter }}">{% endif %}
+            {% if member_state_filter %}<input type="hidden" name="member_state" value="{{ member_state_filter }}">{% endif %}
+            {% if organization_filter %}<input type="hidden" name="organization" value="{{ organization_filter }}">{% endif %}
             {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
             <label for="sort" style="margin: 0; color: #6c757d; white-space: nowrap; font-size: 0.9rem;">{{ _('Sort:') }}</label>
             <select name="sort" id="sort" class="form-control input-sm" onchange="this.form.submit();"
@@ -263,7 +287,7 @@
               <ul class="pagination" style="margin: 0; justify-content: center;">
                 {% if page > 1 %}
                 <li>
-                  <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, q=q) }}"
+                  <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter, q=q) }}"
                      aria-label="{{ _('Previous') }}"
                      style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
                     <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
@@ -278,7 +302,7 @@
                   </li>
                   {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
                   <li>
-                    <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, q=q) }}"
+                    <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter, q=q) }}"
                        style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
                   </li>
                   {% elif p == 4 or p == total_pages - 3 %}
@@ -288,7 +312,7 @@
 
                 {% if page < total_pages %}
                 <li>
-                  <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, q=q) }}"
+                  <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter, q=q) }}"
                      aria-label="{{ _('Next') }}"
                      style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
                     {{ _('Next') }} <i class="fa fa-chevron-right"></i>
@@ -309,13 +333,13 @@
               <i class="fa fa-map-o fa-5x" style="color: #e9ecef; margin-bottom: 1.5rem;"></i>
               <h3 style="color: #6c757d; margin-bottom: 1rem;">{{ _('No viewers found') }}</h3>
               <p style="color: #6c757d; margin-bottom: 1.5rem;">
-                {% if q or category_filter or initiative_filter %}
+                {% if q or category_filter or initiative_filter or member_state_filter or organization_filter %}
                   {{ _('Try adjusting your search or filters') }}
                 {% else %}
                   {{ _('No featured viewers are available yet.') }}
                 {% endif %}
               </p>
-              {% if q or category_filter or initiative_filter %}
+              {% if q or category_filter or initiative_filter or member_state_filter or organization_filter %}
               <a href="{{ h.url_for('featured_viewers.index') }}" class="btn btn-default" style="margin-right: 0.5rem;">
                 <i class="fa fa-times"></i> {{ _('Clear filters') }}
               </a>

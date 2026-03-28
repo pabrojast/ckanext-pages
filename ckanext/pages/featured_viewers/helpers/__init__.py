@@ -162,3 +162,24 @@ def get_available_member_states():
         ]
     except Exception:
         return []
+
+
+def get_available_organizations():
+    """Return list of active CKAN organizations."""
+    from ckan import model
+    try:
+        org_rows = (
+            model.Session.query(model.Group.id, model.Group.name, model.Group.title)
+            .filter(
+                model.Group.type == 'organization',
+                model.Group.state == 'active',
+            )
+            .order_by(model.Group.title)
+            .all()
+        )
+        return [
+            {'id': g.id, 'name': g.name, 'title': g.title or g.name}
+            for g in org_rows
+        ]
+    except Exception:
+        return []

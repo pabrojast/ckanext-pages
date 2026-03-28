@@ -96,6 +96,10 @@ def featured_viewer_list(context, data_dict):
             FeaturedViewer.countries.cast(sa.Text).ilike('%' + member_state + '%')
         )
 
+    organization = data_dict.get('organization')
+    if organization:
+        query = query.filter(FeaturedViewer.organization_id == organization)
+
     is_featured = data_dict.get('is_featured')
     if is_featured is not None:
         query = query.filter(FeaturedViewer.is_featured == is_featured)
@@ -262,6 +266,25 @@ def map_room_list(context, data_dict):
     initiative = data_dict.get('initiative')
     if initiative:
         query = query.filter(MapRoom.initiative == initiative)
+
+    organization = data_dict.get('organization')
+    if organization:
+        query = query.filter(MapRoom.organization_id == organization)
+
+    member_state = data_dict.get('member_state')
+    if member_state:
+        query = query.filter(
+            MapRoom.countries.cast(sa.Text).ilike('%' + member_state + '%')
+        )
+
+    q = data_dict.get('q')
+    if q:
+        query = query.filter(
+            or_(
+                MapRoom.title.ilike(f'%{q}%'),
+                MapRoom.description.ilike(f'%{q}%'),
+            )
+        )
 
     total = query.count()
     rooms = query.order_by(MapRoom.order_index, MapRoom.title)\

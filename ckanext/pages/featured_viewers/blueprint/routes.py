@@ -46,6 +46,7 @@ def index():
     category_filter = request.args.get('category', '')
     initiative_filter = request.args.get('initiative', '')
     member_state_filter = request.args.get('member_state', '')
+    organization_filter = request.args.get('organization', '')
     q = request.args.get('q', '')
 
     offset = (page - 1) * limit
@@ -64,6 +65,8 @@ def index():
         data_dict['initiative'] = initiative_filter
     if member_state_filter:
         data_dict['member_state'] = member_state_filter
+    if organization_filter:
+        data_dict['organization'] = organization_filter
 
     # Use ignore_auth for public listing
     list_context = dict(context)
@@ -111,6 +114,12 @@ def index():
             rooms_data_dict['q'] = q
         if initiative_filter:
             rooms_data_dict['initiative'] = initiative_filter
+        if category_filter:
+            rooms_data_dict['category'] = category_filter
+        if member_state_filter:
+            rooms_data_dict['member_state'] = member_state_filter
+        if organization_filter:
+            rooms_data_dict['organization'] = organization_filter
         try:
             rooms_result = tk.get_action('map_room_list')(list_context, rooms_data_dict)
             rooms = rooms_result.get('rooms', [])
@@ -120,9 +129,10 @@ def index():
             model.Session.rollback()
 
     # Get available initiatives and member states for filter dropdowns
-    from ckanext.pages.featured_viewers.helpers import get_available_initiatives, get_available_member_states
+    from ckanext.pages.featured_viewers.helpers import get_available_initiatives, get_available_member_states, get_available_organizations
     initiatives = get_available_initiatives()
     member_states = get_available_member_states()
+    organizations = get_available_organizations()
 
     # Get categories for filter tabs
     from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
@@ -172,6 +182,7 @@ def index():
         'rooms_total': rooms_total,
         'initiatives': initiatives,
         'member_states': member_states,
+        'organizations': organizations,
         'total_count': total_count,
         'page': page,
         'total_pages': total_pages,
@@ -180,6 +191,7 @@ def index():
         'category_filter': category_filter,
         'initiative_filter': initiative_filter,
         'member_state_filter': member_state_filter,
+        'organization_filter': organization_filter,
         'q': q,
         'facets': facets,
         'categories': VIEWER_CATEGORIES,
@@ -1294,9 +1306,21 @@ def _extract_room_form_data(form):
         'thumbnail_url': form.get('thumbnail_url', '').strip(),
         'category': form.get('category', 'general'),
         'initiative': form.get('initiative', '').strip() or None,
+        'organization_id': form.get('organization_id', '').strip() or None,
         'status': form.get('status', 'draft'),
         'is_featured': form.get('is_featured') == 'on',
     }
+
+    # Parse countries JSON
+    import json as _json
+    countries_raw = form.get('countries', '').strip()
+    if countries_raw:
+        try:
+            data_dict['countries'] = _json.loads(countries_raw)
+        except (ValueError, TypeError):
+            data_dict['countries'] = None
+    else:
+        data_dict['countries'] = None
 
     order = form.get('order_index', '0')
     try:

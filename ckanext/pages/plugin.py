@@ -77,6 +77,7 @@ try:
         json_loads as fv_json_loads,
         get_available_initiatives,
         get_available_member_states,
+        get_available_organizations,
     )
     from ckanext.pages.featured_viewers import actions as fv_actions
     from ckanext.pages.featured_viewers import auth as fv_auth
@@ -1428,6 +1429,7 @@ class PagesPlugin(PagesPluginBase):
                 'fv_json_loads': fv_json_loads,
                 'get_available_initiatives': get_available_initiatives,
                 'get_available_member_states': get_available_member_states,
+                'get_available_organizations': get_available_organizations,
             })
 
         helpers.update({

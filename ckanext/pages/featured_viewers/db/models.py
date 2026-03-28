@@ -189,6 +189,12 @@ class MapRoom(DomainObject, BaseModel):
     thumbnail_url = Column(Text)
     category = Column(String(100), index=True)
     initiative = Column(String(100), nullable=True, index=True)
+    organization_id = Column(
+        String(100),
+        ForeignKey('group.id', ondelete='SET NULL'),
+        nullable=True,
+    )
+    countries = Column(JSONB, nullable=True)
     status = Column(String(50), default='draft', index=True)
     is_featured = Column(Boolean, default=False)
     order_index = Column(Integer, default=0)

@@ -143,4 +143,6 @@ def map_room_schema():
         'thumbnail_url': [ignore_missing, unicode_safe],
         'category': [ignore_missing, unicode_safe],
         'initiative': [ignore_missing, unicode_safe],
+        'organization_id': [ignore_missing, unicode_safe],
+        'countries': [ignore_missing],
     }

@@ -133,17 +133,24 @@ Características:
 - map rooms (colecciones de viewers)
 - acciones CRUD y publish/review
 - campo `initiative` en viewers y map rooms para organizar por iniciativa (CRIDA, FRIEND, etc.)
+- campos `organization_id` y `countries` (JSONB) en viewers y map rooms
 - selección de viewers al crear o editar un map room mediante checkboxes (sin flujo multi-paso)
-- filtro por iniciativa en listados de viewers y map rooms
+- filtros por iniciativa, member state y organización en listados de viewers y map rooms
 
 Landing unificada (`/featured-viewers/`):
 
 - hero compacto con buscador unificado (filtra rooms y viewers)
-- pills horizontales de iniciativas (filtrado client-side JS)
+- category tabs al tope (filtran AMBAS secciones: rooms y viewers)
+- dropdowns searchable de iniciativa, member state y organización
 - sección prominente de Map Rooms (cards grandes, máx 6, con conteo de viewers)
-- sección de viewers individuales con category tabs y paginación
+- sección de viewers individuales con paginación
 - sección My Drafts colapsable al final (solo para creadores)
 - componente `room_card.html` diferenciado de `viewer_card.html`
+
+Formularios de edición (viewers y rooms):
+
+- initiative, organization y countries (member states) en ambos formularios
+- countries almacenado como JSONB array de `{name, display_name}`
 
 Se activa con:
 

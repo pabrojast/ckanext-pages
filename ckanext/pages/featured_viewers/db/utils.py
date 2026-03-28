@@ -53,6 +53,8 @@ def init_tables(engine):
     # Add new columns to existing tables (safe to run multiple times)
     _add_column_if_not_exists(engine, 'featured_viewers', 'initiative', 'VARCHAR(100)')
     _add_column_if_not_exists(engine, 'map_rooms', 'initiative', 'VARCHAR(100)')
+    _add_column_if_not_exists(engine, 'map_rooms', 'organization_id', 'VARCHAR(100)')
+    _add_column_if_not_exists(engine, 'map_rooms', 'countries', 'JSONB')
 
     log.info("Featured Viewers tables initialized")
 

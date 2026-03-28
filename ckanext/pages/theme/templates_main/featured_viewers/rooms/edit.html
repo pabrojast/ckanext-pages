@@ -138,6 +138,60 @@
           {{ _('Optionally associate this room with an initiative (e.g., CRIDA, FRIEND).') }}
         </span>
       </div>
+
+      {# Organization dropdown #}
+      <div class="form-group">
+        <label class="control-label" for="room-organization">
+          <i class="fa fa-building"></i> {{ _('Organization') }}
+        </label>
+        <select id="room-organization" name="organization_id" class="form-control">
+          <option value="">{{ _('— No organization —') }}</option>
+          {% for org in h.get_available_organizations() %}
+          <option value="{{ org.id }}"{% if data.get('organization_id') == org.id %} selected{% endif %}>
+            {{ org.title }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Optionally associate this room with an organization.') }}
+        </span>
+      </div>
+
+      {# Member States / Countries multi-select #}
+      <div class="form-group">
+        <label class="control-label">
+          <i class="fa fa-globe"></i> {{ _('Member States') }}
+        </label>
+        <div class="room-countries-selector">
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <select id="room-country-select" class="form-control" style="flex: 1;">
+              <option value="">{{ _('— Select a country —') }}</option>
+              {% for ms in h.get_available_member_states() %}
+              <option value="{{ ms.name }}" data-display="{{ ms.title }}">{{ ms.title }}</option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn btn-default" id="room-add-country-btn">
+              <i class="fa fa-plus"></i> {{ _('Add') }}
+            </button>
+          </div>
+          <div id="room-countries-list" class="fv-countries-pills" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            {% set current_countries = data.get('countries') or [] %}
+            {% for c in current_countries %}
+            <span class="label label-info fv-country-pill" data-name="{{ c.name }}" style="display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.85rem;">
+              {{ c.display_name or c.name }}
+              <a href="#" class="fv-remove-country" style="color: #fff; font-weight: bold; text-decoration: none; margin-left: 0.2rem;">&times;</a>
+            </span>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="countries" id="room-countries-json"
+                 value='{{ current_countries | tojson if current_countries else "[]" }}'>
+        </div>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Associate this room with member states for filtering.') }}
+        </span>
+      </div>
     </fieldset>
 
     {# ── Cover Image ── #}
@@ -620,6 +674,56 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('change', function(e) {
     if (e.target.name === 'viewer_ids') updateSelectedCount();
   });
+
+  // ── Countries multi-select for rooms ──
+  var countrySelect = document.getElementById('room-country-select');
+  var addCountryBtn = document.getElementById('room-add-country-btn');
+  var countriesList = document.getElementById('room-countries-list');
+  var countriesJson = document.getElementById('room-countries-json');
+
+  function getRoomCountries() {
+    try { return JSON.parse(countriesJson.value); } catch(e) { return []; }
+  }
+
+  function renderRoomCountries() {
+    var countries = getRoomCountries();
+    countriesList.innerHTML = '';
+    countries.forEach(function(c) {
+      var pill = document.createElement('span');
+      pill.className = 'label label-info fv-country-pill';
+      pill.dataset.name = c.name;
+      pill.style.cssText = 'display:inline-flex;align-items:center;gap:0.3rem;padding:0.3rem 0.6rem;border-radius:12px;font-size:0.85rem;';
+      pill.innerHTML = (c.display_name || c.name) + ' <a href="#" class="fv-remove-country" style="color:#fff;font-weight:bold;text-decoration:none;margin-left:0.2rem;">&times;</a>';
+      countriesList.appendChild(pill);
+    });
+  }
+
+  if (addCountryBtn && countrySelect) {
+    addCountryBtn.addEventListener('click', function() {
+      var val = countrySelect.value;
+      if (!val) return;
+      var display = countrySelect.options[countrySelect.selectedIndex].dataset.display || countrySelect.options[countrySelect.selectedIndex].text;
+      var countries = getRoomCountries();
+      if (countries.some(function(c){ return c.name === val; })) return;
+      countries.push({ name: val, display_name: display });
+      countriesJson.value = JSON.stringify(countries);
+      renderRoomCountries();
+      countrySelect.value = '';
+    });
+  }
+
+  if (countriesList) {
+    countriesList.addEventListener('click', function(e) {
+      var link = e.target.closest('.fv-remove-country');
+      if (!link) return;
+      e.preventDefault();
+      var pill = link.closest('.fv-country-pill');
+      var name = pill.dataset.name;
+      var countries = getRoomCountries().filter(function(c){ return c.name !== name; });
+      countriesJson.value = JSON.stringify(countries);
+      renderRoomCountries();
+    });
+  }
 });
 </script>
 {% endblock %}

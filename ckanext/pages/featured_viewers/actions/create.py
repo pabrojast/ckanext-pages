@@ -163,6 +163,8 @@ def map_room_create(context, data_dict):
     room.thumbnail_url = data.get('thumbnail_url', '')
     room.category = data.get('category', 'general')
     room.initiative = data.get('initiative') or data_dict.get('initiative') or None
+    room.organization_id = data.get('organization_id') or data_dict.get('organization_id') or None
+    room.countries = data.get('countries') or data_dict.get('countries') or None
     room.author_id = user_obj.id
     room.status = data_dict.get('status', 'draft')
     room.is_featured = bool(data_dict.get('is_featured', False))

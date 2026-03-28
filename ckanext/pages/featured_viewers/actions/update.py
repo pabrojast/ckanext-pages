@@ -205,7 +205,8 @@ def map_room_update(context, data_dict):
     if not room:
         raise tk.ObjectNotFound('Map room not found')
 
-    for field in ('title', 'description', 'thumbnail_url', 'category', 'initiative'):
+    for field in ('title', 'description', 'thumbnail_url', 'category', 'initiative',
+                   'organization_id', 'countries'):
         if field in data_dict:
             setattr(room, field, data_dict[field])
 
