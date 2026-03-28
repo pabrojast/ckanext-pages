@@ -64,7 +64,7 @@
                     <div class="module-content">
                       <div class="water-section-header">
                         <div class="water-section-icon">
-                          <i class="fa fa-file-text-o"></i>
+                          <i class="fa fa-file-alt"></i>
                         </div>
                         <h2>{{ _('Abstract') }}</h2>
                       </div>
@@ -247,7 +247,7 @@
                     <div class="module-content">
                       <div class="water-section-header">
                         <div class="water-section-icon">
-                          <i class="fa fa-{% if is_pdf %}file-pdf-o{% elif is_image %}image{% else %}file-o{% endif %}"></i>
+                          <i class="fa fa-{% if is_pdf %}file-pdf{% elif is_image %}image{% else %}file{% endif %}"></i>
                         </div>
                         <h2>{{ _('Document') }}</h2>
                       </div>
@@ -261,7 +261,7 @@
                                 frameborder="0" allowfullscreen>
                         </iframe>
                         <div id="wp-pdf-fallback" class="wp-pdf-fallback" style="display:none;">
-                          <i class="fa fa-file-pdf-o fa-4x" style="color:#dc3545; margin-bottom:1rem;"></i>
+                          <i class="fa fa-file-pdf fa-4x" style="color:#dc3545; margin-bottom:1rem;"></i>
                           <h4>{{ _('PDF preview not available') }}</h4>
                           <p class="text-muted">{{ _('The document could not be previewed. Use the buttons below to access it.') }}</p>
                         </div>
@@ -277,19 +277,19 @@
                       <div class="wp-file-card">
                         <div class="wp-file-card-icon">
                           {% if doc_format in ['doc', 'docx'] %}
-                            <i class="fa fa-file-word-o fa-3x" style="color:#2b579a;"></i>
+                            <i class="fa fa-file-word fa-3x" style="color:#2b579a;"></i>
                           {% elif doc_format in ['xls', 'xlsx', 'csv'] %}
-                            <i class="fa fa-file-excel-o fa-3x" style="color:#217346;"></i>
+                            <i class="fa fa-file-excel fa-3x" style="color:#217346;"></i>
                           {% elif doc_format in ['ppt', 'pptx'] %}
-                            <i class="fa fa-file-powerpoint-o fa-3x" style="color:#d24726;"></i>
+                            <i class="fa fa-file-powerpoint fa-3x" style="color:#d24726;"></i>
                           {% elif doc_format in ['zip', 'rar', '7z', 'tar', 'gz'] %}
-                            <i class="fa fa-file-archive-o fa-3x" style="color:#f0ad4e;"></i>
+                            <i class="fa fa-file-archive fa-3x" style="color:#f0ad4e;"></i>
                           {% elif doc_format in ['mp4', 'webm', 'avi', 'mov'] %}
-                            <i class="fa fa-file-video-o fa-3x" style="color:#5bc0de;"></i>
+                            <i class="fa fa-file-video fa-3x" style="color:#5bc0de;"></i>
                           {% elif doc_format in ['mp3', 'wav', 'ogg'] %}
-                            <i class="fa fa-file-audio-o fa-3x" style="color:#9b59b6;"></i>
+                            <i class="fa fa-file-audio fa-3x" style="color:#9b59b6;"></i>
                           {% else %}
-                            <i class="fa fa-file-o fa-3x" style="color:#6c757d;"></i>
+                            <i class="fa fa-file fa-3x" style="color:#6c757d;"></i>
                           {% endif %}
                         </div>
                         <div class="wp-file-card-info">
@@ -404,7 +404,7 @@
                         {% if c.page.dataset_title %}
                         <div class="publication-detail-row">
                           <div class="publication-detail-label">
-                            <i class="fa fa-file-text"></i> {{ _('Dataset Title') }}
+                            <i class="fa fa-file-alt"></i> {{ _('Dataset Title') }}
                           </div>
                           <div class="publication-detail-value">{{ c.page.dataset_title }}</div>
                         </div>
@@ -489,7 +489,7 @@
                       {% if has_ini %}
                       <div class="water-section-header">
                         <div class="water-section-icon" style="background:#e8f5e9; color:#2e7d32;">
-                          <i class="fa fa-lightbulb-o"></i>
+                          <i class="fa fa-lightbulb"></i>
                         </div>
                         <h2>{{ _('Initiatives') }}</h2>
                       </div>
@@ -500,7 +500,7 @@
                             {% if ini.image_display_url %}
                               <img src="{{ ini.image_display_url }}" alt="{{ ini.display_name }}">
                             {% else %}
-                              <i class="fa fa-lightbulb-o"></i>
+                              <i class="fa fa-lightbulb"></i>
                             {% endif %}
                           </div>
                           <div class="wp-card-body">
@@ -557,7 +557,7 @@
                           {% if c.page.created %}
                             <p class="text-muted">
                               <small>
-                                <i class="fa fa-clock-o"></i> {{ _('Shared:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
+                                <i class="fa fa-clock"></i> {{ _('Shared:') }} {{ h.render_datetime(c.page.created, '%B %d, %Y') }}
                                 {% if c.page.modified %}
                                   | {{ _('Last updated:') }} {{ h.render_datetime(c.page.modified, '%B %d, %Y') }}
                                 {% endif %}

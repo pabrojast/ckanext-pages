@@ -409,7 +409,7 @@
                               <span class="help-text" style="display:block; margin-top:0.5rem;">{{ _('Upload a PDF or image with the event agenda or flyer (max 20MB).') }}</span>
                               <div id="agenda-upload-feedback" class="text-muted" style="margin-top:0.75rem;">
                                 {% if data.agenda_document %}
-                                  <i class="fa fa-file-text-o"></i>
+                                  <i class="fa fa-file-alt"></i>
                                   <a href="{{ data.agenda_document }}" target="_blank" rel="noopener">{{ _('View current agenda document') }}</a>
                                   <button type="button" class="btn btn-link btn-sm" id="agenda-clear" style="margin-left: 0.75rem;">{{ _('Remove') }}</button>
                                 {% else %}
@@ -1497,7 +1497,7 @@ select.form-control option:selected {
       uploadAsset(file, 'document', function(response) {
         $('#field-agenda-document').val(response.url);
         $('#agenda-upload-feedback').html(
-          '<i class="fa fa-file-text-o"></i> <a href="' + response.url + '" target="_blank" rel="noopener">{{ _('View agenda document') }}</a>' +
+          '<i class="fa fa-file-alt"></i> <a href="' + response.url + '" target="_blank" rel="noopener">{{ _('View agenda document') }}</a>' +
           '<button type="button" class="btn btn-link btn-sm" id="agenda-clear" style="margin-left: 0.75rem;">{{ _('Remove') }}</button>'
         );
       }, function() {

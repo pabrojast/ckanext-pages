@@ -451,7 +451,14 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             # create a CKAN documents dataset (type resolved from config/schema) with an optional resource
             if page_type == 'water-publications' and not page:
                 try:
-                    _maybe_create_documents_dataset(page_dict)
+                    resource_url = _maybe_create_documents_dataset(page_dict)
+                    # Save the resource URL back to the page so the display
+                    # template can show the document viewer / image preview.
+                    if resource_url:
+                        page_dict['download_url'] = resource_url
+                        tk.get_action('ckanext_pages_update')(
+                            context={}, data_dict=page_dict
+                        )
                 except Exception as e:
                     # Do not block page creation on dataset errors; show a warning
                     tk.h.flash_error(_('Dataset creation warning: %s') % str(e))
@@ -936,16 +943,19 @@ def _maybe_create_documents_dataset(form_data):
     upload_file = req.files.get('dataset_upload') if getattr(req, 'files', None) else None
     dataset_url = form_data.get('dataset_url')
 
+    resource_url = None
     if upload_file and getattr(upload_file, 'filename', None):
         # File upload resource
         files_context = context.copy()
         files_context['allow_partial_update'] = False
         resource_dict['upload'] = upload_file
-        tk.get_action('resource_create')(files_context, resource_dict)
+        created_resource = tk.get_action('resource_create')(files_context, resource_dict)
+        resource_url = created_resource.get('url', '')
     elif dataset_url:
         resource_dict['url'] = dataset_url
         # url_type left default; CKAN will set appropriately
-        tk.get_action('resource_create')(context, resource_dict)
+        created_resource = tk.get_action('resource_create')(context, resource_dict)
+        resource_url = created_resource.get('url', '') or dataset_url
 
     # Optional: attempt DOI generation if an action is available
     try:
@@ -954,6 +964,8 @@ def _maybe_create_documents_dataset(form_data):
     except Exception:
         # ignore if action not available or fails
         pass
+
+    return resource_url
 
 
 def _generate_unique_dataset_name(base_name):
