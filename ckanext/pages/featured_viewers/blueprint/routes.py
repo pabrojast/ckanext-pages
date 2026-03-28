@@ -45,6 +45,7 @@ def index():
     sort = request.args.get('sort', 'order')
     category_filter = request.args.get('category', '')
     initiative_filter = request.args.get('initiative', '')
+    member_state_filter = request.args.get('member_state', '')
     q = request.args.get('q', '')
 
     offset = (page - 1) * limit
@@ -61,6 +62,8 @@ def index():
         data_dict['category'] = category_filter
     if initiative_filter:
         data_dict['initiative'] = initiative_filter
+    if member_state_filter:
+        data_dict['member_state'] = member_state_filter
 
     # Use ignore_auth for public listing
     list_context = dict(context)
@@ -116,9 +119,10 @@ def index():
             log.error(f"Error listing rooms for landing: {str(e)}")
             model.Session.rollback()
 
-    # Get available initiatives for pills
-    from ckanext.pages.featured_viewers.helpers import get_available_initiatives
+    # Get available initiatives and member states for filter dropdowns
+    from ckanext.pages.featured_viewers.helpers import get_available_initiatives, get_available_member_states
     initiatives = get_available_initiatives()
+    member_states = get_available_member_states()
 
     # Get categories for filter tabs
     from ckanext.pages.featured_viewers.logic.schema import VIEWER_CATEGORIES
@@ -167,6 +171,7 @@ def index():
         'rooms': rooms,
         'rooms_total': rooms_total,
         'initiatives': initiatives,
+        'member_states': member_states,
         'total_count': total_count,
         'page': page,
         'total_pages': total_pages,
@@ -174,6 +179,7 @@ def index():
         'sort': sort,
         'category_filter': category_filter,
         'initiative_filter': initiative_filter,
+        'member_state_filter': member_state_filter,
         'q': q,
         'facets': facets,
         'categories': VIEWER_CATEGORIES,

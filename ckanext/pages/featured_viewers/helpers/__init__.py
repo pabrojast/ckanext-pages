@@ -89,20 +89,76 @@ def json_loads(value):
         return []
 
 
-def get_available_initiatives():
-    """Return list of CKAN groups usable as initiatives for viewers/rooms."""
+def _get_member_state_names():
+    """Return set of group names that are children of the 'member-states' parent group."""
     from ckan import model
     try:
+        ms_group = model.Group.get('member-states')
+        if not ms_group:
+            return {'member-states'}
+        ms_rows = (
+            model.Session.query(model.Group.name)
+            .join(model.Member, model.Member.table_id == model.Group.id)
+            .filter(
+                model.Member.group_id == ms_group.id,
+                model.Member.state == 'active',
+                model.Member.table_name == 'group',
+                model.Group.state == 'active',
+            )
+            .all()
+        )
+        names = {'member-states'}
+        names.update(g.name for g in ms_rows)
+        return names
+    except Exception:
+        return {'member-states'}
+
+
+def get_available_initiatives():
+    """Return list of CKAN groups that are initiatives (excluding member states)."""
+    from ckan import model
+    try:
+        ms_names = _get_member_state_names()
         group_rows = (
             model.Session.query(model.Group.name, model.Group.title)
-            .filter(model.Group.state == 'active')
-            .filter(model.Group.type == 'group')
+            .filter(
+                model.Group.state == 'active',
+                model.Group.type == 'group',
+                ~model.Group.name.in_(ms_names) if ms_names else True,
+            )
             .order_by(model.Group.title)
             .all()
         )
         return [
             {'name': g.name, 'title': g.title or g.name}
             for g in group_rows
+        ]
+    except Exception:
+        return []
+
+
+def get_available_member_states():
+    """Return list of CKAN groups that are member states (children of 'member-states' group)."""
+    from ckan import model
+    try:
+        ms_group = model.Group.get('member-states')
+        if not ms_group:
+            return []
+        ms_rows = (
+            model.Session.query(model.Group.name, model.Group.title)
+            .join(model.Member, model.Member.table_id == model.Group.id)
+            .filter(
+                model.Member.group_id == ms_group.id,
+                model.Member.state == 'active',
+                model.Member.table_name == 'group',
+                model.Group.state == 'active',
+            )
+            .order_by(model.Group.title)
+            .all()
+        )
+        return [
+            {'name': g.name, 'title': g.title or g.name}
+            for g in ms_rows
         ]
     except Exception:
         return []

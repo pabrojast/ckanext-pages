@@ -6,6 +6,7 @@ import logging
 
 from ckan import model, authz
 import ckan.plugins.toolkit as tk
+import sqlalchemy as sa
 from sqlalchemy import or_, func
 
 from ckanext.pages.featured_viewers.db.models import FeaturedViewer, ViewerDataset
@@ -88,6 +89,12 @@ def featured_viewer_list(context, data_dict):
     initiative = data_dict.get('initiative')
     if initiative:
         query = query.filter(FeaturedViewer.initiative == initiative)
+
+    member_state = data_dict.get('member_state')
+    if member_state:
+        query = query.filter(
+            FeaturedViewer.countries.cast(sa.Text).ilike('%' + member_state + '%')
+        )
 
     is_featured = data_dict.get('is_featured')
     if is_featured is not None:

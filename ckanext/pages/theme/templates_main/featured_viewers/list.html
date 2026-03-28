@@ -53,40 +53,74 @@
     <div class="container">
 
       {# ================================================================ #}
-      {# INITIATIVE FILTER — searchable dropdown                          #}
+      {# FILTERS — initiative + member state searchable dropdowns         #}
       {# ================================================================ #}
-      {% if initiatives %}
-      <div class="fv-initiative-filter" style="margin: 1.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
-        <label for="fv-initiative-select" style="margin: 0; font-weight: 600; color: #555; white-space: nowrap;">
-          <i class="fa fa-flag" style="color: #0072BC;"></i> {{ _('Filter by initiative:') }}
-        </label>
-        <div class="fv-initiative-dropdown" style="position: relative; min-width: 280px; max-width: 400px;">
-          <div class="fv-initiative-select-wrapper">
-            <input type="text" id="fv-initiative-search" class="form-control"
-                   placeholder="{{ _('Search or select an initiative...') }}"
+      {% set has_initiatives = initiatives | length > 0 %}
+      {% set has_member_states = member_states is defined and member_states | length > 0 %}
+      {% if has_initiatives or has_member_states %}
+      <div class="fv-filter-bar" style="margin: 1.5rem 0; display: flex; align-items: center; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
+
+        {# Initiative dropdown #}
+        {% if has_initiatives %}
+        <div class="fv-searchable-dropdown" data-filter-name="initiative">
+          <label class="fv-filter-label">
+            <i class="fa fa-flag"></i> {{ _('Initiative') }}
+          </label>
+          <div class="fv-dropdown-wrap">
+            <input type="text" class="form-control fv-dropdown-input" data-target="initiative"
+                   placeholder="{{ _('All initiatives') }}"
                    autocomplete="off"
-                   style="border-radius: 25px; padding: 0.5rem 2.5rem 0.5rem 1rem; border: 2px solid #e0e0e0; font-size: 0.9rem;"
                    value="{% if initiative_filter %}{% for ini in initiatives %}{% if ini.name == initiative_filter %}{{ ini.title }}{% endif %}{% endfor %}{% endif %}">
-            <i class="fa fa-chevron-down fv-initiative-arrow" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;"></i>
+            <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
+            <ul class="fv-dropdown-list" data-list="initiative">
+              <li data-value="" class="fv-dd-option {% if not initiative_filter %}fv-dd-active{% endif %}">
+                <i class="fa fa-th"></i> {{ _('All Initiatives') }}
+              </li>
+              {% for ini in initiatives %}
+              <li data-value="{{ ini.name }}" class="fv-dd-option {% if initiative_filter == ini.name %}fv-dd-active{% endif %}">
+                {{ ini.title }}
+              </li>
+              {% endfor %}
+            </ul>
           </div>
-          <ul class="fv-initiative-list" id="fv-initiative-list" style="display: none;">
-            <li data-value="" class="fv-ini-option {% if not initiative_filter %}fv-ini-active{% endif %}">
-              <i class="fa fa-th"></i> {{ _('All Initiatives') }}
-            </li>
-            {% for ini in initiatives %}
-            <li data-value="{{ ini.name }}" class="fv-ini-option {% if initiative_filter == ini.name %}fv-ini-active{% endif %}">
-              <i class="fa fa-flag"></i> {{ ini.title }}
-            </li>
-            {% endfor %}
-          </ul>
         </div>
-        {% if initiative_filter %}
-        <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default" style="border-radius: 20px;">
-          <i class="fa fa-times"></i> {{ _('Clear') }}
+        {% endif %}
+
+        {# Member State dropdown #}
+        {% if has_member_states %}
+        <div class="fv-searchable-dropdown" data-filter-name="member_state">
+          <label class="fv-filter-label">
+            <i class="fa fa-globe"></i> {{ _('Member State') }}
+          </label>
+          <div class="fv-dropdown-wrap">
+            <input type="text" class="form-control fv-dropdown-input" data-target="member_state"
+                   placeholder="{{ _('All countries') }}"
+                   autocomplete="off"
+                   value="{% if member_state_filter %}{% for ms in member_states %}{% if ms.name == member_state_filter %}{{ ms.title }}{% endif %}{% endfor %}{% endif %}">
+            <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
+            <ul class="fv-dropdown-list" data-list="member_state">
+              <li data-value="" class="fv-dd-option {% if not member_state_filter %}fv-dd-active{% endif %}">
+                <i class="fa fa-globe"></i> {{ _('All Countries') }}
+              </li>
+              {% for ms in member_states %}
+              <li data-value="{{ ms.name }}" class="fv-dd-option {% if member_state_filter == ms.name %}fv-dd-active{% endif %}">
+                {{ ms.title }}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+        {# Active filters summary + clear #}
+        {% if initiative_filter or member_state_filter %}
+        <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default" style="border-radius: 20px; align-self: flex-end; margin-bottom: 2px;">
+          <i class="fa fa-times"></i> {{ _('Clear filters') }}
         </a>
         {% endif %}
       </div>
       {% endif %}
+
 
       {# ================================================================ #}
       {# ACTION BAR — create/admin buttons                                #}
@@ -332,20 +366,54 @@
 
 <!-- Initiative pills filtering + room card styles -->
 <style>
-/* ── Initiative Searchable Dropdown ── */
-.fv-initiative-dropdown {
-  position: relative;
+/* ── Searchable Dropdowns (initiative + member state) ── */
+.fv-searchable-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
-.fv-initiative-list {
+.fv-filter-label {
+  margin: 0;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+.fv-filter-label i { color: #0072BC; }
+.fv-dropdown-wrap {
+  position: relative;
+  min-width: 240px;
+}
+.fv-dropdown-input {
+  border-radius: 25px !important;
+  padding: 0.45rem 2.2rem 0.45rem 1rem !important;
+  border: 2px solid #e0e0e0 !important;
+  font-size: 0.9rem !important;
+}
+.fv-dropdown-input:focus {
+  border-color: #0072BC !important;
+  box-shadow: 0 0 0 3px rgba(0,114,188,0.1) !important;
+}
+.fv-dropdown-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+.fv-dropdown-list {
+  display: none;
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
   z-index: 1000;
-  max-height: 280px;
+  max-height: 260px;
   overflow-y: auto;
   background: #fff;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #0072BC;
   border-top: none;
   border-radius: 0 0 16px 16px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -353,26 +421,23 @@
   margin: 0;
   padding: 0.25rem 0;
 }
-.fv-ini-option {
-  padding: 0.5rem 1rem;
+.fv-dd-option {
+  padding: 0.45rem 1rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #444;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   transition: background 0.15s ease;
 }
-.fv-ini-option:hover {
+.fv-dd-option:hover, .fv-dd-option.fv-dd-hover {
   background: #E3F2FD;
   color: #0072BC;
 }
-.fv-ini-option.fv-ini-active {
+.fv-dd-option.fv-dd-active {
   background: #0072BC;
   color: #fff;
   font-weight: 600;
 }
-.fv-ini-option.fv-ini-hidden {
+.fv-dd-option.fv-dd-hidden {
   display: none;
 }
 
@@ -556,8 +621,9 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .fv-initiative-filter { flex-direction: column; align-items: stretch !important; }
-  .fv-initiative-dropdown { min-width: 100% !important; max-width: 100% !important; }
+  .fv-filter-bar { flex-direction: column; align-items: stretch !important; }
+  .fv-searchable-dropdown { flex-direction: column; align-items: flex-start; }
+  .fv-dropdown-wrap { min-width: 100% !important; }
   .room-card-image { height: 160px; }
   .fv-section-header { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
   .fv-admin-bar { text-align: left; }
@@ -566,79 +632,83 @@
 </style>
 
 <script>
-// Searchable initiative dropdown
+// Generic searchable dropdown — works for all .fv-searchable-dropdown instances
 (function() {
-  var input = document.getElementById('fv-initiative-search');
-  var list = document.getElementById('fv-initiative-list');
-  if (!input || !list) return;
+  document.querySelectorAll('.fv-searchable-dropdown').forEach(function(dropdown) {
+    var filterName = dropdown.dataset.filterName;
+    var input = dropdown.querySelector('.fv-dropdown-input');
+    var list = dropdown.querySelector('.fv-dropdown-list');
+    if (!input || !list) return;
 
-  var options = list.querySelectorAll('.fv-ini-option');
+    var options = list.querySelectorAll('.fv-dd-option');
 
-  // Toggle dropdown on focus/click
-  input.addEventListener('focus', function() {
-    list.style.display = 'block';
-    input.select();
-  });
+    input.addEventListener('focus', function() {
+      // Close other dropdowns first
+      document.querySelectorAll('.fv-dropdown-list').forEach(function(l) {
+        if (l !== list) l.style.display = 'none';
+      });
+      list.style.display = 'block';
+      input.select();
+    });
 
-  // Filter options as user types
-  input.addEventListener('input', function() {
-    var query = this.value.toLowerCase();
+    input.addEventListener('input', function() {
+      var query = this.value.toLowerCase();
+      options.forEach(function(opt) {
+        var text = opt.textContent.toLowerCase();
+        opt.classList.toggle('fv-dd-hidden', query && text.indexOf(query) === -1);
+      });
+    });
+
     options.forEach(function(opt) {
-      var text = opt.textContent.toLowerCase();
-      opt.classList.toggle('fv-ini-hidden', query && text.indexOf(query) === -1);
+      opt.addEventListener('click', function() {
+        var value = this.dataset.value;
+        var url = new URL(window.location);
+        if (value) {
+          url.searchParams.set(filterName, value);
+        } else {
+          url.searchParams.delete(filterName);
+        }
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+      });
     });
-  });
 
-  // Select an option
-  options.forEach(function(opt) {
-    opt.addEventListener('click', function() {
-      var value = this.dataset.value;
-      var url = new URL(window.location);
+    input.addEventListener('keydown', function(e) {
+      var visible = Array.from(options).filter(function(o) {
+        return !o.classList.contains('fv-dd-hidden');
+      });
+      var current = list.querySelector('.fv-dd-hover');
+      var idx = current ? visible.indexOf(current) : -1;
 
-      if (value) {
-        url.searchParams.set('initiative', value);
-      } else {
-        url.searchParams.delete('initiative');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (current) current.classList.remove('fv-dd-hover');
+        idx = Math.min(idx + 1, visible.length - 1);
+        visible[idx].classList.add('fv-dd-hover');
+        visible[idx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (current) current.classList.remove('fv-dd-hover');
+        idx = Math.max(idx - 1, 0);
+        visible[idx].classList.add('fv-dd-hover');
+        visible[idx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (current) current.click();
+        else if (visible.length === 1) visible[0].click();
+      } else if (e.key === 'Escape') {
+        list.style.display = 'none';
+        input.blur();
       }
-      url.searchParams.delete('page');
-      window.location.href = url.toString();
     });
   });
 
-  // Close dropdown when clicking outside
+  // Close all dropdowns when clicking outside
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('.fv-initiative-dropdown')) {
-      list.style.display = 'none';
-    }
-  });
-
-  // Keyboard navigation
-  input.addEventListener('keydown', function(e) {
-    var visible = Array.from(options).filter(function(o) {
-      return !o.classList.contains('fv-ini-hidden');
-    });
-    var current = list.querySelector('.fv-ini-hover');
-    var idx = current ? visible.indexOf(current) : -1;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (current) current.classList.remove('fv-ini-hover');
-      idx = Math.min(idx + 1, visible.length - 1);
-      visible[idx].classList.add('fv-ini-hover');
-      visible[idx].scrollIntoView({ block: 'nearest' });
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (current) current.classList.remove('fv-ini-hover');
-      idx = Math.max(idx - 1, 0);
-      visible[idx].classList.add('fv-ini-hover');
-      visible[idx].scrollIntoView({ block: 'nearest' });
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (current) current.click();
-      else if (visible.length === 1) visible[0].click();
-    } else if (e.key === 'Escape') {
-      list.style.display = 'none';
-      input.blur();
+    if (!e.target.closest('.fv-searchable-dropdown')) {
+      document.querySelectorAll('.fv-dropdown-list').forEach(function(l) {
+        l.style.display = 'none';
+      });
     }
   });
 })();
