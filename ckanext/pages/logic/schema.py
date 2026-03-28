@@ -210,6 +210,7 @@ def default_pages_schema():
         'dataset_title': [ignore_missing, unicode_safe],    # Documents dataset title
         'dataset_visibility': [ignore_missing, unicode_safe],  # Visibility for generated dataset
         'dataset_url': [ignore_missing, url_validator, unicode_safe],  # External dataset URL
+        'associated_dataset_url': [ignore_missing, url_validator, unicode_safe],  # Generated CKAN dataset page URL
         'document_format': [ignore_missing, unicode_safe],  # Resource format/extension
         'document_mimetype': [ignore_missing, unicode_safe],  # Resource mimetype
         'contact_name': [ignore_missing, unicode_safe],     # Dataset contact name
@@ -496,6 +497,7 @@ def water_family_schema():
         'dataset_title': [ignore_missing, unicode_safe],  # Documents dataset title
         'dataset_visibility': [ignore_missing, unicode_safe],  # Visibility for generated dataset
         'dataset_url': [ignore_missing, url_validator, unicode_safe],  # External dataset URL
+        'associated_dataset_url': [ignore_missing, url_validator, unicode_safe],  # Generated CKAN dataset page URL
         'document_format': [ignore_missing, unicode_safe],  # Resource format/extension
         'document_mimetype': [ignore_missing, unicode_safe],  # Resource mimetype
         'contact_name': [ignore_missing, unicode_safe],  # Dataset contact name

@@ -300,6 +300,38 @@ class TestPages():
         assert 'pdf' in result['allowed_extensions']
         assert 'png' in result['allowed_extensions']
 
+    def test_water_publications_show_renders_image_preview_and_dataset_link(self, app):
+        admin = factories.Sysadmin()
+        slug = 'water-publication-image-preview'
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': admin['name']},
+            name=slug,
+            page=slug,
+            title='Water Publication Image Preview',
+            content='Publication content with image resource.',
+            page_type='water-publications',
+            download_url='https://example.com/resources/publication-preview.png',
+            document_format='png',
+            document_mimetype='image/png',
+            dataset_title='Publication Dataset',
+            associated_dataset_url='https://example.com/dataset/publication-dataset',
+            private=False,
+            submission_status='approved',
+        )
+
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        response = app.get(
+            toolkit.url_for('pages.water_publications_show', page=slug),
+            extra_environ=env,
+            status=200,
+        )
+
+        assert 'https://example.com/resources/publication-preview.png' in response.body
+        assert 'https://example.com/dataset/publication-dataset' in response.body
+        assert 'Publication Dataset' in response.body
+
     def test_open_source_admin_dashboard_shows_organization_labels(self, app):
         sysadmin = factories.Sysadmin()
         org = factories.Organization()
@@ -499,6 +531,7 @@ class TestPages():
             'dataset_title',
             'dataset_visibility',
             'dataset_url',
+            'associated_dataset_url',
             'document_format',
             'document_mimetype',
             'contact_name',

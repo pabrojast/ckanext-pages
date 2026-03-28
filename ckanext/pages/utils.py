@@ -456,11 +456,23 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             # create a CKAN documents dataset (type resolved from config/schema) with an optional resource
             if page_type == 'water-publications' and not page:
                 try:
-                    resource_url = _maybe_create_documents_dataset(page_dict)
-                    # Save the resource URL back to the page so the display
-                    # template can show the document viewer / image preview.
-                    if resource_url:
-                        page_dict['download_url'] = resource_url
+                    dataset_result = _maybe_create_documents_dataset(page_dict)
+                    if isinstance(dataset_result, dict):
+                        resource_url = dataset_result.get('resource_url')
+                        dataset_page_url = dataset_result.get('dataset_page_url')
+                        if resource_url:
+                            # Save the resource URL back to the page so the display
+                            # template can show the document viewer / image preview.
+                            page_dict['download_url'] = resource_url
+                        if dataset_page_url:
+                            page_dict['associated_dataset_url'] = dataset_page_url
+                    else:
+                        resource_url = dataset_result
+                        dataset_page_url = None
+                        if resource_url:
+                            page_dict['download_url'] = resource_url
+
+                    if resource_url or dataset_page_url:
                         tk.get_action('ckanext_pages_update')(
                             context={}, data_dict=page_dict
                         )
@@ -949,13 +961,50 @@ def _maybe_create_documents_dataset(form_data):
     dataset_url = form_data.get('dataset_url')
 
     resource_url = None
+    dataset_page_url = ''
+    package_name = package.get('name') or package.get('id') or ''
+    site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
+    if package_name:
+        try:
+            dataset_page_url = helpers.url_for('dataset.read', id=package_name, qualified=True)
+        except Exception:
+            dataset_path = '/dataset/{0}'.format(six.moves.urllib.parse.quote(str(package_name)))
+            dataset_page_url = '{0}{1}'.format(site_url, dataset_path) if site_url else dataset_path
+
+    def _build_uploaded_resource_download_url(resource, original_filename=''):
+        resource_id = resource.get('id') if isinstance(resource, dict) else None
+        if not (package_name and resource_id):
+            return resource.get('url', '') if isinstance(resource, dict) else ''
+
+        filename = (original_filename or '').strip()
+        if not filename:
+            raw_url = (resource.get('url', '') if isinstance(resource, dict) else '') or ''
+            filename = raw_url.split('?')[0].split('#')[0].rstrip('/').rsplit('/', 1)[-1]
+        if not filename:
+            filename = (resource.get('name', '') if isinstance(resource, dict) else '') or str(resource_id)
+
+        safe_filename = six.moves.urllib.parse.quote(str(filename))
+        if dataset_page_url:
+            base_dataset_url = dataset_page_url
+        else:
+            dataset_path = '/dataset/{0}'.format(six.moves.urllib.parse.quote(str(package_name)))
+            base_dataset_url = '{0}{1}'.format(site_url, dataset_path) if site_url else dataset_path
+        return '{0}/resource/{1}/download/{2}'.format(
+            base_dataset_url.rstrip('/'),
+            resource_id,
+            safe_filename
+        )
+
     if upload_file and getattr(upload_file, 'filename', None):
         # File upload resource
         files_context = context.copy()
         files_context['allow_partial_update'] = False
         resource_dict['upload'] = upload_file
         created_resource = tk.get_action('resource_create')(files_context, resource_dict)
-        resource_url = created_resource.get('url', '')
+        resource_url = _build_uploaded_resource_download_url(
+            created_resource,
+            getattr(upload_file, 'filename', '')
+        )
     elif dataset_url:
         resource_dict['url'] = dataset_url
         # url_type left default; CKAN will set appropriately
@@ -970,7 +1019,11 @@ def _maybe_create_documents_dataset(form_data):
         # ignore if action not available or fails
         pass
 
-    return resource_url
+    return {
+        'resource_url': resource_url,
+        'dataset_page_url': dataset_page_url,
+        'dataset_title': package.get('title') or dataset_title,
+    }
 
 
 def _generate_unique_dataset_name(base_name):

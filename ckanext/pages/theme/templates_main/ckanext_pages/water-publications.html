@@ -233,13 +233,13 @@
                 {% endif %}
 
                 <!-- Document Viewer & Access -->
-                {% set doc_url = c.page.download_url or c.page.publication_url or '' %}
+                {% set doc_url = c.page.download_url or c.page.publication_url or c.page.dataset_url or '' %}
                 {% set doc_format = (c.page.document_format or '')|lower %}
                 {% if not doc_format and doc_url %}
                   {% set doc_format = doc_url.split('.')[-1].split('?')[0]|lower if '.' in doc_url.split('/')[-1] else '' %}
                 {% endif %}
                 {% set is_pdf = doc_format == 'pdf' or 'pdf' in (c.page.document_mimetype or '')|lower %}
-                {% set is_image = doc_format in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'] %}
+                {% set is_image = doc_format in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'] or 'image/' in (c.page.document_mimetype or '')|lower %}
 
                 {% if doc_url %}
                 <div class="water-publication-viewer" style="margin-bottom: 3rem;">
@@ -390,7 +390,8 @@
                 {% endif %}
 
                 <!-- Dataset Integration -->
-                {% if c.page.dataset_title or c.page.dataset_url %}
+                {% set dataset_link = c.page.associated_dataset_url or c.page.dataset_url or c.page.download_url or c.page.publication_url or '' %}
+                {% if c.page.dataset_title or c.page.dataset_url or c.page.associated_dataset_url %}
                 <div class="water-publication-dataset" style="margin-bottom: 3rem;">
                   <section class="module module-narrow water-module-dataset">
                     <div class="module-content">
@@ -406,13 +407,29 @@
                           <div class="publication-detail-label">
                             <i class="fa fa-file-alt"></i> {{ _('Dataset Title') }}
                           </div>
-                          <div class="publication-detail-value">{{ c.page.dataset_title }}</div>
+                          <div class="publication-detail-value">
+                            {% if dataset_link %}
+                              <a href="{{ dataset_link }}" target="_blank" rel="noopener">{{ c.page.dataset_title }}</a>
+                            {% else %}
+                              {{ c.page.dataset_title }}
+                            {% endif %}
+                          </div>
+                        </div>
+                        {% endif %}
+                        {% if c.page.associated_dataset_url %}
+                        <div class="publication-detail-row">
+                          <div class="publication-detail-label">
+                            <i class="fa fa-database"></i> {{ _('Dataset Page') }}
+                          </div>
+                          <div class="publication-detail-value">
+                            <a href="{{ c.page.associated_dataset_url }}" target="_blank" rel="noopener">{{ c.page.associated_dataset_url }}</a>
+                          </div>
                         </div>
                         {% endif %}
                         {% if c.page.dataset_url %}
                         <div class="publication-detail-row">
                           <div class="publication-detail-label">
-                            <i class="fa fa-external-link"></i> {{ _('Dataset URL') }}
+                            <i class="fa fa-external-link"></i> {{ _('Resource URL') }}
                           </div>
                           <div class="publication-detail-value">
                             <a href="{{ c.page.dataset_url }}" target="_blank" rel="noopener">{{ c.page.dataset_url }}</a>
