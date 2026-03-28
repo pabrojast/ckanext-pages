@@ -242,6 +242,8 @@ class TestPages():
         assert 'Member States &amp; Initiatives' in response.body
         assert 'Chile' in response.body
         assert 'Crida' in response.body
+        assert '/memberstates/chile' in response.body
+        assert '/initiatives/crida' in response.body
 
     def test_water_events_show_renders_uploaded_gallery_and_associations(self, app):
         admin = factories.Sysadmin()
@@ -281,6 +283,8 @@ class TestPages():
         assert 'Member States &amp; Initiatives' in response.body
         assert 'Chile' in response.body
         assert 'Crida' in response.body
+        assert '/memberstates/chile' in response.body
+        assert '/initiatives/crida' in response.body
 
     def test_water_events_agenda_upload_validation_accepts_images(self):
         from ckanext.pages import actions

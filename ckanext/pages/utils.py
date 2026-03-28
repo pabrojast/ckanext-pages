@@ -1052,7 +1052,7 @@ def _generate_unique_dataset_name(base_name):
 
 def _enrich_publication_display(_page):
     """Resolve org, member-state and initiative slugs into full objects
-    for rich card display on the publication view page."""
+    for rich card display on water-family detail pages."""
     from ckan import model
     result = {
         'org_details': None,
@@ -1261,8 +1261,8 @@ def pages_show(page=None, page_type='page'):
 
     extra_vars = {}
 
-    # Enrich water-publications with org/group details for display
-    if page_type == 'water-publications':
+    # Enrich water-family detail pages with org/group details for card displays
+    if page_type in ('water-publications', 'water-news', 'water-events'):
         extra_vars.update(_enrich_publication_display(_page))
 
     return tk.render('ckanext_pages/%s.html' % page_type,
