@@ -361,8 +361,10 @@
         </button>
         <h4 class="modal-title" id="imageModalTitle">{{ _('Image Preview') }}</h4>
       </div>
-      <div class="modal-body text-center">
-        <img id="modalImage" src="" alt="" class="img-responsive" style="width: 100%; height: auto; border-radius: 12px;">
+      <div class="modal-body text-center image-modal-body">
+        <div class="modal-image-frame">
+          <img id="modalImage" src="" alt="" class="img-responsive">
+        </div>
         <p id="modalCaption" class="image-modal-caption"></p>
       </div>
     </div>
@@ -938,31 +940,59 @@
 }
 
 /* Modal Enhancements */
-.modal-content {
+#imageModal .modal-dialog {
+  margin: 30px auto;
+  max-width: min(1100px, 92vw);
+  width: auto;
+}
+
+#imageModal .modal-content {
   border-radius: 20px;
   border: none;
   box-shadow: var(--shadow-strong);
 }
 
-.modal-header {
+#imageModal .modal-header {
   background: linear-gradient(135deg, var(--unesco-blue-dark) 0%, var(--unesco-blue) 100%);
   color: white;
   border-radius: 20px 20px 0 0;
   padding: 1.5rem 2rem;
 }
 
-.modal-title {
+#imageModal .modal-title {
   font-weight: 700;
   font-size: 1.3rem;
 }
 
-.modal-body {
+#imageModal .modal-body {
   padding: 2rem;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow: auto;
 }
 
-.image-modal-caption {
+#imageModal .modal-image-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 1rem;
+  background: linear-gradient(180deg, #f8fbfe 0%, #eef6fb 100%);
+  border-radius: 16px;
+}
+
+#modalImage {
+  max-width: 100%;
+  max-height: 72vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+}
+
+#imageModal .image-modal-caption {
   margin-top: 1.5rem;
   font-style: italic;
   color: var(--text-secondary);
@@ -1020,6 +1050,25 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+
+  #imageModal .modal-dialog {
+    margin: 20px auto;
+    max-width: 96vw;
+  }
+
+  #imageModal .modal-body {
+    padding: 1.25rem;
+    max-height: 78vh;
+  }
+
+  #imageModal .modal-image-frame {
+    min-height: 180px;
+    padding: 0.75rem;
+  }
+
+  #modalImage {
+    max-height: 62vh;
+  }
   
   .related-news-grid {
     grid-template-columns: 1fr;
@@ -1068,6 +1117,30 @@
   .image-container {
     height: 180px;
   }
+
+  #imageModal .modal-dialog {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  #imageModal .modal-body {
+    padding: 1rem;
+    max-height: 72vh;
+  }
+
+  #imageModal .modal-image-frame {
+    min-height: 140px;
+    padding: 0.5rem;
+  }
+
+  #modalImage {
+    max-height: 56vh;
+  }
+
+  #imageModal .image-modal-caption {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+  }
 }
 </style>
 
@@ -1093,8 +1166,8 @@
       e.stopPropagation();
       
       const $img = $(this).find('.gallery-image').length ? $(this).find('.gallery-image') : $(this);
-      const imageUrl = $img.attr('src');
-      const caption = $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
+      const imageUrl = $img.data('image') || $img.attr('src');
+      const caption = $img.data('caption') || $img.attr('alt') || $img.siblings('.image-caption').text() || 'Image';
       
       if (imageUrl) {
         $('#modalImage').attr('src', imageUrl);

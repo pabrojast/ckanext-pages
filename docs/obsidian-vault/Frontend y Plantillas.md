@@ -116,6 +116,7 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - `ckanext_pages/ai-water-tools_list.html` usa el mismo patrón de dropdown custom para filtros y depende de `public/js/ai-water-tools.js` más reglas de stacking en `public/css/ai-water-tools.css` bajo el contenedor real `.ai-water-filters`.
 - `ckanext_pages/water-news_edit.html`, `ckanext_pages/water-events_edit.html` y `ckanext_pages/water-publications_edit.html` llevan JS inline para sincronizar `uploaded_images`, `country_groups` e `initiative_groups` como JSON; cuando no hay selección se normalizan a `[]` y el selector de member states incluye una opción de “All member states”.
 - `ckanext_pages/water-news.html` y `ckanext_pages/water-events.html` renderizan la galería subida y las asociaciones desde `extras`; los templates deben tolerar tanto JSON string como listas ya parseadas por `table_dictize()`.
+- `ckanext_pages/water-news.html` usa `object-fit: cover` en la grilla de miniaturas y `object-fit: contain` en el modal de preview; no conviene reutilizar el layout del thumbnail para la vista ampliada.
 
 ## Pendiente por confirmar
 
