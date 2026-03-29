@@ -49,6 +49,7 @@
     {% set counts.open_source = counts.open_source + 1 %}
   {% endif %}
 {% endfor %}
+{% set summary_counts = c.ai_water_summary_counts if c.ai_water_summary_counts is defined else counts %}
 
 {% block content %}
 
@@ -103,25 +104,25 @@
                       <div class="row text-center">
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ counts.total }}</div>
+                            <div class="metric-number">{{ summary_counts.total }}</div>
                             <div class="metric-label">{{ _('Total Tools') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ counts.research }}</div>
+                            <div class="metric-number">{{ summary_counts.research }}</div>
                             <div class="metric-label">{{ _('Research Stage') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ counts.production }}</div>
+                            <div class="metric-number">{{ summary_counts.production }}</div>
                             <div class="metric-label">{{ _('Production Stage') }}</div>
                           </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                           <div class="status-metric">
-                            <div class="metric-number">{{ counts.open_source }}</div>
+                            <div class="metric-number">{{ summary_counts.open_source }}</div>
                             <div class="metric-label">{{ _('Open Source') }}</div>
                           </div>
                         </div>

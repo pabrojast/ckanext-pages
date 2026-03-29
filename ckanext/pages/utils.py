@@ -273,6 +273,27 @@ def pages_list_pages(page_type):
         items_per_page=21
     )
 
+    if page_type == 'ai-water-tools':
+        summary_counts = {
+            'total': 0,
+            'research': 0,
+            'production': 0,
+            'open_source': 0,
+        }
+        for item in tk.g.pages_dict or []:
+            summary_counts['total'] += 1
+            maturity_level = (item.get('maturity_level') or '').strip().lower()
+            access_type = (item.get('access_type') or '').strip().lower()
+
+            if maturity_level == 'research':
+                summary_counts['research'] += 1
+            if maturity_level == 'production':
+                summary_counts['production'] += 1
+            if access_type == 'open-source' or not access_type:
+                summary_counts['open_source'] += 1
+
+        tk.c.ai_water_summary_counts = summary_counts
+
     if page_type == 'water-events':
         tk.c.upcoming_count = sum(
             1 for page in tk.c.page.items if _is_water_family_event_upcoming(page)

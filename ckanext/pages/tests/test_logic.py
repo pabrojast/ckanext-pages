@@ -8,6 +8,7 @@ import pytest
 from collections import OrderedDict
 import datetime
 import json
+import re
 
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
@@ -177,6 +178,49 @@ class TestPages():
         )
         pending_names = [item['name'] for item in pending_entries]
         assert slug in pending_names
+
+    def test_ai_water_tools_summary_counts_use_full_filtered_result_set(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+
+        for idx in range(22):
+            helpers.call_action(
+                'ckanext_pages_update',
+                {'user': admin['name']},
+                name='ai-tool-{0}'.format(idx),
+                page='ai-tool-{0}'.format(idx),
+                title='AI Tool {0}'.format(idx),
+                content='AI tool content {0}'.format(idx),
+                page_type='ai-water-tools',
+                private=False,
+                submission_status='approved',
+                maturity_level='research' if idx < 7 else 'production',
+                access_type='open-source' if idx < 8 else 'proprietary',
+            )
+
+        response = app.get(
+            toolkit.url_for('pages.ai_water_tools_index') + '?page=2',
+            status=200,
+            extra_environ=env,
+        )
+
+        assert 'AI Tool 21' in response.body
+        assert re.search(
+            r'<div class="metric-number">\s*22\s*</div>\s*<div class="metric-label">Total Tools</div>',
+            response.body,
+        )
+        assert re.search(
+            r'<div class="metric-number">\s*7\s*</div>\s*<div class="metric-label">Research Stage</div>',
+            response.body,
+        )
+        assert re.search(
+            r'<div class="metric-number">\s*15\s*</div>\s*<div class="metric-label">Production Stage</div>',
+            response.body,
+        )
+        assert re.search(
+            r'<div class="metric-number">\s*8\s*</div>\s*<div class="metric-label">Open Source</div>',
+            response.body,
+        )
 
     def test_non_admin_publish_request_is_converted_to_pending_for_water_news(self, app):
         submitter = factories.User()

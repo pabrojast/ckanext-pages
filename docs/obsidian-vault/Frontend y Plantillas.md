@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-03-28
+Actualizado: 2026-03-29
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -114,6 +114,7 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - Inferencia: estos filtros deben permanecer desacoplados de `Bootstrap` (`.dropdown`, `.dropdown-menu`, `data-toggle="dropdown"`) para no interferir con el menú principal de navegación.
 - `ckanext_pages/open-source-software.html` reutiliza `public/js/open-source-software.js` y `public/css/open-source-software.css` para normalizar listas ordenadas partidas por el editor y mantener la tipografía de listas consistente con el texto del bloque.
 - `ckanext_pages/ai-water-tools_list.html` usa el mismo patrón de dropdown custom para filtros y depende de `public/js/ai-water-tools.js` más reglas de stacking en `public/css/ai-water-tools.css` bajo el contenedor real `.ai-water-filters`.
+- `ckanext_pages/ai-water-tools_list.html` calcula los contadores de resumen desde el resultado filtrado completo antes de paginar; en `/ai-water-tools?page=N` no deben colapsar al número de items visibles de esa página.
 - `ckanext_pages/water-news_edit.html`, `ckanext_pages/water-events_edit.html` y `ckanext_pages/water-publications_edit.html` llevan JS inline para sincronizar `uploaded_images`, `country_groups` e `initiative_groups` como JSON; cuando no hay selección se normalizan a `[]` y el selector de member states incluye una opción de “All member states”.
 - `ckanext_pages/water-events_edit.html` detecta si `agenda_document` es PDF o imagen antes de subirlo y envía `asset_role=agenda_document`; en backend ese adjunto acepta ambos formatos con tope de `20MB`.
 - `ckanext_pages/water-publications.html` usa `download_url` o `publication_url` para el viewer del documento y `associated_dataset_url` para enlazar la página del dataset CKAN; cuando el recurso es una imagen subida, el preview depende de guardar una URL pública de descarga del recurso.
