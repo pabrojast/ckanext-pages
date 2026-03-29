@@ -3,7 +3,7 @@
 {% block title %}{{ _('Featured Viewers & Map Rooms') }} - {{ super() }}{% endblock %}
 
 {% block content %}
-<div class="homepage layout-1">
+<div class="homepage layout-1 fv-featured-viewers-page">
   <div id="content" class="container">
     {{ self.flash() }}
   </div>
@@ -76,16 +76,16 @@
       {% set has_member_states = member_states is defined and member_states | length > 0 %}
       {% set has_organizations = organizations is defined and organizations | length > 0 %}
       {% if has_initiatives or has_member_states or has_organizations %}
-      <div class="fv-filter-bar" style="margin: 0.5rem 0 1.5rem 0; display: flex; align-items: center; justify-content: center; gap: 1.25rem; flex-wrap: wrap;">
+      <div class="fv-filter-bar">
 
         {# Initiative dropdown #}
         {% if has_initiatives %}
         <div class="fv-searchable-dropdown" data-filter-name="initiative">
-          <label class="fv-filter-label">
+          <label class="fv-filter-label" for="fv-filter-initiative">
             <i class="fa fa-flag"></i> {{ _('Initiative') }}
           </label>
           <div class="fv-dropdown-wrap">
-            <input type="text" class="form-control fv-dropdown-input" data-target="initiative"
+            <input type="text" id="fv-filter-initiative" class="form-control fv-dropdown-input" data-target="initiative"
                    placeholder="{{ _('All initiatives') }}"
                    autocomplete="off"
                    value="{% if initiative_filter %}{% for ini in initiatives %}{% if ini.name == initiative_filter %}{{ ini.title }}{% endif %}{% endfor %}{% endif %}">
@@ -107,11 +107,11 @@
         {# Member State dropdown #}
         {% if has_member_states %}
         <div class="fv-searchable-dropdown" data-filter-name="member_state">
-          <label class="fv-filter-label">
+          <label class="fv-filter-label" for="fv-filter-member-state">
             <i class="fa fa-globe"></i> {{ _('Member State') }}
           </label>
           <div class="fv-dropdown-wrap">
-            <input type="text" class="form-control fv-dropdown-input" data-target="member_state"
+            <input type="text" id="fv-filter-member-state" class="form-control fv-dropdown-input" data-target="member_state"
                    placeholder="{{ _('All countries') }}"
                    autocomplete="off"
                    value="{% if member_state_filter %}{% for ms in member_states %}{% if ms.name == member_state_filter %}{{ ms.title }}{% endif %}{% endfor %}{% endif %}">
@@ -133,11 +133,11 @@
         {# Organization dropdown #}
         {% if has_organizations %}
         <div class="fv-searchable-dropdown" data-filter-name="organization">
-          <label class="fv-filter-label">
+          <label class="fv-filter-label" for="fv-filter-organization">
             <i class="fa fa-building"></i> {{ _('Organization') }}
           </label>
           <div class="fv-dropdown-wrap">
-            <input type="text" class="form-control fv-dropdown-input" data-target="organization"
+            <input type="text" id="fv-filter-organization" class="form-control fv-dropdown-input" data-target="organization"
                    placeholder="{{ _('All organizations') }}"
                    autocomplete="off"
                    value="{% if organization_filter %}{% for org in organizations %}{% if org.id == organization_filter %}{{ org.title }}{% endif %}{% endfor %}{% endif %}">
@@ -158,7 +158,7 @@
 
         {# Active filters summary + clear #}
         {% if initiative_filter or member_state_filter or organization_filter %}
-        <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default" style="border-radius: 20px; align-self: flex-end; margin-bottom: 2px;">
+        <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default fv-clear-filters">
           <i class="fa fa-times"></i> {{ _('Clear filters') }}
         </a>
         {% endif %}
@@ -170,19 +170,19 @@
       {# ACTION BAR — create/admin buttons                                #}
       {# ================================================================ #}
       {% if can_create or can_review %}
-      <div class="fv-admin-bar" style="margin-bottom: 1.5rem; text-align: right;">
+      <div class="fv-admin-bar">
         {% if can_create %}
-        <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary">
+        <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary fv-admin-btn fv-admin-btn-primary">
           <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
         </a>
-        <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-default">
+        <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-default fv-admin-btn fv-admin-btn-secondary">
           <i class="fa fa-plus"></i> {{ _('Create Map Room') }}
         </a>
         {% endif %}
         {% if can_review and pending_count > 0 %}
-        <a href="{{ h.url_for('featured_viewers.pending_review') }}" class="btn btn-warning">
+        <a href="{{ h.url_for('featured_viewers.pending_review') }}" class="btn btn-warning fv-admin-btn fv-admin-btn-warning">
           <i class="fa fa-gavel"></i> {{ _('Pending Review') }}
-          <span class="badge">{{ pending_count }}</span>
+          <span class="badge fv-admin-badge">{{ pending_count }}</span>
         </a>
         {% endif %}
       </div>
@@ -390,81 +390,6 @@
 
 <!-- Initiative pills filtering + room card styles -->
 <style>
-/* ── Searchable Dropdowns (initiative + member state) ── */
-.fv-searchable-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.fv-filter-label {
-  margin: 0;
-  font-weight: 600;
-  color: #555;
-  white-space: nowrap;
-  font-size: 0.9rem;
-}
-.fv-filter-label i { color: #0072BC; }
-.fv-dropdown-wrap {
-  position: relative;
-  min-width: 240px;
-}
-.fv-dropdown-input {
-  border-radius: 25px !important;
-  padding: 0.45rem 2.2rem 0.45rem 1rem !important;
-  border: 2px solid #e0e0e0 !important;
-  font-size: 0.9rem !important;
-}
-.fv-dropdown-input:focus {
-  border-color: #0072BC !important;
-  box-shadow: 0 0 0 3px rgba(0,114,188,0.1) !important;
-}
-.fv-dropdown-arrow {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-  pointer-events: none;
-  font-size: 0.8rem;
-}
-.fv-dropdown-list {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  max-height: 260px;
-  overflow-y: auto;
-  background: #fff;
-  border: 2px solid #0072BC;
-  border-top: none;
-  border-radius: 0 0 16px 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  list-style: none;
-  margin: 0;
-  padding: 0.25rem 0;
-}
-.fv-dd-option {
-  padding: 0.45rem 1rem;
-  cursor: pointer;
-  font-size: 0.88rem;
-  color: #444;
-  transition: background 0.15s ease;
-}
-.fv-dd-option:hover, .fv-dd-option.fv-dd-hover {
-  background: #E3F2FD;
-  color: #0072BC;
-}
-.fv-dd-option.fv-dd-active {
-  background: #0072BC;
-  color: #fff;
-  font-weight: 600;
-}
-.fv-dd-option.fv-dd-hidden {
-  display: none;
-}
-
 /* ── Room Card Hero ── */
 .room-card-hero {
   margin-bottom: 1.5rem;
@@ -637,21 +562,13 @@
   padding: 1.5rem;
 }
 
-/* ── Admin Bar ── */
-.fv-admin-bar .btn { margin-left: 0.5rem; }
-
 /* ── Section headers ── */
 .fv-section-header { border-bottom: 2px solid #E3F2FD; padding-bottom: 1rem; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .fv-filter-bar { flex-direction: column; align-items: stretch !important; }
-  .fv-searchable-dropdown { flex-direction: column; align-items: flex-start; }
-  .fv-dropdown-wrap { min-width: 100% !important; }
   .room-card-image { height: 160px; }
   .fv-section-header { flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
-  .fv-admin-bar { text-align: left; }
-  .fv-admin-bar .btn { margin: 0 0.5rem 0.5rem 0; }
 }
 </style>
 
