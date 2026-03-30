@@ -102,6 +102,20 @@ def _get_unesco_region(slug):
     return ''
 
 
+def _normalize_ckan_upload_url(image_url, upload_root):
+    """Return a public URL for CKAN uploads while preserving external URLs."""
+    if not image_url:
+        return ''
+    if not isinstance(image_url, six.string_types):
+        image_url = str(image_url)
+    if image_url.startswith(('http://', 'https://', '/', 'data:')):
+        return image_url
+    return '/uploads/{}/{}'.format(
+        upload_root.strip('/'),
+        image_url.lstrip('/'),
+    )
+
+
 def _get_open_source_admin_organizations():
     """Return organization options and lookup mapping for admin dashboard."""
     try:
@@ -470,7 +484,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
         try:
             tk.get_action('ckanext_pages_update')(
-                context={}, data_dict=page_dict
+                context={'user': tk.g.user}, data_dict=page_dict
             )
 
             # If this is a Water Publication creation and dataset creation info was provided,
@@ -479,23 +493,23 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 try:
                     dataset_result = _maybe_create_documents_dataset(page_dict)
                     if isinstance(dataset_result, dict):
-                        resource_url = dataset_result.get('resource_url')
-                        dataset_page_url = dataset_result.get('dataset_page_url')
-                        if resource_url:
+                        if dataset_result.get('resource_url'):
                             # Save the resource URL back to the page so the display
                             # template can show the document viewer / image preview.
-                            page_dict['download_url'] = resource_url
-                        if dataset_page_url:
-                            page_dict['associated_dataset_url'] = dataset_page_url
+                            page_dict['download_url'] = dataset_result.get('resource_url')
+                        if dataset_result.get('dataset_page_url'):
+                            page_dict['associated_dataset_url'] = dataset_result.get('dataset_page_url')
                     else:
-                        resource_url = dataset_result
-                        dataset_page_url = None
-                        if resource_url:
-                            page_dict['download_url'] = resource_url
+                        if dataset_result:
+                            page_dict['download_url'] = dataset_result
+
+                    _recover_water_publication_dataset_links(page_dict)
+                    resource_url = page_dict.get('download_url')
+                    dataset_page_url = page_dict.get('associated_dataset_url')
 
                     if resource_url or dataset_page_url:
                         tk.get_action('ckanext_pages_update')(
-                            context={}, data_dict=page_dict
+                            context={'user': tk.g.user}, data_dict=page_dict
                         )
                 except Exception as e:
                     # Do not block page creation on dataset errors; show a warning
@@ -554,6 +568,11 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     if not data:
         data = page_dict
+
+    if page_type == 'water-publications':
+        _recover_water_publication_dataset_links(page_dict)
+        if data is page_dict:
+            data = page_dict
 
     if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
         if not data.get('ihp_organization'):
@@ -784,6 +803,167 @@ def _resolve_documents_dataset_type():
     return 'documents'
 
 
+def _slugify_documents_dataset_title(text):
+    import re
+
+    value = (text or '').lower()
+    value = re.sub(r'[^a-z0-9\-\_\s]+', '', value)
+    value = re.sub(r'\s+', '-', value).strip('-')
+    return value or 'document'
+
+
+def _build_dataset_page_url(package_name):
+    package_name = (package_name or '').strip()
+    if not package_name:
+        return ''
+
+    site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
+    try:
+        return helpers.url_for('dataset.read', id=package_name, qualified=True)
+    except Exception:
+        dataset_path = '/dataset/{0}'.format(
+            six.moves.urllib.parse.quote(str(package_name))
+        )
+        return '{0}{1}'.format(site_url, dataset_path) if site_url else dataset_path
+
+
+def _build_resource_download_url(package_name, resource, original_filename=''):
+    if isinstance(resource, dict):
+        resource_id = resource.get('id')
+        raw_url = resource.get('url', '') or ''
+        resource_name = resource.get('name', '') or ''
+    else:
+        resource_id = getattr(resource, 'id', None)
+        raw_url = getattr(resource, 'url', '') or ''
+        resource_name = getattr(resource, 'name', '') or ''
+
+    if raw_url.startswith(('http://', 'https://')):
+        return raw_url
+    if raw_url.startswith('/'):
+        site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
+        return '{0}{1}'.format(site_url, raw_url) if site_url else raw_url
+    if not (package_name and resource_id):
+        return raw_url
+
+    filename = (original_filename or '').strip()
+    if not filename:
+        filename = raw_url.split('?')[0].split('#')[0].rstrip('/').rsplit('/', 1)[-1]
+    if not filename:
+        filename = resource_name or str(resource_id)
+
+    base_dataset_url = _build_dataset_page_url(package_name)
+    safe_filename = six.moves.urllib.parse.quote(str(filename))
+    return '{0}/resource/{1}/download/{2}'.format(
+        base_dataset_url.rstrip('/'),
+        resource_id,
+        safe_filename
+    )
+
+
+def _recover_water_publication_dataset_links(page_data):
+    """Recover missing document links from the matching CKAN dataset."""
+    if not isinstance(page_data, dict):
+        return {}
+
+    dataset_title = (page_data.get('dataset_title') or page_data.get('title') or '').strip()
+    if not dataset_title:
+        return {}
+
+    needs_download = not (page_data.get('download_url') or '').strip()
+    needs_dataset_page = not (page_data.get('associated_dataset_url') or '').strip()
+    if not needs_download and not needs_dataset_page:
+        return {}
+
+    base_name = 'document-' + _slugify_documents_dataset_title(dataset_title)
+    documents_type = _resolve_documents_dataset_type()
+
+    try:
+        packages = (
+            model.Session.query(model.Package)
+            .filter(
+                model.Package.state == 'active',
+                model.Package.name.like(base_name + '%')
+            )
+            .all()
+        )
+    except Exception:
+        packages = []
+
+    if not packages:
+        try:
+            packages = (
+                model.Session.query(model.Package)
+                .filter(
+                    model.Package.state == 'active',
+                    model.Package.title == dataset_title
+                )
+                .all()
+            )
+        except Exception:
+            packages = []
+
+    if not packages:
+        return {}
+
+    desired_title = dataset_title.lower()
+
+    def _package_sort_key(pkg):
+        pkg_title = (getattr(pkg, 'title', '') or '').strip().lower()
+        pkg_name = (getattr(pkg, 'name', '') or '').strip()
+        pkg_type = (getattr(pkg, 'type', '') or '').strip().lower()
+        return (
+            1 if pkg_type == documents_type else 0,
+            1 if pkg_title == desired_title else 0,
+            1 if pkg_name == base_name else 0,
+        )
+
+    package = sorted(packages, key=_package_sort_key, reverse=True)[0]
+    recovered = {}
+
+    if needs_dataset_page:
+        dataset_page_url = _build_dataset_page_url(package.name)
+        if dataset_page_url:
+            recovered['associated_dataset_url'] = dataset_page_url
+
+    if needs_download:
+        try:
+            resources = (
+                model.Session.query(model.Resource)
+                .filter(
+                    model.Resource.package_id == package.id,
+                    model.Resource.state == 'active'
+                )
+                .all()
+            )
+        except Exception:
+            resources = []
+
+        if resources:
+            desired_format = (page_data.get('document_format') or '').strip().lower()
+
+            def _resource_sort_key(resource):
+                resource_format = (getattr(resource, 'format', '') or '').strip().lower()
+                resource_url = (getattr(resource, 'url', '') or '').strip()
+                return (
+                    1 if desired_format and resource_format == desired_format else 0,
+                    1 if resource_url else 0,
+                )
+
+            resource = sorted(resources, key=_resource_sort_key, reverse=True)[0]
+            download_url = _build_resource_download_url(package.name, resource)
+            if download_url:
+                recovered['download_url'] = download_url
+            if not page_data.get('document_format') and getattr(resource, 'format', None):
+                recovered['document_format'] = str(resource.format).lower()
+            if not page_data.get('document_mimetype') and getattr(resource, 'mimetype', None):
+                recovered['document_mimetype'] = resource.mimetype
+
+    if recovered:
+        page_data.update(recovered)
+
+    return recovered
+
+
 def _maybe_create_documents_dataset(form_data):
     """Create a CKAN documents dataset from publication form data
     if the user provided upload/link metadata. Runs only on create (not edit).
@@ -827,14 +1007,7 @@ def _maybe_create_documents_dataset(form_data):
     if not dataset_title:
         raise Exception(_('Dataset title is required to create the document'))
 
-    def _slugify(text):
-        import re
-        value = (text or '').lower()
-        value = re.sub(r'[^a-z0-9\-\_\s]+', '', value)
-        value = re.sub(r'\s+', '-', value).strip('-')
-        return value or 'document'
-
-    base_name = 'document-' + _slugify(dataset_title)
+    base_name = 'document-' + _slugify_documents_dataset_title(dataset_title)
 
     # Language default
     language = form_data.get('dataset_language') or \
@@ -982,39 +1155,8 @@ def _maybe_create_documents_dataset(form_data):
     dataset_url = form_data.get('dataset_url')
 
     resource_url = None
-    dataset_page_url = ''
     package_name = package.get('name') or package.get('id') or ''
-    site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
-    if package_name:
-        try:
-            dataset_page_url = helpers.url_for('dataset.read', id=package_name, qualified=True)
-        except Exception:
-            dataset_path = '/dataset/{0}'.format(six.moves.urllib.parse.quote(str(package_name)))
-            dataset_page_url = '{0}{1}'.format(site_url, dataset_path) if site_url else dataset_path
-
-    def _build_uploaded_resource_download_url(resource, original_filename=''):
-        resource_id = resource.get('id') if isinstance(resource, dict) else None
-        if not (package_name and resource_id):
-            return resource.get('url', '') if isinstance(resource, dict) else ''
-
-        filename = (original_filename or '').strip()
-        if not filename:
-            raw_url = (resource.get('url', '') if isinstance(resource, dict) else '') or ''
-            filename = raw_url.split('?')[0].split('#')[0].rstrip('/').rsplit('/', 1)[-1]
-        if not filename:
-            filename = (resource.get('name', '') if isinstance(resource, dict) else '') or str(resource_id)
-
-        safe_filename = six.moves.urllib.parse.quote(str(filename))
-        if dataset_page_url:
-            base_dataset_url = dataset_page_url
-        else:
-            dataset_path = '/dataset/{0}'.format(six.moves.urllib.parse.quote(str(package_name)))
-            base_dataset_url = '{0}{1}'.format(site_url, dataset_path) if site_url else dataset_path
-        return '{0}/resource/{1}/download/{2}'.format(
-            base_dataset_url.rstrip('/'),
-            resource_id,
-            safe_filename
-        )
+    dataset_page_url = _build_dataset_page_url(package_name)
 
     if upload_file and getattr(upload_file, 'filename', None):
         # File upload resource
@@ -1022,7 +1164,8 @@ def _maybe_create_documents_dataset(form_data):
         files_context['allow_partial_update'] = False
         resource_dict['upload'] = upload_file
         created_resource = tk.get_action('resource_create')(files_context, resource_dict)
-        resource_url = _build_uploaded_resource_download_url(
+        resource_url = _build_resource_download_url(
+            package_name,
             created_resource,
             getattr(upload_file, 'filename', '')
         )
@@ -1135,9 +1278,10 @@ def _enrich_publication_display(_page):
             )
             group_map = {}
             for g in groups:
-                img_url = g.image_url or ''
-                if img_url and not img_url.startswith(('http://', 'https://')):
-                    img_url = '/uploads/group/' + img_url
+                img_url = _normalize_ckan_upload_url(
+                    g.image_url or '',
+                    'group',
+                )
                 group_map[g.name] = {
                     'name': g.name,
                     'title': g.title or g.name,
@@ -1284,6 +1428,8 @@ def pages_show(page=None, page_type='page'):
 
     # Enrich water-family detail pages with org/group details for card displays
     if page_type in ('water-publications', 'water-news', 'water-events'):
+        if page_type == 'water-publications':
+            _recover_water_publication_dataset_links(_page)
         extra_vars.update(_enrich_publication_display(_page))
 
     return tk.render('ckanext_pages/%s.html' % page_type,
@@ -3373,7 +3519,10 @@ def crida_main_page():
                     'name': user.get('name', ''),
                     'display_name': user.get('display_name') or user.get('fullname') or user.get('name', ''),
                     'email_hash': user.get('email_hash', ''),
-                    'image_url': user.get('image_url', ''),
+                    'image_url': _normalize_ckan_upload_url(
+                        user.get('image_url', ''),
+                        'user',
+                    ),
                     'capacity': capacity,
                     'about': user.get('about', ''),
                 })

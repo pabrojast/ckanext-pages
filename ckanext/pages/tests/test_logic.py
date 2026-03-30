@@ -380,6 +380,55 @@ class TestPages():
         assert 'https://example.com/dataset/publication-dataset' in response.body
         assert 'Publication Dataset' in response.body
 
+    def test_water_publications_show_recovers_dataset_links_when_download_url_is_blank(self, app):
+        admin = factories.Sysadmin()
+        slug = 'water-publication-recovered-links'
+
+        dataset = helpers.call_action(
+            'package_create',
+            {'user': admin['name']},
+            name='document-recovered-publication',
+            title='Recovered Publication',
+        )
+
+        helpers.call_action(
+            'resource_create',
+            {'user': admin['name']},
+            package_id=dataset['id'],
+            url='https://example.com/resources/recovered-publication.pdf',
+            format='PDF',
+            name='Recovered publication PDF',
+        )
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': admin['name']},
+            name=slug,
+            page=slug,
+            title='Recovered Publication',
+            content='Publication content with recovered dataset links.',
+            page_type='water-publications',
+            download_url='',
+            publication_url='',
+            dataset_url='',
+            associated_dataset_url='',
+            dataset_title='Recovered Publication',
+            document_format='pdf',
+            document_mimetype='application/pdf',
+            private=False,
+            submission_status='approved',
+        )
+
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        response = app.get(
+            toolkit.url_for('pages.water_publications_show', page=slug),
+            extra_environ=env,
+            status=200,
+        )
+
+        assert 'https://example.com/resources/recovered-publication.pdf' in response.body
+        assert '/dataset/document-recovered-publication' in response.body
+
     def test_open_source_admin_dashboard_shows_organization_labels(self, app):
         sysadmin = factories.Sysadmin()
         org = factories.Organization()

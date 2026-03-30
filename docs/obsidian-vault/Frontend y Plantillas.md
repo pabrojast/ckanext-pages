@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-03-29
+Actualizado: 2026-03-30
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -118,11 +118,12 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - `featured_viewers/list.html` encapsula sus dropdowns custom de iniciativa, member state y organización en `public/css/featured-viewers.css`; los labels deben neutralizar pseudo-elementos globales del theme y la barra de acciones usa layout flex para alinear `Create Viewer`, `Create Map Room` y `Pending Review`.
 - `ckanext_pages/water-news_edit.html`, `ckanext_pages/water-events_edit.html` y `ckanext_pages/water-publications_edit.html` llevan JS inline para sincronizar `uploaded_images`, `country_groups` e `initiative_groups` como JSON; cuando no hay selección se normalizan a `[]` y el selector de member states incluye una opción de “All member states”.
 - `ckanext_pages/water-events_edit.html` detecta si `agenda_document` es PDF o imagen antes de subirlo y envía `asset_role=agenda_document`; en backend ese adjunto acepta ambos formatos con tope de `20MB`.
-- `ckanext_pages/water-publications.html` usa `download_url` o `publication_url` para el viewer del documento y `associated_dataset_url` para enlazar la página del dataset CKAN; cuando el recurso es una imagen subida, el preview depende de guardar una URL pública de descarga del recurso.
+- `ckanext_pages/water-publications.html` usa `download_url` o `publication_url` para el viewer del documento y `associated_dataset_url` para enlazar la página del dataset CKAN; si esos extras quedaron vacíos pero existe un dataset `documents` con el mismo título, `utils.py` intenta recuperar el recurso y la URL del dataset al renderizar o editar la página. Cuando el recurso es una imagen subida, el preview depende de guardar o recuperar una URL pública de descarga del recurso.
 - `ckanext_pages/water-news.html` y `ckanext_pages/water-events.html` reutilizan el enriquecimiento de grupos de `utils._enrich_publication_display()` para mostrar initiatives y member states con cards enlazadas, igual que `water-publications.html`.
 - `ckanext_pages/water-news.html` y `ckanext_pages/water-events.html` renderizan la galería subida y las asociaciones desde `extras`; los templates deben tolerar tanto JSON string como listas ya parseadas por `table_dictize()`.
 - `ckanext_pages/water-news.html` usa `object-fit: cover` en la grilla de miniaturas y `object-fit: contain` en el modal de preview; no conviene reutilizar el layout del thumbnail para la vista ampliada.
 - `ckanext_pages/water-news.html` y `ckanext_pages/water-events.html` cierran el modal de galería con handlers explícitos para el botón `X` y el backdrop; no dependen sólo del `data-dismiss` de Bootstrap.
+- `ckanext_pages/crida.html` renderiza los avatares de `group_members` con la URL ya normalizada desde backend; cuando `user.image_url` viene como nombre de archivo de CKAN debe resolverse a `/uploads/user/...`, y si no hay imagen usa Gravatar o inicial.
 
 ## Pendiente por confirmar
 

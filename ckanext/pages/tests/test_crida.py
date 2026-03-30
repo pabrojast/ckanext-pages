@@ -336,6 +336,57 @@ class TestCRIDAGeoJSON:
         assert "No Coords CS" not in titles
 
 
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "pages")
+class TestCRIDAMainPage:
+    """Test CRIDA hub rendering helpers."""
+
+    def test_crida_main_page_normalizes_relative_member_avatar(self, monkeypatch):
+        from ckanext.pages import utils
+        from ckanext.pages import plugin as pages_plugin
+
+        def fake_get_action(name):
+            if name == "group_show":
+                return lambda context, data_dict: {"packages": []}
+            if name == "member_list":
+                return lambda context, data_dict: [
+                    ("member-1", "user", "member")
+                ]
+            if name == "user_show":
+                return lambda context, data_dict: {
+                    "id": "member-1",
+                    "name": "member-1",
+                    "display_name": "Member One",
+                    "email_hash": "abc123",
+                    "image_url": "2023-10-30-210509.799257combinedunescoIHPblueeng.png",
+                    "about": "",
+                }
+            raise AssertionError("Unexpected action requested: %s" % name)
+
+        monkeypatch.setattr(utils.tk, "get_action", fake_get_action)
+        monkeypatch.setattr(
+            pages_plugin,
+            "get_pages_by_initiative",
+            lambda initiative, page_type: [],
+        )
+        monkeypatch.setattr(
+            utils.tk,
+            "render",
+            lambda template, extra_vars=None: {
+                "template": template,
+                "extra_vars": extra_vars or {},
+            },
+        )
+
+        result = utils.crida_main_page()
+        member = result["extra_vars"]["group_members"][0]
+
+        assert member["image_url"] == (
+            "/uploads/user/"
+            "2023-10-30-210509.799257combinedunescoIHPblueeng.png"
+        )
+
+
 class TestCRIDACategoryHelpers:
     """Test CRIDA category helper functions (no DB required)."""
 
