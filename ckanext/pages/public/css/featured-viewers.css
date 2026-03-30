@@ -130,23 +130,27 @@
   text-align: center;
 }
 
+/* ---- Toolbar: filters + admin buttons ---- */
+.fv-featured-viewers-page .fv-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1.5rem;
+}
+
 /* ---- Landing Filters ---- */
 .fv-featured-viewers-page .fv-filter-bar {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 1rem 1.25rem;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  margin: 0.5rem 0 1.5rem;
   position: relative;
 }
 .fv-featured-viewers-page .fv-searchable-dropdown {
-  display: flex;
-  flex: 0 1 320px;
-  min-width: min(100%, 280px);
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.45rem;
+  flex: 1 1 200px;
+  max-width: 250px;
+  min-width: 0;
   position: relative;
 }
 .fv-featured-viewers-page .fv-searchable-dropdown:focus-within {
@@ -175,8 +179,8 @@
 .fv-featured-viewers-page .fv-dropdown-wrap {
   position: relative;
   width: 100%;
-  min-width: 280px;
-  max-width: 360px;
+  min-width: 180px;
+  max-width: 250px;
 }
 .fv-featured-viewers-page .fv-dropdown-input {
   width: 100%;
@@ -253,8 +257,7 @@
   justify-content: center;
   gap: 0.45rem;
   min-height: 46px;
-  padding: 0.65rem 1.15rem;
-  align-self: flex-end;
+  padding: 0.5rem 1rem;
   border-radius: 999px;
   border: 1px solid #d5dfeb;
   background: #fff;
@@ -272,10 +275,9 @@
 .fv-featured-viewers-page .fv-admin-bar {
   display: flex;
   align-items: stretch;
-  justify-content: flex-end;
   gap: 0.9rem;
   flex-wrap: wrap;
-  margin-bottom: 1.5rem;
+  margin-left: auto;
 }
 .fv-featured-viewers-page .fv-admin-btn {
   display: inline-flex;
@@ -911,7 +913,12 @@
   .fv-show-header h1 { font-size: 1.4rem; }
   .fv-categories { gap: 0.35rem; }
   .fv-category-tab { font-size: 0.78rem; padding: 0.35rem 0.75rem; }
+  .fv-featured-viewers-page .fv-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .fv-featured-viewers-page .fv-filter-bar {
+    flex-direction: column;
     align-items: stretch;
   }
   .fv-featured-viewers-page .fv-searchable-dropdown,
@@ -924,6 +931,7 @@
     width: 100%;
   }
   .fv-featured-viewers-page .fv-admin-bar {
+    margin-left: 0;
     justify-content: flex-start;
   }
 }

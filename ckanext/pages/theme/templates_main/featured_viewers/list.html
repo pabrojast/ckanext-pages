@@ -70,123 +70,118 @@
       </div>
 
       {# ================================================================ #}
-      {# FILTERS — initiative + member state + organization dropdowns      #}
+      {# TOOLBAR — filters + admin action buttons in one compact row       #}
       {# ================================================================ #}
       {% set has_initiatives = initiatives | length > 0 %}
       {% set has_member_states = member_states is defined and member_states | length > 0 %}
       {% set has_organizations = organizations is defined and organizations | length > 0 %}
-      {% if has_initiatives or has_member_states or has_organizations %}
-      <div class="fv-filter-bar">
+      <div class="fv-toolbar">
 
-        {# Initiative dropdown #}
-        {% if has_initiatives %}
-        <div class="fv-searchable-dropdown" data-filter-name="initiative">
-          <label class="fv-filter-label" for="fv-filter-initiative">
-            <i class="fa fa-flag"></i> {{ _('Initiative') }}
-          </label>
-          <div class="fv-dropdown-wrap">
-            <input type="text" id="fv-filter-initiative" class="form-control fv-dropdown-input" data-target="initiative"
-                   placeholder="{{ _('All initiatives') }}"
-                   autocomplete="off"
-                   value="{% if initiative_filter %}{% for ini in initiatives %}{% if ini.name == initiative_filter %}{{ ini.title }}{% endif %}{% endfor %}{% endif %}">
-            <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
-            <ul class="fv-dropdown-list" data-list="initiative">
-              <li data-value="" class="fv-dd-option {% if not initiative_filter %}fv-dd-active{% endif %}">
-                <i class="fa fa-th"></i> {{ _('All Initiatives') }}
-              </li>
-              {% for ini in initiatives %}
-              <li data-value="{{ ini.name }}" class="fv-dd-option {% if initiative_filter == ini.name %}fv-dd-active{% endif %}">
-                {{ ini.title }}
-              </li>
-              {% endfor %}
-            </ul>
+        {% if has_initiatives or has_member_states or has_organizations %}
+        <div class="fv-filter-bar">
+
+          {# Initiative dropdown #}
+          {% if has_initiatives %}
+          <div class="fv-searchable-dropdown" data-filter-name="initiative">
+            <div class="fv-dropdown-wrap">
+              <input type="text" id="fv-filter-initiative" class="form-control fv-dropdown-input" data-target="initiative"
+                     placeholder="{{ _('All initiatives') }}"
+                     aria-label="{{ _('Filter by initiative') }}"
+                     autocomplete="off"
+                     value="{% if initiative_filter %}{% for ini in initiatives %}{% if ini.name == initiative_filter %}{{ ini.title }}{% endif %}{% endfor %}{% endif %}">
+              <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
+              <ul class="fv-dropdown-list" data-list="initiative">
+                <li data-value="" class="fv-dd-option {% if not initiative_filter %}fv-dd-active{% endif %}">
+                  <i class="fa fa-th"></i> {{ _('All Initiatives') }}
+                </li>
+                {% for ini in initiatives %}
+                <li data-value="{{ ini.name }}" class="fv-dd-option {% if initiative_filter == ini.name %}fv-dd-active{% endif %}">
+                  {{ ini.title }}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
+          {% endif %}
+
+          {# Member State dropdown #}
+          {% if has_member_states %}
+          <div class="fv-searchable-dropdown" data-filter-name="member_state">
+            <div class="fv-dropdown-wrap">
+              <input type="text" id="fv-filter-member-state" class="form-control fv-dropdown-input" data-target="member_state"
+                     placeholder="{{ _('All countries') }}"
+                     aria-label="{{ _('Filter by member state') }}"
+                     autocomplete="off"
+                     value="{% if member_state_filter %}{% for ms in member_states %}{% if ms.name == member_state_filter %}{{ ms.title }}{% endif %}{% endfor %}{% endif %}">
+              <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
+              <ul class="fv-dropdown-list" data-list="member_state">
+                <li data-value="" class="fv-dd-option {% if not member_state_filter %}fv-dd-active{% endif %}">
+                  <i class="fa fa-globe"></i> {{ _('All Countries') }}
+                </li>
+                {% for ms in member_states %}
+                <li data-value="{{ ms.name }}" class="fv-dd-option {% if member_state_filter == ms.name %}fv-dd-active{% endif %}">
+                  {{ ms.title }}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+
+          {# Organization dropdown #}
+          {% if has_organizations %}
+          <div class="fv-searchable-dropdown" data-filter-name="organization">
+            <div class="fv-dropdown-wrap">
+              <input type="text" id="fv-filter-organization" class="form-control fv-dropdown-input" data-target="organization"
+                     placeholder="{{ _('All organizations') }}"
+                     aria-label="{{ _('Filter by organization') }}"
+                     autocomplete="off"
+                     value="{% if organization_filter %}{% for org in organizations %}{% if org.id == organization_filter %}{{ org.title }}{% endif %}{% endfor %}{% endif %}">
+              <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
+              <ul class="fv-dropdown-list" data-list="organization">
+                <li data-value="" class="fv-dd-option {% if not organization_filter %}fv-dd-active{% endif %}">
+                  <i class="fa fa-building"></i> {{ _('All Organizations') }}
+                </li>
+                {% for org in organizations %}
+                <li data-value="{{ org.id }}" class="fv-dd-option {% if organization_filter == org.id %}fv-dd-active{% endif %}">
+                  {{ org.title }}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+
+          {# Clear filters #}
+          {% if initiative_filter or member_state_filter or organization_filter %}
+          <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default fv-clear-filters">
+            <i class="fa fa-times"></i> {{ _('Clear filters') }}
+          </a>
+          {% endif %}
         </div>
         {% endif %}
 
-        {# Member State dropdown #}
-        {% if has_member_states %}
-        <div class="fv-searchable-dropdown" data-filter-name="member_state">
-          <label class="fv-filter-label" for="fv-filter-member-state">
-            <i class="fa fa-globe"></i> {{ _('Member State') }}
-          </label>
-          <div class="fv-dropdown-wrap">
-            <input type="text" id="fv-filter-member-state" class="form-control fv-dropdown-input" data-target="member_state"
-                   placeholder="{{ _('All countries') }}"
-                   autocomplete="off"
-                   value="{% if member_state_filter %}{% for ms in member_states %}{% if ms.name == member_state_filter %}{{ ms.title }}{% endif %}{% endfor %}{% endif %}">
-            <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
-            <ul class="fv-dropdown-list" data-list="member_state">
-              <li data-value="" class="fv-dd-option {% if not member_state_filter %}fv-dd-active{% endif %}">
-                <i class="fa fa-globe"></i> {{ _('All Countries') }}
-              </li>
-              {% for ms in member_states %}
-              <li data-value="{{ ms.name }}" class="fv-dd-option {% if member_state_filter == ms.name %}fv-dd-active{% endif %}">
-                {{ ms.title }}
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
+        {# Admin action buttons #}
+        {% if can_create or can_review %}
+        <div class="fv-admin-bar">
+          {% if can_create %}
+          <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary fv-admin-btn fv-admin-btn-primary">
+            <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
+          </a>
+          <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-default fv-admin-btn fv-admin-btn-secondary">
+            <i class="fa fa-plus"></i> {{ _('Create Map Room') }}
+          </a>
+          {% endif %}
+          {% if can_review and pending_count > 0 %}
+          <a href="{{ h.url_for('featured_viewers.pending_review') }}" class="btn btn-warning fv-admin-btn fv-admin-btn-warning">
+            <i class="fa fa-gavel"></i> {{ _('Pending Review') }}
+            <span class="badge fv-admin-badge">{{ pending_count }}</span>
+          </a>
+          {% endif %}
         </div>
         {% endif %}
 
-        {# Organization dropdown #}
-        {% if has_organizations %}
-        <div class="fv-searchable-dropdown" data-filter-name="organization">
-          <label class="fv-filter-label" for="fv-filter-organization">
-            <i class="fa fa-building"></i> {{ _('Organization') }}
-          </label>
-          <div class="fv-dropdown-wrap">
-            <input type="text" id="fv-filter-organization" class="form-control fv-dropdown-input" data-target="organization"
-                   placeholder="{{ _('All organizations') }}"
-                   autocomplete="off"
-                   value="{% if organization_filter %}{% for org in organizations %}{% if org.id == organization_filter %}{{ org.title }}{% endif %}{% endfor %}{% endif %}">
-            <i class="fa fa-chevron-down fv-dropdown-arrow"></i>
-            <ul class="fv-dropdown-list" data-list="organization">
-              <li data-value="" class="fv-dd-option {% if not organization_filter %}fv-dd-active{% endif %}">
-                <i class="fa fa-building"></i> {{ _('All Organizations') }}
-              </li>
-              {% for org in organizations %}
-              <li data-value="{{ org.id }}" class="fv-dd-option {% if organization_filter == org.id %}fv-dd-active{% endif %}">
-                {{ org.title }}
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-        {% endif %}
-
-        {# Active filters summary + clear #}
-        {% if initiative_filter or member_state_filter or organization_filter %}
-        <a href="{{ h.url_for('featured_viewers.index', q=q, category=category_filter) }}" class="btn btn-sm btn-default fv-clear-filters">
-          <i class="fa fa-times"></i> {{ _('Clear filters') }}
-        </a>
-        {% endif %}
       </div>
-      {% endif %}
-
-
-      {# ================================================================ #}
-      {# ACTION BAR — create/admin buttons                                #}
-      {# ================================================================ #}
-      {% if can_create or can_review %}
-      <div class="fv-admin-bar">
-        {% if can_create %}
-        <a href="{{ h.url_for('featured_viewers.create') }}" class="btn btn-primary fv-admin-btn fv-admin-btn-primary">
-          <i class="fa fa-plus"></i> {{ _('Create Viewer') }}
-        </a>
-        <a href="{{ h.url_for('featured_viewers.rooms_create') }}" class="btn btn-default fv-admin-btn fv-admin-btn-secondary">
-          <i class="fa fa-plus"></i> {{ _('Create Map Room') }}
-        </a>
-        {% endif %}
-        {% if can_review and pending_count > 0 %}
-        <a href="{{ h.url_for('featured_viewers.pending_review') }}" class="btn btn-warning fv-admin-btn fv-admin-btn-warning">
-          <i class="fa fa-gavel"></i> {{ _('Pending Review') }}
-          <span class="badge fv-admin-badge">{{ pending_count }}</span>
-        </a>
-        {% endif %}
-      </div>
-      {% endif %}
 
       {# ================================================================ #}
       {# MAP ROOMS SECTION — prominent, shown first on page 1             #}

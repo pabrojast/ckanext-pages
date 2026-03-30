@@ -124,6 +124,7 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - `ckanext_pages/water-news.html` usa `object-fit: cover` en la grilla de miniaturas y `object-fit: contain` en el modal de preview; no conviene reutilizar el layout del thumbnail para la vista ampliada.
 - `ckanext_pages/water-news.html` y `ckanext_pages/water-events.html` cierran el modal de galería con handlers explícitos para el botón `X` y el backdrop; no dependen sólo del `data-dismiss` de Bootstrap.
 - `ckanext_pages/crida.html` renderiza los avatares de `group_members` con la URL ya normalizada desde backend; cuando `user.image_url` viene como nombre de archivo de CKAN debe resolverse a `/uploads/user/...`, y si no hay imagen usa Gravatar o inicial.
+- `ckanext_pages/crida.html` usa iconos de Font Awesome ya presentes en el theme para los empty states del hub; en `Events` el estado vacío usa `fa-calendar` para evitar glifos faltantes con el bundle activo.
 
 ## Pendiente por confirmar
 
