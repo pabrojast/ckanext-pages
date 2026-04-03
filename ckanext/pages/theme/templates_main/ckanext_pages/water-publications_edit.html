@@ -1630,6 +1630,7 @@ select.form-control option:selected {
       // Select options are populated server-side; just load existing selections
       loadExistingMemberStates();
       loadExistingInitiatives();
+      preSelectInitiativeFromUrl();
     }
 
     // --- Member States helpers (reuse OSS behavior) ---
@@ -1834,6 +1835,19 @@ select.form-control option:selected {
         formatInitiativeName
       );
       selectedInitiatives.forEach(addInitiativeChip);
+      updateInitiativeGroupsHidden();
+    }
+
+    function preSelectInitiativeFromUrl() {
+      var params = new URLSearchParams(window.location.search);
+      var ini = params.get('initiative');
+      if (!ini) return;
+      if (selectedInitiatives.some(function(s){ return s.name === ini; })) return;
+      var $opt = $('#initiative-select option[value="' + ini + '"]');
+      var display = $opt.length ? ($opt.data('display') || formatInitiativeName(ini)) : formatInitiativeName(ini);
+      var item = { name: ini, display_name: display };
+      selectedInitiatives.push(item);
+      addInitiativeChip(item);
       updateInitiativeGroupsHidden();
     }
 

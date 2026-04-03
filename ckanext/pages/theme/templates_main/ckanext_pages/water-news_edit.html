@@ -1847,6 +1847,19 @@ select.wn-form-control option:selected {
       updateInitiativeGroupsHidden();
     }
 
+    function preSelectInitiativeFromUrl() {
+      var params = new URLSearchParams(window.location.search);
+      var ini = params.get('initiative');
+      if (!ini) return;
+      if (selectedInitiatives.some(function(s){ return s.name === ini; })) return;
+      var $opt = $('#initiative-select option[value="' + ini + '"]');
+      var display = $opt.length ? ($opt.data('display') || formatInitiativeName(ini)) : formatInitiativeName(ini);
+      var item = { name: ini, display_name: display };
+      selectedInitiatives.push(item);
+      addInitiativeChip(item);
+      updateInitiativeGroupsHidden();
+    }
+
     $(document).on('click', '#add-initiative', function(){
       var $select = $('#initiative-select');
       var opt = $select.find('option:selected');
@@ -1880,6 +1893,7 @@ select.wn-form-control option:selected {
 
     loadExistingMemberStates();
     loadExistingInitiatives();
+    preSelectInitiativeFromUrl();
     
     console.log('Water News edit form initialized with image upload functionality');
   });

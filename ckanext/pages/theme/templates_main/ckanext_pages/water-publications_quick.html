@@ -897,6 +897,18 @@
     var hasFile = false;
     var hasUrl = false;
 
+    // Pre-select initiative from URL parameter (e.g. ?initiative=crida)
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var ini = params.get('initiative');
+      if (ini) {
+        var $sel = $('#qs_initiative');
+        if ($sel.find('option[value="' + ini + '"]').length) {
+          $sel.val(ini);
+        }
+      }
+    })();
+
     // MIME map for format detection
     var mimeFallback = {
       'txt':'text/plain','doc':'application/msword','docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

@@ -156,8 +156,8 @@
         <div class="crida-info-tip">
           <i class="fa fa-lightbulb-o"></i>
           {{ _('To publish CRIDA news, go to') }}
-          <a href="{{ h.url_for('pages.water_news_new') }}"><strong>{{ _('Water News') }}</strong></a>
-          {{ _('and select the CRIDA initiative.') }}
+          <a href="{{ h.url_for('pages.water_news_new', initiative='crida') }}"><strong>{{ _('Water News') }}</strong></a>
+          {{ _('(the CRIDA initiative will be pre-selected).') }}
         </div>
         {% endif %}
       </div>
@@ -211,8 +211,8 @@
         <div class="crida-info-tip">
           <i class="fa fa-lightbulb-o"></i>
           {{ _('To post a CRIDA event, go to') }}
-          <a href="{{ h.url_for('pages.water_events_new') }}"><strong>{{ _('Water Events') }}</strong></a>
-          {{ _('and select the CRIDA initiative.') }}
+          <a href="{{ h.url_for('pages.water_events_new', initiative='crida') }}"><strong>{{ _('Water Events') }}</strong></a>
+          {{ _('(the CRIDA initiative will be pre-selected).') }}
         </div>
         {% endif %}
       </div>
@@ -311,8 +311,8 @@
         <div class="crida-info-tip">
           <i class="fa fa-lightbulb-o"></i>
           {{ _('To submit a CRIDA publication, go to') }}
-          <a href="{{ h.url_for('pages.water_publications_new') }}"><strong>{{ _('Water Publications') }}</strong></a>
-          {{ _('and select the CRIDA initiative.') }}
+          <a href="{{ h.url_for('pages.water_publications_new', initiative='crida') }}"><strong>{{ _('Water Publications') }}</strong></a>
+          {{ _('(the CRIDA initiative will be pre-selected).') }}
         </div>
         {% endif %}
       </div>
