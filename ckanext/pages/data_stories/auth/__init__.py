@@ -38,6 +38,8 @@ from ckanext.pages.data_stories.auth.permissions import (
     # Import/Export permissions
     data_story_export,
     data_story_import,
+    data_story_bulk_export,
+    data_story_bulk_import,
 )
 
 from ckanext.pages.data_stories.auth.roles import (
@@ -76,6 +78,8 @@ __all__ = [
     'data_story_stats',
     'data_story_export',
     'data_story_import',
+    'data_story_bulk_export',
+    'data_story_bulk_import',
     # Roles
     'ROLES',
     'has_role',

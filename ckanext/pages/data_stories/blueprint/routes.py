@@ -482,11 +482,13 @@ def create():
 @data_stories_blueprint.route('/import', methods=['GET', 'POST'])
 def import_story():
     """
-    Import a data story from JSON file.
+    Import data stories from JSON file (single or bulk).
 
     URL: /data-stories/import
 
-    Only sysadmins can import stories.
+    Only sysadmins can import stories. Automatically detects whether the
+    upload is a single-story export (has 'story' key) or a bulk export
+    (has 'stories' key) and calls the appropriate action.
     """
     log.info("[DATA_STORIES_ROUTE] Import story page")
 
@@ -523,21 +525,50 @@ def import_story():
             slug_conflict = request.form.get('slug_conflict', 'rename')
             organization_id = request.form.get('organization_id') or None
             target_status = request.form.get('status', 'draft')
+            preserve_status = request.form.get('preserve_status') == 'on'
+            preserve_dates = request.form.get('preserve_dates') == 'on'
 
-            # Import story
-            result = tk.get_action('data_story_import')(context, {
-                'data': export_data,
-                'slug_conflict': slug_conflict,
-                'organization_id': organization_id,
-                'status': target_status,
-            })
+            # Detect bulk vs single format
+            is_bulk = 'stories' in export_data and isinstance(export_data.get('stories'), list)
 
-            import_info = result.get('import_info', {})
-            flash(tk._('Story imported successfully! Imported {} sections.').format(
-                import_info.get('sections_imported', 0)
-            ), 'success')
+            if is_bulk:
+                result = tk.get_action('data_story_bulk_import')(context, {
+                    'data': export_data,
+                    'slug_conflict': slug_conflict,
+                    'organization_id': organization_id,
+                    'status': target_status,
+                    'preserve_status': preserve_status,
+                    'preserve_dates': preserve_dates,
+                })
 
-            return redirect(url_for('data_stories.show', slug=result['slug']))
+                total = result.get('total_imported', 0)
+                errors = result.get('total_errors', 0)
+                if errors > 0:
+                    flash(tk._('Bulk import: {} stories imported, {} errors.').format(
+                        total, errors
+                    ), 'warning')
+                else:
+                    flash(tk._('Bulk import: {} stories imported successfully!').format(
+                        total
+                    ), 'success')
+
+                return redirect(url_for('data_stories.index'))
+            else:
+                result = tk.get_action('data_story_import')(context, {
+                    'data': export_data,
+                    'slug_conflict': slug_conflict,
+                    'organization_id': organization_id,
+                    'status': target_status,
+                    'preserve_status': preserve_status,
+                    'preserve_dates': preserve_dates,
+                })
+
+                import_info = result.get('import_info', {})
+                flash(tk._('Story imported successfully! Imported {} sections.').format(
+                    import_info.get('sections_imported', 0)
+                ), 'success')
+
+                return redirect(url_for('data_stories.show', slug=result['slug']))
 
         except json.JSONDecodeError as e:
             flash(tk._('Invalid JSON file: {}').format(str(e)), 'error')
@@ -553,6 +584,58 @@ def import_story():
 
     # GET request - show import form
     return render_template('data_stories/import.html')
+
+
+@data_stories_blueprint.route('/export-all')
+def export_all():
+    """
+    Export all data stories as a single JSON file.
+
+    URL: /data-stories/export-all
+
+    Only sysadmins can export stories.
+    """
+    log.info("[DATA_STORIES_ROUTE] Export all stories")
+
+    context = _get_context()
+
+    # Must be logged in
+    if not g.userobj:
+        flash(tk._('Please log in to export stories'), 'error')
+        return redirect(url_for('user.login'))
+
+    # Check if user is sysadmin
+    if not getattr(g.userobj, 'sysadmin', False):
+        tk.abort(403, tk._('Only administrators can export stories'))
+
+    try:
+        status_filter = request.args.get('status')
+        data_dict = {'include_metadata': True}
+        if status_filter:
+            data_dict['status'] = status_filter
+
+        export_data = tk.get_action('data_story_bulk_export')(context, data_dict)
+
+        json_data = json.dumps(export_data, indent=2, ensure_ascii=False)
+
+        filename = 'data-stories-export-all.json'
+        response = Response(
+            json_data,
+            mimetype='application/json',
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"',
+                'Content-Type': 'application/json; charset=utf-8',
+            }
+        )
+
+        return response
+
+    except tk.NotAuthorized:
+        tk.abort(403, tk._('Not authorized to export stories'))
+    except Exception as e:
+        log.error(f"Error exporting all stories: {str(e)}")
+        flash(tk._('Error exporting stories: {}').format(str(e)), 'error')
+        return redirect(url_for('data_stories.index'))
 
 
 # ============================================================================

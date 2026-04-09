@@ -50,7 +50,7 @@
 
               <div class="alert alert-info" style="margin-bottom: 1.5rem;">
                 <i class="fa fa-info-circle"></i>
-                {{ _('Upload a JSON file that was exported from another CKAN Data Stories instance. The story will be imported as a draft.') }}
+                {{ _('Upload a JSON file that was exported from another CKAN Data Stories instance. Supports both single story exports and bulk exports (Export All). The system automatically detects the format.') }}
               </div>
 
               <form method="post" enctype="multipart/form-data" class="form-horizontal">
@@ -105,7 +105,27 @@
                       <option value="draft" selected>{{ _('Draft') }}</option>
                       <option value="published">{{ _('Published') }}</option>
                     </select>
-                    <p class="help-block">{{ _('Set the initial status of the imported story') }}</p>
+                    <p class="help-block">{{ _('Set the initial status of the imported story (ignored when Preserve Status is enabled)') }}</p>
+                  </div>
+                </div>
+
+                <!-- Migration Options -->
+                <div class="form-group">
+                  <div class="col-sm-9 col-sm-offset-3">
+                    <div class="checkbox" style="margin-bottom: 0.5rem;">
+                      <label>
+                        <input type="checkbox" name="preserve_status" id="preserve_status">
+                        <strong>{{ _('Preserve original status') }}</strong>
+                      </label>
+                      <p class="help-block" style="margin-left: 20px;">{{ _('Keep the original publication status (draft, published, etc.) instead of forcing to the status selected above. Recommended for migration between instances.') }}</p>
+                    </div>
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="preserve_dates" id="preserve_dates">
+                        <strong>{{ _('Preserve original dates') }}</strong>
+                      </label>
+                      <p class="help-block" style="margin-left: 20px;">{{ _('Keep the original created_at and published_at timestamps. Recommended for migration between instances.') }}</p>
+                    </div>
                   </div>
                 </div>
 

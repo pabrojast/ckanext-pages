@@ -109,7 +109,8 @@ Características:
 - tablas propias
 - blueprint propio `/data-stories`
 - workflow editorial completo
-- import/export
+- import/export individual y bulk (sysadmin-only)
+- comandos CLI para export/import (útil para migración con `kubectl`)
 - tests propios
 
 Se activa con:

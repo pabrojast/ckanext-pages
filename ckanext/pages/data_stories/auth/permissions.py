@@ -506,3 +506,31 @@ def data_story_import(context, data_dict):
         return {'success': False}
 
     return {'success': is_sysadmin(user)}
+
+
+def data_story_bulk_export(context, data_dict):
+    """
+    Check if user can bulk export data stories.
+
+    Only sysadmins can bulk export stories.
+    """
+    user = context.get('user')
+
+    if not user:
+        return {'success': False}
+
+    return {'success': is_sysadmin(user)}
+
+
+def data_story_bulk_import(context, data_dict):
+    """
+    Check if user can bulk import data stories.
+
+    Only sysadmins can bulk import stories.
+    """
+    user = context.get('user')
+
+    if not user:
+        return {'success': False}
+
+    return {'success': is_sysadmin(user)}

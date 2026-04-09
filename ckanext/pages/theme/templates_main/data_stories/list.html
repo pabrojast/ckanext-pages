@@ -63,6 +63,9 @@
                   </div>
                   <div class="col-md-4 text-right">
                     {% if h.is_sysadmin() %}
+                      <a href="{{ h.url_for('data_stories.export_all') }}" class="btn btn-default" style="margin-right: 0.5rem;" title="{{ _('Export all stories as JSON') }}">
+                        <i class="fa fa-download"></i> {{ _('Export All') }}
+                      </a>
                       <a href="{{ h.url_for('data_stories.import_story') }}" class="btn btn-info" style="margin-right: 0.5rem;" title="{{ _('Import story from JSON') }}">
                         <i class="fa fa-upload"></i> {{ _('Import') }}
                       </a>

@@ -1521,6 +1521,8 @@ class PagesPlugin(PagesPluginBase):
                 'data_story_stats': ds_actions.data_story_stats,
                 'data_story_export': ds_actions.data_story_export,
                 'data_story_import': ds_actions.data_story_import,
+                'data_story_bulk_export': ds_actions.data_story_bulk_export,
+                'data_story_bulk_import': ds_actions.data_story_bulk_import,
             }
             actions_dict.update(data_stories_actions)
 
@@ -1619,6 +1621,8 @@ class PagesPlugin(PagesPluginBase):
                 'data_story_stats': ds_auth.data_story_stats,
                 'data_story_export': ds_auth.data_story_export,
                 'data_story_import': ds_auth.data_story_import,
+                'data_story_bulk_export': ds_auth.data_story_bulk_export,
+                'data_story_bulk_import': ds_auth.data_story_bulk_import,
             }
             auth_functions.update(data_stories_auth)
 

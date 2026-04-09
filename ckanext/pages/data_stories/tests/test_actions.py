@@ -658,3 +658,349 @@ class TestDataStoryStatsActions:
         assert 'view_count' in stats
         assert 'section_count' in stats
         assert 'dataset_count' in stats
+
+
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
+class TestDataStoryExportImportActions:
+    """Tests for export/import actions including bulk operations."""
+
+    @classmethod
+    def setup_class(cls):
+        """Initialize database tables."""
+        init_tables(model.meta.engine)
+
+    def _create_story_with_sections(self, user, title, slug=None, num_sections=2):
+        """Helper to create a story with sections."""
+        create_kwargs = {
+            'title': title,
+            'abstract': f'Abstract for {title}',
+            'research_question': 'Test question',
+        }
+        if slug:
+            create_kwargs['slug'] = slug
+
+        story = helpers.call_action(
+            'data_story_create',
+            context={'user': user['name']},
+            **create_kwargs,
+        )
+
+        for i in range(num_sections):
+            helpers.call_action(
+                'data_story_section_create',
+                context={'user': user['name']},
+                story_id=story['id'],
+                section_type='text',
+                title=f'Section {i}',
+                content=f'Content for section {i}',
+            )
+
+        return story
+
+    def test_single_export(self):
+        """Test exporting a single story."""
+        sysadmin = factories.Sysadmin()
+
+        story = self._create_story_with_sections(sysadmin, 'Export Test', slug='export-test')
+
+        result = helpers.call_action(
+            'data_story_export',
+            context={'user': sysadmin['name']},
+            slug='export-test',
+        )
+
+        assert result['format_version'] == '1.0'
+        assert result['story']['title'] == 'Export Test'
+        assert result['story']['slug'] == 'export-test'
+        assert len(result['story']['sections']) == 2
+        assert 'export_metadata' in result
+
+    def test_single_export_requires_sysadmin(self):
+        """Test that export requires sysadmin."""
+        user = factories.User()
+        story = self._create_story_with_sections(user, 'Protected Story', slug='protected')
+
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_action(
+                'data_story_export',
+                context={'user': user['name'], 'ignore_auth': False},
+                slug='protected',
+            )
+
+    def test_single_import(self):
+        """Test importing a single story."""
+        sysadmin = factories.Sysadmin()
+
+        export_data = {
+            'format_version': '1.0',
+            'story': {
+                'title': 'Imported Story',
+                'slug': 'imported-story',
+                'abstract': 'Imported abstract',
+                'sections': [
+                    {'section_type': 'text', 'title': 'Section 1', 'content': 'Content 1', 'order_index': 0},
+                ],
+                'contributors': [
+                    {'name': 'John Doe', 'role': 'co-author', 'order_index': 0},
+                ],
+            },
+        }
+
+        result = helpers.call_action(
+            'data_story_import',
+            context={'user': sysadmin['name']},
+            data=export_data,
+        )
+
+        assert result['title'] == 'Imported Story'
+        assert result['slug'] == 'imported-story'
+        assert result['status'] == 'draft'
+        assert result['import_info']['sections_imported'] == 1
+        assert result['import_info']['contributors_imported'] == 1
+
+    def test_import_preserve_status(self):
+        """Test importing with preserve_status flag."""
+        sysadmin = factories.Sysadmin()
+
+        export_data = {
+            'format_version': '1.0',
+            'story': {
+                'title': 'Published Story',
+                'slug': 'published-import',
+                'status': 'published',
+                'sections': [],
+            },
+        }
+
+        result = helpers.call_action(
+            'data_story_import',
+            context={'user': sysadmin['name']},
+            data=export_data,
+            preserve_status=True,
+        )
+
+        assert result['status'] == 'published'
+        assert result['is_public'] == True
+
+    def test_import_preserve_dates(self):
+        """Test importing with preserve_dates flag."""
+        sysadmin = factories.Sysadmin()
+
+        export_data = {
+            'format_version': '1.0',
+            'story': {
+                'title': 'Old Story',
+                'slug': 'old-story',
+                'created_at': '2024-01-15T10:30:00',
+                'published_at': '2024-02-20T14:00:00',
+                'sections': [],
+            },
+        }
+
+        result = helpers.call_action(
+            'data_story_import',
+            context={'user': sysadmin['name']},
+            data=export_data,
+            preserve_dates=True,
+        )
+
+        assert '2024-01-15' in result['created_at']
+        assert '2024-02-20' in result['published_at']
+
+    def test_import_slug_conflict_rename(self):
+        """Test slug conflict with rename strategy."""
+        sysadmin = factories.Sysadmin()
+
+        # Create existing story
+        self._create_story_with_sections(sysadmin, 'Existing', slug='conflict-slug', num_sections=0)
+
+        export_data = {
+            'format_version': '1.0',
+            'story': {
+                'title': 'Conflicting Story',
+                'slug': 'conflict-slug',
+                'sections': [],
+            },
+        }
+
+        result = helpers.call_action(
+            'data_story_import',
+            context={'user': sysadmin['name']},
+            data=export_data,
+            slug_conflict='rename',
+        )
+
+        assert result['slug'] != 'conflict-slug'
+        assert result['slug'].startswith('conflict-slug')
+
+    def test_bulk_export(self):
+        """Test bulk exporting all stories."""
+        sysadmin = factories.Sysadmin()
+
+        self._create_story_with_sections(sysadmin, 'Bulk Story 1', slug='bulk-1')
+        self._create_story_with_sections(sysadmin, 'Bulk Story 2', slug='bulk-2')
+
+        result = helpers.call_action(
+            'data_story_bulk_export',
+            context={'user': sysadmin['name']},
+        )
+
+        assert result['format_version'] == '1.0'
+        assert isinstance(result['stories'], list)
+        assert len(result['stories']) >= 2
+        assert 'export_metadata' in result
+        assert result['export_metadata']['total_stories'] >= 2
+
+    def test_bulk_export_with_status_filter(self):
+        """Test bulk export filtered by status."""
+        sysadmin = factories.Sysadmin()
+
+        story = self._create_story_with_sections(sysadmin, 'Published Bulk', slug='pub-bulk')
+
+        # Set story to published
+        from ckanext.pages.data_stories.db.models import DataStory
+        story_obj = model.Session.query(DataStory).filter_by(id=story['id']).first()
+        story_obj.status = 'published'
+        model.Session.commit()
+
+        result = helpers.call_action(
+            'data_story_bulk_export',
+            context={'user': sysadmin['name']},
+            status='published',
+        )
+
+        for s in result['stories']:
+            assert s['status'] == 'published'
+
+    def test_bulk_export_requires_sysadmin(self):
+        """Test that bulk export requires sysadmin."""
+        user = factories.User()
+
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_action(
+                'data_story_bulk_export',
+                context={'user': user['name'], 'ignore_auth': False},
+            )
+
+    def test_bulk_import(self):
+        """Test bulk importing multiple stories."""
+        sysadmin = factories.Sysadmin()
+
+        bulk_data = {
+            'format_version': '1.0',
+            'stories': [
+                {
+                    'title': 'Bulk Import 1',
+                    'slug': 'bulk-import-1',
+                    'sections': [
+                        {'section_type': 'text', 'title': 'S1', 'content': 'C1', 'order_index': 0},
+                    ],
+                },
+                {
+                    'title': 'Bulk Import 2',
+                    'slug': 'bulk-import-2',
+                    'sections': [
+                        {'section_type': 'text', 'title': 'S2', 'content': 'C2', 'order_index': 0},
+                        {'section_type': 'text', 'title': 'S3', 'content': 'C3', 'order_index': 1},
+                    ],
+                },
+            ],
+        }
+
+        result = helpers.call_action(
+            'data_story_bulk_import',
+            context={'user': sysadmin['name']},
+            data=bulk_data,
+        )
+
+        assert result['total_imported'] == 2
+        assert result['total_errors'] == 0
+        assert len(result['imported']) == 2
+
+    def test_bulk_import_with_preserve_status(self):
+        """Test bulk import preserving original status."""
+        sysadmin = factories.Sysadmin()
+
+        bulk_data = {
+            'format_version': '1.0',
+            'stories': [
+                {
+                    'title': 'Published Bulk',
+                    'slug': 'pub-bulk-import',
+                    'status': 'published',
+                    'sections': [],
+                },
+                {
+                    'title': 'Draft Bulk',
+                    'slug': 'draft-bulk-import',
+                    'status': 'draft',
+                    'sections': [],
+                },
+            ],
+        }
+
+        result = helpers.call_action(
+            'data_story_bulk_import',
+            context={'user': sysadmin['name']},
+            data=bulk_data,
+            preserve_status=True,
+        )
+
+        assert result['total_imported'] == 2
+
+        # Verify statuses
+        pub = helpers.call_action('data_story_show', slug='pub-bulk-import')
+        assert pub['status'] == 'published'
+
+        draft = helpers.call_action('data_story_show', slug='draft-bulk-import')
+        assert draft['status'] == 'draft'
+
+    def test_bulk_import_requires_sysadmin(self):
+        """Test that bulk import requires sysadmin."""
+        user = factories.User()
+
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_action(
+                'data_story_bulk_import',
+                context={'user': user['name'], 'ignore_auth': False},
+                data={'format_version': '1.0', 'stories': []},
+            )
+
+    def test_roundtrip_export_import(self):
+        """Test full roundtrip: create → export → import."""
+        sysadmin = factories.Sysadmin()
+
+        # Create stories with sections
+        self._create_story_with_sections(sysadmin, 'Roundtrip 1', slug='roundtrip-1')
+        self._create_story_with_sections(sysadmin, 'Roundtrip 2', slug='roundtrip-2', num_sections=3)
+
+        # Bulk export
+        export_result = helpers.call_action(
+            'data_story_bulk_export',
+            context={'user': sysadmin['name']},
+        )
+
+        # Delete originals
+        for story_data in export_result['stories']:
+            slug = story_data['slug']
+            if slug.startswith('roundtrip-'):
+                show = helpers.call_action('data_story_show', slug=slug)
+                helpers.call_action(
+                    'data_story_delete',
+                    context={'user': sysadmin['name']},
+                    id=show['id'],
+                )
+
+        # Bulk import with preserved status/dates
+        import_result = helpers.call_action(
+            'data_story_bulk_import',
+            context={'user': sysadmin['name']},
+            data=export_result,
+            preserve_status=True,
+            preserve_dates=True,
+        )
+
+        assert import_result['total_errors'] == 0
+        # Verify roundtrip stories are imported (may also include other stories from test)
+        roundtrip_imported = [i for i in import_result['imported'] if 'Roundtrip' in i['title']]
+        assert len(roundtrip_imported) >= 2

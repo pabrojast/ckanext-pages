@@ -96,6 +96,8 @@ def data_story_import(context, data_dict):
             - owner_user_id: User ID to assign as author (optional, defaults to current user)
             - organization_id: Organization ID to assign (optional)
             - status: Status for imported story (default: 'draft')
+            - preserve_status: If True, keep the original status from the export (default: False)
+            - preserve_dates: If True, keep original created_at/published_at (default: False)
 
     Returns:
         Dict with imported story data
@@ -134,6 +136,8 @@ def data_story_import(context, data_dict):
     owner_user_id = data_dict.get('owner_user_id')
     organization_id = data_dict.get('organization_id')
     target_status = data_dict.get('status', 'draft')
+    preserve_status = data_dict.get('preserve_status', False)
+    preserve_dates = data_dict.get('preserve_dates', False)
 
     # Get current user as default owner
     user = context.get('user')
@@ -193,16 +197,36 @@ def data_story_import(context, data_dict):
     story.author_id = author_id
     story.organization_id = organization_id or story_data.get('organization_id')
 
-    # Set status
-    story.status = target_status
-    story.is_public = False
-    story.is_featured = False
+    # Set status — preserve original or use target
+    if preserve_status and story_data.get('status'):
+        story.status = story_data['status']
+        story.is_public = story_data.get('status') == 'published'
+    else:
+        story.status = target_status
+        story.is_public = target_status == 'published'
+
+    story.is_featured = story_data.get('is_featured', False) if preserve_status else False
     story.view_count = 0
     story.version = 1
 
-    # Timestamps
-    story.created_at = now
+    # Timestamps — preserve original or use current
+    if preserve_dates and story_data.get('created_at'):
+        try:
+            story.created_at = datetime.datetime.fromisoformat(story_data['created_at'])
+        except (ValueError, TypeError):
+            story.created_at = now
+    else:
+        story.created_at = now
+
     story.updated_at = now
+
+    if preserve_dates and story_data.get('published_at'):
+        try:
+            story.published_at = datetime.datetime.fromisoformat(story_data['published_at'])
+        except (ValueError, TypeError):
+            story.published_at = None
+    else:
+        story.published_at = None
 
     # Save story
     session = context.get('session', model.Session)
@@ -249,8 +273,33 @@ def data_story_import(context, data_dict):
 
         session.add(contributor)
 
-    # Commit all changes
-    session.commit()
+    # Import dataset references (optional, resolved by name)
+    dataset_refs_data = story_data.get('dataset_references', [])
+    imported_datasets = 0
+    for ds_ref in dataset_refs_data:
+        dataset_name = ds_ref.get('dataset_name')
+        if not dataset_name:
+            continue
+        pkg = model.Package.get(dataset_name)
+        if not pkg:
+            log.warning(
+                f"[DATA_STORY_IMPORT] Dataset '{dataset_name}' not found in target, skipping reference"
+            )
+            continue
+        ds_link = DataStoryDataset()
+        ds_link.id = make_uuid()
+        ds_link.story_id = story.id
+        ds_link.dataset_id = pkg.id
+        ds_link.relationship_type = ds_ref.get('relationship_type', '')
+        ds_link.description = ds_ref.get('description', '')
+        ds_link.order_index = ds_ref.get('order_index', 0)
+        ds_link.created_at = now
+        session.add(ds_link)
+        imported_datasets += 1
+
+    # Commit all changes (skipped when called from bulk import with deferred commit)
+    if not context.get('_defer_commit'):
+        session.commit()
 
     log.info(f"[DATA_STORY_IMPORT] Imported story: {story.id} with {len(imported_sections)} sections")
 
@@ -262,9 +311,178 @@ def data_story_import(context, data_dict):
         'final_slug': story.slug,
         'sections_imported': len(imported_sections),
         'contributors_imported': len(contributors_data),
+        'datasets_imported': imported_datasets,
     }
 
     return result
+
+
+def data_story_bulk_export(context, data_dict):
+    """
+    Export all data stories as a single JSON-serializable dict.
+
+    Args:
+        context: CKAN context dict
+        data_dict: Dict containing:
+            - status: Filter by status (optional, exports all if omitted)
+            - include_metadata: Include export metadata (default: True)
+
+    Returns:
+        Dict with all stories ready for bulk import
+
+    Raises:
+        NotAuthorized: If user is not sysadmin
+    """
+    log.info("[DATA_STORY_BULK_EXPORT] Starting bulk export")
+
+    tk.check_access('data_story_bulk_export', context, data_dict)
+
+    status_filter = data_dict.get('status')
+    include_metadata = data_dict.get('include_metadata', True)
+
+    # Get stories
+    if status_filter:
+        stories = DataStory.all(status=status_filter)
+    else:
+        stories = DataStory.all()
+
+    serialized_stories = []
+    for story in stories:
+        serialized_stories.append(_serialize_story(story, context))
+
+    export_data = {
+        'format_version': EXPORT_FORMAT_VERSION,
+        'stories': serialized_stories,
+    }
+
+    if include_metadata:
+        export_data['export_metadata'] = {
+            'exported_at': datetime.datetime.utcnow().isoformat(),
+            'exported_by': context.get('user'),
+            'source_ckan_version': tk.config.get('ckan.version', 'unknown'),
+            'total_stories': len(serialized_stories),
+        }
+
+    log.info(f"[DATA_STORY_BULK_EXPORT] Exported {len(serialized_stories)} stories")
+
+    return export_data
+
+
+def data_story_bulk_import(context, data_dict):
+    """
+    Import multiple data stories from a bulk export JSON.
+
+    Args:
+        context: CKAN context dict
+        data_dict: Dict containing:
+            - data: The bulk export data (required, must contain 'stories' array)
+            - slug_conflict: Action on slug conflict: 'rename', 'overwrite', 'error' (default: 'rename')
+            - owner_user_id: User ID to assign as author (optional)
+            - organization_id: Organization ID to assign (optional)
+            - status: Status for imported stories (default: 'draft')
+            - preserve_status: If True, keep original status (default: False)
+            - preserve_dates: If True, keep original timestamps (default: False)
+
+    Returns:
+        Dict with import summary and list of imported stories
+
+    Raises:
+        NotAuthorized: If user is not sysadmin
+        ValidationError: If data is invalid
+    """
+    log.info("[DATA_STORY_BULK_IMPORT] Starting bulk import")
+
+    tk.check_access('data_story_bulk_import', context, data_dict)
+
+    export_data = data_dict.get('data')
+    if not export_data:
+        raise tk.ValidationError({'data': ['Export data is required']})
+
+    if isinstance(export_data, str):
+        try:
+            export_data = json.loads(export_data)
+        except json.JSONDecodeError as e:
+            raise tk.ValidationError({'data': [f'Invalid JSON: {str(e)}']})
+
+    format_version = export_data.get('format_version')
+    if not format_version:
+        raise tk.ValidationError({'data': ['Missing format_version in export data']})
+
+    stories_data = export_data.get('stories')
+    if not stories_data or not isinstance(stories_data, list):
+        raise tk.ValidationError({'data': ['Missing or invalid stories array in export data']})
+
+    # Shared import options
+    slug_conflict = data_dict.get('slug_conflict', 'rename')
+    owner_user_id = data_dict.get('owner_user_id')
+    organization_id = data_dict.get('organization_id')
+    target_status = data_dict.get('status', 'draft')
+    preserve_status = data_dict.get('preserve_status', False)
+    preserve_dates = data_dict.get('preserve_dates', False)
+
+    imported = []
+    errors = []
+
+    session = context.get('session', model.Session)
+
+    for idx, story_data in enumerate(stories_data):
+        story_title = story_data.get('title', f'Story {idx + 1}')
+        try:
+            # Use a savepoint so a failed story doesn't corrupt the session
+            savepoint = session.begin_nested()
+
+            single_export = {
+                'format_version': format_version,
+                'story': story_data,
+            }
+
+            # Defer commit — bulk import manages the transaction
+            import_context = dict(context, _defer_commit=True)
+            result = data_story_import(import_context, {
+                'data': single_export,
+                'slug_conflict': slug_conflict,
+                'owner_user_id': owner_user_id,
+                'organization_id': organization_id,
+                'status': target_status,
+                'preserve_status': preserve_status,
+                'preserve_dates': preserve_dates,
+            })
+
+            # Flush to DB within savepoint
+            session.flush()
+
+            imported.append({
+                'title': story_title,
+                'slug': result.get('slug'),
+                'id': result.get('id'),
+                'import_info': result.get('import_info', {}),
+            })
+            log.info(f"[DATA_STORY_BULK_IMPORT] Imported: {story_title}")
+
+        except Exception as e:
+            savepoint.rollback()
+            log.error(f"[DATA_STORY_BULK_IMPORT] Error importing '{story_title}': {str(e)}")
+            errors.append({
+                'title': story_title,
+                'slug': story_data.get('slug', ''),
+                'error': str(e),
+            })
+
+    # Commit all successful imports
+    session.commit()
+
+    log.info(
+        f"[DATA_STORY_BULK_IMPORT] Finished: {len(imported)} imported, "
+        f"{len(errors)} errors"
+    )
+
+    return {
+        'imported': imported,
+        'errors': errors,
+        'total_attempted': len(stories_data),
+        'total_imported': len(imported),
+        'total_errors': len(errors),
+    }
 
 
 def _serialize_story(story, context):
@@ -353,14 +571,20 @@ def _serialize_story(story, context):
     return story_dict
 
 
-def _generate_unique_slug(base_slug):
+def _generate_unique_slug(base_slug, max_attempts=1000):
     """
     Generate a unique slug by appending a number if necessary.
+
+    Raises ValidationError if a unique slug cannot be found within max_attempts.
     """
     slug = base_slug
     counter = 1
 
     while DataStory.get(slug=slug):
+        if counter > max_attempts:
+            raise tk.ValidationError(
+                {'slug': [f'Could not generate unique slug after {max_attempts} attempts for base: {base_slug}']}
+            )
         slug = f"{base_slug}-{counter}"
         counter += 1
 

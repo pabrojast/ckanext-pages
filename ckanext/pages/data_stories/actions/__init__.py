@@ -57,6 +57,8 @@ from ckanext.pages.data_stories.actions.stats import (
 from ckanext.pages.data_stories.actions.import_export import (
     data_story_export,
     data_story_import,
+    data_story_bulk_export,
+    data_story_bulk_import,
 )
 
 __all__ = [
@@ -96,4 +98,6 @@ __all__ = [
     # Import/Export
     'data_story_export',
     'data_story_import',
+    'data_story_bulk_export',
+    'data_story_bulk_import',
 ]

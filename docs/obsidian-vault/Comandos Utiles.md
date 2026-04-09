@@ -64,6 +64,39 @@ ckan -c /etc/ckan/default/ckan.ini pages seed-crida --dry-run
 ckan -c /etc/ckan/default/ckan.ini pages seed-crida --update-existing
 ```
 
+### Data Stories export/import
+
+Exportar todas las stories (stdout o archivo):
+
+```bash
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-export
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-export --output /tmp/stories.json
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-export --status published --output /tmp/published.json
+```
+
+Importar stories desde archivo JSON (individual o bulk):
+
+```bash
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-import /tmp/stories.json
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-import /tmp/stories.json --preserve-status --preserve-dates
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-import /tmp/stories.json --slug-conflict overwrite
+ckan -c /etc/ckan/default/ckan.ini pages data-stories-import /tmp/stories.json --dry-run
+```
+
+Flujo de migración dev → prod con kubectl:
+
+```bash
+# Exportar desde dev
+kubectl -n ckan exec -it <pod-dev> -- ckan -c /etc/ckan/default/ckan.ini pages data-stories-export --output /tmp/stories.json
+kubectl -n ckan cp <pod-dev>:/tmp/stories.json ./stories.json
+
+# Importar en prod
+kubectl -n ckan cp ./stories.json <pod-prod>:/tmp/stories.json
+kubectl -n ckan exec -it <pod-prod> -- ckan -c /etc/ckan/default/ckan.ini pages data-stories-import /tmp/stories.json --preserve-status --preserve-dates --slug-conflict overwrite
+```
+
+Nota: las imágenes referenciadas en `uploaded_images` y `image_url` de secciones deben estar accesibles en el bucket de destino. Si ambos entornos comparten bucket, no se necesita acción adicional.
+
 ## Scripts standalone en la raíz
 
 ```bash
