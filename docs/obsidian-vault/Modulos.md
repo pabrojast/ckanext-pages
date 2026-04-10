@@ -39,7 +39,16 @@ Señales en código:
 
 - `page_type='rapid-response'`
 - filtros por `country`, `activity_status`, `severity`, `event_type`
-- admin de event types
+- admin de disaster types (tipos de desastre) en `/admin/disaster-types`
+
+Disaster Types:
+
+- sistema independiente de los event types de Water Events
+- tipos por defecto: Tropical Cyclone, Earthquake, Tsunami, Flood, Wildfire, Volcanic Eruption, Drought, Armed Conflict, Man-made Disaster
+- almacenados en config `ckanext.pages.disaster_types` como JSON
+- acciones CRUD: `disaster_types_list`, `disaster_types_show`, `disaster_types_create`, `disaster_types_update`, `disaster_types_delete`
+- helpers: `get_disaster_types()`, `get_disaster_type_by_id()`
+- templates admin: `admin/disaster_types_admin.html`, `admin/disaster_types_edit.html`, `admin/disaster_types_delete.html`
 
 ## 3. Water Family
 

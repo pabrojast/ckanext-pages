@@ -125,21 +125,21 @@
                           </div>
                                                     
                           <div class="form-group">
-                            <label for="field-subtitle" class="control-label">{{ _('Event Type/Category') }}</label>
+                            <label for="field-subtitle" class="control-label">{{ _('Disaster Type/Category') }}</label>
                             <div class="event-type-container">
                               <select id="field-event-type" name="subtitle" class="rr-form-control">
-                                <option value="">{{ _('Select event type...') }}</option>
-                                {% for event_type in h.get_event_types() %}
-                                  <option value="{{ event_type.title }}" data-event-id="{{ event_type.id }}" {% if data.subtitle == event_type.title or data.event_type == event_type.id %}selected{% endif %}>{{ _(event_type.title) }}</option>
+                                <option value="">{{ _('Select disaster type...') }}</option>
+                                {% for disaster_type in h.get_disaster_types() %}
+                                  <option value="{{ disaster_type.title }}" data-event-id="{{ disaster_type.id }}" {% if data.subtitle == disaster_type.title or data.event_type == disaster_type.id %}selected{% endif %}>{{ _(disaster_type.title) }}</option>
                                 {% endfor %}
-                                {% if data.subtitle and data.subtitle not in h.get_event_types()|map(attribute='title')|list %}
+                                {% if data.subtitle and data.subtitle not in h.get_disaster_types()|map(attribute='title')|list %}
                                   <option value="{{ data.subtitle }}" selected>{{ data.subtitle }}</option>
                                 {% endif %}
                               </select>
                               {% if h.is_sysadmin() %}
                                 <div class="event-type-admin-controls" style="margin-top: 0.5rem;">
-                                  <a href="/admin/event-types" class="btn btn-sm btn-default" target="_blank">
-                                    <i class="fa fa-cog"></i> {{ _('Manage Event Types') }}
+                                  <a href="/admin/disaster-types" class="btn btn-sm btn-default" target="_blank">
+                                    <i class="fa fa-cog"></i> {{ _('Manage Disaster Types') }}
                                   </a>
                                 </div>
                               {% endif %}
@@ -147,7 +147,7 @@
                             <div class="help-text">
                               {{ _('Type of emergency or disaster event') }}
                               {% if h.is_sysadmin() %}
-                                <br><small class="text-muted">{{ _('As sysadmin, you can manage event types using the link above.') }}</small>
+                                <br><small class="text-muted">{{ _('As sysadmin, you can manage disaster types using the link above.') }}</small>
                               {% endif %}
                             </div>
                             <!-- Hidden field to store event type ID -->

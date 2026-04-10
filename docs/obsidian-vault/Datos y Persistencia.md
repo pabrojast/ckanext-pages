@@ -85,17 +85,33 @@ También se crean con `init_tables(model.meta.engine)`.
 
 Las columnas nuevas se agregan mediante `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` dentro de `init_tables()` para compatibilidad con bases de datos existentes (sin Alembic).
 
-## Event Types
+## Event Types y Disaster Types
 
-Los event types de Rapid Response se manejan desde acciones `ckanext_event_types_*`.
+Los tipos se dividen en dos sistemas independientes:
 
-Hallazgo importante:
+### Event Types (Water Events)
 
-- el código intenta leerlos desde `ckanext.pages.event_types`
+Acciones: `ckanext_event_types_*`. Config: `ckanext.pages.event_types`.
+
+- Tipos por defecto: Conference, Workshop, Seminar, Webinar, Training, etc.
+- Usados por el módulo Water Events (`water-events`)
+
+### Disaster Types (Rapid Response)
+
+Acciones: `ckanext_disaster_types_*`. Config: `ckanext.pages.disaster_types`.
+
+- Tipos por defecto: Tropical Cyclone, Earthquake, Tsunami, Flood, Wildfire, Volcanic Eruption, Drought, Armed Conflict, Man-made Disaster
+- Usados por el módulo Rapid Response (`rapid-response`)
+- Admin UI: `/admin/disaster-types`
+- Helpers: `get_disaster_types()`, `get_disaster_type_by_id()`
+
+Hallazgo importante (aplica a ambos):
+
+- el código intenta leerlos desde su config key respectiva
 - las operaciones create/update/delete tienen el guardado comentado
 - no se observó persistencia real en base de datos
 
-Esto implica que el CRUD de event types parece incompleto o dependiente de una capa externa no presente en el repo.
+Esto implica que el CRUD de ambos tipos parece incompleto o dependiente de una capa externa no presente en el repo.
 
 ## Water Publications y datasets CKAN
 
@@ -117,7 +133,7 @@ El contenido base mantiene snapshots en `revisions`:
 ## Pendiente por confirmar
 
 - Estrategia de migración formal para `data_stories` y `featured_viewers`.
-- Si en producción existe una persistencia externa para `event_types`.
+- Si en producción existe una persistencia externa para `event_types` y `disaster_types`.
 
 ## Inferencia
 

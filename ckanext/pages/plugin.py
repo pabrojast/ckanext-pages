@@ -823,6 +823,39 @@ def get_event_type_by_id(event_type_id):
         return next((et for et in default_types if et['id'] == event_type_id), None)
 
 
+def get_disaster_types(active_only=True):
+    """Get list of disaster types for templates"""
+    try:
+        disaster_types = tk.get_action('ckanext_disaster_types_list')(
+            {}, {'active_only': active_only}
+        )
+        return disaster_types
+    except:
+        return [
+            {'id': 'tropical-cyclone', 'name': 'tropical-cyclone', 'title': 'Tropical Cyclone', 'title_plural': 'Tropical Cyclones'},
+            {'id': 'earthquake', 'name': 'earthquake', 'title': 'Earthquake', 'title_plural': 'Earthquakes'},
+            {'id': 'tsunami', 'name': 'tsunami', 'title': 'Tsunami', 'title_plural': 'Tsunamis'},
+            {'id': 'flood', 'name': 'flood', 'title': 'Flood', 'title_plural': 'Floods'},
+            {'id': 'wildfire', 'name': 'wildfire', 'title': 'Wildfire', 'title_plural': 'Wildfires'},
+            {'id': 'volcanic-eruption', 'name': 'volcanic-eruption', 'title': 'Volcanic Eruption', 'title_plural': 'Volcanic Eruptions'},
+            {'id': 'drought', 'name': 'drought', 'title': 'Drought', 'title_plural': 'Droughts'},
+            {'id': 'armed-conflict', 'name': 'armed-conflict', 'title': 'Armed Conflict', 'title_plural': 'Armed Conflicts'},
+            {'id': 'man-made-disaster', 'name': 'man-made-disaster', 'title': 'Man-made Disaster', 'title_plural': 'Man-made Disasters'},
+        ]
+
+
+def get_disaster_type_by_id(disaster_type_id):
+    """Get a specific disaster type by ID"""
+    try:
+        disaster_type = tk.get_action('ckanext_disaster_types_show')(
+            {}, {'id': disaster_type_id}
+        )
+        return disaster_type
+    except:
+        default_types = get_disaster_types(active_only=False)
+        return next((dt for dt in default_types if dt['id'] == disaster_type_id), None)
+
+
 def is_sysadmin():
     """Check if current user is sysadmin"""
     try:
@@ -1378,6 +1411,8 @@ class PagesPlugin(PagesPluginBase):
             'get_severity_class': get_severity_class,
             'get_event_types': get_event_types,
             'get_event_type_by_id': get_event_type_by_id,
+            'get_disaster_types': get_disaster_types,
+            'get_disaster_type_by_id': get_disaster_type_by_id,
             'is_sysadmin': is_sysadmin,
             'get_ihp_organizations': get_ihp_organizations,
             'get_user_organization': get_user_organization,
@@ -1469,6 +1504,12 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_event_types_create': actions.event_types_create,
             'ckanext_event_types_update': actions.event_types_update,
             'ckanext_event_types_delete': actions.event_types_delete,
+            # Disaster Types Management
+            'ckanext_disaster_types_list': actions.disaster_types_list,
+            'ckanext_disaster_types_show': actions.disaster_types_show,
+            'ckanext_disaster_types_create': actions.disaster_types_create,
+            'ckanext_disaster_types_update': actions.disaster_types_update,
+            'ckanext_disaster_types_delete': actions.disaster_types_delete,
             # CRIDA Case Study API
             'ckanext_crida_case_study_list': actions.crida_case_study_list,
             'ckanext_crida_case_study_show': actions.crida_case_study_show,
@@ -1584,6 +1625,12 @@ class PagesPlugin(PagesPluginBase):
             'ckanext_event_types_create': auth.event_types_create,
             'ckanext_event_types_update': auth.event_types_update,
             'ckanext_event_types_delete': auth.event_types_delete,
+            # Disaster Types Management
+            'ckanext_disaster_types_list': auth.disaster_types_list,
+            'ckanext_disaster_types_show': auth.disaster_types_show,
+            'ckanext_disaster_types_create': auth.disaster_types_create,
+            'ckanext_disaster_types_update': auth.disaster_types_update,
+            'ckanext_disaster_types_delete': auth.disaster_types_delete,
             # CRIDA Case Study permissions
             'ckanext_crida_case_study_list': auth.crida_case_study_list,
             'ckanext_crida_case_study_show': auth.crida_case_study_show,

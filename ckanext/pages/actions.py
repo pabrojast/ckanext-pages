@@ -1419,6 +1419,312 @@ def event_types_delete(context, data_dict):
     return deleted_type
 
 
+# Disaster Types Management Actions
+
+def _get_default_disaster_types():
+    """Get default disaster types for rapid response events"""
+    return [
+        {
+            'id': 'tropical-cyclone',
+            'name': 'tropical-cyclone',
+            'title': 'Tropical Cyclone',
+            'title_plural': 'Tropical Cyclones',
+            'description': 'Hurricanes, typhoons, and cyclones with strong winds and heavy rainfall',
+            'icon': 'fa-wind',
+            'color': '#0072BC',
+            'active': True,
+            'order': 1,
+            'is_default': True
+        },
+        {
+            'id': 'earthquake',
+            'name': 'earthquake',
+            'title': 'Earthquake',
+            'title_plural': 'Earthquakes',
+            'description': 'Seismic events causing ground shaking and structural damage',
+            'icon': 'fa-house-damage',
+            'color': '#8B4513',
+            'active': True,
+            'order': 2,
+            'is_default': True
+        },
+        {
+            'id': 'tsunami',
+            'name': 'tsunami',
+            'title': 'Tsunami',
+            'title_plural': 'Tsunamis',
+            'description': 'Large ocean waves caused by underwater earthquakes or volcanic eruptions',
+            'icon': 'fa-water',
+            'color': '#005A9C',
+            'active': True,
+            'order': 3,
+            'is_default': True
+        },
+        {
+            'id': 'flood',
+            'name': 'flood',
+            'title': 'Flood',
+            'title_plural': 'Floods',
+            'description': 'Overflow of water submerging normally dry land areas',
+            'icon': 'fa-cloud-showers-heavy',
+            'color': '#009EE0',
+            'active': True,
+            'order': 4,
+            'is_default': True
+        },
+        {
+            'id': 'wildfire',
+            'name': 'wildfire',
+            'title': 'Wildfire',
+            'title_plural': 'Wildfires',
+            'description': 'Uncontrolled fires in vegetation areas affecting water resources',
+            'icon': 'fa-fire',
+            'color': '#FF4500',
+            'active': True,
+            'order': 5,
+            'is_default': True
+        },
+        {
+            'id': 'volcanic-eruption',
+            'name': 'volcanic-eruption',
+            'title': 'Volcanic Eruption',
+            'title_plural': 'Volcanic Eruptions',
+            'description': 'Eruptions of molten rock, ash, and gases from volcanoes',
+            'icon': 'fa-mountain',
+            'color': '#DC143C',
+            'active': True,
+            'order': 6,
+            'is_default': True
+        },
+        {
+            'id': 'drought',
+            'name': 'drought',
+            'title': 'Drought',
+            'title_plural': 'Droughts',
+            'description': 'Prolonged periods of abnormally low rainfall leading to water shortage',
+            'icon': 'fa-sun',
+            'color': '#DAA520',
+            'active': True,
+            'order': 7,
+            'is_default': True
+        },
+        {
+            'id': 'armed-conflict',
+            'name': 'armed-conflict',
+            'title': 'Armed Conflict',
+            'title_plural': 'Armed Conflicts',
+            'description': 'War-related water crises and destruction of water infrastructure',
+            'icon': 'fa-shield-alt',
+            'color': '#4B0082',
+            'active': True,
+            'order': 8,
+            'is_default': True
+        },
+        {
+            'id': 'man-made-disaster',
+            'name': 'man-made-disaster',
+            'title': 'Man-made Disaster',
+            'title_plural': 'Man-made Disasters',
+            'description': 'Human-caused disasters such as industrial contamination, bombing of water infrastructure, or chemical spills',
+            'icon': 'fa-industry',
+            'color': '#696969',
+            'active': True,
+            'order': 9,
+            'is_default': True
+        }
+    ]
+
+
+@tk.side_effect_free
+def disaster_types_list(context, data_dict):
+    """List all disaster types (active and inactive)"""
+    try:
+        pass
+    except p.toolkit.NotAuthorized:
+        p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
+
+    try:
+        custom_types_json = tk.config.get('ckanext.pages.disaster_types', '')
+        if custom_types_json:
+            disaster_types = json.loads(custom_types_json)
+        else:
+            disaster_types = _get_default_disaster_types()
+    except (json.JSONDecodeError, ValueError):
+        disaster_types = _get_default_disaster_types()
+
+    active_only = data_dict.get('active_only', False)
+    if active_only:
+        disaster_types = [dt for dt in disaster_types if dt.get('active', True)]
+
+    disaster_types.sort(key=lambda x: x.get('order', 999))
+
+    return disaster_types
+
+
+@tk.side_effect_free
+def disaster_types_show(context, data_dict):
+    """Show a single disaster type by ID"""
+    try:
+        p.toolkit.check_access('ckanext_disaster_types_show', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    disaster_type_id = data_dict.get('id')
+    if not disaster_type_id:
+        raise p.toolkit.ValidationError({'id': ['Missing value']})
+
+    all_types = disaster_types_list(context, {})
+    disaster_type = next((dt for dt in all_types if dt['id'] == disaster_type_id), None)
+
+    if not disaster_type:
+        raise p.toolkit.ObjectNotFound('Disaster type not found')
+
+    return disaster_type
+
+
+def disaster_types_create(context, data_dict):
+    """Create a new disaster type"""
+    try:
+        p.toolkit.check_access('ckanext_disaster_types_create', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    from ckanext.pages.logic.schema import update_disaster_types_schema
+
+    schema = update_disaster_types_schema()
+    data, errors = df.validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+
+    existing_types = disaster_types_list(context, {})
+
+    new_id = data.get('id') or data.get('name', '').lower().replace(' ', '-')
+    if any(dt['id'] == new_id for dt in existing_types):
+        raise p.toolkit.ValidationError({'id': ['Disaster type ID already exists']})
+
+    new_disaster_type = {
+        'id': new_id,
+        'name': data.get('name', new_id),
+        'title': data.get('title', ''),
+        'title_plural': data.get('title_plural', ''),
+        'description': data.get('description', ''),
+        'icon': data.get('icon', 'fa-exclamation-triangle'),
+        'color': data.get('color', '#dc3545'),
+        'active': data.get('active', True),
+        'order': data.get('order', len(existing_types) + 1),
+        'is_default': False,
+        'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        'modified': datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }
+
+    existing_types.append(new_disaster_type)
+
+    try:
+        config_value = json.dumps(existing_types)
+    except Exception as e:
+        log = logging.getLogger(__name__)
+        log.warning("Could not save disaster types to config: %s", str(e))
+
+    return new_disaster_type
+
+
+def disaster_types_update(context, data_dict):
+    """Update an existing disaster type"""
+    try:
+        p.toolkit.check_access('ckanext_disaster_types_update', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    from ckanext.pages.logic.schema import update_disaster_types_schema
+
+    schema = update_disaster_types_schema()
+    data, errors = df.validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+
+    disaster_type_id = data.get('id')
+    if not disaster_type_id:
+        raise p.toolkit.ValidationError({'id': ['Missing value']})
+
+    existing_types = disaster_types_list(context, {})
+
+    disaster_type_index = None
+    for i, dt in enumerate(existing_types):
+        if dt['id'] == disaster_type_id:
+            disaster_type_index = i
+            break
+
+    if disaster_type_index is None:
+        raise p.toolkit.ObjectNotFound('Disaster type not found')
+
+    current_type = existing_types[disaster_type_index]
+    for key in ['title', 'title_plural', 'description', 'icon', 'color', 'active', 'order']:
+        if key in data:
+            current_type[key] = data[key]
+    current_type['modified'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+    updated_type = existing_types[disaster_type_index].copy()
+    existing_types[disaster_type_index] = updated_type
+
+    try:
+        config_value = json.dumps(existing_types)
+    except Exception as e:
+        log = logging.getLogger(__name__)
+        log.warning("Could not save disaster types to config: %s", str(e))
+
+    return updated_type
+
+
+def disaster_types_delete(context, data_dict):
+    """Delete a disaster type"""
+    try:
+        p.toolkit.check_access('ckanext_disaster_types_delete', context, data_dict)
+    except p.toolkit.NotAuthorized:
+        raise
+
+    disaster_type_id = data_dict.get('id')
+    if not disaster_type_id:
+        raise p.toolkit.ValidationError({'id': ['Missing value']})
+
+    existing_types = disaster_types_list(context, {})
+
+    disaster_type_index = None
+    for i, dt in enumerate(existing_types):
+        if dt['id'] == disaster_type_id:
+            disaster_type_index = i
+            break
+
+    if disaster_type_index is None:
+        raise p.toolkit.ObjectNotFound('Disaster type not found')
+
+    current_type = existing_types[disaster_type_index]
+    if current_type.get('is_default', False):
+        raise p.toolkit.ValidationError({
+            'id': ['Cannot delete a default disaster type. You can deactivate it instead.']
+        })
+
+    try:
+        pages_using_type = tk.get_action('ckanext_pages_list')(
+            context, {'page_type': 'rapid-response', 'event_type': disaster_type_id}
+        )
+        if pages_using_type:
+            raise p.toolkit.ValidationError({
+                'id': [f'Cannot delete disaster type. It is being used by {len(pages_using_type)} rapid response page(s).']
+            })
+    except Exception:
+        pass
+
+    deleted_type = existing_types.pop(disaster_type_index)
+
+    try:
+        config_value = json.dumps(existing_types)
+    except Exception as e:
+        log = logging.getLogger(__name__)
+        log.warning("Could not save disaster types to config: %s", str(e))
+
+    return deleted_type
+
+
 def _get_user_organization(username):
     """Get the organization associated with the current user"""
     try:

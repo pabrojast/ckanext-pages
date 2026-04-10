@@ -150,8 +150,9 @@ class Page(DomainObject, BaseModel):
             
             # Apply event type filter (stored in extras JSON)
             if event_type:
-                # Map legacy filter values to descriptive subtitles (rapid response)
+                # Map legacy and current filter IDs to descriptive subtitles (rapid response)
                 event_type_mapping = {
+                    # Legacy short IDs
                     'cyclone': 'Tropical Cyclone',
                     'earthquake': 'Earthquake',
                     'tsunami': 'Tsunami',
@@ -159,7 +160,13 @@ class Page(DomainObject, BaseModel):
                     'fire': 'Wildfire',
                     'conflict': 'Armed Conflict',
                     'volcano': 'Volcanic Eruption',
-                    'drought': 'Drought'
+                    'drought': 'Drought',
+                    # Current kebab-case disaster type IDs
+                    'tropical-cyclone': 'Tropical Cyclone',
+                    'volcanic-eruption': 'Volcanic Eruption',
+                    'wildfire': 'Wildfire',
+                    'armed-conflict': 'Armed Conflict',
+                    'man-made-disaster': 'Man-made Disaster',
                 }
                 actual_subtitle = event_type_mapping.get(event_type.lower(), event_type)
 

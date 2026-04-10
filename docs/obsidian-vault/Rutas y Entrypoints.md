@@ -53,7 +53,8 @@ Registrado desde `ckanext/pages/blueprint.py`.
 
 ### Administración adicional
 
-- `/admin/event-types`
+- `/admin/event-types` — CRUD de tipos de evento para Water Events
+- `/admin/disaster-types` — CRUD de tipos de desastre para Rapid Response
 - `/crida`
 - `/crida/case-studies`
 - `/crida/admin`
@@ -135,6 +136,7 @@ Acciones CKAN relevantes:
 - `ckanext_water_family_list`
 - `ckanext_water_family_show`
 - `ckanext_event_types_*`
+- `ckanext_disaster_types_*`
 - `ckanext_crida_case_study_*`
 - `ckanext_crida_geojson`
 

@@ -136,18 +136,18 @@
                             </div>
                           </div>
                           <div class="filter-cell">
-                            <label for="event_type" class="sr-only">{{ _('Event Type') }}</label>
+                            <label for="event_type" class="sr-only">{{ _('Disaster Type') }}</label>
                             <select name="event_type" id="event_type" class="form-control">
                               <option value="">{{ _('All Types') }}</option>
-                              {% for event_type in h.get_event_types() %}
-                                <option value="{{ event_type.id }}" 
-                                        {% if request.args.event_type == event_type.id %}selected{% endif %}>
-                                  {{ _(event_type.title_plural or event_type.title) }}
+                              {% for disaster_type in h.get_disaster_types() %}
+                                <option value="{{ disaster_type.id }}" 
+                                        {% if request.args.event_type == disaster_type.id %}selected{% endif %}>
+                                  {{ _(disaster_type.title_plural or disaster_type.title) }}
                                 </option>
                               {% endfor %}
                               {% if h.is_sysadmin() %}
                                 <option disabled>──────────</option>
-                                <option value="_manage" style="font-style: italic;">{{ _('⚙️ Manage Event Types') }}</option>
+                                <option value="_manage" style="font-style: italic;">{{ _('⚙️ Manage Disaster Types') }}</option>
                               {% endif %}
                             </select>
                           </div>
@@ -2052,10 +2052,10 @@
         
         console.log('Filter changed:', fieldName, '=', fieldValue);
         
-        // Special handling for event type management
+        // Special handling for disaster type management
         if (fieldName === 'event_type' && fieldValue === '_manage') {
           $this.val('');
-          window.open('/admin/event-types', '_blank');
+          window.open('/admin/disaster-types', '_blank');
           return false;
         }
         

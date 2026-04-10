@@ -386,6 +386,27 @@ def event_types_delete(event_type_id):
     return utils.event_types_delete(event_type_id)
 
 
+# Disaster Types Management Functions
+def disaster_types_admin():
+    """Admin page for managing disaster types"""
+    return utils.disaster_types_admin()
+
+
+def disaster_types_new(data=None, errors=None, error_summary=None):
+    """Create new disaster type"""
+    return utils.disaster_types_edit(None, data, errors, error_summary)
+
+
+def disaster_types_edit_view(disaster_type_id=None, data=None, errors=None, error_summary=None):
+    """Edit existing disaster type"""
+    return utils.disaster_types_edit(disaster_type_id, data, errors, error_summary)
+
+
+def disaster_types_delete_view(disaster_type_id):
+    """Delete disaster type"""
+    return utils.disaster_types_delete(disaster_type_id)
+
+
 # --- CRIDA Case Study view functions ---
 
 def crida_index():
@@ -595,6 +616,12 @@ pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='
 pages.add_url_rule("/admin/event-types/new", view_func=event_types_new, endpoint='event_types_new', methods=['GET', 'POST'])
 pages.add_url_rule("/admin/event-types/edit/<event_type_id>", view_func=event_types_edit, endpoint='event_types_edit', methods=['GET', 'POST'])
 pages.add_url_rule("/admin/event-types/delete/<event_type_id>", view_func=event_types_delete, endpoint='event_types_delete', methods=['GET', 'POST'])
+
+# Disaster Types Administration URLs (Sysadmin only)
+pages.add_url_rule("/admin/disaster-types", view_func=disaster_types_admin, endpoint='disaster_types_admin')
+pages.add_url_rule("/admin/disaster-types/new", view_func=disaster_types_new, endpoint='disaster_types_new', methods=['GET', 'POST'])
+pages.add_url_rule("/admin/disaster-types/edit/<disaster_type_id>", view_func=disaster_types_edit_view, endpoint='disaster_types_edit', methods=['GET', 'POST'])
+pages.add_url_rule("/admin/disaster-types/delete/<disaster_type_id>", view_func=disaster_types_delete_view, endpoint='disaster_types_delete', methods=['GET', 'POST'])
 
 # CRIDA Case Study routes
 pages.add_url_rule("/crida", view_func=crida_index, endpoint='crida_index')

@@ -3161,6 +3161,146 @@ def event_types_delete(event_type_id):
         })
 
 
+def disaster_types_admin():
+    """Admin page for managing disaster types (sysadmin only)"""
+    try:
+        tk.check_access('ckanext_disaster_types_list', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to access disaster types administration'))
+
+    tk.c.is_sysadmin = authz.is_sysadmin(tk.g.user)
+
+    try:
+        disaster_types = tk.get_action('ckanext_disaster_types_list')(
+            context={}, data_dict={'active_only': False}
+        )
+        tk.c.disaster_types = disaster_types
+    except Exception as e:
+        tk.h.flash_error(_('Error loading disaster types: %s') % str(e))
+        tk.c.disaster_types = []
+
+    return tk.render('ckanext_pages/admin/disaster_types_admin.html')
+
+
+def disaster_types_edit(disaster_type_id=None, data=None, errors=None, error_summary=None):
+    """Create or edit disaster type (sysadmin only)"""
+    if disaster_type_id:
+        try:
+            tk.check_access('ckanext_disaster_types_update', {'user': tk.g.user})
+        except tk.NotAuthorized:
+            return tk.abort(401, _('Unauthorized to edit disaster types'))
+    else:
+        try:
+            tk.check_access('ckanext_disaster_types_create', {'user': tk.g.user})
+        except tk.NotAuthorized:
+            return tk.abort(401, _('Unauthorized to create disaster types'))
+
+    disaster_type_dict = {}
+    if disaster_type_id:
+        try:
+            disaster_type_dict = tk.get_action('ckanext_disaster_types_show')(
+                context={}, data_dict={'id': disaster_type_id}
+            )
+        except tk.ObjectNotFound:
+            tk.h.flash_error(_('Disaster type not found'))
+            return tk.redirect_to('pages.disaster_types_admin')
+        except Exception as e:
+            tk.h.flash_error(_('Error loading disaster type: %s') % str(e))
+            return tk.redirect_to('pages.disaster_types_admin')
+
+    if tk.request.method == 'POST' and not data:
+        data = _parse_form_data(tk.request)
+
+        data_dict = disaster_type_dict.copy()
+        data_dict.update(data)
+
+        if disaster_type_id:
+            data_dict['id'] = disaster_type_id
+
+        try:
+            if disaster_type_id:
+                result = tk.get_action('ckanext_disaster_types_update')(
+                    context={}, data_dict=data_dict
+                )
+                tk.h.flash_success(_('Disaster type updated successfully'))
+            else:
+                result = tk.get_action('ckanext_disaster_types_create')(
+                    context={}, data_dict=data_dict
+                )
+                tk.h.flash_success(_('Disaster type created successfully'))
+
+            return tk.redirect_to('pages.disaster_types_admin')
+
+        except tk.ValidationError as e:
+            errors = e.error_dict
+            error_summary = e.error_summary
+            tk.h.flash_error(error_summary)
+            return disaster_types_edit(disaster_type_id, data, errors, error_summary)
+        except Exception as e:
+            tk.h.flash_error(_('Error saving disaster type: %s') % str(e))
+            return disaster_types_edit(disaster_type_id, data, errors, error_summary)
+
+    if not data:
+        data = disaster_type_dict
+
+    errors = errors or {}
+    error_summary = error_summary or {}
+
+    vars = {
+        'data': data,
+        'errors': errors,
+        'error_summary': error_summary,
+        'disaster_type_id': disaster_type_id,
+        'is_edit': bool(disaster_type_id)
+    }
+
+    return tk.render('ckanext_pages/admin/disaster_types_edit.html', extra_vars=vars)
+
+
+def disaster_types_delete(disaster_type_id):
+    """Delete disaster type (sysadmin only)"""
+    try:
+        tk.check_access('ckanext_disaster_types_delete', {'user': tk.g.user})
+    except tk.NotAuthorized:
+        return tk.abort(401, _('Unauthorized to delete disaster types'))
+
+    try:
+        disaster_type_dict = tk.get_action('ckanext_disaster_types_show')(
+            context={}, data_dict={'id': disaster_type_id}
+        )
+    except tk.ObjectNotFound:
+        tk.h.flash_error(_('Disaster type not found'))
+        return tk.redirect_to('pages.disaster_types_admin')
+    except Exception as e:
+        tk.h.flash_error(_('Error loading disaster type: %s') % str(e))
+        return tk.redirect_to('pages.disaster_types_admin')
+
+    if 'cancel' in tk.request.args:
+        return tk.redirect_to('pages.disaster_types_admin')
+
+    if tk.request.method == 'POST':
+        try:
+            tk.get_action('ckanext_disaster_types_delete')(
+                context={}, data_dict={'id': disaster_type_id}
+            )
+            tk.h.flash_success(_('Disaster type "%s" deleted successfully') % disaster_type_dict.get('title', disaster_type_id))
+
+        except tk.ValidationError as e:
+            for field, messages in e.error_dict.items():
+                for message in messages:
+                    tk.h.flash_error(message)
+        except Exception as e:
+            tk.h.flash_error(_('Error deleting disaster type: %s') % str(e))
+
+        return tk.redirect_to('pages.disaster_types_admin')
+    else:
+        return tk.render('ckanext_pages/admin/disaster_types_delete.html', extra_vars={
+            'disaster_type': disaster_type_dict,
+            'disaster_type_id': disaster_type_id,
+            'delete_url': tk.h.url_for('pages.disaster_types_delete', disaster_type_id=disaster_type_id)
+        })
+
+
 # AI Water Tools Admin Functions
 
 def _filter_pending_ai_water_tools():

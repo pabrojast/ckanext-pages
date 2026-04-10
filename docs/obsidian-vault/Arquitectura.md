@@ -110,7 +110,7 @@ Esto implica que parte del esquema se inicializa en arranque, no solo por migrac
 
 - `utils.py` es un archivo muy grande y concentra muchas responsabilidades.
 - Gran parte del dominio base vive en `extras`, lo que reduce tipado y trazabilidad.
-- El CRUD de event types no persiste claramente fuera del runtime actual. Ver [[Datos y Persistencia]] y [[Troubleshooting]].
+- El CRUD de event types y disaster types no persiste claramente fuera del runtime actual. Ver [[Datos y Persistencia]] y [[Troubleshooting]].
 - Existe al menos una definición duplicada de `crida_admin_reseed()` en `utils.py`, señal de deuda técnica.
 
 ## Pendiente por confirmar

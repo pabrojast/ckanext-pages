@@ -1,0 +1,885 @@
+{% extends "page.html" %}
+
+{% block title %}
+  {% if is_edit %}
+    {{ _('Edit Disaster Type') }} - {{ super() }}
+  {% else %}
+    {{ _('Add Disaster Type') }} - {{ super() }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+                    <li><a href="{{ h.url_for('pages.disaster_types_admin') }}">{{ _('Manage Disaster Types') }}</a></li>
+                    {% if is_edit %}
+                      <li class="active">{{ _('Edit Disaster Type') }}</li>
+                    {% else %}
+                      <li class="active">{{ _('Add Disaster Type') }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  {% if is_edit %}
+                    <h1>{{ _('Edit Disaster Type') }}</h1>
+                    <p class="section-title-description">{{ _('Modify an existing disaster and emergency event type') }}</p>
+                  {% else %}
+                    <h1>{{ _('Add Disaster Type') }}</h1>
+                    <p class="section-title-description">{{ _('Create a new disaster and emergency event type for rapid response') }}</p>
+                  {% endif %}
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Form Section -->
+                <div class="disaster-type-form-wrapper">
+                  <section class="module module-narrow">
+                    <div class="module-content">
+
+                      <form method="post" id="disaster-type-form">
+                        {{ h.csrf_input() if 'csrf_input' in h }}
+                        
+                        <!-- Error Summary -->
+                        {% if error_summary %}
+                          <div class="error-summary alert alert-danger">
+                            <p class="alert-heading">{{ _('The form contains invalid entries:') }}</p>
+                            <ul>
+                              {% for key, error in error_summary.items() %}
+                                <li>{{ error }}</li>
+                              {% endfor %}
+                            </ul>
+                          </div>
+                        {% endif %}
+                        
+                        <!-- Basic Information -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Basic Information') }}</legend>
+                          <div class="form-section-content">
+
+                          <div class="form-group">
+                            <label for="field-name" class="control-label">{{ _('Disaster Type ID') }} <span class="text-danger">*</span></label>
+                            <input type="text" id="field-name" name="name" value="{{ data.name or '' }}" 
+                                   placeholder="{{ _('Example: tropical-cyclone') }}" 
+                                   class="et-form-control" 
+                                   {% if is_edit and data.is_default %}readonly{% endif %}
+                                   required>
+                            <div class="help-text">
+                              {{ _('Unique identifier for the disaster type (lowercase, no spaces, use hyphens)') }}
+                              {% if is_edit and data.is_default %}
+                                <br><strong>{{ _('Note:') }}</strong> {{ _('ID cannot be changed for default disaster types') }}
+                              {% endif %}
+                            </div>
+                            {% if errors.name %}<span class="error-block">{{ errors.name }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-title" class="control-label">{{ _('Display Title') }} <span class="text-danger">*</span></label>
+                            <input type="text" id="field-title" name="title" value="{{ data.title or '' }}" 
+                                   placeholder="{{ _('Example: Tropical Cyclone') }}" 
+                                   class="et-form-control" required>
+                            <div class="help-text">{{ _('Title as displayed in forms and interfaces') }}</div>
+                            {% if errors.title %}<span class="error-block">{{ errors.title }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-title-plural" class="control-label">{{ _('Plural Form') }}</label>
+                            <input type="text" id="field-title-plural" name="title_plural" value="{{ data.title_plural or '' }}" 
+                                   placeholder="{{ _('Example: Tropical Cyclones') }}" 
+                                   class="et-form-control">
+                            <div class="help-text">{{ _('Plural form used in filters and lists (if not provided, "s" will be added to title)') }}</div>
+                            {% if errors.title_plural %}<span class="error-block">{{ errors.title_plural }}</span>{% endif %}
+                          </div>
+
+                          <div class="form-group">
+                            <label for="field-description" class="control-label">{{ _('Description') }}</label>
+                            <textarea id="field-description" name="description" rows="3" class="et-form-control" 
+                                      placeholder="{{ _('Brief description of this type of disaster or emergency event...') }}">{{ data.description or '' }}</textarea>
+                            <div class="help-text">{{ _('Optional description providing more details about this disaster type') }}</div>
+                            {% if errors.description %}<span class="error-block">{{ errors.description }}</span>{% endif %}
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Visual Settings -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Visual Settings') }}</legend>
+                          <div class="form-section-content">
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-icon" class="control-label">{{ _('Icon') }}</label>
+                                <div class="input-group">
+                                  <span class="input-group-addon">
+                                    <i id="icon-preview" class="fa {{ data.icon or 'fa-exclamation-triangle' }}"></i>
+                                  </span>
+                                  <input type="text" id="field-icon" name="icon" value="{{ data.icon or '' }}" 
+                                         placeholder="fa-hurricane" class="et-form-control">
+                                </div>
+                                <div class="help-text">
+                                  {{ _('FontAwesome icon class (e.g., fa-hurricane, fa-earthquake, fa-fire)') }}
+                                  <br><a href="https://fontawesome.com/v4.7.0/icons/" target="_blank">{{ _('Browse FontAwesome icons') }}</a>
+                                </div>
+                                {% if errors.icon %}<span class="error-block">{{ errors.icon }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-color" class="control-label">{{ _('Color') }}</label>
+                                <div class="input-group">
+                                  <input type="color" id="field-color" name="color" value="{{ data.color or '#dc3545' }}" 
+                                         class="form-control" style="height: 3.2em;">
+                                  <span class="input-group-addon">
+                                    <span id="color-preview" style="display: inline-block; width: 20px; height: 20px; border-radius: 4px; background-color: {{ data.color or '#dc3545' }};"></span>
+                                  </span>
+                                </div>
+                                <div class="help-text">{{ _('Color used for visual representation of this disaster type') }}</div>
+                                {% if errors.color %}<span class="error-block">{{ errors.color }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Preview -->
+                          <div class="form-group">
+                            <label class="control-label">{{ _('Preview') }}</label>
+                            <div class="disaster-type-preview">
+                              <div class="preview-icon" id="preview-container">
+                                <i id="preview-icon" class="fa {{ data.icon or 'fa-exclamation-triangle' }}"></i>
+                              </div>
+                              <div class="preview-text">
+                                <span id="preview-title">{{ data.title or _('Disaster Type Title') }}</span>
+                                <small id="preview-description">{{ data.description or _('Disaster type description will appear here') }}</small>
+                              </div>
+                            </div>
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Settings -->
+                        <fieldset class="form-section">
+                          <legend>{{ _('Settings') }}</legend>
+                          <div class="form-section-content">
+
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="field-order" class="control-label">{{ _('Display Order') }}</label>
+                                <input type="number" id="field-order" name="order" value="{{ data.order or '' }}" 
+                                       min="1" max="100" class="et-form-control" 
+                                       placeholder="{{ _('1-100') }}">
+                                <div class="help-text">{{ _('Order in which this disaster type appears in lists (lower numbers first)') }}</div>
+                                {% if errors.order %}<span class="error-block">{{ errors.order }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label class="control-label">{{ _('Status') }}</label>
+                                <div class="checkbox">
+                                  <label>
+                                    <input type="checkbox" name="active" value="True" 
+                                           {% if data.active != False %}checked{% endif %}> 
+                                    {{ _('Active (available for use)') }}
+                                  </label>
+                                </div>
+                                <div class="help-text">{{ _('Inactive disaster types are not available for selection but existing pages using them remain unchanged') }}</div>
+                                {% if errors.active %}<span class="error-block">{{ errors.active }}</span>{% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          </div>
+                        </fieldset>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                          {% if is_edit %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-save"></i> {{ _('Update Disaster Type') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.disaster_types_admin') }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                          {% else %}
+                            <button type="submit" name="save" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Create Disaster Type') }}
+                            </button>
+                            <a href="{{ h.url_for('pages.disaster_types_admin') }}" class="btn btn-default">
+                              <i class="fa fa-times"></i> {{ _('Cancel') }}
+                            </a>
+                          {% endif %}
+                        </div>
+
+                      </form>
+                      
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Disaster Types Edit CSS -->
+<style>
+/* UNESCO Color Palette with Disaster/Emergency Accents */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+  --disaster-red: #dc3545;
+  --disaster-red-dark: #c82333;
+  --disaster-red-pale: #fde8ea;
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.85) 0%, rgba(0, 114, 188, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--disaster-red);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--disaster-red);
+}
+
+/* Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 3rem;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border-left: 6px solid var(--disaster-red);
+}
+
+.form-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.form-section > .form-section-content {
+  padding: 2.5rem;
+}
+
+.form-section legend {
+  background: linear-gradient(135deg, var(--disaster-red-pale) 0%, #ffffff 100%);
+  color: var(--disaster-red);
+  font-weight: 700;
+  padding: 1.5rem 2.5rem;
+  margin: 0;
+  margin-bottom: 0;
+  font-size: 1.4rem;
+  border: none;
+  border-radius: 25px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 3px solid var(--disaster-red-pale);
+  position: relative;
+}
+
+.form-section legend::before {
+  content: '';
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--disaster-red) 0%, var(--disaster-red-dark) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-light);
+}
+
+.form-section legend::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 2.5rem;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--disaster-red) 0%, var(--disaster-red-dark) 100%);
+  border-radius: 2px;
+}
+
+.form-group {
+  margin-bottom: 2rem;
+}
+
+.control-label {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.8rem;
+  display: block;
+  font-size: 1.05rem;
+}
+
+.help-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.et-form-control {
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  padding: 14px 18px;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  min-height: 3.2em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: var(--shadow-light);
+  width: 100%;
+}
+
+.et-form-control:not([readonly]):not([disabled]) {
+  cursor: text;
+}
+
+.et-form-control[readonly] {
+  background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+  cursor: not-allowed;
+  color: var(--text-secondary);
+}
+
+.et-form-control:focus {
+  border-color: var(--disaster-red);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  outline: none;
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.et-form-control:hover:not([readonly]):not(:focus) {
+  border-color: var(--disaster-red);
+  transform: translateY(-1px);
+}
+
+/* Input Groups */
+.input-group {
+  display: flex;
+  width: 100%;
+}
+
+.input-group-addon {
+  background: linear-gradient(135deg, var(--disaster-red-pale) 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  color: var(--disaster-red);
+  font-size: 1.1rem;
+}
+
+.input-group .et-form-control {
+  border-radius: 0 12px 12px 0;
+  border-left: none;
+  flex: 1;
+}
+
+/* Preview Section */
+.disaster-type-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--disaster-red-pale) 0%, #ffffff 100%);
+  border: 2px solid var(--disaster-red-pale);
+  border-radius: 12px;
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
+}
+
+.preview-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #dc3545;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+}
+
+.preview-icon i {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.preview-text {
+  flex: 1;
+}
+
+.preview-text span {
+  display: block;
+  font-weight: 700;
+  color: var(--disaster-red);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.preview-text small {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Color Input */
+input[type="color"] {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="color"]:hover {
+  border-color: var(--disaster-red);
+  transform: scale(1.05);
+}
+
+/* Checkboxes */
+.checkbox {
+  padding-left: 0;
+}
+
+.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.checkbox input[type="checkbox"] {
+  transform: scale(1.2);
+  margin: 0;
+}
+
+/* Error Styling */
+.error-block {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+  font-weight: 500;
+}
+
+.form-group.has-error .et-form-control {
+  border-color: #dc3545;
+}
+
+.error-summary {
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  border: none;
+  box-shadow: var(--shadow-medium);
+}
+
+/* Action Buttons */
+.form-actions {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.form-actions .btn {
+  margin: 0 0.5rem;
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.form-actions .btn-primary {
+  background: linear-gradient(135deg, var(--disaster-red) 0%, var(--disaster-red-dark) 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.form-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+  color: white;
+}
+
+.form-actions .btn-default {
+  background: #fff;
+  border: 2px solid #dee2e6;
+  color: #6c757d;
+}
+
+.form-actions .btn-default:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1.5rem;
+  }
+  
+  .form-actions {
+    padding: 1.5rem;
+  }
+  
+  .form-actions .btn {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+  
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .disaster-type-preview {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .preview-icon {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .form-section {
+    padding: 1rem;
+  }
+  
+  .form-section legend {
+    font-size: 1.1rem;
+    padding: 1rem 1.5rem;
+  }
+  
+  .form-section legend::before {
+    width: 30px;
+    height: 30px;
+  }
+}
+</style>
+
+<!-- JavaScript for live preview -->
+<script>
+(function() {
+  // Wait for jQuery to be available
+  function waitForJQuery(callback) {
+    if (typeof jQuery !== 'undefined') {
+      callback(jQuery);
+    } else {
+      setTimeout(function() {
+        waitForJQuery(callback);
+      }, 50);
+    }
+  }
+  
+  waitForJQuery(function($) {
+    
+    // Live preview updates
+    function updatePreview() {
+      const title = $('#field-title').val() || '{{ _("Disaster Type Title") }}';
+      const description = $('#field-description').val() || '{{ _("Disaster type description will appear here") }}';
+      const icon = $('#field-icon').val() || 'fa-exclamation-triangle';
+      const color = $('#field-color').val() || '#dc3545';
+      
+      // Update preview
+      $('#preview-title').text(title);
+      $('#preview-description').text(description);
+      $('#preview-icon').attr('class', 'fa ' + icon);
+      $('#preview-container').css('background-color', color);
+      
+      // Update icon preview in input group
+      $('#icon-preview').attr('class', 'fa ' + icon);
+      
+      // Update color preview
+      $('#color-preview').css('background-color', color);
+    }
+    
+    // Bind events for live preview
+    $('#field-title, #field-description, #field-icon, #field-color').on('input change', updatePreview);
+    
+    // Auto-generate name from title for new disaster types
+    {% if not is_edit %}
+    $('#field-title').on('input', function() {
+      const title = $(this).val().toLowerCase()
+        .replace(/[^\w\s]+/g, '')  // Remove special characters except spaces
+        .replace(/\s+/g, '-')      // Replace spaces with hyphens
+        .replace(/^-+|-+$/g, '');  // Remove leading/trailing hyphens
+      $('#field-name').val(title);
+    });
+    {% endif %}
+    
+    // Auto-generate plural from title
+    $('#field-title').on('input', function() {
+      const title = $(this).val();
+      const plural = $('#field-title-plural');
+      if (!plural.data('manually-edited') && title) {
+        // Simple pluralization
+        let pluralForm = title;
+        if (title.toLowerCase().endsWith('y')) {
+          pluralForm = title.slice(0, -1) + 'ies';
+        } else if (title.toLowerCase().match(/(s|sh|ch|x|z)$/)) {
+          pluralForm = title + 'es';
+        } else {
+          pluralForm = title + 's';
+        }
+        plural.val(pluralForm);
+      }
+    });
+    
+    // Mark plural as manually edited when user types in it
+    $('#field-title-plural').on('input', function() {
+      $(this).data('manually-edited', true);
+    });
+    
+    // Icon suggestions
+    const iconSuggestions = [
+      'fa-hurricane', 'fa-earthquake', 'fa-fire', 'fa-tint', 'fa-bolt',
+      'fa-sun', 'fa-snowflake-o', 'fa-cloud', 'fa-mountain', 'fa-water',
+      'fa-exclamation-triangle', 'fa-warning', 'fa-flash', 'fa-leaf'
+    ];
+    
+    // Simple icon autocomplete
+    $('#field-icon').on('focus', function() {
+      // You could implement an autocomplete dropdown here
+    });
+    
+    // Form validation
+    $('#disaster-type-form').on('submit', function(e) {
+      let isValid = true;
+      const name = $('#field-name').val().trim();
+      const title = $('#field-title').val().trim();
+      
+      // Clear previous errors
+      $('.error-block').remove();
+      $('.form-group').removeClass('has-error');
+      
+      if (!name) {
+        showFieldError('#field-name', '{{ _("Disaster Type ID is required") }}');
+        isValid = false;
+      } else if (!/^[a-z0-9-]+$/.test(name)) {
+        showFieldError('#field-name', '{{ _("Disaster Type ID can only contain lowercase letters, numbers, and hyphens") }}');
+        isValid = false;
+      }
+      
+      if (!title) {
+        showFieldError('#field-title', '{{ _("Display Title is required") }}');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        e.preventDefault();
+        // Scroll to first error
+        $('html, body').animate({
+          scrollTop: $('.has-error').first().offset().top - 100
+        }, 500);
+      }
+    });
+    
+    function showFieldError(fieldSelector, message) {
+      const field = $(fieldSelector);
+      const group = field.closest('.form-group');
+      group.addClass('has-error');
+      field.after('<span class="error-block">' + message + '</span>');
+    }
+    
+    // Initialize preview
+    updatePreview();
+    
+  }); // Close waitForJQuery function
+})(); // Close main function
+</script>
+
+{% endblock %}

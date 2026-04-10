@@ -1,0 +1,630 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('Manage Disaster Types') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div class="homepage layout-1">
+    <div id="content" class="container">
+      {{ self.flash() }}
+    </div>
+    
+    {% block primary_content %}
+    <div class="main">
+
+        <div class="container">
+            
+            <!-- Breadcrumb Navigation -->
+            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+                <ol class="breadcrumb">                 
+                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
+                    <li class="active">{{ _('Manage Disaster Types') }}</li>
+                </ol>
+            </div>
+
+            <!-- Header Section -->
+            <section class="module module-narrow module-shallow">
+              <div class="section-title" style="margin-bottom: 2rem;">
+                <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+                <div class="section-title-overlay"></div>
+                <div class="section-title-content">
+                  <h1>{{ _('Manage Disaster Types') }}</h1>
+                  <p class="section-title-description">{{ _('Configure disaster types for rapid response events') }}</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                
+                <!-- Action Bar -->
+                <div class="disaster-types-actions-bar" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Disaster Types Configuration') }}</h2>
+                          <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Manage disaster and emergency event types for rapid response') }}</p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                          {% if c.is_sysadmin %}
+                            <a href="{{ h.url_for('pages.disaster_types_new') }}" class="btn btn-primary btn-lg">
+                              <i class="fa fa-plus"></i> {{ _('Add Disaster Type') }}
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Disaster Types List -->
+                {% if c.disaster_types %}
+                <div class="disaster-types-list">
+                  {% for disaster_type in c.disaster_types %}
+                  <div class="event-type-card" style="margin-bottom: 1.5rem;">
+                    <article class="module module-narrow">
+                      <div class="module-content" style="padding: 2rem;">
+                        <div class="row">
+                          <!-- Disaster Type Icon and Info -->
+                          <div class="col-md-2 col-sm-3">
+                            <div class="event-type-icon-container">
+                              <div class="event-type-icon" 
+                                   style="background-color: {{ disaster_type.color or '#dc3545' }};">
+                                <i class="fa {{ disaster_type.icon or 'fa-exclamation-triangle' }}"></i>
+                              </div>
+                              {% if not disaster_type.active %}
+                                <div class="inactive-badge">{{ _('Inactive') }}</div>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <!-- Disaster Type Details -->
+                          <div class="col-md-7 col-sm-6">
+                            <div class="event-type-info">
+                              <h3 class="event-type-title">
+                                {{ disaster_type.title }}
+                                {% if disaster_type.is_default %}
+                                  <span class="badge badge-default">{{ _('Default') }}</span>
+                                {% endif %}
+                              </h3>
+                              {% if disaster_type.title_plural %}
+                                <p class="event-type-plural">{{ _('Plural:') }} {{ disaster_type.title_plural }}</p>
+                              {% endif %}
+                              {% if disaster_type.description %}
+                                <p class="event-type-description">{{ disaster_type.description }}</p>
+                              {% endif %}
+                              <div class="event-type-meta">
+                                <span class="meta-item">
+                                  <strong>{{ _('ID:') }}</strong> {{ disaster_type.id }}
+                                </span>
+                                {% if disaster_type.order %}
+                                  <span class="meta-item">
+                                    <strong>{{ _('Order:') }}</strong> {{ disaster_type.order }}
+                                  </span>
+                                {% endif %}
+                                {% if disaster_type.created %}
+                                  <span class="meta-item">
+                                    <strong>{{ _('Created:') }}</strong> {{ h.render_datetime(disaster_type.created, '%B %d, %Y') }}
+                                  </span>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <!-- Actions -->
+                          <div class="col-md-3 col-sm-3">
+                            {% if c.is_sysadmin %}
+                              <div class="event-type-actions">
+                                <a href="{{ h.url_for('pages.disaster_types_edit', disaster_type_id=disaster_type.id) }}" 
+                                   class="btn btn-default btn-sm">
+                                  <i class="fa fa-edit"></i> {{ _('Edit') }}
+                                </a>
+                                {% if not disaster_type.is_default %}
+                                  <a href="{{ h.url_for('pages.disaster_types_delete', disaster_type_id=disaster_type.id) }}" 
+                                     class="btn btn-danger btn-sm"
+                                     data-confirm="{{ _('Are you sure you want to delete this disaster type?') }}">
+                                    <i class="fa fa-trash"></i> {{ _('Delete') }}
+                                  </a>
+                                {% else %}
+                                  <span class="btn btn-secondary btn-sm disabled" 
+                                        title="{{ _('Cannot delete default disaster types') }}">
+                                    <i class="fa fa-lock"></i> {{ _('Protected') }}
+                                  </span>
+                                {% endif %}
+                              </div>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  {% endfor %}
+                </div>
+                
+                {% else %}
+                <!-- Empty State -->
+                <div class="disaster-types-empty-state">
+                  <section class="module module-narrow">
+                    <div class="module-content text-center" style="padding: 4rem 2.5rem;">
+                      <div class="empty-state-icon">
+                        <i class="fa fa-exclamation-triangle fa-4x" style="color: #dc3545; margin-bottom: 2rem;"></i>
+                      </div>
+                      <h3>{{ _('No Disaster Types Configured') }}</h3>
+                      <p class="text-muted" style="margin-bottom: 2rem;">
+                        {{ _('No disaster types have been configured yet. Add some to get started.') }}
+                      </p>
+                      {% if c.is_sysadmin %}
+                        <a href="{{ h.url_for('pages.disaster_types_new') }}" class="btn btn-primary btn-lg">
+                          <i class="fa fa-plus"></i> {{ _('Add First Disaster Type') }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
+
+                <!-- Help Information -->
+                <div class="disaster-types-help" style="margin-top: 3rem;">
+                  <section class="module module-narrow">
+                    <div class="module-content" style="padding: 2rem;">
+                      <h3>{{ _('About Disaster Types') }}</h3>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <h4>{{ _('Default Disaster Types') }}</h4>
+                          <p>{{ _('Default disaster types are provided by the system and cannot be deleted. They can be edited to change their display name, description, icon, and color.') }}</p>
+                          
+                          <h4>{{ _('Custom Disaster Types') }}</h4>
+                          <p>{{ _('You can create custom disaster types for specific scenarios that are not covered by the default types.') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                          <h4>{{ _('Disaster Type Properties') }}</h4>
+                          <ul>
+                            <li><strong>{{ _('Title:') }}</strong> {{ _('Display name for the disaster type') }}</li>
+                            <li><strong>{{ _('Plural:') }}</strong> {{ _('Plural form used in filters and lists') }}</li>
+                            <li><strong>{{ _('Description:') }}</strong> {{ _('Brief description of the disaster type') }}</li>
+                            <li><strong>{{ _('Icon:') }}</strong> {{ _('FontAwesome icon class (e.g., fa-hurricane)') }}</li>
+                            <li><strong>{{ _('Color:') }}</strong> {{ _('Color code for visual representation') }}</li>
+                            <li><strong>{{ _('Active:') }}</strong> {{ _('Whether the disaster type is available for use') }}</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+    </div>
+    {% endblock %}
+</div>
+
+<!-- Disaster Types Admin CSS -->
+<style>
+/* UNESCO Color Palette with Disaster/Emergency Accents */
+:root {
+  --unesco-blue: #0072BC;
+  --unesco-blue-dark: #005A9C;
+  --unesco-blue-light: #009EE0;
+  --unesco-blue-pale: #E3F2FD;
+  --unesco-gray: #f8f9fa;
+  --text-primary: #2c3e50;
+  --text-secondary: #6c757d;
+  --shadow-light: 0 2px 8px rgba(0, 114, 188, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 114, 188, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 114, 188, 0.16);
+  --disaster-red: #dc3545;
+  --disaster-red-dark: #c82333;
+  --disaster-red-pale: #fde8ea;
+}
+
+/* Banner Section */
+.section-title {
+  position: relative;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-strong);
+}
+
+.section-title-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.8);
+  transition: transform 0.3s ease;
+}
+
+.section-title:hover .section-title-bg {
+  transform: scale(1.02);
+}
+
+.section-title-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.85) 0%, rgba(0, 114, 188, 0.8) 100%);
+}
+
+.section-title-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 10;
+  width: 90%;
+  max-width: 700px;
+}
+
+.section-title-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.section-title-description {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  opacity: 0.95;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* Professional Breadcrumb */
+.toolbar {
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.breadcrumb {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 12px 20px;
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  box-shadow: var(--shadow-light);
+  font-size: 0.95rem;
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "›";
+  padding: 0 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.breadcrumb > li.active a {
+  color: var(--disaster-red);
+  font-weight: 600;
+}
+
+.breadcrumb > li a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb > li a:hover {
+  color: var(--disaster-red);
+}
+
+/* Module Styling */
+.module {
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.module:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
+.module-content {
+  padding: 2.5rem;
+}
+
+/* Disaster Type Cards */
+.event-type-card .module {
+  border-left: 6px solid var(--disaster-red);
+}
+
+.event-type-icon-container {
+  text-align: center;
+  position: relative;
+}
+
+.event-type-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: var(--shadow-medium);
+  transition: all 0.3s ease;
+}
+
+.event-type-icon i {
+  font-size: 2rem;
+  color: white;
+}
+
+.event-type-icon:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-strong);
+}
+
+.inactive-badge {
+  background: #6c757d;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.event-type-title {
+  color: var(--disaster-red);
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.event-type-plural {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.event-type-description {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.event-type-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+}
+
+.event-type-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.badge-default {
+  background: var(--disaster-red);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  text-transform: none;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--disaster-red) 0%, var(--disaster-red-dark) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+  background: linear-gradient(135deg, var(--disaster-red-dark) 0%, var(--disaster-red) 100%);
+  color: white;
+}
+
+.btn-default {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-default:hover {
+  background: var(--disaster-red-pale);
+  border-color: var(--disaster-red);
+  color: var(--disaster-red);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+  color: white;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+/* Empty State */
+.empty-state-icon {
+  opacity: 0.7;
+}
+
+.disaster-types-empty-state h3 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Help Section */
+.disaster-types-help .module {
+  background: linear-gradient(135deg, var(--disaster-red-pale) 0%, #ffffff 100%);
+  border-left: 6px solid var(--disaster-red);
+}
+
+.disaster-types-help h3 {
+  color: var(--disaster-red);
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.disaster-types-help h4 {
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.disaster-types-help ul {
+  padding-left: 1.2rem;
+}
+
+.disaster-types-help li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    height: 250px;
+    margin-bottom: 2rem;
+  }
+  
+  .section-title-content h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title-description {
+    font-size: 1.1rem;
+  }
+  
+  .module-content {
+    padding: 1.5rem;
+  }
+  
+  .event-type-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .event-type-icon i {
+    font-size: 1.5rem;
+  }
+  
+  .event-type-actions {
+    margin-top: 1rem;
+  }
+  
+  .event-type-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .disaster-types-actions-bar .col-md-4 {
+    text-align: center !important;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    height: 200px;
+  }
+  
+  .section-title-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .module-content {
+    padding: 1rem;
+  }
+  
+  .event-type-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .event-type-icon i {
+    font-size: 1.2rem;
+  }
+  
+  .btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+</style>
+
+<!-- JavaScript for confirmation dialogs -->
+<script>
+(function() {
+  // Confirmation for delete buttons
+  document.querySelectorAll('[data-confirm]').forEach(function(element) {
+    element.addEventListener('click', function(e) {
+      if (!confirm(this.getAttribute('data-confirm'))) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  });
+})();
+</script>
+
+{% endblock %}

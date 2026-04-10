@@ -317,6 +317,34 @@ def event_types_delete(context, data_dict):
     return sysadmin(context, data_dict)
 
 
+# Disaster Types Management Authorization (sysadmin only)
+@p.toolkit.auth_allow_anonymous_access
+def disaster_types_show(context, data_dict):
+    '''Anyone can view disaster types (used for dropdowns)'''
+    return {'success': True}
+
+
+@p.toolkit.auth_allow_anonymous_access
+def disaster_types_list(context, data_dict):
+    '''Anyone can list disaster types (used for filters and dropdowns)'''
+    return {'success': True}
+
+
+def disaster_types_create(context, data_dict):
+    '''Only sysadmin can create disaster types'''
+    return sysadmin(context, data_dict)
+
+
+def disaster_types_update(context, data_dict):
+    '''Only sysadmin can update disaster types'''
+    return sysadmin(context, data_dict)
+
+
+def disaster_types_delete(context, data_dict):
+    '''Only sysadmin can delete disaster types'''
+    return sysadmin(context, data_dict)
+
+
 # CRIDA Case Study permissions
 crida_case_study_update = water_content_edit
 crida_case_study_delete = sysadmin

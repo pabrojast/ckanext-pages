@@ -353,6 +353,47 @@ def update_event_types_schema():
     return schema
 
 
+def default_disaster_types_schema():
+    """Schema for disaster types management"""
+    ignore_empty = p.toolkit.get_validator('ignore_empty')
+    ignore_missing = p.toolkit.get_validator('ignore_missing')
+    not_empty = p.toolkit.get_validator('not_empty')
+    name_validator = p.toolkit.get_validator('name_validator')
+    unicode_safe = p.toolkit.get_validator('unicode_safe')
+
+    return {
+        'id': [ignore_empty, unicode_safe],
+        'name': [not_empty, unicode_safe, name_validator],
+        'title': [not_empty, unicode_safe],
+        'title_plural': [ignore_missing, unicode_safe],
+        'description': [ignore_missing, unicode_safe],
+        'icon': [ignore_missing, unicode_safe],
+        'color': [ignore_missing, unicode_safe],
+        'active': [ignore_missing, p.toolkit.get_validator('boolean_validator')],
+        'order': [ignore_missing, unicode_safe],
+        'created': [ignore_missing, p.toolkit.get_validator('isodate')],
+        'modified': [ignore_missing, p.toolkit.get_validator('isodate')],
+    }
+
+
+def update_disaster_types_schema():
+    '''
+    Returns the schema for the disaster types fields that can be added by other
+    extensions.
+
+    :returns: a dictionary mapping fields keys to lists of validator and
+    converter functions to be applied to those fields
+    :rtype: dictionary
+    '''
+
+    schema = default_disaster_types_schema()
+    for plugin in p.PluginImplementations(IPagesSchema):
+        if hasattr(plugin, 'update_disaster_types_schema'):
+            schema = plugin.update_disaster_types_schema(schema)
+
+    return schema
+
+
 def water_family_schema():
     """Schema for water-family content types (water-news, water-events, water-publications).
 
