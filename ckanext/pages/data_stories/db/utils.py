@@ -527,6 +527,11 @@ def dictize_datasets(datasets, context: Dict[str, Any]) -> list:
         except Exception as e:
             log.warning(f"Could not fetch dataset {link_dict.get('dataset_id')}: {str(e)}")
             link_dict['dataset'] = {}
+            # Rollback the failed transaction to prevent cascading errors
+            try:
+                model.Session.rollback()
+            except Exception:
+                pass
 
         result.append(link_dict)
 
