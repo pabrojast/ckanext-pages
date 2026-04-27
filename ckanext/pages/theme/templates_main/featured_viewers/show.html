@@ -162,27 +162,36 @@
         {% set terria_url = parts[0] + '?hideWorkbench=0#' + parts[1] %}
       {% endif %}
 
-      <div class="fv-map-container" id="fv-map-container">
-        <iframe src="{{ terria_url }}"
-                allow="geolocation"
-                loading="lazy"
-                title="{{ viewer.title }} - Interactive Map"
-                style="width: 100%; height: 600px; border: none;"></iframe>
-      </div>
+      <div class="fv-map-shell" id="fv-map-shell">
+        <div class="fv-map-container" id="fv-map-container">
+          <iframe src="{{ terria_url }}"
+                  allow="geolocation; fullscreen"
+                  allowfullscreen
+                  loading="lazy"
+                  title="{{ viewer.title }} - Interactive Map"
+                  class="fv-map-iframe"></iframe>
+        </div>
 
-      <!-- Map Action Bar -->
-      <div class="fv-map-actions">
-        <button type="button" id="fv-fullscreen-btn" class="fv-map-action-btn primary">
-          <i class="fa fa-expand"></i> {{ _('Full Screen') }}
-        </button>
+        <!-- Map Action Bar -->
+        <div class="fv-map-actions">
+          <button type="button"
+                  id="fv-fullscreen-btn"
+                  class="fv-map-action-btn fv-map-action-btn-primary"
+                  data-enter-label="{{ _('Full Screen') }}"
+                  data-exit-label="{{ _('Exit Full Screen') }}"
+                  aria-pressed="false">
+            <i class="fa fa-expand" aria-hidden="true"></i>
+            <span class="fv-map-action-label">{{ _('Full Screen') }}</span>
+          </button>
 
-        <a href="{{ viewer.terria_share_link }}" target="_blank" rel="noopener" class="fv-map-action-btn">
-          <i class="fa fa-external-link"></i> {{ _('Open in Terria') }}
-        </a>
+          <a href="{{ viewer.terria_share_link }}" target="_blank" rel="noopener" class="fv-map-action-btn">
+            <i class="fa fa-external-link"></i> {{ _('Open in Terria') }}
+          </a>
 
-        <button type="button" id="fv-copy-link" class="fv-map-action-btn">
-          <i class="fa fa-clipboard"></i> {{ _('Copy Link') }}
-        </button>
+          <button type="button" id="fv-copy-link" class="fv-map-action-btn">
+            <i class="fa fa-clipboard"></i> {{ _('Copy Link') }}
+          </button>
+        </div>
       </div>
       {% else %}
       <div class="fv-info-panel" style="text-align: center; padding: 4rem 2rem;">

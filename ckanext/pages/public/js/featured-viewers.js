@@ -86,39 +86,181 @@
    * ----------------------------------------------------------------*/
   function initFullScreen() {
     var btn = document.getElementById('fv-fullscreen-btn');
-    var container = document.getElementById('fv-map-container');
-    if (!btn || !container) return;
+    var shell = document.getElementById('fv-map-shell');
+    if (!btn || !shell) return;
 
-    var exitBtn = null;
+    var label = btn.querySelector('.fv-map-action-label');
+    var icon = btn.querySelector('i');
+    var enterLabel = btn.getAttribute('data-enter-label') || 'Full Screen';
+    var exitLabel = btn.getAttribute('data-exit-label') || 'Exit Full Screen';
+
+    function getFullscreenElement() {
+      return (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.msFullscreenElement ||
+        document.mozFullScreenElement ||
+        null
+      );
+    }
+
+    function isNativeFullscreen() {
+      return getFullscreenElement() === shell;
+    }
+
+    function isFallbackFullscreen() {
+      return shell.classList.contains('fv-map-shell-fullscreen');
+    }
+
+    function setButtonState(active) {
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      btn.classList.toggle('fv-map-action-btn-primary-active', active);
+
+      if (icon) {
+        icon.className = active ? 'fa fa-compress' : 'fa fa-expand';
+        icon.setAttribute('aria-hidden', 'true');
+      }
+
+      if (label) {
+        label.textContent = active ? exitLabel : enterLabel;
+      }
+    }
+
+    function syncFullScreenState() {
+      var active = isNativeFullscreen() || isFallbackFullscreen();
+
+      shell.classList.toggle('fv-map-shell-active', active);
+
+      if (!active) {
+        document.body.classList.remove('fv-map-shell-open');
+      }
+
+      setButtonState(active);
+    }
+
+    function requestNativeFullscreen() {
+      if (shell.requestFullscreen) {
+        return shell.requestFullscreen();
+      }
+      if (shell.webkitRequestFullscreen) {
+        shell.webkitRequestFullscreen();
+        return null;
+      }
+      if (shell.msRequestFullscreen) {
+        shell.msRequestFullscreen();
+        return null;
+      }
+      if (shell.mozRequestFullScreen) {
+        shell.mozRequestFullScreen();
+        return null;
+      }
+      return false;
+    }
+
+    function exitNativeFullscreen() {
+      if (document.exitFullscreen) {
+        return document.exitFullscreen();
+      }
+      if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+        return null;
+      }
+      if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+        return null;
+      }
+      if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+        return null;
+      }
+      return false;
+    }
+
+    function enterFallbackFullscreen() {
+      shell.classList.add('fv-map-shell-fullscreen');
+      shell.classList.add('fv-map-shell-active');
+      document.body.classList.add('fv-map-shell-open');
+      setButtonState(true);
+    }
+
+    function exitFallbackFullscreen() {
+      shell.classList.remove('fv-map-shell-fullscreen');
+      shell.classList.remove('fv-map-shell-active');
+      document.body.classList.remove('fv-map-shell-open');
+      setButtonState(false);
+    }
 
     btn.addEventListener('click', function (e) {
+      var result;
+
       e.preventDefault();
-      container.classList.toggle('fv-fullscreen');
 
-      if (container.classList.contains('fv-fullscreen')) {
-        // Create exit button
-        exitBtn = document.createElement('button');
-        exitBtn.className = 'fv-map-action-btn';
-        exitBtn.style.cssText =
-          'position:fixed;top:1rem;right:1rem;z-index:10000;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
-        exitBtn.innerHTML = '<i class="fa fa-compress"></i> Exit Full Screen';
-        exitBtn.addEventListener('click', function () {
-          container.classList.remove('fv-fullscreen');
-          if (exitBtn && exitBtn.parentNode) exitBtn.parentNode.removeChild(exitBtn);
+      if (isNativeFullscreen()) {
+        result = exitNativeFullscreen();
+        if (result && typeof result.catch === 'function') {
+          result.catch(function () {
+            exitFallbackFullscreen();
+          });
+        }
+        return;
+      }
+
+      if (isFallbackFullscreen()) {
+        exitFallbackFullscreen();
+        return;
+      }
+
+      result = requestNativeFullscreen();
+
+      if (result === false) {
+        enterFallbackFullscreen();
+        return;
+      }
+
+      if (result && typeof result.then === 'function') {
+        result.catch(function () {
+          enterFallbackFullscreen();
         });
-        document.body.appendChild(exitBtn);
-      } else {
-        if (exitBtn && exitBtn.parentNode) exitBtn.parentNode.removeChild(exitBtn);
+        return;
+      }
+
+      // Older vendor-prefixed APIs fire fullscreenchange but do not return a promise.
+      window.setTimeout(syncFullScreenState, 0);
+    });
+
+    document.addEventListener('fullscreenchange', syncFullScreenState);
+    document.addEventListener('webkitfullscreenchange', syncFullScreenState);
+    document.addEventListener('msfullscreenchange', syncFullScreenState);
+    document.addEventListener('mozfullscreenchange', syncFullScreenState);
+
+    document.addEventListener('fullscreenerror', function () {
+      if (!isNativeFullscreen()) {
+        enterFallbackFullscreen();
+      }
+    });
+    document.addEventListener('webkitfullscreenerror', function () {
+      if (!isNativeFullscreen()) {
+        enterFallbackFullscreen();
+      }
+    });
+    document.addEventListener('msfullscreenerror', function () {
+      if (!isNativeFullscreen()) {
+        enterFallbackFullscreen();
+      }
+    });
+    document.addEventListener('mozfullscreenerror', function () {
+      if (!isNativeFullscreen()) {
+        enterFallbackFullscreen();
       }
     });
 
-    // ESC key to exit
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && container.classList.contains('fv-fullscreen')) {
-        container.classList.remove('fv-fullscreen');
-        if (exitBtn && exitBtn.parentNode) exitBtn.parentNode.removeChild(exitBtn);
+      if (e.key === 'Escape' && isFallbackFullscreen()) {
+        exitFallbackFullscreen();
       }
     });
+
+    syncFullScreenState();
   }
 
   /* ------------------------------------------------------------------
