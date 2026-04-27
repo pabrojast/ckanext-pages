@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import six
 from types import SimpleNamespace
@@ -256,6 +257,26 @@ def pages_list_pages(page_type):
 
         if filters:
             pages_list = filter_water_family_list(pages_list, filters)
+
+        # Source filter for water-events: ihp | community | (empty = all).
+        # Counts are computed over the pre-filter list so the tabs reflect totals.
+        if page_type == 'water-events':
+            from ckanext.pages.plugin import is_ihp_event
+            ihp_count = sum(1 for p in pages_list if is_ihp_event(p))
+            tk.c.ihp_events_count = ihp_count
+            tk.c.community_events_count = len(pages_list) - ihp_count
+            source_filter = (tk.request.args.get('source') or '').strip().lower()
+            if source_filter not in ('ihp', 'community'):
+                source_filter = ''
+            tk.c.events_source_filter = source_filter
+            if source_filter == 'ihp':
+                pages_list = [p for p in pages_list if is_ihp_event(p)]
+            elif source_filter == 'community':
+                pages_list = [p for p in pages_list if not is_ihp_event(p)]
+            # Split featured out of the main list so the template can render
+            # it in a dedicated, more prominent section.
+            tk.c.featured_events = [p for p in pages_list if p.get('featured')]
+            pages_list = [p for p in pages_list if not p.get('featured')]
 
         order_by = tk.request.args.get('order_by')
         custom_sorts = {'title', 'author', 'upcoming', 'location', 'relevance'}
@@ -2744,6 +2765,120 @@ def water_admin_reject(page, page_type):
 
     # GET request - should not happen normally
     return tk.redirect_to('pages.water_admin_dashboard')
+
+
+def water_events_toggle_featured(page):
+    """Toggle the ``featured`` flag on a water-events page (admin only).
+
+    Designed as an idempotent action: an explicit ``featured`` form value
+    of '1'/'true' or '0'/'false' wins; otherwise the current value is
+    flipped. Always redirects back to the referrer or the events list.
+    """
+    if not authz.is_sysadmin(tk.g.user):
+        return tk.abort(401, _('Unauthorized to feature events'))
+
+    if tk.request.method != 'POST':
+        return tk.redirect_to('pages.water_events_index')
+
+    from ckanext.pages.db import Page
+    page_obj = Page.get(group_id=None, name=page, page_type='water-events')
+    if not page_obj:
+        tk.h.flash_error(_('Event not found'))
+        return tk.redirect_to('pages.water_events_index')
+
+    requested = (tk.request.form.get('featured') or '').strip().lower()
+    if requested in ('1', 'true', 'yes', 'on'):
+        new_value = True
+    elif requested in ('0', 'false', 'no', 'off'):
+        new_value = False
+    else:
+        new_value = not bool(page_obj.featured)
+
+    try:
+        page_obj.featured = new_value
+        page_obj.modified = datetime.datetime.utcnow()
+        model.Session.add(page_obj)
+        model.Session.commit()
+        if new_value:
+            tk.h.flash_success(_('Event marked as featured'))
+        else:
+            tk.h.flash_success(_('Event removed from featured'))
+    except Exception as exc:
+        model.Session.rollback()
+        tk.h.flash_error(_('Could not update featured state: %s') % str(exc))
+
+    redirect_to = tk.request.form.get('next') or tk.request.referrer
+    if redirect_to:
+        return tk.redirect_to(redirect_to)
+    return tk.redirect_to('pages.water_events_index')
+
+
+def water_events_calendar():
+    """Render the calendar view for water-events.
+
+    The calendar reuses the data exposed by ``ckanext_pages_list`` and is
+    rendered client-side with FullCalendar (loaded via CDN in the template).
+    Source/initiative/member-state filters are honoured so the calendar
+    stays in sync with the list view.
+    """
+    data_dict = {'org_id': None, 'page_type': 'water-events'}
+    if not authz.is_sysadmin(tk.g.user):
+        data_dict['private'] = False
+
+    for param in ('q', 'event_type', 'initiative', 'member_state'):
+        if tk.request.args.get(param):
+            data_dict[param] = tk.request.args.get(param)
+
+    try:
+        events = tk.get_action('ckanext_pages_list')(context={}, data_dict=data_dict)
+    except Exception:
+        events = []
+
+    source_filter = (tk.request.args.get('source') or '').strip().lower()
+    if source_filter not in ('ihp', 'community'):
+        source_filter = ''
+
+    from ckanext.pages.plugin import is_ihp_event
+
+    if source_filter == 'ihp':
+        events = [p for p in events if is_ihp_event(p)]
+    elif source_filter == 'community':
+        events = [p for p in events if not is_ihp_event(p)]
+
+    calendar_events = []
+    for ev in events:
+        start = ev.get('publish_date')
+        if not start:
+            continue
+        end = ev.get('event_end_date') or start
+        is_ihp = is_ihp_event(ev)
+        calendar_events.append({
+            'id': ev.get('name'),
+            'title': ev.get('title') or ev.get('name'),
+            'start': start,
+            'end': end,
+            'allDay': True,
+            'url': tk.h.url_for('pages.water_events_show', page=ev.get('name')),
+            'extendedProps': {
+                'location': ev.get('location') or '',
+                'event_format': ev.get('event_format') or '',
+                'organization': ev.get('organization') or '',
+                'source': 'ihp' if is_ihp else 'community',
+                'featured': bool(ev.get('featured')),
+            },
+            'classNames': [
+                'wf-cal-event',
+                'wf-cal-event--ihp' if is_ihp else 'wf-cal-event--community',
+            ] + (['wf-cal-event--featured'] if ev.get('featured') else []),
+        })
+
+    tk.c.calendar_events = calendar_events
+    tk.c.events_source_filter = source_filter
+    tk.c.calendar_total = len(calendar_events)
+
+    _load_water_family_filter_options()
+
+    return tk.render('ckanext_pages/water-events_calendar.html')
 
 
 def open_source_admin_dashboard():

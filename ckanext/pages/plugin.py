@@ -865,6 +865,48 @@ def is_sysadmin():
         return False
 
 
+@lru_cache(maxsize=1)
+def _sysadmin_user_ids_cached(cache_buster):
+    """Return the set of sysadmin user IDs. Cached for a short window."""
+    try:
+        import ckan.model as model
+        rows = model.Session.query(model.User.id).filter(
+            model.User.sysadmin == True,
+            model.User.state == 'active',
+        ).all()
+        return frozenset(r[0] for r in rows if r and r[0])
+    except Exception:
+        return frozenset()
+
+
+def _sysadmin_user_ids():
+    """Bucket the cache by minute so admin changes propagate quickly."""
+    return _sysadmin_user_ids_cached(int(time.time() // 60))
+
+
+def is_ihp_event(page):
+    """Classify an event/page as IHP-official vs community-submitted.
+
+    A page is IHP-official when its creator is a sysadmin or it carries
+    an explicit ``ihp_organization`` value. Accepts both dicts and ORM
+    objects so it can be reused from list views and detail views.
+    """
+    if page is None:
+        return False
+    get = page.get if isinstance(page, dict) else lambda key, default=None: getattr(page, key, default)
+    if get('ihp_organization'):
+        return True
+    user_id = get('user_id')
+    if not user_id:
+        return False
+    return user_id in _sysadmin_user_ids()
+
+
+def get_event_source_label(page):
+    """Translated label describing the event source for badges."""
+    return tk._('IHP Official') if is_ihp_event(page) else tk._('Community')
+
+
 def get_recent_crida_case_studies(number=6, exclude=None):
     """Get recent approved CRIDA case studies."""
     try:
@@ -1414,6 +1456,8 @@ class PagesPlugin(PagesPluginBase):
             'get_disaster_types': get_disaster_types,
             'get_disaster_type_by_id': get_disaster_type_by_id,
             'is_sysadmin': is_sysadmin,
+            'is_ihp_event': is_ihp_event,
+            'get_event_source_label': get_event_source_label,
             'get_ihp_organizations': get_ihp_organizations,
             'get_user_organization': get_user_organization,
             'get_pending_approval_count': get_pending_approval_count,

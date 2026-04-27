@@ -41,6 +41,8 @@ Registrado desde `ckanext/pages/blueprint.py`.
 - `/water-family`
 - `/water-news`
 - `/water-events`
+- `/water-events/calendar` — vista calendario (FullCalendar vía CDN, lee `publish_date`/`event_end_date`).
+- `/water-events/<page>/feature` (POST, sysadmin) — toggle del flag `featured` para destacar un evento en el listado.
 - `/water-publications`
 - `/water-admin`
 

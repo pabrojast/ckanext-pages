@@ -83,6 +83,8 @@ class Page(DomainObject, BaseModel):
     submitted_at = Column(types.DateTime, default=None)  # When submitted for approval
     reviewed_at = Column(types.DateTime, default=None)  # When reviewed by admin
     reviewed_by = Column(types.UnicodeText, default=None)  # Admin user who reviewed
+    # Admin-only highlighting (currently used for water-events)
+    featured = Column(types.Boolean, default=False, nullable=False, server_default=sa.text('false'))
 
     @classmethod
     @with_db_retry(max_retries=3, delay=0.5)

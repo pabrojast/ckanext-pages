@@ -125,6 +125,7 @@ def default_pages_schema():
         'submitted_at': [ignore_missing, isodate],
         'reviewed_at': [ignore_missing, isodate],
         'reviewed_by': [ignore_missing, unicode_safe],
+        'featured': [ignore_missing, safe_boolean_validator, boolean_validator],
         'group_id': [ignore_missing, unicode_safe],
         'user_id': [ignore_missing, unicode_safe],
         'created': [ignore_missing, isodate],
@@ -483,6 +484,7 @@ def water_family_schema():
         'submitted_at': [ignore_missing, isodate],
         'reviewed_at': [ignore_missing, isodate],
         'reviewed_by': [ignore_missing, unicode_safe],
+        'featured': [ignore_missing, p.toolkit.get_validator('boolean_validator')],
         'publish_date': [ignore_missing, isodate],
         'created': [ignore_missing, isodate],
 

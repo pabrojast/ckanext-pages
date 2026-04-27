@@ -95,21 +95,22 @@ def ensure_all_columns_exist():
         
         # Check for new submission workflow columns
         new_columns = [
-            'submission_status', 'ihp_organization', 'submitted_at', 
-            'reviewed_at', 'reviewed_by'
+            'submission_status', 'ihp_organization', 'submitted_at',
+            'reviewed_at', 'reviewed_by', 'featured'
         ]
-        
+
         for col_name in new_columns:
             if col_name not in columns:
                 log.info(f"Adding {col_name} column to ckanext_pages table...")
                 add_missing_column(col_name)
-        
+
         # Verify all required columns exist
         required_columns = [
             'id', 'title', 'name', 'content', 'lang', 'order', 'private',
             'group_id', 'user_id', 'publish_date', 'page_type', 'created',
-            'modified', 'extras', 'revisions', 'submission_status', 
-            'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by'
+            'modified', 'extras', 'revisions', 'submission_status',
+            'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by',
+            'featured'
         ]
         
         missing_columns = [col for col in required_columns if col not in columns]
@@ -153,7 +154,8 @@ def add_missing_column(column_name):
             'ihp_organization': 'text DEFAULT NULL',
             'submitted_at': 'timestamp without time zone DEFAULT NULL',
             'reviewed_at': 'timestamp without time zone DEFAULT NULL',
-            'reviewed_by': 'text DEFAULT NULL'
+            'reviewed_by': 'text DEFAULT NULL',
+            'featured': 'boolean NOT NULL DEFAULT false'
         }
         
         if column_name in column_definitions:

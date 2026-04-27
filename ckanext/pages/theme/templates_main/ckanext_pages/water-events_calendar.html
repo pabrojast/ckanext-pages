@@ -1,0 +1,180 @@
+{% extends "page.html" %}
+
+{% block title %}
+{{ _('IHP Water Family Events — Calendar') }} - {{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="homepage layout-1 water-family-list water-events-calendar-page">
+  <div id="content" class="container">
+    {{ self.flash() }}
+    {% include 'ckanext_pages/snippets/water-family-list-styles.html' %}
+  </div>
+
+  {% block primary_content %}
+  <div class="main">
+    <div class="container">
+
+      <!-- Breadcrumb -->
+      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+        <ol class="breadcrumb">
+          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          <li><a href="{{ h.url_for('pages.water_family_index') }}">{{ _('IHP Water Family') }}</a></li>
+          <li><a href="{{ h.url_for('pages.water_events_index') }}">{{ _('Events') }}</a></li>
+          <li class="active"><a href="{{ h.url_for('pages.water_events_calendar') }}">{{ _('Calendar') }}</a></li>
+        </ol>
+      </div>
+
+      <!-- Banner -->
+      <section class="module module-narrow module-shallow">
+        <div class="section-title" style="margin-bottom: 2rem;">
+          <div class="section-title-bg" style="background-image: url('/images/rapid-response-header.jpg');"></div>
+          <div class="section-title-overlay"></div>
+          <div class="section-title-content">
+            <h1>{{ _('Events Calendar') }}</h1>
+            <p class="section-title-description">{{ _('Browse upcoming and past IHP Water Family events on a monthly calendar') }}</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+
+          <!-- Action Bar with view toggle -->
+          <div class="water-events-actions-bar wf-actions-bar" style="margin-bottom: 2rem;">
+            <section class="module module-narrow">
+              <div class="module-content" style="padding: 1.5rem 2.5rem;">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Events Calendar') }}</h2>
+                    <p style="margin: 0.5rem 0 0 0; color: #6c757d;">
+                      {{ ngettext('%(num)d event displayed', '%(num)d events displayed', c.calendar_total or 0, num=c.calendar_total or 0) }}
+                    </p>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <div class="wf-view-toggle" role="tablist" aria-label="{{ _('Switch between list and calendar view') }}">
+                      <a href="{{ h.url_for('pages.water_events_index') }}" class="wf-view-toggle-btn" role="tab" aria-selected="false">
+                        <i class="fa fa-th-list"></i> {{ _('List') }}
+                      </a>
+                      <a href="{{ h.url_for('pages.water_events_calendar') }}" class="wf-view-toggle-btn is-active" role="tab" aria-selected="true">
+                        <i class="fa fa-calendar"></i> {{ _('Calendar') }}
+                      </a>
+                    </div>
+                    {% if h.check_access('ckanext_water_events_update') %}
+                      <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg" style="margin-left: 0.75rem;">
+                        <i class="fa fa-plus"></i> {{ _('Share Event') }}
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Source filter (mirrors list view) -->
+          {% set _current_source = c.events_source_filter|default('') %}
+          <div class="water-events-source-tabs wf-source-tabs" role="tablist" style="margin-bottom: 1.5rem;">
+            <a class="wf-source-tab {% if not _current_source %}is-active{% endif %}"
+               href="{{ h.url_for('pages.water_events_calendar') }}" role="tab">
+              <i class="fa fa-th-list"></i> {{ _('All Events') }}
+            </a>
+            <a class="wf-source-tab wf-source-tab--ihp {% if _current_source == 'ihp' %}is-active{% endif %}"
+               href="{{ h.url_for('pages.water_events_calendar') }}?source=ihp" role="tab">
+              <i class="fa fa-shield"></i> {{ _('IHP Official') }}
+            </a>
+            <a class="wf-source-tab wf-source-tab--community {% if _current_source == 'community' %}is-active{% endif %}"
+               href="{{ h.url_for('pages.water_events_calendar') }}?source=community" role="tab">
+              <i class="fa fa-users"></i> {{ _('Community') }}
+            </a>
+          </div>
+
+          <!-- Calendar legend -->
+          <div class="wf-calendar-legend" aria-hidden="true">
+            <span class="wf-calendar-legend-item"><span class="dot dot--ihp"></span> {{ _('IHP Official') }}</span>
+            <span class="wf-calendar-legend-item"><span class="dot dot--community"></span> {{ _('Community') }}</span>
+            <span class="wf-calendar-legend-item"><span class="dot dot--featured"></span> {{ _('Featured') }}</span>
+          </div>
+
+          <!-- Calendar mount point -->
+          <div id="wf-events-calendar" class="wf-events-calendar"></div>
+
+          {% if not c.calendar_total %}
+            <div class="water-events-empty-state" style="margin-top: 2rem;">
+              <section class="module module-narrow">
+                <div class="module-content text-center" style="padding: 3rem 2.5rem;">
+                  <i class="fa fa-calendar fa-3x" style="color: var(--wf-primary-light, #009EE0); margin-bottom: 1.5rem;"></i>
+                  <h3>{{ _('No Events with Dates Found') }}</h3>
+                  <p class="text-muted">{{ _('Events without a date are not shown on the calendar. Switch to list view to see them.') }}</p>
+                  <a href="{{ h.url_for('pages.water_events_index') }}" class="btn btn-default">
+                    <i class="fa fa-th-list"></i> {{ _('Back to list') }}
+                  </a>
+                </div>
+              </section>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+</div>
+
+{# FullCalendar via CDN — keeps build pipeline untouched. #}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script type="application/json" id="wf-calendar-events-data">{{ c.calendar_events|tojson }}</script>
+<script>
+(function () {
+  function init() {
+    var mount = document.getElementById('wf-events-calendar');
+    var raw = document.getElementById('wf-calendar-events-data');
+    if (!mount || !raw || typeof FullCalendar === 'undefined') {
+      return;
+    }
+    var events = [];
+    try { events = JSON.parse(raw.textContent || '[]'); } catch (e) { events = []; }
+
+    var calendar = new FullCalendar.Calendar(mount, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,listMonth'
+      },
+      buttonText: {
+        today: '{{ _("Today") }}',
+        month: '{{ _("Month") }}',
+        list:  '{{ _("List") }}'
+      },
+      height: 'auto',
+      firstDay: 1,
+      eventDisplay: 'block',
+      events: events,
+      eventClick: function (info) {
+        if (info.event.url) {
+          info.jsEvent.preventDefault();
+          window.location.href = info.event.url;
+        }
+      },
+      eventDidMount: function (info) {
+        var props = info.event.extendedProps || {};
+        var bits = [info.event.title];
+        if (props.location) bits.push('— ' + props.location);
+        if (props.event_format) bits.push('(' + props.event_format + ')');
+        info.el.setAttribute('title', bits.join(' '));
+      }
+    });
+    calendar.render();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+{% endblock %}

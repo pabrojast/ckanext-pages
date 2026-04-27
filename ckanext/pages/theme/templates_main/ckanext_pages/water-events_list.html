@@ -48,13 +48,21 @@
                   <section class="module module-narrow">
                     <div class="module-content" style="padding: 1.5rem 2.5rem;">
                       <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                           <h2 style="margin: 0; border: none; font-size: 1.3rem;">{{ _('Community Events') }}</h2>
                           <p style="margin: 0.5rem 0 0 0; color: #6c757d;">{{ _('Share events, conferences, workshops and meetings relevant to the water community') }}</p>
                         </div>
-                        <div class="col-md-4 text-right">
+                        <div class="col-md-6 text-right">
+                          <div class="wf-view-toggle" role="tablist" aria-label="{{ _('Switch between list and calendar view') }}">
+                            <a href="{{ h.url_for('pages.water_events_index') }}" class="wf-view-toggle-btn is-active" role="tab" aria-selected="true">
+                              <i class="fa fa-th-list"></i> {{ _('List') }}
+                            </a>
+                            <a href="{{ h.url_for('pages.water_events_calendar') }}" class="wf-view-toggle-btn" role="tab" aria-selected="false">
+                              <i class="fa fa-calendar"></i> {{ _('Calendar') }}
+                            </a>
+                          </div>
                           {% if h.check_access('ckanext_water_events_update') %}
-                            <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg">
+                            <a href="{{ h.url_for('pages.water_events_new') }}" class="btn btn-primary btn-lg" style="margin-left: 0.75rem;">
                               <i class="fa fa-plus"></i> {{ _('Share Event') }}
                             </a>
                           {% endif %}
@@ -119,6 +127,38 @@
                   </section>
                 </div>
                 {% endif %}
+
+                <!-- Source Tabs (All / IHP Official / Community) -->
+                {% set _current_source = c.events_source_filter|default('') %}
+                {% set _ihp_count = c.ihp_events_count|default(0) %}
+                {% set _community_count = c.community_events_count|default(0) %}
+                {% set _total_source_count = _ihp_count + _community_count %}
+                {% set _qs_ns = namespace(parts=[]) %}
+                {% for _k, _v in request.args.items() %}
+                  {% if _k not in ('source', 'page') and _v %}
+                    {% set _qs_ns.parts = _qs_ns.parts + [_k ~ '=' ~ _v] %}
+                  {% endif %}
+                {% endfor %}
+                {% set _qs_base = '?' ~ _qs_ns.parts|join('&') ~ ('&' if _qs_ns.parts else '') %}
+                <div class="water-events-source-tabs wf-source-tabs" role="tablist" style="margin-bottom: 1.5rem;">
+                  <a class="wf-source-tab {% if not _current_source %}is-active{% endif %}"
+                     href="{{ request.path }}{{ _qs_base }}source=" role="tab" aria-selected="{{ 'true' if not _current_source else 'false' }}">
+                    <i class="fa fa-th-list"></i> {{ _('All Events') }}
+                    <span class="wf-source-count">{{ _total_source_count }}</span>
+                  </a>
+                  <a class="wf-source-tab wf-source-tab--ihp {% if _current_source == 'ihp' %}is-active{% endif %}"
+                     href="{{ request.path }}{{ _qs_base }}source=ihp" role="tab" aria-selected="{{ 'true' if _current_source == 'ihp' else 'false' }}"
+                     title="{{ _('Events organized or curated by the IHP Secretariat') }}">
+                    <i class="fa fa-shield"></i> {{ _('IHP Official') }}
+                    <span class="wf-source-count">{{ _ihp_count }}</span>
+                  </a>
+                  <a class="wf-source-tab wf-source-tab--community {% if _current_source == 'community' %}is-active{% endif %}"
+                     href="{{ request.path }}{{ _qs_base }}source=community" role="tab" aria-selected="{{ 'true' if _current_source == 'community' else 'false' }}"
+                     title="{{ _('Events shared by the wider water community') }}">
+                    <i class="fa fa-users"></i> {{ _('Community') }}
+                    <span class="wf-source-count">{{ _community_count }}</span>
+                  </a>
+                </div>
 
                 <!-- Filter and Search -->
                 {% if c.page.items or request.args.q or request.args.initiative or request.args.member_state %}
@@ -241,6 +281,91 @@
                 </div>
                 {% endif %}
 
+                <!-- Featured Events (admin-curated, shown only on first page) -->
+                {% set _is_admin = h.is_sysadmin() %}
+                {% if (c.featured_events|default([])) and (request.args.page in (None, '', '1')) %}
+                <section class="water-events-featured" aria-labelledby="featured-events-heading" style="margin-bottom: 2rem;">
+                  <h2 id="featured-events-heading" class="featured-events-heading">
+                    <i class="fa fa-star"></i> {{ _('Featured Events') }}
+                  </h2>
+                  <div class="featured-events-grid">
+                    {% for page in (c.featured_events|default([])) %}
+                      {% set _format_value = (page.event_format or '').lower() %}
+                      {% set _format_label_map = {'in-person': _('In-person'), 'online': _('Online'), 'hybrid': _('Hybrid')} %}
+                      {% set _format_label = _format_label_map.get(_format_value, page.event_format) %}
+                      {% set _is_ihp = h.is_ihp_event(page) %}
+                      <article class="featured-event-card {% if _is_ihp %}featured-event-card--ihp{% else %}featured-event-card--community{% endif %}">
+                        <div class="featured-event-image">
+                          {% if page.header_image %}
+                            <img src="{{ page.header_image }}" alt="{{ page.title }}">
+                          {% elif page.uploaded_images %}
+                            {% set images = h.json_loads(page.uploaded_images) or [] %}
+                            {% if images and images[0] %}
+                              <img src="{{ images[0].url }}" alt="{{ page.title }}">
+                            {% else %}
+                              <div class="placeholder-image"><i class="fa fa-calendar fa-3x"></i></div>
+                            {% endif %}
+                          {% else %}
+                            <div class="placeholder-image"><i class="fa fa-calendar fa-3x"></i></div>
+                          {% endif %}
+                          <span class="featured-ribbon"><i class="fa fa-star"></i> {{ _('Featured') }}</span>
+                        </div>
+                        <div class="featured-event-body">
+                          <div class="event-badges">
+                            {% if _is_ihp %}
+                              <span class="badge-status badge-source-ihp"><i class="fa fa-shield"></i> {{ _('IHP Official') }}</span>
+                            {% else %}
+                              <span class="badge-status badge-source-community"><i class="fa fa-users"></i> {{ _('Community') }}</span>
+                            {% endif %}
+                          </div>
+                          <h3 class="featured-event-title">
+                            <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}">{{ page.title or page.name }}</a>
+                          </h3>
+                          <div class="event-meta-compact">
+                            {% if page.publish_date %}
+                              <span class="meta-item">
+                                <i class="fa fa-calendar"></i>
+                                {% if page.event_end_date and page.event_end_date != page.publish_date %}
+                                  {{ h.render_datetime(page.publish_date, '%b %d') }} - {{ h.render_datetime(page.event_end_date, '%b %d, %Y') }}
+                                {% else %}
+                                  {{ h.render_datetime(page.publish_date, '%B %d, %Y') }}
+                                {% endif %}
+                              </span>
+                            {% endif %}
+                            {% if page.location %}
+                              <span class="meta-item"><i class="fa fa-map-marker"></i> {{ page.location }}</span>
+                            {% endif %}
+                            {% if _format_label %}
+                              <span class="meta-item"><i class="fa fa-users"></i> {{ _format_label }}</span>
+                            {% endif %}
+                          </div>
+                          <div class="featured-event-actions">
+                            <a href="{{ h.url_for('pages.water_events_show', page=page.name) }}" class="btn btn-primary btn-sm">
+                              <i class="fa fa-eye"></i> {{ _('View Event') }}
+                            </a>
+                            {% if page.registration_url %}
+                              <a href="{{ page.registration_url }}" target="_blank" rel="noopener" class="btn btn-success btn-sm">
+                                <i class="fa fa-external-link"></i> {{ _('Register') }}
+                              </a>
+                            {% endif %}
+                            {% if _is_admin %}
+                              <form method="post" action="{{ h.url_for('pages.water_events_toggle_featured', page=page.name) }}" class="featured-toggle-form" style="display:inline;">
+                                {{ h.csrf_input() if 'csrf_input' in h }}
+                                <input type="hidden" name="featured" value="0">
+                                <input type="hidden" name="next" value="{{ request.url }}">
+                                <button type="submit" class="btn btn-default btn-sm" title="{{ _('Remove from featured') }}">
+                                  <i class="fa fa-star-o"></i> {{ _('Unfeature') }}
+                                </button>
+                              </form>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </article>
+                    {% endfor %}
+                  </div>
+                </section>
+                {% endif %}
+
                 <!-- Events Feed -->
                 {% if c.page.items %}
                 <div class="water-events-feed">
@@ -248,7 +373,8 @@
                   {% set _format_value = (page.event_format or '').lower() %}
                   {% set _format_label_map = {'in-person': _('In-person'), 'online': _('Online'), 'hybrid': _('Hybrid')} %}
                   {% set _format_label = _format_label_map.get(_format_value, page.event_format) %}
-                  <div class="event-card-modern event-card-water-events" style="margin-bottom: 1.5rem;">
+                  {% set _is_ihp = h.is_ihp_event(page) %}
+                  <div class="event-card-modern event-card-water-events {% if _is_ihp %}event-card--ihp{% else %}event-card--community{% endif %}" style="margin-bottom: 1.5rem;">
                     <article class="module-modern">
                       <div class="event-card-content">
                         <div class="row">
@@ -286,6 +412,15 @@
                                     </a>
                                   </h3>
                                   <div class="event-badges">
+                                    {% if _is_ihp %}
+                                      <span class="badge-status badge-source-ihp" title="{{ _('Organized or curated by the IHP Secretariat') }}">
+                                        <i class="fa fa-shield"></i> {{ _('IHP Official') }}
+                                      </span>
+                                    {% else %}
+                                      <span class="badge-status badge-source-community" title="{{ _('Shared by the water community') }}">
+                                        <i class="fa fa-users"></i> {{ _('Community') }}
+                                      </span>
+                                    {% endif %}
                                     <span class="badge-status badge-event">{{ page.subtitle or _('EVENT') }}</span>
                                     {% set submission_status = (page.submission_status or '').lower() %}
                                     {% set is_private = page.private in [True, 'True', 'true', 1] %}
@@ -397,6 +532,16 @@
                                       <i class="fa fa-edit"></i> {{ _('Edit') }}
                                     </a>
                                   {% endif %}
+                                  {% if _is_admin %}
+                                    <form method="post" action="{{ h.url_for('pages.water_events_toggle_featured', page=page.name) }}" class="featured-toggle-form" style="display:inline;">
+                                      {{ h.csrf_input() if 'csrf_input' in h }}
+                                      <input type="hidden" name="featured" value="1">
+                                      <input type="hidden" name="next" value="{{ request.url }}">
+                                      <button type="submit" class="btn btn-link btn-sm featured-toggle-btn" title="{{ _('Mark this event as featured (admin only)') }}">
+                                        <i class="fa fa-star-o"></i> {{ _('Feature') }}
+                                      </button>
+                                    </form>
+                                  {% endif %}
                                 </div>
                               </div>
                             </div>
@@ -419,7 +564,8 @@
                 </div>
                 {% endif %}
                 
-                {% else %}
+                {% endif %}
+                {% if not c.page.items and not (c.featured_events|default([])) %}
                 <!-- Empty State -->
                 <div class="water-events-empty-state">
                   <section class="module module-narrow">

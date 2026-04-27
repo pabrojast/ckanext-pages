@@ -27,6 +27,7 @@ Campos relevantes:
 - `submitted_at`
 - `reviewed_at`
 - `reviewed_by`
+- `featured` (Boolean, default `false`) — Flag admin-only para destacar contenido en listados (en uso por `water-events`).
 
 ## Modelo de datos real del módulo base
 
@@ -48,6 +49,7 @@ Migraciones detectadas:
 1. `a756dbd73ead_add_ckanext_pages_table.py`
 2. `1725892d1d94_create_revisions_table.py`
 3. `3a4b5c6d7e8f_add_submission_workflow_columns.py`
+4. `4b5c6d7e8f9a_add_featured_column.py` — añade `featured` (Boolean, server_default `false`).
 
 ## Inicialización adicional de DB
 

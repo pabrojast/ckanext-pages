@@ -205,6 +205,14 @@ def water_admin_reject(page, page_type):
     return utils.water_admin_reject(page, page_type)
 
 
+def water_events_toggle_featured(page):
+    return utils.water_events_toggle_featured(page)
+
+
+def water_events_calendar():
+    return utils.water_events_calendar()
+
+
 def water_family_upload():
     """Handle file uploads for water-family content types.
 
@@ -537,6 +545,8 @@ pages.add_url_rule("/water-news_delete/<page>", view_func=water_news_delete, end
 
 # Water Events URLs
 pages.add_url_rule("/water-events", view_func=water_events_index, endpoint='water_events_index')
+pages.add_url_rule("/water-events/calendar", view_func=water_events_calendar, endpoint='water_events_calendar')
+pages.add_url_rule("/water-events/<page>/feature", view_func=water_events_toggle_featured, endpoint='water_events_toggle_featured', methods=['POST'])
 pages.add_url_rule("/water-events/<page>", view_func=water_events_show, endpoint='water_events_show')
 pages.add_url_rule("/water-events/<page>/revisions", view_func=water_events_revisions, endpoint='water_events_revisions')
 pages.add_url_rule("/water-events/<page>/revisions/<revision>", view_func=water_events_revisions_preview, endpoint='water_events_revisions_preview')

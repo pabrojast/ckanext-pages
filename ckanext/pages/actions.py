@@ -219,6 +219,9 @@ def _pages_list(context, data_dict):
                       'page_type': pg.page_type,
                       'private': pg.private,
                       'submission_status': getattr(pg, 'submission_status', None),
+                      'user_id': getattr(pg, 'user_id', None),
+                      'ihp_organization': getattr(pg, 'ihp_organization', None),
+                      'featured': getattr(pg, 'featured', False),
                       }
             if img:
                 pg_row['image'] = img
@@ -288,9 +291,21 @@ def _pages_update(context, data_dict):
         out = db.Page()
         out.group_id = org_id
         out.name = page
+    # `featured` is admin-only. Strip it from non-admin payloads so the
+    # regular edit form can never flip it via a crafted request — toggling
+    # is exposed via a dedicated admin endpoint instead.
+    if 'featured' in data:
+        try:
+            _is_admin_for_featured = tk.check_access('sysadmin', context, {})
+        except Exception:
+            _is_admin_for_featured = False
+        if not _is_admin_for_featured:
+            data.pop('featured', None)
+
     items = ['title', 'content', 'name', 'private',
              'order', 'page_type', 'publish_date', 'submission_status',
-             'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by']
+             'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by',
+             'featured']
 
     # Handle submission workflow for open-source-software and water-family types
     submission_action_raw = data_dict.get('submission_action')

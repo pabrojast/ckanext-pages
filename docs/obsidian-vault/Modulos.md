@@ -67,6 +67,12 @@ Particularidad:
 
 - `water-publications` puede crear datasets CKAN tipo documento al momento de crear la página.
 
+### Water Events: extras específicas
+
+- **Vista calendario** (`/water-events/calendar`): se renderiza con FullCalendar 6 cargado vía CDN (`cdn.jsdelivr.net`). Lee `publish_date` y `event_end_date` y los serializa con `tojson` en el template para evitar inyecciones. La controladora respeta los filtros `q`, `event_type`, `initiative`, `member_state` y `source`.
+- **Eventos destacados** (`featured`): columna boolean en `ckanext_pages` (migración `4b5c6d7e8f9a`), expuesta en el listado como sección "Featured Events" en la primera página. El toggle es solo `sysadmin` y vive en `POST /water-events/<page>/feature`. El campo `featured` se descarta del payload del formulario regular en `_pages_update` para usuarios no admin (defensa en profundidad).
+- **Distinción IHP / Community**: los eventos cuyo creador es `sysadmin` o tienen `ihp_organization` no vacío se etiquetan como "IHP Official"; el resto, "Community". Hay un tab-filter (All / IHP / Community) tanto en lista como en calendario, y un badge por tarjeta. El cálculo se hace en el helper `is_ihp_event(page)` (`plugin.py`) con un cache de IDs sysadmin de 60 s para acotar consultas.
+
 ## 4. Open Source Software
 
 Responsabilidad:
