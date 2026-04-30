@@ -294,13 +294,15 @@ def _pages_update(context, data_dict):
     # `featured` is admin-only. Strip it from non-admin payloads so the
     # regular edit form can never flip it via a crafted request — toggling
     # is exposed via a dedicated admin endpoint instead.
-    if 'featured' in data:
+    if 'featured' in data or 'ihp_official' in data or 'ihp_official' in data_dict:
         try:
             _is_admin_for_featured = tk.check_access('sysadmin', context, {})
         except Exception:
             _is_admin_for_featured = False
         if not _is_admin_for_featured:
             data.pop('featured', None)
+            data.pop('ihp_official', None)
+            data_dict.pop('ihp_official', None)
 
     items = ['title', 'content', 'name', 'private',
              'order', 'page_type', 'publish_date', 'submission_status',
@@ -474,6 +476,16 @@ def _pages_update(context, data_dict):
             existing_extras = {}
 
     extras = existing_extras.copy()
+
+    # Sysadmin "IHP Official" override: an empty submitted value means the
+    # admin chose "Auto", so the previous override (if any) must be cleared
+    # rather than silently preserved by the merge below. Only sysadmins
+    # could have submitted this field — non-admin payloads were stripped
+    # earlier (see `featured` handling above).
+    if 'ihp_official' in data_dict:
+        raw_official = data_dict.get('ihp_official')
+        if isinstance(raw_official, str) and raw_official.strip() == '':
+            extras.pop('ihp_official', None)
 
     extra_keys = set(schema.keys()) - set(items + ['id', 'created'])
     for key in extra_keys:

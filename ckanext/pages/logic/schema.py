@@ -186,6 +186,7 @@ def default_pages_schema():
         'location': [ignore_missing, unicode_safe],         # Event location
         'organization': [ignore_missing, unicode_safe],     # Organizing institution
         'ihp_organization': [ignore_missing, unicode_safe], # Primary organization (id)
+        'ihp_official': [ignore_missing, ignore_empty, safe_boolean_validator, boolean_validator],  # Sysadmin "IHP Official" override; empty/missing = auto-detect
         'co_organizers': [ignore_missing, unicode_safe],    # Co-organizers text
         'event_details': [ignore_missing, unicode_safe],    # Event details and schedule
         'event_format': [ignore_missing, unicode_safe],     # Event format (in-person, online, hybrid)
@@ -500,6 +501,7 @@ def water_family_schema():
         'image_gallery': [ignore_missing, unicode_safe],  # Markdown/text gallery content
         'additional_content': [ignore_missing, unicode_safe],  # Additional rich text content
         'ihp_organization': [ignore_missing, unicode_safe],  # Primary IHP organization (id)
+        'ihp_official': [ignore_missing, p.toolkit.get_validator('boolean_validator')],  # Sysadmin-curated "IHP Official" flag
 
         # Water News specific fields
         'source': [ignore_missing, url_validator, unicode_safe],  # Original source URL

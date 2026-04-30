@@ -248,6 +248,28 @@
                                 {% if errors.organization %}<span class="error-block">{{ errors.organization }}</span>{% endif %}
                               </div>
                             </div>
+                            {% if h.is_sysadmin() %}
+                              {% set _ihp_official_val = data.ihp_official if data.ihp_official is defined else None %}
+                              {% if _ihp_official_val in [True, 'True', 'true', 'on', '1', 1] %}
+                                {% set _ihp_official_choice = 'True' %}
+                              {% elif _ihp_official_val in [False, 'False', 'false', '0', 0] %}
+                                {% set _ihp_official_choice = 'False' %}
+                              {% else %}
+                                {% set _ihp_official_choice = '' %}
+                              {% endif %}
+                              <div class="col-md-6">
+                                <div class="form-group ihp-official-toggle">
+                                  <label for="field-ihp-official" class="control-label">{{ _('IHP Official Status') }} <span class="label label-warning" style="vertical-align: middle;">{{ _('Sysadmin only') }}</span></label>
+                                  <select id="field-ihp-official" name="ihp_official" class="form-control">
+                                    <option value="" {% if _ihp_official_choice == '' %}selected{% endif %}>{{ _('Auto – detect from organization / author') }}</option>
+                                    <option value="True" {% if _ihp_official_choice == 'True' %}selected{% endif %}>{{ _('IHP Official') }}</option>
+                                    <option value="False" {% if _ihp_official_choice == 'False' %}selected{% endif %}>{{ _('Community') }}</option>
+                                  </select>
+                                  <div class="help-text">{{ _('Manually classify the event. "Auto" falls back to the legacy heuristic (sysadmin author or assigned organization).') }}</div>
+                                  {% if errors.ihp_official %}<span class="error-block">{{ errors.ihp_official }}</span>{% endif %}
+                                </div>
+                              </div>
+                            {% endif %}
                           </div>
 
                           <div class="row">

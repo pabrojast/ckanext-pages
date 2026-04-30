@@ -887,13 +887,19 @@ def _sysadmin_user_ids():
 def is_ihp_event(page):
     """Classify an event/page as IHP-official vs community-submitted.
 
-    A page is IHP-official when its creator is a sysadmin or it carries
-    an explicit ``ihp_organization`` value. Accepts both dicts and ORM
-    objects so it can be reused from list views and detail views.
+    Resolution order:
+      1. Explicit ``ihp_official`` flag (sysadmin-curated, wins both ways).
+      2. Legacy heuristic: ``ihp_organization`` set, or creator is sysadmin.
+
+    Accepts both dicts and ORM objects so it can be reused from list views
+    and detail views.
     """
     if page is None:
         return False
     get = page.get if isinstance(page, dict) else lambda key, default=None: getattr(page, key, default)
+    explicit = get('ihp_official')
+    if explicit is not None and explicit != '':
+        return tk.asbool(explicit)
     if get('ihp_organization'):
         return True
     user_id = get('user_id')
