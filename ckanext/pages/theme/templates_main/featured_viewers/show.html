@@ -155,21 +155,67 @@
       </div>
 
       <!-- Terria Map -->
-      {% if viewer.terria_share_link %}
-      {% set terria_url = viewer.terria_share_link %}
-      {% if '#' in terria_url and '?' not in terria_url %}
-        {% set parts = terria_url.split('#') %}
-        {% set terria_url = parts[0] + '?hideWorkbench=0#' + parts[1] %}
+      {% set extra_tabs = viewer.map_tabs %}
+      {% if extra_tabs is string %}
+        {% set extra_tabs = h.json_loads(extra_tabs) or [] %}
       {% endif %}
+      {% if not extra_tabs %}{% set extra_tabs = [] %}{% endif %}
+
+      {% set map_tabs = [] %}
+      {% if viewer.terria_share_link %}
+        {% set _ = map_tabs.append({
+          'id': 'main',
+          'title': _('Main'),
+          'terria_share_link': viewer.terria_share_link,
+        }) %}
+      {% endif %}
+      {% for t in extra_tabs %}
+        {% if t.terria_share_link %}
+          {% set _ = map_tabs.append({
+            'id': t.id or ('tab-' ~ loop.index),
+            'title': t.title or (_('Tab ') ~ loop.index),
+            'terria_share_link': t.terria_share_link,
+          }) %}
+        {% endif %}
+      {% endfor %}
+
+      {% if map_tabs %}
+      {% set map_height = viewer.map_height or 720 %}
 
       <div class="fv-map-shell" id="fv-map-shell">
+
+        {% if map_tabs|length > 1 %}
+        <div class="fv-map-tabs" id="fv-show-map-tabs" role="tablist">
+          {% for tab in map_tabs %}
+          {% set tab_id = tab.id or ('tab-' ~ loop.index0) %}
+          <button type="button"
+                  class="fv-map-tab{% if loop.first %} active{% endif %}"
+                  role="tab"
+                  data-tab-target="{{ tab_id }}"
+                  data-tab-url="{{ tab.terria_share_link or '' }}"
+                  aria-selected="{% if loop.first %}true{% else %}false{% endif %}">
+            <i class="fa fa-map"></i>
+            <span>{{ tab.title or (_('Tab ') ~ loop.index) }}</span>
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="fv-map-container" id="fv-map-container">
-          <iframe src="{{ terria_url }}"
+          {% set first_tab = map_tabs[0] %}
+          {% set first_url = first_tab.terria_share_link or '' %}
+          {% if '#' in first_url and '?' not in first_url %}
+            {% set _parts = first_url.split('#') %}
+            {% set first_url = _parts[0] + '?hideWorkbench=0#' + _parts[1] %}
+          {% endif %}
+          <iframe id="fv-map-iframe"
+                  src="{{ first_url }}"
                   allow="geolocation; fullscreen"
                   allowfullscreen
                   loading="lazy"
                   title="{{ viewer.title }} - Interactive Map"
-                  class="fv-map-iframe"></iframe>
+                  class="fv-map-iframe"
+                  style="height: {{ map_height }}px;"></iframe>
         </div>
 
         <!-- Map Action Bar -->
@@ -184,7 +230,9 @@
             <span class="fv-map-action-label">{{ _('Full Screen') }}</span>
           </button>
 
-          <a href="{{ viewer.terria_share_link }}" target="_blank" rel="noopener" class="fv-map-action-btn">
+          <a id="fv-open-terria"
+             href="{{ first_tab.terria_share_link or viewer.terria_share_link }}"
+             target="_blank" rel="noopener" class="fv-map-action-btn">
             <i class="fa fa-external-link"></i> {{ _('Open in Terria') }}
           </a>
 
@@ -193,6 +241,35 @@
           </button>
         </div>
       </div>
+
+      {% if map_tabs|length > 1 %}
+      <script>
+      (function() {
+        var tabsRoot = document.getElementById('fv-show-map-tabs');
+        var iframe = document.getElementById('fv-map-iframe');
+        var openLink = document.getElementById('fv-open-terria');
+        if (!tabsRoot || !iframe) return;
+        tabsRoot.addEventListener('click', function(e) {
+          var btn = e.target.closest('.fv-map-tab');
+          if (!btn) return;
+          var url = btn.getAttribute('data-tab-url') || '';
+          if (!url) return;
+          var embedUrl = url;
+          if (embedUrl.indexOf('#') !== -1 && embedUrl.indexOf('?') === -1) {
+            var parts = embedUrl.split('#');
+            embedUrl = parts[0] + '?hideWorkbench=0#' + parts[1];
+          }
+          iframe.src = embedUrl;
+          if (openLink) openLink.setAttribute('href', url);
+          tabsRoot.querySelectorAll('.fv-map-tab').forEach(function(b) {
+            var active = (b === btn);
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+        });
+      })();
+      </script>
+      {% endif %}
       {% else %}
       <div class="fv-info-panel" style="text-align: center; padding: 4rem 2rem;">
         <i class="fa fa-map-o" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
@@ -237,11 +314,14 @@
         <div class="col-md-4">
           {% if viewer.datasets %}
           <div class="fv-info-panel">
-            <h3><i class="fa fa-database"></i> {{ _('Related Datasets') }}</h3>
+            <h3><i class="fa fa-database"></i> {{ _('Datasets used') }}</h3>
             {% for ds in viewer.datasets %}
+            {% set ds_pkg = ds.dataset or {} %}
+            {% set ds_name = ds_pkg.get('name') or ds.dataset_id %}
+            {% set ds_title = ds_pkg.get('title') or ds.dataset_id %}
             <div class="fv-dataset-item">
-              <a href="{{ h.url_for('dataset.read', id=ds.dataset_id) }}">
-                <i class="fa fa-cube"></i> {{ ds.dataset_title or ds.dataset_id }}
+              <a href="{{ h.url_for('dataset.read', id=ds_name) }}">
+                <i class="fa fa-cube"></i> {{ ds_title }}
               </a>
               {% if ds.description %}
               <p>{{ ds.description|safe }}</p>

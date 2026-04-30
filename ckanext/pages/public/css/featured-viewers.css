@@ -572,9 +572,44 @@
 .fv-map-iframe,
 .fv-map-container iframe {
   width: 100%;
-  height: 600px;
+  height: 720px;
   border: none;
   display: block;
+}
+
+/* ---- Show Page: Map Tabs Nav ---- */
+.fv-map-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.fv-map-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--fv-text-secondary);
+  background: #fff;
+  border: 1px solid var(--fv-border);
+  cursor: pointer;
+  transition: all var(--fv-transition);
+}
+.fv-map-tab:hover {
+  border-color: var(--fv-blue);
+  color: var(--fv-blue);
+}
+.fv-map-tab.active {
+  background: linear-gradient(135deg, var(--fv-blue) 0%, var(--fv-blue-light) 100%);
+  border-color: var(--fv-blue);
+  color: #fff;
+  box-shadow: var(--fv-shadow-light);
+}
+.fv-map-tab i {
+  font-size: 0.8rem;
 }
 
 .fv-map-shell.fv-map-shell-active,

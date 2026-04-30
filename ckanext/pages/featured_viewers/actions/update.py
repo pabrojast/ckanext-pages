@@ -40,6 +40,9 @@ def featured_viewer_update(context, data_dict):
     tags_raw = data_dict.get('tags')
     map_layers_raw = data_dict.get('map_layers')
     terria_config_raw = data_dict.get('terria_config')
+    map_tabs_raw = data_dict.get('map_tabs')
+    datasets_raw = data_dict.get('datasets_data')
+    has_datasets_field = 'datasets_data' in data_dict
 
     schema = featured_viewer_schema()
     data, errors = df.validate(data_dict, schema, context)
@@ -86,6 +89,20 @@ def featured_viewer_update(context, data_dict):
         viewer.tags = _parse_json_field(tags_raw) or []
     if countries_raw is not None:
         viewer.countries = _parse_json_field(countries_raw) or []
+    if map_tabs_raw is not None:
+        from ckanext.pages.featured_viewers.actions.create import _normalize_map_tabs
+        viewer.map_tabs = _normalize_map_tabs(_parse_json_field(map_tabs_raw))
+
+    # Map height
+    if 'map_height' in data_dict:
+        height_raw = data_dict.get('map_height')
+        try:
+            height_val = int(height_raw) if height_raw not in (None, '') else None
+        except (ValueError, TypeError):
+            height_val = None
+        if height_val is not None:
+            height_val = max(300, min(2000, height_val))
+        viewer.map_height = height_val
 
     # Visibility fields from raw data_dict
     if 'is_featured' in data_dict:
@@ -105,6 +122,12 @@ def featured_viewer_update(context, data_dict):
 
     session = context.get('session', model.Session)
     session.add(viewer)
+    session.flush()
+
+    if has_datasets_field:
+        from ckanext.pages.featured_viewers.actions.create import _sync_viewer_datasets
+        _sync_viewer_datasets(session, viewer.id, _parse_json_field(datasets_raw) or [])
+
     session.commit()
 
     log.info(f"[FEATURED_VIEWER_UPDATE] Updated viewer: {viewer.id}")

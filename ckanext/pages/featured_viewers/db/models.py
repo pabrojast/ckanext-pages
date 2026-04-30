@@ -60,6 +60,11 @@ class FeaturedViewer(DomainObject, BaseModel):
     terria_share_link = Column(Text)
     terria_config = Column(JSONB)
     map_layers = Column(JSONB)
+    # Multiple-map tabs: list of {id, title, terria_share_link, terria_config}
+    # When non-empty, takes precedence over the single-map fields above.
+    map_tabs = Column(JSONB)
+    # Iframe height in pixels for the show page (default applied at render time).
+    map_height = Column(Integer, nullable=True)
 
     # Metadata
     tags = Column(JSONB)

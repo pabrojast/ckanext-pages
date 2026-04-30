@@ -437,6 +437,86 @@
     </fieldset>
 
     {# ═══════════════════════════════════════════════ #}
+    {# ── 3b. Additional Map Tabs                   ── #}
+    {# ═══════════════════════════════════════════════ #}
+    <fieldset>
+      <legend><i class="fa fa-clone"></i> {{ _('Additional Map Tabs') }}</legend>
+      <p class="help-block">
+        {{ _('Add extra Terria maps as tabs. The map above is shown as the first tab; tabs added here appear next to it on the viewer page.') }}
+      </p>
+
+      <div id="fv-tabs-list" class="fv-tabs-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.75rem;"></div>
+
+      <button type="button" id="fv-add-tab" class="btn btn-default">
+        <i class="fa fa-plus"></i> {{ _('Add map tab') }}
+      </button>
+
+      {% set tabs_val = data.get('map_tabs') %}
+      {% if tabs_val and tabs_val is not string %}
+        {% set tabs_json = tabs_val|tojson %}
+      {% else %}
+        {% set tabs_json = tabs_val or '[]' %}
+      {% endif %}
+      <input type="hidden" id="fv-map-tabs-data" name="map_tabs"
+             value="{{ tabs_json|forceescape }}">
+    </fieldset>
+
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 3c. Display Settings                      ── #}
+    {# ═══════════════════════════════════════════════ #}
+    <fieldset>
+      <legend><i class="fa fa-arrows-v"></i> {{ _('Display Settings') }}</legend>
+
+      <div class="form-group">
+        <label class="control-label" for="fv-map-height">
+          <i class="fa fa-arrows-v"></i> {{ _('Map height (pixels)') }}
+        </label>
+        <input type="number" id="fv-map-height" name="map_height"
+               value="{{ data.get('map_height') or '' }}"
+               min="300" max="2000" step="20"
+               class="form-control" placeholder="720">
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('Height of the embedded map in pixels on the viewer page. Leave blank for the default (720). Min 300, max 2000.') }}
+        </span>
+      </div>
+    </fieldset>
+
+    {# ═══════════════════════════════════════════════ #}
+    {# ── 3d. Datasets used                         ── #}
+    {# ═══════════════════════════════════════════════ #}
+    <fieldset>
+      <legend><i class="fa fa-database"></i> {{ _('Datasets used') }}</legend>
+      <p class="help-block">
+        {{ _('Add the CKAN datasets used in this viewer. Visitors will be able to click through to each dataset.') }}
+      </p>
+
+      <div class="form-inline" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.75rem;">
+        <input type="text"
+               id="fv-dataset-input"
+               class="form-control"
+               style="flex: 1; min-width: 240px;"
+               placeholder="{{ _('Dataset name, ID, or URL (e.g., my-dataset)') }}">
+        <button type="button" class="btn btn-primary" id="fv-add-dataset">
+          <i class="fa fa-plus"></i> {{ _('Add dataset') }}
+        </button>
+      </div>
+
+      <div id="fv-datasets-list" class="fv-datasets-list"
+           data-empty-text="{{ _('No datasets linked yet.') }}"
+           style="margin-top: 0.5rem;"></div>
+
+      {% set ds_val = data.get('datasets') %}
+      {% if ds_val %}
+        {% set ds_json = ds_val|tojson %}
+      {% else %}
+        {% set ds_json = '[]' %}
+      {% endif %}
+      <input type="hidden" id="fv-datasets-data" name="datasets_data"
+             value="{{ ds_json|forceescape }}">
+    </fieldset>
+
+    {# ═══════════════════════════════════════════════ #}
     {# ── 4. Countries & Tags                       ── #}
     {# ═══════════════════════════════════════════════ #}
     <fieldset>
@@ -838,6 +918,66 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ── Map tabs editor ── */
+.fv-tabs-list .fv-tab-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 0.75rem;
+  flex-wrap: wrap;
+}
+.fv-tabs-list .fv-tab-row input.form-control {
+  flex: 1;
+  min-width: 0;
+}
+.fv-tabs-list .fv-tab-row .fv-tab-title {
+  flex: 0 0 200px;
+}
+.fv-tabs-list .fv-tab-row .fv-tab-remove {
+  align-self: center;
+}
+
+/* ── Datasets list ── */
+.fv-datasets-list:empty::before {
+  content: attr(data-empty-text);
+  display: block;
+  padding: 1rem;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+}
+.fv-datasets-list .fv-dataset-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 0.4rem;
+}
+.fv-datasets-list .fv-dataset-row .fv-dataset-icon {
+  color: #0072BC;
+}
+.fv-datasets-list .fv-dataset-row .fv-dataset-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.fv-datasets-list .fv-dataset-row .fv-dataset-id {
+  color: #888;
+  font-size: 0.82rem;
 }
 
 /* ── Map preview ── */
@@ -1614,6 +1754,210 @@
             searchCatalog(val);
           }, 500);
         }
+      });
+
+      // ══════════════════════════════════════════════
+      // Map Tabs editor (additional Terria maps)
+      // ══════════════════════════════════════════════
+      var $tabsList = $('#fv-tabs-list');
+      var $tabsHidden = $('#fv-map-tabs-data');
+      var fvTabs = [];
+
+      function fvTabsRender() {
+        $tabsList.empty();
+        if (!fvTabs.length) {
+          $tabsList.html(
+            '<div class="text-muted" style="padding: 0.75rem; text-align: center; background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 12px;">' +
+            '{{ _("No additional tabs. Click on Add map tab to create one.") }}</div>'
+          );
+          return;
+        }
+        fvTabs.forEach(function(tab, idx) {
+          var $row = $(
+            '<div class="fv-tab-row" data-idx="' + idx + '">' +
+              '<input type="text" class="form-control fv-tab-title" placeholder="{{ _("Tab title") }}" value="">' +
+              '<input type="url" class="form-control fv-tab-link" placeholder="{{ _("Terria share link") }}" value="">' +
+              '<button type="button" class="btn btn-danger fv-tab-remove" title="{{ _("Remove tab") }}"><i class="fa fa-times"></i></button>' +
+            '</div>'
+          );
+          $row.find('.fv-tab-title').val(tab.title || '');
+          $row.find('.fv-tab-link').val(tab.terria_share_link || '');
+          $tabsList.append($row);
+        });
+      }
+
+      function fvTabsSync() {
+        $tabsHidden.val(JSON.stringify(fvTabs));
+      }
+
+      try {
+        var rawTabs = $tabsHidden.val();
+        if (rawTabs) {
+          var decodedTabs = $('<textarea>').html(rawTabs).val();
+          var parsedTabs = JSON.parse(decodedTabs);
+          if (Array.isArray(parsedTabs)) {
+            fvTabs = parsedTabs.map(function(t) {
+              return {
+                id: t.id || null,
+                title: t.title || '',
+                terria_share_link: t.terria_share_link || '',
+              };
+            });
+          }
+        }
+      } catch(e) {}
+
+      fvTabsRender();
+      fvTabsSync();
+
+      $('#fv-add-tab').on('click', function() {
+        fvTabs.push({ id: null, title: '', terria_share_link: '' });
+        fvTabsRender();
+        fvTabsSync();
+        $tabsList.find('.fv-tab-row').last().find('.fv-tab-title').trigger('focus');
+      });
+
+      $tabsList.on('input change', '.fv-tab-title, .fv-tab-link', function() {
+        var $row = $(this).closest('.fv-tab-row');
+        var idx = parseInt($row.data('idx'), 10);
+        if (isNaN(idx) || !fvTabs[idx]) return;
+        fvTabs[idx].title = $row.find('.fv-tab-title').val();
+        fvTabs[idx].terria_share_link = $row.find('.fv-tab-link').val();
+        fvTabsSync();
+      });
+
+      $tabsList.on('click', '.fv-tab-remove', function() {
+        var idx = parseInt($(this).closest('.fv-tab-row').data('idx'), 10);
+        if (isNaN(idx)) return;
+        fvTabs.splice(idx, 1);
+        fvTabsRender();
+        fvTabsSync();
+      });
+
+      // ══════════════════════════════════════════════
+      // Datasets used picker
+      // ══════════════════════════════════════════════
+      var $dsList = $('#fv-datasets-list');
+      var $dsHidden = $('#fv-datasets-data');
+      var $dsInput = $('#fv-dataset-input');
+      var fvDatasets = [];
+
+      function fvDatasetsRender() {
+        $dsList.empty();
+        if (!fvDatasets.length) return;
+        fvDatasets.forEach(function(ds, idx) {
+          var titleText = ds.dataset_title || ds.dataset_id;
+          var $row = $('<div class="fv-dataset-row" data-idx="' + idx + '"></div>');
+          $row.append('<i class="fa fa-cube fv-dataset-icon"></i>');
+          var $title = $('<span class="fv-dataset-title"></span>').text(titleText);
+          $row.append($title);
+          var $id = $('<span class="fv-dataset-id"></span>').text(ds.dataset_id);
+          $row.append($id);
+          $row.append(
+            '<button type="button" class="btn btn-sm btn-danger fv-dataset-remove" title="{{ _("Remove dataset") }}">' +
+            '<i class="fa fa-times"></i></button>'
+          );
+          $dsList.append($row);
+        });
+      }
+
+      function fvDatasetsSync() {
+        $dsHidden.val(JSON.stringify(fvDatasets));
+      }
+
+      try {
+        var rawDs = $dsHidden.val();
+        if (rawDs) {
+          var decodedDs = $('<textarea>').html(rawDs).val();
+          var parsedDs = JSON.parse(decodedDs);
+          if (Array.isArray(parsedDs)) {
+            fvDatasets = parsedDs.map(function(ds) {
+              if (typeof ds === 'string') {
+                return { dataset_id: ds, dataset_title: ds };
+              }
+              var pkg = ds.dataset || {};
+              return {
+                dataset_id: ds.dataset_id || pkg.name || pkg.id || '',
+                dataset_title: ds.dataset_title || pkg.title || ds.dataset_id || '',
+                description: ds.description || '',
+              };
+            }).filter(function(ds) { return ds.dataset_id; });
+          }
+        }
+      } catch(e) {}
+
+      fvDatasetsRender();
+      fvDatasetsSync();
+
+      function fvExtractDatasetRef(input) {
+        // Accept full URL like https://site/dataset/<name>?... or plain name/id
+        var v = (input || '').trim();
+        if (!v) return '';
+        var match = v.match(/\/dataset\/([^\/?#]+)/i);
+        if (match) return match[1];
+        return v;
+      }
+
+      function fvAddDataset() {
+        var ref = fvExtractDatasetRef($dsInput.val());
+        if (!ref) return;
+        if (fvDatasets.some(function(ds) { return ds.dataset_id === ref; })) {
+          $dsInput.val('');
+          return;
+        }
+        var $btn = $('#fv-add-dataset');
+        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+        $.ajax({
+          url: '/api/3/action/package_show',
+          data: { id: ref },
+          dataType: 'json',
+          timeout: 15000,
+        }).done(function(resp) {
+          if (resp && resp.success && resp.result) {
+            var pkg = resp.result;
+            fvDatasets.push({
+              dataset_id: pkg.name || pkg.id,
+              dataset_title: pkg.title || pkg.name || pkg.id,
+              description: '',
+            });
+            fvDatasetsRender();
+            fvDatasetsSync();
+            $dsInput.val('');
+          } else {
+            alert('{{ _("Dataset not found:") }} ' + ref);
+          }
+        }).fail(function() {
+          // Fallback: store the raw reference even if validation failed
+          if (confirm('{{ _("Dataset could not be validated. Add it anyway?") }} (' + ref + ')')) {
+            fvDatasets.push({
+              dataset_id: ref,
+              dataset_title: ref,
+              description: '',
+            });
+            fvDatasetsRender();
+            fvDatasetsSync();
+            $dsInput.val('');
+          }
+        }).always(function() {
+          $btn.prop('disabled', false).html('<i class="fa fa-plus"></i> {{ _("Add dataset") }}');
+        });
+      }
+
+      $('#fv-add-dataset').on('click', fvAddDataset);
+      $dsInput.on('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          fvAddDataset();
+        }
+      });
+
+      $dsList.on('click', '.fv-dataset-remove', function() {
+        var idx = parseInt($(this).closest('.fv-dataset-row').data('idx'), 10);
+        if (isNaN(idx)) return;
+        fvDatasets.splice(idx, 1);
+        fvDatasetsRender();
+        fvDatasetsSync();
       });
 
     }); // document.ready

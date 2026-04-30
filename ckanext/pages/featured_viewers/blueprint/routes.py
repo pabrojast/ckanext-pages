@@ -1280,6 +1280,36 @@ def _extract_form_data(form):
         else:
             data_dict[field] = []
 
+    # Map tabs (list of {title, terria_share_link, terria_config})
+    map_tabs_raw = form.get('map_tabs', '').strip()
+    if map_tabs_raw:
+        try:
+            data_dict['map_tabs'] = json.loads(map_tabs_raw)
+        except (json.JSONDecodeError, TypeError):
+            data_dict['map_tabs'] = []
+    else:
+        data_dict['map_tabs'] = []
+
+    # Datasets used (list of {dataset_id, dataset_title, description})
+    datasets_raw = form.get('datasets_data', '').strip()
+    if datasets_raw:
+        try:
+            data_dict['datasets_data'] = json.loads(datasets_raw)
+        except (json.JSONDecodeError, TypeError):
+            data_dict['datasets_data'] = []
+    else:
+        data_dict['datasets_data'] = []
+
+    # Map height (px)
+    height_raw = form.get('map_height', '').strip()
+    if height_raw:
+        try:
+            data_dict['map_height'] = int(height_raw)
+        except (ValueError, TypeError):
+            data_dict['map_height'] = None
+    else:
+        data_dict['map_height'] = None
+
     # Boolean fields
     data_dict['is_featured'] = form.get('is_featured') == 'on'
     data_dict['is_public'] = form.get('is_public', 'on') == 'on'

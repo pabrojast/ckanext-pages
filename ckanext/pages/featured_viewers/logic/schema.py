@@ -29,6 +29,7 @@ def featured_viewer_schema():
         'terria_share_link': [ignore_missing, unicode_safe],
         'meta_description': [ignore_missing, unicode_safe],
         'organization_id': [ignore_missing, unicode_safe],
+        'map_height': [ignore_missing],
     }
 
 
