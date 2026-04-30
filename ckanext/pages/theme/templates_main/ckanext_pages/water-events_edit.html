@@ -512,7 +512,7 @@
                               <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
                               </div>
 
-                              <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
+                              <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson|forceescape }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 
@@ -544,7 +544,7 @@
                               <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
                               </div>
 
-                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
+                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson|forceescape }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 
@@ -1599,13 +1599,42 @@ select.form-control option:selected {
 
     $('#field-header-image').trigger('change');
 
-    $('#field-ihp-organization').on('change', function() {
-      const selectedText = $(this).find('option:selected').text().trim();
-      const currentValue = $('#field-organization').val().trim();
-      if (!currentValue && selectedText) {
-        $('#field-organization').val(selectedText);
+    // Auto-update the "Displayed Organizer Name" whenever the user picks a
+    // different Primary Organization. Track whether the user has manually
+    // edited the displayed name so we don't clobber a custom value silently.
+    var $orgSelect = $('#field-ihp-organization');
+    var $orgDisplay = $('#field-organization');
+    var orgDisplayManuallyEdited = false;
+
+    // Initialize the "manually edited" flag based on whether the saved
+    // displayed name already differs from the currently selected org's title.
+    (function syncOrgManualFlag() {
+      var selectedText = $orgSelect.find('option:selected').text().trim();
+      var currentValue = ($orgDisplay.val() || '').trim();
+      // If the saved displayed name matches the selected option's title, we
+      // treat it as "auto" (so future org changes will keep them in sync).
+      orgDisplayManuallyEdited = !!(currentValue && currentValue !== selectedText);
+    })();
+
+    $orgSelect.on('change', function() {
+      var $selectedOpt = $(this).find('option:selected');
+      var selectedText = $selectedOpt.text().trim();
+      // The placeholder option ("Select organization...") has empty value;
+      // don't overwrite the displayed organizer with the placeholder text.
+      if (!$selectedOpt.val()) return;
+      // Always sync unless the user has typed a custom name. The custom-name
+      // detection above survives a save+reload because the saved name will
+      // have been resolved server-side from the chosen org.
+      if (!orgDisplayManuallyEdited) {
+        $orgDisplay.val(selectedText);
       }
-    }).trigger('change');
+    });
+
+    // If the user types a custom name, stop auto-syncing.
+    $orgDisplay.on('input', function() {
+      var selectedText = $orgSelect.find('option:selected').text().trim();
+      orgDisplayManuallyEdited = ($(this).val().trim() !== selectedText);
+    });
 
     // Ensure select fields work correctly
     function preventSelectReset() {

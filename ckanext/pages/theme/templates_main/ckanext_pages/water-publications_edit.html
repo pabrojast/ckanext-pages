@@ -335,7 +335,7 @@
                                     <div id="selected-member-states" class="selected-member-states" data-empty-text="{{ _('No member states selected yet. Select and add member states from the dropdown above.') }}">
                                     </div>
 
-                                    <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
+                                    <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson|forceescape }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
                                   </div>
                                 </div>
                               </div>
@@ -371,7 +371,7 @@
                                     <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
                                     </div>
 
-                                    <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
+                                    <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson|forceescape }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
                                   </div>
                                 </div>
                               </div>
