@@ -1304,6 +1304,10 @@
         addResponseTextBlock(existingContent);
       } else if (blockType === 'additional') {
         addAdditionalTextBlock(existingContent);
+      } else if (blockType === 'recovery') {
+        addRecoveryTextBlock(existingContent);
+      } else if (blockType === 'resilience') {
+        addResilienceTextBlock(existingContent);
       }
     }
   }
@@ -1380,7 +1384,7 @@
       type: 'text',
       content: content
     };
-    
+
     additionalBlocks.push(block);
     renderContentTextBlock(block, 'additional', '#additional-information-content-blocks');
     updateAdditionalBlocksDisplay();
@@ -1398,12 +1402,76 @@
       title: 'Interactive Content',
       ...iframeData
     };
-    
+
     additionalBlocks.push(block);
     renderContentIframeBlock(block, 'additional', '#additional-information-content-blocks');
     updateAdditionalBlocksDisplay();
   }
-  
+
+  // Recovery Phase Block Functions
+  function addRecoveryTextBlock(content = '') {
+    const blockId = 'recovery-block-' + (++recoveryBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'text',
+      content: content
+    };
+
+    recoveryBlocks.push(block);
+    renderContentTextBlock(block, 'recovery', '#recovery-phase-content-blocks');
+    updateRecoveryBlocksDisplay();
+    focusOnNewEditor(blockId, recoveryQuillEditors);
+  }
+
+  function addRecoveryIframeBlock(iframeData = null) {
+    const blockId = 'recovery-block-' + (++recoveryBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'iframe',
+      url: '',
+      width: '100%',
+      height: '600',
+      title: 'Interactive Content',
+      ...iframeData
+    };
+
+    recoveryBlocks.push(block);
+    renderContentIframeBlock(block, 'recovery', '#recovery-phase-content-blocks');
+    updateRecoveryBlocksDisplay();
+  }
+
+  // Resilience Phase Block Functions
+  function addResilienceTextBlock(content = '') {
+    const blockId = 'resilience-block-' + (++resilienceBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'text',
+      content: content
+    };
+
+    resilienceBlocks.push(block);
+    renderContentTextBlock(block, 'resilience', '#resilience-phase-content-blocks');
+    updateResilienceBlocksDisplay();
+    focusOnNewEditor(blockId, resilienceQuillEditors);
+  }
+
+  function addResilienceIframeBlock(iframeData = null) {
+    const blockId = 'resilience-block-' + (++resilienceBlockCounter);
+    const block = {
+      id: blockId,
+      type: 'iframe',
+      url: '',
+      width: '100%',
+      height: '600',
+      title: 'Interactive Content',
+      ...iframeData
+    };
+
+    resilienceBlocks.push(block);
+    renderContentIframeBlock(block, 'resilience', '#resilience-phase-content-blocks');
+    updateResilienceBlocksDisplay();
+  }
+
   // Helper function to focus on new editor
   function focusOnNewEditor(blockId, editorsObject) {
     setTimeout(function() {
@@ -1563,9 +1631,13 @@
           updateResponseContentField();
         } else if (blockType === 'additional') {
           updateAdditionalContentField();
+        } else if (blockType === 'recovery') {
+          updateRecoveryContentField();
+        } else if (blockType === 'resilience') {
+          updateResilienceContentField();
         }
       });
-      
+
       // Store in appropriate editors object
       if (blockType === 'impact') {
         impactQuillEditors[editorId] = quill;
@@ -1573,6 +1645,10 @@
         responseQuillEditors[editorId] = quill;
       } else if (blockType === 'additional') {
         additionalQuillEditors[editorId] = quill;
+      } else if (blockType === 'recovery') {
+        recoveryQuillEditors[editorId] = quill;
+      } else if (blockType === 'resilience') {
+        resilienceQuillEditors[editorId] = quill;
       }
     });
   }
@@ -1609,8 +1685,12 @@
       blocksArray = responseBlocks;
     } else if (blockType === 'additional') {
       blocksArray = additionalBlocks;
+    } else if (blockType === 'recovery') {
+      blocksArray = recoveryBlocks;
+    } else if (blockType === 'resilience') {
+      blocksArray = resilienceBlocks;
     }
-    
+
     block = blocksArray.find(b => b.id === blockId);
     if (!block) return;
     
@@ -1675,7 +1755,7 @@
 
   function moveBlock(blockId, direction, blockType) {
     let blocksArray, containerSelector;
-    
+
     if (blockType === 'impact') {
       blocksArray = impactBlocks;
       containerSelector = '#impact-assessment-content-blocks';
@@ -1685,8 +1765,14 @@
     } else if (blockType === 'additional') {
       blocksArray = additionalBlocks;
       containerSelector = '#additional-information-content-blocks';
+    } else if (blockType === 'recovery') {
+      blocksArray = recoveryBlocks;
+      containerSelector = '#recovery-phase-content-blocks';
+    } else if (blockType === 'resilience') {
+      blocksArray = resilienceBlocks;
+      containerSelector = '#resilience-phase-content-blocks';
     }
-    
+
     const blockIndex = blocksArray.findIndex(b => b.id === blockId);
     if (blockIndex === -1) return;
     
@@ -1703,7 +1789,7 @@
 
   function deleteBlock(blockId, blockType) {
     let blocksArray, editorsObject;
-    
+
     if (blockType === 'impact') {
       blocksArray = impactBlocks;
       editorsObject = impactQuillEditors;
@@ -1713,8 +1799,14 @@
     } else if (blockType === 'additional') {
       blocksArray = additionalBlocks;
       editorsObject = additionalQuillEditors;
+    } else if (blockType === 'recovery') {
+      blocksArray = recoveryBlocks;
+      editorsObject = recoveryQuillEditors;
+    } else if (blockType === 'resilience') {
+      blocksArray = resilienceBlocks;
+      editorsObject = resilienceQuillEditors;
     }
-    
+
     // Remove from array
     const blockIndex = blocksArray.findIndex(b => b.id === blockId);
     if (blockIndex !== -1) {
@@ -1736,15 +1828,19 @@
 
   function renderAllBlocks(blockType, containerSelector) {
     let blocksArray;
-    
+
     if (blockType === 'impact') {
       blocksArray = impactBlocks;
     } else if (blockType === 'response') {
       blocksArray = responseBlocks;
     } else if (blockType === 'additional') {
       blocksArray = additionalBlocks;
+    } else if (blockType === 'recovery') {
+      blocksArray = recoveryBlocks;
+    } else if (blockType === 'resilience') {
+      blocksArray = resilienceBlocks;
     }
-    
+
     $(containerSelector).empty();
     blocksArray.forEach(block => {
       if (block.type === 'text') {
@@ -1767,7 +1863,15 @@
   function updateAdditionalBlocksDisplay() {
     updateBlocksDisplayByType('additional', additionalBlocks, '#additional-information-content-blocks');
   }
-  
+
+  function updateRecoveryBlocksDisplay() {
+    updateBlocksDisplayByType('recovery', recoveryBlocks, '#recovery-phase-content-blocks');
+  }
+
+  function updateResilienceBlocksDisplay() {
+    updateBlocksDisplayByType('resilience', resilienceBlocks, '#resilience-phase-content-blocks');
+  }
+
   function updateBlocksDisplayByType(blockType, blocksArray, containerSelector) {
     const container = $(containerSelector);
     if (blocksArray.length === 0) {
@@ -1792,7 +1896,15 @@
   function updateAdditionalContentField() {
     updateContentField(additionalBlocks, '#field-map-stories', '#additional-info-blocks-metadata');
   }
-  
+
+  function updateRecoveryContentField() {
+    updateContentField(recoveryBlocks, '#field-recovery-phase', '#recovery-phase-blocks-metadata');
+  }
+
+  function updateResilienceContentField() {
+    updateContentField(resilienceBlocks, '#field-resilience-phase', '#resilience-phase-blocks-metadata');
+  }
+
   function updateContentFieldByType(blockType) {
     if (blockType === 'impact') {
       updateImpactContentField();
@@ -1800,6 +1912,10 @@
       updateResponseContentField();
     } else if (blockType === 'additional') {
       updateAdditionalContentField();
+    } else if (blockType === 'recovery') {
+      updateRecoveryContentField();
+    } else if (blockType === 'resilience') {
+      updateResilienceContentField();
     }
   }
   
@@ -1858,13 +1974,17 @@
   // Initialize Modular Block Systems
   initializeImpactAssessmentBlocks();
   initializeResponseActivitiesBlocks();
+  initializeRecoveryPhaseBlocks();
+  initializeResiliencePhaseBlocks();
   initializeAdditionalInformationBlocks();
-  
+
   // Update form submission to handle all block systems
   $('form').on('submit', function(e) {
     // Update block content fields first
     updateImpactContentField();
     updateResponseContentField();
+    updateRecoveryContentField();
+    updateResilienceContentField();
     updateAdditionalContentField();
     
     // Sync Quill editors before validation
