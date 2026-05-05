@@ -234,12 +234,20 @@
 
                 <!-- Document Viewer & Access -->
                 {% set doc_url = c.page.download_url or c.page.publication_url or c.page.dataset_url or '' %}
-                {% set doc_format = (c.page.document_format or '')|lower %}
-                {% if not doc_format and doc_url %}
-                  {% set doc_format = doc_url.split('.')[-1].split('?')[0]|lower if '.' in doc_url.split('/')[-1] else '' %}
-                {% endif %}
-                {% set is_pdf = doc_format == 'pdf' or 'pdf' in (c.page.document_mimetype or '')|lower %}
-                {% set is_image = doc_format in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'] or 'image/' in (c.page.document_mimetype or '')|lower %}
+                {# Prefer the actual URL extension when it's a known type. The
+                   user-saved `document_format` (and the matching mimetype) can
+                   drift from reality — e.g. when the dataset resource is later
+                   replaced with a different file type — and serving a CSV to
+                   PDF.js gives a console "Invalid PDF structure" instead of a
+                   useful preview. Only fall back to the saved format when the
+                   URL has no recognizable extension (opaque links like UNESDOC
+                   `ark:/…` URLs or external viewers). #}
+                {% set _doc_url_filename = (doc_url.split('?')[0].split('#')[0].split('/')[-1]) if doc_url else '' %}
+                {% set _url_ext = (_doc_url_filename.split('.')[-1] | lower) if '.' in _doc_url_filename else '' %}
+                {% set _known_exts = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'zip', 'rar', '7z', 'tar', 'gz', 'mp4', 'webm', 'avi', 'mov', 'mp3', 'wav', 'ogg', 'txt', 'json', 'xml'] %}
+                {% set doc_format = _url_ext if _url_ext in _known_exts else (c.page.document_format or '')|lower %}
+                {% set is_pdf = doc_format == 'pdf' %}
+                {% set is_image = doc_format in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'] %}
 
                 {% if doc_url %}
                 <div class="water-publication-viewer" style="margin-bottom: 3rem;">

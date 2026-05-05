@@ -648,11 +648,14 @@
 }
 
 /* Iframe responsive wrapper (added by JS).
-   Without an explicit height the wrapper collapses and iframes pasted into
-   Quill (Terria/YouTube share links) default to their HTML 150px height,
-   leaving the embed clipped. Give the wrapper a sensible default and let
-   the iframe fill it; iframes that ship a taller `height` attribute can
-   still grow past the minimum. */
+   Iframes pasted into Quill (Terria/YouTube share links) often arrive
+   without dimensions and would render at the HTML 150px default. We give
+   the iframe an explicit height so it actually shows the embed. Using
+   `height: 100%` here doesn't work because the wrapper only has
+   `min-height` — percentage heights only resolve against an explicit
+   `height` parent — so we set a fixed value and keep `min-height` as a
+   defensive floor in case an inline style smaller than the default
+   overrides it. */
 .news-content-body .iframe-container,
 .image-gallery-content .iframe-container,
 .links-content .iframe-container {
@@ -667,7 +670,7 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  height: 100%;
+  height: 700px;
   min-height: 500px;
   border: 0;
 }
