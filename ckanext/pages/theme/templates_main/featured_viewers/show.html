@@ -163,7 +163,7 @@
 
       {% set map_tabs = [] %}
       {% if viewer.terria_share_link %}
-        {% set _ = map_tabs.append({
+        {% do map_tabs.append({
           'id': 'main',
           'title': _('Main'),
           'terria_share_link': viewer.terria_share_link,
@@ -171,7 +171,7 @@
       {% endif %}
       {% for t in extra_tabs %}
         {% if t.terria_share_link %}
-          {% set _ = map_tabs.append({
+          {% do map_tabs.append({
             'id': t.id or ('tab-' ~ loop.index),
             'title': t.title or (_('Tab ') ~ loop.index),
             'terria_share_link': t.terria_share_link,
