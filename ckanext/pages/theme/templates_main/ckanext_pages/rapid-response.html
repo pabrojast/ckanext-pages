@@ -237,17 +237,17 @@
                                   {% set row_html = '<div class="key-info-row"><div class="key-info-label"><i class="fa fa-info-circle"></i>' + parts[0].strip() + '</div><div class="key-info-value">' + parts[1].strip() + '</div></div>' %}
                                   
                                   {% if row_count <= 6 %}
-                                    {% set _ = visible_rows.append(row_html) %}
+                                    {% do visible_rows.append(row_html) %}
                                   {% else %}
-                                    {% set _ = hidden_rows.append(row_html) %}
+                                    {% do hidden_rows.append(row_html) %}
                                   {% endif %}
                                 {% endif %}
                               {% elif line.strip() and ':' not in line %}
                                 {% set note_html = '<div class="key-info-note">' + line.strip() + '</div>' %}
                                 {% if row_count <= 6 %}
-                                  {% set _ = visible_rows.append(note_html) %}
+                                  {% do visible_rows.append(note_html) %}
                                 {% else %}
-                                  {% set _ = hidden_rows.append(note_html) %}
+                                  {% do hidden_rows.append(note_html) %}
                                 {% endif %}
                               {% endif %}
                             {% endfor %}
