@@ -248,6 +248,14 @@
                 {% set doc_format = _url_ext if _url_ext in _known_exts else (c.page.document_format or '')|lower %}
                 {% set is_pdf = doc_format == 'pdf' %}
                 {% set is_image = doc_format in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'] %}
+                {# Inline viewers (PDF.js, image preview) are only safe for files that
+                   actually live on this CKAN — i.e. resources uploaded via our
+                   documents-dataset flow. External links (UNESDOC `ark:/…`, generic
+                   third-party URLs) usually return HTML wrapper pages, which would
+                   make PDF.js crash with `Invalid PDF structure` or simply leave a
+                   broken `<img>`. For those, render a "Preview not available" panel
+                   and let the user follow the Read Online / Download buttons below. #}
+                {% set is_inline_viewable = doc_url and h.is_ckan_download_url(doc_url) and (is_pdf or is_image) %}
 
                 {% if doc_url %}
                 <div class="water-publication-viewer" style="margin-bottom: 3rem;">
@@ -260,8 +268,8 @@
                         <h2>{{ _('Document') }}</h2>
                       </div>
 
-                      {% if is_pdf %}
-                      {# ── Inline PDF Viewer ── #}
+                      {% if is_inline_viewable and is_pdf %}
+                      {# ── Inline PDF Viewer (same-origin uploaded PDF) ── #}
                       <div class="wp-pdf-viewer-wrap">
                         <iframe id="wp-pdf-iframe"
                                 src="/pdfjs/web/viewer.html?file={{ doc_url|urlencode }}#pagemode=none"
@@ -274,11 +282,21 @@
                           <p class="text-muted">{{ _('The document could not be previewed. Use the buttons below to access it.') }}</p>
                         </div>
                       </div>
-                      {% elif is_image %}
-                      {# ── Inline Image Preview ── #}
+                      {% elif is_inline_viewable and is_image %}
+                      {# ── Inline Image Preview (same-origin uploaded image) ── #}
                       <div class="wp-image-preview">
                         <img src="{{ doc_url }}" alt="{{ c.page.title }}" class="img-responsive"
                              style="max-width:100%; max-height:600px; border-radius:8px; margin:1rem auto; display:block;">
+                      </div>
+                      {% elif is_pdf or is_image %}
+                      {# ── External link in a previewable format: skip the embed,
+                            since PDF.js / <img> would just fail on the cross-origin
+                            HTML wrapper. ── #}
+                      <div class="wp-pdf-fallback">
+                        <i class="fa fa-{% if is_pdf %}file-pdf{% else %}image{% endif %} fa-4x"
+                           style="color:#6c757d; margin-bottom:1rem;"></i>
+                        <h4>{{ _('Preview not available') }}</h4>
+                        <p class="text-muted">{{ _('This document is hosted on an external site, so it cannot be previewed inline. Use the buttons below to access it.') }}</p>
                       </div>
                       {% else %}
                       {# ── Non-viewable format: file card ── #}

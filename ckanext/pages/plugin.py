@@ -16,6 +16,7 @@ from ckan.lib.helpers import build_nav_main as core_build_nav_main
 from ckanext.pages import actions
 from ckanext.pages import auth
 from ckanext.pages import blueprint
+from ckanext.pages.utils import is_ckan_download_url
 
 
 log = logging.getLogger(__name__)
@@ -1433,6 +1434,7 @@ class PagesPlugin(PagesPluginBase):
             'strip_html_tags': strip_html_tags,
             'has_meaningful_content': has_meaningful_content,
             'sanitize_html_content': sanitize_html_content,
+            'is_ckan_download_url': is_ckan_download_url,
             'gravatar_url': gravatar_url,
             'pages_get_wysiwyg_editor': get_wysiwyg_editor,
             'get_recent_blog_posts': get_recent_blog_posts,

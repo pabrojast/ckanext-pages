@@ -893,6 +893,17 @@ def _build_resource_download_url(package_name, resource, original_filename=''):
     )
 
 
+def is_ckan_download_url(url, site_url=None):
+    """Public Jinja-helper alias for `_is_ckan_download_url`.
+
+    Templates use this to decide whether a `doc_url` is safe to embed in an
+    inline viewer (PDF.js / image preview). External links are excluded so we
+    don't ask PDF.js to fetch HTML wrapper pages cross-origin and surface
+    `Invalid PDF structure` in the console.
+    """
+    return _is_ckan_download_url(url, site_url=site_url)
+
+
 def _is_ckan_download_url(url, site_url=None):
     """True if `url` is a same-origin CKAN resource download endpoint
     (`/dataset/<id|name>/resource/<id>/download/<filename>`)."""
@@ -945,6 +956,15 @@ def _recover_water_publication_dataset_links(page_data):
     base_name = 'document-' + plain_name
     documents_type = _resolve_documents_dataset_type()
 
+    # Only auto-recover datasets created by `_maybe_create_documents_dataset`
+    # (which prefixes every name with `document-`). Earlier versions also fell
+    # back to `name == plain_name` and `title == dataset_title`, but those
+    # lookups produced false positives against unrelated datasets that happened
+    # to share the publication's slug — e.g. a publication titled "test" would
+    # silently inherit the resource of any pre-existing `/dataset/test`,
+    # including private ones the viewer can't even open. If users want to link
+    # an external dataset they should populate `dataset_url` /
+    # `associated_dataset_url` explicitly via the form.
     try:
         packages = (
             model.Session.query(model.Package)
@@ -956,34 +976,6 @@ def _recover_water_publication_dataset_links(page_data):
         )
     except Exception:
         packages = []
-
-    if not packages:
-        # Datasets created outside the `_maybe_create_documents_dataset` flow
-        # (e.g. pre-existing or imported) won't carry the `document-` prefix.
-        try:
-            packages = (
-                model.Session.query(model.Package)
-                .filter(
-                    model.Package.state == 'active',
-                    model.Package.name == plain_name
-                )
-                .all()
-            )
-        except Exception:
-            packages = []
-
-    if not packages:
-        try:
-            packages = (
-                model.Session.query(model.Package)
-                .filter(
-                    model.Package.state == 'active',
-                    model.Package.title == dataset_title
-                )
-                .all()
-            )
-        except Exception:
-            packages = []
 
     if not packages:
         return {}
