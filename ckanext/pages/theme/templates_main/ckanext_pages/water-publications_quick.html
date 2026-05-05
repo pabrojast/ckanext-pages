@@ -176,6 +176,34 @@
                               placeholder="{{ _('Brief summary of the publication content...') }}">{{ data.dataset_description or data.content or '' }}</textarea>
                   </div>
 
+                  <div class="form-group">
+                    <label for="publication_type" class="qs-label">
+                      {{ _('Publication type') }} <small class="text-muted">({{ _('optional') }})</small>
+                    </label>
+                    <select id="publication_type" name="publication_type" class="form-control">
+                      <option value="">{{ _('Select a publication type...') }}</option>
+                      {% set _qs_pub_types = [
+                        ('scientific_paper', _('Scientific Paper')),
+                        ('technical_report', _('Technical Report')),
+                        ('policy_brief', _('Policy Brief')),
+                        ('dataset_documentation', _('Dataset Documentation')),
+                        ('book', _('Book')),
+                        ('book_chapter', _('Book Chapter')),
+                        ('conference_paper', _('Conference Paper')),
+                        ('thesis', _('Thesis/Dissertation')),
+                        ('preprint', _('Preprint')),
+                        ('working_paper', _('Working Paper')),
+                        ('manual', _('Manual/Guide')),
+                        ('educational_material', _('Educational Material')),
+                        ('other', _('Other'))
+                      ] %}
+                      {% for value, label in _qs_pub_types %}
+                        <option value="{{ value }}" {% if data.publication_type == value %}selected="selected"{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <p class="qs-field-hint">{{ _('Helps catalog this publication in the documents collection') }}</p>
+                  </div>
+
                   {% if organization_list|default([]) | length > 1 %}
                   <div class="form-group">
                     <label for="organization_id" class="qs-label">

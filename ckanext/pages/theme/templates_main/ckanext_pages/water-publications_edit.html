@@ -223,9 +223,36 @@
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
-                                  <label class="control-label" for="document_format">{{ _('Document type') }}</label>
+                                  <label class="control-label" for="publication_type">{{ _('Publication type') }}</label>
+                                  <select id="publication_type" name="publication_type" class="form-control">
+                                    <option value="">{{ _('Select a publication type...') }}</option>
+                                    {% set _pub_types = [
+                                      ('scientific_paper', _('Scientific Paper')),
+                                      ('technical_report', _('Technical Report')),
+                                      ('policy_brief', _('Policy Brief')),
+                                      ('dataset_documentation', _('Dataset Documentation')),
+                                      ('book', _('Book')),
+                                      ('book_chapter', _('Book Chapter')),
+                                      ('conference_paper', _('Conference Paper')),
+                                      ('thesis', _('Thesis/Dissertation')),
+                                      ('preprint', _('Preprint')),
+                                      ('working_paper', _('Working Paper')),
+                                      ('manual', _('Manual/Guide')),
+                                      ('educational_material', _('Educational Material')),
+                                      ('other', _('Other'))
+                                    ] %}
+                                    {% for value, label in _pub_types %}
+                                      <option value="{{ value }}" {% if data.publication_type == value %}selected="selected"{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                  </select>
+                                  <div class="help-text">{{ _('What kind of publication is this? (Maps to the documents dataset document_type.)') }}</div>
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label class="control-label" for="document_format">{{ _('File format') }}</label>
                                   <select id="document_format" name="document_format" class="form-control">
-                                    <option value="">{{ _('Select a type...') }}</option>
+                                    <option value="">{{ _('Select a format...') }}</option>
                                     <option>txt</option><option>log</option><option>doc</option><option>docx</option>
                                     <option>ods</option><option>odt</option><option>sld</option><option>qml</option>
                                     <option>xls</option><option>xlsx</option><option>xml</option><option>bm</option>
@@ -242,9 +269,12 @@
                                     <option>vdo</option><option>glb</option><option>pcd</option><option>gltf</option>
                                   </select>
                                   <input type="hidden" id="document_mimetype" name="document_mimetype" value="">
-                                  <div class="help-text">{{ _('Automatically detected from file or URL.') }}</div>
+                                  <div class="help-text">{{ _('File extension. Automatically detected from file or URL.') }}</div>
                                 </div>
                               </div>
+                            </div>
+
+                            <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
                                   <label class="control-label" for="organization_id">{{ _('Organization') }}</label>
@@ -1434,11 +1464,13 @@ select.form-control option:selected {
 
     // Ensure select fields work correctly
     function preventSelectReset() {
-      // Prevent form reset issues with select fields
-      $('#field-publication-type, #field-private').on('change', function() {
+      // Prevent form reset issues with select fields. The `publication_type`
+      // dropdown is the new "what kind of publication" select; `field-private`
+      // is the hidden draft/publish flag synced from the action button.
+      $('#publication_type, #field-private').on('change', function() {
         var $this = $(this);
         var selectedValue = $this.val();
-        
+
         // Small delay to ensure value is preserved
         setTimeout(function() {
           if ($this.val() !== selectedValue) {

@@ -94,17 +94,30 @@
                             <i class="fa fa-tag"></i> {{ _('Publication Type') }}
                           </div>
                           <div class="publication-detail-value">
+                            {# Both the legacy `report/paper/...` choices and the
+                               schemingdcat-aligned `scientific_paper/...` ones
+                               are accepted, so existing pages keep their label
+                               and new ones get the documents-vocabulary label. #}
                             {% set pub_type_labels = {
+                              'scientific_paper': _('Scientific Paper'),
+                              'technical_report': _('Technical Report'),
+                              'policy_brief': _('Policy Brief'),
+                              'dataset_documentation': _('Dataset Documentation'),
+                              'book': _('Book'),
+                              'book_chapter': _('Book Chapter'),
+                              'conference_paper': _('Conference Paper'),
+                              'thesis': _('Thesis/Dissertation'),
+                              'preprint': _('Preprint'),
+                              'working_paper': _('Working Paper'),
+                              'manual': _('Manual/Guide'),
+                              'educational_material': _('Educational Material'),
+                              'other': _('Other'),
                               'report': _('Report'),
                               'paper': _('Research Paper'),
-                              'book': _('Book'),
                               'chapter': _('Book Chapter'),
-                              'thesis': _('Thesis/Dissertation'),
                               'policy-brief': _('Policy Brief'),
                               'technical-document': _('Technical Document'),
-                              'manual': _('Manual/Guide'),
-                              'proceedings': _('Conference Proceedings'),
-                              'other': _('Other')
+                              'proceedings': _('Conference Proceedings')
                             } %}
                             {{ pub_type_labels.get(c.page.publication_type, c.page.publication_type) }}
                           </div>
@@ -256,6 +269,29 @@
                    broken `<img>`. For those, render a "Preview not available" panel
                    and let the user follow the Read Online / Download buttons below. #}
                 {% set is_inline_viewable = doc_url and h.is_ckan_download_url(doc_url) and (is_pdf or is_image) %}
+
+                {% if not doc_url and h.check_access('ckanext_water_publications_update') %}
+                {# Editor-only notice: the publication has no attached file/link.
+                   This usually happens when the documents-dataset creation
+                   silently failed at upload time. Surface it so authors don't
+                   assume the upload succeeded just because the page exists. #}
+                <div class="water-publication-no-file" style="margin-bottom: 3rem;">
+                  <section class="module module-narrow water-module-access">
+                    <div class="module-content">
+                      <div class="alert alert-warning" style="margin: 0;">
+                        <h4 style="margin-top:0;">
+                          <i class="fa fa-exclamation-triangle"></i>
+                          {{ _('No file or link is attached to this publication') }}
+                        </h4>
+                        <p>{{ _('Edit the publication and upload a file (or paste a link) to attach it. If you uploaded a file before and nothing was attached, the documents dataset creation likely failed silently — try again from the edit page.') }}</p>
+                        <a href="{{ h.url_for('pages.water_publications_edit', page=c.page.name) }}" class="btn btn-primary">
+                          <i class="fa fa-edit"></i> {{ _('Edit publication') }}
+                        </a>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+                {% endif %}
 
                 {% if doc_url %}
                 <div class="water-publication-viewer" style="margin-bottom: 3rem;">

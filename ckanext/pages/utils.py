@@ -516,6 +516,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             # is itself a no-op when the form has no upload, link or create flag,
             # so it's safe to call on every save.
             if page_type == 'water-publications':
+                dataset_attach_error = None
                 try:
                     dataset_result = _maybe_create_documents_dataset(page_dict)
                     if isinstance(dataset_result, dict):
@@ -528,15 +529,6 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                     else:
                         if dataset_result:
                             page_dict['download_url'] = dataset_result
-
-                    _recover_water_publication_dataset_links(page_dict)
-                    resource_url = page_dict.get('download_url')
-                    dataset_page_url = page_dict.get('associated_dataset_url')
-
-                    if resource_url or dataset_page_url:
-                        tk.get_action('ckanext_pages_update')(
-                            context={'user': tk.g.user}, data_dict=page_dict
-                        )
                 except Exception as e:
                     # Do not block page save on dataset errors; surface a warning
                     # AND log it so silent failures (the original bug here) can be
@@ -546,7 +538,40 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                         "Water Publication dataset attach failed for page '%s': %s",
                         page_dict.get('name') or page, e, exc_info=True
                     )
+                    dataset_attach_error = e
                     tk.h.flash_error(_('Dataset creation warning: %s') % str(e))
+
+                # When the documents-dataset flow failed but the user did
+                # supply a file, try a plain page-images upload so the file
+                # is at least preserved on this CKAN and the publication
+                # show page can display it. Without this fallback the user
+                # sees "no file attached" right after a successful upload —
+                # exactly the silent-loss bug the user reported.
+                if dataset_attach_error is not None and not page_dict.get('download_url'):
+                    fallback_url = _fallback_upload_publication_file()
+                    if fallback_url:
+                        page_dict['download_url'] = fallback_url
+                        tk.h.flash_notice(
+                            _('We could not create the documents dataset, but your file was '
+                              'uploaded and attached to the publication. Ask an admin to '
+                              'register it as a dataset later.')
+                        )
+
+                try:
+                    _recover_water_publication_dataset_links(page_dict)
+                    resource_url = page_dict.get('download_url')
+                    dataset_page_url = page_dict.get('associated_dataset_url')
+
+                    if resource_url or dataset_page_url:
+                        tk.get_action('ckanext_pages_update')(
+                            context={'user': tk.g.user}, data_dict=page_dict
+                        )
+                except Exception as e:
+                    log = logging.getLogger(__name__)
+                    log.warning(
+                        "Water Publication post-upload page update failed for '%s': %s",
+                        page_dict.get('name') or page, e, exc_info=True
+                    )
 
             # Show different messages based on user type and page status
             if page_type in ['water-news', 'water-events', 'water-publications', 'ai-water-tools']:
@@ -904,9 +929,77 @@ def is_ckan_download_url(url, site_url=None):
     return _is_ckan_download_url(url, site_url=site_url)
 
 
+def _fallback_upload_publication_file():
+    """Upload `dataset_upload` via the page-images uploader.
+
+    Used when the documents-dataset creation path fails — typically because
+    the user lacks `create_dataset` on any org, or the documents schema
+    rejects the payload — but the user has already provided a file. Without
+    this fallback the file is silently dropped and the publication shows up
+    with no attachment, which the user reads as "the upload didn't happen."
+
+    Returns a fully-qualified URL (so it stays a valid `download_url` after
+    `url_validator`) or `''` on failure.
+    """
+    log = logging.getLogger(__name__)
+    try:
+        request = tk.request
+    except Exception:
+        return ''
+
+    upload_file = None
+    try:
+        if getattr(request, 'files', None):
+            upload_file = request.files.get('dataset_upload')
+    except Exception:
+        return ''
+
+    if not upload_file or not getattr(upload_file, 'filename', None):
+        return ''
+
+    try:
+        result = tk.get_action('ckanext_water_family_upload')(
+            {'user': tk.g.user} if getattr(tk.g, 'user', None) else {},
+            {
+                'upload': upload_file,
+                'water_content_type': 'water-publications',
+                'file_type': 'document',
+            }
+        )
+    except Exception as e:
+        log.warning(
+            "Fallback page-images upload failed for water publication: %s",
+            e, exc_info=True
+        )
+        return ''
+
+    if not isinstance(result, dict) or result.get('uploaded') != 1:
+        return ''
+
+    file_url = result.get('url') or ''
+    if not file_url:
+        return ''
+
+    # `water_family_upload` already returns a qualified URL via
+    # `url_for_static(..., qualified=True)`, but be defensive.
+    if file_url.startswith('/'):
+        site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
+        if site_url:
+            file_url = '{0}{1}'.format(site_url, file_url)
+
+    return file_url
+
+
 def _is_ckan_download_url(url, site_url=None):
-    """True if `url` is a same-origin CKAN resource download endpoint
-    (`/dataset/<id|name>/resource/<id>/download/<filename>`)."""
+    """True if `url` is a same-origin CKAN download endpoint that's safe to
+    embed in PDF.js / `<img>`. We accept two shapes:
+
+      - dataset resource download: `/dataset/<id|name>/resource/<id>/download/<filename>`
+      - page-images uploads (fallback path): `/uploads/page_images/<filename>`
+
+    Both serve the raw file from this CKAN, so the inline viewer can fetch
+    them without hitting the cross-origin HTML-wrapper trap external links
+    suffer from."""
     if not url:
         return False
     candidate = url.strip()
@@ -922,7 +1015,12 @@ def _is_ckan_download_url(url, site_url=None):
     else:
         return False
     path = path.split('?', 1)[0].split('#', 1)[0]
-    return path.startswith('/dataset/') and '/resource/' in path and '/download/' in path
+    if path.startswith('/dataset/') and '/resource/' in path and '/download/' in path:
+        return True
+    # Fallback path: water-family page-images upload (used when the
+    # documents-dataset flow couldn't run). These also live on this CKAN,
+    # so the inline PDF/image viewer can load them safely.
+    return path.startswith('/uploads/page_images/')
 
 
 def _recover_water_publication_dataset_links(page_data):
@@ -944,12 +1042,14 @@ def _recover_water_publication_dataset_links(page_data):
     site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
     current_download = (page_data.get('download_url') or '').strip()
     current_dataset_page = (page_data.get('associated_dataset_url') or '').strip()
+    current_publication_type = (page_data.get('publication_type') or '').strip()
 
     download_is_external = bool(current_download) and not _is_ckan_download_url(current_download, site_url)
     needs_download = (not current_download) or download_is_external
     needs_dataset_page = not current_dataset_page
+    needs_publication_type = not current_publication_type
 
-    if not needs_download and not needs_dataset_page:
+    if not needs_download and not needs_dataset_page and not needs_publication_type:
         return {}
 
     plain_name = _slugify_documents_dataset_title(dataset_title)
@@ -1000,6 +1100,35 @@ def _recover_water_publication_dataset_links(page_data):
         dataset_page_url = _build_dataset_page_url(package.name)
         if dataset_page_url:
             recovered['associated_dataset_url'] = dataset_page_url
+
+    # Pull the documents dataset's `document_type` (a scheming extra) back
+    # onto the publication. This keeps the page label aligned with the
+    # dataset for entries created before the form exposed the field.
+    if needs_publication_type:
+        try:
+            extras_pairs = getattr(package, 'extras', None)
+            if extras_pairs is None and hasattr(package, 'extras_dict'):
+                extras_pairs = package.extras_dict
+            extras_lookup = {}
+            if isinstance(extras_pairs, dict):
+                extras_lookup = extras_pairs
+            elif extras_pairs:
+                # SQLAlchemy returns a list of PackageExtra rows.
+                for extra in extras_pairs:
+                    if isinstance(extra, dict):
+                        key = extra.get('key')
+                        if key:
+                            extras_lookup[key] = extra.get('value')
+                    else:
+                        key = getattr(extra, 'key', None)
+                        if key:
+                            extras_lookup[key] = getattr(extra, 'value', None)
+            doc_type = (extras_lookup.get('document_type') or '').strip()
+            if doc_type:
+                recovered['publication_type'] = doc_type
+        except Exception:
+            # Recovery is best-effort; never block on metadata read errors.
+            pass
 
     if needs_download:
         try:
@@ -1191,6 +1320,14 @@ def _maybe_create_documents_dataset(form_data):
         package_dict['graphic_overview'] = graphic_overview
     if groups_payload:
         package_dict['groups'] = groups_payload
+
+    # Carry the publication's `publication_type` over to the documents
+    # dataset's `document_type` field (same vocabulary in
+    # schemingdcat/unesco/documents.yaml). This keeps the page and the
+    # dataset aligned so the documents listing reflects the right kind.
+    publication_type = (form_data.get('publication_type') or '').strip()
+    if publication_type:
+        package_dict['document_type'] = publication_type
 
     # Create package.
     # Skip ckanext-doi's in-hook DOI insert: it fires before CKAN's own
