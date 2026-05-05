@@ -1188,8 +1188,13 @@ def _maybe_create_documents_dataset(form_data):
     if groups_payload:
         package_dict['groups'] = groups_payload
 
-    # Create package
+    # Create package.
+    # Skip ckanext-doi's in-hook DOI insert: it fires before CKAN's own
+    # `model.repo.commit()` and races the package row, surfacing as
+    # `doi_package_id_fkey` violations. We mint the DOI explicitly below,
+    # after package_create has fully committed.
     context = {'user': tk.g.user} if getattr(tk.g, 'user', None) else {}
+    context['_skip_doi_create'] = True
     try:
         package = tk.get_action('package_create')(context, package_dict)
     except tk.ValidationError as e:
@@ -1255,13 +1260,21 @@ def _maybe_create_documents_dataset(form_data):
         created_resource = tk.get_action('resource_create')(context, resource_dict)
         resource_url = created_resource.get('url', '') or dataset_url
 
-    # Optional: attempt DOI generation if an action is available
+    # Mint the DOI now that the package has been committed.
+    # We deferred this from ckanext-doi's `after_dataset_create` hook (via
+    # `_skip_doi_create=True`) to avoid the FK race when both rows are
+    # flushed in the same transaction.
     try:
-        if tk.get_action('package_doi_create'):
-            tk.get_action('package_doi_create')(context, {'id': package['id']})
-    except Exception:
-        # ignore if action not available or fails
+        from ckanext.doi.model.crud import DOIQuery
+        DOIQuery.read_package(package['id'], create_if_none=True)
+    except ImportError:
         pass
+    except Exception as e:
+        logging.getLogger(__name__).warning(
+            'Could not mint DOI for documents dataset %s: %s',
+            package.get('name') or package.get('id'),
+            e,
+        )
 
     return {
         'resource_url': resource_url,

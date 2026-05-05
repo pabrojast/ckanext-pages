@@ -620,6 +620,50 @@
   font-size: 1.05rem;
 }
 
+/* Quill editor output: paragraph alignment classes */
+.news-content-body .ql-align-center,
+.image-gallery-content .ql-align-center,
+.links-content .ql-align-center { text-align: center; }
+.news-content-body .ql-align-right,
+.image-gallery-content .ql-align-right,
+.links-content .ql-align-right { text-align: right; }
+.news-content-body .ql-align-justify,
+.image-gallery-content .ql-align-justify,
+.links-content .ql-align-justify { text-align: justify; }
+.news-content-body .ql-align-left,
+.image-gallery-content .ql-align-left,
+.links-content .ql-align-left { text-align: left; }
+
+/* Make images inside Quill-aligned paragraphs respect alignment + responsive width */
+.news-content-body img,
+.image-gallery-content img,
+.links-content img { max-width: 100%; height: auto; }
+.news-content-body p.ql-align-center > img,
+.image-gallery-content p.ql-align-center > img,
+.links-content p.ql-align-center > img,
+.news-content-body p[style*="text-align:center"] > img,
+.news-content-body p[style*="text-align: center"] > img {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Iframe responsive wrapper (added by JS) */
+.news-content-body .iframe-container,
+.image-gallery-content .iframe-container,
+.links-content .iframe-container {
+  position: relative;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+.news-content-body .iframe-container > iframe,
+.image-gallery-content .iframe-container > iframe,
+.links-content .iframe-container > iframe {
+  display: block;
+  max-width: 100%;
+  border: 0;
+}
+
 /* Specialized Module Styles */
 .news-module-meta {
   border-left: 6px solid var(--unesco-blue-dark);
@@ -1317,7 +1361,32 @@
       }
     });
     
-    // Enhanced iframe responsiveness
+    // Quill's "code block" wraps pasted HTML in <pre class="ql-syntax">, which prevents
+    // embedded iframes from rendering normally. Lift any iframe out of every <pre> ancestor.
+    $('iframe').each(function() {
+      const $iframe = $(this);
+      let $pre = $iframe.closest('pre');
+      while ($pre.length) {
+        $pre.replaceWith($pre.contents());
+        $pre = $iframe.closest('pre');
+      }
+    });
+
+    // Editors often set the height on a wrapper <div> instead of the iframe itself.
+    // If the iframe has no explicit height, copy it from the nearest div ancestor that does.
+    $('iframe').each(function() {
+      const $iframe = $(this);
+      const hasHeight = $iframe.attr('height') || $iframe[0].style.height;
+      if (hasHeight) return;
+      const $heightAncestor = $iframe.parents('div').filter(function() {
+        return this.style && this.style.height;
+      }).first();
+      if ($heightAncestor.length) {
+        $iframe.css('height', $heightAncestor[0].style.height);
+      }
+    });
+
+    // Wrap each iframe in a responsive container
     $('iframe').each(function() {
       const $iframe = $(this);
       if (!$iframe.parent().hasClass('iframe-container')) {
