@@ -881,8 +881,36 @@ def _build_resource_download_url(package_name, resource, original_filename=''):
     )
 
 
+def _is_ckan_download_url(url, site_url=None):
+    """True if `url` is a same-origin CKAN resource download endpoint
+    (`/dataset/<id|name>/resource/<id>/download/<filename>`)."""
+    if not url:
+        return False
+    candidate = url.strip()
+    if not candidate:
+        return False
+    if site_url is None:
+        site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
+    site_url = (site_url or '').rstrip('/')
+    if site_url and candidate.startswith(site_url):
+        path = candidate[len(site_url):]
+    elif candidate.startswith('/'):
+        path = candidate
+    else:
+        return False
+    path = path.split('?', 1)[0].split('#', 1)[0]
+    return path.startswith('/dataset/') and '/resource/' in path and '/download/' in path
+
+
 def _recover_water_publication_dataset_links(page_data):
-    """Recover missing document links from the matching CKAN dataset."""
+    """Recover/refresh document links from a matching CKAN dataset.
+
+    Beyond filling missing fields, this also re-points an *external*
+    `download_url` to a same-origin CKAN download endpoint when the
+    associated dataset has an uploaded resource. That handles publications
+    where the user only provided an external link in the form but the PDF
+    was later uploaded directly into the CKAN dataset.
+    """
     if not isinstance(page_data, dict):
         return {}
 
@@ -890,12 +918,19 @@ def _recover_water_publication_dataset_links(page_data):
     if not dataset_title:
         return {}
 
-    needs_download = not (page_data.get('download_url') or '').strip()
-    needs_dataset_page = not (page_data.get('associated_dataset_url') or '').strip()
+    site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
+    current_download = (page_data.get('download_url') or '').strip()
+    current_dataset_page = (page_data.get('associated_dataset_url') or '').strip()
+
+    download_is_external = bool(current_download) and not _is_ckan_download_url(current_download, site_url)
+    needs_download = (not current_download) or download_is_external
+    needs_dataset_page = not current_dataset_page
+
     if not needs_download and not needs_dataset_page:
         return {}
 
-    base_name = 'document-' + _slugify_documents_dataset_title(dataset_title)
+    plain_name = _slugify_documents_dataset_title(dataset_title)
+    base_name = 'document-' + plain_name
     documents_type = _resolve_documents_dataset_type()
 
     try:
@@ -909,6 +944,21 @@ def _recover_water_publication_dataset_links(page_data):
         )
     except Exception:
         packages = []
+
+    if not packages:
+        # Datasets created outside the `_maybe_create_documents_dataset` flow
+        # (e.g. pre-existing or imported) won't carry the `document-` prefix.
+        try:
+            packages = (
+                model.Session.query(model.Package)
+                .filter(
+                    model.Package.state == 'active',
+                    model.Package.name == plain_name
+                )
+                .all()
+            )
+        except Exception:
+            packages = []
 
     if not packages:
         try:
@@ -936,6 +986,7 @@ def _recover_water_publication_dataset_links(page_data):
             1 if pkg_type == documents_type else 0,
             1 if pkg_title == desired_title else 0,
             1 if pkg_name == base_name else 0,
+            1 if pkg_name == plain_name else 0,
         )
 
     package = sorted(packages, key=_package_sort_key, reverse=True)[0]
@@ -965,19 +1016,27 @@ def _recover_water_publication_dataset_links(page_data):
             def _resource_sort_key(resource):
                 resource_format = (getattr(resource, 'format', '') or '').strip().lower()
                 resource_url = (getattr(resource, 'url', '') or '').strip()
+                resource_url_type = (getattr(resource, 'url_type', '') or '').strip().lower()
                 return (
+                    1 if resource_url_type == 'upload' else 0,
                     1 if desired_format and resource_format == desired_format else 0,
                     1 if resource_url else 0,
                 )
 
             resource = sorted(resources, key=_resource_sort_key, reverse=True)[0]
-            download_url = _build_resource_download_url(package.name, resource)
-            if download_url:
-                recovered['download_url'] = download_url
-            if not page_data.get('document_format') and getattr(resource, 'format', None):
-                recovered['document_format'] = str(resource.format).lower()
-            if not page_data.get('document_mimetype') and getattr(resource, 'mimetype', None):
-                recovered['document_mimetype'] = resource.mimetype
+            resource_url_type = (getattr(resource, 'url_type', '') or '').strip().lower()
+
+            # Don't replace a working external link with another external link.
+            # Only override when we found a real same-origin upload, or when
+            # there was no `download_url` at all.
+            if not (download_is_external and resource_url_type != 'upload'):
+                download_url = _build_resource_download_url(package.name, resource)
+                if download_url and download_url != current_download:
+                    recovered['download_url'] = download_url
+                if not page_data.get('document_format') and getattr(resource, 'format', None):
+                    recovered['document_format'] = str(resource.format).lower()
+                if not page_data.get('document_mimetype') and getattr(resource, 'mimetype', None):
+                    recovered['document_mimetype'] = resource.mimetype
 
     if recovered:
         page_data.update(recovered)
