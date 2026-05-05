@@ -467,12 +467,15 @@
 }
 
 .section-title-content h1 {
-  font-size: 3rem;
+  font-size: clamp(1.6rem, 2vw + 1rem, 3rem);
   font-weight: 700;
   margin-bottom: 1.5rem;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
   line-height: 1.2;
   letter-spacing: -0.02em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .section-title-description {
