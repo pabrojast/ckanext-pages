@@ -508,9 +508,14 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 context={'user': tk.g.user}, data_dict=page_dict
             )
 
-            # If this is a Water Publication creation and dataset creation info was provided,
-            # create a CKAN documents dataset (type resolved from config/schema) with an optional resource
-            if page_type == 'water-publications' and not page:
+            # For Water Publications, run the dataset/upload flow on BOTH create and
+            # edit. Originally this was create-only, which meant that if the first
+            # save's dataset creation failed silently (e.g. validation error caught
+            # below), the user had no way to fix it from the edit form — uploading
+            # a new file or pasting a link did nothing. `_maybe_create_documents_dataset`
+            # is itself a no-op when the form has no upload, link or create flag,
+            # so it's safe to call on every save.
+            if page_type == 'water-publications':
                 try:
                     dataset_result = _maybe_create_documents_dataset(page_dict)
                     if isinstance(dataset_result, dict):
@@ -533,7 +538,14 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                             context={'user': tk.g.user}, data_dict=page_dict
                         )
                 except Exception as e:
-                    # Do not block page creation on dataset errors; show a warning
+                    # Do not block page save on dataset errors; surface a warning
+                    # AND log it so silent failures (the original bug here) can be
+                    # diagnosed from server logs.
+                    log = logging.getLogger(__name__)
+                    log.warning(
+                        "Water Publication dataset attach failed for page '%s': %s",
+                        page_dict.get('name') or page, e, exc_info=True
+                    )
                     tk.h.flash_error(_('Dataset creation warning: %s') % str(e))
 
             # Show different messages based on user type and page status

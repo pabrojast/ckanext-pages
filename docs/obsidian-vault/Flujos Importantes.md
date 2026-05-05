@@ -46,21 +46,26 @@ Regla importante:
 
 - si un no-admin intenta `publish`, el sistema lo degrada a `submit/pending`
 
-## 4. Creación de Water Publication con dataset CKAN
+## 4. Creación / edición de Water Publication con dataset CKAN
 
 Flujo:
 
-crear `water-publication` -> `_maybe_create_documents_dataset()` -> `package_create` implícito vía actions CKAN
+guardar `water-publication` (create o edit) -> `_maybe_create_documents_dataset()` -> `package_create` + `resource_create` -> persistir `download_url` y `associated_dataset_url` en la página
 
 Se dispara si el formulario trae:
 
 - flag de creación de dataset
-- archivo
-- o link de dataset/documento
+- archivo (`dataset_upload`)
+- o link de dataset/documento (`dataset_url`)
 
-Punto relevante:
+Si ninguno está presente, la helper hace early-return y la página se guarda igual.
+
+Puntos relevantes:
 
 - en creación de `water-publications`, el `name` se vuelve a derivar del título actual en cada intento para no arrastrar slugs ocultos viejos entre reintentos del formulario
+- el bloque que invoca `_maybe_create_documents_dataset()` corre tanto en crear como en editar; antes era solo creación, lo que dejaba al usuario sin manera de re-adjuntar un PDF cuando el primer intento fallaba en silencio (la página quedaba con `dataset_title` pero sin `download_url` ni dataset asociado, y `/documents` no listaba nada)
+- los errores de la helper se loguean con `log.warning(... exc_info=True)` además del `flash_error`, para que fallos silenciosos queden trazables en logs del servidor
+- en re-edición con archivo nuevo, si ya existe un dataset para esta publicación, `_generate_unique_dataset_name` añadirá sufijo `-1`, `-2`… y se creará un dataset adicional (no se sobrescribe el existente). Pendiente por confirmar si conviene atachar el resource al dataset existente vía `resource_create(package_id=...)` en lugar de crear uno nuevo.
 
 ## 5. Workflow Open Source Software
 

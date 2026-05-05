@@ -467,13 +467,12 @@
 }
 
 .section-title-content h1 {
-  font-size: clamp(1.6rem, 2vw + 1rem, 3rem);
+  font-size: clamp(1.6rem, 1.4vw + 1.2rem, 3rem);
   font-weight: 700;
   margin-bottom: 1.5rem;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
   line-height: 1.2;
   letter-spacing: -0.02em;
-  text-wrap: balance;
   overflow-wrap: anywhere;
   hyphens: auto;
 }
@@ -648,19 +647,28 @@
   margin-right: auto;
 }
 
-/* Iframe responsive wrapper (added by JS) */
+/* Iframe responsive wrapper (added by JS).
+   Without an explicit height the wrapper collapses and iframes pasted into
+   Quill (Terria/YouTube share links) default to their HTML 150px height,
+   leaving the embed clipped. Give the wrapper a sensible default and let
+   the iframe fill it; iframes that ship a taller `height` attribute can
+   still grow past the minimum. */
 .news-content-body .iframe-container,
 .image-gallery-content .iframe-container,
 .links-content .iframe-container {
   position: relative;
   width: 100%;
   margin: 1.5rem 0;
+  min-height: 500px;
 }
 .news-content-body .iframe-container > iframe,
 .image-gallery-content .iframe-container > iframe,
 .links-content .iframe-container > iframe {
   display: block;
+  width: 100%;
   max-width: 100%;
+  height: 100%;
+  min-height: 500px;
   border: 0;
 }
 
@@ -1299,6 +1307,19 @@
   #imageModal .image-modal-caption {
     margin-top: 1rem;
     font-size: 0.95rem;
+  }
+}
+
+/* Wide viewports: keep hero card visually proportional. Without this,
+   .section-title-content stays capped at 800px while the card stretches
+   with the Bootstrap container, leaving the title looking lost in the
+   middle of a wide card. */
+@media (min-width: 1380px) {
+  .section-title-content {
+    max-width: 1080px;
+  }
+  .section-title {
+    min-height: 380px;
   }
 }
 </style>

@@ -133,6 +133,30 @@
                           <div class="form-section-content">
                             <p class="help-block">{{ _('Upload a file or provide a link. A dataset will be created automatically to catalog your publication.') }}</p>
 
+                            {# Show what's currently attached so authors don't have to guess
+                               whether the original upload made it through. #}
+                            {% if page %}
+                              {% set _current_attachment = data.download_url or data.publication_url or data.dataset_url %}
+                              {% if _current_attachment %}
+                                <div class="alert alert-success" style="margin-bottom: 1rem;">
+                                  <i class="fa fa-paperclip"></i>
+                                  <strong>{{ _('Currently attached:') }}</strong>
+                                  <a href="{{ _current_attachment }}" target="_blank" rel="noopener">{{ _current_attachment }}</a>
+                                  <div class="text-muted small" style="margin-top:4px;">
+                                    {{ _('Uploading a new file or pasting a new link below will add a new resource.') }}
+                                  </div>
+                                </div>
+                              {% else %}
+                                <div class="alert alert-warning" style="margin-bottom: 1rem;">
+                                  <i class="fa fa-exclamation-triangle"></i>
+                                  <strong>{{ _('No file or link is attached to this publication yet.') }}</strong>
+                                  <div class="text-muted small" style="margin-top:4px;">
+                                    {{ _('If you uploaded a file when creating the publication and it never appeared, the dataset creation may have failed. Re-upload below to attach it now.') }}
+                                  </div>
+                                </div>
+                              {% endif %}
+                            {% endif %}
+
                             <div class="row">
                               <div class="col-md-6">
                                 <div class="form-group">
