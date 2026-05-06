@@ -4,11 +4,6 @@
 
 {% block main_content %}
   <div class="confirm-delete-wrapper">
-    <div class="flash-messages">
-      {% for message in h.flash.pop_messages() | list %}
-        <div class="alert fade in {{ message.category }}">{{ h.literal(message) }}</div>
-      {% endfor %}
-    </div>
     <div class="row">
       <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3">
         <section class="module module-narrow">
