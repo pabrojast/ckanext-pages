@@ -1013,50 +1013,90 @@ def _fallback_upload_publication_file():
     return file_url
 
 
+def _add_origin(origins, raw):
+    """Push `scheme://host[:port]` of `raw` into `origins`, ignoring failures."""
+    if not raw:
+        return
+    try:
+        parts = six.moves.urllib.parse.urlsplit(str(raw).strip())
+    except Exception:
+        return
+    if parts.scheme and parts.netloc:
+        origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
+
+
 def _trusted_storage_origins():
     """Origins (`scheme://host[:port]`) we treat as same-site for inline preview.
 
-    Always includes `ckan.site_url`. If the deployment serves
-    `url_for_static('uploads/...', qualified=True)` from a different host
-    (e.g. Azure blob, S3, a CDN), that origin is added too — those uploads
-    were written by us, so PDF.js / `<img>` can embed them safely.
+    Always includes `ckan.site_url`. If the deployment serves uploads from
+    a remote bucket (Azure blob, S3, a CDN), the bucket's origin is added
+    too — those uploads were written by us, so PDF.js / `<img>` can embed
+    them safely without bumping into the cross-origin HTML-wrapper trap
+    that breaks viewers on arbitrary external links.
 
-    The set is also extended via `ckanext.pages.trusted_storage_hosts`
-    (comma-separated `scheme://host` values) for deployments where the
-    static-URL probe can't run (no request context, helper not registered).
+    Sources, in order, all best-effort:
+      1. `ckan.site_url`.
+      2. The `ckanext-asset-storage` configured backend (where uploads go
+         via `Upload(object_type='page_images')`). For the Azure backend
+         this is `_svc_client.url` (`https://<account>.blob.core.windows.net`);
+         for Google Cloud it's the `https://storage.googleapis.com/<bucket>`
+         endpoint — both are introspected via duck-typing so we don't hard-
+         require asset-storage to be installed.
+      3. `helpers.url_for_static('uploads/page_images/_probe', qualified=True)`.
+         Only useful for backends that override the static URL helper
+         (e.g. local storage with a CDN proxy); plain CKAN returns the
+         site URL, which is already in the set.
+      4. Manual override via `ckanext.pages.trusted_storage_hosts` (CSV of
+         `scheme://host` values), for deployments where none of the above
+         can resolve the origin (custom plugin, in-test config, etc.).
     """
     origins = set()
+    _add_origin(origins, tk.config.get('ckan.site_url') or '')
 
-    site_url = (tk.config.get('ckan.site_url') or '').strip()
-    if site_url:
-        try:
-            parts = six.moves.urllib.parse.urlsplit(site_url)
-            if parts.scheme and parts.netloc:
-                origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
-        except Exception:
-            pass
+    try:
+        from ckanext.asset_storage.uploader import get_configured_storage
+        storage = get_configured_storage()
+    except Exception:
+        storage = None
+
+    if storage is not None:
+        # Azure: `_svc_client` is a `BlobServiceClient` whose `.url` ends in
+        # `https://<account>.blob.core.windows.net`. Container name shows
+        # up only in derived URLs, not in `.url`, so the origin alone is
+        # what we want.
+        for attr in ('_svc_client', '_client', '_service_client'):
+            obj = getattr(storage, attr, None)
+            obj_url = getattr(obj, 'url', None)
+            if obj_url:
+                _add_origin(origins, obj_url)
+
+        # Google Cloud / other backends sometimes expose `_bucket` with
+        # `.client.api_endpoint` or similar. Probe a couple of common
+        # property paths without hard-coding any single SDK.
+        for attr_path in (
+            ('_bucket', 'client', 'api_endpoint'),
+            ('_bucket', 'client', '_base_url'),
+        ):
+            obj = storage
+            for step in attr_path:
+                obj = getattr(obj, step, None)
+                if obj is None:
+                    break
+            if obj:
+                _add_origin(origins, obj)
 
     try:
         probe = helpers.url_for_static(
             'uploads/page_images/_probe', qualified=True
         )
-        parts = six.moves.urllib.parse.urlsplit(probe or '')
-        if parts.scheme and parts.netloc:
-            origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
+        _add_origin(origins, probe)
     except Exception:
         pass
 
-    extra = tk.config.get('ckanext.pages.trusted_storage_hosts') or ''
-    for raw in extra.split(','):
+    for raw in (tk.config.get('ckanext.pages.trusted_storage_hosts') or '').split(','):
         candidate = raw.strip().rstrip('/')
-        if not candidate:
-            continue
-        try:
-            parts = six.moves.urllib.parse.urlsplit(candidate)
-        except Exception:
-            continue
-        if parts.scheme and parts.netloc:
-            origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
+        if candidate:
+            _add_origin(origins, candidate)
 
     return origins
 
