@@ -539,7 +539,24 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                         page_dict.get('name') or page, e, exc_info=True
                     )
                     dataset_attach_error = e
-                    tk.h.flash_error(_('Dataset creation warning: %s') % str(e))
+                    # CKAN's `ValidationError.__str__` is `{'field': ['msg']}` —
+                    # readable but ugly. When the error has an `error_dict`,
+                    # flatten it into "field: msg" so the user can see exactly
+                    # which scheming field rejected the documents-dataset
+                    # payload (e.g. `notes_translated: Required language "en"
+                    # missing`) instead of a wall of bracketed quotes.
+                    error_detail = str(e)
+                    error_dict = getattr(e, 'error_dict', None)
+                    if isinstance(error_dict, dict) and error_dict:
+                        parts = []
+                        for field_name, msgs in error_dict.items():
+                            if isinstance(msgs, (list, tuple)):
+                                msg = '; '.join(str(m) for m in msgs)
+                            else:
+                                msg = str(msgs)
+                            parts.append('{0}: {1}'.format(field_name, msg))
+                        error_detail = ' | '.join(parts)
+                    tk.h.flash_error(_('Dataset creation warning: %s') % error_detail)
 
                 # When the documents-dataset flow failed but the user did
                 # supply a file, try a plain page-images upload so the file
@@ -1289,17 +1306,26 @@ def _maybe_create_documents_dataset(form_data):
 
     documents_type = _resolve_documents_dataset_type()
 
+    # `notes_translated.en` is REQUIRED on the documents schema (preset
+    # `schemingdcat_fluent_notes_translated`, `required: True`). The fluent
+    # validator rejects empty strings on required languages, so when the
+    # publication form leaves the description blank we'd silently fail
+    # `package_create` and end up with an attached PDF that goes nowhere.
+    # Fall back to the title so the dataset always has *something* in the
+    # required language; the user can always polish it later from /documents.
+    effective_notes = dataset_notes or dataset_title
+
     package_dict = {
         'type': documents_type,
         'title': dataset_title,
-        'notes': dataset_notes or '',
+        'notes': effective_notes,
         'title_translated': {
             'en': dataset_title,
             'es': '',
             'fr': ''
         },
         'notes_translated': {
-            'en': dataset_notes or '',
+            'en': effective_notes,
             'es': '',
             'fr': ''
         },
