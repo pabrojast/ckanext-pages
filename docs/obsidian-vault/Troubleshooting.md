@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-03-26
+Actualizado: 2026-05-06
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -64,6 +64,11 @@ Revisar:
 - `ckanext.pages.documents_dataset_type`
 - permisos del usuario para crear datasets
 - logs de `utils._maybe_create_documents_dataset()`
+
+Hallazgo productivo confirmado:
+
+- si el traceback cae en `ckan.logic.action.create.package_create()` y luego en `package_show()` con `NotFound`, revisar plugins encadenados sobre `package_show` como `ckanext-terria-view`
+- el fix en este repo fuerza `context['return_id_only']=True` para `package_create` y hace el `package_show(ignore_auth=True)` después, evitando que el flujo de Water Publications dependa del `package_show` interno de CKAN
 
 ## Problemas de DB intermitentes
 

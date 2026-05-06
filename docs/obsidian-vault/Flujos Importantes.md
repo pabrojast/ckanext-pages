@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-03-28
+Actualizado: 2026-05-06
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -67,6 +67,7 @@ Puntos relevantes:
 - los errores de la helper se loguean con `log.warning(... exc_info=True)` además del `flash_error`, que ahora aplana `error_dict` (cuando es `ValidationError`) en `field: msg | field: msg` para que el editor vea cuál campo del schema scheming rechazó el payload, no un `{'campo': ['mensaje']}` confuso
 - `notes_translated.en` cae al `dataset_title` cuando el formulario no aporta descripción, porque el preset `schemingdcat_fluent_notes_translated` rechaza valores vacíos en lenguajes requeridos. Sin este fallback la creación del dataset documents falla silenciosamente cuando el usuario sólo subía un PDF y no rellenaba la descripción, dejando la publicación sin `download_url`.
 - el campo `publication_type` del formulario se mapea al `document_type` del dataset documents (mismo vocabulario que `schemingdcat/unesco/documents.yaml`: `scientific_paper`, `technical_report`, `policy_brief`, …) para que página y dataset queden alineados
+- la creación del dataset usa `package_create(..., context['return_id_only']=True)` y luego hace un `package_show(ignore_auth=True)` aparte. Esto evita un fallo observado en producción donde plugins encadenados sobre `package_show` (`ckanext-terria-view`) disparaban `NotFound` al final de `package_create`, dejando la publicación sin dataset aunque el formulario trajera PDF/link válido
 - si `_maybe_create_documents_dataset()` falla (típicamente por permisos de `create_dataset` o por validaciones del schema scheming), `_fallback_upload_publication_file()` sube el archivo vía `ckanext_water_family_upload` (`/uploads/page_images/...`) y lo guarda como `download_url`, para que la página tenga al menos un archivo visible en lugar de quedarse silenciosa. La plantilla `water-publications.html` reconoce esa ruta como inline-viewable vía `is_ckan_download_url`.
 - la plantilla `water-publications.html` muestra un aviso "No file or link is attached" a editores cuando `doc_url` está vacío, para que los autores no asuman que el upload tuvo éxito sólo porque la página existe
 - en re-edición con archivo nuevo, si ya existe un dataset para esta publicación, `_generate_unique_dataset_name` añadirá sufijo `-1`, `-2`… y se creará un dataset adicional (no se sobrescribe el existente). Pendiente por confirmar si conviene atachar el resource al dataset existente vía `resource_create(package_id=...)` en lugar de crear uno nuevo.

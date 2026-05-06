@@ -1360,10 +1360,17 @@ def _maybe_create_documents_dataset(form_data):
     # `model.repo.commit()` and races the package row, surfacing as
     # `doi_package_id_fkey` violations. We mint the DOI explicitly below,
     # after package_create has fully committed.
+    #
+    # Also ask CKAN to return only the new package id. In production,
+    # `package_create`'s built-in trailing `package_show` can be chained by
+    # other plugins and fail with `NotFound` even after the insert/commit
+    # succeeded, which makes water-publications think dataset creation failed
+    # and leaves `/documents` empty for that upload.
     context = {'user': tk.g.user} if getattr(tk.g, 'user', None) else {}
     context['_skip_doi_create'] = True
+    context['return_id_only'] = True
     try:
-        package = tk.get_action('package_create')(context, package_dict)
+        package_create_result = tk.get_action('package_create')(context, package_dict)
     except tk.ValidationError as e:
         # Handle name collision race conditions robustly
         if isinstance(getattr(e, 'error_dict', None), dict) and 'name' in e.error_dict:
@@ -1371,13 +1378,43 @@ def _maybe_create_documents_dataset(form_data):
             fallback_name = f"{base_name}-{str(uuid.uuid4())[:6]}"
             package_dict['name'] = fallback_name
             package_dict['identifier'] = fallback_name
-            package = tk.get_action('package_create')(context, package_dict)
+            package_create_result = tk.get_action('package_create')(context, package_dict)
         else:
             raise
 
+    package = {}
+    package_id = None
+    package_name = package_dict.get('name') or ''
+    if isinstance(package_create_result, dict):
+        # Older/customized CKAN actions may ignore `return_id_only`.
+        package = package_create_result
+        package_id = package.get('id')
+        package_name = package.get('name') or package_name
+    else:
+        package_id = package_create_result
+        try:
+            package = tk.get_action('package_show')(
+                {'ignore_auth': True},
+                {
+                    'id': package_id,
+                    'include_plugin_data': False,
+                    'strip_resource_extras': False,
+                }
+            )
+            package_name = package.get('name') or package_name
+        except Exception:
+            # Resource creation only needs the package id. If a chained
+            # `package_show` filter still interferes here, keep going with the
+            # deterministic dataset name we just created.
+            package = {
+                'id': package_id,
+                'name': package_name,
+                'title': dataset_title,
+            }
+
     # Create resource if provided
     resource_dict = {
-        'package_id': package['id'],
+        'package_id': package_id,
     }
 
     # Title for resource
@@ -1407,12 +1444,12 @@ def _maybe_create_documents_dataset(form_data):
     dataset_url = form_data.get('dataset_url')
 
     resource_url = None
-    package_name = package.get('name') or package.get('id') or ''
     dataset_page_url = _build_dataset_page_url(package_name)
 
     if upload_file and getattr(upload_file, 'filename', None):
         # File upload resource
         files_context = context.copy()
+        files_context.pop('return_id_only', None)
         files_context['allow_partial_update'] = False
         resource_dict['upload'] = upload_file
         created_resource = tk.get_action('resource_create')(files_context, resource_dict)
@@ -1424,7 +1461,9 @@ def _maybe_create_documents_dataset(form_data):
     elif dataset_url:
         resource_dict['url'] = dataset_url
         # url_type left default; CKAN will set appropriately
-        created_resource = tk.get_action('resource_create')(context, resource_dict)
+        resource_context = context.copy()
+        resource_context.pop('return_id_only', None)
+        created_resource = tk.get_action('resource_create')(resource_context, resource_dict)
         resource_url = created_resource.get('url', '') or dataset_url
 
     # Mint the DOI now that the package has been committed.
@@ -1433,13 +1472,13 @@ def _maybe_create_documents_dataset(form_data):
     # flushed in the same transaction.
     try:
         from ckanext.doi.model.crud import DOIQuery
-        DOIQuery.read_package(package['id'], create_if_none=True)
+        DOIQuery.read_package(package_id, create_if_none=True)
     except ImportError:
         pass
     except Exception as e:
         logging.getLogger(__name__).warning(
             'Could not mint DOI for documents dataset %s: %s',
-            package.get('name') or package.get('id'),
+            package_name or package_id,
             e,
         )
 

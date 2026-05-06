@@ -14,6 +14,7 @@ from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
 from ckanext.pages.logic import schema
+from ckanext.pages import utils
 
 ckan_29_or_higher = toolkit.check_ckan_version(u'2.9')
 
@@ -685,6 +686,73 @@ class TestPages():
         assert page['name'] == 'fresh-publication-title'
         assert page['title'] == 'Fresh Publication Title'
         assert page['publication_url'] == 'https://example.com/fresh.pdf'
+
+    def test_water_publication_dataset_create_uses_return_id_only(self, app):
+        admin = factories.Sysadmin()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        original_get_action = utils.tk.get_action
+        captured = {}
+
+        def fake_get_action(name):
+            if name == 'package_create':
+                def _package_create(context, data_dict):
+                    captured['package_create_context'] = dict(context)
+                    captured['package_create_data'] = dict(data_dict)
+                    return 'package-id-123'
+                return _package_create
+
+            if name == 'package_show':
+                def _package_show(context, data_dict):
+                    captured['package_show_context'] = dict(context)
+                    captured['package_show_data'] = dict(data_dict)
+                    return {
+                        'id': 'package-id-123',
+                        'name': 'document-regression-publication',
+                        'title': 'Regression Publication',
+                    }
+                return _package_show
+
+            if name == 'resource_create':
+                def _resource_create(context, data_dict):
+                    captured['resource_create_context'] = dict(context)
+                    captured['resource_create_data'] = dict(data_dict)
+                    return {
+                        'id': 'resource-id-1',
+                        'url': 'https://example.com/regression.pdf',
+                        'name': 'Regression Publication',
+                    }
+                return _resource_create
+
+            return original_get_action(name)
+
+        with mock.patch('ckanext.pages.utils.tk.get_action', side_effect=fake_get_action):
+            response = app.post(
+                toolkit.url_for('pages.water_publications_quick'),
+                params={
+                    'title': 'Regression Publication',
+                    'dataset_title': 'Regression Publication',
+                    'name': 'regression-publication',
+                    'dataset_url': 'https://example.com/regression.pdf',
+                    'publication_url': 'https://example.com/regression.pdf',
+                    'submission_action': 'publish',
+                },
+                extra_environ=env,
+                status=302,
+            )
+
+        assert 'regression-publication' in response.location
+        assert captured['package_create_context']['return_id_only'] is True
+        assert captured['package_create_context']['_skip_doi_create'] is True
+        assert captured['package_show_context']['ignore_auth'] is True
+        assert captured['package_show_data']['id'] == 'package-id-123'
+        assert captured['resource_create_data']['package_id'] == 'package-id-123'
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {}, page='regression-publication'
+        )
+
+        assert page['download_url'] == 'https://example.com/regression.pdf'
+        assert '/dataset/document-regression-publication' in page['associated_dataset_url']
 
     def test_cannot_create_page_with_same_name(self, app):
         user = factories.Sysadmin()
