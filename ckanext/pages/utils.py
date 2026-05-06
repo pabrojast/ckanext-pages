@@ -576,12 +576,18 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
                 try:
                     _recover_water_publication_dataset_links(page_dict)
+                    update_page_dict = dict(page_dict)
+                    update_page_dict['page'] = (
+                        update_page_dict.get('page')
+                        or page
+                        or update_page_dict.get('name')
+                    )
                     resource_url = page_dict.get('download_url')
                     dataset_page_url = page_dict.get('associated_dataset_url')
 
                     if resource_url or dataset_page_url:
                         tk.get_action('ckanext_pages_update')(
-                            context={'user': tk.g.user}, data_dict=page_dict
+                            context={'user': tk.g.user}, data_dict=update_page_dict
                         )
                 except Exception as e:
                     log = logging.getLogger(__name__)
