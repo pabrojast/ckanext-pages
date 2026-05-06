@@ -754,7 +754,19 @@ class TestPages():
         assert page['download_url'] == 'https://example.com/regression.pdf'
         assert '/dataset/document-regression-publication' in page['associated_dataset_url']
 
-    def test_water_publication_dataset_create_defers_owner_org_assignment(self, app):
+    def test_water_publication_dataset_create_passes_owner_org(self, app):
+        """`owner_org` must travel with `package_create`.
+
+        We previously deferred org assignment to a follow-up
+        `package_owner_org_update` call so the schemingdcat
+        after_dataset_create author-metadata patch wouldn't roll back the
+        in-flight transaction. That broke production: CKAN core's
+        `package_create` validation rejects datasets without `owner_org`
+        ("An organization must be provided"), so every water-publications
+        upload silently fell back to a `page_images` upload and never
+        appeared on `/documents`. The race is now contained by
+        `_skip_doi_create` + `return_id_only` instead.
+        """
         admin = factories.Sysadmin()
         org = factories.Organization()
         env = {'REMOTE_USER': admin['name'].encode('ascii')}
@@ -771,8 +783,7 @@ class TestPages():
 
             if name == 'package_owner_org_update':
                 def _package_owner_org_update(context, data_dict):
-                    captured['owner_org_update_context'] = dict(context)
-                    captured['owner_org_update_data'] = dict(data_dict)
+                    captured['owner_org_update_called'] = True
                     return None
                 return _package_owner_org_update
 
@@ -819,13 +830,8 @@ class TestPages():
         assert 'deferred-owner-org' in response.location
         assert captured['package_create_context']['return_id_only'] is True
         assert captured['package_create_context']['_skip_doi_create'] is True
-        assert captured['package_create_context']['ignore_auth'] is True
-        assert 'owner_org' not in captured['package_create_data']
-        assert captured['owner_org_update_context']['ignore_auth'] is True
-        assert captured['owner_org_update_data'] == {
-            'id': 'package-id-456',
-            'organization_id': org['id'],
-        }
+        assert captured['package_create_data'].get('owner_org') == org['id']
+        assert 'owner_org_update_called' not in captured
         assert captured['resource_create_data']['package_id'] == 'package-id-456'
 
         page = helpers.call_action(

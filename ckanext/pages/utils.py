@@ -1013,16 +1013,71 @@ def _fallback_upload_publication_file():
     return file_url
 
 
+def _trusted_storage_origins():
+    """Origins (`scheme://host[:port]`) we treat as same-site for inline preview.
+
+    Always includes `ckan.site_url`. If the deployment serves
+    `url_for_static('uploads/...', qualified=True)` from a different host
+    (e.g. Azure blob, S3, a CDN), that origin is added too — those uploads
+    were written by us, so PDF.js / `<img>` can embed them safely.
+
+    The set is also extended via `ckanext.pages.trusted_storage_hosts`
+    (comma-separated `scheme://host` values) for deployments where the
+    static-URL probe can't run (no request context, helper not registered).
+    """
+    origins = set()
+
+    site_url = (tk.config.get('ckan.site_url') or '').strip()
+    if site_url:
+        try:
+            parts = six.moves.urllib.parse.urlsplit(site_url)
+            if parts.scheme and parts.netloc:
+                origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
+        except Exception:
+            pass
+
+    try:
+        probe = helpers.url_for_static(
+            'uploads/page_images/_probe', qualified=True
+        )
+        parts = six.moves.urllib.parse.urlsplit(probe or '')
+        if parts.scheme and parts.netloc:
+            origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
+    except Exception:
+        pass
+
+    extra = tk.config.get('ckanext.pages.trusted_storage_hosts') or ''
+    for raw in extra.split(','):
+        candidate = raw.strip().rstrip('/')
+        if not candidate:
+            continue
+        try:
+            parts = six.moves.urllib.parse.urlsplit(candidate)
+        except Exception:
+            continue
+        if parts.scheme and parts.netloc:
+            origins.add('{0}://{1}'.format(parts.scheme, parts.netloc))
+
+    return origins
+
+
 def _is_ckan_download_url(url, site_url=None):
-    """True if `url` is a same-origin CKAN download endpoint that's safe to
-    embed in PDF.js / `<img>`. We accept two shapes:
+    """True if `url` is a CKAN-managed download we can embed in PDF.js / `<img>`.
+
+    We accept three shapes:
 
       - dataset resource download: `/dataset/<id|name>/resource/<id>/download/<filename>`
       - page-images uploads (fallback path): `/uploads/page_images/<filename>`
-
-    Both serve the raw file from this CKAN, so the inline viewer can fetch
-    them without hitting the cross-origin HTML-wrapper trap external links
-    suffer from."""
+      - the same files served through a configured object store (Azure blob,
+        S3, etc.). When `ckan.storage_path` lives on a remote bucket,
+        `url_for_static('uploads/page_images/...', qualified=True)` is
+        rewritten to e.g.
+        `https://<account>.blob.core.windows.net/<container>/static/page_images/<filename>`,
+        but the bytes are still ours and CORS/public-read is configured for
+        them. The origin must match a trusted storage host (derived from the
+        site URL or from a `url_for_static` probe) so an editor can't
+        smuggle an arbitrary `https://evil.com/page_images/foo.pdf` past us.
+    """
     if not url:
         return False
     candidate = url.strip()
@@ -1031,19 +1086,36 @@ def _is_ckan_download_url(url, site_url=None):
     if site_url is None:
         site_url = (tk.config.get('ckan.site_url') or '').rstrip('/')
     site_url = (site_url or '').rstrip('/')
+
     if site_url and candidate.startswith(site_url):
         path = candidate[len(site_url):]
     elif candidate.startswith('/'):
         path = candidate
+    elif candidate.startswith(('http://', 'https://')):
+        try:
+            parts = six.moves.urllib.parse.urlsplit(candidate)
+        except Exception:
+            return False
+        if not (parts.scheme and parts.netloc):
+            return False
+        origin = '{0}://{1}'.format(parts.scheme, parts.netloc)
+        if origin not in _trusted_storage_origins():
+            return False
+        path = parts.path or ''
     else:
         return False
+
     path = path.split('?', 1)[0].split('#', 1)[0]
     if path.startswith('/dataset/') and '/resource/' in path and '/download/' in path:
         return True
-    # Fallback path: water-family page-images upload (used when the
-    # documents-dataset flow couldn't run). These also live on this CKAN,
-    # so the inline PDF/image viewer can load them safely.
-    return path.startswith('/uploads/page_images/')
+    # Page-images upload (water-family fallback path or rewritten by an
+    # object-storage adapter). The trailing segment `/page_images/<file>`
+    # is what `Upload(object_type='page_images')` writes; we own it.
+    if '/page_images/' in path:
+        last = path.rsplit('/page_images/', 1)[-1]
+        if last and '/' not in last:
+            return True
+    return False
 
 
 def _recover_water_publication_dataset_links(page_data):
@@ -1345,14 +1417,18 @@ def _maybe_create_documents_dataset(form_data):
     }
     if license_id:
         package_dict['license_id'] = license_id
-    # In production, ckanext-schemingdcat has an after_dataset_create hook
-    # that tries to package_patch author metadata when owner_org is present.
-    # Its patch can fail validation and roll back CKAN's still-open
-    # package_create transaction, leaving resource_create with a package id
-    # that no longer exists. Validate the user's create permission with the
-    # intended org, then create the package unowned and assign the org after
-    # package_create has committed.
-    deferred_owner_org = owner_org or None
+    # CKAN's `package_create` validation rejects datasets without `owner_org`
+    # for non-sysadmin callers (`{'owner_org': ['An organization must be
+    # provided']}`), so the documents-dataset creation must include it from
+    # the start — creating "unowned and assigning later" looked safer against
+    # the schemingdcat after_dataset_create hook race, but it instead made
+    # every water-publications upload fail validation and silently fall back
+    # to a page_images upload (no dataset on `/documents`). The two real
+    # races we *do* still need to dodge — ckanext-doi's in-hook DOI insert
+    # and chained `package_show` filters — are already handled below by
+    # `_skip_doi_create` and `return_id_only`.
+    if owner_org:
+        package_dict['owner_org'] = owner_org
     graphic_overview = form_data.get('graphic_overview') or form_data.get('header_image')
     if graphic_overview:
         package_dict['graphic_overview'] = graphic_overview
@@ -1384,12 +1460,6 @@ def _maybe_create_documents_dataset(form_data):
 
     package_create_context = context
     package_create_dict = dict(package_dict)
-    if deferred_owner_org:
-        auth_check_dict = dict(package_dict)
-        auth_check_dict['owner_org'] = deferred_owner_org
-        tk.check_access('package_create', context, auth_check_dict)
-        package_create_context = dict(context)
-        package_create_context['ignore_auth'] = True
 
     try:
         package_create_result = tk.get_action('package_create')(
@@ -1439,18 +1509,6 @@ def _maybe_create_documents_dataset(form_data):
                 'name': package_name,
                 'title': dataset_title,
             }
-
-    if deferred_owner_org and package_id:
-        owner_context = dict(context)
-        owner_context.pop('return_id_only', None)
-        owner_context['ignore_auth'] = True
-        tk.get_action('package_owner_org_update')(
-            owner_context,
-            {
-                'id': package_id,
-                'organization_id': deferred_owner_org,
-            }
-        )
 
     # Create resource if provided
     resource_dict = {
