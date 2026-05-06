@@ -302,6 +302,7 @@ def _pages_update(context, data_dict):
         if not _is_admin_for_featured:
             data.pop('featured', None)
             data.pop('ihp_official', None)
+            data_dict.pop('featured', None)
             data_dict.pop('ihp_official', None)
 
     items = ['title', 'content', 'name', 'private',
@@ -454,6 +455,11 @@ def _pages_update(context, data_dict):
             # Ensure 'private' is always a proper boolean, not a string
             if item == 'private':
                 value = tk.asbool(value) if value is not None else False
+            elif item == 'featured':
+                if value in (None, ''):
+                    value = bool(getattr(out, 'featured', False))
+                else:
+                    value = tk.asbool(value)
 
             setattr(out, item, value)
             # DEBUG: Log content field specifically

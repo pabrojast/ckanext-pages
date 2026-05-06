@@ -754,6 +754,123 @@ class TestPages():
         assert page['download_url'] == 'https://example.com/regression.pdf'
         assert '/dataset/document-regression-publication' in page['associated_dataset_url']
 
+    def test_water_publication_dataset_create_defers_owner_org_assignment(self, app):
+        admin = factories.Sysadmin()
+        org = factories.Organization()
+        env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        original_get_action = utils.tk.get_action
+        captured = {}
+
+        def fake_get_action(name):
+            if name == 'package_create':
+                def _package_create(context, data_dict):
+                    captured['package_create_context'] = dict(context)
+                    captured['package_create_data'] = dict(data_dict)
+                    return 'package-id-456'
+                return _package_create
+
+            if name == 'package_owner_org_update':
+                def _package_owner_org_update(context, data_dict):
+                    captured['owner_org_update_context'] = dict(context)
+                    captured['owner_org_update_data'] = dict(data_dict)
+                    return None
+                return _package_owner_org_update
+
+            if name == 'package_show':
+                def _package_show(context, data_dict):
+                    captured['package_show_context'] = dict(context)
+                    captured['package_show_data'] = dict(data_dict)
+                    return {
+                        'id': 'package-id-456',
+                        'name': 'document-deferred-owner-org',
+                        'title': 'Deferred Owner Org',
+                    }
+                return _package_show
+
+            if name == 'resource_create':
+                def _resource_create(context, data_dict):
+                    captured['resource_create_context'] = dict(context)
+                    captured['resource_create_data'] = dict(data_dict)
+                    return {
+                        'id': 'resource-id-2',
+                        'url': 'https://example.com/deferred.pdf',
+                        'name': 'Deferred Owner Org',
+                    }
+                return _resource_create
+
+            return original_get_action(name)
+
+        with mock.patch('ckanext.pages.utils.tk.get_action', side_effect=fake_get_action):
+            response = app.post(
+                toolkit.url_for('pages.water_publications_quick'),
+                params={
+                    'title': 'Deferred Owner Org',
+                    'dataset_title': 'Deferred Owner Org',
+                    'name': 'deferred-owner-org',
+                    'dataset_url': 'https://example.com/deferred.pdf',
+                    'publication_url': 'https://example.com/deferred.pdf',
+                    'organization_id': org['id'],
+                    'submission_action': 'publish',
+                },
+                extra_environ=env,
+                status=302,
+            )
+
+        assert 'deferred-owner-org' in response.location
+        assert captured['package_create_context']['return_id_only'] is True
+        assert captured['package_create_context']['_skip_doi_create'] is True
+        assert captured['package_create_context']['ignore_auth'] is True
+        assert 'owner_org' not in captured['package_create_data']
+        assert captured['owner_org_update_context']['ignore_auth'] is True
+        assert captured['owner_org_update_data'] == {
+            'id': 'package-id-456',
+            'organization_id': org['id'],
+        }
+        assert captured['resource_create_data']['package_id'] == 'package-id-456'
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {}, page='deferred-owner-org'
+        )
+
+        assert page['download_url'] == 'https://example.com/deferred.pdf'
+        assert '/dataset/document-deferred-owner-org' in page['associated_dataset_url']
+
+    def test_pages_update_preserves_featured_when_payload_has_none(self):
+        admin = factories.Sysadmin()
+        slug = 'featured-none-regression'
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': admin['name']},
+            name=slug,
+            page=slug,
+            title='Featured None Regression',
+            content='Initial content',
+            page_type='water-events',
+            private=False,
+            submission_status='approved',
+            featured=True,
+        )
+
+        helpers.call_action(
+            'ckanext_pages_update',
+            {'user': admin['name']},
+            name=slug,
+            page=slug,
+            title='Featured None Regression',
+            content='Updated content',
+            page_type='water-events',
+            private=False,
+            submission_status='approved',
+            featured=None,
+        )
+
+        page = helpers.call_action(
+            'ckanext_pages_show', {'user': admin['name']}, page=slug
+        )
+
+        assert page['featured'] is True
+
     def test_cannot_create_page_with_same_name(self, app):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}

@@ -1345,8 +1345,14 @@ def _maybe_create_documents_dataset(form_data):
     }
     if license_id:
         package_dict['license_id'] = license_id
-    if owner_org:
-        package_dict['owner_org'] = owner_org
+    # In production, ckanext-schemingdcat has an after_dataset_create hook
+    # that tries to package_patch author metadata when owner_org is present.
+    # Its patch can fail validation and roll back CKAN's still-open
+    # package_create transaction, leaving resource_create with a package id
+    # that no longer exists. Validate the user's create permission with the
+    # intended org, then create the package unowned and assign the org after
+    # package_create has committed.
+    deferred_owner_org = owner_org or None
     graphic_overview = form_data.get('graphic_overview') or form_data.get('header_image')
     if graphic_overview:
         package_dict['graphic_overview'] = graphic_overview
@@ -1375,8 +1381,20 @@ def _maybe_create_documents_dataset(form_data):
     context = {'user': tk.g.user} if getattr(tk.g, 'user', None) else {}
     context['_skip_doi_create'] = True
     context['return_id_only'] = True
+
+    package_create_context = context
+    package_create_dict = dict(package_dict)
+    if deferred_owner_org:
+        auth_check_dict = dict(package_dict)
+        auth_check_dict['owner_org'] = deferred_owner_org
+        tk.check_access('package_create', context, auth_check_dict)
+        package_create_context = dict(context)
+        package_create_context['ignore_auth'] = True
+
     try:
-        package_create_result = tk.get_action('package_create')(context, package_dict)
+        package_create_result = tk.get_action('package_create')(
+            package_create_context, package_create_dict
+        )
     except tk.ValidationError as e:
         # Handle name collision race conditions robustly
         if isinstance(getattr(e, 'error_dict', None), dict) and 'name' in e.error_dict:
@@ -1384,7 +1402,11 @@ def _maybe_create_documents_dataset(form_data):
             fallback_name = f"{base_name}-{str(uuid.uuid4())[:6]}"
             package_dict['name'] = fallback_name
             package_dict['identifier'] = fallback_name
-            package_create_result = tk.get_action('package_create')(context, package_dict)
+            package_create_dict['name'] = fallback_name
+            package_create_dict['identifier'] = fallback_name
+            package_create_result = tk.get_action('package_create')(
+                package_create_context, package_create_dict
+            )
         else:
             raise
 
@@ -1417,6 +1439,18 @@ def _maybe_create_documents_dataset(form_data):
                 'name': package_name,
                 'title': dataset_title,
             }
+
+    if deferred_owner_org and package_id:
+        owner_context = dict(context)
+        owner_context.pop('return_id_only', None)
+        owner_context['ignore_auth'] = True
+        tk.get_action('package_owner_org_update')(
+            owner_context,
+            {
+                'id': package_id,
+                'organization_id': deferred_owner_org,
+            }
+        )
 
     # Create resource if provided
     resource_dict = {

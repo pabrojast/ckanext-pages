@@ -69,6 +69,8 @@ Hallazgo productivo confirmado:
 
 - si el traceback cae en `ckan.logic.action.create.package_create()` y luego en `package_show()` con `NotFound`, revisar plugins encadenados sobre `package_show` como `ckanext-terria-view`
 - el fix en este repo fuerza `context['return_id_only']=True` para `package_create` y hace el `package_show(ignore_auth=True)` después, evitando que el flujo de Water Publications dependa del `package_show` interno de CKAN
+- si el traceback cae en `resource_create()` -> `package_show()` con `ckan.logic.NotFound` justo después de logs de `ckanext-schemingdcat` / `_autofill_author_from_org`, revisar si un `package_patch` en `after_dataset_create` hizo rollback del package. El flujo actual evita ese caso creando primero sin `owner_org` y asignando la organización con `package_owner_org_update` después del commit.
+- si aparece `psycopg2.errors.NotNullViolation: null value in column "featured"`, revisar payloads de re-guardado que traigan `featured=None`; `_pages_update()` debe preservar el valor existente o caer a `False`.
 
 ## Problemas de DB intermitentes
 
