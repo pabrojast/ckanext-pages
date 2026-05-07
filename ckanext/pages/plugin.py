@@ -1097,31 +1097,26 @@ def get_crida_category_label(category_type, category_id):
 
 
 def get_pending_approval_count():
-    """Return total pending approval count for sysadmins (used in header badge)."""
+    """Return pending water-family approval count for the header badge.
+
+    Mirrors the items rendered on ``pages.water_admin_dashboard`` so the
+    badge and dashboard cannot disagree. OSS, CRIDA and data stories are
+    intentionally excluded — they have their own dashboards and badges
+    (``get_pending_oss_count``, ``get_pending_crida_count``,
+    ``get_pending_stories_count``).
+    """
     try:
         import ckan.authz as authz
         if not tk.g.user or not authz.is_sysadmin(tk.g.user):
             return 0
-        from ckanext.pages.db import Page
-        from ckan import model
-        count = model.Session.query(Page).filter(
-            Page.page_type.in_(
-                ['water-news', 'water-events', 'water-publications',
-                 'open-source-software', 'crida-case-study']
-            ),
-            Page.private == True,
-            Page.submission_status == 'pending',
-            Page.group_id == None
-        ).count()
-        # Include pending data stories
-        try:
-            from ckanext.pages.data_stories.db.models import DataStory
-            count += model.Session.query(DataStory).filter(
-                DataStory.status.in_(['submitted', 'under_review'])
-            ).count()
-        except Exception:
-            pass
-        return count
+        from ckanext.pages.utils import _filter_non_admin_pages
+        total = 0
+        for page_type in ('water-news', 'water-events', 'water-publications'):
+            try:
+                total += len(_filter_non_admin_pages(page_type))
+            except Exception:
+                pass
+        return total
     except Exception:
         return 0
 
@@ -1160,23 +1155,11 @@ def get_pending_oss_count():
 
 
 def get_pending_water_count():
-    """Return pending water-family count (news, events, publications) for sysadmins."""
-    try:
-        import ckan.authz as authz
-        if not tk.g.user or not authz.is_sysadmin(tk.g.user):
-            return 0
-        from ckanext.pages.db import Page
-        from ckan import model
-        return model.Session.query(Page).filter(
-            Page.page_type.in_(
-                ['water-news', 'water-events', 'water-publications']
-            ),
-            Page.private == True,
-            Page.submission_status == 'pending',
-            Page.group_id == None
-        ).count()
-    except Exception:
-        return 0
+    """Return pending water-family count (news, events, publications) for sysadmins.
+
+    Uses the same filter as the water admin dashboard so callers stay in sync.
+    """
+    return get_pending_approval_count()
 
 
 def user_can_create_dataset(user_id):
