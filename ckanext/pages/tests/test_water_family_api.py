@@ -136,6 +136,36 @@ class TestWaterFamilyList:
         assert 'wf-initiative-yes' in names
         assert 'wf-initiative-no' not in names
 
+    def test_list_filter_by_hyphenated_initiative_with_page_type(self, app):
+        sysadmin = factories.Sysadmin()
+        nested_initiative_data = json.dumps([{'name': 'be-resilient'}])
+
+        _create_water_page(
+            sysadmin, 'wf-be-resilient-news',
+            page_type='water-news',
+            extras={'initiative_groups': json.dumps(nested_initiative_data)}
+        )
+        _create_water_page(
+            sysadmin, 'wf-be-resilient-event',
+            page_type='water-events',
+            extras={'initiative_groups': [{'name': 'be-resilient'}]}
+        )
+        _create_water_page(
+            sysadmin, 'wf-other-initiative-news',
+            page_type='water-news',
+            extras={'initiative_groups': [{'name': 'riverwatch'}]}
+        )
+
+        result = helpers.call_action(
+            'ckanext_water_family_list', {},
+            page_type='water-news',
+            initiative='be-resilient'
+        )
+        names = [r['name'] for r in result['results']]
+
+        assert names == ['wf-be-resilient-news']
+        assert result['count'] == 1
+
     def test_list_filter_by_member_state(self, app):
         sysadmin = factories.Sysadmin()
         country_data = [{'name': 'France', 'id': 'fr'}]

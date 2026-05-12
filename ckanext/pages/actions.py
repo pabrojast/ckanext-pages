@@ -905,6 +905,66 @@ WATER_FAMILY_LIST_MAX_LIMIT = 100
 WATER_FAMILY_LIST_DEFAULT_LIMIT = 20
 
 
+def _decode_nested_json(raw_value, max_depth=3):
+    """Best-effort JSON decoding for fields that may be encoded multiple times."""
+    value = raw_value
+    for _ in range(max_depth):
+        if not isinstance(value, str):
+            break
+        candidate = value.strip()
+        if not candidate:
+            break
+        try:
+            value = json.loads(candidate)
+        except (TypeError, ValueError):
+            break
+    return value
+
+
+def _extract_group_names(raw_groups):
+    groups = _decode_nested_json(raw_groups)
+    if not isinstance(groups, list):
+        return []
+
+    names = []
+    for item in groups:
+        if isinstance(item, dict):
+            name = item.get('name') or item.get('id')
+        else:
+            name = item
+        if isinstance(name, str) and name.strip():
+            names.append(name.strip())
+    return names
+
+
+def _page_matches_group_filter(page, field_name, expected_name):
+    expected = (expected_name or '').strip().casefold()
+    if not expected:
+        return True
+
+    extras = _decode_nested_json(getattr(page, 'extras', None))
+    if not isinstance(extras, dict):
+        return False
+
+    names = _extract_group_names(extras.get(field_name))
+    return any(name.casefold() == expected for name in names)
+
+
+def _filter_water_family_pages_by_groups(pages, initiative=None, member_state=None):
+    filtered = pages
+    if initiative:
+        filtered = [
+            page for page in filtered
+            if _page_matches_group_filter(page, 'initiative_groups', initiative)
+        ]
+    if member_state:
+        filtered = [
+            page for page in filtered
+            if _page_matches_group_filter(page, 'country_groups', member_state)
+        ]
+    return filtered
+
+
 def _water_family_list(context, data_dict):
     """Internal function to list water family content with filters.
 
@@ -930,12 +990,8 @@ def _water_family_list(context, data_dict):
 
     # Water family specific filters
     initiative = data_dict.get('initiative')
-    if initiative:
-        search['initiative'] = initiative
 
     member_state = data_dict.get('member_state')
-    if member_state:
-        search['member_state'] = member_state
 
     organization = data_dict.get('organization')
     if organization:
@@ -985,24 +1041,42 @@ def _water_family_list(context, data_dict):
             log.error("Database session invalid for water_family_list")
             return {'count': 0, 'results': []}
 
-        # Get count without limit/offset for pagination metadata
-        count_search = {k: v for k, v in search.items()
-                        if k not in ('limit', 'offset')}
-        total_results = db.Page.pages(**count_search)
-        total_count = len(total_results)
+        use_exact_group_filters = bool(initiative or member_state)
+        if use_exact_group_filters:
+            base_search = {k: v for k, v in search.items() if k not in ('limit', 'offset')}
+            total_results = db.Page.pages(**base_search)
 
-        # If no page_type specified, filter to water family types only
-        if not page_type:
-            total_results = [pg for pg in total_results
-                            if pg.page_type in WATER_FAMILY_TYPES]
+            if not page_type:
+                total_results = [
+                    pg for pg in total_results if pg.page_type in WATER_FAMILY_TYPES
+                ]
+
+            total_results = _filter_water_family_pages_by_groups(
+                total_results,
+                initiative=initiative,
+                member_state=member_state,
+            )
+            total_count = len(total_results)
+            out = total_results[offset:offset + limit]
+        else:
+            # Get count without limit/offset for pagination metadata
+            count_search = {k: v for k, v in search.items()
+                            if k not in ('limit', 'offset')}
+            total_results = db.Page.pages(**count_search)
             total_count = len(total_results)
 
-        # Get paginated results
-        out = db.Page.pages(**search)
+            # If no page_type specified, filter to water family types only
+            if not page_type:
+                total_results = [pg for pg in total_results
+                                if pg.page_type in WATER_FAMILY_TYPES]
+                total_count = len(total_results)
 
-        # Filter to water family types if no specific type requested
-        if not page_type:
-            out = [pg for pg in out if pg.page_type in WATER_FAMILY_TYPES]
+            # Get paginated results
+            out = db.Page.pages(**search)
+
+            # Filter to water family types if no specific type requested
+            if not page_type:
+                out = [pg for pg in out if pg.page_type in WATER_FAMILY_TYPES]
 
     except Exception as e:
         log.error("Error in water_family_list: %s", str(e))
