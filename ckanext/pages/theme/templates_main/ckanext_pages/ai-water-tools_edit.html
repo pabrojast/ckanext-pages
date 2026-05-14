@@ -33,9 +33,9 @@
         <div class="container">
             
             <!-- Breadcrumb Navigation -->
-            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+            <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
                 <ol class="breadcrumb">                 
-                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    {% snippet "snippets/breadcrumb_home.html" %}
                     <li><a href="{{ h.url_for('pages.ai_water_tools_index') }}">{{ _('AI for Water Management') }}</a></li>
                     {% if page %}
                       <li><a href="{{ h.url_for('pages.ai_water_tools_show', page=page.name) }}">{{ page.title or page.name }}</a></li>
@@ -821,7 +821,7 @@
                                 </div>
                               </div>
                               <div id="logo-preview" class="logo-preview-container" style="display: none;">
-                                <img id="logo-preview-img" src="" alt="Logo Preview" class="logo-preview-img">
+                                <img id="logo-preview-img" src="" alt="{{ _('Logo Preview') }}" class="logo-preview-img">
                                 <div class="logo-preview-actions">
                                   <button type="button" class="btn btn-sm btn-danger" id="remove-logo">
                                     <i class="fa fa-trash"></i> {{ _('Remove Logo') }}
@@ -2608,7 +2608,7 @@ textarea[id="example_applications"] {
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="{{ _('Close') }}"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="imageCropModalLabel">{{ _('Crop Image') }}</h4>
       </div>
       <div class="modal-body">

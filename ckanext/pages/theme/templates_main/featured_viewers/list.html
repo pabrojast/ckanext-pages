@@ -13,9 +13,9 @@
     <div class="container">
 
       <!-- Breadcrumb -->
-      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="{{ _('Breadcrumb') }}" style="margin-bottom: 1rem;">
         <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
-          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          {% snippet "snippets/breadcrumb_home.html" %}
           <li class="active"><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
         </ol>
       </nav>

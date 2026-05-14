@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+  {% snippet "snippets/breadcrumb_home.html" %}
   <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
   <li><a href="{{ h.url_for('pages.crida_case_studies_index') }}">{{ _('Case Studies') }}</a></li>
   <li><a href="{{ h.url_for('pages.crida_case_study_show', page=c.page.name) }}">{{ c.page.title or c.page.name }}</a></li>

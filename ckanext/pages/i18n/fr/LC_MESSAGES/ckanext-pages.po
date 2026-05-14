@@ -5548,3 +5548,88 @@ msgstr "Veuillez corriger les erreurs ci-dessous et réessayer."#~ msgid "Organi
 #~ msgid "There are currently no pages here"
 #~ msgstr ""
 
+
+#: ckanext/pages/theme/templates_main/snippets/breadcrumb_home.html
+msgid "Breadcrumb"
+msgstr "Fil d'Ariane"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Logo Preview"
+msgstr "Aperçu du logo"
+
+msgid "Map Preview"
+msgstr "Aperçu de la carte"
+
+msgid "Cover"
+msgstr "Couverture"
+
+msgid "Current cover"
+msgstr "Couverture actuelle"
+
+msgid "Gallery image"
+msgstr "Image de la galerie"
+
+msgid "N/A"
+msgstr "N/D"
+
+msgid "Software Title"
+msgstr "Titre du logiciel"
+
+msgid "Overview of the Mekong Delta Region"
+msgstr "Aperçu de la région du delta du Mékong"
+
+msgid "from dropdown"
+msgstr "depuis le menu déroulant"
+
+msgid "Interactive Map"
+msgstr "Carte interactive"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Please select an image file."
+msgstr "Veuillez sélectionner un fichier image."
+
+msgid "Max 5 MB."
+msgstr "Max. 5 Mo."
+
+msgid "Upload failed."
+msgstr "Échec du téléversement."
+
+msgid "JPG, PNG or GIF — Max 5 MB"
+msgstr "JPG, PNG ou GIF — Max. 5 Mo"
+
+msgid "Image must be under 5 MB."
+msgstr "L'image doit faire moins de 5 Mo."
+
+msgid "Show more details"
+msgstr "Afficher plus de détails"
+
+msgid "Show less details"
+msgstr "Afficher moins de détails"
+
+msgid "Hide details"
+msgstr "Masquer les détails"
+
+msgid "Has Errors"
+msgstr "Contient des erreurs"
+
+msgid "Has Content"
+msgstr "Contient du contenu"
+
+msgid "Empty"
+msgstr "Vide"
+
+msgid "Image"
+msgstr "Image"
+
+msgid "Click to expand"
+msgstr "Cliquez pour développer"
+
+msgid "Revision Content Preview"
+msgstr "Aperçu du contenu de la révision"
+
+msgid "News Article Preview"
+msgstr "Aperçu de l'article d'actualité"

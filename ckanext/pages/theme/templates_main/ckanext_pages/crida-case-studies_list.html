@@ -27,9 +27,9 @@
     <div class="container">
 
       {# Breadcrumb #}
-      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+      <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
         <ol class="breadcrumb">
-          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          {% snippet "snippets/breadcrumb_home.html" %}
           <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
           <li class="active">{{ _('Case Studies') }}</li>
         </ol>
@@ -197,7 +197,7 @@
               <div class="crida-card-body">
                 <div class="crida-card-header">
                   <span class="crida-card-country"><i class="fa fa-globe"></i> {{ pg.country }}</span>
-                  <span class="crida-status-badge {{ h.get_crida_status_class(pg.crida_status) }}">{{ pg.crida_status or 'N/A' }}</span>
+                  <span class="crida-status-badge {{ h.get_crida_status_class(pg.crida_status) }}">{{ pg.crida_status or _('N/A') }}</span>
                 </div>
 
                 <h3><a href="{{ h.url_for('pages.crida_case_study_show', page=pg.name) }}">{{ pg.title }}</a></h3>

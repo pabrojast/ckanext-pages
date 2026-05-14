@@ -9737,3 +9737,88 @@ msgstr ""
 msgid "Please correct the errors below and try again."
 msgstr ""
 
+
+#: ckanext/pages/theme/templates_main/snippets/breadcrumb_home.html
+msgid "Breadcrumb"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Logo Preview"
+msgstr ""
+
+msgid "Map Preview"
+msgstr ""
+
+msgid "Cover"
+msgstr ""
+
+msgid "Current cover"
+msgstr ""
+
+msgid "Gallery image"
+msgstr ""
+
+msgid "N/A"
+msgstr ""
+
+msgid "Software Title"
+msgstr ""
+
+msgid "Overview of the Mekong Delta Region"
+msgstr ""
+
+msgid "from dropdown"
+msgstr ""
+
+msgid "Interactive Map"
+msgstr ""
+
+msgid "Logo"
+msgstr ""
+
+msgid "Please select an image file."
+msgstr ""
+
+msgid "Max 5 MB."
+msgstr ""
+
+msgid "Upload failed."
+msgstr ""
+
+msgid "JPG, PNG or GIF — Max 5 MB"
+msgstr ""
+
+msgid "Image must be under 5 MB."
+msgstr ""
+
+msgid "Show more details"
+msgstr ""
+
+msgid "Show less details"
+msgstr ""
+
+msgid "Hide details"
+msgstr ""
+
+msgid "Has Errors"
+msgstr ""
+
+msgid "Has Content"
+msgstr ""
+
+msgid "Empty"
+msgstr ""
+
+msgid "Image"
+msgstr ""
+
+msgid "Click to expand"
+msgstr ""
+
+msgid "Revision Content Preview"
+msgstr ""
+
+msgid "News Article Preview"
+msgstr ""

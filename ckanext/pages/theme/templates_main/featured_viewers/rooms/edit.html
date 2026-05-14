@@ -16,7 +16,7 @@
     <div class="container">
 
       <!-- Breadcrumb -->
-      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="{{ _('Breadcrumb') }}" style="margin-bottom: 1rem;">
         <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; padding: 0.5rem 0 !important; margin: 0 !important;">
           <li class="home"><a href="/"><i class="fa fa-home"></i><span> Home</span></a></li>
           <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
@@ -210,7 +210,7 @@
         <div class="upload-dropzone" id="room-thumbnail-dropzone">
           <div class="dropzone-content" id="room-dropzone-content">
             {% if data.get('thumbnail_url') %}
-              <img src="{{ data.get('thumbnail_url') }}" alt="Cover" class="dropzone-preview-img">
+              <img src="{{ data.get('thumbnail_url') }}" alt="{{ _('Cover') }}" class="dropzone-preview-img">
               <p class="dropzone-filename" style="margin-top: 0.5rem;">{{ _('Current image') }}</p>
               <button type="button" class="btn btn-sm btn-danger room-remove-thumbnail" style="margin-top: 0.5rem;">
                 <i class="fa fa-trash"></i> {{ _('Remove') }}
@@ -590,15 +590,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  var _i18n_room = {
+    select_image: {{ _('Please select an image file.') | tojson }},
+    max_5mb: {{ _('Max 5 MB.') | tojson }},
+    uploading: {{ _('Uploading...') | tojson }},
+    remove: {{ _('Remove') | tojson }},
+    upload_failed: {{ _('Upload failed.') | tojson }},
+    drop_image: {{ _('Drop an image here or click to browse') | tojson }},
+    file_hint: {{ _('JPG, PNG or GIF — Max 5 MB') | tojson }}
+  };
+
   function uploadRoomThumbnail(file) {
-    if (!file.type.match(/^image\//)) { alert('Please select an image file.'); return; }
-    if (file.size > 5 * 1024 * 1024) { alert('Max 5 MB.'); return; }
+    if (!file.type.match(/^image\//)) { alert(_i18n_room.select_image); return; }
+    if (file.size > 5 * 1024 * 1024) { alert(_i18n_room.max_5mb); return; }
 
     var formData = new FormData();
     formData.append('upload', file);
 
     var content = document.getElementById('room-dropzone-content');
-    content.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i><p>Uploading...</p>';
+    content.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i><p>' + _i18n_room.uploading + '</p>';
 
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/pages_upload');
@@ -608,15 +618,15 @@ document.addEventListener('DOMContentLoaded', function() {
         var url = resp.url || resp;
         hiddenUrl.value = url;
         content.innerHTML =
-          '<img src="' + url + '" alt="Cover" class="dropzone-preview-img">' +
+          '<img src="' + url + '" alt="{{ _('Cover') }}" class="dropzone-preview-img">' +
           '<p style="margin-top: 0.5rem;">' + file.name + '</p>' +
-          '<button type="button" class="btn btn-sm btn-danger room-remove-thumbnail" style="margin-top: 0.5rem;"><i class="fa fa-trash"></i> Remove</button>';
+          '<button type="button" class="btn btn-sm btn-danger room-remove-thumbnail" style="margin-top: 0.5rem;"><i class="fa fa-trash"></i> ' + _i18n_room.remove + '</button>';
       } else {
         resetRoomDropzone();
-        alert('Upload failed.');
+        alert(_i18n_room.upload_failed);
       }
     };
-    xhr.onerror = function() { resetRoomDropzone(); alert('Upload failed.'); };
+    xhr.onerror = function() { resetRoomDropzone(); alert(_i18n_room.upload_failed); };
     xhr.send(formData);
   }
 
@@ -624,8 +634,8 @@ document.addEventListener('DOMContentLoaded', function() {
     hiddenUrl.value = '';
     document.getElementById('room-dropzone-content').innerHTML =
       '<i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>' +
-      '<p>Drop an image here or click to browse</p>' +
-      '<p class="text-muted" style="font-size: 0.85rem;">JPG, PNG or GIF — Max 5 MB</p>';
+      '<p>' + _i18n_room.drop_image + '</p>' +
+      '<p class="text-muted" style="font-size: 0.85rem;">' + _i18n_room.file_hint + '</p>';
   }
 
   document.addEventListener('click', function(e) {

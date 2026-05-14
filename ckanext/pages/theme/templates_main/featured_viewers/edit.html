@@ -16,9 +16,9 @@
     <div class="container">
 
       <!-- Breadcrumb -->
-      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="{{ _('Breadcrumb') }}" style="margin-bottom: 1rem;">
         <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
-          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          {% snippet "snippets/breadcrumb_home.html" %}
           <li><a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a></li>
           {% if is_edit %}
           <li><a href="{{ h.url_for('featured_viewers.show', slug=data.slug) }}">{{ data.title }}</a></li>
@@ -193,7 +193,7 @@
         <div class="upload-dropzone" id="fv-thumbnail-dropzone">
           <div class="dropzone-content" id="fv-dropzone-content">
             {% if data.get('thumbnail_url') %}
-              <img src="{{ data.get('thumbnail_url') }}" alt="Current cover" class="dropzone-preview-img" id="fv-thumbnail-preview-img">
+              <img src="{{ data.get('thumbnail_url') }}" alt="{{ _('Current cover') }}" class="dropzone-preview-img" id="fv-thumbnail-preview-img">
               <p class="dropzone-filename" id="fv-dropzone-filename">{{ _('Current image') }}</p>
               <button type="button" class="btn btn-sm btn-danger" id="fv-remove-thumbnail"
                       style="margin-top: 0.5rem;">
@@ -310,7 +310,7 @@
             {# Live map preview #}
             <div id="fv-map-preview" class="fv-map-preview">
               {% if data.get('terria_share_link') %}
-                <iframe src="{{ data.get('terria_share_link') }}" allow="geolocation" loading="lazy" title="Map Preview"></iframe>
+                <iframe src="{{ data.get('terria_share_link') }}" allow="geolocation" loading="lazy" title="{{ _('Map Preview') }}"></iframe>
               {% else %}
               <div class="fv-map-preview-placeholder">
                 <i class="fa fa-map-o fa-3x" style="color: #b0bec5;"></i>
@@ -1120,11 +1120,11 @@
 
       function uploadThumbnail(file) {
         if (!file.type.match(/^image\//)) {
-          alert('Please select an image file.');
+          alert({{ _('Please select an image file.') | tojson }});
           return;
         }
         if (file.size > 5 * 1024 * 1024) {
-          alert('Image must be under 5 MB.');
+          alert({{ _('Image must be under 5 MB.') | tojson }});
           return;
         }
 
@@ -1148,7 +1148,7 @@
             $hiddenUrl.val(url);
             $urlInput.val(url);
             $('#fv-dropzone-content').html(
-              '<img src="' + url + '" alt="Cover" class="dropzone-preview-img">' +
+              '<img src="' + url + '" alt="{{ _('Cover') }}" class="dropzone-preview-img">' +
               '<p class="dropzone-filename" style="margin-top: 0.5rem;">' + file.name + '</p>' +
               '<button type="button" class="btn btn-sm btn-danger" id="fv-remove-thumbnail" style="margin-top: 0.5rem;">' +
               '<i class="fa fa-trash"></i> {{ _("Remove") }}</button>'
@@ -1534,7 +1534,7 @@
         iframe.src = embedUrl;
         iframe.setAttribute('allow', 'geolocation');
         iframe.setAttribute('loading', 'lazy');
-        iframe.setAttribute('title', 'Map Preview');
+        iframe.setAttribute('title', {{ _('Map Preview') | tojson }});
         $advMapPreview.empty().append(iframe).show();
       });
 

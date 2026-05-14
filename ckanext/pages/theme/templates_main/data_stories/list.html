@@ -13,7 +13,7 @@
         {% set alert_class = 'danger' if category == 'error' else (category or 'info') %}
         <div class="alert alert-{{ alert_class }} alert-dismissible fade in"
              style="border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 0.75rem; font-size: 1rem;">
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+          <button type="button" class="close" data-dismiss="alert" aria-label="{{ _('Close') }}">&times;</button>
           <i class="fa fa-{{ 'exclamation-circle' if alert_class == 'danger' else ('check-circle' if alert_class == 'success' else 'info-circle') }}"></i>
           {{ message }}
         </div>
@@ -28,9 +28,9 @@
     <div class="container">
 
       <!-- Breadcrumb Navigation -->
-      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+      <nav class="toolbar breadcrumb-simple" role="navigation" aria-label="{{ _('Breadcrumb') }}" style="margin-bottom: 1rem;">
         <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
-          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          {% snippet "snippets/breadcrumb_home.html" %}
           <li class="active"><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
         </ol>
       </nav>

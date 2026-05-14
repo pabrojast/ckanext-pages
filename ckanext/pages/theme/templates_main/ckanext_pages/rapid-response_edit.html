@@ -22,9 +22,9 @@
         <div class="container">
             
             <!-- Breadcrumb Navigation -->
-            <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+            <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
                 <ol class="breadcrumb">                 
-                    <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+                    {% snippet "snippets/breadcrumb_home.html" %}
                     <li><a href="{{ h.url_for('pages.rapid_response_index') }}">{{ _('Rapid Response & Recovery') }}</a></li>
                     {% if page %}
                       <li><a href="{{ h.url_for('pages.rapid_response_show', page=page.name) }}">{{ page.name }}</a></li>
@@ -1300,13 +1300,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 indicator.className = 'content-indicator';
                 if (hasErrors) {
                     indicator.classList.add('has-errors');
-                    indicator.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Has Errors';
+                    indicator.innerHTML = '<i class="fa fa-exclamation-triangle"></i> ' + {{ _('Has Errors') | tojson }};
                 } else if (hasContent) {
                     indicator.classList.add('has-content');
-                    indicator.innerHTML = '<i class="fa fa-check"></i> Has Content';
+                    indicator.innerHTML = '<i class="fa fa-check"></i> ' + {{ _('Has Content') | tojson }};
                 } else {
                     indicator.classList.add('empty');
-                    indicator.innerHTML = '<i class="fa fa-circle-o"></i> Empty';
+                    indicator.innerHTML = '<i class="fa fa-circle-o"></i> ' + {{ _('Empty') | tojson }};
                 }
             }
             

@@ -1248,8 +1248,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!preview || !full) return;
 
     var isExpanded = full.style.display !== 'none';
-    var readMoreLabel = btn.getAttribute('data-read-more') || 'Read more';
-    var readLessLabel = btn.getAttribute('data-read-less') || 'Read less';
+    var readMoreLabel = btn.getAttribute('data-read-more') || {{ _('Read more') | tojson }};
+    var readLessLabel = btn.getAttribute('data-read-less') || {{ _('Read less') | tojson }};
 
     if (isExpanded) {
       // Collapse

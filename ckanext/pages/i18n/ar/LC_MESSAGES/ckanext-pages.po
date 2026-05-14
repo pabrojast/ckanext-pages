@@ -5549,3 +5549,88 @@ msgstr "يرجى تصحيح الأخطاء أدناه والمحاولة مرة 
 #~ msgid "There are currently no pages here"
 #~ msgstr ""
 
+
+#: ckanext/pages/theme/templates_main/snippets/breadcrumb_home.html
+msgid "Breadcrumb"
+msgstr "مسار التنقل"
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Logo Preview"
+msgstr "معاينة الشعار"
+
+msgid "Map Preview"
+msgstr "معاينة الخريطة"
+
+msgid "Cover"
+msgstr "الغلاف"
+
+msgid "Current cover"
+msgstr "الغلاف الحالي"
+
+msgid "Gallery image"
+msgstr "صورة المعرض"
+
+msgid "N/A"
+msgstr "غير متوفر"
+
+msgid "Software Title"
+msgstr "عنوان البرنامج"
+
+msgid "Overview of the Mekong Delta Region"
+msgstr "لمحة عامة عن منطقة دلتا نهر الميكونغ"
+
+msgid "from dropdown"
+msgstr "من القائمة المنسدلة"
+
+msgid "Interactive Map"
+msgstr "خريطة تفاعلية"
+
+msgid "Logo"
+msgstr "الشعار"
+
+msgid "Please select an image file."
+msgstr "يرجى اختيار ملف صورة."
+
+msgid "Max 5 MB."
+msgstr "الحد الأقصى 5 ميغابايت."
+
+msgid "Upload failed."
+msgstr "فشل التحميل."
+
+msgid "JPG, PNG or GIF — Max 5 MB"
+msgstr "JPG أو PNG أو GIF — حد أقصى 5 ميغابايت"
+
+msgid "Image must be under 5 MB."
+msgstr "يجب أن يكون حجم الصورة أقل من 5 ميغابايت."
+
+msgid "Show more details"
+msgstr "إظهار مزيد من التفاصيل"
+
+msgid "Show less details"
+msgstr "إظهار تفاصيل أقل"
+
+msgid "Hide details"
+msgstr "إخفاء التفاصيل"
+
+msgid "Has Errors"
+msgstr "يحتوي على أخطاء"
+
+msgid "Has Content"
+msgstr "يحتوي على محتوى"
+
+msgid "Empty"
+msgstr "فارغ"
+
+msgid "Image"
+msgstr "صورة"
+
+msgid "Click to expand"
+msgstr "انقر للتوسيع"
+
+msgid "Revision Content Preview"
+msgstr "معاينة محتوى المراجعة"
+
+msgid "News Article Preview"
+msgstr "معاينة مقال الأخبار"

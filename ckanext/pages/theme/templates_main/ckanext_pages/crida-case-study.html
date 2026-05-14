@@ -37,9 +37,9 @@
     <div class="container">
 
       {# Breadcrumb #}
-      <div class="toolbar" role="navigation" aria-label="Breadcrumb">
+      <div class="toolbar" role="navigation" aria-label="{{ _('Breadcrumb') }}">
         <ol class="breadcrumb">
-          <li class="home"><a href="/" aria-label="Home"><i class="fa fa-home"></i><span> Home</span></a></li>
+          {% snippet "snippets/breadcrumb_home.html" %}
           <li><a href="{{ h.url_for('pages.crida_index') }}">{{ _('CRIDA') }}</a></li>
           <li><a href="{{ h.url_for('pages.crida_case_studies_index') }}">{{ _('Case Studies') }}</a></li>
           <li class="active">{{ c.page.title or c.page.name }}</li>
@@ -52,7 +52,7 @@
         <div class="crida-hero-overlay"></div>
         <div class="crida-hero-content" style="padding:3rem 2.5rem;">
           <div style="margin-bottom:0.8rem;">
-            <span class="crida-status-badge {{ h.get_crida_status_class(c.page.crida_status) }}" style="font-size:0.78rem;">{{ c.page.crida_status or 'N/A' }}</span>
+            <span class="crida-status-badge {{ h.get_crida_status_class(c.page.crida_status) }}" style="font-size:0.78rem;">{{ c.page.crida_status or _('N/A') }}</span>
             {% if c.page.country %}
               <span style="margin-left:0.6rem;font-size:0.9rem;opacity:0.85;"><i class="fa fa-globe"></i> {{ c.page.country }}</span>
             {% endif %}
@@ -149,7 +149,7 @@
               {% for doc in cs_documents %}
               <li>
                 <a href="{{ doc.url }}" target="_blank">
-                  <i class="fa fa-download"></i> {{ doc.name or 'Document' }}
+                  <i class="fa fa-download"></i> {{ doc.name or _('Document') }}
                 </a>
                 {% if doc.type %}
                   <span style="font-size:0.78rem;color:var(--crida-gray-400);margin-left:0.5rem;">{{ doc.type }}</span>
