@@ -7466,7 +7466,8 @@ msgid "Back to Map Rooms"
 msgstr "العودة إلى غرف الخرائط"
 #: ckanext/pages/theme/templates_main/snippets/form_errors.html:3
 msgid "Please correct the errors below and try again."
-msgstr "يرجى تصحيح الأخطاء أدناه والمحاولة مرة أخرى."#~ msgid "Organization not found"
+msgstr "يرجى تصحيح الأخطاء أدناه والمحاولة مرة أخرى."
+#~ msgid "Organization not found"
 #~ msgstr ""
 
 #~ msgid "Unauthorized to read organization %s"

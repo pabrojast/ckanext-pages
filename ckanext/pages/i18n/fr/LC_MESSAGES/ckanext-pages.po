@@ -7465,7 +7465,8 @@ msgid "Back to Map Rooms"
 msgstr "Retour aux salles des cartes"
 #: ckanext/pages/theme/templates_main/snippets/form_errors.html:3
 msgid "Please correct the errors below and try again."
-msgstr "Veuillez corriger les erreurs ci-dessous et réessayer."#~ msgid "Organization not found"
+msgstr "Veuillez corriger les erreurs ci-dessous et réessayer."
+#~ msgid "Organization not found"
 #~ msgstr ""
 
 #~ msgid "Unauthorized to read organization %s"
