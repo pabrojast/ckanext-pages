@@ -142,6 +142,19 @@ Acciones CKAN relevantes:
 - `ckanext_crida_case_study_*`
 - `ckanext_crida_geojson`
 
+#### Contenido limpio en Water Family
+
+Las acciones `ckanext_water_family_list` y `ckanext_water_family_show` exponen, además de los campos originales del editor CKAN, dos derivados en texto plano para consumidores que no pueden renderizar HTML (CSToolbox, clientes móviles, indexadores):
+
+- `content_plain` — versión normalizada de `content` sin HTML, con saltos de párrafo (`\n\n`) en bloques y `\n` en `<br>`. Siempre presente.
+- `excerpt_plain` — versión normalizada de `excerpt`. Solo presente cuando el ítem trae `excerpt`.
+
+Parámetro opcional:
+
+- `strip_html` (bool, default `false`) — si es verdadero, sustituye también `content` y `excerpt` por su versión en texto plano. Útil para clientes que no quieren manejar dos campos.
+
+El normalizador (`ckanext.pages.actions.html_to_plain_text`) descarta el cuerpo de `script`, `style`, `noscript`, `template`, `svg` e `iframe`, decodifica entidades HTML y colapsa runs de whitespace inline.
+
 ### Opcionales
 
 - `data_story_*`

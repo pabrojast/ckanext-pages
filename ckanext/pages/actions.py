@@ -9,6 +9,7 @@ import ckan.lib.navl.dictization_functions as df
 import ckan.lib.uploader as uploader
 import ckan.lib.helpers as h
 from ckan.plugins import toolkit as tk
+import re
 from html.parser import HTMLParser
 
 from ckanext.pages.logic.schema import update_pages_schema
@@ -44,6 +45,106 @@ class HTMLFirstImage(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == 'img' and not self.first_image:
             self.first_image = dict(attrs)['src']
+
+
+# Tags whose textual content must be dropped entirely when stripping HTML.
+_HTML_TO_TEXT_SKIP_TAGS = frozenset((
+    'script', 'style', 'noscript', 'template', 'svg', 'iframe',
+))
+
+# Block-level tags that should produce a paragraph break.
+_HTML_TO_TEXT_BLOCK_TAGS = frozenset((
+    'address', 'article', 'aside', 'blockquote', 'div', 'dd', 'dl', 'dt',
+    'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3',
+    'h4', 'h5', 'h6', 'header', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre',
+    'section', 'table', 'td', 'th', 'tr', 'ul',
+))
+
+
+class _HTMLToText(HTMLParser):
+    """Convert rich HTML to normalized plain text.
+
+    - Skips the body of script/style/svg/iframe nodes entirely
+    - Treats block-level tags and <br> as line breaks
+    - Returns decoded entities and collapses runs of whitespace
+    """
+
+    def __init__(self):
+        # Keep entity references as text we can decode ourselves via the
+        # default HTMLParser behavior (convert_charrefs defaults to True).
+        HTMLParser.__init__(self)
+        self._parts = []
+        self._skip_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in _HTML_TO_TEXT_SKIP_TAGS:
+            self._skip_depth += 1
+            return
+        if tag == 'br':
+            self._parts.append('\n')
+        elif tag in _HTML_TO_TEXT_BLOCK_TAGS:
+            self._parts.append('\n')
+
+    def handle_endtag(self, tag):
+        if tag in _HTML_TO_TEXT_SKIP_TAGS:
+            if self._skip_depth > 0:
+                self._skip_depth -= 1
+            return
+        if tag in _HTML_TO_TEXT_BLOCK_TAGS:
+            self._parts.append('\n')
+
+    def handle_startendtag(self, tag, attrs):
+        # Self-closing tags like <br/> and <hr/>
+        if tag == 'br' or tag in _HTML_TO_TEXT_BLOCK_TAGS:
+            self._parts.append('\n')
+
+    def handle_data(self, data):
+        if self._skip_depth:
+            return
+        self._parts.append(data)
+
+    def get_text(self):
+        return ''.join(self._parts)
+
+
+# Collapse runs of inline whitespace (spaces/tabs) without touching newlines.
+_INLINE_WS_RE = re.compile(r'[ \t\f\v]+')
+# Collapse 3+ consecutive newlines down to a single blank line.
+_MULTI_NEWLINE_RE = re.compile(r'\n{3,}')
+
+
+def html_to_plain_text(value):
+    """Strip HTML from ``value`` and return normalized plain text.
+
+    Safe for ``None``, non-string, and malformed HTML inputs. Block elements
+    become paragraph breaks and ``<br>`` becomes a single newline so the
+    result reads naturally when rendered in a non-HTML context.
+    """
+    if value is None:
+        return ''
+    if not isinstance(value, str):
+        try:
+            value = str(value)
+        except Exception:
+            return ''
+    if not value:
+        return ''
+
+    parser = _HTMLToText()
+    try:
+        parser.feed(value)
+        parser.close()
+    except Exception:
+        # On malformed input, fall back to whatever was collected so far.
+        pass
+
+    text = parser.get_text()
+    # Normalize line endings and trim per-line whitespace.
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    text = _INLINE_WS_RE.sub(' ', text)
+    text = '\n'.join(line.strip() for line in text.split('\n'))
+    text = _MULTI_NEWLINE_RE.sub('\n\n', text)
+    return text.strip()
 
 
 def _pages_show(context, data_dict):
@@ -1010,6 +1111,11 @@ def _water_family_list(context, data_dict):
     if water_category:
         search['water_category'] = water_category
 
+    # Output normalization: when truthy, replace HTML fields (content,
+    # excerpt) with their plain-text equivalents in addition to always
+    # exposing *_plain derived fields.
+    strip_html = tk.asbool(data_dict.get('strip_html', False))
+
     # Ordering
     order_publish_date = data_dict.get('order_publish_date', True)
     if order_publish_date:
@@ -1110,6 +1216,18 @@ def _water_family_list(context, data_dict):
                 except (ValueError, TypeError):
                     pass
 
+            # Always expose plain-text variants of the rich-HTML fields so
+            # consumers that cannot render HTML (CSToolbox, mobile clients,
+            # search indexers) get usable text without parsing it themselves.
+            pg_row['content_plain'] = html_to_plain_text(pg_row.get('content'))
+            if 'excerpt' in pg_row:
+                pg_row['excerpt_plain'] = html_to_plain_text(pg_row.get('excerpt'))
+
+            if strip_html:
+                pg_row['content'] = pg_row['content_plain']
+                if 'excerpt' in pg_row:
+                    pg_row['excerpt'] = pg_row['excerpt_plain']
+
             out_list.append(pg_row)
         except Exception as e:
             log.warning("Error processing page %s: %s",
@@ -1140,6 +1258,9 @@ def water_family_list(context, data_dict):
     :param limit: Max results (default 20, max 100)
     :param offset: Pagination offset
     :param order_publish_date: Order by publish date desc (default True)
+    :param strip_html: If true, return ``content`` and ``excerpt`` as
+        normalized plain text. Plain-text fields ``content_plain`` and
+        ``excerpt_plain`` are always included regardless of this flag.
     :returns: dict with 'count' (total) and 'results' (list of page dicts)
     """
     try:
@@ -1156,6 +1277,9 @@ def water_family_show(context, data_dict):
     Only returns public, approved content. No authentication required.
 
     :param page: Page name/slug (required)
+    :param strip_html: If true, return ``content`` and ``excerpt`` as
+        normalized plain text. Plain-text fields ``content_plain`` and
+        ``excerpt_plain`` are always included regardless of this flag.
     :returns: dict with page details, or None if not found/not public
     """
     try:
@@ -1166,6 +1290,8 @@ def water_family_show(context, data_dict):
     page_name = data_dict.get('page')
     if not page_name:
         raise p.toolkit.ValidationError({'page': ['Missing value']})
+
+    strip_html = tk.asbool(data_dict.get('strip_html', False))
 
     try:
         if not ensure_valid_session():
@@ -1184,6 +1310,18 @@ def water_family_show(context, data_dict):
             return None
 
         result = db.table_dictize(out, context)
+
+        # Mirror the list endpoint: always expose plain-text derived
+        # variants, and optionally replace the rich-HTML fields when the
+        # caller asks for clean content.
+        if isinstance(result, dict):
+            result['content_plain'] = html_to_plain_text(result.get('content'))
+            if 'excerpt' in result:
+                result['excerpt_plain'] = html_to_plain_text(result.get('excerpt'))
+            if strip_html:
+                result['content'] = result['content_plain']
+                if 'excerpt' in result:
+                    result['excerpt'] = result['excerpt_plain']
         return result
 
     except Exception as e:

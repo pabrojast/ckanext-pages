@@ -7,6 +7,8 @@ import pytest
 
 from ckan.tests import factories, helpers
 
+from ckanext.pages.actions import html_to_plain_text
+
 
 def _create_water_page(user, name, page_type='water-news', private=False,
                        submission_status='approved', extras=None, **kwargs):
@@ -384,3 +386,141 @@ class TestWaterFamilyShow:
             page='wf-show-anon'
         )
         assert result is not None
+
+
+class TestHtmlToPlainText:
+    """Unit tests for the html_to_plain_text helper."""
+
+    def test_none_and_empty_inputs(self):
+        assert html_to_plain_text(None) == ''
+        assert html_to_plain_text('') == ''
+
+    def test_strips_tags_and_decodes_entities(self):
+        html = '<p>Hello&nbsp;<strong>world</strong> &amp; friends</p>'
+        # The non-breaking space decodes to U+00A0; assert on the words.
+        text = html_to_plain_text(html)
+        assert 'Hello' in text
+        assert 'world' in text
+        assert 'friends' in text
+        assert '<' not in text and '>' not in text
+        assert '&amp;' not in text
+
+    def test_drops_script_and_style_bodies(self):
+        html = (
+            '<style>.x{color:red}</style>'
+            '<script>alert(1)</script>'
+            '<p>Visible</p>'
+        )
+        text = html_to_plain_text(html)
+        assert text.strip() == 'Visible'
+
+    def test_block_tags_become_paragraph_breaks(self):
+        html = '<p>One</p><p>Two</p><p>Three</p>'
+        text = html_to_plain_text(html)
+        assert text == 'One\n\nTwo\n\nThree'
+
+    def test_br_becomes_single_newline(self):
+        html = 'Line one<br/>Line two'
+        text = html_to_plain_text(html)
+        assert text == 'Line one\nLine two'
+
+    def test_collapses_whitespace(self):
+        html = '<p>  too   many\t\tspaces  </p>'
+        assert html_to_plain_text(html) == 'too many spaces'
+
+    def test_malformed_html_does_not_raise(self):
+        # Unclosed tag — should still extract the visible text.
+        assert 'safe' in html_to_plain_text('<p>safe<p')
+
+
+@pytest.mark.usefixtures("with_plugins", "clean_db")
+@pytest.mark.ckan_config("ckan.plugins", "pages")
+class TestWaterFamilyCleanContent:
+    """Tests for plain-text fields and the strip_html flag."""
+
+    _HTML_BODY = (
+        '<p>Hello <strong>world</strong></p>'
+        '<script>alert(1)</script>'
+        '<p>Second paragraph</p>'
+    )
+    _HTML_EXCERPT = '<p>Short <em>summary</em></p>'
+
+    def test_list_always_includes_content_plain(self, app):
+        sysadmin = factories.Sysadmin()
+        _create_water_page(
+            sysadmin, 'wf-plain-1',
+            content=self._HTML_BODY,
+            extras={'excerpt': self._HTML_EXCERPT},
+        )
+
+        result = helpers.call_action('ckanext_water_family_list', {})
+        page = next(r for r in result['results'] if r['name'] == 'wf-plain-1')
+
+        assert 'content_plain' in page
+        assert page['content'] == self._HTML_BODY
+        assert '<' not in page['content_plain']
+        assert 'Hello world' in page['content_plain']
+        assert 'Second paragraph' in page['content_plain']
+        # script body must not leak into plain text
+        assert 'alert(1)' not in page['content_plain']
+
+        assert 'excerpt_plain' in page
+        assert page['excerpt'] == self._HTML_EXCERPT
+        assert page['excerpt_plain'] == 'Short summary'
+
+    def test_list_strip_html_replaces_html_fields(self, app):
+        sysadmin = factories.Sysadmin()
+        _create_water_page(
+            sysadmin, 'wf-plain-2',
+            content=self._HTML_BODY,
+            extras={'excerpt': self._HTML_EXCERPT},
+        )
+
+        result = helpers.call_action(
+            'ckanext_water_family_list', {},
+            strip_html=True,
+        )
+        page = next(r for r in result['results'] if r['name'] == 'wf-plain-2')
+
+        assert '<' not in page['content']
+        assert page['content'] == page['content_plain']
+        assert page['excerpt'] == 'Short summary'
+        assert page['excerpt'] == page['excerpt_plain']
+
+    def test_show_always_includes_content_plain(self, app):
+        sysadmin = factories.Sysadmin()
+        _create_water_page(
+            sysadmin, 'wf-plain-show',
+            content=self._HTML_BODY,
+            extras={'excerpt': self._HTML_EXCERPT},
+        )
+
+        page = helpers.call_action(
+            'ckanext_water_family_show', {},
+            page='wf-plain-show',
+        )
+
+        assert page is not None
+        assert page['content'] == self._HTML_BODY
+        assert 'Hello world' in page['content_plain']
+        assert 'alert(1)' not in page['content_plain']
+        assert page['excerpt_plain'] == 'Short summary'
+
+    def test_show_strip_html_replaces_html_fields(self, app):
+        sysadmin = factories.Sysadmin()
+        _create_water_page(
+            sysadmin, 'wf-plain-show-2',
+            content=self._HTML_BODY,
+            extras={'excerpt': self._HTML_EXCERPT},
+        )
+
+        page = helpers.call_action(
+            'ckanext_water_family_show', {},
+            page='wf-plain-show-2',
+            strip_html='true',
+        )
+
+        assert page is not None
+        assert '<' not in page['content']
+        assert page['content'] == page['content_plain']
+        assert page['excerpt'] == 'Short summary'
