@@ -9822,3 +9822,43 @@ msgstr ""
 
 msgid "News Article Preview"
 msgstr ""
+
+#, python-format
+msgid "Content from revision created on %(timestamp)s set."
+msgstr ""
+
+msgid "Title is required"
+msgstr ""
+
+msgid "Either publication URL or download URL is required"
+msgstr ""
+
+msgid "Event type with this name already exists"
+msgstr ""
+
+msgid "Cannot delete default event types. You can deactivate them instead."
+msgstr ""
+
+msgid "Disaster type ID already exists"
+msgstr ""
+
+msgid "Must be logged in to comment"
+msgstr ""
+
+msgid "User not found"
+msgstr ""
+
+msgid "Only administrators can permanently delete stories"
+msgstr ""
+
+msgid "Must be logged in to import stories"
+msgstr ""
+
+msgid "Must be logged in to create stories"
+msgstr ""
+
+msgid "A viewer with this slug already exists"
+msgstr ""
+
+msgid "A room with this slug already exists"
+msgstr ""

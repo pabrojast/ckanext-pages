@@ -77,11 +77,11 @@ def data_story_create(context, data_dict):
     # Get current user
     user = context.get('user')
     if not user:
-        raise tk.NotAuthorized("Must be logged in to create stories")
+        raise tk.NotAuthorized(tk._("Must be logged in to create stories"))
 
     user_obj = model.User.get(user)
     if not user_obj:
-        raise tk.NotAuthorized("User not found")
+        raise tk.NotAuthorized(tk._("User not found"))
 
     # Capture values before validation (CKAN flattens nested lists)
     countries_raw = data_dict.get('countries')

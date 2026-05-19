@@ -34,7 +34,7 @@
                 </div>
                 <h1>{{ _('Share a Publication') }}</h1>
                 <p class="qs-header-desc">{{ _('Upload a document or paste a link to share it with the IHP Water Family community. It takes less than a minute.') }}</p>
-                <a href="/documents/new" class="qs-advanced-link">
+                <a href="{{ h.url_for('/documents/new') }}" class="qs-advanced-link">
                   <i class="fa fa-cogs"></i> {{ _('Need more options? Use the advanced form') }}
                 </a>
               </div>

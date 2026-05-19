@@ -516,7 +516,7 @@
                         <h2>{{ _('Organization') }}</h2>
                       </div>
                       <div class="wp-org-grid">
-                        <a href="/organization/{{ org_details.name }}" class="wp-card wp-card--org">
+                        <a href="{{ h.url_for('/organization/' + org_details.name) }}" class="wp-card wp-card--org">
                           <div class="wp-card-img">
                             {% if org_details.image_display_url %}
                               <img src="{{ org_details.image_display_url }}" alt="{{ org_details.display_name or org_details.title }}">
@@ -574,7 +574,7 @@
                       </div>
                       <div class="wp-card-grid">
                         {% for ini in initiative_details %}
-                        <a href="/initiatives/{{ ini.name }}" class="wp-card wp-card--initiative">
+                        <a href="{{ h.url_for('/initiatives/' + ini.name) }}" class="wp-card wp-card--initiative">
                           <div class="wp-card-img">
                             {% if ini.image_display_url %}
                               <img src="{{ ini.image_display_url }}" alt="{{ ini.display_name }}">
@@ -606,7 +606,7 @@
                       </div>
                       <div class="wp-card-grid">
                         {% for ms in member_state_details %}
-                        <a href="/memberstates/{{ ms.name }}" class="wp-card wp-card--memberstate">
+                        <a href="{{ h.url_for('/memberstates/' + ms.name) }}" class="wp-card wp-card--memberstate">
                           <div class="wp-card-img">
                             {% if ms.image_display_url %}
                               <img src="{{ ms.image_display_url }}" alt="{{ ms.display_name }}">

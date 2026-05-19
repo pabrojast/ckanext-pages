@@ -63,7 +63,7 @@ def data_story_delete(context, data_dict):
             pass
 
         if not is_admin:
-            raise tk.NotAuthorized("Only administrators can permanently delete stories")
+            raise tk.NotAuthorized(tk._("Only administrators can permanently delete stories"))
 
         # Delete from database (cascades to sections, datasets, etc.)
         session.delete(story)

@@ -33,7 +33,7 @@
 
       <!-- Breadcrumb -->
       <div class="fv-breadcrumb">
-        <a href="/"><i class="fa fa-home"></i> {{ _('Home') }}</a>
+        <a href="{{ h.url_for('/') }}"><i class="fa fa-home"></i> {{ _('Home') }}</a>
         <span class="separator">›</span>
         <a href="{{ h.url_for('featured_viewers.index') }}">{{ _('Featured Viewers') }}</a>
         <span class="separator">›</span>

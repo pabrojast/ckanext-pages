@@ -57,7 +57,7 @@
                             <a href="{{ h.url_for('pages.water_publications_quick') }}" class="btn btn-primary btn-lg" style="margin-right: 0.5rem;">
                               <i class="fa fa-cloud-upload"></i> {{ _('Quick Share') }}
                             </a>
-                            <a href="/documents/new" class="btn btn-default" title="{{ _('Advanced form with all options') }}">
+                            <a href="{{ h.url_for('/documents/new') }}" class="btn btn-default" title="{{ _('Advanced form with all options') }}">
                               <i class="fa fa-cogs"></i> {{ _('Advanced') }}
                             </a>
                           {% endif %}

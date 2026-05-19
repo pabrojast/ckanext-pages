@@ -7637,3 +7637,43 @@ msgstr "معاينة محتوى المراجعة"
 
 msgid "News Article Preview"
 msgstr "معاينة مقال الأخبار"
+
+#, python-format
+msgid "Content from revision created on %(timestamp)s set."
+msgstr "تم تعيين محتوى المراجعة التي تم إنشاؤها في %(timestamp)s."
+
+msgid "Title is required"
+msgstr "العنوان مطلوب"
+
+msgid "Either publication URL or download URL is required"
+msgstr "مطلوب رابط النشر أو رابط التنزيل"
+
+msgid "Event type with this name already exists"
+msgstr "نوع الحدث بهذا الاسم موجود بالفعل"
+
+msgid "Cannot delete default event types. You can deactivate them instead."
+msgstr "لا يمكن حذف أنواع الأحداث الافتراضية. يمكنك تعطيلها بدلاً من ذلك."
+
+msgid "Disaster type ID already exists"
+msgstr "معرف نوع الكارثة موجود بالفعل"
+
+msgid "Must be logged in to comment"
+msgstr "يجب تسجيل الدخول للتعليق"
+
+msgid "User not found"
+msgstr "المستخدم غير موجود"
+
+msgid "Only administrators can permanently delete stories"
+msgstr "يمكن للمسؤولين فقط حذف القصص نهائيًا"
+
+msgid "Must be logged in to import stories"
+msgstr "يجب تسجيل الدخول لاستيراد القصص"
+
+msgid "Must be logged in to create stories"
+msgstr "يجب تسجيل الدخول لإنشاء القصص"
+
+msgid "A viewer with this slug already exists"
+msgstr "يوجد بالفعل عارض بهذا الرمز"
+
+msgid "A room with this slug already exists"
+msgstr "توجد بالفعل غرفة بهذا الرمز"

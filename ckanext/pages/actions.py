@@ -1377,7 +1377,7 @@ def event_types_create(context, data_dict):
     # Check if name already exists
     event_name = data['name']
     if any(et['name'] == event_name for et in existing_types):
-        raise p.toolkit.ValidationError({'name': ['Event type with this name already exists']})
+        raise p.toolkit.ValidationError({'name': [tk._('Event type with this name already exists')]})
     
     # Create new event type
     new_event_type = {
@@ -1497,7 +1497,7 @@ def event_types_delete(context, data_dict):
     # Check if it's a default type
     current_type = existing_types[event_type_index]
     if current_type.get('is_default', False):
-        raise p.toolkit.ValidationError({'id': ['Cannot delete default event types. You can deactivate them instead.']})
+        raise p.toolkit.ValidationError({'id': [tk._('Cannot delete default event types. You can deactivate them instead.')]})
     
     # Check if any rapid response pages are using this event type
     try:
@@ -1707,7 +1707,7 @@ def disaster_types_create(context, data_dict):
 
     new_id = data.get('id') or data.get('name', '').lower().replace(' ', '-')
     if any(dt['id'] == new_id for dt in existing_types):
-        raise p.toolkit.ValidationError({'id': ['Disaster type ID already exists']})
+        raise p.toolkit.ValidationError({'id': [tk._('Disaster type ID already exists')]})
 
     new_disaster_type = {
         'id': new_id,

@@ -1943,7 +1943,7 @@ def pages_revision_restore(page, revision, page_type='page'):
         )
         _page = Page.get(name=page)
         timestamp = helpers.render_datetime(_page.revisions[revision]["created"], with_hours=True)
-        tk.h.flash_success(f"Content from revision created on {timestamp} set.")
+        tk.h.flash_success(tk._("Content from revision created on %(timestamp)s set.") % {'timestamp': timestamp})
     except TypeError:
         tk.h.flash_error(
             """Bad values, please make sure that provided values exist:
@@ -2262,7 +2262,7 @@ def validate_water_family(data_dict, page_type):
 
     # Common validation for all water-family content
     if not data_dict.get('title'):
-        errors['title'] = ['Title is required']
+        errors['title'] = [tk._('Title is required')]
 
     if not data_dict.get('content'):
         warnings.append('Content field is empty. Consider adding a description.')
@@ -2478,7 +2478,7 @@ def _validate_water_publications(data_dict, errors, warnings):
 
     # At least one URL required
     if not data_dict.get('publication_url') and not data_dict.get('download_url'):
-        errors['publication_url'] = ['Either publication URL or download URL is required']
+        errors['publication_url'] = [tk._('Either publication URL or download URL is required')]
 
     # Year validation
     if data_dict.get('year'):

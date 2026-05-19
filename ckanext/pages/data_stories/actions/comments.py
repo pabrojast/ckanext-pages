@@ -40,11 +40,11 @@ def data_story_comment_create(context, data_dict):
     # Get user
     user = context.get('user')
     if not user:
-        raise tk.NotAuthorized("Must be logged in to comment")
+        raise tk.NotAuthorized(tk._("Must be logged in to comment"))
 
     user_obj = model.User.get(user)
     if not user_obj:
-        raise tk.NotAuthorized("User not found")
+        raise tk.NotAuthorized(tk._("User not found"))
 
     # Get parameters
     story_id = data_dict.get('story_id')

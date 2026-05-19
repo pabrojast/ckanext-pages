@@ -43,7 +43,7 @@
           <h1>{{ _('Climate Risk Informed Decision Analysis') }}</h1>
           <p class="crida-hero-subtitle">{{ _('A collaborative methodology for robust water management decisions under climate uncertainty. Connecting communities, data, and research worldwide.') }}</p>
           <div class="crida-hero-actions">
-            <a href="/group/crida" class="crida-hero-btn crida-hero-btn--primary">
+            <a href="{{ h.url_for('/group/crida') }}" class="crida-hero-btn crida-hero-btn--primary">
               <i class="fa fa-database"></i> {{ _('View Datasets') }}
             </a>
             <a href="https://www.unesco.org/en/crida" target="_blank" class="crida-hero-btn crida-hero-btn--outline">
@@ -55,23 +55,23 @@
 
       {# ── Stats Bar (gradient, overlaps hero) ────────────────────── #}
       <div class="crida-stats-bar crida-reveal">
-        <a href="/group/crida" class="crida-stat-item crida-stat-link">
+        <a href="{{ h.url_for('/group/crida') }}" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.datasets }}">0</div>
           <div class="crida-stat-label">{{ _('Datasets') }}</div>
         </a>
-        <a href="/group/crida/news" class="crida-stat-item crida-stat-link">
+        <a href="{{ h.url_for('/group/crida/news') }}" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.news }}">0</div>
           <div class="crida-stat-label">{{ _('News') }}</div>
         </a>
-        <a href="/group/crida/events" class="crida-stat-item crida-stat-link">
+        <a href="{{ h.url_for('/group/crida/events') }}" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.events }}">0</div>
           <div class="crida-stat-label">{{ _('Events') }}</div>
         </a>
-        <a href="/group/crida/publications" class="crida-stat-item crida-stat-link">
+        <a href="{{ h.url_for('/group/crida/publications') }}" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.publications }}">0</div>
           <div class="crida-stat-label">{{ _('Publications') }}</div>
         </a>
-        <a href="/group/crida/members" class="crida-stat-item crida-stat-link">
+        <a href="{{ h.url_for('/group/crida/members') }}" class="crida-stat-item crida-stat-link">
           <div class="crida-stat-number" data-target="{{ stats.members }}">0</div>
           <div class="crida-stat-label">{{ _('Members') }}</div>
         </a>
@@ -225,7 +225,7 @@
             {{ _('Datasets') }}
           </h2>
           {% if group_datasets %}
-          <a href="/group/crida" class="crida-view-all">
+          <a href="{{ h.url_for('/group/crida') }}" class="crida-view-all">
             {{ _('View All') }} ({{ stats.datasets }}) <i class="fa fa-arrow-right"></i>
           </a>
           {% endif %}
@@ -242,7 +242,7 @@
               </span>
               <span class="crida-card-type crida-card-type--dataset">{{ _('Dataset') }}</span>
             </div>
-            <h3><a href="/dataset/{{ ds.get('name', ds.get('id', '')) }}">{{ ds.get('title', ds.get('name', '')) }}</a></h3>
+            <h3><a href="{{ h.url_for('dataset.read', id=ds.get('name', ds.get('id', ''))) }}">{{ ds.get('title', ds.get('name', '')) }}</a></h3>
             {% if ds.get('organization') %}
             <div class="crida-dataset-org">
               <i class="fa fa-building-o"></i> {{ ds.organization.get('title', ds.organization.get('name', '')) if ds.organization is mapping else '' }}
@@ -325,7 +325,7 @@
             <span class="crida-section-icon crida-section-icon--teal"><i class="fa fa-users"></i></span>
             {{ _('Members') }}
           </h2>
-          <a href="/group/about/crida" class="crida-view-all">
+          <a href="{{ h.url_for('/group/about/crida') }}" class="crida-view-all">
             {{ _('View Group') }} <i class="fa fa-arrow-right"></i>
           </a>
         </div>

@@ -132,7 +132,7 @@
             <ul class="crida-related-datasets">
               {% for ds in cs_datasets %}
               <li>
-                <a href="/dataset/{{ ds.id }}">
+                <a href="{{ h.url_for('dataset.read', id=ds.id) }}">
                   <i class="fa fa-external-link"></i> {{ ds.title or ds.id }}
                 </a>
               </li>

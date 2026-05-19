@@ -11201,3 +11201,43 @@ msgstr "Vista previa del artículo de noticias"
 
 #~ msgid "Back to all viewers"
 #~ msgstr "Volver a todos los visores"
+
+#, python-format
+msgid "Content from revision created on %(timestamp)s set."
+msgstr "Se estableció el contenido de la revisión creada el %(timestamp)s."
+
+msgid "Title is required"
+msgstr "El título es obligatorio"
+
+msgid "Either publication URL or download URL is required"
+msgstr "Se requiere la URL de publicación o la URL de descarga"
+
+msgid "Event type with this name already exists"
+msgstr "Ya existe un tipo de evento con este nombre"
+
+msgid "Cannot delete default event types. You can deactivate them instead."
+msgstr "No se pueden eliminar los tipos de evento predeterminados. Puedes desactivarlos en su lugar."
+
+msgid "Disaster type ID already exists"
+msgstr "El ID del tipo de desastre ya existe"
+
+msgid "Must be logged in to comment"
+msgstr "Debes iniciar sesión para comentar"
+
+msgid "User not found"
+msgstr "Usuario no encontrado"
+
+msgid "Only administrators can permanently delete stories"
+msgstr "Solo los administradores pueden eliminar historias permanentemente"
+
+msgid "Must be logged in to import stories"
+msgstr "Debes iniciar sesión para importar historias"
+
+msgid "Must be logged in to create stories"
+msgstr "Debes iniciar sesión para crear historias"
+
+msgid "A viewer with this slug already exists"
+msgstr "Ya existe un visor con este slug"
+
+msgid "A room with this slug already exists"
+msgstr "Ya existe una sala con este slug"

@@ -41,11 +41,11 @@ def featured_viewer_create(context, data_dict):
 
     user = context.get('user')
     if not user:
-        raise tk.NotAuthorized("Must be logged in")
+        raise tk.NotAuthorized(tk._("Must be logged in"))
 
     user_obj = model.User.get(user)
     if not user_obj:
-        raise tk.NotAuthorized("User not found")
+        raise tk.NotAuthorized(tk._("User not found"))
 
     # Capture JSONB fields before validation
     countries_raw = data_dict.get('countries')
@@ -70,7 +70,7 @@ def featured_viewer_create(context, data_dict):
     # Check slug uniqueness
     existing = FeaturedViewer.get(slug=data['slug'])
     if existing:
-        raise tk.ValidationError({'slug': ['A viewer with this slug already exists']})
+        raise tk.ValidationError({'slug': [tk._('A viewer with this slug already exists')]})
 
     viewer = FeaturedViewer()
     viewer.id = make_uuid()
@@ -213,7 +213,7 @@ def map_room_create(context, data_dict):
     user = context.get('user')
     user_obj = model.User.get(user)
     if not user_obj:
-        raise tk.NotAuthorized("Must be logged in")
+        raise tk.NotAuthorized(tk._("Must be logged in"))
 
     schema = map_room_schema()
     data, errors = df.validate(data_dict, schema, context)
@@ -230,7 +230,7 @@ def map_room_create(context, data_dict):
     existing = MapRoom.get(slug=data['slug'])
     if existing:
         raise tk.ValidationError(
-            {'slug': ['A room with this slug already exists']}
+            {'slug': [tk._('A room with this slug already exists')]}
         )
 
     room = MapRoom()

@@ -142,11 +142,11 @@ def data_story_import(context, data_dict):
     # Get current user as default owner
     user = context.get('user')
     if not user:
-        raise tk.NotAuthorized("Must be logged in to import stories")
+        raise tk.NotAuthorized(tk._("Must be logged in to import stories"))
 
     user_obj = model.User.get(user)
     if not user_obj:
-        raise tk.NotAuthorized("User not found")
+        raise tk.NotAuthorized(tk._("User not found"))
 
     # Determine author
     if owner_user_id:
