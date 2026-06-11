@@ -132,10 +132,12 @@ Características:
 Modo `storymap`:
 
 - template `data_stories/show_storymap.html` + `public/js/data-stories-storymap.js` + `public/css/data-stories-storymap.css`
-- helpers en `data_stories/helpers/storymap.py` (`build_terria_scene_url`, `get_storymap_scenes`, `get_storymap_config`)
-- el cambio de escena usa fragment navigation en el iframe (`#clean&share=...`, sin recargar Terria); opcionalmente postMessage (`applyScene`) si `ckanext.pages.storymap_use_postmessage` está activo y el build de Terria incluye el bridge
+- helpers en `data_stories/helpers/storymap.py` (`build_terria_scene_url`, `get_storymap_scenes`, `get_storymap_config`, `resolve_terria_share`)
+- mecanismo de escenas con autodetección: si el build de Terria postea `"ready"` al padre (bridge postMessage), el iframe carga Terria sin share y las escenas se aplican vía postMessage con las `stories` embebidas eliminadas (así el panel nativo de story de Terria nunca se abre dentro del embed); si no hay bridge, fallback a fragment navigation (`#clean&share=...`, sin recargar Terria)
+- shares con stories multi-escena se expanden en "steps": cada escena de la story de Terria se renderiza como un paso dentro de la tarjeta (título + texto escritos en Terria) y el mapa avanza por ellas al hacer scroll (requiere bridge)
+- el mensaje `applyScene` (replaceStratum, reemplazo limpio de capas) se intenta primero; si el build no lo soporta, se degrada al start-data genérico (`updateFromStartData`, merge de strata)
 - preview sin convertir la story: `/data-stories/<slug>?layout=storymap`
-- endpoint `/data-stories/api/terria-scene/<share_id>` proxyea y cachea el share JSON de Terria (solo contra `ckanext.pages.terria_base_url`)
+- endpoint `/data-stories/api/terria-scene/<share_id>` proxyea y cachea el share JSON de Terria (solo contra `ckanext.pages.terria_base_url`); lo usan tanto el render (expansión de steps) como el viewer
 
 Se activa con:
 

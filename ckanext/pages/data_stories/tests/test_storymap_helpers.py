@@ -9,12 +9,19 @@ from ckanext.pages.data_stories.helpers.storymap import (
     build_terria_scene_url,
     get_storymap_scenes,
     get_storymap_config,
+    share_id_from_url,
+    _extract_share_stories,
     _media_embed_html,
     _strip_terria_tab_markup,
 )
 
 
 SHARE = 'https://ihp-wins.unesco.org/terria/#share=g-abc123'
+
+
+def _no_share(share_id):
+    """Stub resolver so unit tests never hit the network."""
+    return None
 
 
 class TestBuildTerriaSceneUrl:
@@ -68,7 +75,7 @@ class TestGetStorymapScenes:
             ],
         }])
 
-        scenes = get_storymap_scenes(story)
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert len(scenes) == 1
         scene = scenes[0]
         assert scene['section_id'] == 'sec-1'
@@ -89,7 +96,7 @@ class TestGetStorymapScenes:
             'blocks_metadata': json.dumps(blocks),
         }])
 
-        scenes = get_storymap_scenes(story)
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert scenes[0]['scene_url'] is not None
 
     def test_narrative_only_section_has_no_scene(self):
@@ -98,7 +105,7 @@ class TestGetStorymapScenes:
             'blocks_metadata': [{'type': 'text', 'content': '<p>Hi</p>'}],
         }])
 
-        scenes = get_storymap_scenes(story)
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert scenes[0]['scene_url'] is None
 
     def test_legacy_section_strips_terria_markup(self):
@@ -120,7 +127,7 @@ class TestGetStorymapScenes:
             'blocks_metadata': None,
         }])
 
-        scenes = get_storymap_scenes(story)
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
         block_html = scenes[0]['blocks'][0]['content']
         assert 'Before' in block_html
         assert 'After' in block_html
@@ -136,7 +143,7 @@ class TestGetStorymapScenes:
              'blocks_metadata': [{'type': 'text', 'content': 'y'}]},
         ])
 
-        scenes = get_storymap_scenes(story)
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert [s['section_id'] for s in scenes] == ['b']
 
     def test_sections_sorted_by_order_index(self):
@@ -145,12 +152,89 @@ class TestGetStorymapScenes:
             {'id': 'a', 'order_index': 1, 'blocks_metadata': []},
         ])
 
-        scenes = get_storymap_scenes(story)
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert [s['section_id'] for s in scenes] == ['a', 'b']
 
     def test_empty_story(self):
-        assert get_storymap_scenes({}) == []
-        assert get_storymap_scenes(None) == []
+        assert get_storymap_scenes({}, resolve_share=_no_share) == []
+        assert get_storymap_scenes(None, resolve_share=_no_share) == []
+
+    def test_multi_scene_story_expands_into_steps(self):
+        share_json = {
+            'version': '8.0.0',
+            'initSources': [{
+                'workbench': ['layer-1'],
+                'stories': [
+                    {'title': 'Day 1', 'text': '<p>Rain day 1</p>',
+                     'shareData': {'initSources': [{}]}},
+                    {'title': 'Day 2', 'text': '<p>Rain day 2</p>',
+                     'shareData': {'initSources': [{}]}},
+                    {'title': 'Day 3', 'text': '<p>Rain day 3</p>',
+                     'shareData': {'initSources': [{}]}},
+                ],
+            }],
+        }
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'terria', 'tabs': [{'title': 'M', 'url': SHARE}]}
+            ],
+        }])
+
+        scenes = get_storymap_scenes(
+            story, resolve_share=lambda sid: share_json)
+        scene = scenes[0]
+        assert scene['share_id'] == 'g-abc123'
+        assert len(scene['steps']) == 3
+        assert scene['steps'][0] == {'title': 'Day 1',
+                                     'text': '<p>Rain day 1</p>'}
+
+    def test_single_scene_story_has_no_steps(self):
+        share_json = {'initSources': [{
+            'stories': [{'title': 'Only', 'shareData': {}}]}]}
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'terria', 'tabs': [{'title': 'M', 'url': SHARE}]}
+            ],
+        }])
+
+        scenes = get_storymap_scenes(
+            story, resolve_share=lambda sid: share_json)
+        assert scenes[0]['steps'] == []
+
+    def test_failing_resolver_degrades_gracefully(self):
+        def boom(share_id):
+            raise RuntimeError('network down')
+
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'terria', 'tabs': [{'title': 'M', 'url': SHARE}]}
+            ],
+        }])
+
+        scenes = get_storymap_scenes(story, resolve_share=boom)
+        assert scenes[0]['steps'] == []
+        assert scenes[0]['scene_url'] is not None
+
+
+class TestShareHelpers:
+
+    def test_share_id_from_url(self):
+        assert share_id_from_url(SHARE) == 'g-abc123'
+        assert share_id_from_url(SHARE + '&hideWorkbench=1') == 'g-abc123'
+        assert share_id_from_url('https://example.org/#start=%7B%7D') is None
+        assert share_id_from_url(None) is None
+
+    def test_extract_share_stories(self):
+        share = {'initSources': [
+            {'workbench': []},
+            {'stories': [{'title': 'A'}, {'title': 'B'}]},
+        ]}
+        assert [s['title'] for s in _extract_share_stories(share)] == ['A', 'B']
+        assert _extract_share_stories({'initSources': []}) == []
+        assert _extract_share_stories(None) == []
 
 
 class TestGetStorymapConfig:
@@ -168,14 +252,19 @@ class TestGetStorymapConfig:
                 {'url': 'https://cdn.example.org/b.png', 'featured': True},
             ],
         }
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
 
-        config = get_storymap_config(story)
+        config = get_storymap_config(story, scenes)
         assert config['terriaOrigin'] == 'https://ihp-wins.unesco.org'
         assert config['scenes'][0]['id'] == 'sec-1'
         assert config['scenes'][0]['sceneUrl'].startswith(
             'https://ihp-wins.unesco.org/terria/#share=g-abc123')
+        assert config['scenes'][0]['shareId'] == 'g-abc123'
+        assert config['scenes'][0]['steps'] == 0
+        assert config['embedBaseUrl'] == (
+            'https://ihp-wins.unesco.org/terria/'
+            '#hideWorkbench=1&hideExplorerPanel=1')
         assert config['placeholderImage'] == 'https://cdn.example.org/b.png'
-        assert config['usePostMessage'] is False
 
 
 class TestMediaEmbedHtml:

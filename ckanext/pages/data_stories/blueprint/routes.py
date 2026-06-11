@@ -642,58 +642,27 @@ def export_all():
 # Story map scene resolution (Phase 2: postMessage bridge)
 # ============================================================================
 
-# Tiny in-process cache for resolved Terria share JSON: share_id -> (ts, body)
-_TERRIA_SCENE_CACHE = {}
-_TERRIA_SCENE_CACHE_TTL = 3600  # seconds
-_TERRIA_SCENE_CACHE_MAX = 200
-_TERRIA_SHARE_ID_RE = re.compile(r'^[A-Za-z0-9_-]{1,128}$')
-
-
 @data_stories_blueprint.route('/api/terria-scene/<share_id>')
 def terria_scene(share_id):
     """
     Resolve a Terria share id to its share JSON, proxying the configured
     Terria instance's '/api/v1/share/<id>' endpoint with a small cache.
 
-    Used by the storymap viewer when 'ckanext.pages.storymap_use_postmessage'
-    is enabled, so scene changes can be applied via postMessage (clean
-    stratum replacement) instead of a hash swap. Only the configured
-    'ckanext.pages.terria_base_url' instance is queried (no open proxy).
+    Used by the storymap viewer to apply scenes via postMessage (with the
+    share's embedded stories stripped, so Terria's native story panel never
+    opens inside the embed) and to walk through multi-scene stories as the
+    reader scrolls. Only the configured 'ckanext.pages.terria_base_url'
+    instance is queried (no open proxy).
     """
-    import time
-    import requests
+    from ckanext.pages.data_stories.helpers.storymap import (
+        resolve_terria_share)
 
-    from ckanext.pages.data_stories.helpers.terria import get_terria_base_url
-
-    if not _TERRIA_SHARE_ID_RE.match(share_id or ''):
-        return Response('{"error": "invalid share id"}', status=400,
-                        mimetype='application/json')
-
-    now = time.time()
-    cached = _TERRIA_SCENE_CACHE.get(share_id)
-    if cached and now - cached[0] < _TERRIA_SCENE_CACHE_TTL:
-        return Response(cached[1], mimetype='application/json',
-                        headers={'Cache-Control': 'public, max-age=3600'})
-
-    resolve_url = '%s/api/v1/share/%s' % (
-        get_terria_base_url().rstrip('/'), share_id)
-    try:
-        resp = requests.get(resolve_url, timeout=10)
-        resp.raise_for_status()
-        body = resp.text
-        json.loads(body)  # ensure it is valid JSON before caching
-    except Exception as e:
-        log.warning('[STORYMAP] Could not resolve Terria share %s: %s',
-                    share_id, e)
+    data = resolve_terria_share(share_id)
+    if data is None:
         return Response('{"error": "share not found"}', status=404,
                         mimetype='application/json')
 
-    if len(_TERRIA_SCENE_CACHE) >= _TERRIA_SCENE_CACHE_MAX:
-        oldest = min(_TERRIA_SCENE_CACHE, key=lambda k: _TERRIA_SCENE_CACHE[k][0])
-        del _TERRIA_SCENE_CACHE[oldest]
-    _TERRIA_SCENE_CACHE[share_id] = (now, body)
-
-    return Response(body, mimetype='application/json',
+    return Response(json.dumps(data), mimetype='application/json',
                     headers={'Cache-Control': 'public, max-age=3600'})
 
 

@@ -150,7 +150,8 @@
 
       <div class="storymap-cards">
         {% for scene in storymap_scenes %}
-        <article class="storymap-card" id="scene-{{ scene.section_id }}" data-scene-index="{{ loop.index0 }}">
+        {% set scene_index = loop.index0 %}
+        <article class="storymap-card" id="scene-{{ scene.section_id }}" data-scene-index="{{ scene_index }}">
           <div class="storymap-card-body">
             <header class="storymap-card-header">
               <span class="storymap-card-number">{{ loop.index }}</span>
@@ -174,6 +175,26 @@
               </div>
               {% endif %}
             {% endfor %}
+
+            {% if scene.steps and scene.steps|length > 1 %}
+            {# Terria story scenes inside this share: each one is a scroll
+               step — the map advances through them as the reader scrolls. #}
+            <div class="storymap-steps">
+              {% for step in scene.steps %}
+              <section class="storymap-step{% if loop.first %} is-active{% endif %}"
+                       data-scene-index="{{ scene_index }}"
+                       data-step-index="{{ loop.index0 }}">
+                <h3 class="storymap-step-title">
+                  <span class="storymap-step-number">{{ loop.index }}/{{ scene.steps|length }}</span>
+                  {{ step.title }}
+                </h3>
+                {% if step.text %}
+                <div class="storymap-step-text section-content">{{ step.text | safe }}</div>
+                {% endif %}
+              </section>
+              {% endfor %}
+            </div>
+            {% endif %}
 
             {% if scene.share_url %}
             <p class="storymap-open-terria">
