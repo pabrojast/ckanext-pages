@@ -10,6 +10,7 @@ from ckanext.pages.data_stories.helpers.storymap import (
     get_storymap_scenes,
     get_storymap_config,
     share_id_from_url,
+    share_api_base_from_url,
     _extract_share_stories,
     _media_embed_html,
     _strip_terria_tab_markup,
@@ -19,7 +20,7 @@ from ckanext.pages.data_stories.helpers.storymap import (
 SHARE = 'https://ihp-wins.unesco.org/terria/#share=g-abc123'
 
 
-def _no_share(share_id):
+def _no_share(share_id, api_base=None):
     """Stub resolver so unit tests never hit the network."""
     return None
 
@@ -182,7 +183,7 @@ class TestGetStorymapScenes:
         }])
 
         scenes = get_storymap_scenes(
-            story, resolve_share=lambda sid: share_json)
+            story, resolve_share=lambda sid, base=None: share_json)
         scene = scenes[0]
         assert scene['share_id'] == 'g-abc123'
         assert len(scene['steps']) == 3
@@ -200,11 +201,11 @@ class TestGetStorymapScenes:
         }])
 
         scenes = get_storymap_scenes(
-            story, resolve_share=lambda sid: share_json)
+            story, resolve_share=lambda sid, base=None: share_json)
         assert scenes[0]['steps'] == []
 
     def test_failing_resolver_degrades_gracefully(self):
-        def boom(share_id):
+        def boom(share_id, api_base=None):
             raise RuntimeError('network down')
 
         story = self._story([{
@@ -226,6 +227,32 @@ class TestShareHelpers:
         assert share_id_from_url(SHARE + '&hideWorkbench=1') == 'g-abc123'
         assert share_id_from_url('https://example.org/#start=%7B%7D') is None
         assert share_id_from_url(None) is None
+
+    def test_share_api_base_from_url(self):
+        assert share_api_base_from_url(SHARE) == (
+            'https://ihp-wins.unesco.org/terria/api/v1/share/')
+        assert share_api_base_from_url(
+            'https://terria.example.org/#share=g-x') == (
+            'https://terria.example.org/api/v1/share/')
+        assert share_api_base_from_url(None) is None
+        assert share_api_base_from_url('not a url') is None
+
+    def test_resolver_receives_api_base_from_share_link(self):
+        received = []
+
+        def spy(share_id, api_base=None):
+            received.append((share_id, api_base))
+            return None
+
+        story = {'sections': [{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'terria', 'tabs': [{'title': 'M', 'url': SHARE}]}
+            ],
+        }]}
+        get_storymap_scenes(story, resolve_share=spy)
+        assert received == [
+            ('g-abc123', 'https://ihp-wins.unesco.org/terria/api/v1/share/')]
 
     def test_extract_share_stories(self):
         share = {'initSources': [

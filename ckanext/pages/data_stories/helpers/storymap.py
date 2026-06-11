@@ -43,13 +43,40 @@ def share_id_from_url(share_link):
     return match.group(1) if match else None
 
 
-def resolve_terria_share(share_id, timeout=5):
+def share_api_base_from_url(share_link):
     """
-    Resolve a Terria share id to its share JSON via the configured Terria
-    instance ('{terria_base}/api/v1/share/<id>'), with an in-process cache.
+    Derive the Terria share-resolution API base from a share link:
 
-    Returns the parsed dict, or None on any failure (network, bad id, bad
-    JSON) — callers must degrade gracefully.
+        https://host/terria/#share=g-x  ->  https://host/terria/api/v1/share/
+
+    This keeps share resolution working regardless of what
+    'ckanext.pages.terria_base_url' is set to — the share lives on whatever
+    instance the author copied the link from.
+    """
+    if not share_link or not isinstance(share_link, str):
+        return None
+    try:
+        parsed = urlparse(share_link.strip())
+    except ValueError:
+        return None
+    if parsed.scheme not in ('http', 'https') or not parsed.netloc:
+        return None
+    base = '%s://%s%s' % (parsed.scheme, parsed.netloc, parsed.path)
+    return base.rstrip('/') + '/api/v1/share/'
+
+
+def _default_share_api_base():
+    return get_terria_base_url().rstrip('/') + '/api/v1/share/'
+
+
+def resolve_terria_share(share_id, api_base=None, timeout=5):
+    """
+    Resolve a Terria share id to its share JSON, with an in-process cache.
+
+    'api_base' is the share API prefix (see share_api_base_from_url);
+    it defaults to the configured Terria instance. Returns the parsed dict,
+    or None on any failure (network, bad id, bad JSON) — callers must
+    degrade gracefully.
     """
     import time
     import requests
@@ -57,20 +84,22 @@ def resolve_terria_share(share_id, timeout=5):
     if not share_id or not _SHARE_ID_VALID_RE.match(share_id):
         return None
 
+    if not api_base:
+        api_base = _default_share_api_base()
+
+    cache_key = api_base + share_id
     now = time.time()
-    cached = _SHARE_CACHE.get(share_id)
+    cached = _SHARE_CACHE.get(cache_key)
     if cached and now - cached[0] < _SHARE_CACHE_TTL:
         return cached[1]
 
-    resolve_url = '%s/api/v1/share/%s' % (
-        get_terria_base_url().rstrip('/'), share_id)
     try:
-        resp = requests.get(resolve_url, timeout=timeout)
+        resp = requests.get(api_base + share_id, timeout=timeout)
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
-        log.warning('[STORYMAP] Could not resolve Terria share %s: %s',
-                    share_id, e)
+        log.warning('[STORYMAP] Could not resolve Terria share %s at %s: %s',
+                    share_id, api_base, e)
         return None
 
     if not isinstance(data, dict):
@@ -79,7 +108,7 @@ def resolve_terria_share(share_id, timeout=5):
     if len(_SHARE_CACHE) >= _SHARE_CACHE_MAX:
         oldest = min(_SHARE_CACHE, key=lambda k: _SHARE_CACHE[k][0])
         del _SHARE_CACHE[oldest]
-    _SHARE_CACHE[share_id] = (now, data)
+    _SHARE_CACHE[cache_key] = (now, data)
     return data
 
 
@@ -167,8 +196,9 @@ def get_storymap_scenes(story, resolve_share=None):
     back to their baked 'content' HTML with embedded Terria tab markup
     stripped out.
 
-    'resolve_share' lets tests inject a stub resolver; the default fetches
-    (and caches) the share JSON from the configured Terria instance.
+    'resolve_share' lets tests inject a stub resolver (called with
+    (share_id, api_base)); the default fetches (and caches) the share JSON
+    from the instance the share link points at.
     """
     if resolve_share is None:
         resolve_share = resolve_terria_share
@@ -248,7 +278,8 @@ def get_storymap_scenes(story, resolve_share=None):
         steps = []
         if share_id:
             try:
-                stories = _extract_share_stories(resolve_share(share_id))
+                stories = _extract_share_stories(resolve_share(
+                    share_id, share_api_base_from_url(share_url)))
             except Exception as e:
                 log.warning('[STORYMAP] Step expansion failed for share '
                             '%s: %s', share_id, e)

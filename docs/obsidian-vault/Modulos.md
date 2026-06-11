@@ -137,7 +137,8 @@ Modo `storymap`:
 - shares con stories multi-escena se expanden en "steps": cada escena de la story de Terria se renderiza como un paso dentro de la tarjeta (título + texto escritos en Terria) y el mapa avanza por ellas al hacer scroll (requiere bridge)
 - el mensaje `applyScene` (replaceStratum, reemplazo limpio de capas) se intenta primero; si el build no lo soporta, se degrada al start-data genérico (`updateFromStartData`, merge de strata)
 - preview sin convertir la story: `/data-stories/<slug>?layout=storymap`
-- endpoint `/data-stories/api/terria-scene/<share_id>` proxyea y cachea el share JSON de Terria (solo contra `ckanext.pages.terria_base_url`); lo usan tanto el render (expansión de steps) como el viewer
+- resolución de shares: el API base se deriva del propio share link (`{origin}{path}/api/v1/share/`), tanto en el render (expansión de steps) como en el navegador (fetch directo, el API de shares de Terria envía CORS abierto) — no depende de `ckanext.pages.terria_base_url`. El endpoint `/data-stories/api/terria-scene/<share_id>` (proxy cacheado contra la instancia configurada) queda como fallback del navegador
+- durante el cambio de escena se muestra un pill "Loading scene…" sobre el mapa (clase `is-switching`); se oculta con el ack `sceneApplied` o por timeout
 
 Se activa con:
 

@@ -73,7 +73,7 @@
 
   function loadIframe() {
     if (mode !== 'idle') return;
-    if (resolveEndpoint && hasShareIds && config.embedBaseUrl) {
+    if (hasShareIds && config.embedBaseUrl) {
       // Bridge-first: bare Terria, scenes will arrive via postMessage.
       mode = 'pending';
       iframe.src = config.embedBaseUrl;
@@ -116,6 +116,20 @@
     }
   }
 
+  // Shows/hides the "Loading scene…" pill and the map veil. A failsafe
+  // timer clears it even when no completion signal ever arrives.
+  var switchingFailsafe = null;
+  function setSwitching(on) {
+    root.classList.toggle('is-switching', on);
+    if (switchingFailsafe) clearTimeout(switchingFailsafe);
+    switchingFailsafe = null;
+    if (on) {
+      switchingFailsafe = setTimeout(function () {
+        root.classList.remove('is-switching');
+      }, 8000);
+    }
+  }
+
   if ('IntersectionObserver' in window) {
     var lazyObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -153,23 +167,44 @@
     } else if (event.data && event.data.type === 'sceneApplied') {
       applySceneSupported = true;
       if (event.data.requestId === pendingRequestId) pendingRequestId = null;
-      root.classList.remove('is-switching');
+      setSwitching(false);
     }
   });
 
-  function fetchShare(shareId) {
-    if (!shareCache[shareId]) {
-      shareCache[shareId] = fetch(
-        resolveEndpoint.replace('__ID__', encodeURIComponent(shareId)),
-        { credentials: 'same-origin' }
-      ).then(function (resp) {
-        if (!resp.ok) throw new Error('share resolve failed: ' + resp.status);
-        return resp.json();
+  // Terria's share API base derived from the share URL itself, e.g.
+  // 'https://host/terria/#share=g-x' -> 'https://host/terria/api/v1/share/'.
+  // This works regardless of CKAN's configured Terria base URL.
+  function apiBaseFromUrl(url) {
+    var base = url.split('#')[0];
+    if (base.charAt(base.length - 1) !== '/') base += '/';
+    return base + 'api/v1/share/';
+  }
+
+  function asJson(resp) {
+    if (!resp.ok) throw new Error('share resolve failed: ' + resp.status);
+    return resp.json();
+  }
+
+  function fetchShare(shareId, sceneUrl) {
+    var cacheKey = shareId;
+    if (!shareCache[cacheKey]) {
+      // Direct fetch from the Terria instance (its share API sends open
+      // CORS headers); the CKAN caching proxy is the fallback.
+      var direct = sceneUrl
+        ? fetch(apiBaseFromUrl(sceneUrl) + encodeURIComponent(shareId))
+            .then(asJson)
+        : Promise.reject(new Error('no scene url'));
+      shareCache[cacheKey] = direct.catch(function () {
+        if (!resolveEndpoint) throw new Error('share resolve failed');
+        return fetch(
+          resolveEndpoint.replace('__ID__', encodeURIComponent(shareId)),
+          { credentials: 'same-origin' }
+        ).then(asJson);
       });
       // Don't cache failures.
-      shareCache[shareId].catch(function () { delete shareCache[shareId]; });
+      shareCache[cacheKey].catch(function () { delete shareCache[cacheKey]; });
     }
-    return shareCache[shareId];
+    return shareCache[cacheKey];
   }
 
   function stripStories(share) {
@@ -202,7 +237,7 @@
   }
 
   function postApply(shareData) {
-    root.classList.add('is-switching');
+    setSwitching(true);
     if (applySceneSupported === false) {
       postRaw(shareData);
       return;
@@ -234,7 +269,8 @@
     try {
       iframe.contentWindow.postMessage(shareData, terriaOrigin || '*');
     } catch (e) { /* ignore */ }
-    setTimeout(function () { root.classList.remove('is-switching'); }, 1500);
+    // No completion signal on this path; clear after a fixed delay.
+    setTimeout(function () { setSwitching(false); }, 2500);
   }
 
   /* ------------------------------------------------------------------ */
@@ -254,12 +290,13 @@
 
     if (mode === 'bridge' && scene.shareId) {
       currentKey = key;
-      fetchShare(scene.shareId).then(function (share) {
+      setSwitching(true);
+      fetchShare(scene.shareId, scene.sceneUrl).then(function (share) {
         if (currentKey !== key) return; // superseded while fetching
         var shareData;
         if (stepIndex !== null && stepIndex !== undefined) {
           var story = extractStories(share)[stepIndex];
-          if (!story || !story.shareData) return;
+          if (!story || !story.shareData) { setSwitching(false); return; }
           shareData = stripStories(story.shareData);
         } else {
           shareData = stripStories(share);
@@ -269,6 +306,8 @@
         if (currentKey === key) currentKey = null;
         if ((stepIndex === null || stepIndex === undefined) && scene.sceneUrl) {
           applyHash(scene.sceneUrl, key);
+        } else {
+          setSwitching(false);
         }
       });
       return;
@@ -290,7 +329,7 @@
     // '#clean&' empties Terria's accumulated initSources before the new
     // share is applied; already-loaded catalog models stay in memory.
     var swapUrl = url.replace('#', '#clean&');
-    root.classList.add('is-switching');
+    setSwitching(true);
     try {
       // Cross-origin Location.replace is allowed and, unlike setting
       // iframe.src, does not push a browser history entry.
@@ -298,7 +337,8 @@
     } catch (e) {
       iframe.src = swapUrl;
     }
-    setTimeout(function () { root.classList.remove('is-switching'); }, 1500);
+    // No completion signal on this path; clear after a fixed delay.
+    setTimeout(function () { setSwitching(false); }, 2500);
   }
 
   // Sub-scene tab buttons carry a full share URL.
@@ -307,9 +347,9 @@
     var match = url.match(/[#&]share=([A-Za-z0-9_-]+)/);
     var key = 'url:' + url;
     if (key === currentKey) return;
-    if (mode === 'bridge' && match && resolveEndpoint) {
+    if (mode === 'bridge' && match) {
       currentKey = key;
-      fetchShare(match[1]).then(function (share) {
+      fetchShare(match[1], url).then(function (share) {
         if (currentKey !== key) return;
         postApply(stripStories(share));
       }).catch(function () {

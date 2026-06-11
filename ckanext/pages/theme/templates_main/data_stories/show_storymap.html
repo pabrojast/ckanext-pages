@@ -138,6 +138,10 @@
         </div>
         <iframe class="storymap-iframe" title="{{ _('Interactive map') }}"
                 allow="geolocation; fullscreen" allowfullscreen></iframe>
+        <div class="storymap-scene-loading" role="status" aria-live="polite">
+          <span class="storymap-spinner storymap-spinner-sm"></span>
+          {{ _('Loading scene…') }}
+        </div>
         <nav class="storymap-progress" aria-label="{{ _('Story chapters') }}">
           {% for scene in storymap_scenes %}
           <button type="button" class="storymap-dot{% if loop.first %} is-active{% endif %}"
