@@ -30,12 +30,14 @@ class TestBuildTerriaSceneUrl:
     def test_adds_embed_flags_to_fragment(self):
         url = build_terria_scene_url(SHARE)
         assert url == ('https://ihp-wins.unesco.org/terria/'
-                       '#share=g-abc123&hideWorkbench=1&hideExplorerPanel=1')
+                       '#share=g-abc123&hideWorkbench=1&hideExplorerPanel=1'
+                       '&hideStory=1')
 
     def test_does_not_duplicate_existing_flags(self):
         url = build_terria_scene_url(SHARE + '&hideWorkbench=1')
         assert url.count('hideWorkbench=1') == 1
         assert 'hideExplorerPanel=1' in url
+        assert 'hideStory=1' in url
 
     def test_start_fragment_passes_through(self):
         url = build_terria_scene_url(
@@ -290,7 +292,7 @@ class TestGetStorymapConfig:
         assert config['scenes'][0]['steps'] == 0
         assert config['embedBaseUrl'] == (
             'https://ihp-wins.unesco.org/terria/'
-            '#hideWorkbench=1&hideExplorerPanel=1')
+            '#hideWorkbench=1&hideExplorerPanel=1&hideStory=1')
         assert config['placeholderImage'] == 'https://cdn.example.org/b.png'
 
 

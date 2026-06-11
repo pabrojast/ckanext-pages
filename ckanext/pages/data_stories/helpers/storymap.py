@@ -19,9 +19,12 @@ from ckanext.pages.data_stories.helpers.terria import get_terria_base_url
 log = logging.getLogger(__name__)
 
 # Hash parameters that put Terria in fullscreen-map mode (no workbench or
-# explorer panel). They must live in the URL fragment, not the query string:
-# Terria parses the fragment as user properties (ViewState.ts).
-STORYMAP_EMBED_FLAGS = ('hideWorkbench=1', 'hideExplorerPanel=1')
+# explorer panel) and keep its native story panel shut ('hideStory=1' — the
+# storymap narrates the story itself; stock Terria builds ignore the flag).
+# They must live in the URL fragment, not the query string: Terria parses
+# the fragment as user properties (ViewState.ts).
+STORYMAP_EMBED_FLAGS = ('hideWorkbench=1', 'hideExplorerPanel=1',
+                        'hideStory=1')
 
 _YOUTUBE_RE = re.compile(
     r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]+)')
@@ -134,7 +137,7 @@ def build_terria_scene_url(share_link):
     Keeps the original origin/path and the '#share=' (or '#start=') payload,
     and ensures the fullscreen-embed flags are present in the fragment:
 
-        https://host/terria/#share=g-XXX&hideWorkbench=1&hideExplorerPanel=1
+        https://host/terria/#share=g-XXX&hideWorkbench=1&hideExplorerPanel=1&hideStory=1
 
     Returns None if the link has no share/start fragment.
     """

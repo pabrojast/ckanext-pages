@@ -168,7 +168,16 @@
         if (target.sceneIndex >= 0) applyState(target.sceneIndex, target.stepIndex);
       }
     } else if (event.data && event.data.type === 'sceneApplied') {
+      // Two-phase ack: 'received' arrives immediately (capability proof,
+      // before the build awaits the heavy applyInitData calls), 'complete'
+      // when the scene is fully applied. Builds predating the phases send a
+      // single ack with no 'phase' — treated as completion.
       applySceneSupported = true;
+      if (event.data.phase === 'received') {
+        // Keep the pill up and re-arm its failsafe for the apply itself.
+        if (event.data.requestId === pendingRequestId) setSwitching(true);
+        return;
+      }
       if (event.data.requestId === pendingRequestId) pendingRequestId = null;
       setSwitching(false);
     }
@@ -400,7 +409,10 @@
     var scene = scenes[index];
     if (!scene) return;
     if (scene.steps > 1) {
-      // The step observer drives the map inside this chapter.
+      // Jump to the chapter's first scene as soon as the card activates
+      // (i.e. while reading its intro blocks); the step observer takes over
+      // from there. keyFor() dedupes the re-apply when step 1 centers.
+      scheduleApply(index, 0);
       return;
     }
     if (scene.sceneUrl || scene.shareId) {
