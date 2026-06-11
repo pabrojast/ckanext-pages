@@ -83,6 +83,10 @@ class DataStory(DomainObject, BaseModel):
     is_public = Column(Boolean, default=False)
     is_featured = Column(Boolean, default=False)
 
+    # Presentation layout: 'classic' (stacked sections) or 'storymap'
+    # (scrollytelling with a single sticky Terria map). NULL means 'classic'.
+    display_mode = Column(String(20), default='classic')
+
     # Statistics
     view_count = Column(Integer, default=0)
 

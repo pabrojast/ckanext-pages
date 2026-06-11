@@ -1,0 +1,400 @@
+{% extends "page.html" %}
+
+{% block title %}{{ story.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+{% if storymap_config.terriaOrigin %}
+<link rel="preconnect" href="{{ storymap_config.terriaOrigin }}" crossorigin />
+<link rel="dns-prefetch" href="{{ storymap_config.terriaOrigin }}" />
+{% endif %}
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css" />
+
+<div class="homepage layout-1 storymap-page">
+  <div id="content" class="container">
+    {# Render flash messages explicitly for reliable display #}
+    {% set flashed = get_flashed_messages(with_categories=true) %}
+    {% if flashed %}
+    <div id="flash-messages" style="margin-top: 1rem;">
+      {% for category, message in flashed %}
+        {% set alert_class = 'danger' if category == 'error' else (category or 'info') %}
+        <div class="alert alert-{{ alert_class }} alert-dismissible fade in"
+             style="border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 0.75rem; font-size: 1rem;">
+          <button type="button" class="close" data-dismiss="alert" aria-label="{{ _('Close') }}">&times;</button>
+          <i class="fa fa-{{ 'exclamation-circle' if alert_class == 'danger' else ('check-circle' if alert_class == 'success' else 'info-circle') }}"></i>
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="main">
+
+    {# ====================== Hero / story header ====================== #}
+    <div class="container">
+      <nav class="toolbar breadcrumb-simple data-story-breadcrumb" role="navigation" aria-label="{{ _('Breadcrumb') }}" style="margin-bottom: 1.5rem;">
+        <ol class="breadcrumb" style="background: transparent !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; padding: 0.5rem 0 !important; margin: 0 !important;">
+          {% snippet "snippets/breadcrumb_home.html" %}
+          <li><a href="{{ h.url_for('data_stories.index') }}">{{ _('Data Stories') }}</a></li>
+          <li class="active"><a href="#">{{ story.title }}</a></li>
+        </ol>
+      </nav>
+
+      {% set story_countries = story.countries or [] %}
+      {% if story_countries is string %}
+        {% set story_countries = h.json_loads(story_countries) if story_countries else [] %}
+      {% endif %}
+      {% if not story_countries is iterable or story_countries is string %}
+        {% set story_countries = [] %}
+      {% endif %}
+
+      <section class="module module-narrow storymap-hero">
+        <div class="story-header-content" style="padding: 2.5rem;">
+          <div class="story-badges" style="margin-bottom: 1rem;">
+            {% if story.status == 'published' %}
+            <span class="badge-modern badge-published" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white;">
+              <i class="fa fa-check-circle"></i> {{ _('Published') }}
+            </span>
+            {% elif story.status == 'draft' %}
+            <span class="badge-modern badge-draft" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white;">
+              <i class="fa fa-pencil"></i> {{ _('Draft') }}
+            </span>
+            {% else %}
+            <span class="badge-modern badge-{{ story.status }}" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+              <i class="fa fa-info-circle"></i> {{ story.status|replace('_', ' ')|title }}
+            </span>
+            {% endif %}
+            <span class="badge-modern" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); color: #0072BC; margin-left: 0.5rem;">
+              <i class="fa fa-map"></i> {{ _('Story Map') }}
+            </span>
+          </div>
+
+          <h1 class="story-title" style="margin: 0 0 1.5rem 0; color: #0072BC; font-size: 2.5rem; font-weight: 700; line-height: 1.2;">
+            {{ story.title }}
+          </h1>
+
+          {% if story.abstract %}
+          <div class="story-abstract" style="margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #f8f9fa 100%); border-radius: 12px; border-left: 4px solid #0072BC;">
+            <p class="lead" style="margin: 0; color: #2c3e50; font-size: 1.2rem; line-height: 1.6;">{{ story.abstract | safe }}</p>
+          </div>
+          {% endif %}
+
+          <div class="story-metadata" style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; padding: 1.5rem 0; border-top: 2px solid #e9ecef;">
+            {% if story.author %}
+            <div class="author-info" style="display: flex; align-items: center; gap: 1rem;">
+              <img src="{{ h.gravatar_url(story.author.email, size=48) }}"
+                   alt="{{ story.author.name }}"
+                   style="width: 48px; height: 48px; border-radius: 50%; border: 3px solid #0072BC;" />
+              <div>
+                <strong style="color: #2c3e50; font-size: 1.05rem;">{{ story.author.fullname or story.author.name }}</strong>
+                {% if story.organization %}
+                <br/><small style="color: #6c757d;"><i class="fa fa-building"></i> {{ story.organization.title }}</small>
+                {% endif %}
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="story-stats" style="display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.95rem; color: #6c757d;">
+              <span title="{{ _('Published') }}">
+                <i class="fa fa-calendar" style="color: #0072BC;"></i>
+                {{ h.render_datetime(story.published_at or story.created_at, with_hours=False) }}
+              </span>
+              <span title="{{ _('Views') }}">
+                <i class="fa fa-eye" style="color: #0072BC;"></i> {{ story.view_count or 0 }}
+              </span>
+            </div>
+
+            {% if story_countries %}
+            <div class="story-country-badges" style="align-items: center;">
+              <span style="font-weight: 700; color: #0072BC; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fa fa-globe"></i> {{ _('Countries') }}
+              </span>
+              {% for country in story_countries %}
+                <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <p class="storymap-scroll-hint" style="margin: 1.25rem 0 0 0; color: #6c757d;">
+            <i class="fa fa-angle-double-down"></i> {{ _('Scroll to explore the story — the map updates as you read.') }}
+          </p>
+        </div>
+      </section>
+    </div>
+
+    {# ====================== Scrollytelling sidecar ====================== #}
+    {% if storymap_scenes %}
+    <div class="storymap" id="storymap">
+
+      <div class="storymap-media">
+        <div class="storymap-placeholder" aria-hidden="true"
+             {% if storymap_config.placeholderImage %}style="background-image: url('{{ storymap_config.placeholderImage }}');"{% endif %}>
+          <div class="storymap-placeholder-overlay">
+            <div class="storymap-spinner"></div>
+            <p>{{ _('Loading interactive map…') }}</p>
+          </div>
+        </div>
+        <iframe class="storymap-iframe" title="{{ _('Interactive map') }}"
+                allow="geolocation; fullscreen" allowfullscreen></iframe>
+        <nav class="storymap-progress" aria-label="{{ _('Story chapters') }}">
+          {% for scene in storymap_scenes %}
+          <button type="button" class="storymap-dot{% if loop.first %} is-active{% endif %}"
+                  data-target="scene-{{ scene.section_id }}"
+                  title="{{ scene.title or loop.index }}"
+                  aria-label="{{ _('Go to chapter') }} {{ loop.index }}"></button>
+          {% endfor %}
+        </nav>
+      </div>
+
+      <div class="storymap-cards">
+        {% for scene in storymap_scenes %}
+        <article class="storymap-card" id="scene-{{ scene.section_id }}" data-scene-index="{{ loop.index0 }}">
+          <div class="storymap-card-body">
+            <header class="storymap-card-header">
+              <span class="storymap-card-number">{{ loop.index }}</span>
+              <h2><i class="fa {{ h.get_section_icon(scene.section_type) }}"></i>
+                {{ scene.title or scene.section_type|replace('_', ' ')|title }}</h2>
+            </header>
+
+            {% for block in scene.blocks %}
+              {% if block.type == 'text' %}
+              <div class="section-content">{{ block.content | safe }}</div>
+              {% elif block.type == 'media' %}
+              <div class="storymap-card-media">{{ block.embed_html | safe }}</div>
+              {% elif block.type == 'scene_tabs' and block.tabs|length > 1 %}
+              <div class="storymap-scene-tabs" role="group" aria-label="{{ _('Map views') }}">
+                {% for tab in block.tabs %}
+                <button type="button" class="scene-tab-btn{% if loop.first %} is-active{% endif %}"
+                        data-scene-url="{{ tab.scene_url }}">
+                  <i class="fa fa-map-o"></i> {{ tab.title }}
+                </button>
+                {% endfor %}
+              </div>
+              {% endif %}
+            {% endfor %}
+
+            {% if scene.share_url %}
+            <p class="storymap-open-terria">
+              <a href="{{ scene.share_url }}" target="_blank" rel="noopener">
+                <i class="fa fa-external-link"></i> {{ _('Open this map in Terria') }}
+              </a>
+            </p>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+    </div>
+    {% endif %}
+
+    {# ====================== Classic tail sections ====================== #}
+    <div class="container storymap-tail">
+      <div class="row">
+        <div class="col-md-9 col-md-offset-1">
+
+          {% if story.paper_doi or story.paper_citation %}
+          <section class="module module-narrow story-section" id="research-publication" style="margin-top: 2rem;">
+            <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fa fa-file-alt"></i> {{ _('Research Publication') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 2rem 2.5rem;">
+              <div class="section-content">
+                {% if story.paper_citation %}
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #0072BC; margin-bottom: 1.5rem;">
+                  <p style="margin: 0; font-style: italic; color: #2c3e50; line-height: 1.6;">{{ story.paper_citation }}</p>
+                </div>
+                {% endif %}
+                {% if story.paper_doi %}
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                  <strong style="color: #2c3e50;">{{ _('DOI:') }}</strong>
+                  <code style="background: #f8f9fa; padding: 0.4rem 0.8rem; border-radius: 6px; color: #c7254e;">{{ story.paper_doi }}</code>
+                  <a href="https://doi.org/{{ story.paper_doi }}" target="_blank" class="btn btn-sm btn-primary"
+                     style="padding: 0.5rem 1rem; border-radius: 20px; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa fa-external-link"></i> {{ _('View Paper') }}
+                  </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+          {% endif %}
+
+          {% if story.datasets %}
+          <section class="module module-narrow story-section" id="datasets" style="margin-top: 2rem;">
+            <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fa fa-database"></i> {{ _('Datasets') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 2rem 2.5rem;">
+              <div class="dataset-list">
+                {% for link in story.datasets %}
+                  {% if link.dataset %}
+                  <div class="dataset-item" style="padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 12px; border-left: 4px solid #0072BC; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                      <div style="flex: 1;">
+                        <span class="dataset-badge" style="display: inline-block; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; background: #0072BC; color: white; margin-bottom: 0.75rem;">
+                          {{ link.relationship_type|replace('_', ' ')|title }}
+                        </span>
+                        <h4 style="margin: 0 0 0.5rem 0;">
+                          <a href="{{ h.url_for('dataset.read', id=link.dataset.name) }}" style="color: #0072BC; text-decoration: none; font-weight: 600;">
+                            {{ link.dataset.title }}
+                          </a>
+                        </h4>
+                        {% if link.description %}
+                        <p style="margin-bottom: 0.5rem; color: #2c3e50;">{{ link.description }}</p>
+                        {% endif %}
+                        {% if link.dataset.notes %}
+                        <p class="text-muted" style="margin: 0; color: #6c757d; font-size: 0.95rem;">{{ h.markdown_extract(link.dataset.notes, 150) }}</p>
+                        {% endif %}
+                      </div>
+                      <div>
+                        <a class="btn btn-default btn-sm" href="{{ h.url_for('dataset.read', id=link.dataset.name) }}" style="border-radius: 20px; white-space: nowrap;">
+                          <i class="fa fa-external-link"></i> {{ _('View') }}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+          {% endif %}
+
+          {% if story.uploaded_images and story.uploaded_images|length > 0 %}
+          <section class="module module-narrow story-section" id="image-gallery" style="margin-top: 2rem;">
+            <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
+                <i class="fa fa-image"></i> {{ _('Image Gallery') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 2rem 2.5rem;">
+              <div class="image-gallery-display" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                {% for img in story.uploaded_images %}
+                <div class="gallery-image-item" style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;"
+                     onclick="openLightbox({{ loop.index0 }})">
+                  <img src="{{ img.url }}" alt="{{ img.alt or 'Gallery image' }}"
+                       loading="lazy"
+                       style="width: 100%; height: 200px; object-fit: cover; display: block;" />
+                  {% if img.alt or img.caption or img.copyright %}
+                  <div style="padding: 1rem;">
+                    {% if img.alt %}<p style="margin: 0 0 0.5rem 0; font-weight: 600; color: #2c3e50; font-size: 0.95rem;">{{ img.alt }}</p>{% endif %}
+                    {% if img.caption %}<p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #6c757d;">{{ img.caption }}</p>{% endif %}
+                    {% if img.copyright %}<p style="margin: 0; font-size: 0.8rem; color: #868e96; font-style: italic;"><i class="fa fa-copyright"></i> {{ img.copyright }}</p>{% endif %}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+
+          <div id="lightbox-modal" class="ds-lightbox-modal">
+            <button onclick="closeLightbox()" class="ds-lightbox-btn" style="top: 20px; right: 30px;">&times;</button>
+            <button onclick="changeLightboxImage(-1)" class="ds-lightbox-btn" style="left: 30px; top: 50%; transform: translateY(-50%);">&#10094;</button>
+            <button onclick="changeLightboxImage(1)" class="ds-lightbox-btn" style="right: 30px; top: 50%; transform: translateY(-50%);">&#10095;</button>
+            <div style="text-align: center; max-width: 90%; max-height: 90%;">
+              <img id="lightbox-img" class="ds-lightbox-img" src="" alt="" />
+              <div id="lightbox-caption" class="ds-lightbox-caption"></div>
+              <div id="lightbox-counter" class="ds-lightbox-counter"></div>
+            </div>
+          </div>
+
+          <script>
+            const galleryImages = {{ story.uploaded_images|tojson|safe }};
+            let currentLightboxIndex = 0;
+
+            function openLightbox(index) {
+              currentLightboxIndex = index;
+              showLightboxImage();
+              document.getElementById('lightbox-modal').classList.add('open');
+              document.body.style.overflow = 'hidden';
+              document.body.classList.add('ds-lightbox-open');
+            }
+
+            function closeLightbox() {
+              document.getElementById('lightbox-modal').classList.remove('open');
+              document.body.style.overflow = '';
+              document.body.classList.remove('ds-lightbox-open');
+            }
+
+            function changeLightboxImage(direction) {
+              currentLightboxIndex += direction;
+              if (currentLightboxIndex >= galleryImages.length) currentLightboxIndex = 0;
+              if (currentLightboxIndex < 0) currentLightboxIndex = galleryImages.length - 1;
+              showLightboxImage();
+            }
+
+            function showLightboxImage() {
+              const img = galleryImages[currentLightboxIndex];
+              document.getElementById('lightbox-img').src = img.url;
+              document.getElementById('lightbox-img').alt = img.alt || {{ _('Gallery image') | tojson }};
+
+              let caption = '';
+              if (img.alt) caption += '<strong>' + img.alt + '</strong>';
+              if (img.caption) caption += (img.alt ? '<br>' : '') + img.caption;
+              if (img.copyright) caption += '<br><small style="opacity: 0.7;"><i class="fa fa-copyright"></i> ' + img.copyright + '</small>';
+              document.getElementById('lightbox-caption').innerHTML = caption;
+
+              document.getElementById('lightbox-counter').textContent = (currentLightboxIndex + 1) + ' / ' + galleryImages.length;
+            }
+
+            document.addEventListener('keydown', function(e) {
+              if (document.getElementById('lightbox-modal').classList.contains('open')) {
+                if (e.key === 'ArrowLeft') changeLightboxImage(-1);
+                else if (e.key === 'ArrowRight') changeLightboxImage(1);
+                else if (e.key === 'Escape') closeLightbox();
+              }
+            });
+
+            document.getElementById('lightbox-modal').addEventListener('click', function(e) {
+              if (e.target === this) closeLightbox();
+            });
+          </script>
+          {% endif %}
+
+          {% if story.contributors %}
+          <section class="module module-narrow story-section" id="contributors" style="margin-top: 2rem;">
+            <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
+              <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fa fa-users"></i> {{ _('Contributors') }}
+              </h2>
+            </div>
+            <div class="module-content" style="padding: 2rem 2.5rem;">
+              <ul class="contributor-list" style="list-style: none; padding: 0; margin: 0;">
+                {% for contributor in story.contributors %}
+                <li style="padding: 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid #0072BC;">
+                  <strong style="color: #2c3e50; font-size: 1.05rem;">{{ contributor.name }}</strong>
+                  {% if contributor.role %}<span class="text-muted" style="color: #6c757d;">({{ contributor.role|title }})</span>{% endif %}
+                  {% if contributor.affiliation %}<br/><small style="color: #6c757d;"><i class="fa fa-building"></i> {{ contributor.affiliation }}</small>{% endif %}
+                  {% if contributor.orcid %}<br/><small style="color: #6c757d;">ORCID: <a href="https://orcid.org/{{ contributor.orcid }}" target="_blank" style="color: #0072BC;">{{ contributor.orcid }}</a></small>{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </section>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% set has_edit_access = h.check_access('data_story_update', {'id': story.id}) %}
+{% if has_edit_access %}
+<a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}" class="storymap-edit-fab" title="{{ _('Edit Story') }}">
+  <i class="fa fa-edit"></i> {{ _('Edit') }}
+</a>
+{% endif %}
+
+<script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
+<script type="text/javascript" src="/js/data-stories-storymap.js" defer></script>
+{% endblock %}

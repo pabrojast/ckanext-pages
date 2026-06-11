@@ -212,6 +212,9 @@ def data_story_update(context, data_dict):
     if 'is_featured' in data:
         story.is_featured = data['is_featured']
 
+    if 'display_mode' in data:
+        story.display_mode = data['display_mode'] or 'classic'
+
     # Check if this was a published story being edited by a non-admin
     # If so, automatically resubmit for review
     user = context.get('user')

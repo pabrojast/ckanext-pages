@@ -2635,3 +2635,71 @@
     });
   });
 })();
+
+/**
+ * Story Map mode: per-section scene badge.
+ *
+ * When the story layout is 'storymap', each section card shows whether it
+ * has a Terria map scene (first map block / share link) or will keep the
+ * previous scene while scrolling.
+ */
+(function () {
+  'use strict';
+
+  function sectionHasScene(section) {
+    var link = section.querySelector('.section-terria-link');
+    if (link && link.value && link.value.trim()) return true;
+    var tabUrls = section.querySelectorAll('.terria-tab-url');
+    for (var i = 0; i < tabUrls.length; i++) {
+      if (tabUrls[i].value && tabUrls[i].value.trim()) return true;
+    }
+    return false;
+  }
+
+  function updateSceneBadges() {
+    var modeSelect = document.getElementById('display_mode');
+    var isStorymap = modeSelect && modeSelect.value === 'storymap';
+    var sections = document.querySelectorAll('.content-section-editor');
+
+    Array.prototype.forEach.call(sections, function (section) {
+      var badge = section.querySelector('.storymap-scene-badge');
+      if (!isStorymap) {
+        if (badge) badge.remove();
+        return;
+      }
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'storymap-scene-badge';
+        badge.style.cssText = 'display:inline-block;margin-top:0.4rem;' +
+          'padding:0.25rem 0.75rem;border-radius:12px;font-size:0.8rem;' +
+          'font-weight:600;';
+        var titleRow = section.querySelector('.section-title-row > div');
+        (titleRow || section).appendChild(badge);
+      }
+      if (sectionHasScene(section)) {
+        badge.style.background = '#d4edda';
+        badge.style.color = '#155724';
+        badge.innerHTML = '<i class="fa fa-map"></i> Scene ✓';
+      } else {
+        badge.style.background = '#fff3cd';
+        badge.style.color = '#856404';
+        badge.innerHTML = '<i class="fa fa-info-circle"></i> ' +
+          'No map — keeps previous scene';
+      }
+    });
+  }
+
+  var debounceTimer = null;
+  function scheduleUpdate() {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(updateSceneBadges, 300);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!document.getElementById('display_mode')) return;
+    updateSceneBadges();
+    document.addEventListener('input', scheduleUpdate, true);
+    document.addEventListener('change', scheduleUpdate, true);
+    document.addEventListener('click', scheduleUpdate, true);
+  });
+})();

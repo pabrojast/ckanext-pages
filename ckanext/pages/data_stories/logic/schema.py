@@ -69,7 +69,18 @@ def data_story_schema():
         'status': [ignore_missing, unicode_safe],
         'is_public': [ignore_missing, boolean_validator],
         'is_featured': [ignore_missing, boolean_validator],
+        'display_mode': [ignore_missing, unicode_safe, _display_mode_validator],
     }
+
+
+def _display_mode_validator(key, data, errors, context):
+    """Only allow the supported story layouts; empty falls back to 'classic'."""
+    value = data.get(key)
+    if not value:
+        data[key] = 'classic'
+        return
+    if value not in ('classic', 'storymap'):
+        errors[key].append("Must be one of 'classic' or 'storymap'")
 
 
 def _default_to_none(key, data, errors, context):

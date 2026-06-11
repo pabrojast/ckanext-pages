@@ -48,6 +48,7 @@ Estas pertenecen al entorno CKAN de pruebas, no a la extensión en sí.
 - `ckanext.data_stories.enabled`
 - `ckanext.featured_viewers.enabled`
 - `ckanext.pages.data_stories.allow_direct_publish`
+- `ckanext.pages.storymap_use_postmessage` — activa el cambio de escena vía postMessage (`applyScene`) en el modo `storymap` de data stories; requiere que el build de Terria desplegado incluya el bridge en `updateApplicationOnMessageFromParentWindow.js`. Default: off (se usa hash-swap).
 
 ## Settings CKAN ajenos al plugin pero consumidos como fallback
 

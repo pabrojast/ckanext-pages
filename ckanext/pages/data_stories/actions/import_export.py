@@ -189,6 +189,7 @@ def data_story_import(context, data_dict):
     story.countries = story_data.get('countries', [])
     story.partners = story_data.get('partners', [])
     story.project_type = story_data.get('project_type')
+    story.display_mode = story_data.get('display_mode') or 'classic'
     story.uploaded_images = story_data.get('uploaded_images', [])
     story.meta_description = story_data.get('meta_description', '')
     story.meta_keywords = story_data.get('meta_keywords', '')
@@ -500,6 +501,7 @@ def _serialize_story(story, context):
         'countries': story.countries or [],
         'partners': story.partners or [],
         'project_type': story.project_type,
+        'display_mode': story.display_mode or 'classic',
         'uploaded_images': story.uploaded_images or [],
         'meta_description': story.meta_description,
         'meta_keywords': story.meta_keywords,

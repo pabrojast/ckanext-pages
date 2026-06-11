@@ -190,6 +190,9 @@ def data_story_create(context, data_dict):
     story.partners = partners_value if partners_value else []
     log.info(f"[DATA_STORY_CREATE] partners assigned: {story.partners}")
 
+    # Layout mode ('classic' | 'storymap')
+    story.display_mode = data.get('display_mode') or 'classic'
+
     # Set defaults
     story.status = 'draft'
     story.is_public = False

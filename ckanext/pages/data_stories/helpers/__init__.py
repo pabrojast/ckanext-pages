@@ -15,6 +15,12 @@ from ckanext.pages.data_stories.helpers.terria import (
     is_terria_url,
 )
 
+from ckanext.pages.data_stories.helpers.storymap import (
+    build_terria_scene_url,
+    get_storymap_scenes,
+    get_storymap_config,
+)
+
 from ckanext.pages.data_stories.helpers.formatting import (
     render_story_date,
     render_story_abstract,
@@ -38,6 +44,10 @@ __all__ = [
     'get_terria_base_url',
     'get_terria_iframe_html',
     'is_terria_url',
+    # Story map helpers
+    'build_terria_scene_url',
+    'get_storymap_scenes',
+    'get_storymap_config',
     # Formatting helpers
     'render_story_date',
     'render_story_abstract',

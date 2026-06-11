@@ -74,6 +74,8 @@ Tablas detectadas en `ckanext/pages/data_stories/db/models.py`:
 
 Estas tablas se crean mediante `init_tables(model.meta.engine)`, no por migraciones Alembic visibles en este repo.
 
+Columna relevante agregada en 2026-06: `data_stories.display_mode` (`classic` | `storymap`, `NULL` se trata como `classic`). Se agrega de forma idempotente en `data_stories/db/migrations.py` (patrón `column_exists` + `op.add_column`).
+
 ## Featured Viewers
 
 Tablas detectadas en `ckanext/pages/featured_viewers/db/models.py`:

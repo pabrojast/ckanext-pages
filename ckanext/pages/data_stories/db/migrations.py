@@ -48,6 +48,7 @@ def upgrade():
             sa.Column('reviewer_id', sa.String(100), sa.ForeignKey('user.id', ondelete='SET NULL'), nullable=True),
             sa.Column('is_public', sa.Boolean, default=False),
             sa.Column('is_featured', sa.Boolean, default=False),
+            sa.Column('display_mode', sa.String(20), nullable=True),
             sa.Column('view_count', sa.Integer, default=0),
             sa.Column('version', sa.Integer, default=1),
             sa.Column('parent_version_id', sa.String(100), sa.ForeignKey('data_stories.id', ondelete='SET NULL'), nullable=True),
@@ -210,6 +211,11 @@ def upgrade():
     if table_exists('data_stories') and not column_exists('data_stories', 'project_type'):
         op.add_column('data_stories', sa.Column('project_type', sa.String(100), nullable=True))
         log.info("Added project_type column to data_stories table")
+
+    # Add display_mode column if not exists (migration for existing tables)
+    if table_exists('data_stories') and not column_exists('data_stories', 'display_mode'):
+        op.add_column('data_stories', sa.Column('display_mode', sa.String(20), nullable=True))
+        log.info("Added display_mode column to data_stories table")
 
     log.info("Data Stories migration completed successfully")
 

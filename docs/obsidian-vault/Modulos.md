@@ -127,6 +127,15 @@ Características:
 - import/export individual y bulk (sysadmin-only)
 - comandos CLI para export/import (útil para migración con `kubectl`)
 - tests propios
+- dos modos de visualización por story (`display_mode`): `classic` (secciones apiladas, default) y `storymap` (scrollytelling tipo ArcGIS StoryMaps con un único iframe Terria sticky que cambia de escena al hacer scroll)
+
+Modo `storymap`:
+
+- template `data_stories/show_storymap.html` + `public/js/data-stories-storymap.js` + `public/css/data-stories-storymap.css`
+- helpers en `data_stories/helpers/storymap.py` (`build_terria_scene_url`, `get_storymap_scenes`, `get_storymap_config`)
+- el cambio de escena usa fragment navigation en el iframe (`#clean&share=...`, sin recargar Terria); opcionalmente postMessage (`applyScene`) si `ckanext.pages.storymap_use_postmessage` está activo y el build de Terria incluye el bridge
+- preview sin convertir la story: `/data-stories/<slug>?layout=storymap`
+- endpoint `/data-stories/api/terria-scene/<share_id>` proxyea y cachea el share JSON de Terria (solo contra `ckanext.pages.terria_base_url`)
 
 Se activa con:
 

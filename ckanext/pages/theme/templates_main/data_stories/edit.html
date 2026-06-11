@@ -308,6 +308,35 @@
         {% endif %}
       </div>
 
+      {# Display Mode / Layout #}
+      <div class="form-group{% if errors.display_mode %} has-error{% endif %}">
+        <label class="control-label" for="display_mode">
+          <i class="fa fa-columns"></i> {{ _('Layout') }}
+        </label>
+        <select id="display_mode"
+                name="display_mode"
+                class="form-control">
+          <option value="classic"{% if data.get('display_mode', 'classic') != 'storymap' %} selected{% endif %}>{{ _('Classic (stacked sections)') }}</option>
+          <option value="storymap"{% if data.get('display_mode') == 'storymap' %} selected{% endif %}>{{ _('Story Map (scrolling map, like ArcGIS StoryMaps)') }}</option>
+        </select>
+        <span class="help-text">
+          <i class="fa fa-info-circle text-info"></i>
+          {{ _('In Story Map mode each section becomes a chapter card next to a single sticky map: add one Terria map block per section and paste a share link — that scene is shown when the reader reaches the card. Sections without a map keep the previous scene.') }}
+        </span>
+        {% if story_slug %}
+        <div style="margin-top: 0.5rem;">
+          <a href="{{ h.url_for('data_stories.show', slug=story_slug, layout='storymap') }}"
+             target="_blank" rel="noopener" class="btn btn-default btn-sm" style="border-radius: 20px;">
+            <i class="fa fa-eye"></i> {{ _('Preview as Story Map') }}
+          </a>
+          <span class="help-text" style="margin-left: 0.5rem;">{{ _('Opens the saved version of this story in the Story Map layout without changing its mode.') }}</span>
+        </div>
+        {% endif %}
+        {% if errors.display_mode %}
+        <span class="error-block">{{ errors.display_mode.0 }}</span>
+        {% endif %}
+      </div>
+
       {# Partners #}
       <div class="form-group{% if errors.partners %} has-error{% endif %}">
         <label class="control-label" for="story-partner-input">

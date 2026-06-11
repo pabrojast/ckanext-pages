@@ -43,6 +43,9 @@ try:
         get_terria_base_url,
         get_terria_iframe_html,
         is_terria_url,
+        build_terria_scene_url,
+        get_storymap_scenes,
+        get_storymap_config,
         render_story_date,
         render_story_abstract,
         get_story_status_badge,
@@ -1473,6 +1476,10 @@ class PagesPlugin(PagesPluginBase):
                 'get_terria_base_url': get_terria_base_url,
                 'get_terria_iframe_html': get_terria_iframe_html,
                 'is_terria_url': is_terria_url,
+                # Story map helpers
+                'build_terria_scene_url': build_terria_scene_url,
+                'get_storymap_scenes': get_storymap_scenes,
+                'get_storymap_config': get_storymap_config,
                 # Formatting helpers
                 'render_story_date': render_story_date,
                 'render_story_abstract': render_story_abstract,
