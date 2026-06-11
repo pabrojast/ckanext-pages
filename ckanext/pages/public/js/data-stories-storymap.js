@@ -8,16 +8,19 @@
  *
  * 1. postMessage bridge (auto-detected via the "ready" message Terria posts
  *    to its parent): the iframe loads a BARE Terria URL — no '#share=' — and
- *    scenes are applied by posting the share JSON (resolved through the
- *    cached CKAN endpoint) with its embedded `stories` stripped. This keeps
- *    Terria's native story panel from ever opening inside the embed, and it
- *    enables walking through multi-scene stories ("steps") on scroll.
- *    The 'applyScene' message (replaceStratum) is tried first; if the build
- *    doesn't ack it, the raw share JSON is posted (updateFromStartData).
+ *    scenes are applied by posting the share JSON (fetched from the Terria
+ *    instance, CKAN proxy as fallback) with its embedded `stories` stripped.
+ *    This keeps Terria's native story panel from ever opening inside the
+ *    embed, and it enables walking through multi-scene stories ("steps") on
+ *    scroll. Only the 'applyScene' message (replaceStratum) is used, and only
+ *    while the build acks it with 'sceneApplied': raw start data
+ *    (updateFromStartData) proved unreliable for COG layers, so a build that
+ *    never acks latches the bridge data path off and scenes degrade to the
+ *    hash navigation below (steps then show their chapter's base scene).
  *
  * 2. Hash swap fallback (no "ready" within the timeout): the iframe loads
  *    '#share=...' directly and scene changes use a fragment navigation with
- *    '#clean&share=...' — no document reload. Steps are unavailable here.
+ *    '#clean&share=...' — no document reload. Steps show the base scene.
  */
 
 (function () {
@@ -175,7 +178,7 @@
   // 'https://host/terria/#share=g-x' -> 'https://host/terria/api/v1/share/'.
   // This works regardless of CKAN's configured Terria base URL.
   function apiBaseFromUrl(url) {
-    var base = url.split('#')[0];
+    var base = url.split('#')[0].split('?')[0];
     if (base.charAt(base.length - 1) !== '/') base += '/';
     return base + 'api/v1/share/';
   }
@@ -236,10 +239,14 @@
     return [];
   }
 
-  function postApply(shareData) {
+  // 'fallback' is the caller-supplied degradation (a hash navigation with
+  // the caller's key/superseded semantics); it runs when the build doesn't
+  // ack 'applyScene'. Raw start data (updateFromStartData) is deliberately
+  // NOT used — it fails to render COG layers on stock Terria builds.
+  function postApply(shareData, fallback) {
     setSwitching(true);
     if (applySceneSupported === false) {
-      postRaw(shareData);
+      fallback();
       return;
     }
     var requestId = 'sm-' + (++requestCounter);
@@ -251,26 +258,23 @@
         requestId: requestId
       }, terriaOrigin || '*');
     } catch (e) {
-      postRaw(shareData);
+      // contentWindow was inaccessible — not evidence the handler is
+      // missing, so don't latch applySceneSupported here.
+      pendingRequestId = null;
+      fallback();
       return;
     }
     setTimeout(function () {
       if (applySceneSupported === null && pendingRequestId === requestId) {
-        // Build without the applyScene handler: fall back to the generic
-        // start-data path (updateFromStartData) for this and later scenes.
+        // Build without the applyScene handler: latch the bridge data path
+        // off and degrade to hash navigation for this and later scenes.
+        // (A late 'sceneApplied' ack would un-latch — benign: the hash
+        // navigation already applied a correct scene.)
         applySceneSupported = false;
         pendingRequestId = null;
-        postRaw(shareData);
+        fallback();
       }
     }, ACK_TIMEOUT_MS);
-  }
-
-  function postRaw(shareData) {
-    try {
-      iframe.contentWindow.postMessage(shareData, terriaOrigin || '*');
-    } catch (e) { /* ignore */ }
-    // No completion signal on this path; clear after a fixed delay.
-    setTimeout(function () { setSwitching(false); }, 2500);
   }
 
   /* ------------------------------------------------------------------ */
@@ -288,9 +292,21 @@
     var key = keyFor(sceneIndex, stepIndex);
     if (key === currentKey) return;
 
-    if (mode === 'bridge' && scene.shareId) {
+    if (mode === 'bridge' && scene.shareId && applySceneSupported !== false) {
       currentKey = key;
       setSwitching(true);
+      // Hash degradation under the BASE key, even for steps — otherwise
+      // every later step of the chapter re-fires the same navigation.
+      var fallbackKey = keyFor(sceneIndex, null);
+      var fallback = function () {
+        if (currentKey !== key) return; // superseded while probing
+        if (scene.sceneUrl) {
+          applyHash(scene.sceneUrl, fallbackKey);
+        } else {
+          currentKey = null;
+          setSwitching(false);
+        }
+      };
       fetchShare(scene.shareId, scene.sceneUrl).then(function (share) {
         if (currentKey !== key) return; // superseded while fetching
         var shareData;
@@ -301,22 +317,22 @@
         } else {
           shareData = stripStories(share);
         }
-        postApply(shareData);
-      }).catch(function () {
-        if (currentKey === key) currentKey = null;
-        if ((stepIndex === null || stepIndex === undefined) && scene.sceneUrl) {
-          applyHash(scene.sceneUrl, key);
-        } else {
-          setSwitching(false);
-        }
-      });
+        postApply(shareData, fallback);
+      }).catch(fallback);
       return;
     }
 
     if (mode === 'hash' || mode === 'bridge') {
-      // No share id (e.g. '#start=' links) or no bridge: hash swap.
-      // Steps need the bridge; the base scene is the best we can do here.
-      if (stepIndex !== null && stepIndex !== undefined) return;
+      // No share id (e.g. '#start=' links) or no working bridge: hash swap.
+      // Steps can't be addressed by URL; show the chapter's base scene
+      // (Terria's native story panel may open — accepted trade-off).
+      if (stepIndex !== null && stepIndex !== undefined) {
+        var baseKey = keyFor(sceneIndex, null);
+        if (scene.sceneUrl && currentKey !== baseKey) {
+          applyHash(scene.sceneUrl, baseKey);
+        }
+        return;
+      }
       if (scene.sceneUrl) applyHash(scene.sceneUrl, key);
       return;
     }
@@ -347,15 +363,16 @@
     var match = url.match(/[#&]share=([A-Za-z0-9_-]+)/);
     var key = 'url:' + url;
     if (key === currentKey) return;
-    if (mode === 'bridge' && match) {
+    if (mode === 'bridge' && match && applySceneSupported !== false) {
       currentKey = key;
+      var fallback = function () {
+        if (currentKey !== key) return;
+        applyHash(url, key);
+      };
       fetchShare(match[1], url).then(function (share) {
         if (currentKey !== key) return;
-        postApply(stripStories(share));
-      }).catch(function () {
-        if (currentKey === key) currentKey = null;
-        applyHash(url, key);
-      });
+        postApply(stripStories(share), fallback);
+      }).catch(fallback);
     } else if (mode === 'hash' || mode === 'bridge') {
       applyHash(url, key);
     }
