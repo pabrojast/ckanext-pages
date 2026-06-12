@@ -421,5 +421,6 @@
 {% endif %}
 
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
-<script type="text/javascript" src="/js/data-stories-storymap.js" defer></script>
+{# ?v= busts browser caches when the viewer logic changes — bump on edits #}
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260611-2" defer></script>
 {% endblock %}

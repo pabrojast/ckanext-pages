@@ -65,7 +65,10 @@
   var requestCounter = 0;
   var shareCache = {};         // shareId -> Promise<share JSON>
 
-  var BRIDGE_TIMEOUT_MS = 6000;
+  // Cold Terria boots take ~10s before posting "ready"; a short timeout
+  // here would lock the viewer into hash mode for the whole page life
+  // (late "ready" upgrades to bridge, but the cheap path is waiting).
+  var BRIDGE_TIMEOUT_MS = 12000;
   var ACK_TIMEOUT_MS = 2500;
   var PLACEHOLDER_TIMEOUT_MS = 20000;
   var SCENE_DEBOUNCE_MS = 250;
@@ -156,7 +159,12 @@
 
     if (event.data === 'ready') {
       hidePlaceholder();
-      if (mode === 'pending') {
+      // 'pending': the bare embed booted in time. 'hash': Terria booted
+      // slower than the fallback timer (or a src reset rebooted it) — a
+      // late "ready" still proves the bridge works, so upgrade; steps and
+      // clean scene applies only exist on the bridge. applyState() dedupes
+      // by key, so an already-correct hash-loaded scene isn't re-applied.
+      if (mode === 'pending' || (mode === 'hash' && hasShareIds)) {
         mode = 'bridge';
         if (bridgeFallbackTimer) clearTimeout(bridgeFallbackTimer);
         // Allow-origin handshake (harmless if already trusted as parent).
