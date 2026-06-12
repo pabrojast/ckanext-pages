@@ -704,6 +704,9 @@
             <button type="button" class="btn btn-info btn-sm add-media-block">
               <i class="fa fa-play-circle"></i> {{ _('Media/Iframe') }}
             </button>
+            <button type="button" class="btn btn-warning btn-sm add-image-block">
+              <i class="fa fa-image"></i> {{ _('Image') }}
+            </button>
           </div>
         </div>
         
@@ -749,5 +752,7 @@
   <!-- Quill Image Resize Module -->
   <script src="{{ h.url_for_static('/vendor/quill/image-resize.min.js') }}"></script>
   <!-- Data Stories Edit Script -->
-  <script type="text/javascript" src="/js/data-stories-edit.js"></script>
+  {# ?v= busts browser caches when the editor logic changes — bump on edits.
+     Stale editor JS would silently drop unknown block types on save. #}
+  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260612-1"></script>
 {% endblock %}

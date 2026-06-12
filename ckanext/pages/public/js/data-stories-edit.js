@@ -620,6 +620,9 @@
               <button type="button" class="btn btn-xs btn-info insert-block-btn" data-block-type="media">
                 <i class="fa fa-play-circle"></i> Media
               </button>
+              <button type="button" class="btn btn-xs btn-warning insert-block-btn" data-block-type="image">
+                <i class="fa fa-image"></i> Image
+              </button>
             </div>
           </div>
         `;
@@ -852,6 +855,15 @@
           }
           addMediaBlock(currentSectionId);
         });
+
+        // Add image block button
+        $section.find('.add-image-block').on('click', function() {
+          const currentSectionId = resolveSectionId(this, sectionId);
+          if (currentSectionId === null) {
+            return;
+          }
+          addImageBlock(currentSectionId);
+        });
       }
       
       // Load existing section blocks
@@ -908,6 +920,9 @@
                 } else if (blockData.type === 'media') {
                   console.log('[Section ' + sectionId + '] -> Adding MEDIA block');
                   addMediaBlock(sectionId, blockData);
+                } else if (blockData.type === 'image') {
+                  console.log('[Section ' + sectionId + '] -> Adding IMAGE block');
+                  addImageBlock(sectionId, blockData);
                 } else {
                   console.warn('[Section ' + sectionId + '] Unknown block type:', blockData.type);
                   // Try to add as text block with content if available
@@ -1233,7 +1248,104 @@
         addBlockEventListeners(blockId, sectionId);
         updateSectionContentFor($container, sectionId);
       }
-      
+
+      // Add image block. In storymap mode the image is shown full-bleed over
+      // the sticky map while the reader passes this block; in classic mode it
+      // bakes into a plain <figure><img>.
+      function addImageBlock(sectionId, data = {}, insertAfterBlockId = null) {
+        const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
+        const $container = $('#section-' + sectionId + '-blocks');
+        const url = data.url || '';
+        const alt = data.alt || '';
+        const caption = data.caption || '';
+
+        const html = `
+          <div class="content-block" data-block-id="${blockId}" data-block-type="image">
+            <div class="content-block-header">
+              <h5 class="content-block-title">
+                <i class="fa fa-image"></i>
+                Image
+              </h5>
+              <div class="content-block-controls">
+                <button type="button" class="btn btn-sm btn-default move-block-up" title="Move Up">
+                  <i class="fa fa-chevron-up"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-default move-block-down" title="Move Down">
+                  <i class="fa fa-chevron-down"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-danger delete-block" title="Delete">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="content-block-body">
+              <div class="image-block-form">
+                <div class="form-group">
+                  <label>Image</label>
+                  <div>
+                    <img class="image-block-preview" src="${escapeAttr(url)}" alt=""
+                         style="max-width: 100%; max-height: 220px; border-radius: 8px; margin-bottom: 0.5rem;${url ? '' : ' display: none;'}" />
+                  </div>
+                  <input type="file" class="image-block-file" accept="image/*" style="display: none;">
+                  <button type="button" class="btn btn-sm btn-primary image-block-upload">
+                    <i class="fa fa-upload"></i> Upload image
+                  </button>
+                  <span class="image-block-status text-muted" style="margin-left: 0.5rem;"></span>
+                  <input type="text" class="form-control image-block-url" value="${escapeAttr(url)}"
+                         placeholder="https://... (or upload above)" style="margin-top: 0.5rem;">
+                  <small class="help-block">In story map mode this image covers the map while the reader passes it.</small>
+                </div>
+                <div class="form-group">
+                  <label>Alt text</label>
+                  <input type="text" class="form-control image-block-alt" value="${escapeAttr(alt)}" placeholder="Short description (accessibility)">
+                </div>
+                <div class="form-group">
+                  <label>Caption (optional)</label>
+                  <input type="text" class="form-control image-block-caption" value="${escapeAttr(caption)}" placeholder="Shown under the image">
+                </div>
+              </div>
+            </div>
+            ${renderInsertControlsHtml()}
+          </div>
+        `;
+
+        insertBlockHtml($container, html, insertAfterBlockId);
+        addImageBlockEventListeners(blockId, sectionId);
+        addBlockEventListeners(blockId, sectionId);
+        updateSectionContentFor($container, sectionId);
+      }
+
+      function addImageBlockEventListeners(blockId, sectionId) {
+        const $block = $('[data-block-id="' + blockId + '"]');
+
+        $block.find('.image-block-url, .image-block-alt, .image-block-caption').on('input', function() {
+          const url = ($block.find('.image-block-url').val() || '').trim();
+          $block.find('.image-block-preview').attr('src', url).toggle(!!url);
+          updateSectionContentFor($block, sectionId);
+        });
+
+        $block.find('.image-block-upload').on('click', function() {
+          $block.find('.image-block-file').trigger('click');
+        });
+
+        $block.find('.image-block-file').on('change', function() {
+          const file = this.files && this.files[0];
+          this.value = '';
+          if (!file) return;
+          const $status = $block.find('.image-block-status');
+          $status.text('Uploading…');
+          // Same compress + retry pipeline as inline Quill images.
+          uploadInlineFile(file).then(function(uploadedUrl) {
+            $block.find('.image-block-url').val(uploadedUrl);
+            $block.find('.image-block-preview').attr('src', uploadedUrl).show();
+            $status.text('');
+            updateSectionContentFor($block, sectionId);
+          }, function(err) {
+            $status.text(typeof err === 'string' ? err : 'Upload failed');
+          });
+        });
+      }
+
       // Add block event listeners (move, delete)
       function addBlockEventListeners(blockId, sectionId) {
         const $block = $('[data-block-id="' + blockId + '"]');
@@ -1282,6 +1394,8 @@
             addTerriaBlock(currentSectionId, {}, afterBlockId);
           } else if (blockType === 'media') {
             addMediaBlock(currentSectionId, {}, afterBlockId);
+          } else if (blockType === 'image') {
+            addImageBlock(currentSectionId, {}, afterBlockId);
           }
         });
       }
@@ -1536,7 +1650,16 @@
         // For any other URL, create a regular iframe
         return `<iframe src="${content}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
       }
-      
+
+      // Escape a value for use inside an HTML attribute.
+      function escapeAttr(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
       // Update section content from blocks
       function updateSectionContent(sectionId) {
         // Find section by data-section-id attribute, fallback to index if not found
@@ -1648,6 +1771,25 @@
                 title: title,
                 width: width,
                 height: height
+              });
+            }
+          } else if (blockType === 'image') {
+            const imageUrl = ($block.find('.image-block-url').val() || '').trim();
+            const imageAlt = $block.find('.image-block-alt').val() || '';
+            const imageCaption = $block.find('.image-block-caption').val() || '';
+
+            if (imageUrl) {
+              contentHtml += `<figure class="story-image"><img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(imageAlt)}" loading="lazy">`;
+              if (imageCaption) {
+                contentHtml += `<figcaption>${escapeAttr(imageCaption)}</figcaption>`;
+              }
+              contentHtml += '</figure>\n\n';
+
+              blocksMetadata.push({
+                type: 'image',
+                url: imageUrl,
+                alt: imageAlt,
+                caption: imageCaption
               });
             }
           }

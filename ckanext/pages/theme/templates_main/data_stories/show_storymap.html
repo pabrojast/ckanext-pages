@@ -142,13 +142,27 @@
           <span class="storymap-spinner storymap-spinner-sm"></span>
           {{ _('Loading scene…') }}
         </div>
+        {# Full-bleed image slide shown over the map while an image block
+           is the active scroll stop (populated by the viewer JS). #}
+        <div class="storymap-media-image" aria-hidden="true">
+          <img alt="" />
+          <div class="storymap-media-image-caption"></div>
+        </div>
         <nav class="storymap-progress" aria-label="{{ _('Story chapters') }}">
+          <button type="button" class="storymap-nav-btn storymap-nav-prev"
+                  title="{{ _('Previous') }}" aria-label="{{ _('Previous block') }}">
+            <i class="fa fa-chevron-up" aria-hidden="true"></i>
+          </button>
           {% for scene in storymap_scenes %}
           <button type="button" class="storymap-dot{% if loop.first %} is-active{% endif %}"
                   data-target="scene-{{ scene.section_id }}"
                   title="{{ scene.title or loop.index }}"
                   aria-label="{{ _('Go to chapter') }} {{ loop.index }}"></button>
           {% endfor %}
+          <button type="button" class="storymap-nav-btn storymap-nav-next"
+                  title="{{ _('Next') }}" aria-label="{{ _('Next block') }}">
+            <i class="fa fa-chevron-down" aria-hidden="true"></i>
+          </button>
         </nav>
       </div>
 
@@ -168,6 +182,17 @@
               <div class="section-content">{{ block.content | safe }}</div>
               {% elif block.type == 'media' %}
               <div class="storymap-card-media">{{ block.embed_html | safe }}</div>
+              {% elif block.type == 'image' %}
+              <figure class="storymap-image-trigger"
+                      data-image-url="{{ block.url }}"
+                      data-image-alt="{{ block.alt }}"
+                      data-image-caption="{{ block.caption }}">
+                <img src="{{ block.url }}" alt="{{ block.alt }}" loading="lazy" />
+                {% if block.caption %}<figcaption>{{ block.caption }}</figcaption>{% endif %}
+                <span class="storymap-image-trigger-hint">
+                  <i class="fa fa-expand"></i> {{ _('Shown over the map as you read') }}
+                </span>
+              </figure>
               {% elif block.type == 'scene_tabs' and block.tabs|length > 1 %}
               <div class="storymap-scene-tabs" role="group" aria-label="{{ _('Map views') }}">
                 {% for tab in block.tabs %}
@@ -216,9 +241,8 @@
     {% endif %}
 
     {# ====================== Classic tail sections ====================== #}
+    {# Full container width, matching the hero above (no narrow column). #}
     <div class="container storymap-tail">
-      <div class="row">
-        <div class="col-md-9 col-md-offset-1">
 
           {% if story.paper_doi or story.paper_citation %}
           <section class="module module-narrow story-section" id="research-publication" style="margin-top: 2rem;">
@@ -406,8 +430,6 @@
           </section>
           {% endif %}
 
-        </div>
-      </div>
     </div>
 
   </div>
@@ -422,5 +444,5 @@
 
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
 {# ?v= busts browser caches when the viewer logic changes — bump on edits #}
-<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260611-2" defer></script>
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260612-1" defer></script>
 {% endblock %}

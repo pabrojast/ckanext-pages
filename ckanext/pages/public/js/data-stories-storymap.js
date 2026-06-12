@@ -42,6 +42,9 @@
   var cards = Array.prototype.slice.call(root.querySelectorAll('.storymap-card'));
   var steps = Array.prototype.slice.call(root.querySelectorAll('.storymap-step'));
   var dots = Array.prototype.slice.call(root.querySelectorAll('.storymap-dot'));
+  var imageTriggers = Array.prototype.slice.call(
+    root.querySelectorAll('.storymap-image-trigger'));
+  var mediaImage = root.querySelector('.storymap-media-image');
   if (!iframe || !cards.length) return;
 
   var scenes = config.scenes || [];
@@ -136,23 +139,31 @@
     }
   }
 
-  if ('IntersectionObserver' in window) {
-    var lazyObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          loadIframe();
-          lazyObserver.disconnect();
-        }
-      });
-    }, { rootMargin: '1200px 0px' });
-    lazyObserver.observe(root);
-  } else {
-    loadIframe();
-  }
+  // The storymap IS the page's primary content and a cold Terria boot takes
+  // ~10s: start it immediately so it loads while the reader is on the hero.
+  loadIframe();
 
   /* ------------------------------------------------------------------ */
   /* postMessage bridge                                                  */
   /* ------------------------------------------------------------------ */
+
+  // Warm the share-JSON cache for every scene so scrolling never waits on
+  // a share fetch round-trip. Sequential, error-tolerant (failed fetches
+  // self-evict from the cache and retry on real activation).
+  var sharesWarmed = false;
+  function warmShares() {
+    if (sharesWarmed) return;
+    sharesWarmed = true;
+    setTimeout(function () {
+      var chain = Promise.resolve();
+      scenes.forEach(function (s) {
+        if (!s.shareId) return;
+        chain = chain.then(function () {
+          return fetchShare(s.shareId, s.sceneUrl).catch(function () {});
+        });
+      });
+    }, 1500);
+  }
 
   window.addEventListener('message', function (event) {
     if (terriaOrigin && event.origin !== terriaOrigin) return;
@@ -174,6 +185,7 @@
         } catch (e) { /* ignore */ }
         var target = desired || { sceneIndex: firstIndexWithScene(), stepIndex: null };
         if (target.sceneIndex >= 0) applyState(target.sceneIndex, target.stepIndex);
+        warmShares();
       }
     } else if (event.data && event.data.type === 'sceneApplied') {
       // Two-phase ack: 'received' arrives immediately (capability proof,
@@ -408,7 +420,36 @@
   /* Active card / step detection                                        */
   /* ------------------------------------------------------------------ */
 
+  // Image blocks: while a trigger is the active scroll stop the sticky
+  // panel shows its image full-bleed over the map. The scene machinery
+  // keeps running underneath — the overlay is purely visual.
+  function activateImage(trigger) {
+    if (!mediaImage) return;
+    var img = mediaImage.querySelector('img');
+    var caption = mediaImage.querySelector('.storymap-media-image-caption');
+    var url = trigger.getAttribute('data-image-url');
+    if (img && img.getAttribute('src') !== url) img.src = url;
+    if (img) img.alt = trigger.getAttribute('data-image-alt') || '';
+    if (caption) {
+      caption.textContent = trigger.getAttribute('data-image-caption') || '';
+    }
+    mediaImage.classList.add('is-active');
+    mediaImage.setAttribute('aria-hidden', 'false');
+    imageTriggers.forEach(function (t) {
+      t.classList.toggle('is-active', t === trigger);
+    });
+  }
+
+  function deactivateImage() {
+    if (!mediaImage || !mediaImage.classList.contains('is-active')) return;
+    // Keep the src so the fade-out still shows the image.
+    mediaImage.classList.remove('is-active');
+    mediaImage.setAttribute('aria-hidden', 'true');
+    imageTriggers.forEach(function (t) { t.classList.remove('is-active'); });
+  }
+
   function activateCard(card) {
+    deactivateImage();
     cards.forEach(function (c) { c.classList.toggle('is-active', c === card); });
     var index = parseInt(card.getAttribute('data-scene-index'), 10);
     dots.forEach(function (dot, dotIndex) {
@@ -430,6 +471,7 @@
   }
 
   function activateStep(stepEl) {
+    deactivateImage();
     var sceneIndex = parseInt(stepEl.getAttribute('data-scene-index'), 10);
     var stepIndex = parseInt(stepEl.getAttribute('data-step-index'), 10);
     steps.forEach(function (s) {
@@ -444,15 +486,20 @@
     var activeObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        if (entry.target.classList.contains('storymap-step')) {
+        if (entry.target.classList.contains('storymap-image-trigger')) {
+          activateImage(entry.target);
+        } else if (entry.target.classList.contains('storymap-step')) {
           activateStep(entry.target);
         } else {
           activateCard(entry.target);
         }
       });
-    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+      // Asymmetric band [45%, 65%]: scrolling DOWN activates ~10vh earlier
+      // (heavy layers get a head start) while scrolling up is unchanged.
+    }, { rootMargin: '-45% 0px -35% 0px', threshold: 0 });
     cards.forEach(function (card) { activeObserver.observe(card); });
     steps.forEach(function (step) { activeObserver.observe(step); });
+    imageTriggers.forEach(function (t) { activeObserver.observe(t); });
   } else {
     cards.forEach(function (card) { card.classList.add('is-active'); });
   }
@@ -460,10 +507,80 @@
   if (cards.length) activateCard(cards[0]);
 
   /* ------------------------------------------------------------------ */
+  /* Prev/next block navigation (buttons + arrow keys)                   */
+  /* ------------------------------------------------------------------ */
+
+  // Scroll "stops" in DOM order: steps and image triggers; chapters with
+  // neither contribute their card as the single stop.
+  var stops = Array.prototype.slice.call(root.querySelectorAll(
+    '.storymap-step, .storymap-image-trigger, .storymap-card'
+  )).filter(function (el) {
+    if (!el.classList.contains('storymap-card')) return true;
+    return !el.querySelector('.storymap-step, .storymap-image-trigger');
+  });
+
+  function scrollToStop(el) {
+    var reduceMotion = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'center'
+    });
+  }
+
+  // Position is computed geometrically at jump time (nearest stop relative
+  // to the viewport midline) — activation state can lag a smooth scroll.
+  var lastJumpAt = 0;
+  function jumpStop(direction) {
+    if (!stops.length) return;
+    var now = Date.now();
+    if (now - lastJumpAt < 300) return; // held keys shouldn't skip stops
+    lastJumpAt = now;
+    var mid = window.innerHeight / 2;
+    var EPS = 24;
+    var i, rect, center;
+    if (direction > 0) {
+      for (i = 0; i < stops.length; i++) {
+        rect = stops[i].getBoundingClientRect();
+        center = rect.top + rect.height / 2;
+        if (center > mid + EPS) return scrollToStop(stops[i]);
+      }
+    } else {
+      for (i = stops.length - 1; i >= 0; i--) {
+        rect = stops[i].getBoundingClientRect();
+        center = rect.top + rect.height / 2;
+        if (center < mid - EPS) return scrollToStop(stops[i]);
+      }
+    }
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    var active = document.activeElement;
+    if (active && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) ||
+                   active.isContentEditable)) return;
+    if (document.body.classList.contains('ds-lightbox-open')) return;
+    // Only take over the arrows while the storymap spans the viewport
+    // midline — everywhere else they keep their native scroll behavior.
+    var rootRect = root.getBoundingClientRect();
+    var midline = window.innerHeight / 2;
+    if (rootRect.top > midline || rootRect.bottom < midline) return;
+    event.preventDefault();
+    jumpStop(event.key === 'ArrowDown' ? 1 : -1);
+  });
+
+  /* ------------------------------------------------------------------ */
   /* Sub-scene tabs + progress dots                                      */
   /* ------------------------------------------------------------------ */
 
   root.addEventListener('click', function (event) {
+    var navBtn = event.target.closest('.storymap-nav-btn');
+    if (navBtn) {
+      jumpStop(navBtn.classList.contains('storymap-nav-next') ? 1 : -1);
+      return;
+    }
+
     var btn = event.target.closest('.scene-tab-btn');
     if (btn) {
       var group = btn.parentElement.querySelectorAll('.scene-tab-btn');

@@ -19,12 +19,13 @@ from ckanext.pages.data_stories.helpers.terria import get_terria_base_url
 log = logging.getLogger(__name__)
 
 # Hash parameters that put Terria in fullscreen-map mode (no workbench or
-# explorer panel) and keep its native story panel shut ('hideStory=1' — the
-# storymap narrates the story itself; stock Terria builds ignore the flag).
-# They must live in the URL fragment, not the query string: Terria parses
-# the fragment as user properties (ViewState.ts).
+# explorer panel), keep its native story panel shut ('hideStory=1' — the
+# storymap narrates the story itself; stock Terria builds ignore the flag)
+# and skip the first-visit welcome modal ('hideWelcomeMessage', honored by
+# stock terriajs via interpretHash). They must live in the URL fragment,
+# not the query string: Terria parses the fragment as user properties.
 STORYMAP_EMBED_FLAGS = ('hideWorkbench=1', 'hideExplorerPanel=1',
-                        'hideStory=1')
+                        'hideStory=1', 'hideWelcomeMessage=1')
 
 _YOUTUBE_RE = re.compile(
     r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]+)')
@@ -180,6 +181,7 @@ def get_storymap_scenes(story, resolve_share=None):
             'blocks': [
                 {'type': 'text', 'content': html},
                 {'type': 'media', 'embed_html': html},
+                {'type': 'image', 'url': url, 'alt': str, 'caption': str},
                 {'type': 'scene_tabs', 'tabs': [{'title', 'scene_url',
                                                  'share_url'}]},
             ],
@@ -238,6 +240,16 @@ def get_storymap_scenes(story, resolve_share=None):
                     blocks.append({
                         'type': 'media',
                         'embed_html': _media_embed_html(block),
+                    })
+                elif block_type == 'image' and block.get('url'):
+                    # Rendered as a thumbnail trigger in the card; while it
+                    # is the active scroll stop the sticky panel shows the
+                    # image full-bleed over the map (ArcGIS-style slide).
+                    blocks.append({
+                        'type': 'image',
+                        'url': block['url'],
+                        'alt': block.get('alt') or '',
+                        'caption': block.get('caption') or '',
                     })
                 elif block_type == 'terria':
                     tabs = []

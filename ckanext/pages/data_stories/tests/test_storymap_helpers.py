@@ -31,13 +31,14 @@ class TestBuildTerriaSceneUrl:
         url = build_terria_scene_url(SHARE)
         assert url == ('https://ihp-wins.unesco.org/terria/'
                        '#share=g-abc123&hideWorkbench=1&hideExplorerPanel=1'
-                       '&hideStory=1')
+                       '&hideStory=1&hideWelcomeMessage=1')
 
     def test_does_not_duplicate_existing_flags(self):
         url = build_terria_scene_url(SHARE + '&hideWorkbench=1')
         assert url.count('hideWorkbench=1') == 1
         assert 'hideExplorerPanel=1' in url
         assert 'hideStory=1' in url
+        assert 'hideWelcomeMessage=1' in url
 
     def test_start_fragment_passes_through(self):
         url = build_terria_scene_url(
@@ -110,6 +111,38 @@ class TestGetStorymapScenes:
 
         scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert scenes[0]['scene_url'] is None
+
+    def test_image_block_is_parsed(self):
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'image', 'url': 'https://cdn.example.org/a.png',
+                 'alt': 'A chart', 'caption': 'Figure 1'},
+            ],
+        }])
+
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
+        assert scenes[0]['blocks'][0] == {
+            'type': 'image',
+            'url': 'https://cdn.example.org/a.png',
+            'alt': 'A chart',
+            'caption': 'Figure 1',
+        }
+        # An image-only section is narrative-only: the map keeps the
+        # previous scene.
+        assert scenes[0]['scene_url'] is None
+
+    def test_image_block_without_url_is_skipped(self):
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'image', 'alt': 'no url'},
+                {'type': 'text', 'content': '<p>Hi</p>'},
+            ],
+        }])
+
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
+        assert [b['type'] for b in scenes[0]['blocks']] == ['text']
 
     def test_legacy_section_strips_terria_markup(self):
         content = (
@@ -292,7 +325,8 @@ class TestGetStorymapConfig:
         assert config['scenes'][0]['steps'] == 0
         assert config['embedBaseUrl'] == (
             'https://ihp-wins.unesco.org/terria/'
-            '#hideWorkbench=1&hideExplorerPanel=1&hideStory=1')
+            '#hideWorkbench=1&hideExplorerPanel=1&hideStory=1'
+            '&hideWelcomeMessage=1')
         assert config['placeholderImage'] == 'https://cdn.example.org/b.png'
 
 
