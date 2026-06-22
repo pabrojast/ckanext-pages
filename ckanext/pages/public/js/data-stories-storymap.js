@@ -63,6 +63,7 @@
   var desired = null;          // {sceneIndex, stepIndex|null} last activation
   var currentKey = null;       // applied scene key, avoids redundant applies
   var pendingTimer = null;     // debounce
+  var manualSceneChapter = null;  // chapter index whose tab is pinned (null=none)
   var applySceneSupported = null;  // null=unknown, true/false after probe
   var pendingRequestId = null;
   var requestCounter = 0;
@@ -321,6 +322,10 @@
     var key = keyFor(sceneIndex, stepIndex);
     if (key === currentKey) return;
 
+    // A manually selected tab pins its chapter: ignore scroll-driven applies
+    // for it (the tab path uses applySceneUrl, not applyState).
+    if (manualSceneChapter !== null && sceneIndex === manualSceneChapter) return;
+
     if (mode === 'bridge' && scene.shareId && applySceneSupported !== false) {
       currentKey = key;
       setSwitching(true);
@@ -457,6 +462,17 @@
     });
     var scene = scenes[index];
     if (!scene) return;
+    // A pinned tab survives until the reader leaves its chapter.
+    if (manualSceneChapter !== null) {
+      if (index === manualSceneChapter) return;  // keep the pinned tab scene
+      manualSceneChapter = null;                 // entered a different chapter
+    }
+    // Entering a chapter fresh: its steps drive the map from tab[0], so sync
+    // the tab highlight back to the first tab (a previous pin may linger).
+    var tabGroup = card.querySelectorAll('.scene-tab-btn');
+    Array.prototype.forEach.call(tabGroup, function (b, i) {
+      b.classList.toggle('is-active', i === 0);
+    });
     if (scene.steps > 1) {
       // Jump to the chapter's first scene as soon as the card activates
       // (i.e. while reading its intro blocks); the step observer takes over
@@ -474,6 +490,12 @@
     deactivateImage();
     var sceneIndex = parseInt(stepEl.getAttribute('data-scene-index'), 10);
     var stepIndex = parseInt(stepEl.getAttribute('data-step-index'), 10);
+    // While a tab is pinned in this chapter, steps neither drive the map nor
+    // highlight; a step in any other chapter releases the pin.
+    if (manualSceneChapter !== null) {
+      if (sceneIndex === manualSceneChapter) return;
+      manualSceneChapter = null;
+    }
     steps.forEach(function (s) {
       if (parseInt(s.getAttribute('data-scene-index'), 10) === sceneIndex) {
         s.classList.toggle('is-active', s === stepEl);
@@ -587,6 +609,14 @@
       Array.prototype.forEach.call(group, function (b) {
         b.classList.toggle('is-active', b === btn);
       });
+      // Pin this tab's chapter so scroll-driven step applies don't revert it,
+      // and cancel any step apply already queued from the last scroll.
+      var tabCard = btn.closest('.storymap-card');
+      if (tabCard) {
+        var ci = parseInt(tabCard.getAttribute('data-scene-index'), 10);
+        if (!isNaN(ci)) manualSceneChapter = ci;
+      }
+      if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null; }
       applySceneUrl(btn.getAttribute('data-scene-url'));
       return;
     }
