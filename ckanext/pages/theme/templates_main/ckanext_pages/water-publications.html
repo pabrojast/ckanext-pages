@@ -712,11 +712,14 @@
 /* Banner Section - Enhanced */
 .section-title {
   position: relative;
-  height: 350px;
+  min-height: 350px;
   overflow: hidden;
   border-radius: 16px;
   margin-bottom: 3rem;
   box-shadow: var(--shadow-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .flash-messages {
 margin-top: 200px !important;
@@ -749,25 +752,25 @@ float: inherit !important;
 }
 
 .section-title-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   text-align: center;
   color: white !important;
   z-index: 10;
   width: 90%;
   max-width: 800px;
+  padding: 2.5rem 0;
 }
 
 .section-title-content h1 {
-  font-size: 3rem;
+  font-size: clamp(1.6rem, 1.4vw + 1.2rem, 3rem);
   font-weight: 700;
   margin-bottom: 1.5rem;
   text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: white !important;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .section-title-description {
@@ -1218,9 +1221,9 @@ float: inherit !important;
 
 @media (max-width: 768px) {
   .section-title {
-    height: 250px;
+    min-height: 250px;
   }
-  
+
   .section-title-content h1 {
     font-size: 2.2rem;
   }
