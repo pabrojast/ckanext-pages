@@ -382,14 +382,12 @@ def get_gravatar_url(email: str, size: int = 80, default: str = 'identicon') -> 
         >>> get_gravatar_url('user@example.com', size=40)
         'https://www.gravatar.com/avatar/...'
     """
-    try:
-        from ckan.lib.helpers import gravatar as ckan_gravatar
-        return ckan_gravatar(email, size=size, default=default)
-    except Exception:
-        # Fall back to direct construction
-        import hashlib
-        email_hash = hashlib.md5(email.lower().encode('utf-8')).hexdigest()
-        return f"https://www.gravatar.com/avatar/{email_hash}?s={size}&d={default}"
+    # Delegates to ckanext-pages' own helper, which digests the address with a
+    # keyed pseudonym instead of the plain md5 Gravatar expects. Emitting the
+    # real md5 on a public page publishes a reversible fingerprint of the
+    # author's email address.
+    from ckanext.pages.plugin import gravatar_url
+    return gravatar_url(email, size=size, default=default)
 
 
 def highlight_search_terms(text: str, search_query: str) -> str:

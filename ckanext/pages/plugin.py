@@ -2,6 +2,7 @@ import logging
 import json
 import re
 import hashlib
+import hmac
 import time
 from functools import lru_cache
 from html import escape as html_escape
@@ -305,11 +306,27 @@ def sanitize_html_content(content):
 
 
 def gravatar_url(email, size=40, default='identicon', rating='g'):
-    """Return a gravatar URL for the given email, falling back gracefully."""
+    """Return an avatar URL for the given email, falling back gracefully.
+
+    The digest is a **keyed pseudonym**, not the plain ``md5(email)`` Gravatar
+    normally expects. Emitting the real md5 publishes a reversible fingerprint
+    of the address: it confirms a guessed email and pulls the person's photo
+    and profile off gravatar.com. The data-story pages render this helper for
+    anonymous visitors, so it was leaking author addresses site-wide.
+
+    Gravatar renders a distinct identicon for any unrecognised digest, so
+    avatars stay unique per author. The trade-off is that an author with a real
+    Gravatar photo now gets an identicon instead.
+    """
     if not email:
         email = ''
     email_bytes = email.strip().lower().encode('utf-8')
-    email_hash = hashlib.md5(email_bytes).hexdigest()
+    salt = (tk.config.get('ckanext.pages.avatar_salt')
+            or tk.config.get('beaker.session.secret')
+            or 'ckanext-pages')
+    email_hash = hmac.new(
+        salt.encode('utf-8'), email_bytes, hashlib.sha256
+    ).hexdigest()[:32]
 
     params = {'s': str(size)}
     if default:

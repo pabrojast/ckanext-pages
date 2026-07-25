@@ -4209,7 +4209,10 @@ def crida_main_page():
                     'id': user.get('id', ''),
                     'name': user.get('name', ''),
                     'display_name': user.get('display_name') or user.get('fullname') or user.get('name', ''),
-                    'email_hash': user.get('email_hash', ''),
+                    # email_hash is deliberately NOT propagated: user_show is
+                    # called with ignore_auth above, so it returns the real
+                    # md5(email), and this dict is rendered on a public page.
+                    # The template falls back to an initials placeholder.
                     'image_url': _normalize_ckan_upload_url(
                         user.get('image_url', ''),
                         'user',
