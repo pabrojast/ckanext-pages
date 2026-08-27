@@ -8,7 +8,7 @@
 <link rel="dns-prefetch" href="{{ storymap_config.terriaOrigin }}" />
 {% endif %}
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
-<link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css?v=20260827-1" />
 
 <div class="homepage layout-1 storymap-page">
   <div id="content" class="container">
@@ -126,9 +126,10 @@
 
     {# ====================== Scrollytelling sidecar ====================== #}
     {% if storymap_scenes %}
-    <div class="storymap" id="storymap">
+    <div class="storymap{% if not storymap_config.hasMedia %} has-no-map{% endif %}" id="storymap">
 
-      <div class="storymap-media">
+      {% if storymap_config.hasMedia %}
+      <div class="storymap-media" style="grid-row: 1 / span {{ storymap_scenes|length }};">
         <div class="storymap-placeholder" aria-hidden="true"
              {% if storymap_config.placeholderImage %}style="background-image: url('{{ storymap_config.placeholderImage }}');"{% endif %}>
           <div class="storymap-placeholder-overlay">
@@ -165,11 +166,14 @@
           </button>
         </nav>
       </div>
+      {% endif %}
 
       <div class="storymap-cards">
         {% for scene in storymap_scenes %}
         {% set scene_index = loop.index0 %}
-        <article class="storymap-card" id="scene-{{ scene.section_id }}" data-scene-index="{{ scene_index }}">
+        <article class="storymap-card{% if scene.layout == 'full' %} is-full-width{% endif %}"
+                 id="scene-{{ scene.section_id }}" data-scene-index="{{ scene_index }}"
+                 data-layout="{{ scene.layout }}" style="grid-row: {{ loop.index }};">
           <div class="storymap-card-body">
             <header class="storymap-card-header">
               <span class="storymap-card-number">{{ loop.index }}</span>
@@ -190,14 +194,19 @@
                 <img src="{{ block.url }}" alt="{{ block.alt }}" loading="lazy" />
                 {% if block.caption %}<figcaption>{{ block.caption }}</figcaption>{% endif %}
                 <span class="storymap-image-trigger-hint">
-                  <i class="fa fa-expand"></i> {{ _('Shown over the map as you read') }}
+                  <i class="fa fa-expand"></i>
+                  {% if scene.layout == 'full' %}
+                    {{ _('Shown as a full-width story image') }}
+                  {% else %}
+                    {{ _('Shown over the map as you read') }}
+                  {% endif %}
                 </span>
               </figure>
               {% elif block.type == 'scene_tabs' and block.tabs|length > 1 %}
               <div class="storymap-scene-tabs" role="group" aria-label="{{ _('Map views') }}">
                 {% for tab in block.tabs %}
                 <button type="button" class="scene-tab-btn{% if loop.first %} is-active{% endif %}"
-                        data-scene-url="{{ tab.scene_url }}">
+                        data-source-index="{{ tab.source_index }}">
                   <i class="fa fa-map-o"></i> {{ tab.title }}
                 </button>
                 {% endfor %}
@@ -205,7 +214,7 @@
               {% endif %}
             {% endfor %}
 
-            {% if scene.steps and scene.steps|length > 1 %}
+            {% if scene.steps %}
             {# Terria story scenes inside this share: each one is a scroll
                step — the map advances through them as the reader scrolls. #}
             <div class="storymap-steps">
@@ -444,5 +453,5 @@
 
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
 {# ?v= busts browser caches when the viewer logic changes — bump on edits #}
-<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260614-1" defer></script>
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260827-1" defer></script>
 {% endblock %}

@@ -153,10 +153,12 @@ sqlalchemy.url = postgresql://ckan_test:password@localhost/ckan_test
 
 ### Plugins
 
-Ensure the pages plugin is loaded in test.ini:
+Ensure the pages plugin and the Data Stories feature flag are enabled in
+`test.ini`:
 
 ```ini
-ckan.plugins = pages data_stories
+ckan.plugins = pages image_view
+ckanext.data_stories.enabled = True
 ```
 
 ### Dependencies

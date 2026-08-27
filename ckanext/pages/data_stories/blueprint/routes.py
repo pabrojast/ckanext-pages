@@ -5,9 +5,11 @@ Provides URL routes and view functions for the data stories web UI.
 """
 
 import html
+import datetime
 import json
 import logging
 import re
+from urllib.parse import quote
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
 import ckan.plugins.toolkit as tk
@@ -376,6 +378,9 @@ def create():
         draft_story_context = _build_story_context({**data_dict, 'sections': sections_data})
 
         try:
+            datasets_data = _prepare_story_datasets(context, datasets_data)
+            data_dict['datasets_data'] = datasets_data
+
             # Create story
             story = tk.get_action('data_story_create')(context, data_dict)
 
@@ -797,6 +802,9 @@ def edit(slug):
         story_context = _build_story_context({**story, **data_dict, 'sections': sections_data})
 
         try:
+            datasets_data = _prepare_story_datasets(context, datasets_data)
+            data_dict['datasets_data'] = datasets_data
+
             # Store original status to check if it changed
             original_status = story.get('status')
             
@@ -1453,50 +1461,98 @@ def _sync_story_sections(context, story_id, sections_data, existing_sections=Non
 
 def _sync_story_datasets(context, story_id, datasets_data):
     """
-    Link/unlink datasets based on the submitted dataset list.
+    Reconcile dataset links in one transaction.
+
+    Expected validation failures are handled before the story itself is
+    mutated by ``_prepare_story_datasets``.  This function deliberately does
+    not call the single-link actions because those actions commit one row at a
+    time, which could leave a partially applied list.
     """
-    datasets_data = datasets_data or []
+    from ckanext.pages.data_stories.db.models import DataStory, DataStoryDataset
+    from ckanext.pages.data_stories.db.utils import make_uuid
 
-    desired_ids = []
-    for entry in datasets_data:
-        if isinstance(entry, str):
-            desired_ids.append(entry)
-        elif isinstance(entry, dict):
-            ds_id = entry.get('id') or entry.get('dataset_id') or entry.get('name')
-            if ds_id:
-                desired_ids.append(ds_id)
+    desired = datasets_data or []
+    desired_ids = [entry['id'] for entry in desired]
+    session = context.get('session', model.Session)
+    existing_links = session.query(DataStoryDataset).filter(
+        DataStoryDataset.story_id == story_id
+    ).all()
+    existing_by_id = {link.dataset_id: link for link in existing_links}
 
-    # Remove duplicates while preserving order
+    try:
+        for order_index, dataset_id in enumerate(desired_ids):
+            link = existing_by_id.get(dataset_id)
+            if link is None:
+                link = DataStoryDataset(
+                    id=make_uuid(),
+                    story_id=story_id,
+                    dataset_id=dataset_id,
+                    relationship_type='primary',
+                    description='',
+                    created_at=datetime.datetime.utcnow(),
+                )
+            link.order_index = order_index
+            session.add(link)
+
+        desired_set = set(desired_ids)
+        for link in existing_links:
+            if link.dataset_id not in desired_set:
+                session.delete(link)
+
+        story = session.query(DataStory).filter(DataStory.id == story_id).first()
+        if story:
+            story.updated_at = datetime.datetime.utcnow()
+            session.add(story)
+
+        session.commit()
+    except Exception:
+        session.rollback()
+        log.exception('[SYNC_DATASETS] Could not reconcile datasets for %s', story_id)
+        raise
+
+
+def _prepare_story_datasets(context, datasets_data):
+    """Resolve submitted dataset references and return canonical metadata."""
+    prepared = []
     seen = set()
-    desired_ids = [d for d in desired_ids if not (d in seen or seen.add(d))]
 
-    # Query existing links directly from DB to avoid expensive package_show calls
-    from ckanext.pages.data_stories.db.models import DataStoryDataset
-    existing_db_links = DataStoryDataset.all(story_id=story_id)
-    existing_ids = {link.dataset_id for link in existing_db_links if link.dataset_id}
+    for entry in datasets_data or []:
+        if isinstance(entry, str):
+            candidate = entry.strip()
+        elif isinstance(entry, dict):
+            candidate = str(
+                entry.get('id') or entry.get('dataset_id') or entry.get('name') or ''
+            ).strip()
+        else:
+            candidate = ''
 
-    # Link new datasets
-    for ds_id in desired_ids:
-        if ds_id not in existing_ids:
-            try:
-                tk.get_action('data_story_link_dataset')(context, {
-                    'story_id': story_id,
-                    'dataset_id': ds_id,
-                    'relationship_type': 'primary',
-                })
-            except Exception as e:
-                log.error(f"[SYNC_DATASETS] Could not link dataset {ds_id}: {str(e)}")
+        if not candidate:
+            continue
 
-    # Unlink removed datasets
-    for ds_id in existing_ids:
-        if ds_id not in desired_ids:
-            try:
-                tk.get_action('data_story_unlink_dataset')(context, {
-                    'story_id': story_id,
-                    'dataset_id': ds_id,
-                })
-            except Exception as e:
-                log.error(f"[SYNC_DATASETS] Could not unlink dataset {ds_id}: {str(e)}")
+        try:
+            package = tk.get_action('package_show')(context, {'id': candidate})
+        except tk.ObjectNotFound:
+            raise tk.ValidationError({
+                'datasets_data': [
+                    tk._("Dataset '{0}' was not found").format(candidate)
+                ]
+            })
+        except tk.NotAuthorized:
+            raise tk.ValidationError({
+                'datasets_data': [
+                    tk._("You are not authorized to use dataset '{0}'").format(
+                        candidate
+                    )
+                ]
+            })
+
+        dataset_id = package.get('id')
+        if not dataset_id or dataset_id in seen:
+            continue
+        seen.add(dataset_id)
+        prepared.append(_dataset_form_metadata(package))
+
+    return prepared
 
 
 def _coerce_int(value, default=0):
@@ -1634,6 +1690,45 @@ def _get_extra_value(extras, key):
     return None
 
 
+def _dataset_form_metadata(dataset):
+    """Return the canonical, JSON-safe dataset shape used by the editor."""
+    extras = dataset.get('extras')
+    doi = (
+        dataset.get('doi')
+        or dataset.get('dataset_doi')
+        or _get_extra_value(extras, 'doi')
+        or _get_extra_value(extras, 'dataset_doi')
+    )
+    doi_status = (
+        dataset.get('doi_status')
+        or _get_extra_value(extras, 'doi_status')
+        or _get_extra_value(extras, 'doi_state')
+    )
+    citation = dataset.get('citation') or _get_extra_value(extras, 'citation')
+    authors_text = (
+        _get_extra_value(extras, 'authors')
+        or dataset.get('author')
+        or dataset.get('maintainer')
+        or ', '.join(
+            author.get('name', '')
+            for author in (dataset.get('authors') or [])
+            if isinstance(author, dict) and author.get('name')
+        )
+    )
+    name = dataset.get('name') or dataset.get('id')
+
+    return {
+        'id': dataset.get('id'),
+        'name': name,
+        'title': dataset.get('title') or name,
+        'doi': doi or '',
+        'doi_status': doi_status or '',
+        'citation': citation or '',
+        'authors': authors_text or '',
+        'url': '/dataset/' + quote(str(name), safe='') if name else '',
+    }
+
+
 def _build_datasets_form_data(story):
     """Prepare dataset info for the edit form hidden field."""
     datasets = story.get('datasets') if story else []
@@ -1641,29 +1736,9 @@ def _build_datasets_form_data(story):
 
     for link in datasets:
         dataset = link.get('dataset') or {}
-        extras = dataset.get('extras')
-        doi = (
-            dataset.get('doi')
-            or dataset.get('dataset_doi')
-            or _get_extra_value(extras, 'doi')
-            or _get_extra_value(extras, 'dataset_doi')
-        )
-        doi_status = (
-            dataset.get('doi_status')
-            or _get_extra_value(extras, 'doi_status')
-            or _get_extra_value(extras, 'doi_state')
-        )
-        citation = dataset.get('citation') or _get_extra_value(extras, 'citation')
-        authors_text = _get_extra_value(extras, 'authors') or dataset.get('author') or dataset.get('maintainer')
-
-        result.append({
-            'id': dataset.get('id') or link.get('dataset_id'),
-            'name': dataset.get('name'),
-            'title': dataset.get('title'),
-            'doi': doi,
-            'doi_status': doi_status,
-            'citation': citation,
-            'authors': authors_text,
-        })
+        if not dataset.get('id'):
+            dataset = dict(dataset)
+            dataset['id'] = link.get('dataset_id')
+        result.append(_dataset_form_metadata(dataset))
 
     return result

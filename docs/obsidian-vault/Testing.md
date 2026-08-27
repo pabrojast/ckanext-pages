@@ -43,12 +43,13 @@ Cobertura observable:
 
 ### Data Stories
 
-Archivos `test_*.py` detectados: 6
+Archivos `test_*.py` detectados: 7
 
 - `test_actions.py`
 - `test_auth.py`
 - `test_models.py`
 - `test_routes.py`
+- `test_storymap_helpers.py`
 - `test_validation.py`
 - `test_workflow.py`
 
@@ -60,6 +61,16 @@ Cobertura observable:
 - workflow editorial
 - validación
 - linking de datasets
+- normalización de escenas `#share` y `#start`
+- Story Slides únicas, imágenes nativas y capítulos sin mapa
+
+El `test.ini` activa `ckanext.data_stories.enabled = True`; sin esa opción las rutas y acciones del módulo no quedan registradas en el entorno de prueba.
+
+Comando focalizado para los cambios de editor/storymap:
+
+```bash
+pytest --ckan-ini=test.ini ckanext/pages/data_stories/tests/test_storymap_helpers.py ckanext/pages/data_stories/tests/test_routes.py
+```
 
 ### Featured Viewers
 

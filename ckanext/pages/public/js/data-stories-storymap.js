@@ -45,25 +45,35 @@
   var imageTriggers = Array.prototype.slice.call(
     root.querySelectorAll('.storymap-image-trigger'));
   var mediaImage = root.querySelector('.storymap-media-image');
-  if (!iframe || !cards.length) return;
+  if (!cards.length) return;
 
   var scenes = config.scenes || [];
   var terriaOrigin = config.terriaOrigin || null;
   var resolveEndpoint = config.sceneResolveEndpoint || null;
   var firstSceneUrl = null;
-  var hasShareIds = false;
+  var hasBridgeSources = false;
   for (var i = 0; i < scenes.length; i++) {
-    if (!firstSceneUrl && scenes[i].sceneUrl) firstSceneUrl = scenes[i].sceneUrl;
-    if (scenes[i].shareId) hasShareIds = true;
+    if (!Array.isArray(scenes[i].sources) || !scenes[i].sources.length) {
+      scenes[i].sources = scenes[i].sceneUrl ? [{
+        sceneUrl: scenes[i].sceneUrl,
+        shareId: scenes[i].shareId || null,
+        startData: scenes[i].startData || null
+      }] : [];
+    }
+    scenes[i].sources.forEach(function (source) {
+      if (!firstSceneUrl && source.sceneUrl) firstSceneUrl = source.sceneUrl;
+      if (source.shareId || source.startData) hasBridgeSources = true;
+    });
   }
 
   // 'idle' -> (load) -> 'pending' -> 'bridge' | 'hash'
   var mode = 'idle';
   var bridgeFallbackTimer = null;
-  var desired = null;          // {sceneIndex, stepIndex|null} last activation
+  var desired = null;          // {sceneIndex, sourceIndex, stepIndex|null}
   var currentKey = null;       // applied scene key, avoids redundant applies
   var pendingTimer = null;     // debounce
   var manualSceneChapter = null;  // chapter index whose tab is pinned (null=none)
+  var manualSourceIndex = null;
   var applySceneSupported = null;  // null=unknown, true/false after probe
   var pendingRequestId = null;
   var requestCounter = 0;
@@ -82,8 +92,8 @@
   /* ------------------------------------------------------------------ */
 
   function loadIframe() {
-    if (mode !== 'idle') return;
-    if (hasShareIds && config.embedBaseUrl) {
+    if (!iframe || mode !== 'idle') return;
+    if (hasBridgeSources && config.embedBaseUrl) {
       // Bridge-first: bare Terria, scenes will arrive via postMessage.
       mode = 'pending';
       iframe.src = config.embedBaseUrl;
@@ -92,7 +102,7 @@
       }, BRIDGE_TIMEOUT_MS);
     } else if (firstSceneUrl) {
       mode = 'hash';
-      currentKey = keyFor(firstIndexWithScene(), null);
+      currentKey = keyFor(firstIndexWithScene(), 0, null);
       iframe.src = firstSceneUrl;
     } else {
       return;
@@ -103,13 +113,13 @@
   function enterHashMode() {
     mode = 'hash';
     if (firstSceneUrl) {
-      var target = desired && scenes[desired.sceneIndex] &&
-        scenes[desired.sceneIndex].sceneUrl
-          ? scenes[desired.sceneIndex]
-          : null;
-      currentKey = target ? keyFor(desired.sceneIndex, null)
-                          : keyFor(firstIndexWithScene(), null);
-      iframe.src = target ? target.sceneUrl : firstSceneUrl;
+      var target = desired
+        ? sourceFor(desired.sceneIndex, desired.sourceIndex)
+        : null;
+      currentKey = target && target.sceneUrl
+        ? keyFor(desired.sceneIndex, desired.sourceIndex, null)
+        : keyFor(firstIndexWithScene(), 0, null);
+      iframe.src = target && target.sceneUrl ? target.sceneUrl : firstSceneUrl;
     }
   }
 
@@ -157,16 +167,20 @@
     sharesWarmed = true;
     setTimeout(function () {
       var chain = Promise.resolve();
-      scenes.forEach(function (s) {
-        if (!s.shareId) return;
-        chain = chain.then(function () {
-          return fetchShare(s.shareId, s.sceneUrl).catch(function () {});
+      scenes.forEach(function (scene) {
+        (scene.sources || []).forEach(function (source) {
+          if (!source.shareId) return;
+          chain = chain.then(function () {
+            return fetchShare(source.shareId, source.sceneUrl)
+              .catch(function () {});
+          });
         });
       });
     }, 1500);
   }
 
   window.addEventListener('message', function (event) {
+    if (!iframe) return;
     if (terriaOrigin && event.origin !== terriaOrigin) return;
 
     if (event.data === 'ready') {
@@ -176,7 +190,7 @@
       // late "ready" still proves the bridge works, so upgrade; steps and
       // clean scene applies only exist on the bridge. applyState() dedupes
       // by key, so an already-correct hash-loaded scene isn't re-applied.
-      if (mode === 'pending' || (mode === 'hash' && hasShareIds)) {
+      if (mode === 'pending' || (mode === 'hash' && hasBridgeSources)) {
         mode = 'bridge';
         if (bridgeFallbackTimer) clearTimeout(bridgeFallbackTimer);
         // Allow-origin handshake (harmless if already trusted as parent).
@@ -184,8 +198,12 @@
           iframe.contentWindow.postMessage(
             { allowOrigin: window.location.origin }, '*');
         } catch (e) { /* ignore */ }
-        var target = desired || { sceneIndex: firstIndexWithScene(), stepIndex: null };
-        if (target.sceneIndex >= 0) applyState(target.sceneIndex, target.stepIndex);
+        var target = desired || {
+          sceneIndex: firstIndexWithScene(), sourceIndex: 0, stepIndex: null
+        };
+        if (target.sceneIndex >= 0) {
+          applySource(target.sceneIndex, target.sourceIndex, target.stepIndex);
+        }
         warmShares();
       }
     } else if (event.data && event.data.type === 'sceneApplied') {
@@ -274,6 +292,7 @@
   // ack 'applyScene'. Raw start data (updateFromStartData) is deliberately
   // NOT used — it fails to render COG layers on stock Terria builds.
   function postApply(shareData, fallback) {
+    if (!iframe) return;
     setSwitching(true);
     if (applySceneSupported === false) {
       fallback();
@@ -311,43 +330,62 @@
   /* Scene application                                                   */
   /* ------------------------------------------------------------------ */
 
-  function keyFor(sceneIndex, stepIndex) {
-    return sceneIndex + ':' + (stepIndex === null || stepIndex === undefined
-      ? 'base' : stepIndex);
+  function sourceFor(sceneIndex, sourceIndex) {
+    var scene = scenes[sceneIndex];
+    if (!scene || !scene.sources) return null;
+    return scene.sources[sourceIndex || 0] || null;
+  }
+
+  function keyFor(sceneIndex, sourceIndex, stepIndex) {
+    return sceneIndex + ':' + (sourceIndex || 0) + ':' +
+      (stepIndex === null || stepIndex === undefined ? 'base' : stepIndex);
+  }
+
+  function dataForSource(source) {
+    if (source.startData) return Promise.resolve(source.startData);
+    if (source.shareId) return fetchShare(source.shareId, source.sceneUrl);
+    return Promise.reject(new Error('scene source has no bridge data'));
   }
 
   function applyState(sceneIndex, stepIndex) {
     var scene = scenes[sceneIndex];
     if (!scene) return;
-    var key = keyFor(sceneIndex, stepIndex);
+
+    // A manually selected tab pins its chapter: ignore scroll-driven applies.
+    if (manualSceneChapter !== null && sceneIndex === manualSceneChapter) return;
+    applySource(sceneIndex, 0, stepIndex);
+  }
+
+  function applySource(sceneIndex, sourceIndex, stepIndex) {
+    var source = sourceFor(sceneIndex, sourceIndex);
+    if (!source) return;
+    var key = keyFor(sceneIndex, sourceIndex, stepIndex);
     if (key === currentKey) return;
 
-    // A manually selected tab pins its chapter: ignore scroll-driven applies
-    // for it (the tab path uses applySceneUrl, not applyState).
-    if (manualSceneChapter !== null && sceneIndex === manualSceneChapter) return;
-
-    if (mode === 'bridge' && scene.shareId && applySceneSupported !== false) {
+    if (mode === 'bridge' && (source.shareId || source.startData) &&
+        applySceneSupported !== false) {
       currentKey = key;
       setSwitching(true);
       // Hash degradation under the BASE key, even for steps — otherwise
       // every later step of the chapter re-fires the same navigation.
-      var fallbackKey = keyFor(sceneIndex, null);
+      var fallbackKey = keyFor(sceneIndex, sourceIndex, null);
       var fallback = function () {
         if (currentKey !== key) return; // superseded while probing
-        if (scene.sceneUrl) {
-          applyHash(scene.sceneUrl, fallbackKey);
+        if (source.sceneUrl) {
+          applyHash(source.sceneUrl, fallbackKey);
         } else {
           currentKey = null;
           setSwitching(false);
         }
       };
-      fetchShare(scene.shareId, scene.sceneUrl).then(function (share) {
+      dataForSource(source).then(function (share) {
         if (currentKey !== key) return; // superseded while fetching
         var shareData;
         if (stepIndex !== null && stepIndex !== undefined) {
           var story = extractStories(share)[stepIndex];
-          if (!story || !story.shareData) { setSwitching(false); return; }
-          shareData = stripStories(story.shareData);
+          shareData = story && story.shareData
+            ? stripStories(story.shareData)
+            : stripStories(share);
         } else {
           shareData = stripStories(share);
         }
@@ -357,17 +395,16 @@
     }
 
     if (mode === 'hash' || mode === 'bridge') {
-      // No share id (e.g. '#start=' links) or no working bridge: hash swap.
-      // Steps can't be addressed by URL; show the chapter's base scene
-      // (Terria's native story panel may open — accepted trade-off).
+      // No working bridge: hash swap. Steps cannot be addressed by URL, so
+      // the chapter's base source remains visible.
       if (stepIndex !== null && stepIndex !== undefined) {
-        var baseKey = keyFor(sceneIndex, null);
-        if (scene.sceneUrl && currentKey !== baseKey) {
-          applyHash(scene.sceneUrl, baseKey);
+        var baseKey = keyFor(sceneIndex, sourceIndex, null);
+        if (source.sceneUrl && currentKey !== baseKey) {
+          applyHash(source.sceneUrl, baseKey);
         }
         return;
       }
-      if (scene.sceneUrl) applyHash(scene.sceneUrl, key);
+      if (source.sceneUrl) applyHash(source.sceneUrl, key);
       return;
     }
 
@@ -375,6 +412,7 @@
   }
 
   function applyHash(url, key) {
+    if (!iframe) return;
     currentKey = key;
     // '#clean&' empties Terria's accumulated initSources before the new
     // share is applied; already-loaded catalog models stay in memory.
@@ -391,29 +429,8 @@
     setTimeout(function () { setSwitching(false); }, 2500);
   }
 
-  // Sub-scene tab buttons carry a full share URL.
-  function applySceneUrl(url) {
-    if (!url) return;
-    var match = url.match(/[#&]share=([A-Za-z0-9_-]+)/);
-    var key = 'url:' + url;
-    if (key === currentKey) return;
-    if (mode === 'bridge' && match && applySceneSupported !== false) {
-      currentKey = key;
-      var fallback = function () {
-        if (currentKey !== key) return;
-        applyHash(url, key);
-      };
-      fetchShare(match[1], url).then(function (share) {
-        if (currentKey !== key) return;
-        postApply(stripStories(share), fallback);
-      }).catch(fallback);
-    } else if (mode === 'hash' || mode === 'bridge') {
-      applyHash(url, key);
-    }
-  }
-
   function scheduleApply(sceneIndex, stepIndex) {
-    desired = { sceneIndex: sceneIndex, stepIndex: stepIndex };
+    desired = { sceneIndex: sceneIndex, sourceIndex: 0, stepIndex: stepIndex };
     if (pendingTimer) clearTimeout(pendingTimer);
     pendingTimer = setTimeout(function () {
       pendingTimer = null;
@@ -429,6 +446,11 @@
   // panel shows its image full-bleed over the map. The scene machinery
   // keeps running underneath — the overlay is purely visual.
   function activateImage(trigger) {
+    var imageCard = trigger.closest('.storymap-card');
+    if (imageCard && imageCard.getAttribute('data-layout') === 'full') {
+      deactivateImage();
+      return;
+    }
     if (!mediaImage) return;
     var img = mediaImage.querySelector('img');
     var caption = mediaImage.querySelector('.storymap-media-image-caption');
@@ -462,28 +484,31 @@
     });
     var scene = scenes[index];
     if (!scene) return;
+    var isFull = scene.layout === 'full' || !scene.sources || !scene.sources.length;
+    root.classList.toggle('is-full-section', isFull);
     // A pinned tab survives until the reader leaves its chapter.
     if (manualSceneChapter !== null) {
       if (index === manualSceneChapter) return;  // keep the pinned tab scene
       manualSceneChapter = null;                 // entered a different chapter
+      manualSourceIndex = null;
     }
+    if (isFull) return;
     // Entering a chapter fresh: its steps drive the map from tab[0], so sync
     // the tab highlight back to the first tab (a previous pin may linger).
     var tabGroup = card.querySelectorAll('.scene-tab-btn');
     Array.prototype.forEach.call(tabGroup, function (b, i) {
       b.classList.toggle('is-active', i === 0);
     });
-    if (scene.steps > 1) {
+    if (scene.steps > 0) {
       // Jump to the chapter's first scene as soon as the card activates
       // (i.e. while reading its intro blocks); the step observer takes over
       // from there. keyFor() dedupes the re-apply when step 1 centers.
       scheduleApply(index, 0);
       return;
     }
-    if (scene.sceneUrl || scene.shareId) {
+    if (scene.sources && scene.sources.length) {
       scheduleApply(index, null);
     }
-    // Cards without a scene keep the previous map view.
   }
 
   function activateStep(stepEl) {
@@ -495,6 +520,7 @@
     if (manualSceneChapter !== null) {
       if (sceneIndex === manualSceneChapter) return;
       manualSceneChapter = null;
+      manualSourceIndex = null;
     }
     steps.forEach(function (s) {
       if (parseInt(s.getAttribute('data-scene-index'), 10) === sceneIndex) {
@@ -614,10 +640,19 @@
       var tabCard = btn.closest('.storymap-card');
       if (tabCard) {
         var ci = parseInt(tabCard.getAttribute('data-scene-index'), 10);
-        if (!isNaN(ci)) manualSceneChapter = ci;
+        if (!isNaN(ci)) {
+          manualSceneChapter = ci;
+          manualSourceIndex = parseInt(btn.getAttribute('data-source-index'), 10);
+          if (isNaN(manualSourceIndex)) manualSourceIndex = 0;
+        }
       }
       if (pendingTimer) { clearTimeout(pendingTimer); pendingTimer = null; }
-      applySceneUrl(btn.getAttribute('data-scene-url'));
+      desired = {
+        sceneIndex: manualSceneChapter,
+        sourceIndex: manualSourceIndex,
+        stepIndex: null
+      };
+      applySource(manualSceneChapter, manualSourceIndex, null);
       return;
     }
 

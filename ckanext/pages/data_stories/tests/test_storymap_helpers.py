@@ -4,6 +4,7 @@ Tests for story map (scrollytelling) helpers.
 """
 
 import json
+from urllib.parse import quote
 
 from ckanext.pages.data_stories.helpers.storymap import (
     build_terria_scene_url,
@@ -11,6 +12,7 @@ from ckanext.pages.data_stories.helpers.storymap import (
     get_storymap_config,
     share_id_from_url,
     share_api_base_from_url,
+    start_data_from_url,
     _extract_share_stories,
     _media_embed_html,
     _strip_terria_tab_markup,
@@ -18,6 +20,10 @@ from ckanext.pages.data_stories.helpers.storymap import (
 
 
 SHARE = 'https://ihp-wins.unesco.org/terria/#share=g-abc123'
+
+
+def _start_url(data):
+    return 'https://terria.example.org/#start=' + quote(json.dumps(data))
 
 
 def _no_share(share_id, api_base=None):
@@ -92,6 +98,9 @@ class TestGetStorymapScenes:
         # The first tab becomes the card's scene
         assert scene['scene_url'] == tabs[0]['scene_url']
         assert scene['share_url'] == SHARE
+        assert scene['layout'] == 'split'
+        assert len(scene['sources']) == 2
+        assert tabs[1]['source_index'] == 1
 
     def test_blocks_metadata_as_json_string(self):
         blocks = [{'type': 'terria', 'tabs': [{'title': 'M', 'url': SHARE}]}]
@@ -111,6 +120,7 @@ class TestGetStorymapScenes:
 
         scenes = get_storymap_scenes(story, resolve_share=_no_share)
         assert scenes[0]['scene_url'] is None
+        assert scenes[0]['layout'] == 'full'
 
     def test_image_block_is_parsed(self):
         story = self._story([{
@@ -128,9 +138,9 @@ class TestGetStorymapScenes:
             'alt': 'A chart',
             'caption': 'Figure 1',
         }
-        # An image-only section is narrative-only: the map keeps the
-        # previous scene.
+        # An image-only section becomes a full-width chapter.
         assert scenes[0]['scene_url'] is None
+        assert scenes[0]['layout'] == 'full'
 
     def test_image_block_without_url_is_skipped(self):
         story = self._story([{
@@ -225,9 +235,10 @@ class TestGetStorymapScenes:
         assert scene['steps'][0] == {'title': 'Day 1',
                                      'text': '<p>Rain day 1</p>'}
 
-    def test_single_scene_story_has_no_steps(self):
+    def test_single_story_slide_is_preserved(self):
         share_json = {'initSources': [{
-            'stories': [{'title': 'Only', 'shareData': {}}]}]}
+            'stories': [{'title': 'Only', 'text': '<p>Visible</p>',
+                         'shareData': {}}]}]}
         story = self._story([{
             'id': 'sec-1', 'order_index': 0,
             'blocks_metadata': [
@@ -237,7 +248,45 @@ class TestGetStorymapScenes:
 
         scenes = get_storymap_scenes(
             story, resolve_share=lambda sid, base=None: share_json)
-        assert scenes[0]['steps'] == []
+        assert scenes[0]['steps'] == [{
+            'title': 'Only', 'text': '<p>Visible</p>'}]
+
+    def test_start_story_slide_and_image_are_preserved(self):
+        start_data = {'version': '8.0.0', 'initSources': [{
+            'workbench': ['rainfall'],
+            'stories': [{
+                'title': 'Rainfall',
+                'text': '<p><img src="https://example.org/legend.png"></p>',
+                'shareData': {'version': '8.0.0', 'initSources': [{}]},
+            }],
+        }]}
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [{
+                'type': 'terria',
+                'tabs': [{'title': 'Rain', 'url': _start_url(start_data)}],
+            }],
+        }])
+
+        scene = get_storymap_scenes(story, resolve_share=_no_share)[0]
+        assert scene['start_data'] == start_data
+        assert scene['steps'][0]['title'] == 'Rainfall'
+        assert '<img ' in scene['steps'][0]['text']
+        assert scene['layout'] == 'split'
+
+    def test_invalid_start_source_becomes_full_width(self):
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [{
+                'type': 'terria',
+                'tabs': [{'title': 'Broken',
+                          'url': 'https://terria.example.org/#start=not-json'}],
+            }],
+        }])
+
+        scene = get_storymap_scenes(story, resolve_share=_no_share)[0]
+        assert scene['sources'] == []
+        assert scene['layout'] == 'full'
 
     def test_failing_resolver_degrades_gracefully(self):
         def boom(share_id, api_base=None):
@@ -298,6 +347,15 @@ class TestShareHelpers:
         assert _extract_share_stories({'initSources': []}) == []
         assert _extract_share_stories(None) == []
 
+    def test_start_data_from_url(self):
+        data = {'version': '8.0.0', 'initSources': [{'workbench': []}]}
+        url = _start_url(data) + '&hideWorkbench=1'
+        assert start_data_from_url(url) == data
+        assert start_data_from_url(
+            'https://terria.example.org/#start=not-json') is None
+        assert start_data_from_url(
+            _start_url({'initSources': {'bad': True}})) is None
+
 
 class TestGetStorymapConfig:
 
@@ -323,11 +381,26 @@ class TestGetStorymapConfig:
             'https://ihp-wins.unesco.org/terria/#share=g-abc123')
         assert config['scenes'][0]['shareId'] == 'g-abc123'
         assert config['scenes'][0]['steps'] == 0
+        assert config['scenes'][0]['layout'] == 'split'
+        assert config['scenes'][0]['sources'][0]['shareId'] == 'g-abc123'
+        assert config['scenes'][0]['sources'][0]['startData'] is None
+        assert config['hasMedia'] is True
         assert config['embedBaseUrl'] == (
             'https://ihp-wins.unesco.org/terria/'
             '#hideWorkbench=1&hideExplorerPanel=1&hideStory=1'
             '&hideWelcomeMessage=1')
         assert config['placeholderImage'] == 'https://cdn.example.org/b.png'
+
+    def test_narrative_only_story_has_no_media(self):
+        scenes = get_storymap_scenes({'sections': [{
+            'id': 'text', 'order_index': 0,
+            'blocks_metadata': [{'type': 'text', 'content': '<p>Only text</p>'}],
+        }]}, resolve_share=_no_share)
+
+        config = get_storymap_config({}, scenes)
+        assert config['hasMedia'] is False
+        assert config['embedBaseUrl'] is None
+        assert config['scenes'][0]['layout'] == 'full'
 
 
 class TestMediaEmbedHtml:

@@ -390,7 +390,15 @@
       </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset id="story-datasets-fieldset"
+              data-empty-label="{{ _('No datasets added yet.') }}"
+              data-input-required="{{ _('Please enter a dataset URL, UUID or name.') }}"
+              data-already-added="{{ _('This dataset is already added.') }}"
+              data-not-found="{{ _('Dataset not found.') }}"
+              data-fetch-error="{{ _('Could not fetch the dataset. Check the URL or name and try again.') }}"
+              data-loading="{{ _('Loading dataset…') }}"
+              data-pending="{{ _('Pending') }}"
+              data-remove-label="{{ _('Remove dataset') }}">
       <legend>{{ _('Datasets used in this story') }}</legend>
       <p class="help-block">
         {{ _('Paste a dataset URL or name to pull its DOI and authors. You can add multiple datasets.') }}
@@ -406,6 +414,11 @@
           <i class="fa fa-plus"></i> {{ _('Add dataset') }}
         </button>
       </div>
+      <div id="story-dataset-feedback" class="help-block" role="status"
+           aria-live="polite" style="display: none;"></div>
+      {% if errors.datasets_data %}
+      <span class="error-block">{{ errors.datasets_data.0 }}</span>
+      {% endif %}
 
       <div class="table-responsive">
         <table class="table table-striped" id="story-datasets-table" style="margin-bottom: 0;">
@@ -754,5 +767,5 @@
   <!-- Data Stories Edit Script -->
   {# ?v= busts browser caches when the editor logic changes — bump on edits.
      Stale editor JS would silently drop unknown block types on save. #}
-  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260612-1"></script>
+  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260827-1"></script>
 {% endblock %}

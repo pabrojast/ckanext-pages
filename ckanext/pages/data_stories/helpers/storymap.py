@@ -12,7 +12,7 @@ import json
 import logging
 import re
 from html import escape
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from ckanext.pages.data_stories.helpers.terria import get_terria_base_url
 
@@ -45,6 +45,27 @@ def share_id_from_url(share_link):
         return None
     match = _SHARE_ID_RE.search(share_link)
     return match.group(1) if match else None
+
+
+def start_data_from_url(share_link):
+    """Decode a Terria ``#start=`` payload, or return ``None``."""
+    if not share_link or not isinstance(share_link, str):
+        return None
+    try:
+        fragment = urlparse(share_link.strip()).fragment
+        start_value = parse_qs(fragment).get('start', [None])[0]
+        if not start_value:
+            return None
+        data = json.loads(start_value)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return None
+
+    if not isinstance(data, dict):
+        return None
+    init_sources = data.get('initSources')
+    if init_sources is not None and not isinstance(init_sources, list):
+        return None
+    return data
 
 
 def share_api_base_from_url(share_link):
@@ -131,6 +152,40 @@ def _extract_share_stories(share_json):
     return []
 
 
+def _story_steps(share_json):
+    """Return renderable metadata for every native Terria Story Slide."""
+    stories = _extract_share_stories(share_json)
+    return [{
+        'title': story.get('title') or 'Scene %d' % (index + 1),
+        'text': story.get('text') or '',
+    } for index, story in enumerate(stories)]
+
+
+def _scene_source(tab):
+    """Normalize one editor tab into a share- or start-backed source."""
+    if not isinstance(tab, dict):
+        return None
+
+    share_url = tab.get('url')
+    scene_url = build_terria_scene_url(share_url)
+    if not scene_url:
+        return None
+
+    share_id = share_id_from_url(share_url)
+    start_data = None if share_id else start_data_from_url(share_url)
+    if not share_id and start_data is None:
+        return None
+
+    return {
+        'title': tab.get('title') or '',
+        'scene_url': scene_url,
+        'share_url': share_url,
+        'share_id': share_id,
+        'start_data': start_data,
+        'steps': _story_steps(start_data),
+    }
+
+
 def build_terria_scene_url(share_link):
     """
     Normalize a Terria share link into an embeddable scene URL.
@@ -185,21 +240,22 @@ def get_storymap_scenes(story, resolve_share=None):
                 {'type': 'scene_tabs', 'tabs': [{'title', 'scene_url',
                                                  'share_url'}]},
             ],
-            'scene_url': str or None,   # map scene shown when card is reached
-            'share_url': str or None,   # original share link (open-in-Terria)
-            'share_id': str or None,    # Terria share id ('g-xxx')
-            'steps': [{'title', 'text'}, ...],  # Terria story scenes inside
-                                                # the share (multi-scene only)
+            'sources': [{...}],         # normalized map tabs for the chapter
+            'scene_url': str or None,   # default map scene
+            'share_url': str or None,   # default original share link
+            'share_id': str or None,    # default Terria share id ('g-xxx')
+            'start_data': dict or None, # default decoded #start payload
+            'steps': [{'title', 'text'}, ...],  # native Terria Story Slides
+            'layout': 'split' or 'full',
         }
 
-    When the section's share contains a multi-scene Terria story, each story
-    scene becomes a scroll 'step': the card shows the scene's title and text
-    and the viewer applies that scene's shareData as the reader reaches it.
+    When the section's source contains Terria Story Slides, every slide becomes
+    a scroll step: the card shows its title and text and the viewer applies its
+    shareData as the reader reaches it.
 
-    Sections without a Terria block become narrative-only cards (the map
-    keeps the previous scene). Legacy sections without blocks_metadata fall
-    back to their baked 'content' HTML with embedded Terria tab markup
-    stripped out.
+    Sections without a valid Terria source become full-width chapters. Legacy
+    sections without blocks_metadata fall back to their baked 'content' HTML
+    with embedded Terria tab markup stripped out.
 
     'resolve_share' lets tests inject a stub resolver (called with
     (share_id, api_base)); the default fetches (and caches) the share JSON
@@ -225,8 +281,7 @@ def get_storymap_scenes(story, resolve_share=None):
                 blocks_raw = None
 
         blocks = []
-        scene_url = None
-        share_url = None
+        sources = []
 
         if isinstance(blocks_raw, list) and blocks_raw:
             for block in blocks_raw:
@@ -254,22 +309,23 @@ def get_storymap_scenes(story, resolve_share=None):
                 elif block_type == 'terria':
                     tabs = []
                     for tab in block.get('tabs') or []:
-                        if not isinstance(tab, dict):
+                        source = _scene_source(tab)
+                        if not source:
                             continue
-                        url = build_terria_scene_url(tab.get('url'))
-                        if not url:
-                            continue
+                        source['title'] = (
+                            source.get('title') or
+                            'Map %d' % (len(tabs) + 1)
+                        )
+                        source['source_index'] = len(sources)
+                        sources.append(source)
                         tabs.append({
-                            'title': tab.get('title') or
-                            'Map %d' % (len(tabs) + 1),
-                            'scene_url': url,
-                            'share_url': tab.get('url'),
+                            'title': source['title'],
+                            'scene_url': source['scene_url'],
+                            'share_url': source['share_url'],
+                            'source_index': source['source_index'],
                         })
                     if tabs:
                         blocks.append({'type': 'scene_tabs', 'tabs': tabs})
-                        if scene_url is None:
-                            scene_url = tabs[0]['scene_url']
-                            share_url = tabs[0]['share_url']
         else:
             # Legacy section: baked HTML only. Strip embedded Terria tab
             # markup (the storymap renders the map separately) and fall back
@@ -277,43 +333,49 @@ def get_storymap_scenes(story, resolve_share=None):
             content = _strip_terria_tab_markup(section.get('content') or '')
             if content.strip():
                 blocks.append({'type': 'text', 'content': content})
-            scene_url = build_terria_scene_url(
-                section.get('terria_share_link'))
-            if scene_url:
-                share_url = section.get('terria_share_link')
+            legacy_source = _scene_source({
+                'title': 'Map 1',
+                'url': section.get('terria_share_link'),
+            })
+            if legacy_source:
+                legacy_source['source_index'] = 0
+                sources.append(legacy_source)
 
-        if scene_url is None and section.get('terria_share_link'):
-            scene_url = build_terria_scene_url(section['terria_share_link'])
-            share_url = section['terria_share_link']
+        if not sources and section.get('terria_share_link'):
+            fallback_source = _scene_source({
+                'title': 'Map 1',
+                'url': section['terria_share_link'],
+            })
+            if fallback_source:
+                fallback_source['source_index'] = 0
+                sources.append(fallback_source)
 
-        # Expand multi-scene Terria stories embedded in the share into
-        # scroll steps (the card walks through them instead of Terria's
-        # native story panel).
-        share_id = share_id_from_url(share_url)
-        steps = []
-        if share_id:
+        default_source = sources[0] if sources else {}
+        share_id = default_source.get('share_id')
+        if share_id and not default_source.get('steps'):
             try:
-                stories = _extract_share_stories(resolve_share(
-                    share_id, share_api_base_from_url(share_url)))
+                share_data = resolve_share(
+                    share_id,
+                    share_api_base_from_url(default_source.get('share_url')),
+                )
             except Exception as e:
-                log.warning('[STORYMAP] Step expansion failed for share '
+                log.warning('[STORYMAP] Story Slide expansion failed for share '
                             '%s: %s', share_id, e)
-                stories = []
-            if len(stories) >= 2:
-                steps = [{
-                    'title': s.get('title') or 'Scene %d' % (i + 1),
-                    'text': s.get('text') or '',
-                } for i, s in enumerate(stories)]
+                share_data = None
+            default_source['steps'] = _story_steps(share_data)
 
         scenes.append({
             'section_id': section.get('id'),
             'title': section.get('title') or '',
             'section_type': section.get('section_type') or '',
             'blocks': blocks,
-            'scene_url': scene_url,
-            'share_url': share_url,
+            'sources': sources,
+            'scene_url': default_source.get('scene_url'),
+            'share_url': default_source.get('share_url'),
             'share_id': share_id,
-            'steps': steps,
+            'start_data': default_source.get('start_data'),
+            'steps': default_source.get('steps') or [],
+            'layout': 'split' if sources else 'full',
         })
 
     return scenes
@@ -359,14 +421,26 @@ def get_storymap_config(story, scenes=None):
         'scenes': [
             {
                 'id': s.get('section_id'),
+                'layout': s.get('layout') or (
+                    'split' if s.get('scene_url') else 'full'),
                 'sceneUrl': s.get('scene_url'),
                 'shareId': s.get('share_id'),
+                'startData': s.get('start_data'),
                 'steps': len(s.get('steps') or []),
+                'sources': [
+                    {
+                        'sceneUrl': source.get('scene_url'),
+                        'shareId': source.get('share_id'),
+                        'startData': source.get('start_data'),
+                    }
+                    for source in (s.get('sources') or [])
+                ],
             }
             for s in scenes
         ],
         'terriaOrigin': terria_origin,
         'embedBaseUrl': embed_base_url,
+        'hasMedia': bool(first_scene),
         'placeholderImage': placeholder_image,
     }
 

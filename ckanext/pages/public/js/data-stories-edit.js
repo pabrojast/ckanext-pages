@@ -363,13 +363,46 @@
       // DATASETS FIELD
       // ========================================
       let selectedDatasets = [];
+      const $datasetsFieldset = $('#story-datasets-fieldset');
+      const $datasetInput = $('#story-dataset-input');
+      const $datasetAddButton = $('#story-add-dataset');
+      const $datasetFeedback = $('#story-dataset-feedback');
+
+      function datasetLabel(name, fallback) {
+        return $datasetsFieldset.attr('data-' + name) || fallback;
+      }
+
+      function setDatasetFeedback(message, isError) {
+        $datasetFeedback
+          .toggleClass('text-danger', !!isError)
+          .toggleClass('text-muted', !isError)
+          .text(message || '')
+          .toggle(!!message);
+      }
+
+      function setDatasetLoading(loading) {
+        $datasetInput.prop('disabled', loading);
+        $datasetAddButton.prop('disabled', loading);
+        $datasetAddButton.find('i')
+          .toggleClass('fa-plus', !loading)
+          .toggleClass('fa-spinner fa-spin', loading);
+        if (loading) {
+          setDatasetFeedback(datasetLabel('loading', 'Loading dataset…'), false);
+        }
+      }
 
       function extractDatasetId(raw) {
         if (!raw) return '';
         const trimmed = raw.trim();
-        const match = trimmed.match(/dataset\/([^/?#]+)/);
-        if (match && match[1]) {
-          return match[1];
+        try {
+          const parsed = new URL(trimmed, window.location.origin);
+          const segments = parsed.pathname.split('/').filter(Boolean);
+          const datasetIndex = segments.indexOf('dataset');
+          if (datasetIndex !== -1 && segments[datasetIndex + 1]) {
+            return decodeURIComponent(segments[datasetIndex + 1]);
+          }
+        } catch (e) {
+          // A plain dataset name or UUID is a valid input.
         }
         return trimmed;
       }
@@ -391,17 +424,21 @@
         const doi = pkg.doi || pkg.dataset_doi || extrasMap.doi || extrasMap.dataset_doi || '';
         const doiStatus = pkg.doi_status || extrasMap.doi_status || extrasMap.doi_state || '';
         const citation = pkg.citation || extrasMap.citation || '';
-        const authors = extrasMap.authors || pkg.author || pkg.maintainer || '';
+        const structuredAuthors = Array.isArray(pkg.authors)
+          ? pkg.authors.map(function(author) { return author && author.name; }).filter(Boolean).join(', ')
+          : '';
+        const authors = extrasMap.authors || pkg.author || pkg.maintainer || structuredAuthors || '';
+        const name = pkg.name || pkg.id;
 
         return {
           id: pkg.id,
-          name: pkg.name,
-          title: pkg.title || pkg.name,
+          name: name,
+          title: pkg.title || name,
           doi: doi,
           doi_status: doiStatus || (doi ? 'pending' : ''),
           citation: citation,
           authors: authors,
-          url: window.location.origin + '/dataset/' + pkg.name
+          url: window.location.origin + '/dataset/' + encodeURIComponent(name)
         };
       }
 
@@ -415,27 +452,48 @@
         $tbody.empty();
 
         if (!selectedDatasets.length) {
-          $tbody.append('<tr class="empty-state"><td colspan="4" class="text-muted">No datasets added yet.</td></tr>');
+          const $emptyRow = $('<tr>').addClass('empty-state');
+          $('<td>')
+            .attr('colspan', 4)
+            .addClass('text-muted')
+            .text(datasetLabel('empty-label', 'No datasets added yet.'))
+            .appendTo($emptyRow);
+          $tbody.append($emptyRow);
           updateDatasetsHiddenField();
           return;
         }
 
         selectedDatasets.forEach(function(ds, index) {
-          const doiText = ds.doi ? (ds.doi + (ds.doi_status ? ' (' + ds.doi_status + ')' : '')) : 'Pending';
+          const name = ds.name || ds.id;
+          const url = ds.url || (window.location.origin + '/dataset/' + encodeURIComponent(name));
+          const doiText = ds.doi
+            ? (ds.doi + (ds.doi_status ? ' (' + ds.doi_status + ')' : ''))
+            : datasetLabel('pending', 'Pending');
           const authorsText = ds.citation || ds.authors || '';
-          const row = `
-            <tr data-dataset-id="${ds.id}">
-              <td><a href="${ds.url}" target="_blank" rel="noopener">${ds.title}</a></td>
-              <td>${doiText}</td>
-              <td>${authorsText || '<span class="text-muted">—</span>'}</td>
-              <td class="text-center">
-                <button type="button" class="btn btn-danger btn-sm remove-dataset-row" data-index="${index}">
-                  <i class="fa fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-          `;
-          $tbody.append(row);
+          const $row = $('<tr>').attr('data-dataset-id', ds.id || '');
+          const $titleCell = $('<td>').appendTo($row);
+          $('<a>')
+            .attr({ href: url, target: '_blank', rel: 'noopener' })
+            .text(ds.title || name)
+            .appendTo($titleCell);
+          $('<td>').text(doiText).appendTo($row);
+          const $authorsCell = $('<td>').appendTo($row);
+          if (authorsText) {
+            $authorsCell.text(authorsText);
+          } else {
+            $('<span>').addClass('text-muted').text('—').appendTo($authorsCell);
+          }
+          const $removeCell = $('<td>').addClass('text-center').appendTo($row);
+          const $removeButton = $('<button>')
+            .attr({
+              type: 'button',
+              'data-index': index,
+              'aria-label': datasetLabel('remove-label', 'Remove dataset')
+            })
+            .addClass('btn btn-danger btn-sm remove-dataset-row')
+            .appendTo($removeCell);
+          $('<i>').addClass('fa fa-trash').attr('aria-hidden', 'true').appendTo($removeButton);
+          $tbody.append($row);
         });
 
         updateDatasetsHiddenField();
@@ -451,7 +509,9 @@
         try {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed)) {
-            selectedDatasets = parsed;
+            selectedDatasets = parsed.filter(function(ds) {
+              return ds && typeof ds === 'object' && (ds.id || ds.name);
+            });
           } else {
             selectedDatasets = [];
           }
@@ -464,9 +524,10 @@
       function fetchDataset(datasetId) {
         return $.ajax({
           url: '/api/3/action/package_show',
-          method: 'GET',
+          method: 'POST',
           dataType: 'json',
-          data: { id: datasetId }
+          contentType: 'application/json; charset=UTF-8',
+          data: JSON.stringify({ id: datasetId })
         });
       }
 
@@ -474,29 +535,50 @@
         const rawInput = $('#story-dataset-input').val();
         const datasetId = extractDatasetId(rawInput);
         if (!datasetId) {
-          alert('Please enter a dataset URL or name');
+          setDatasetFeedback(datasetLabel('input-required', 'Please enter a dataset URL, UUID or name.'), true);
           return;
         }
 
         // Prevent duplicates
-        if (selectedDatasets.find(function(ds) { return ds.name === datasetId || ds.id === datasetId; })) {
-          alert('This dataset is already added');
+        if (selectedDatasets.find(function(ds) {
+          return ds.name === datasetId || ds.id === datasetId;
+        })) {
+          setDatasetFeedback(datasetLabel('already-added', 'This dataset is already added.'), true);
           return;
         }
 
+        setDatasetLoading(true);
         fetchDataset(datasetId)
           .done(function(resp) {
             if (resp && resp.success && resp.result) {
               const meta = buildDatasetMeta(resp.result);
+              const duplicate = selectedDatasets.some(function(ds) {
+                return ds.id === meta.id;
+              });
+              if (duplicate) {
+                setDatasetFeedback(datasetLabel('already-added', 'This dataset is already added.'), true);
+                return;
+              }
               selectedDatasets.push(meta);
               renderDatasetsTable();
-              $('#story-dataset-input').val('');
+              $datasetInput.val('');
+              setDatasetFeedback('', false);
             } else {
-              alert('Dataset not found');
+              setDatasetFeedback(datasetLabel('not-found', 'Dataset not found.'), true);
             }
           })
-          .fail(function() {
-            alert('Could not fetch dataset. Please check the URL or name.');
+          .fail(function(xhr) {
+            const notFound = xhr && xhr.status === 404;
+            setDatasetFeedback(
+              datasetLabel(
+                notFound ? 'not-found' : 'fetch-error',
+                notFound ? 'Dataset not found.' : 'Could not fetch the dataset. Check the URL or name and try again.'
+              ),
+              true
+            );
+          })
+          .always(function() {
+            setDatasetLoading(false);
           });
       }
 
@@ -515,6 +597,7 @@
         const idx = $(this).data('index');
         selectedDatasets.splice(idx, 1);
         renderDatasetsTable();
+        setDatasetFeedback('', false);
       });
 
       loadExistingDatasets();

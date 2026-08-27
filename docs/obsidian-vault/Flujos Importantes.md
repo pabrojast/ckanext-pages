@@ -129,6 +129,14 @@ Capacidades:
 - import/export
 - integración Terria
 
+Persistencia y visualización:
+
+- el selector de datasets consulta `package_show` por `POST`, normaliza cada entrada con el identificador canónico retornado por CKAN y muestra el error en el propio formulario
+- create/edit valida todos los datasets antes de mutar la story; la sincronización de relaciones agrega, reordena y elimina vínculos en una sola transacción, sin ocultar errores parciales
+- en modo `storymap`, cada sección normaliza todos sus tabs `#share`/`#start` como fuentes seleccionables; las Story Slides nativas se convierten en steps, incluso cuando solo existe una
+- las secciones sin fuente Terria válida usan layout editorial completo y ocultan el mapa sticky; una sección posterior con mapa reactiva el iframe y aplica su propia fuente
+- las imágenes pueden provenir del HTML de una Story Slide Terria o de bloques `image` independientes guardados por el editor CKAN
+
 ## 10. Featured Viewers
 
 Flujo editorial observado:
