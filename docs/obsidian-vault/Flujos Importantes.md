@@ -131,9 +131,10 @@ Capacidades:
 
 Persistencia y visualización:
 
-- el selector de datasets consulta `package_show` por `POST`, normaliza cada entrada con el identificador canónico retornado por CKAN y muestra el error en el propio formulario
-- create/edit valida todos los datasets antes de mutar la story; la sincronización de relaciones agrega, reordena y elimina vínculos en una sola transacción, sin ocultar errores parciales
-- en modo `storymap`, cada sección normaliza todos sus tabs `#share`/`#start` como fuentes seleccionables; las Story Slides nativas se convierten en steps, incluso cuando solo existe una
+- el selector de datasets tiene autocomplete (GET `package_search`, debounce 300 ms) y conserva el flujo pega-URL exacto vía `POST package_show` (el GET de `package_show` está bloqueado en el deployment — algún plugin lo encadena sin `side_effect_free`); normaliza cada entrada con el identificador canónico retornado por CKAN y muestra el error en el propio formulario
+- el campo `datasets_data` distingue "payload ausente/corrupto" (sentinel `_KEEP_DATASETS`: se conservan los vínculos existentes) de "el autor vació la lista" (`''`/`'null'`/`'[]'`); el JS serializa la lista vacía como `'[]'`
+- create/edit valida todos los datasets antes de mutar la story; los datasets se sincronizan ANTES que las secciones para que un error de validación de secciones no pierda los vínculos; la sincronización agrega, reordena y elimina en una sola transacción
+- en modo `storymap`, cada sección normaliza todos sus tabs `#share`/`#start` como fuentes seleccionables; las Story Slides nativas de TODAS las fuentes se convierten en steps (aplanados en orden de fuente, con `source_index` para que el scroll cambie de mapa), incluso cuando solo existe una
 - las secciones sin fuente Terria válida usan layout editorial completo y ocultan el mapa sticky; una sección posterior con mapa reactiva el iframe y aplica su propia fuente
 - las imágenes pueden provenir del HTML de una Story Slide Terria o de bloques `image` independientes guardados por el editor CKAN
 

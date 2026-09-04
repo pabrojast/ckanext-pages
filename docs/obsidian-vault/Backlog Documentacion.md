@@ -27,6 +27,12 @@ Relacionadas: [[Deployment]], [[Variables de Entorno]], [[Testing]], [[Guia de M
 - `featured_viewers` no muestra una suite de tests visible como `data_stories`.
 - CI principal no parece correr los tests de `data_stories`.
 
+## Diferido deliberadamente (storymap, sep-2026)
+
+- Hidratación client-side de steps cuando la resolución server-side de un share falla (hoy: warning en logs + reintento natural al siguiente render; el viewer ya tiene `extractStories()` si se quisiera).
+- Mapas simultáneos side-by-side por escena (el JS del viewer es singleton de iframe; cada Terria tarda ~10 s en arrancar). Hoy: tabs + secuencia en scroll.
+- Botón de upload de imágenes en el editor de stories de Terria (TinyMCE es URL-only; el patch iría en el fork `pabrojast/terriajs`, `lib/ReactViews/Generic/Editor.jsx` — `images_upload_handler`/`file_picker_callback`). Mientras: subir la imagen a CKAN y pegar la URL.
+
 ## Documentación futura recomendada
 
 - Runbook de despliegue por ambiente.

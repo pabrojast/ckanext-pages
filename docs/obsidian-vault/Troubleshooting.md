@@ -132,6 +132,18 @@ ckan -c <ini> pages fix-rapid-response-blocks --apply
 
 Timeline/galería/países ya vaciados a `[]` no son recuperables (revisions solo guarda `content`); el comando los reporta.
 
+## Data story no publicada devolvía 500 a anónimos (corregido sep-2026)
+
+Síntoma: `/data-stories/<slug>` de una story no publicada devolvía Error 500 a visitantes anónimos (en vez de 403). Causa: `tk.abort(403)` lanza una `HTTPException` de werkzeug que el `except Exception` genérico de `show()` tragaba y re-lanzaba como 500. Fix: el access-check vive fuera del try de fetch y el handler re-lanza `HTTPException`. Si reaparece un 500 "Error loading story", revisar que ningún `except Exception` nuevo envuelva un `tk.abort`.
+
+## Storymap sin Story Slides (steps) en un capítulo
+
+Buscar en logs `[STORYMAP] Steps unavailable for share <id>`: significa que la resolución del share JSON falló (timeout 5s, red, 404). Los fallos NO se cachean — el siguiente render reintenta solo. Verificar a mano: `curl <terria>/api/v1/share/<id>` y el proxy `/data-stories/api/terria-scene/<id>`. Desde sep-2026 los steps se resuelven para TODAS las fuentes del capítulo, no solo la primera.
+
+## Desaparecieron los datasets de una story al guardar
+
+Desde sep-2026 no debería pasar: un `datasets_data` ausente o corrupto conserva los vínculos existentes (sentinel `_KEEP_DATASETS` en `routes.py`); solo `''`/`'null'`/`'[]'` explícitos los vacían, y los datasets se sincronizan antes que las secciones. Si se reporta pérdida, buscar en logs `[EXTRACT_FORM] Unparseable datasets_data`.
+
 ## Code smell útil de recordar
 
 `utils.py` contiene dos definiciones de `crida_admin_reseed()`. Si haces cambios allí, revisa cuál definición termina vigente.
