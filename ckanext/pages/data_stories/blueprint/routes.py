@@ -12,6 +12,7 @@ import re
 from urllib.parse import quote
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, Response
+from werkzeug.exceptions import HTTPException
 import ckan.plugins.toolkit as tk
 from ckan.common import g
 from ckan import model
@@ -694,41 +695,44 @@ def show(slug):
         # This allows published stories to be viewed by anonymous users
         show_context = dict(context)
         show_context['ignore_auth'] = True
-        
+
         story = tk.get_action('data_story_show')(show_context, {
             'slug': slug,
             'include_sections': True,
             'include_datasets': True,
             'include_contributors': True,
         })
-
-        # Check if user can view this story
-        # Published stories are viewable by anyone
-        if story.get('status') != 'published' and not story.get('is_public'):
-            # For non-published stories, check authorization
-            try:
-                tk.check_access('data_story_show', context, {'id': story['id']})
-            except tk.NotAuthorized:
-                tk.abort(403, tk._('Not authorized to view this story'))
-
-        # Record view (ignore auth for this)
-        try:
-            tk.get_action('data_story_record_view')(
-                {'ignore_auth': True},
-                {'id': story['id']}
-            )
-        except Exception as e:
-            log.warning(f"Failed to record view: {str(e)}")
-            model.Session.rollback()
-
     except tk.ObjectNotFound:
         tk.abort(404, tk._('Story not found'))
     except tk.NotAuthorized:
         tk.abort(403, tk._('Not authorized to view this story'))
+    except HTTPException:
+        # tk.abort() raises these; they already carry the right status code
+        # and must not be downgraded to a 500 by the handler below.
+        raise
     except Exception as e:
         log.error(f"Error showing story: {str(e)}")
         model.Session.rollback()
         tk.abort(500, tk._('Error loading story'))
+
+    # Check if user can view this story. Published stories are viewable by
+    # anyone. Kept outside the fetch try/except so the abort(403) propagates
+    # instead of being swallowed into a 500.
+    if story.get('status') != 'published' and not story.get('is_public'):
+        try:
+            tk.check_access('data_story_show', context, {'id': story['id']})
+        except tk.NotAuthorized:
+            tk.abort(403, tk._('Not authorized to view this story'))
+
+    # Record view (ignore auth for this)
+    try:
+        tk.get_action('data_story_record_view')(
+            {'ignore_auth': True},
+            {'id': story['id']}
+        )
+    except Exception as e:
+        log.warning(f"Failed to record view: {str(e)}")
+        model.Session.rollback()
 
     # Get comments if user is authorized
     comments = []

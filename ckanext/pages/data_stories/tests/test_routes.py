@@ -61,6 +61,41 @@ class TestDataStoryRoutes:
 
 
 @pytest.mark.usefixtures('clean_db', 'with_plugins')
+class TestStoryShowRoute:
+    def test_unpublished_story_is_403_not_500_for_anonymous(self, app):
+        user = factories.User()
+        story = helpers.call_action(
+            'data_story_create', context={'user': user['name']},
+            title='Draft story', slug='draft-story')
+        assert story['status'] == 'draft'
+
+        app.get(
+            toolkit.url_for('data_stories.show', slug='draft-story'),
+            status=403,
+        )
+
+    def test_unknown_slug_is_404(self, app):
+        app.get(
+            toolkit.url_for('data_stories.show', slug='no-such-story'),
+            status=404,
+        )
+
+    def test_owner_can_view_own_draft_story(self, app):
+        user = factories.User()
+        helpers.call_action(
+            'data_story_create', context={'user': user['name']},
+            title='Draft story', slug='draft-story')
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            toolkit.url_for('data_stories.show', slug='draft-story'),
+            status=200,
+            extra_environ=env,
+        )
+        assert 'Draft story' in response.body
+
+
+@pytest.mark.usefixtures('clean_db', 'with_plugins')
 class TestStoryDatasetFormSync:
     def test_prepares_canonical_dataset_metadata_and_deduplicates(self):
         user = factories.User()
