@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-05-06
+Actualizado: 2026-09-04
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -137,6 +137,7 @@ Persistencia y visualización:
 - en modo `storymap`, cada sección normaliza todos sus tabs `#share`/`#start` como fuentes seleccionables; las Story Slides nativas de TODAS las fuentes se convierten en steps (aplanados en orden de fuente, con `source_index` para que el scroll cambie de mapa), incluso cuando solo existe una
 - las secciones sin fuente Terria válida usan layout editorial completo y ocultan el mapa sticky; una sección posterior con mapa reactiva el iframe y aplica su propia fuente
 - las imágenes pueden provenir del HTML de una Story Slide Terria o de bloques `image` independientes guardados por el editor CKAN
+- en layout classic, un bloque Terria/Media con Width `100%` se renderiza a ancho de viewport (el texto de la sección no); el botón Full Screen del shell usa la Fullscreen API. Stories ya publicadas se arreglan en el render (`terria-tabs-display.js`), no hace falta re-guardar
 
 ## 10. Featured Viewers
 

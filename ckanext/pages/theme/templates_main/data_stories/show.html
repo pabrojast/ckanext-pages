@@ -23,12 +23,9 @@
     {% endif %}
   </div>
 
-  <div class="main">
+  <div class="main data-story-classic">
+    <article class="data-story">
     <div class="container">
-
-      <div class="row">
-        <!-- Main Content -->
-        <div class="col-md-9">
 
           <!-- Breadcrumb Navigation -->
           <nav class="toolbar breadcrumb-simple data-story-breadcrumb" role="navigation" aria-label="{{ _('Breadcrumb') }}" style="margin-bottom: 1.5rem;">
@@ -38,8 +35,6 @@
               <li class="active"><a href="#">{{ story.title }}</a></li>
             </ol>
           </nav>
-
-          <article class="data-story">
 
             {% set story_countries = story.countries or [] %}
             {% if story_countries is string %}
@@ -181,14 +176,50 @@
               </div>
             </section>
 
+    </div>{# /container — TOC + sections go full-bleed below #}
+
+            {# Compact sticky TOC so maps can use the full viewport #}
+            {% if story.sections %}
+            <nav class="story-toc-compact" aria-label="{{ _('Contents') }}">
+              <div class="story-toc-compact-inner">
+              <span class="story-toc-compact-label"><i class="fa fa-list"></i> {{ _('Contents') }}</span>
+              <ul>
+                {% for section in story.sections %}
+                {% if section.is_visible %}
+                <li>
+                  <a href="#section-{{ section.id }}">
+                    {{ section.title or section.section_type|replace('_', ' ')|title }}
+                  </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% if story.uploaded_images and story.uploaded_images|length > 0 %}
+                <li><a href="#image-gallery">{{ _('Image Gallery') }}</a></li>
+                {% endif %}
+                {% if story.paper_doi or story.paper_citation %}
+                <li><a href="#research-publication">{{ _('Research Publication') }}</a></li>
+                {% endif %}
+                {% if story.datasets %}
+                <li><a href="#datasets">{{ _('Datasets') }}</a></li>
+                {% endif %}
+                {% if story.contributors %}
+                <li><a href="#contributors">{{ _('Contributors') }}</a></li>
+                {% endif %}
+              </ul>
+              </div>
+            </nav>
+            {% endif %}
+
             {# Story Sections - Dynamic Content #}
             {% if story.sections %}
-            <div class="story-sections" style="margin-top: 2rem;">
+            <div class="story-sections story-sections-full"
+                 data-fs-enter="{{ _('Full Screen') }}"
+                 data-fs-exit="{{ _('Exit Full Screen') }}">
               {% for section in story.sections %}
               {% if section.is_visible %}
-              <section class="module module-narrow story-section" id="section-{{ section.id }}" style="margin-bottom: 2rem;">
-                <div class="module-heading" style="padding: 1rem 2.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 3px solid #E3F2FD;">
-                  <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem;">
+              <section class="module module-narrow story-section" id="section-{{ section.id }}">
+                <div class="module-heading story-section-heading">
+                  <h2>
                     {% if section.section_type == 'introduction' %}
                       <i class="fa fa-book"></i>
                     {% elif section.section_type == 'research_question' %}
@@ -217,7 +248,7 @@
                     {{ section.title or section.section_type|replace('_', ' ')|title }}
                   </h2>
                 </div>
-                <div class="module-content" style="padding: 2rem 2.5rem;">
+                <div class="module-content story-section-body">
                   <div class="section-content">
                     {{ section.content | safe }}
                   </div>
@@ -227,6 +258,10 @@
               {% endfor %}
             </div>
             {% endif %}
+
+    <div class="container story-classic-tail">
+      <div class="row">
+        <div class="col-md-9">
 
             {# Research Publication - Only if there's paper DOI or citation #}
             {% if story.paper_doi or story.paper_citation %}
@@ -438,48 +473,10 @@
             </section>
             {% endif %}
 
-          </article>
-
-        </div>
+        </div>{# /col-md-9 tail #}
 
         <!-- Sidebar -->
         <div class="col-md-3">
-
-          {# Table of Contents #}
-          {% if story.sections %}
-          <section class="module module-narrow module-shallow">
-            <div class="module-heading" style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-bottom: 2px solid #E3F2FD;">
-              <h2 style="margin: 0; color: #0072BC; font-size: 1.2rem;">
-                <i class="fa fa-list"></i> {{ _('Contents') }}
-              </h2>
-            </div>
-            <div class="module-content" style="padding: 1.5rem;">
-              <ul class="nav nav-pills nav-stacked" style="margin: 0;">
-                {% for section in story.sections %}
-                {% if section.is_visible %}
-                <li>
-                  <a href="#section-{{ section.id }}" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">
-                    {{ section.title or section.section_type|replace('_', ' ')|title }}
-                  </a>
-                </li>
-                {% endif %}
-                {% endfor %}
-                {% if story.uploaded_images and story.uploaded_images|length > 0 %}
-                <li><a href="#image-gallery" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;"><i class="fa fa-image"></i> {{ _('Image Gallery') }}</a></li>
-                {% endif %}
-                {% if story.paper_doi or story.paper_citation %}
-                <li><a href="#research-publication" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Research Publication') }}</a></li>
-                {% endif %}
-                {% if story.datasets %}
-                <li><a href="#datasets" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Datasets') }}</a></li>
-                {% endif %}
-                {% if story.contributors %}
-                <li><a href="#contributors" style="color: #0072BC; padding: 0.5rem 0; display: block; border-left: 3px solid transparent; padding-left: 1rem; transition: all 0.3s ease;">{{ _('Contributors') }}</a></li>
-                {% endif %}
-              </ul>
-            </div>
-          </section>
-          {% endif %}
 
           {# Quick Facts - Research Question & Study Area summaries #}
           {% if story.research_question or story.study_area %}
@@ -700,17 +697,17 @@
 
         </div>
       </div>
-
     </div>
+    </article>
   </div>
 </div>
 
 <!-- Load CSS -->
-<link rel="stylesheet" type="text/css" href="/css/data-stories.css" />
-<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css?v=20260904-2" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css?v=20260904-2" />
 
-<!-- Load JavaScript for Terria Tabs -->
-<script type="text/javascript" src="/js/terria-tabs-display.js"></script>
+<!-- Load JavaScript for Terria Tabs / map fullscreen -->
+<script type="text/javascript" src="/js/terria-tabs-display.js?v=20260904-2"></script>
 
 <style>
 /* Additional inline styles for show page */

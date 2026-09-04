@@ -558,7 +558,7 @@ def _media_embed_html(block):
         src = url
 
     return ('%s<iframe src="%s" width="%s" height="%s" frameborder="0" '
-            'allowfullscreen></iframe>'
+            'allow="geolocation; fullscreen" allowfullscreen></iframe>'
             % (heading, escape(src, quote=True),
                escape(width, quote=True), escape(height, quote=True)))
 

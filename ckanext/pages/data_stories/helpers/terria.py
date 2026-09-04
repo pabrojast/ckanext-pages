@@ -359,7 +359,8 @@ def get_terria_iframe_html(section: Dict[str, Any],
             width="{width}"
             height="{height}"
             frameborder="0"
-            allow="geolocation"
+            allow="geolocation; fullscreen"
+            allowfullscreen
             class="terria-embed-iframe">
     </iframe>
 </div>'''

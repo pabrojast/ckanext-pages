@@ -1161,7 +1161,7 @@
 .terria-tabs-display {
   margin: 2rem 0;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: var(--shadow-medium);
   background: #fff;
 }
@@ -1215,8 +1215,9 @@
 
 .terria-tab-display iframe {
   width: 100%;
-  height: 600px;
+  min-height: 480px;
   border: none;
+  display: block;
 }
 
 /* ========================================

@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-03-30
+Actualizado: 2026-09-04
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -133,8 +133,9 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 - `ckanext_pages/crida.html` renderiza los avatares de `group_members` con la URL ya normalizada desde backend; cuando `user.image_url` viene como nombre de archivo de CKAN debe resolverse a `/uploads/user/...`, y si no hay imagen usa Gravatar o inicial.
 - `ckanext_pages/crida.html` usa iconos de Font Awesome ya presentes en el theme para los empty states del hub; en `Events` el estado vacío usa `fa-calendar` para evitar glifos faltantes con el bundle activo.
 - `data_stories/edit.html` ofrece autocomplete de datasets (dropdown sobre GET `package_search`, filas construidas con `.text()` para evitar inyección) además del flujo pega-URL vía `POST /api/3/action/package_show` (URL, slug o UUID); conserva en `datasets_data` la metadata canónica devuelta por CKAN (`'[]'` cuando el autor vació la lista) y el feedback de carga, duplicado o error vive en un contenedor `aria-live` del formulario.
-- `data_stories/show_storymap.html` recibe desde `helpers/storymap.py` un layout por sección (`split` o `full`) y una lista de fuentes Terria con steps por fuente (`data-source-index` en cada step); `data-stories-storymap.js` reutiliza un solo iframe, avanza de fuente en fuente con el scroll (los tabs siguen el scroll y un clic los fija), y aplica tanto shares como `startData` normalizado a través del bridge `applyScene`. Los assets de storymap usan cache-bust manual `?v=` (actual: `20260904-1`).
-- una sección storymap `full` ocupa ambas columnas y oculta temporalmente el panel sticky; sus bloques `image` se muestran en el flujo editorial. Una sección `split` mantiene el comportamiento de mapa/overlay.
+- `data_stories/show_storymap.html` recibe desde `helpers/storymap.py` un layout por sección (`split` o `full`) y una lista de fuentes Terria con steps por fuente (`data-source-index` en cada step); `data-stories-storymap.js` reutiliza un solo iframe, avanza de fuente en fuente con el scroll (los tabs siguen el scroll y un clic los fija), y aplica tanto shares como `startData` normalizado a través del bridge `applyScene`. Los assets de storymap usan cache-bust manual `?v=` (actual: `20260904-2`).
+- una sección storymap `full` ocupa ambas columnas y oculta temporalmente el panel sticky; sus bloques `image` se muestran en el flujo editorial. Una sección `split` mantiene el comportamiento de mapa/overlay. En capítulos `full`, los iframes/media no heredan el `max-width: 78ch` del texto.
+- `data_stories/show.html` (layout classic) saca las secciones del grid `col-md-9` para que un embed a `width: 100%` / `100vw` use el viewport. El texto de la sección se queda en una columna de lectura (~1180px). Un valor custom (`800px`, `70%`, …) no se estira. `terria-tabs-display.js` envuelve mapas y media en `.ds-map-shell`, fuerza `allow="geolocation; fullscreen"` en stories ya publicadas y ofrece un botón Full Screen (Fullscreen API + fallback CSS). Cache-bust de esos assets: `?v=20260904-2`.
 
 ## Pendiente por confirmar
 

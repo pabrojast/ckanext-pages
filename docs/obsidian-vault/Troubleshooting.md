@@ -132,6 +132,14 @@ ckan -c <ini> pages fix-rapid-response-blocks --apply
 
 Timeline/galería/países ya vaciados a `[]` no son recuperables (revisions solo guarda `content`); el comando los reporta.
 
+## Mapa de Data Story (classic) a 100% no llena la pantalla / no entra en fullscreen
+
+Síntoma: el campo Width del bloque Terria/Media está en `100%` pero el mapa queda estrecho (columna + sidebar) y el fullscreen de Terria no abre a ventana completa.
+
+Causa: `100%` era el 100% de `.col-md-9` dentro de `.container`, y los iframes horneados no traían `allow="fullscreen"` (solo el atributo viejo `allowfullscreen`).
+
+Fix (sep-2026): las secciones classic van a full-bleed; `100%`/`100vw` usan el viewport; hay un botón Full Screen en `.ds-map-shell`. Si un mapa viejo sigue sin fullscreen, recargar con cache-bust (`terria-tabs-display.js?v=`) o re-guardar la story. El botón del shell no depende del botón interno de Terria.
+
 ## Data story no publicada devolvía 500 a anónimos (corregido sep-2026)
 
 Síntoma: `/data-stories/<slug>` de una story no publicada devolvía Error 500 a visitantes anónimos (en vez de 403). Causa: `tk.abort(403)` lanza una `HTTPException` de werkzeug que el `except Exception` genérico de `show()` tragaba y re-lanzaba como 500. Fix: el access-check vive fuera del try de fetch y el handler re-lanza `HTTPException`. Si reaparece un 500 "Error loading story", revisar que ningún `except Exception` nuevo envuelva un `tk.abort`.

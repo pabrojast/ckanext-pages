@@ -371,6 +371,13 @@
   max-width: 78ch;
 }
 
+.storymap-card.is-full-width .section-content iframe,
+.storymap-card.is-full-width .storymap-card-media,
+.storymap-card.is-full-width .storymap-card-media iframe {
+  max-width: none;
+  width: 100%;
+}
+
 .storymap-card.is-full-width .storymap-image-trigger img {
   width: 100%;
   max-height: 75vh;
@@ -435,6 +442,11 @@
   border: 0;
   border-radius: 12px;
   margin: 1rem 0;
+}
+
+.storymap-card.is-full-width .storymap-card-media iframe[style*="width: 100%"],
+.storymap-card.is-full-width .storymap-card-media iframe[width="100%"] {
+  aspect-ratio: auto;
 }
 
 /* ------------------------------------------------------------------ */

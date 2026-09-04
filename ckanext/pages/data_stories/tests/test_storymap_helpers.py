@@ -522,6 +522,11 @@ class TestMediaEmbedHtml:
         html = _media_embed_html({'url': 'https://example.org/embed'})
         assert html.startswith('<iframe src="https://example.org/embed"')
 
+    def test_iframe_allows_fullscreen(self):
+        html = _media_embed_html({'url': 'https://example.org/embed'})
+        assert 'allow="geolocation; fullscreen"' in html
+        assert 'allowfullscreen' in html
+
     def test_raw_embed_code_passes_through(self):
         code = '<iframe src="https://example.org/x"></iframe>'
         assert _media_embed_html({'url': code}) == code
@@ -530,6 +535,18 @@ class TestMediaEmbedHtml:
         html = _media_embed_html(
             {'url': 'https://example.org/"><script>x</script>'})
         assert '<script>' not in html
+
+    def test_terria_iframe_allows_fullscreen(self, monkeypatch):
+        from ckanext.pages.data_stories.helpers import terria as terria_mod
+
+        monkeypatch.setattr(
+            terria_mod, 'generate_terria_embed_url',
+            lambda **kwargs: 'https://example.org/map')
+        html = terria_mod.get_terria_iframe_html(
+            {'terria_share_link': 'https://x/#share=1'})
+        assert html is not None
+        assert 'allow="geolocation; fullscreen"' in html
+        assert 'allowfullscreen' in html
 
 
 class TestStripTerriaTabMarkup:

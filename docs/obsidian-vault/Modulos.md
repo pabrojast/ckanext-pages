@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-03-26
+Actualizado: 2026-09-04
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -147,7 +147,8 @@ Modo `storymap`:
 - bloques `image` (tipo en `blocks_metadata`: `{type:'image', url, alt, caption}`): en una sección con mapa la tarjeta muestra un thumbnail-trigger y, mientras es el stop activo, el panel sticky muestra la imagen sobre el mapa; en una sección sin mapa se presenta como imagen editorial a ancho completo. En classic se hornea como `<figure class="story-image">`. Limitación: no se puede intercalar una imagen independiente entre steps de un mismo share (los steps vienen de Terria). El editor tiene botón "Image" con upload (mismo pipeline comprimir+`/pages_upload` que las imágenes inline de Quill)
 - navegación directa por bloque: botones ▲/▼ junto a los dots y flechas del teclado (solo cuando el storymap cruza la línea media del viewport, sin foco en inputs y con el lightbox cerrado) saltan al stop anterior/siguiente (steps, triggers de imagen y tarjetas sin steps)
 - las secciones de cola (publicación, datasets, galería, contributors) van a ancho completo del container, igual que el hero
-- los scripts `data-stories-storymap.js`, `data-stories-edit.js` y el CSS de storymap se incluyen con `?v=` (cache-bust manual — subirlo al cambiarlos; el editor con JS viejo descartaría silenciosamente tipos de bloque desconocidos al guardar)
+- los scripts `data-stories-storymap.js`, `data-stories-edit.js`, `terria-tabs-display.js` y el CSS de storymap/classic se incluyen con `?v=` (cache-bust manual — subirlo al cambiarlos; el editor con JS viejo descartaría silenciosamente tipos de bloque desconocidos al guardar)
+- en layout classic, Width `100%`/`100vw` de un bloque Terria/Media es el viewport (no la columna); un valor custom se respeta. El render envuelve el embed en `.ds-map-shell` con `allow="geolocation; fullscreen"` y un botón Full Screen
 
 Se activa con:
 

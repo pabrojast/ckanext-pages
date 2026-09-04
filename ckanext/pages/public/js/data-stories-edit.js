@@ -807,6 +807,13 @@
         return match[1] + unit;
       }
 
+      function isFullBleedWidth(width) {
+        return /^(100%|100vw)$/i.test(String(width || '').trim());
+      }
+
+      const IFRAME_ALLOW_ATTRS =
+        'allow="geolocation; fullscreen" allowfullscreen mozallowfullscreen webkitallowfullscreen';
+
       function renderInsertControlsHtml() {
         return `
           <div class="insert-block-controls">
@@ -1338,7 +1345,7 @@
                                    class="form-control terria-tab-width"
                                    value="${tab.width || '100%'}"
                                    placeholder="100%">
-                            <small class="help-block">Use %, px, vh, vw</small>
+                            <small class="help-block">100% = full screen width; or custom (px, %, vh, vw)</small>
                           </div>
                         </div>
                         <div class="col-sm-6">
@@ -1423,6 +1430,7 @@
                     <div class="form-group">
                       <label>Width</label>
                       <input type="text" class="form-control media-width" value="${data.width || '100%'}" placeholder="100%">
+                      <small class="help-block">100% = full screen width; or custom (px, %, vh, vw)</small>
                     </div>
                   </div>
                   <div class="col-sm-6">
@@ -1684,7 +1692,7 @@
                            class="form-control terria-tab-width"
                            value="100%"
                            placeholder="100%">
-                    <small class="help-block">Use %, px, vh, vw</small>
+                    <small class="help-block">100% = full screen width; or custom (px, %, vh, vw)</small>
                   </div>
                 </div>
                 <div class="col-sm-6">
@@ -1761,7 +1769,7 @@
           if ($preview.is(':visible')) {
             $preview.hide();
           } else if (url) {
-            const iframe = `<iframe src="${url}" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen style="border-radius: 12px; width: ${width}; height: ${height};"></iframe>`;
+            const iframe = `<iframe src="${url}" frameborder="0" ${IFRAME_ALLOW_ATTRS} style="border-radius: 12px; width: ${width}; height: ${height};"></iframe>`;
             $preview.html(iframe).show();
           } else {
             alert('Please enter a Terria share link first');
@@ -1845,11 +1853,11 @@
         const youtubeMatch = content.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
         if (youtubeMatch) {
           const videoId = youtubeMatch[1];
-          return `<iframe src="https://www.youtube.com/embed/${videoId}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
+          return `<iframe src="https://www.youtube.com/embed/${videoId}" width="${width}" height="${height}" frameborder="0" ${IFRAME_ALLOW_ATTRS}></iframe>`;
         }
         
         // For any other URL, create a regular iframe
-        return `<iframe src="${content}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>`;
+        return `<iframe src="${content}" width="${width}" height="${height}" frameborder="0" ${IFRAME_ALLOW_ATTRS}></iframe>`;
       }
 
       // Escape a value for use inside an HTML attribute.
@@ -1924,8 +1932,11 @@
 
             // Generate HTML for tabs
             if (tabs.length > 0) {
-              // Add tabs navigation HTML
-              contentHtml += '<div class="terria-tabs-display">\n';
+              const fullBleed = tabs.every(function(tab) {
+                return isFullBleedWidth(tab.width);
+              });
+              contentHtml += '<div class="terria-tabs-display' +
+                (fullBleed ? ' is-full-width' : '') + '">\n';
               contentHtml += '<ul class="terria-tabs-nav-display">\n';
               tabs.forEach((tab, index) => {
                 contentHtml += `  <li class="${index === 0 ? 'active' : ''}" data-tab="${index}">${tab.title}</li>\n`;
@@ -1936,7 +1947,7 @@
               contentHtml += '<div class="terria-tabs-panels-display">\n';
               tabs.forEach((tab, index) => {
                 contentHtml += `  <div class="terria-tab-display ${index === 0 ? 'active' : ''}" data-tab="${index}">\n`;
-                contentHtml += `    <iframe src="${tab.url}" frameborder="0" allowfullscreen mozallowfullscreen webkitallowfullscreen style="width: ${tab.width}; height: ${tab.height};"></iframe>\n`;
+                contentHtml += `    <iframe src="${tab.url}" frameborder="0" ${IFRAME_ALLOW_ATTRS} style="width: ${tab.width}; height: ${tab.height};"></iframe>\n`;
                 contentHtml += '  </div>\n';
               });
               contentHtml += '</div>\n';
