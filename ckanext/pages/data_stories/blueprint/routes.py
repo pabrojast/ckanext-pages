@@ -375,7 +375,11 @@ def create():
         # Get form data
         data_dict = _extract_story_form_data(request.form)
         sections_data = _extract_sections_form_data(request.form)
-        datasets_data = data_dict.get('datasets_data') or []
+        datasets_data = _extract_datasets_form_data(request.form)
+        if datasets_data is _KEEP_DATASETS:
+            # New story: there are no existing links to keep.
+            datasets_data = []
+        data_dict['datasets_data'] = datasets_data
         draft_story_context = _build_story_context({**data_dict, 'sections': sections_data})
 
         try:
@@ -415,10 +419,17 @@ def create():
 
             return render_template('data_stories/edit.html', **extra_vars)
 
+        # Persist dataset links first: they only need the story id and must
+        # not be lost when a section fails validation below.
+        try:
+            _sync_story_datasets(context, story['id'], datasets_data)
+        except Exception as e:
+            log.error(f"Error linking datasets for story {story.get('id')}: {str(e)}")
+            flash(tk._('Story created but datasets could not be saved: {}').format(str(e)), 'error')
+
         # Persist sections captured in the form (if any)
         try:
             _sync_story_sections(context, story['id'], sections_data)
-            _sync_story_datasets(context, story['id'], datasets_data)
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -802,25 +813,34 @@ def edit(slug):
         data_dict = _extract_story_form_data(request.form)
         data_dict['id'] = story['id']
         sections_data = _extract_sections_form_data(request.form)
-        datasets_data = data_dict.get('datasets_data') or []
+        datasets_form = _extract_datasets_form_data(request.form)
+        # Absent/unparseable field -> keep the story's existing links.
+        keep_datasets = datasets_form is _KEEP_DATASETS
+        datasets_data = [] if keep_datasets else datasets_form
+        data_dict['datasets_data'] = None if keep_datasets else datasets_data
         story_context = _build_story_context({**story, **data_dict, 'sections': sections_data})
 
         try:
-            datasets_data = _prepare_story_datasets(context, datasets_data)
-            data_dict['datasets_data'] = datasets_data
+            if not keep_datasets:
+                datasets_data = _prepare_story_datasets(context, datasets_data)
+                data_dict['datasets_data'] = datasets_data
 
             # Store original status to check if it changed
             original_status = story.get('status')
-            
+
             # Update story
             updated_story = tk.get_action('data_story_update')(context, data_dict)
+
+            # Datasets before sections: a section validation failure below
+            # must not cost the author their dataset links.
+            if not keep_datasets:
+                _sync_story_datasets(context, story['id'], datasets_data)
             _sync_story_sections(
                 context,
                 story['id'],
                 sections_data,
                 existing_sections=story.get('sections', [])
             )
-            _sync_story_datasets(context, story['id'], datasets_data)
             log.info("[DATA_STORIES_ROUTE] Sync completed, preparing redirect")
 
             # Check if story was resubmitted for review
@@ -1314,7 +1334,6 @@ def _extract_story_form_data(form):
         'partners': partners_parsed,
         'countries': countries_parsed,
         'uploaded_images': uploaded_images_parsed,
-        'datasets_data': _parse_json_field(form.get('datasets_data')),
     }
 
 
@@ -1565,6 +1584,35 @@ def _coerce_int(value, default=0):
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+# Sentinel returned by _extract_datasets_form_data when the submitted form
+# carries no usable datasets_data field: callers must keep the story's
+# existing dataset links instead of treating it as "remove everything".
+_KEEP_DATASETS = object()
+
+
+def _extract_datasets_form_data(form):
+    """Extract the datasets_data JSON field with explicit-empty semantics.
+
+    Returns _KEEP_DATASETS when the field is absent or unparseable, so a
+    broken/stale editor payload never silently deletes every dataset link
+    (the old ``_parse_json_field(...) or []`` chain did exactly that).
+    '' / 'null' / '[]' mean the author really removed every dataset.
+    """
+    if 'datasets_data' not in form:
+        return _KEEP_DATASETS
+
+    raw = form.get('datasets_data')
+    if isinstance(raw, str) and raw.strip() in ('', 'null', '[]'):
+        return []
+
+    parsed = _parse_json_field(raw)
+    if not isinstance(parsed, list):
+        log.warning('[EXTRACT_FORM] Unparseable datasets_data; keeping '
+                    'existing dataset links')
+        return _KEEP_DATASETS
+    return parsed
 
 
 def _parse_json_field(raw_value, default_empty_list=False):

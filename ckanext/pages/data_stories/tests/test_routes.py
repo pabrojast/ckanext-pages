@@ -10,6 +10,8 @@ from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
 from ckanext.pages.data_stories.blueprint.routes import (
+    _KEEP_DATASETS,
+    _extract_datasets_form_data,
     _prepare_story_datasets,
     _sync_story_datasets,
 )
@@ -93,6 +95,30 @@ class TestStoryShowRoute:
             extra_environ=env,
         )
         assert 'Draft story' in response.body
+
+
+class TestExtractDatasetsFormData:
+    """The datasets_data form field must distinguish "no usable payload"
+    (keep the story's existing links) from "author removed everything"."""
+
+    def test_missing_field_keeps_existing_links(self):
+        assert _extract_datasets_form_data({}) is _KEEP_DATASETS
+
+    def test_explicit_empty_values_clear_links(self):
+        for raw in ('', '   ', 'null', '[]'):
+            assert _extract_datasets_form_data({'datasets_data': raw}) == []
+
+    def test_malformed_json_keeps_existing_links(self):
+        assert _extract_datasets_form_data(
+            {'datasets_data': '{oops'}) is _KEEP_DATASETS
+
+    def test_non_list_json_keeps_existing_links(self):
+        assert _extract_datasets_form_data(
+            {'datasets_data': '{"id": "x"}'}) is _KEEP_DATASETS
+
+    def test_valid_list_passes_through(self):
+        assert _extract_datasets_form_data(
+            {'datasets_data': '[{"id": "abc"}]'}) == [{'id': 'abc'}]
 
 
 @pytest.mark.usefixtures('clean_db', 'with_plugins')
