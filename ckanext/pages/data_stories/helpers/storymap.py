@@ -341,7 +341,20 @@ def get_storymap_scenes(story, resolve_share=None):
                 legacy_source['source_index'] = 0
                 sources.append(legacy_source)
 
-        if not sources and section.get('terria_share_link'):
+        # Section-level share-link fallback, scoped to sections where the
+        # link is still the only map signal: legacy rows (no usable
+        # blocks_metadata) or a terria block whose tabs failed to parse.
+        # When blocks_metadata exists and simply has no terria block the
+        # author removed the map — a stale link must NOT resurrect it
+        # (older editor JS never cleared the hidden field on delete).
+        has_terria_block = isinstance(blocks_raw, list) and any(
+            isinstance(b, dict) and b.get('type') == 'terria'
+            for b in blocks_raw)
+        link_is_map_signal = (
+            not isinstance(blocks_raw, list) or not blocks_raw or
+            has_terria_block)
+        if (not sources and section.get('terria_share_link') and
+                link_is_map_signal):
             fallback_source = _scene_source({
                 'title': 'Map 1',
                 'url': section['terria_share_link'],

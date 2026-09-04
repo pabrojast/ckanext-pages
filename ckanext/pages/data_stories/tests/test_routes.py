@@ -3,6 +3,8 @@
 Tests for data stories routes.
 """
 
+import json
+
 import pytest
 
 from ckan import model
@@ -12,6 +14,7 @@ from ckan.tests import factories, helpers
 from ckanext.pages.data_stories.blueprint.routes import (
     _KEEP_DATASETS,
     _extract_datasets_form_data,
+    _extract_sections_form_data,
     _prepare_story_datasets,
     _sync_story_datasets,
 )
@@ -119,6 +122,37 @@ class TestExtractDatasetsFormData:
     def test_valid_list_passes_through(self):
         assert _extract_datasets_form_data(
             {'datasets_data': '[{"id": "abc"}]'}) == [{'id': 'abc'}]
+
+
+class TestExtractSectionsFormData:
+    SHARE = 'https://ihp-wins.unesco.org/terria/#share=g-abc123'
+
+    def _form(self, blocks_metadata=None, **extra):
+        form = {
+            'sections[0][title]': 'Chapter',
+            'sections[0][section_type]': 'introduction',
+            'sections[0][content]': '<p>Hi</p>',
+            'sections[0][terria_share_link]': self.SHARE,
+        }
+        if blocks_metadata is not None:
+            form['sections[0][blocks_metadata]'] = json.dumps(blocks_metadata)
+        form.update(extra)
+        return form
+
+    def test_blocks_without_terria_clear_stale_share_link(self):
+        sections = _extract_sections_form_data(self._form(
+            blocks_metadata=[{'type': 'text', 'content': '<p>Hi</p>'}]))
+        assert sections[0]['terria_share_link'] == ''
+
+    def test_blocks_with_terria_keep_share_link(self):
+        sections = _extract_sections_form_data(self._form(
+            blocks_metadata=[{'type': 'terria',
+                              'tabs': [{'title': 'M', 'url': self.SHARE}]}]))
+        assert sections[0]['terria_share_link'] == self.SHARE
+
+    def test_missing_blocks_metadata_keeps_share_link(self):
+        sections = _extract_sections_form_data(self._form())
+        assert sections[0]['terria_share_link'] == self.SHARE
 
 
 @pytest.mark.usefixtures('clean_db', 'with_plugins')

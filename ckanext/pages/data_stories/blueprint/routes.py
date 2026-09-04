@@ -1415,6 +1415,15 @@ def _extract_sections_form_data(form):
             'is_visible': _parse_bool(raw.get('is_visible', True)),
         }
 
+        # blocks_metadata is authoritative when present: a section whose
+        # blocks no longer include a Terria map must not keep a stale
+        # share link (older editor JS never cleared the hidden field, and
+        # the storymap fallback would resurrect the map from it).
+        if (isinstance(parsed_blocks, list) and parsed_blocks and
+                not any(isinstance(b, dict) and b.get('type') == 'terria'
+                        for b in parsed_blocks)):
+            section['terria_share_link'] = ''
+
         # Skip blank sections so they don't trigger validation errors
         if not any([
             section['section_type'],
@@ -1424,6 +1433,7 @@ def _extract_sections_form_data(form):
             section['image_url'],
             section['video_url'],
             section['terria_config'],
+            section['blocks_metadata'],
         ]):
             continue
 

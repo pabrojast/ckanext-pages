@@ -2005,10 +2005,11 @@
         console.log('- Blocks metadata:', blocksMetadata);
         console.log('- Content field value:', $section.find('.section-content-field').val().substring(0, 100));
 
-        // Update Terria link for backward compatibility
-        if (terriaLink) {
-          $section.find('.section-terria-link').val(terriaLink);
-        }
+        // Update Terria link for backward compatibility. Written
+        // unconditionally: deleting the Terria block (or emptying its tab
+        // URLs) must clear the stale link, or the storymap fallback keeps
+        // re-materializing a map for a section meant to be map-free.
+        $section.find('.section-terria-link').val(terriaLink || '');
       }
       
       // Auto-generate slug from title
@@ -2983,18 +2984,23 @@
  * Story Map mode: per-section scene badge.
  *
  * When the story layout is 'storymap', each section card shows whether it
- * has a Terria map scene (first map block / share link) or will keep the
- * previous scene while scrolling.
+ * has a Terria map scene (first map block / share link) or renders as a
+ * full-width chapter without a map.
  */
 (function () {
   'use strict';
 
   function sectionHasScene(section) {
-    var link = section.querySelector('.section-terria-link');
-    if (link && link.value && link.value.trim()) return true;
     var tabUrls = section.querySelectorAll('.terria-tab-url');
     for (var i = 0; i < tabUrls.length; i++) {
       if (tabUrls[i].value && tabUrls[i].value.trim()) return true;
+    }
+    // Trust the hidden link only when no Terria block exists at all
+    // (legacy sections): a section that has (or just deleted) a Terria
+    // block may still carry a stale hidden value pre-save.
+    if (!section.querySelector('.content-block[data-block-type="terria"]')) {
+      var link = section.querySelector('.section-terria-link');
+      if (link && link.value && link.value.trim()) return true;
     }
     return false;
   }
@@ -3027,7 +3033,7 @@
         badge.style.background = '#fff3cd';
         badge.style.color = '#856404';
         badge.innerHTML = '<i class="fa fa-info-circle"></i> ' +
-          'No map — keeps previous scene';
+          'No map — shown full-width';
       }
     });
   }

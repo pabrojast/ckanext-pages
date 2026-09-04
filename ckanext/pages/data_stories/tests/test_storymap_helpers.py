@@ -122,6 +122,35 @@ class TestGetStorymapScenes:
         assert scenes[0]['scene_url'] is None
         assert scenes[0]['layout'] == 'full'
 
+    def test_stale_share_link_without_terria_block_stays_full_width(self):
+        # Older editor JS never cleared the hidden terria_share_link when
+        # the author deleted the Terria block; the leftover link must not
+        # resurrect a map for a deliberately map-free section.
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [{'type': 'text', 'content': '<p>Hi</p>'}],
+            'terria_share_link': SHARE,
+        }])
+
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
+        assert scenes[0]['sources'] == []
+        assert scenes[0]['layout'] == 'full'
+
+    def test_terria_block_with_unparseable_tabs_falls_back_to_link(self):
+        # A terria block is an explicit "this section has a map": when its
+        # tab URLs don't parse, the section-level link still provides it.
+        story = self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [
+                {'type': 'terria', 'tabs': [{'title': 'M', 'url': 'nope'}]},
+            ],
+            'terria_share_link': SHARE,
+        }])
+
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
+        assert len(scenes[0]['sources']) == 1
+        assert scenes[0]['layout'] == 'split'
+
     def test_image_block_is_parsed(self):
         story = self._story([{
             'id': 'sec-1', 'order_index': 0,
