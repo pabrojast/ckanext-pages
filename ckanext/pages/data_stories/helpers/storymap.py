@@ -364,18 +364,6 @@ def get_storymap_scenes(story, resolve_share=None):
                 sources.append(fallback_source)
 
         default_source = sources[0] if sources else {}
-        share_id = default_source.get('share_id')
-        if share_id and not default_source.get('steps'):
-            try:
-                share_data = resolve_share(
-                    share_id,
-                    share_api_base_from_url(default_source.get('share_url')),
-                )
-            except Exception as e:
-                log.warning('[STORYMAP] Story Slide expansion failed for share '
-                            '%s: %s', share_id, e)
-                share_data = None
-            default_source['steps'] = _story_steps(share_data)
 
         scenes.append({
             'section_id': section.get('id'),
@@ -385,13 +373,87 @@ def get_storymap_scenes(story, resolve_share=None):
             'sources': sources,
             'scene_url': default_source.get('scene_url'),
             'share_url': default_source.get('share_url'),
-            'share_id': share_id,
+            'share_id': default_source.get('share_id'),
             'start_data': default_source.get('start_data'),
-            'steps': default_source.get('steps') or [],
             'layout': 'split' if sources else 'full',
         })
 
+    # Story Slides live in the share JSON: resolve them for EVERY source
+    # (not just the default one) so slides authored on any map tab render,
+    # then lay each chapter's steps out in source order.
+    _resolve_source_steps(
+        [source for scene in scenes for source in scene['sources']],
+        resolve_share)
+    for scene in scenes:
+        scene['steps'] = _flatten_scene_steps(scene['sources'])
+
     return scenes
+
+
+def _resolve_source_steps(sources, resolve_share):
+    """
+    Fill source['steps'] from each source's share JSON.
+
+    Sources built from a '#start=' link already carry their steps; the
+    rest need one share fetch each (5s timeout, 1h in-process cache in
+    the default resolver). Multiple pending shares resolve on a small
+    thread pool so a cold cache costs one round-trip, not one per share;
+    the single-source path stays synchronous so tests that count resolver
+    calls behave deterministically. Failures are logged (share id
+    included) and NOT cached, so a transient Terria outage heals on the
+    next page load.
+    """
+    pending = [s for s in sources if s.get('share_id') and not s.get('steps')]
+    if not pending:
+        return
+
+    def _worker(source):
+        share_id = source['share_id']
+        try:
+            share_data = resolve_share(
+                share_id,
+                share_api_base_from_url(source.get('share_url')),
+            )
+        except Exception as e:
+            log.warning('[STORYMAP] Story Slide expansion failed for share '
+                        '%s: %s', share_id, e)
+            share_data = None
+        if share_data is None:
+            log.warning('[STORYMAP] Steps unavailable for share %s — share '
+                        'resolution failed; its Story Slides will not render '
+                        'in the storymap', share_id)
+        source['steps'] = _story_steps(share_data)
+
+    if len(pending) == 1:
+        _worker(pending[0])
+        return
+
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=min(4, len(pending))) as pool:
+        list(pool.map(_worker, pending))
+
+
+def _flatten_scene_steps(sources):
+    """
+    Order every source's Story Slides into one scroll-step list.
+
+    Each step keeps its LOCAL index within its source (that is what maps
+    to extractStories(share)[stepIndex] in the viewer) plus the source it
+    belongs to, so scrolling can switch the map to the right tab.
+    """
+    steps = []
+    for source in sources:
+        src_steps = source.get('steps') or []
+        for idx, step in enumerate(src_steps):
+            steps.append({
+                'title': step.get('title') or '',
+                'text': step.get('text') or '',
+                'source_index': source.get('source_index', 0),
+                'step_index': idx,
+                'step_total': len(src_steps),
+                'source_title': source.get('title') or '',
+            })
+    return steps
 
 
 def get_storymap_config(story, scenes=None):
@@ -439,12 +501,16 @@ def get_storymap_config(story, scenes=None):
                 'sceneUrl': s.get('scene_url'),
                 'shareId': s.get('share_id'),
                 'startData': s.get('start_data'),
+                # Flattened total across all sources; per-source counts
+                # below drive the scroll-driven source sequencing.
                 'steps': len(s.get('steps') or []),
                 'sources': [
                     {
                         'sceneUrl': source.get('scene_url'),
                         'shareId': source.get('share_id'),
                         'startData': source.get('start_data'),
+                        'title': source.get('title'),
+                        'steps': len(source.get('steps') or []),
                     }
                     for source in (s.get('sources') or [])
                 ],

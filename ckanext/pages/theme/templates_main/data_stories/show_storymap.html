@@ -215,15 +215,22 @@
             {% endfor %}
 
             {% if scene.steps %}
-            {# Terria story scenes inside this share: each one is a scroll
-               step — the map advances through them as the reader scrolls. #}
+            {# Terria Story Slides from every map source of this chapter,
+               in source order: each one is a scroll step — the map applies
+               the step's source/slide as the reader reaches it. #}
             <div class="storymap-steps">
               {% for step in scene.steps %}
+              {% if scene.sources|length > 1 and (loop.first or (loop.previtem and loop.previtem.source_index != step.source_index)) %}
+              <h4 class="storymap-steps-source">
+                <i class="fa fa-map-o"></i> {{ step.source_title }}
+              </h4>
+              {% endif %}
               <section class="storymap-step{% if loop.first %} is-active{% endif %}"
                        data-scene-index="{{ scene_index }}"
-                       data-step-index="{{ loop.index0 }}">
+                       data-source-index="{{ step.source_index }}"
+                       data-step-index="{{ step.step_index }}">
                 <h3 class="storymap-step-title">
-                  <span class="storymap-step-number">{{ loop.index }}/{{ scene.steps|length }}</span>
+                  <span class="storymap-step-number">{{ step.step_index + 1 }}/{{ step.step_total }}</span>
                   {{ step.title }}
                 </h3>
                 {% if step.text %}

@@ -261,8 +261,10 @@ class TestGetStorymapScenes:
         scene = scenes[0]
         assert scene['share_id'] == 'g-abc123'
         assert len(scene['steps']) == 3
-        assert scene['steps'][0] == {'title': 'Day 1',
-                                     'text': '<p>Rain day 1</p>'}
+        assert scene['steps'][0] == {
+            'title': 'Day 1', 'text': '<p>Rain day 1</p>',
+            'source_index': 0, 'step_index': 0, 'step_total': 3,
+            'source_title': 'M'}
 
     def test_single_story_slide_is_preserved(self):
         share_json = {'initSources': [{
@@ -278,7 +280,9 @@ class TestGetStorymapScenes:
         scenes = get_storymap_scenes(
             story, resolve_share=lambda sid, base=None: share_json)
         assert scenes[0]['steps'] == [{
-            'title': 'Only', 'text': '<p>Visible</p>'}]
+            'title': 'Only', 'text': '<p>Visible</p>',
+            'source_index': 0, 'step_index': 0, 'step_total': 1,
+            'source_title': 'M'}]
 
     def test_start_story_slide_and_image_are_preserved(self):
         start_data = {'version': '8.0.0', 'initSources': [{
@@ -331,6 +335,51 @@ class TestGetStorymapScenes:
         scenes = get_storymap_scenes(story, resolve_share=boom)
         assert scenes[0]['steps'] == []
         assert scenes[0]['scene_url'] is not None
+
+    def _two_tab_story(self):
+        return self._story([{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [{'type': 'terria', 'tabs': [
+                {'title': 'Map A', 'url': SHARE},
+                {'title': 'Map B',
+                 'url': 'https://ihp-wins.unesco.org/terria/#share=g-b'},
+            ]}],
+        }])
+
+    def test_steps_resolve_for_every_source_in_order(self):
+        shares = {
+            'g-abc123': {'initSources': [{'stories': [
+                {'title': 'A1', 'text': '<p>a1</p>', 'shareData': {}},
+                {'title': 'A2', 'text': '<p>a2</p>', 'shareData': {}},
+            ]}]},
+            'g-b': {'initSources': [{'stories': [
+                {'title': 'B1', 'text': '<p>b1</p>', 'shareData': {}},
+            ]}]},
+        }
+
+        scenes = get_storymap_scenes(
+            self._two_tab_story(),
+            resolve_share=lambda sid, base=None: shares.get(sid))
+
+        steps = scenes[0]['steps']
+        assert [(s['title'], s['source_index'], s['step_index'],
+                 s['step_total']) for s in steps] == [
+            ('A1', 0, 0, 2), ('A2', 0, 1, 2), ('B1', 1, 0, 1)]
+        assert steps[2]['source_title'] == 'Map B'
+
+    def test_failed_second_source_keeps_first_sources_steps(self):
+        def resolver(share_id, api_base=None):
+            if share_id == 'g-abc123':
+                return {'initSources': [{'stories': [
+                    {'title': 'A1', 'text': '<p>a1</p>', 'shareData': {}},
+                ]}]}
+            return None
+
+        scenes = get_storymap_scenes(
+            self._two_tab_story(), resolve_share=resolver)
+
+        assert [s['title'] for s in scenes[0]['steps']] == ['A1']
+        assert scenes[0]['sources'][1]['steps'] == []
 
 
 class TestShareHelpers:
@@ -419,6 +468,33 @@ class TestGetStorymapConfig:
             '#hideWorkbench=1&hideExplorerPanel=1&hideStory=1'
             '&hideWelcomeMessage=1')
         assert config['placeholderImage'] == 'https://cdn.example.org/b.png'
+
+    def test_config_carries_per_source_step_counts(self):
+        shares = {
+            'g-abc123': {'initSources': [{'stories': [
+                {'title': 'A1', 'text': '<p>a1</p>', 'shareData': {}},
+                {'title': 'A2', 'text': '<p>a2</p>', 'shareData': {}},
+            ]}]},
+            'g-b': {'initSources': [{'stories': [
+                {'title': 'B1', 'text': '<p>b1</p>', 'shareData': {}},
+            ]}]},
+        }
+        story = {'sections': [{
+            'id': 'sec-1', 'order_index': 0,
+            'blocks_metadata': [{'type': 'terria', 'tabs': [
+                {'title': 'Map A', 'url': SHARE},
+                {'title': 'Map B',
+                 'url': 'https://ihp-wins.unesco.org/terria/#share=g-b'},
+            ]}],
+        }]}
+        scenes = get_storymap_scenes(
+            story, resolve_share=lambda sid, base=None: shares.get(sid))
+
+        config = get_storymap_config(story, scenes)
+        sources = config['scenes'][0]['sources']
+        assert [s['steps'] for s in sources] == [2, 1]
+        assert [s['title'] for s in sources] == ['Map A', 'Map B']
+        assert config['scenes'][0]['steps'] == 3
 
     def test_narrative_only_story_has_no_media(self):
         scenes = get_storymap_scenes({'sections': [{
