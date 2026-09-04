@@ -355,6 +355,35 @@ def pages_list_pages(page_type):
     return tk.render('ckanext_pages/pages_list.html')
 
 
+# Fields the rapid-response edit form expects as JSON strings in hidden
+# inputs. actions.py stores JSON-parseable extras as native lists/dicts
+# (since a954592), so they must be re-serialized before rendering the form.
+RAPID_RESPONSE_JSON_FORM_FIELDS = (
+    'impact_assessment_blocks_metadata',
+    'response_activities_blocks_metadata',
+    'recovery_phase_blocks_metadata',
+    'resilience_phase_blocks_metadata',
+    'additional_info_blocks_metadata',
+    'spatial_blocks_metadata',
+    'timeline_events',
+    'uploaded_images',
+    'image_gallery',
+    'countries_affected',
+)
+
+
+def _serialize_json_fields_for_form(data, fields):
+    """Ensure the listed fields are JSON strings, not native lists/dicts.
+
+    Legacy pages store these extras as JSON strings and pass through
+    untouched, as does form data re-rendered after a validation error.
+    """
+    for field in fields:
+        value = data.get(field)
+        if isinstance(value, (list, dict)):
+            data[field] = json.dumps(value)
+
+
 def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type='pages',
                quick_mode=False):
 
@@ -649,6 +678,9 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     if not data:
         data = page_dict
+
+    if page_type == 'rapid-response':
+        _serialize_json_fields_for_form(data, RAPID_RESPONSE_JSON_FORM_FIELDS)
 
     if page_type == 'water-publications':
         _recover_water_publication_dataset_links(page_dict)

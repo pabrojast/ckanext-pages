@@ -1,7 +1,7 @@
 # Comandos Utiles
 
 Tags: #operacion #onboarding
-Actualizado: 2026-03-26
+Actualizado: 2026-09-04
 
 Relacionadas: [[Setup Local]], [[Testing]], [[Deployment]]
 
@@ -46,6 +46,16 @@ ckan -c /etc/ckan/default/ckan.ini pages fix-datasets
 ckan -c /etc/ckan/default/ckan.ini pages fix-datasets --dry-run
 ckan -c /etc/ckan/default/ckan.ini pages fix-datasets --limit 10
 ckan -c /etc/ckan/default/ckan.ini pages fix-datasets --dataset my-dataset-name
+```
+
+### Reparación de bloques de Rapid Response
+
+Repara metadata de bloques/mapas colapsada por el bug de round-trip JSON del form de edición (ver [[Troubleshooting]]). Dry-run por defecto.
+
+```bash
+ckan -c /etc/ckan/default/ckan.ini pages fix-rapid-response-blocks
+ckan -c /etc/ckan/default/ckan.ini pages fix-rapid-response-blocks --apply
+ckan -c /etc/ckan/default/ckan.ini pages fix-rapid-response-blocks --page nombre-pagina
 ```
 
 ### Importación de AI tools

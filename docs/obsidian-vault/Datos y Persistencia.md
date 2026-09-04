@@ -1,7 +1,7 @@
 # Datos y Persistencia
 
 Tags: #datos #backend
-Actualizado: 2026-03-26
+Actualizado: 2026-09-04
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Flujos Importantes]], [[Troubleshooting]]
 
@@ -34,8 +34,8 @@ Campos relevantes:
 El contenido especializado no se modela con columnas dedicadas en la tabla principal. La mayor parte vive en:
 
 - `page_type` para diferenciar dominio
-- `extras` para campos adicionales serializados como JSON texto
-- `revisions` para histórico de contenido
+- `extras` para campos adicionales serializados como JSON texto. Desde `a954592`, los valores JSON-parseables se guardan como listas/dicts nativos dentro del blob; los edit forms que los renderizan en inputs deben re-serializarlos a string (ver `utils._serialize_json_fields_for_form` para `rapid-response`)
+- `revisions` para histórico de contenido (solo `content`, no extras)
 
 Consecuencia práctica:
 

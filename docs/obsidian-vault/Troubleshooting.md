@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-05-06
+Actualizado: 2026-09-04
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -114,6 +114,23 @@ Se observó una discrepancia:
 - el código usa `ckanext.pages.terria_base_url`
 
 Si Terria no resuelve URLs, revisar primero ese punto.
+
+## Bloques o mapas de Rapid Response no se pueden editar tras guardar
+
+Síntoma: al reabrir la edición de una página `rapid-response`, las secciones de bloques aparecen colapsadas en un solo bloque de texto, los bloques "Maps & Media" desaparecen como bloques editables, y un segundo guardado destruye la estructura (y puede vaciar timeline y galería).
+
+Causa: desde `a954592`, `actions.py` guarda extras JSON-parseables como listas/dicts nativos. El form de edición renderizaba esas listas crudas (repr de Python, no JSON) y el JS fallaba en `JSON.parse`, cayendo a un fallback destructivo.
+
+Fix: `utils.pages_edit` re-serializa los campos de `RAPID_RESPONSE_JSON_FORM_FIELDS` a strings JSON antes de renderizar (ver `utils._serialize_json_fields_for_form`).
+
+Para reparar páginas ya dañadas (metadata colapsada con iframes dentro de un único bloque de texto):
+
+```
+ckan -c <ini> pages fix-rapid-response-blocks           # dry-run
+ckan -c <ini> pages fix-rapid-response-blocks --apply
+```
+
+Timeline/galería/países ya vaciados a `[]` no son recuperables (revisions solo guarda `content`); el comando los reporta.
 
 ## Code smell útil de recordar
 

@@ -4,6 +4,17 @@
  */
 
 (function() {
+  // User-provided values interpolated into HTML template strings must be
+  // escaped: a quote in a map title would truncate the attribute on re-edit.
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // Enhanced jQuery availability check with fallback handling
   function waitForJQuery(callback, attempts) {
     attempts = attempts || 0;
@@ -1543,11 +1554,11 @@
           <div class="iframe-block-form">
             <div class="form-group">
               <label>Title</label>
-              <input type="text" class="form-control iframe-title" value="${block.title}" placeholder="Enter a title for this content">
+              <input type="text" class="form-control iframe-title" value="${escapeHtml(block.title)}" placeholder="Enter a title for this content">
             </div>
             <div class="form-group">
               <label>Content URL or Embed Code</label>
-              <textarea class="form-control iframe-url" rows="3" placeholder="Enter iframe URL, YouTube URL, or paste embed code (iframe/embed tags)">${block.url}</textarea>
+              <textarea class="form-control iframe-url" rows="3" placeholder="Enter iframe URL, YouTube URL, or paste embed code (iframe/embed tags)">${escapeHtml(block.url)}</textarea>
               <small class="form-text text-muted">
                 Examples:<br>
                 • Map: https://ihp-wins.unesco.org/terria/#share/abc123<br>
@@ -1873,6 +1884,18 @@
   }
 
   function updateBlocksDisplayByType(blockType, blocksArray, containerSelector) {
+    if (!blocksArray || !containerSelector) {
+      const typeMap = {
+        impact:     [impactBlocks,     '#impact-assessment-content-blocks'],
+        response:   [responseBlocks,   '#response-activities-content-blocks'],
+        additional: [additionalBlocks, '#additional-information-content-blocks'],
+        recovery:   [recoveryBlocks,   '#recovery-phase-content-blocks'],
+        resilience: [resilienceBlocks, '#resilience-phase-content-blocks']
+      };
+      if (!typeMap[blockType]) return;
+      blocksArray = blocksArray || typeMap[blockType][0];
+      containerSelector = containerSelector || typeMap[blockType][1];
+    }
     const container = $(containerSelector);
     if (blocksArray.length === 0) {
       const emptyClass = blockType + '-blocks-empty';
@@ -1934,7 +1957,7 @@
         const width = block.width || '100%';
         
         if (block.title && block.title.trim()) {
-          finalContent += `<h3>${block.title}</h3>\n`;
+          finalContent += `<h3>${escapeHtml(block.title)}</h3>\n`;
         }
         
         finalContent += processContentForEmbed(block.url, width, height);
@@ -1979,7 +2002,7 @@
   initializeAdditionalInformationBlocks();
 
   // Update form submission to handle all block systems
-  $('form').on('submit', function(e) {
+  $('#rapid-response-form').on('submit', function(e) {
     // Update block content fields first
     updateImpactContentField();
     updateResponseContentField();
