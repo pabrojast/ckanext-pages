@@ -12,15 +12,22 @@
  *    instance, CKAN proxy as fallback) with its embedded `stories` stripped.
  *    This keeps Terria's native story panel from ever opening inside the
  *    embed, and it enables walking through multi-scene stories ("steps") on
- *    scroll. Only the 'applyScene' message (replaceStratum) is used, and only
- *    while the build acks it with 'sceneApplied': raw start data
- *    (updateFromStartData) proved unreliable for COG layers, so a build that
- *    never acks latches the bridge data path off and scenes degrade to the
- *    hash navigation below (steps then show their chapter's base scene).
+ *    scroll — including steps living on different map sources (tabs) of the
+ *    same chapter. Only the 'applyScene' message (replaceStratum) is used,
+ *    and only while the build acks it with 'sceneApplied': raw start data
+ *    (updateFromStartData) proved unreliable for COG layers. A single missed
+ *    ack degrades just that apply to hash navigation; only two consecutive
+ *    misses latch the bridge data path off (a later "ready" — e.g. after a
+ *    reboot — re-arms the probe).
  *
  * 2. Hash swap fallback (no "ready" within the timeout): the iframe loads
  *    '#share=...' directly and scene changes use a fragment navigation with
  *    '#clean&share=...' — no document reload. Steps show the base scene.
+ *
+ * Key bookkeeping: `appliedKey` is what the map is (believed to be) showing,
+ * `inFlightKey` is a bridge apply awaiting its ack. Keys are only promoted
+ * to `appliedKey` on ack (bridge) or fire-and-forget navigation (hash), so a
+ * failed apply leaves the state retryable instead of wedged.
  */
 
 (function () {
@@ -70,12 +77,16 @@
   var mode = 'idle';
   var bridgeFallbackTimer = null;
   var desired = null;          // {sceneIndex, sourceIndex, stepIndex|null}
-  var currentKey = null;       // applied scene key, avoids redundant applies
+  var appliedKey = null;       // key the map is (believed to be) showing
+  var inFlightKey = null;      // bridge apply awaiting its ack, else null
   var pendingTimer = null;     // debounce
   var manualSceneChapter = null;  // chapter index whose tab is pinned (null=none)
   var manualSourceIndex = null;
   var applySceneSupported = null;  // null=unknown, true/false after probe
   var pendingRequestId = null;
+  var pendingKey = null;       // key owned by pendingRequestId
+  var ackMisses = 0;           // consecutive missed acks (2 latch hash mode)
+  var switchSeq = 0;           // invalidates stale veil-clearing timers
   var requestCounter = 0;
   var shareCache = {};         // shareId -> Promise<share JSON>
 
@@ -102,7 +113,7 @@
       }, BRIDGE_TIMEOUT_MS);
     } else if (firstSceneUrl) {
       mode = 'hash';
-      currentKey = keyFor(firstIndexWithScene(), 0, null);
+      appliedKey = keyFor(firstIndexWithScene(), 0, null);
       iframe.src = firstSceneUrl;
     } else {
       return;
@@ -116,7 +127,7 @@
       var target = desired
         ? sourceFor(desired.sceneIndex, desired.sourceIndex)
         : null;
-      currentKey = target && target.sceneUrl
+      appliedKey = target && target.sceneUrl
         ? keyFor(desired.sceneIndex, desired.sourceIndex, null)
         : keyFor(firstIndexWithScene(), 0, null);
       iframe.src = target && target.sceneUrl ? target.sceneUrl : firstSceneUrl;
@@ -137,17 +148,28 @@
   }
 
   // Shows/hides the "Loading scene…" pill and the map veil. A failsafe
-  // timer clears it even when no completion signal ever arrives.
+  // timer clears it even when no completion signal ever arrives; every
+  // turn-on bumps switchSeq so a stale timer (an older hash swap, an old
+  // failsafe) can never drop the veil of a newer in-flight apply.
   var switchingFailsafe = null;
   function setSwitching(on) {
     root.classList.toggle('is-switching', on);
+    if (on) switchSeq++;
+    var seq = switchSeq;
     if (switchingFailsafe) clearTimeout(switchingFailsafe);
     switchingFailsafe = null;
     if (on) {
       switchingFailsafe = setTimeout(function () {
-        root.classList.remove('is-switching');
+        if (seq === switchSeq) root.classList.remove('is-switching');
       }, 8000);
     }
+  }
+
+  function clearSwitchingAfter(ms) {
+    var seq = switchSeq;
+    setTimeout(function () {
+      if (seq === switchSeq) setSwitching(false);
+    }, ms);
   }
 
   // The storymap IS the page's primary content and a cold Terria boot takes
@@ -185,6 +207,10 @@
 
     if (event.data === 'ready') {
       hidePlaceholder();
+      // A "ready" means a (re)booted Terria: reset the ack bookkeeping and
+      // re-arm the bridge probe even if a previous boot latched hash mode.
+      ackMisses = 0;
+      if (applySceneSupported === false) applySceneSupported = null;
       // 'pending': the bare embed booted in time. 'hash': Terria booted
       // slower than the fallback timer (or a src reset rebooted it) — a
       // late "ready" still proves the bridge works, so upgrade; steps and
@@ -212,13 +238,25 @@
       // when the scene is fully applied. Builds predating the phases send a
       // single ack with no 'phase' — treated as completion.
       applySceneSupported = true;
+      ackMisses = 0;
       if (event.data.phase === 'received') {
         // Keep the pill up and re-arm its failsafe for the apply itself.
         if (event.data.requestId === pendingRequestId) setSwitching(true);
         return;
       }
-      if (event.data.requestId === pendingRequestId) pendingRequestId = null;
-      setSwitching(false);
+      if (event.data.requestId === pendingRequestId) {
+        // Only a confirmed completion promotes the key: a failed or
+        // superseded apply must stay retryable.
+        appliedKey = pendingKey;
+        inFlightKey = null;
+        pendingRequestId = null;
+        pendingKey = null;
+        setSwitching(false);
+      } else if (!pendingRequestId) {
+        // Stale/unsolicited completion with nothing in flight: just make
+        // sure the veil isn't stuck.
+        setSwitching(false);
+      }
     }
   });
 
@@ -291,7 +329,7 @@
   // the caller's key/superseded semantics); it runs when the build doesn't
   // ack 'applyScene'. Raw start data (updateFromStartData) is deliberately
   // NOT used — it fails to render COG layers on stock Terria builds.
-  function postApply(shareData, fallback) {
+  function postApply(shareData, key, fallback) {
     if (!iframe) return;
     setSwitching(true);
     if (applySceneSupported === false) {
@@ -300,6 +338,7 @@
     }
     var requestId = 'sm-' + (++requestCounter);
     pendingRequestId = requestId;
+    pendingKey = key;
     try {
       iframe.contentWindow.postMessage({
         type: 'applyScene',
@@ -309,20 +348,26 @@
     } catch (e) {
       // contentWindow was inaccessible — not evidence the handler is
       // missing, so don't latch applySceneSupported here.
-      pendingRequestId = null;
+      if (pendingRequestId === requestId) {
+        pendingRequestId = null;
+        pendingKey = null;
+      }
       fallback();
       return;
     }
     setTimeout(function () {
-      if (applySceneSupported === null && pendingRequestId === requestId) {
-        // Build without the applyScene handler: latch the bridge data path
-        // off and degrade to hash navigation for this and later scenes.
-        // (A late 'sceneApplied' ack would un-latch — benign: the hash
-        // navigation already applied a correct scene.)
+      if (pendingRequestId !== requestId) return; // acked or superseded
+      pendingRequestId = null;
+      pendingKey = null;
+      ackMisses++;
+      // One dropped message (heavy first scene, slow build) only degrades
+      // THIS apply; two consecutive misses during the probe phase mean the
+      // build has no applyScene handler — latch hash mode. A later "ready"
+      // (fresh boot) re-arms the probe.
+      if (applySceneSupported === null && ackMisses >= 2) {
         applySceneSupported = false;
-        pendingRequestId = null;
-        fallback();
       }
+      fallback();
     }, ACK_TIMEOUT_MS);
   }
 
@@ -347,39 +392,41 @@
     return Promise.reject(new Error('scene source has no bridge data'));
   }
 
-  function applyState(sceneIndex, stepIndex) {
+  function applyState(sceneIndex, sourceIndex, stepIndex) {
     var scene = scenes[sceneIndex];
     if (!scene) return;
 
     // A manually selected tab pins its chapter: ignore scroll-driven applies.
     if (manualSceneChapter !== null && sceneIndex === manualSceneChapter) return;
-    applySource(sceneIndex, 0, stepIndex);
+    applySource(sceneIndex, sourceIndex, stepIndex);
   }
 
   function applySource(sceneIndex, sourceIndex, stepIndex) {
     var source = sourceFor(sceneIndex, sourceIndex);
     if (!source) return;
     var key = keyFor(sceneIndex, sourceIndex, stepIndex);
-    if (key === currentKey) return;
+    if (key === appliedKey || key === inFlightKey) return;
 
     if (mode === 'bridge' && (source.shareId || source.startData) &&
         applySceneSupported !== false) {
-      currentKey = key;
+      inFlightKey = key;
       setSwitching(true);
       // Hash degradation under the BASE key, even for steps — otherwise
       // every later step of the chapter re-fires the same navigation.
       var fallbackKey = keyFor(sceneIndex, sourceIndex, null);
       var fallback = function () {
-        if (currentKey !== key) return; // superseded while probing
+        if (inFlightKey !== key) return; // superseded while probing
+        inFlightKey = null;
         if (source.sceneUrl) {
           applyHash(source.sceneUrl, fallbackKey);
         } else {
-          currentKey = null;
+          // Nothing to degrade to; appliedKey still names what is really
+          // on screen, so re-entering this target retries cleanly.
           setSwitching(false);
         }
       };
       dataForSource(source).then(function (share) {
-        if (currentKey !== key) return; // superseded while fetching
+        if (inFlightKey !== key) return; // superseded while fetching
         var shareData;
         if (stepIndex !== null && stepIndex !== undefined) {
           var story = extractStories(share)[stepIndex];
@@ -389,17 +436,18 @@
         } else {
           shareData = stripStories(share);
         }
-        postApply(shareData, fallback);
+        postApply(shareData, key, fallback);
       }).catch(fallback);
       return;
     }
 
     if (mode === 'hash' || mode === 'bridge') {
       // No working bridge: hash swap. Steps cannot be addressed by URL, so
-      // the chapter's base source remains visible.
+      // each source's base scene is what a step can show (source changes
+      // still navigate: the base key differs per source).
       if (stepIndex !== null && stepIndex !== undefined) {
         var baseKey = keyFor(sceneIndex, sourceIndex, null);
-        if (source.sceneUrl && currentKey !== baseKey) {
+        if (source.sceneUrl && appliedKey !== baseKey) {
           applyHash(source.sceneUrl, baseKey);
         }
         return;
@@ -413,7 +461,11 @@
 
   function applyHash(url, key) {
     if (!iframe) return;
-    currentKey = key;
+    // Fragment navigation into a cross-origin iframe has no observable
+    // completion, so the key is claimed up front and the veil cleared on a
+    // timer — that is the honest ceiling for this path.
+    appliedKey = key;
+    inFlightKey = null;
     // '#clean&' empties Terria's accumulated initSources before the new
     // share is applied; already-loaded catalog models stay in memory.
     var swapUrl = url.replace('#', '#clean&');
@@ -425,16 +477,19 @@
     } catch (e) {
       iframe.src = swapUrl;
     }
-    // No completion signal on this path; clear after a fixed delay.
-    setTimeout(function () { setSwitching(false); }, 2500);
+    clearSwitchingAfter(2500);
   }
 
-  function scheduleApply(sceneIndex, stepIndex) {
-    desired = { sceneIndex: sceneIndex, sourceIndex: 0, stepIndex: stepIndex };
+  function scheduleApply(sceneIndex, sourceIndex, stepIndex) {
+    desired = {
+      sceneIndex: sceneIndex,
+      sourceIndex: sourceIndex || 0,
+      stepIndex: stepIndex
+    };
     if (pendingTimer) clearTimeout(pendingTimer);
     pendingTimer = setTimeout(function () {
       pendingTimer = null;
-      applyState(sceneIndex, stepIndex);
+      applyState(sceneIndex, sourceIndex || 0, stepIndex);
     }, SCENE_DEBOUNCE_MS);
   }
 
@@ -475,6 +530,28 @@
     imageTriggers.forEach(function (t) { t.classList.remove('is-active'); });
   }
 
+  // Keeps a chapter's tab row in sync with the source the scroll (or a
+  // click) selected.
+  function syncTabHighlight(sceneIndex, sourceIndex) {
+    var card = root.querySelector(
+      '.storymap-card[data-scene-index="' + sceneIndex + '"]');
+    if (!card) return;
+    var tabs = card.querySelectorAll('.scene-tab-btn');
+    Array.prototype.forEach.call(tabs, function (b) {
+      var si = parseInt(b.getAttribute('data-source-index'), 10);
+      b.classList.toggle('is-active', si === sourceIndex);
+    });
+  }
+
+  // First source of a chapter that has scroll steps (-1 when none do).
+  function firstSourceWithSteps(scene) {
+    var sources = scene.sources || [];
+    for (var si = 0; si < sources.length; si++) {
+      if ((sources[si].steps || 0) > 0) return si;
+    }
+    return -1;
+  }
+
   function activateCard(card) {
     deactivateImage();
     cards.forEach(function (c) { c.classList.toggle('is-active', c === card); });
@@ -485,6 +562,8 @@
     var scene = scenes[index];
     if (!scene) return;
     var isFull = scene.layout === 'full' || !scene.sources || !scene.sources.length;
+    // Full chapters fade the media panel out but deliberately keep the last
+    // scene loaded underneath: re-entering a split chapter re-applies by key.
     root.classList.toggle('is-full-section', isFull);
     // A pinned tab survives until the reader leaves its chapter.
     if (manualSceneChapter !== null) {
@@ -493,21 +572,20 @@
       manualSourceIndex = null;
     }
     if (isFull) return;
-    // Entering a chapter fresh: its steps drive the map from tab[0], so sync
-    // the tab highlight back to the first tab (a previous pin may linger).
-    var tabGroup = card.querySelectorAll('.scene-tab-btn');
-    Array.prototype.forEach.call(tabGroup, function (b, i) {
-      b.classList.toggle('is-active', i === 0);
-    });
-    if (scene.steps > 0) {
-      // Jump to the chapter's first scene as soon as the card activates
-      // (i.e. while reading its intro blocks); the step observer takes over
-      // from there. keyFor() dedupes the re-apply when step 1 centers.
-      scheduleApply(index, 0);
+    var stepSource = firstSourceWithSteps(scene);
+    // Entering a chapter fresh: sync the tab highlight to the source that
+    // will drive the map (a previous pin may linger on another tab).
+    syncTabHighlight(index, stepSource !== -1 ? stepSource : 0);
+    if (stepSource !== -1) {
+      // Jump to the chapter's first scroll step as soon as the card
+      // activates (i.e. while reading its intro blocks); the step observer
+      // takes over from there. keyFor() dedupes the re-apply when the step
+      // centers.
+      scheduleApply(index, stepSource, 0);
       return;
     }
     if (scene.sources && scene.sources.length) {
-      scheduleApply(index, null);
+      scheduleApply(index, 0, null);
     }
   }
 
@@ -515,6 +593,8 @@
     deactivateImage();
     var sceneIndex = parseInt(stepEl.getAttribute('data-scene-index'), 10);
     var stepIndex = parseInt(stepEl.getAttribute('data-step-index'), 10);
+    var sourceIndex = parseInt(stepEl.getAttribute('data-source-index'), 10);
+    if (isNaN(sourceIndex)) sourceIndex = 0;
     // While a tab is pinned in this chapter, steps neither drive the map nor
     // highlight; a step in any other chapter releases the pin.
     if (manualSceneChapter !== null) {
@@ -527,7 +607,9 @@
         s.classList.toggle('is-active', s === stepEl);
       }
     });
-    scheduleApply(sceneIndex, stepIndex);
+    // The tab row follows the scroll through multi-map chapters.
+    syncTabHighlight(sceneIndex, sourceIndex);
+    scheduleApply(sceneIndex, sourceIndex, stepIndex);
   }
 
   if ('IntersectionObserver' in window) {
