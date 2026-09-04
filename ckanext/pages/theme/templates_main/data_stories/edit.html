@@ -398,18 +398,40 @@
               data-fetch-error="{{ _('Could not fetch the dataset. Check the URL or name and try again.') }}"
               data-loading="{{ _('Loading dataset…') }}"
               data-pending="{{ _('Pending') }}"
-              data-remove-label="{{ _('Remove dataset') }}">
+              data-remove-label="{{ _('Remove dataset') }}"
+              data-no-results="{{ _('No matching datasets found.') }}"
+              data-search-error="{{ _('Search failed. Try again or paste the dataset URL.') }}">
       <legend>{{ _('Datasets used in this story') }}</legend>
       <p class="help-block">
-        {{ _('Paste a dataset URL or name to pull its DOI and authors. You can add multiple datasets.') }}
+        {{ _('Search datasets by name, or paste a dataset URL. You can add multiple datasets.') }}
       </p>
 
+      <style>
+        .story-dataset-search { position: relative; flex: 1; min-width: 240px; }
+        .story-dataset-results {
+          position: absolute; top: 100%; left: 0; right: 0; z-index: 1050;
+          background: #fff; border: 1px solid #ccc; border-top: none;
+          border-radius: 0 0 4px 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+          max-height: 280px; overflow-y: auto; display: none;
+        }
+        .story-dataset-results.active { display: block; }
+        .story-dataset-result-item { padding: 8px 12px; cursor: pointer; }
+        .story-dataset-result-item:hover,
+        .story-dataset-result-item.is-highlighted { background: #f0f6fb; }
+        .story-dataset-result-item .result-org { color: #888; font-size: 0.85em; }
+        .story-dataset-result-item.is-empty { color: #999; cursor: default; }
+        .story-dataset-result-item.is-empty:hover { background: none; }
+      </style>
       <div class="form-inline" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;">
-        <input type="text"
-               id="story-dataset-input"
-               class="form-control"
-               style="flex: 1; min-width: 240px;"
-               placeholder="{{ _('https://…/dataset/<name> or dataset name') }}">
+        <div class="story-dataset-search">
+          <input type="text"
+                 id="story-dataset-input"
+                 class="form-control"
+                 style="width: 100%;"
+                 autocomplete="off"
+                 placeholder="{{ _('Search datasets, or paste https://…/dataset/<name>') }}">
+          <div id="story-dataset-results" class="story-dataset-results" role="listbox"></div>
+        </div>
         <button type="button" class="btn btn-primary" id="story-add-dataset">
           <i class="fa fa-plus"></i> {{ _('Add dataset') }}
         </button>

@@ -443,8 +443,9 @@
       }
 
       function updateDatasetsHiddenField() {
-        const value = selectedDatasets.length ? JSON.stringify(selectedDatasets) : '';
-        $('#story-datasets-data').val(value);
+        // '[]' (not '') so the server can tell "author removed everything"
+        // apart from "field never made it into the payload".
+        $('#story-datasets-data').val(JSON.stringify(selectedDatasets));
       }
 
       function renderDatasetsTable() {
@@ -582,13 +583,130 @@
           });
       }
 
+      // ---- Search-as-you-type over package_search (GET works on this
+      // deployment; package_show must stay POST). Pasting a URL keeps the
+      // exact-lookup flow above.
+      const $datasetResults = $('#story-dataset-results');
+      let datasetSearchTimer = null;
+      let datasetSearchSeq = 0;
+
+      function hideDatasetResults() {
+        $datasetResults.removeClass('active').empty();
+      }
+
+      function looksLikeDirectReference(value) {
+        // URLs (or anything path-like) go through the exact package_show
+        // lookup instead of the fuzzy search.
+        return value.indexOf('/') !== -1 || /^https?:/i.test(value);
+      }
+
+      function addDatasetMeta(meta) {
+        const duplicate = selectedDatasets.some(function(ds) {
+          return ds.id === meta.id;
+        });
+        if (duplicate) {
+          setDatasetFeedback(datasetLabel('already-added', 'This dataset is already added.'), true);
+          return;
+        }
+        selectedDatasets.push(meta);
+        renderDatasetsTable();
+        $datasetInput.val('');
+        setDatasetFeedback('', false);
+      }
+
+      function renderDatasetResults(packages) {
+        $datasetResults.empty();
+        let shown = 0;
+        packages.forEach(function(pkg) {
+          if (!pkg || !pkg.id) return;
+          const alreadySelected = selectedDatasets.some(function(ds) {
+            return ds.id === pkg.id;
+          });
+          if (alreadySelected) return;
+          const $item = $('<div>')
+            .addClass('story-dataset-result-item')
+            .attr('role', 'option')
+            .data('pkg', pkg);
+          $('<div>').text(pkg.title || pkg.name).appendTo($item);
+          const orgTitle = pkg.organization && (pkg.organization.title || pkg.organization.name);
+          $('<div>')
+            .addClass('result-org')
+            .text(orgTitle ? orgTitle + ' — ' + pkg.name : pkg.name)
+            .appendTo($item);
+          $datasetResults.append($item);
+          shown += 1;
+        });
+        if (!shown) {
+          $('<div>')
+            .addClass('story-dataset-result-item is-empty')
+            .text(datasetLabel('no-results', 'No matching datasets found.'))
+            .appendTo($datasetResults);
+        }
+        $datasetResults.addClass('active');
+      }
+
+      function searchDatasets(query) {
+        const seq = ++datasetSearchSeq;
+        $.ajax({
+          url: '/api/3/action/package_search',
+          data: { q: query, rows: 10, include_private: true },
+          dataType: 'json'
+        }).done(function(resp) {
+          if (seq !== datasetSearchSeq) return; // stale response
+          const results = (resp && resp.result && resp.result.results) || [];
+          renderDatasetResults(results);
+        }).fail(function() {
+          if (seq !== datasetSearchSeq) return;
+          $datasetResults.empty();
+          $('<div>')
+            .addClass('story-dataset-result-item is-empty')
+            .text(datasetLabel('search-error', 'Search failed. Try again or paste the dataset URL.'))
+            .appendTo($datasetResults);
+          $datasetResults.addClass('active');
+        });
+      }
+
+      $datasetInput.on('input', function() {
+        const value = $(this).val().trim();
+        clearTimeout(datasetSearchTimer);
+        if (value.length < 2 || looksLikeDirectReference(value)) {
+          datasetSearchSeq++; // invalidate any in-flight search
+          hideDatasetResults();
+          return;
+        }
+        datasetSearchTimer = setTimeout(function() {
+          searchDatasets(value);
+        }, 300);
+      });
+
+      $datasetResults.on('click', '.story-dataset-result-item', function() {
+        const pkg = $(this).data('pkg');
+        hideDatasetResults();
+        if (!pkg || !pkg.id) return;
+        addDatasetMeta(buildDatasetMeta(pkg));
+      });
+
+      $datasetInput.on('keydown', function(e) {
+        if (e.key === 'Escape') {
+          hideDatasetResults();
+        }
+      });
+
+      $(document).on('click', function(e) {
+        if (!$(e.target).closest('.story-dataset-search').length) {
+          hideDatasetResults();
+        }
+      });
+
       $('#story-add-dataset').on('click', function() {
+        hideDatasetResults();
         addDatasetFromInput();
       });
 
       $('#story-dataset-input').on('keypress', function(e) {
         if (e.which === 13) {
           e.preventDefault();
+          hideDatasetResults();
           addDatasetFromInput();
         }
       });
