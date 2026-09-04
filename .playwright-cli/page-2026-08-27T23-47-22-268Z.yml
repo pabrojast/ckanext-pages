@@ -1,0 +1,191 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#content"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "UNESCO" [ref=e10] [cursor=pointer]:
+            - /url: https://www.unesco.org/en/
+        - listitem [ref=e11]:
+          - link "Register" [ref=e12] [cursor=pointer]:
+            - /url: /colab
+        - listitem [ref=e13]:
+          - link "Log in" [ref=e14] [cursor=pointer]:
+            - /url: /user/login
+            - text: 
+        - listitem [ref=e16]:
+          - link "IHP IX" [ref=e17] [cursor=pointer]:
+            - /url: /ihpix
+        - listitem [ref=e18]:
+          - combobox [ref=e20] [cursor=pointer]:
+            - option "ENGLISH" [selected]
+            - option "ESPAÑOL"
+            - option "FRANÇAIS"
+            - option "العربية"
+        - text: 
+      - generic [ref=e21]:
+        - link [ref=e23] [cursor=pointer]:
+          - /url: /
+          - img "IHP Water Information Network System (IHP-WINS)" [ref=e24]
+        - navigation [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "Home" [ref=e28] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e29]:
+              - link "Datasets" [ref=e30] [cursor=pointer]:
+                - /url: /dataset/
+            - listitem [ref=e31]:
+              - link "Documents" [ref=e32] [cursor=pointer]:
+                - /url: /documents
+            - listitem [ref=e33]:
+              - link "Organizations" [ref=e34] [cursor=pointer]:
+                - /url: /organization/
+            - listitem [ref=e35]:
+              - link "Member States" [ref=e36] [cursor=pointer]:
+                - /url: /memberstates
+            - listitem [ref=e37]:
+              - link "Initiatives" [ref=e38] [cursor=pointer]:
+                - /url: /initiatives
+            - listitem [ref=e39]:
+              - link "About IHP" [ref=e40] [cursor=pointer]:
+                - /url: https://www.unesco.org/en/ihp
+        - generic [ref=e42]:
+          - text: ":"
+          - textbox "Search datasets" [ref=e43]:
+            - /placeholder: Search
+          - button "Submit" [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]: 
+        - generic: 
+  - generic [ref=e47]:
+    - navigation "Breadcrumb" [ref=e48]:
+      - list [ref=e49]:
+        - listitem [ref=e50]:
+          - link "Home" [ref=e51] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e52]: 
+        - listitem [ref=e53]:
+          - text: /
+          - link "Login" [ref=e54] [cursor=pointer]:
+            - /url: /user/login
+    - generic [ref=e55]:
+      - complementary [ref=e56]:
+        - generic [ref=e57]:
+          - heading "Forgotten your password?" [level=2] [ref=e58]
+          - generic [ref=e59]:
+            - paragraph [ref=e60]: No problem, use our password recovery form to reset it.
+            - paragraph [ref=e61]:
+              - link "Forgot your password?" [ref=e62] [cursor=pointer]:
+                - /url: /user/reset
+      - main [ref=e63]:
+        - generic [ref=e65]:
+          - heading "Login" [level=1] [ref=e66]
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69] [cursor=pointer]: "Username or Email:"
+              - textbox "Username or Email:" [ref=e71]:
+                - /placeholder: ""
+            - generic [ref=e72]:
+              - generic [ref=e73] [cursor=pointer]: "Password:"
+              - textbox "Password:" [ref=e75]:
+                - /placeholder: ""
+            - generic [ref=e78] [cursor=pointer]:
+              - checkbox "Remember me" [checked] [ref=e79]
+              - text: Remember me
+            - button "Login" [ref=e81] [cursor=pointer]
+  - contentinfo [ref=e82]:
+    - generic [ref=e84]:
+      - generic [ref=e85]:
+        - link "UNESCO" [ref=e86] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e87]:
+          - listitem [ref=e88]:
+            - link "Latest News" [ref=e89] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/newsroom
+          - listitem [ref=e90]:
+            - link "Take Action" [ref=e91] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/take-action
+          - listitem [ref=e92]:
+            - link "Ideas & Data" [ref=e93] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ideas-data
+          - listitem [ref=e94]:
+            - link "Our Impact" [ref=e95] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/impact
+          - listitem [ref=e96]:
+            - link "Our expertise" [ref=e97] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/our-expertise
+          - listitem [ref=e98]:
+            - link "Core Data Portal" [ref=e99] [cursor=pointer]:
+              - /url: https://core.unesco.org
+          - listitem [ref=e100]:
+            - link "Subscribe to our Newsletter" [ref=e101] [cursor=pointer]:
+              - /url: http://eepurl.com/hA0MhX
+      - generic [ref=e102]:
+        - link "Terms of use" [ref=e103] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e104]:
+          - listitem [ref=e105]:
+            - link "UNESCO Name & Logo" [ref=e106] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/logo-patronage
+          - listitem [ref=e107]:
+            - link "FAQ" [ref=e108] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/faq
+          - listitem [ref=e109]:
+            - link "Report fraud, abuse, misconduct" [ref=e110] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ios/report-wrongdoing
+          - listitem [ref=e111]:
+            - link "Scam alert" [ref=e112] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/scamalert
+      - generic [ref=e113]:
+        - link "Policies" [ref=e114] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e115]:
+          - listitem [ref=e116]:
+            - link "Protection of human rights (Procedure 104)" [ref=e117] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/legal-affairs/cr-committee/104-procedure
+          - listitem [ref=e118]:
+            - link "Privacy Notice" [ref=e119] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/privacy-notice
+          - listitem [ref=e120]:
+            - link "Access to Information" [ref=e121] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/unesco-access-information-policy
+          - listitem [ref=e122]:
+            - link "Environmental and Social Policies" [ref=e123] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/environmental-commitment-and-policy
+      - generic [ref=e124]:
+        - link "Follow us" [ref=e125] [cursor=pointer]:
+          - /url: "#"
+        - generic [ref=e126]:
+          - link " Facebook" [ref=e129] [cursor=pointer]:
+            - /url: https://www.facebook.com/unesco/
+            - generic [ref=e130]: 
+            - generic [ref=e131]: Facebook
+          - link " Threads" [ref=e134] [cursor=pointer]:
+            - /url: https://www.threads.net/@unesco
+            - generic [ref=e135]: 
+            - generic [ref=e136]: Threads
+          - link " Twitter" [ref=e139] [cursor=pointer]:
+            - /url: https://twitter.com/UNESCO?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor
+            - generic [ref=e140]: 
+            - generic [ref=e141]: Twitter
+          - link " YouTube" [ref=e144] [cursor=pointer]:
+            - /url: https://www.youtube.com/UNESCO
+            - generic [ref=e145]: 
+            - generic [ref=e146]: YouTube
+          - link " TikTok" [ref=e149] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@unesco?lang=en
+            - generic [ref=e150]: 
+            - generic [ref=e151]: TikTok
+          - link " Instagram" [ref=e154] [cursor=pointer]:
+            - /url: https://www.instagram.com/unesco/?hl=en
+            - generic [ref=e155]: 
+            - generic [ref=e156]: Instagram
+          - link " Whatsapp" [ref=e159] [cursor=pointer]:
+            - /url: https://whatsapp.com/channel/0029VaHUoHkAO7RCkmguOi1w
+            - generic [ref=e160]: 
+            - generic [ref=e161]: Whatsapp
+          - link " LinkedIn" [ref=e164] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/unesco
+            - generic [ref=e165]: 
+            - generic [ref=e166]: LinkedIn

@@ -1,0 +1,4 @@
+[    3016ms] [LOG] Inicializando navegación mobile: {toggleButtons: 1, navContainer: true, navContainerSelector: masthead-nav} @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:9
+[    3016ms] [LOG] Bootstrap 5 compatibility fix applied @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:17
+[    4526ms] [WARNING] No available adapters. @ https://www.youtube.com/embed/kMbhMlz_sAo:0
+[   97807ms] [LOG] Menú cerrado por resize @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:10

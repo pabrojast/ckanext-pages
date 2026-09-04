@@ -1,0 +1,326 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#content"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "UNESCO" [ref=e10] [cursor=pointer]:
+            - /url: https://www.unesco.org/en/
+        - listitem [ref=e11]:
+          - link "Register" [ref=e12] [cursor=pointer]:
+            - /url: /colab
+        - listitem [ref=e13]:
+          - link "Log in" [ref=e14] [cursor=pointer]:
+            - /url: /user/login
+            - text: 
+        - listitem [ref=e16]:
+          - link "IHP IX" [ref=e17] [cursor=pointer]:
+            - /url: /ihpix
+        - listitem [ref=e18]:
+          - combobox [ref=e20] [cursor=pointer]:
+            - option "ENGLISH" [selected]
+            - option "ESPAÑOL"
+            - option "FRANÇAIS"
+            - option "العربية"
+        - text: 
+      - generic [ref=e21]:
+        - link [ref=e23] [cursor=pointer]:
+          - /url: /
+          - img "IHP Water Information Network System (IHP-WINS)" [ref=e24]
+        - navigation [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "Home" [ref=e28] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e29]:
+              - link "Datasets" [ref=e30] [cursor=pointer]:
+                - /url: /dataset/
+            - listitem [ref=e31]:
+              - link "Documents" [ref=e32] [cursor=pointer]:
+                - /url: /documents
+            - listitem [ref=e33]:
+              - link "Organizations" [ref=e34] [cursor=pointer]:
+                - /url: /organization/
+            - listitem [ref=e35]:
+              - link "Member States" [ref=e36] [cursor=pointer]:
+                - /url: /memberstates
+            - listitem [ref=e37]:
+              - link "Initiatives" [ref=e38] [cursor=pointer]:
+                - /url: /initiatives
+            - listitem [ref=e39]:
+              - link "About IHP" [ref=e40] [cursor=pointer]:
+                - /url: https://www.unesco.org/en/ihp
+        - generic [ref=e42]:
+          - text: ":"
+          - textbox "Search datasets" [ref=e43]:
+            - /placeholder: Search
+          - button "Submit" [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]: 
+        - generic: 
+  - generic [ref=e47]:
+    - generic [ref=e48]:
+      - navigation "Breadcrumb" [ref=e49]:
+        - list [ref=e50]:
+          - listitem [ref=e51]:
+            - link "Home" [ref=e52] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e53]: 
+          - listitem [ref=e54]:
+            - text: /
+            - link "Data Stories" [ref=e55] [cursor=pointer]:
+              - /url: /data-stories/list
+          - listitem [ref=e56]:
+            - text: /
+            - link "Beta Testing story" [ref=e57] [cursor=pointer]:
+              - /url: "#"
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]: 
+            - text: Published
+          - generic [ref=e63]:
+            - generic [ref=e64]: 
+            - text: Story Map
+        - heading "Beta Testing story" [level=1] [ref=e65]
+        - generic [ref=e66]:
+          - paragraph
+          - paragraph [ref=e67]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed tincidunt nulla. Quisque a congue tellus, convallis cursus libero. Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          - paragraph
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - img "ckan_admin" [ref=e70]
+            - generic [ref=e71]:
+              - strong [ref=e72]: IHP-WINS
+              - generic [ref=e73]:
+                - generic [ref=e74]: 
+                - text: CAZALAC
+          - generic [ref=e75]:
+            - generic "Published" [ref=e76]:
+              - generic [ref=e77]: 
+              - text: December 12, 2025
+            - generic "Views" [ref=e78]:
+              - generic [ref=e79]: 
+              - text: "91"
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - generic [ref=e82]: 
+              - text: Countries
+            - generic [ref=e83]: Chile
+            - generic [ref=e84]: Argentina
+        - paragraph [ref=e85]:
+          - generic [ref=e86]: 
+          - text: Scroll to explore the story — the map updates as you read.
+    - generic [ref=e88]:
+      - article [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]: "1"
+            - heading " Introduction" [level=2] [ref=e93]:
+              - generic [ref=e94]: 
+              - text: Introduction
+          - generic [ref=e95]:
+            - paragraph [ref=e96]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque nisl, ullamcorper nec finibus in, dictum nec lorem. Aliquam erat volutpat. Integer et nisi euismod, volutpat mauris porttitor, dapibus lorem. Integer non ornare massa, sed congue tellus. Morbi pharetra leo mi, eget efficitur justo lobortis id. Phasellus consequat volutpat lacus, eget pellentesque quam elementum mattis. Sed condimentum, tortor vitae iaculis tristique, neque augue rhoncus felis, ac pulvinar nibh justo non odio. Sed at quam gravida, aliquet lorem eget, pretium massa. Sed nec orci eget mi rutrum elementum. Nunc ac velit eget dolor convallis porttitor. Cras vitae lorem lacus. Ut nulla metus, sodales ac dictum sit amet, fermentum eu neque. Integer aliquet molestie quam. Pellentesque consequat lobortis arcu, ut venenatis erat cursus id.
+            - paragraph [ref=e97]
+            - paragraph [ref=e98]
+          - generic [ref=e100]:
+            - heading "Media title" [level=3] [ref=e101]
+            - iframe [ref=e102]:
+              - generic [ref=f1e1]:
+                - generic "YouTube Video Player" [ref=f1e3]
+                - generic [ref=f1e5]:
+                  - generic:
+                    - generic:
+                      - generic [ref=f1e6] [cursor=pointer]
+                      - button "Play video" [ref=f1e10] [cursor=pointer]
+                      - button "Climate change • Climate change refers to long-term shifts in temperatures and weather patterns. Human activities have been the main driver of climate change, primarily due to the burning of fossil fuels like coal, oil and gas." [ref=f1e14] [cursor=pointer]
+                      - button "Hide player controls" [ref=f1e18] [cursor=pointer]
+                      - generic [ref=f1e20]:
+                        - generic [ref=f1e25]:
+                          - generic [ref=f1e26]:
+                            - link "Celebrating the 50th anniversary of the Intergovernmental Hydrological Programme of UNESCO" [ref=f1e27] [cursor=pointer]:
+                              - /url: https://www.youtube.com/watch?v=kMbhMlz_sAo
+                            - link "UNESCO" [ref=f1e28] [cursor=pointer]:
+                              - /url: /channel/UCkD7gm3Am3M3k156lk46t3A
+                          - generic [ref=f1e30]:
+                            - button [ref=f1e31] [cursor=pointer]
+                            - generic [ref=f1e33]:
+                              - generic: UNESCO
+                              - generic: 544K subscribers
+                        - generic [ref=f1e34]:
+                          - button "Share" [ref=f1e37] [cursor=pointer]
+                          - link "Watch on YouTube" [ref=f1e48] [cursor=pointer]:
+                            - /url: https://www.youtube.com/watch?v=kMbhMlz_sAo
+                            - generic [ref=f1e49]: Watch on
+      - article [ref=e103]:
+        - generic [ref=e105]:
+          - generic [ref=e106]: "2"
+          - heading " Study Area" [level=2] [ref=e107]:
+            - generic [ref=e108]: 
+            - text: Study Area
+      - article [ref=e109]:
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]: "3"
+            - heading " Results" [level=2] [ref=e113]:
+              - generic [ref=e114]: 
+              - text: Results
+          - generic [ref=e115]:
+            - paragraph [ref=e116]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque nisl, ullamcorper nec finibus in, dictum nec lorem. Aliquam erat volutpat. Integer et nisi euismod, volutpat mauris porttitor, dapibus lorem. Integer non ornare massa, sed congue tellus. Morbi pharetra leo mi, eget efficitur justo lobortis id. Phasellus consequat volutpat lacus, eget pellentesque quam elementum mattis. Sed condimentum, tortor vitae iaculis tristique, neque augue rhoncus felis, ac pulvinar nibh justo non odio. Sed at quam gravida, aliquet lorem eget, pretium massa. Sed nec orci eget mi rutrum elementum. Nunc ac velit eget dolor convallis porttitor. Cras vitae lorem lacus. Ut nulla metus, sodales ac dictum sit amet, fermentum eu neque. Integer aliquet molestie quam. Pellentesque consequat lobortis arcu, ut venenatis erat cursus id.
+            - paragraph [ref=e117]
+            - paragraph [ref=e118]
+            - paragraph [ref=e120]
+            - paragraph [ref=e121]
+          - paragraph [ref=e124]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque nisl, ullamcorper nec finibus in, dictum nec lorem. Aliquam erat volutpat. Integer et nisi euismod, volutpat mauris porttitor, dapibus lorem. Integer non ornare massa, sed congue tellus. Morbi pharetra leo mi, eget efficitur justo lobortis id. Phasellus consequat volutpat lacus, eget pellentesque quam elementum mattis. Sed condimentum, tortor vitae iaculis tristique, neque augue rhoncus felis, ac pulvinar nibh justo non odio. Sed at quam gravida, aliquet lorem eget, pretium massa. Sed nec orci eget mi rutrum elementum. Nunc ac velit eget dolor convallis porttitor. Cras vitae lorem lacus. Ut nulla metus, sodales ac dictum sit amet, fermentum eu neque. Integer aliquet molestie quam. Pellentesque consequat lobortis arcu, ut venenatis erat cursus id.
+      - article [ref=e125]:
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - generic [ref=e128]: "4"
+            - heading " Research Question" [level=2] [ref=e129]:
+              - generic [ref=e130]: 
+              - text: Research Question
+          - paragraph [ref=e132]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque nisl, ullamcorper nec finibus in, dictum nec lorem. Aliquam erat volutpat. Integer et nisi euismod, volutpat mauris porttitor, dapibus lorem. Integer non ornare massa, sed congue tellus. Morbi pharetra leo mi, eget efficitur justo lobortis id. Phasellus consequat volutpat lacus, eget pellentesque quam elementum mattis. Sed condimentum, tortor vitae iaculis tristique, neque augue rhoncus felis, ac pulvinar nibh justo non odio. Sed at quam gravida, aliquet lorem eget, pretium massa. Sed nec orci eget mi rutrum elementum. Nunc ac velit eget dolor convallis porttitor. Cras vitae lorem lacus. Ut nulla metus, sodales ac dictum sit amet, fermentum eu neque. Integer aliquet molestie quam. Pellentesque consequat lobortis arcu, ut venenatis erat cursus id.
+          - generic [ref=e133]:
+            - paragraph [ref=e134]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque nisl, ullamcorper nec finibus in, dictum nec lorem. Aliquam erat volutpat. Integer et nisi euismod, volutpat mauris porttitor, dapibus lorem. Integer non ornare massa, sed congue tellus. Morbi pharetra leo mi, eget efficitur justo lobortis id. Phasellus consequat volutpat lacus, eget pellentesque quam elementum mattis. Sed condimentum, tortor vitae iaculis tristique, neque augue rhoncus felis, ac pulvinar nibh justo non odio. Sed at quam gravida, aliquet lorem eget, pretium massa. Sed nec orci eget mi rutrum elementum. Nunc ac velit eget dolor convallis porttitor. Cras vitae lorem lacus. Ut nulla metus, sodales ac dictum sit amet, fermentum eu neque. Integer aliquet molestie quam. Pellentesque consequat lobortis arcu, ut venenatis erat cursus id.
+            - paragraph [ref=e135]
+            - paragraph [ref=e137]
+    - generic [ref=e139]:
+      - generic [ref=e140]:
+        - heading " Research Publication" [level=2] [ref=e142]:
+          - generic [ref=e143]: 
+          - text: Research Publication
+        - generic [ref=e145]:
+          - paragraph [ref=e147]: Pinilla Toro, C. (2019). Saberes emergentes de las artes urbanas y cultura de paz. Un estudio de caso en San Salvador. Sabia Revista Científica, 5(1), 34-50. https://doi.org/10.47366/sabia.v5n1a3
+          - generic [ref=e148]:
+            - strong [ref=e149]: "DOI:"
+            - code [ref=e150]: 10.47366/sabia.v5n1a3
+            - link " View Paper" [ref=e151] [cursor=pointer]:
+              - /url: https://doi.org/10.47366/sabia.v5n1a3
+              - generic [ref=e152]: 
+              - text: View Paper
+      - generic [ref=e153]:
+        - heading " Datasets" [level=2] [ref=e155]:
+          - generic [ref=e156]: 
+          - text: Datasets
+        - generic [ref=e160]:
+          - generic [ref=e161]:
+            - generic [ref=e162]: Primary
+            - heading [level=4] [ref=e163]:
+              - link "Testing Dataset Nov" [ref=e164] [cursor=pointer]:
+                - /url: /dataset/testing-dataset-nov
+            - paragraph [ref=e165]: Dataset abstract (EN)
+          - link " View" [ref=e167] [cursor=pointer]:
+            - /url: /dataset/testing-dataset-nov
+            - generic [ref=e168]: 
+            - text: View
+      - generic [ref=e169]:
+        - heading " Image Gallery" [level=2] [ref=e171]:
+          - generic [ref=e172]: 
+          - text: Image Gallery
+        - generic [ref=e174]:
+          - generic [ref=e175] [cursor=pointer]:
+            - img "otro titulo" [ref=e176]
+            - generic [ref=e177]:
+              - paragraph [ref=e178]: otro titulo
+              - paragraph [ref=e179]: caption
+              - paragraph [ref=e180]:
+                - generic [ref=e181]: 
+                - text: copyright
+          - generic [ref=e182] [cursor=pointer]:
+            - img "Captura de pantalla 2025-01-28 143655" [ref=e183]
+            - paragraph [ref=e185]: Captura de pantalla 2025-01-28 143655
+  - contentinfo [ref=e186]:
+    - generic [ref=e188]:
+      - generic [ref=e189]:
+        - link "UNESCO" [ref=e190] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e191]:
+          - listitem [ref=e192]:
+            - link "Latest News" [ref=e193] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/newsroom
+          - listitem [ref=e194]:
+            - link "Take Action" [ref=e195] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/take-action
+          - listitem [ref=e196]:
+            - link "Ideas & Data" [ref=e197] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ideas-data
+          - listitem [ref=e198]:
+            - link "Our Impact" [ref=e199] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/impact
+          - listitem [ref=e200]:
+            - link "Our expertise" [ref=e201] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/our-expertise
+          - listitem [ref=e202]:
+            - link "Core Data Portal" [ref=e203] [cursor=pointer]:
+              - /url: https://core.unesco.org
+          - listitem [ref=e204]:
+            - link "Subscribe to our Newsletter" [ref=e205] [cursor=pointer]:
+              - /url: http://eepurl.com/hA0MhX
+      - generic [ref=e206]:
+        - link "Terms of use" [ref=e207] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e208]:
+          - listitem [ref=e209]:
+            - link "UNESCO Name & Logo" [ref=e210] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/logo-patronage
+          - listitem [ref=e211]:
+            - link "FAQ" [ref=e212] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/faq
+          - listitem [ref=e213]:
+            - link "Report fraud, abuse, misconduct" [ref=e214] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ios/report-wrongdoing
+          - listitem [ref=e215]:
+            - link "Scam alert" [ref=e216] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/scamalert
+      - generic [ref=e217]:
+        - link "Policies" [ref=e218] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e219]:
+          - listitem [ref=e220]:
+            - link "Protection of human rights (Procedure 104)" [ref=e221] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/legal-affairs/cr-committee/104-procedure
+          - listitem [ref=e222]:
+            - link "Privacy Notice" [ref=e223] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/privacy-notice
+          - listitem [ref=e224]:
+            - link "Access to Information" [ref=e225] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/unesco-access-information-policy
+          - listitem [ref=e226]:
+            - link "Environmental and Social Policies" [ref=e227] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/environmental-commitment-and-policy
+      - generic [ref=e228]:
+        - link "Follow us" [ref=e229] [cursor=pointer]:
+          - /url: "#"
+        - generic [ref=e230]:
+          - link " Facebook" [ref=e233] [cursor=pointer]:
+            - /url: https://www.facebook.com/unesco/
+            - generic [ref=e234]: 
+            - generic [ref=e235]: Facebook
+          - link " Threads" [ref=e238] [cursor=pointer]:
+            - /url: https://www.threads.net/@unesco
+            - generic [ref=e239]: 
+            - generic [ref=e240]: Threads
+          - link " Twitter" [ref=e243] [cursor=pointer]:
+            - /url: https://twitter.com/UNESCO?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor
+            - generic [ref=e244]: 
+            - generic [ref=e245]: Twitter
+          - link " YouTube" [ref=e248] [cursor=pointer]:
+            - /url: https://www.youtube.com/UNESCO
+            - generic [ref=e249]: 
+            - generic [ref=e250]: YouTube
+          - link " TikTok" [ref=e253] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@unesco?lang=en
+            - generic [ref=e254]: 
+            - generic [ref=e255]: TikTok
+          - link " Instagram" [ref=e258] [cursor=pointer]:
+            - /url: https://www.instagram.com/unesco/?hl=en
+            - generic [ref=e259]: 
+            - generic [ref=e260]: Instagram
+          - link " Whatsapp" [ref=e263] [cursor=pointer]:
+            - /url: https://whatsapp.com/channel/0029VaHUoHkAO7RCkmguOi1w
+            - generic [ref=e264]: 
+            - generic [ref=e265]: Whatsapp
+          - link " LinkedIn" [ref=e268] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/unesco
+            - generic [ref=e269]: 
+            - generic [ref=e270]: LinkedIn

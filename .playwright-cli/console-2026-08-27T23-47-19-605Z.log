@@ -1,0 +1,5 @@
+[    2458ms] [LOG] Inicializando navegación mobile: {toggleButtons: 1, navContainer: true, navContainerSelector: masthead-nav} @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:9
+[    2463ms] [LOG] Bootstrap 5 compatibility fix applied @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:17
+[    2465ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://data.dev-wins.com/user/login:0
+[   15901ms] [LOG] Inicializando navegación mobile: {toggleButtons: 1, navContainer: true, navContainerSelector: masthead-nav} @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:9
+[   15902ms] [LOG] Bootstrap 5 compatibility fix applied @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:17

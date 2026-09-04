@@ -1,0 +1,294 @@
+- generic [active] [ref=f1e1]:
+  - link "Skip to main content" [ref=f1e3] [cursor=pointer]:
+    - /url: "#content"
+  - generic [ref=f1e5]:
+    - list:
+      - listitem [ref=f1e6]:
+        - link "Approvals 5 " [ref=f1e7] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=f1e8]: 
+          - generic [ref=f1e9]: Approvals
+          - generic [ref=f1e10]: "5"
+          - generic [ref=f1e11]: 
+        - text:          
+      - listitem [ref=f1e12]:
+        - link "Admin" [ref=f1e13] [cursor=pointer]:
+          - /url: /ckan-admin/
+          - generic [ref=f1e14]: 
+      - listitem [ref=f1e16]:
+        - link "Featured" [ref=f1e17] [cursor=pointer]:
+          - /url: /ckan-admin/featured-datasets
+          - generic [ref=f1e18]: 
+      - listitem [ref=f1e20]:
+        - link "Viewers" [ref=f1e21] [cursor=pointer]:
+          - /url: /ckan-admin/featured-viewers
+          - generic [ref=f1e22]: 
+      - listitem [ref=f1e24]:
+        - link "Publications" [ref=f1e25] [cursor=pointer]:
+          - /url: /ckan-admin/featured-publications
+          - generic [ref=f1e26]: 
+      - listitem [ref=f1e28]:
+        - link "Open Learning" [ref=f1e29] [cursor=pointer]:
+          - /url: /ckan-admin/open-learning
+          - generic [ref=f1e30]: 
+      - listitem [ref=f1e32]:
+        - link "IHP-IX" [ref=f1e33] [cursor=pointer]:
+          - /url: /ckan-admin/ihpix
+          - generic [ref=f1e34]: 
+      - listitem [ref=f1e36]:
+        - link "Portals " [ref=f1e37] [cursor=pointer]:
+          - /url: "#"
+          - generic [ref=f1e38]: 
+          - generic [ref=f1e39]: Portals
+          - generic [ref=f1e40]: 
+        - text:      
+      - listitem [ref=f1e41]:
+        - link "Users" [ref=f1e42] [cursor=pointer]:
+          - /url: /ckan-admin/users
+          - generic [ref=f1e43]: 
+      - listitem:
+        - link "Harvest":
+          - /url: /harvest
+      - listitem [ref=f1e46]:
+        - link [ref=f1e47] [cursor=pointer]:
+          - /url: /user/codex_ds_smoke_20260827
+          - img "Gravatar" [ref=f1e48]
+          - text: codex_ds_smoke_20260827
+      - listitem [ref=f1e49]:
+        - link "Dashboard" [ref=f1e50] [cursor=pointer]:
+          - /url: /user/codex_ds_smoke_20260827
+          - generic [ref=f1e51]: 
+      - listitem [ref=f1e53]:
+        - link "Profile settings" [ref=f1e54] [cursor=pointer]:
+          - /url: /user/edit/codex_ds_smoke_20260827
+          - generic [ref=f1e55]: 
+      - listitem [ref=f1e57]:
+        - link "Bugs" [ref=f1e58] [cursor=pointer]:
+          - /url: /bug-tickets
+          - generic [ref=f1e59]: 
+      - listitem [ref=f1e61]:
+        - link "Log out" [ref=f1e62] [cursor=pointer]:
+          - /url: /user/_logout
+          - generic [ref=f1e63]: 
+      - listitem [ref=f1e65]:
+        - link "Blog" [ref=f1e66] [cursor=pointer]:
+          - /url: /blog
+      - listitem [ref=f1e67]:
+        - link "Pages" [ref=f1e68] [cursor=pointer]:
+          - /url: /pages
+  - banner [ref=f1e69]:
+    - generic [ref=f1e70]:
+      - list [ref=f1e73]:
+        - listitem [ref=f1e74]:
+          - link "UNESCO" [ref=f1e75] [cursor=pointer]:
+            - /url: https://www.unesco.org/en/
+        - listitem [ref=f1e76]:
+          - link "Log out" [ref=f1e77] [cursor=pointer]:
+            - /url: /user/_logout
+            - text: 
+        - listitem [ref=f1e79]:
+          - link "IHP IX" [ref=f1e80] [cursor=pointer]:
+            - /url: /ihpix
+        - listitem [ref=f1e81]:
+          - combobox [ref=f1e83] [cursor=pointer]:
+            - option "ENGLISH" [selected]
+            - option "ESPAÑOL"
+            - option "FRANÇAIS"
+            - option "العربية"
+        - text: 
+      - generic [ref=f1e84]:
+        - link [ref=f1e86] [cursor=pointer]:
+          - /url: /
+          - img "IHP Water Information Network System (IHP-WINS)" [ref=f1e87]
+        - navigation [ref=f1e88]:
+          - list [ref=f1e89]:
+            - listitem [ref=f1e90]:
+              - link "Home" [ref=f1e91] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f1e92]:
+              - link "Datasets" [ref=f1e93] [cursor=pointer]:
+                - /url: /dataset/
+            - listitem [ref=f1e94]:
+              - link "Documents" [ref=f1e95] [cursor=pointer]:
+                - /url: /documents
+            - listitem [ref=f1e96]:
+              - link "Organizations" [ref=f1e97] [cursor=pointer]:
+                - /url: /organization/
+            - listitem [ref=f1e98]:
+              - link "Member States" [ref=f1e99] [cursor=pointer]:
+                - /url: /memberstates
+            - listitem [ref=f1e100]:
+              - link "Initiatives" [ref=f1e101] [cursor=pointer]:
+                - /url: /initiatives
+            - listitem [ref=f1e102]:
+              - link "About IHP" [ref=f1e103] [cursor=pointer]:
+                - /url: https://www.unesco.org/en/ihp
+        - generic [ref=f1e105]:
+          - text: ":"
+          - textbox "Search datasets" [ref=f1e106]:
+            - /placeholder: Search
+          - button "Submit" [ref=f1e107] [cursor=pointer]:
+            - generic [ref=f1e108]: 
+        - generic: 
+  - generic [ref=f1e110]:
+    - navigation "Breadcrumb" [ref=f1e111]:
+      - list [ref=f1e112]:
+        - listitem [ref=f1e113]:
+          - link "Home" [ref=f1e114] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f1e115]: 
+        - listitem [ref=f1e116]:
+          - text: /
+          - link "Dashboard" [ref=f1e117] [cursor=pointer]:
+            - /url: /dashboard/
+    - article [ref=f1e119]:
+      - generic [ref=f1e120]:
+        - link " Profile settings" [ref=f1e122] [cursor=pointer]:
+          - /url: /user/edit/codex_ds_smoke_20260827
+          - generic [ref=f1e123]: 
+          - text: Profile settings
+        - list [ref=f1e124]:
+          - listitem [ref=f1e125]:
+            - link " News feed" [ref=f1e126] [cursor=pointer]:
+              - /url: /dashboard/
+              - generic [ref=f1e127]: 
+              - text: News feed
+          - listitem [ref=f1e128]:
+            - link " My Datasets" [ref=f1e129] [cursor=pointer]:
+              - /url: /dashboard/datasets
+              - generic [ref=f1e130]: 
+              - text: My Datasets
+          - listitem [ref=f1e131]:
+            - link " Documents" [ref=f1e132] [cursor=pointer]:
+              - /url: /user/codex_ds_smoke_20260827/documents
+              - generic [ref=f1e133]: 
+              - text: Documents
+          - listitem [ref=f1e134]:
+            - link " My Organizations" [ref=f1e135] [cursor=pointer]:
+              - /url: /dashboard/organizations
+              - generic [ref=f1e136]: 
+              - text: My Organizations
+          - listitem [ref=f1e137]:
+            - link " Data Stories" [ref=f1e138] [cursor=pointer]:
+              - /url: /user/codex_ds_smoke_20260827/data-stories
+              - generic [ref=f1e139]: 
+              - text: Data Stories
+          - listitem [ref=f1e140]:
+            - link " News" [ref=f1e141] [cursor=pointer]:
+              - /url: /user/codex_ds_smoke_20260827/news
+              - generic [ref=f1e142]: 
+              - text: News
+          - listitem [ref=f1e143]:
+            - link " Events" [ref=f1e144] [cursor=pointer]:
+              - /url: /user/codex_ds_smoke_20260827/events
+              - generic [ref=f1e145]: 
+              - text: Events
+      - generic [ref=f1e146]:
+        - generic [ref=f1e147]:
+          - link " Add Dataset" [ref=f1e148] [cursor=pointer]:
+            - /url: /dataset/new
+            - generic [ref=f1e149]: 
+            - text: Add Dataset
+          - link " Add Document" [ref=f1e150] [cursor=pointer]:
+            - /url: /documents/new
+            - generic [ref=f1e151]: 
+            - text: Add Document
+        - paragraph [ref=f1e152]:
+          - text: You haven't created any datasets.
+          - link "Create one now?" [ref=f1e153] [cursor=pointer]:
+            - /url: /dataset/new
+  - contentinfo [ref=f1e154]:
+    - generic [ref=f1e156]:
+      - generic [ref=f1e157]:
+        - link "UNESCO" [ref=f1e158] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=f1e159]:
+          - listitem [ref=f1e160]:
+            - link "Latest News" [ref=f1e161] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/newsroom
+          - listitem [ref=f1e162]:
+            - link "Take Action" [ref=f1e163] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/take-action
+          - listitem [ref=f1e164]:
+            - link "Ideas & Data" [ref=f1e165] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ideas-data
+          - listitem [ref=f1e166]:
+            - link "Our Impact" [ref=f1e167] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/impact
+          - listitem [ref=f1e168]:
+            - link "Our expertise" [ref=f1e169] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/our-expertise
+          - listitem [ref=f1e170]:
+            - link "Core Data Portal" [ref=f1e171] [cursor=pointer]:
+              - /url: https://core.unesco.org
+          - listitem [ref=f1e172]:
+            - link "Subscribe to our Newsletter" [ref=f1e173] [cursor=pointer]:
+              - /url: http://eepurl.com/hA0MhX
+      - generic [ref=f1e174]:
+        - link "Terms of use" [ref=f1e175] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=f1e176]:
+          - listitem [ref=f1e177]:
+            - link "UNESCO Name & Logo" [ref=f1e178] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/logo-patronage
+          - listitem [ref=f1e179]:
+            - link "FAQ" [ref=f1e180] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/faq
+          - listitem [ref=f1e181]:
+            - link "Report fraud, abuse, misconduct" [ref=f1e182] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ios/report-wrongdoing
+          - listitem [ref=f1e183]:
+            - link "Scam alert" [ref=f1e184] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/scamalert
+      - generic [ref=f1e185]:
+        - link "Policies" [ref=f1e186] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=f1e187]:
+          - listitem [ref=f1e188]:
+            - link "Protection of human rights (Procedure 104)" [ref=f1e189] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/legal-affairs/cr-committee/104-procedure
+          - listitem [ref=f1e190]:
+            - link "Privacy Notice" [ref=f1e191] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/privacy-notice
+          - listitem [ref=f1e192]:
+            - link "Access to Information" [ref=f1e193] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/unesco-access-information-policy
+          - listitem [ref=f1e194]:
+            - link "Environmental and Social Policies" [ref=f1e195] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/environmental-commitment-and-policy
+      - generic [ref=f1e196]:
+        - link "Follow us" [ref=f1e197] [cursor=pointer]:
+          - /url: "#"
+        - generic [ref=f1e198]:
+          - link " Facebook" [ref=f1e201] [cursor=pointer]:
+            - /url: https://www.facebook.com/unesco/
+            - generic [ref=f1e202]: 
+            - generic [ref=f1e203]: Facebook
+          - link " Threads" [ref=f1e206] [cursor=pointer]:
+            - /url: https://www.threads.net/@unesco
+            - generic [ref=f1e207]: 
+            - generic [ref=f1e208]: Threads
+          - link " Twitter" [ref=f1e211] [cursor=pointer]:
+            - /url: https://twitter.com/UNESCO?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor
+            - generic [ref=f1e212]: 
+            - generic [ref=f1e213]: Twitter
+          - link " YouTube" [ref=f1e216] [cursor=pointer]:
+            - /url: https://www.youtube.com/UNESCO
+            - generic [ref=f1e217]: 
+            - generic [ref=f1e218]: YouTube
+          - link " TikTok" [ref=f1e221] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@unesco?lang=en
+            - generic [ref=f1e222]: 
+            - generic [ref=f1e223]: TikTok
+          - link " Instagram" [ref=f1e226] [cursor=pointer]:
+            - /url: https://www.instagram.com/unesco/?hl=en
+            - generic [ref=f1e227]: 
+            - generic [ref=f1e228]: Instagram
+          - link " Whatsapp" [ref=f1e231] [cursor=pointer]:
+            - /url: https://whatsapp.com/channel/0029VaHUoHkAO7RCkmguOi1w
+            - generic [ref=f1e232]: 
+            - generic [ref=f1e233]: Whatsapp
+          - link " LinkedIn" [ref=f1e236] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/unesco
+            - generic [ref=f1e237]: 
+            - generic [ref=f1e238]: LinkedIn

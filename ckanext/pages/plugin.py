@@ -1182,6 +1182,41 @@ def get_pending_water_count():
     return get_pending_approval_count()
 
 
+WATER_PUBLISHED_PAGE_TYPES = ('water-news', 'water-events',
+                              'water-publications')
+
+
+def get_published_page_counts():
+    """Return {page_type: count} of publicly visible Water Family pages.
+
+    Public visibility across this extension means approved and not private
+    (see utils.py:604, actions.py:2382). Legacy rows predate the workflow and
+    carry a NULL submission_status; they are treated as approved at read time
+    (utils.py:484, 3126), so they are counted here too.
+
+    One grouped COUNT, no row hydration: this feeds the site-wide indicator
+    strip, which renders on every page.
+    """
+    counts = {page_type: 0 for page_type in WATER_PUBLISHED_PAGE_TYPES}
+    try:
+        import sqlalchemy as sa
+        from ckanext.pages.db import Page
+        from ckan import model
+        rows = model.Session.query(
+            Page.page_type, sa.func.count(Page.id)
+        ).filter(
+            Page.page_type.in_(WATER_PUBLISHED_PAGE_TYPES),
+            Page.private == False,  # noqa: E712
+            sa.or_(Page.submission_status == 'approved',
+                   Page.submission_status == None),  # noqa: E711
+        ).group_by(Page.page_type).all()
+        for page_type, count in rows:
+            counts[page_type] = int(count or 0)
+    except Exception:
+        log.warning('published page counts unavailable', exc_info=True)
+    return counts
+
+
 def user_can_create_dataset(user_id):
     """Check if a user can create datasets in any organization."""
     try:
@@ -1475,6 +1510,7 @@ class PagesPlugin(PagesPluginBase):
             'get_pending_stories_count': get_pending_stories_count,
             'get_pending_oss_count': get_pending_oss_count,
             'get_pending_water_count': get_pending_water_count,
+            'get_published_page_counts': get_published_page_counts,
             'user_can_create_dataset': user_can_create_dataset,
             'clean_categories_string': clean_categories_string,
             'get_categories_list': get_categories_list,

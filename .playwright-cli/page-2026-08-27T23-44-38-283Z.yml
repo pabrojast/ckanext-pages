@@ -1,0 +1,453 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e3] [cursor=pointer]:
+    - /url: "#content"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "UNESCO" [ref=e10] [cursor=pointer]:
+            - /url: https://www.unesco.org/en/
+        - listitem [ref=e11]:
+          - link "Register" [ref=e12] [cursor=pointer]:
+            - /url: /colab
+        - listitem [ref=e13]:
+          - link "Log in" [ref=e14] [cursor=pointer]:
+            - /url: /user/login
+            - text: 
+        - listitem [ref=e16]:
+          - link "IHP IX" [ref=e17] [cursor=pointer]:
+            - /url: /ihpix
+        - listitem [ref=e18]:
+          - combobox [ref=e20] [cursor=pointer]:
+            - option "ENGLISH" [selected]
+            - option "ESPAÑOL"
+            - option "FRANÇAIS"
+            - option "العربية"
+        - text: 
+      - generic [ref=e21]:
+        - link [ref=e23] [cursor=pointer]:
+          - /url: /
+          - img "IHP Water Information Network System (IHP-WINS)" [ref=e24]
+        - navigation [ref=e25]:
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "Home" [ref=e28] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e29]:
+              - link "Datasets" [ref=e30] [cursor=pointer]:
+                - /url: /dataset/
+            - listitem [ref=e31]:
+              - link "Documents" [ref=e32] [cursor=pointer]:
+                - /url: /documents
+            - listitem [ref=e33]:
+              - link "Organizations" [ref=e34] [cursor=pointer]:
+                - /url: /organization/
+            - listitem [ref=e35]:
+              - link "Member States" [ref=e36] [cursor=pointer]:
+                - /url: /memberstates
+            - listitem [ref=e37]:
+              - link "Initiatives" [ref=e38] [cursor=pointer]:
+                - /url: /initiatives
+            - listitem [ref=e39]:
+              - link "About IHP" [ref=e40] [cursor=pointer]:
+                - /url: https://www.unesco.org/en/ihp
+        - generic [ref=e42]:
+          - text: ":"
+          - textbox "Search datasets" [ref=e43]:
+            - /placeholder: Search
+          - button "Submit" [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]: 
+        - generic: 
+  - generic [ref=e47]:
+    - generic [ref=e48]:
+      - navigation "Breadcrumb" [ref=e49]:
+        - list [ref=e50]:
+          - listitem [ref=e51]:
+            - link "Home" [ref=e52] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e53]: 
+          - listitem [ref=e54]:
+            - text: /
+            - link "Data Stories" [ref=e55] [cursor=pointer]:
+              - /url: /data-stories/list
+          - listitem [ref=e56]:
+            - text: /
+            - 'link "Assessing Catastrophic Landslide Risk in Zimbabwe: Building Resilience in the Wake of Cyclone Idai" [ref=e57] [cursor=pointer]':
+              - /url: "#"
+      - generic [ref=e59]:
+        - generic [ref=e60]:
+          - generic [ref=e61]:
+            - generic [ref=e62]: 
+            - text: Published
+          - generic [ref=e63]:
+            - generic [ref=e64]: 
+            - text: Story Map
+        - 'heading "Assessing Catastrophic Landslide Risk in Zimbabwe: Building Resilience in the Wake of Cyclone Idai" [level=1] [ref=e65]'
+        - generic [ref=e66]:
+          - paragraph
+          - paragraph [ref=e67]:
+            - text: The
+            - strong [ref=e68]: 2019 Tropical Cyclone Idai
+            - text: delivered extreme winds and heavy rainfall to Zimbabwe, triggering devastating secondary hazards, most notably extensive landslides and debris-rich flooding in the vulnerable districts of Chimanimani and Chipinge. Although often neglected as a direct consequence of climate change, these landslides caused the loss of hundreds of lives, destroyed critical infrastructure, and impacted
+            - strong [ref=e69]: over 270,000 people
+            - text: .
+          - paragraph [ref=e70]:
+            - text: In response to this catastrophe, the UNESCO Regional Office for Southern Africa (ROSA) collaborated with local and international experts to conduct a comprehensive landslide risk assessment, aimed at developing sustainable risk mitigation and disaster management actions to build community resilience. The study successfully mapped and modeled the spatial distribution of
+            - strong [ref=e71]: 14,900 Idai-related landslides
+            - text: and associated debris-rich floods, categorizing them into landslide source/depletion zones, runout areas, and debris-rich floods. This technical approach utilized remote sensing validated by field missions and models to create high-resolution susceptibility and exposure maps.
+          - paragraph [ref=e72]:
+            - text: The analysis revealed that
+            - strong [ref=e73]: Chimanimani district contains the majority of landslide hotspots
+            - text: . Landslide occurrence is driven by geological factors, including deeply weathered dolerites, mudstones and siltstones, and numerous geological weaknesses such as thrusts and faults, which were exploited by the intense rainfall. Furthermore, human activities, including road cuttings, mining, and the development of settlements on unstable slopes and alluvial plains, significantly increase the overall risk to population and infrastructure in these high-susceptibility zones (e.g., Ngangu and Kopa).
+          - paragraph [ref=e74]:
+            - text: This report provides a vital tool for preventative adaptation policies. Recognizing the increased frequency of hazards under climate variability scenarios, it strongly recommends measures such as
+            - strong [ref=e75]: enhanced land-use planning, slope stabilization, and the capacitation and potential resettlement of communities
+            - text: to reduce risk. The lessons learned from this comprehensive study in Zimbabwe are designed to be applicable to other vulnerable, data-scarce regions across Africa and worldwide.
+          - paragraph
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - img "ckan_admin" [ref=e78]
+            - generic [ref=e79]:
+              - strong [ref=e80]: IHP-WINS
+              - generic [ref=e81]:
+                - generic [ref=e82]: 
+                - text: Intergovernmental Hydrological Programme
+          - generic [ref=e83]:
+            - generic "Published" [ref=e84]:
+              - generic [ref=e85]: 
+              - text: June 4, 2026
+            - generic "Views" [ref=e86]:
+              - generic [ref=e87]: 
+              - text: "254"
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - generic [ref=e90]: 
+              - text: Countries
+            - generic [ref=e91]: Zimbabwe
+        - paragraph [ref=e92]:
+          - generic [ref=e93]: 
+          - text: Scroll to explore the story — the map updates as you read.
+    - generic [ref=e94]:
+      - generic [ref=e95]:
+        - paragraph [ref=e99]: Loading interactive map…
+        - iframe [ref=e100]:
+          
+        - status: Loading scene…
+        - navigation "Story chapters" [ref=e101]:
+          - button "Previous block" [ref=e102] [cursor=pointer]:
+            - generic [ref=e103]: 
+          - button "Go to chapter 1" [ref=e104] [cursor=pointer]
+          - button "Go to chapter 2" [ref=e105] [cursor=pointer]
+          - button "Go to chapter 3" [ref=e106] [cursor=pointer]
+          - button "Next block" [ref=e107] [cursor=pointer]:
+            - generic [ref=e108]: 
+      - generic [ref=e109]:
+        - article [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - generic [ref=e113]: "1"
+              - heading " The 2019 Cyclone Idai" [level=2] [ref=e114]:
+                - generic [ref=e115]: 
+                - text: The 2019 Cyclone Idai
+            - paragraph [ref=e117]: Cyclone Idai ranks among the deadliest 95 storms ever recorded in the southern hemisphere (Devi, 2019). In March 2019, it caused widespread flooding across Mozambique, Malawi, and Zimbabwe, resulting in thousands of fatalities and affecting over three million people – many already in need of humanitarian assistance (Chatiza, 2019). In eastern Zimbabwe, the extreme rainfall (300–450 mm between 15–19 March– nearly half the region’s annual average of ~1000 mm; IMERG-GPM satellite 100 estimates (Huffman et al., 2019)) triggered thousands of highly mobile landslides that severely impacted mountain communities in the Chimanimani and Chipinge districts (e.g., Chatiza, 2019; Chanza et al., 2020).
+            - generic [ref=e119]:
+              - heading "1/1 Cyclone Idai Rainfall - 14 March 2019" [level=3] [ref=e120]:
+                - generic [ref=e121]: 1/1
+                - text: Cyclone Idai Rainfall - 14 March 2019
+              - paragraph [ref=e123]
+            - paragraph [ref=e125]:
+              - link " Open this map in Terria" [ref=e126] [cursor=pointer]:
+                - /url: https://ihp-wins.unesco.org/terria/#start=%7B%22version%22%3A%228.0.0%22%2C%22initSources%22%3A%5B%7B%22stratum%22%3A%22user%22%2C%22models%22%3A%7B%22%2F%22%3A%7B%22type%22%3A%22group%22%7D%2C%22%2F%2FIHP-WINS%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FGlobal+Precipitation+Datasets%22%3A%7B%22dereferenced%22%3A%7B%22isOpen%22%3Atrue%7D%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%22%5D%2C%22type%22%3A%22terria-reference%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%22%3A%7B%22dereferenced%22%3A%7B%22isOpen%22%3Atrue%7D%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%22%5D%2C%22type%22%3A%22terria-reference%22%7D%2C%22387416f0-7761-4d0e-8c70-a37b0f170cae%22%3A%7B%22isOpenInWorkbench%22%3Atrue%2C%22currentTime%22%3A%222019-03-20T00%3A00%3A00.000000000Z%22%2C%22isPaused%22%3Atrue%2C%22styles%22%3A%5B%7B%22id%22%3A%22Shape_Leng%22%2C%22color%22%3A%7B%22nullColor%22%3A%22rgba%28255%2C0%2C0%2C0.19%29%22%7D%2C%22outline%22%3A%7B%22null%22%3A%7B%22color%22%3A%22rgba%28255%2C0%2C0%2C1%29%22%2C%22width%22%3A1%7D%7D%2C%22hidden%22%3Afalse%7D%5D%2C%22type%22%3A%22shp%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FGPM+-+Global+Precipitation+Measurement%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%5D%2C%22type%22%3A%22group%22%7D%2C%22IMERG_Precipitation_Rate%22%3A%7B%22name%22%3A%22IMERG+Precipitation+Rate%22%2C%22description%22%3A%22Integrated+Multi-satellite+Retrievals+for+GPM+daily+precipitation+rate%22%2C%22currentTime%22%3A%222019-03-13T00%3A00%3A00.000000000Z%22%2C%22startTime%22%3A%222000-06-01T00%3A00%3A00.000000000Z%22%2C%22stopTime%22%3A%222026-01-27T00%3A00%3A00.000000000Z%22%2C%22multiplier%22%3A43236.91151340382%2C%22isPaused%22%3Atrue%2C%22url%22%3A%22https%3A%2F%2Fgitc.earthdata.nasa.gov%2Fwms%2Fepsg4326%2Fbest%2F%22%2C%22legends%22%3A%5B%7B%22url%22%3A%22https%3A%2F%2Fgibs.earthdata.nasa.gov%2Flegends%2FGPM_Precipitation_Rate_H.png%22%2C%22backgroundColor%22%3A%22rgba%28255%2C+255%2C+255%2C+0.8%29%22%7D%5D%2C%22layers%22%3A%22IMERG_Precipitation_Rate%22%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FGPM+-+Global+Precipitation+Measurement%22%5D%2C%22type%22%3A%22wms%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FTRMM+-+Tropical+Rainfall+Measuring+Mission%22%3A%7B%22isOpen%22%3Afalse%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FModel-Based+Precipitation+Products%22%3A%7B%22isOpen%22%3Afalse%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FGlobal+Precipitation+Datasets%2FPrecipitation%22%3A%7B%22isOpen%22%3Afalse%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FGlobal+Precipitation+Datasets%22%5D%2C%22type%22%3A%22group%22%7D%7D%2C%22workbench%22%3A%5B%22IMERG_Precipitation_Rate%22%5D%2C%22timeline%22%3A%5B%5D%2C%22initialCamera%22%3A%7B%22west%22%3A13.639078939193883%2C%22south%22%3A-29.95743174204807%2C%22east%22%3A56.1503294346005%2C%22north%22%3A-7.605249304558817%2C%22position%22%3A%7B%22x%22%3A7799082.739687021%2C%22y%22%3A5439643.872895184%2C%22z%22%3A-3441748.954078589%7D%2C%22direction%22%3A%7B%22x%22%3A-0.770119295812167%2C%22y%22%3A-0.537136846561139%2C%22z%22%3A0.34409341505487684%7D%2C%22up%22%3A%7B%22x%22%3A0.28222705527315767%2C%22y%22%3A0.19684554238277724%2C%22z%22%3A0.9389354193531483%7D%7D%2C%22homeCamera%22%3A%7B%22west%22%3A98%2C%22south%22%3A-75%2C%22east%22%3A50%2C%22north%22%3A0%7D%2C%22viewerMode%22%3A%223dSmooth%22%2C%22showSplitter%22%3Afalse%2C%22splitPosition%22%3A0.5%2C%22settings%22%3A%7B%22baseMaximumScreenSpaceError%22%3A3%2C%22useNativeResolution%22%3Afalse%2C%22alwaysShowTimeline%22%3Afalse%2C%22baseMapId%22%3A%22basemap-openstreetmap%22%2C%22terrainSplitDirection%22%3A0%2C%22depthTestAgainstTerrainEnabled%22%3Afalse%7D%2C%22stories%22%3A%5B%7B%22title%22%3A%22Cyclone+Idai+Rainfall+-+14+March+2019%22%2C%22text%22%3A%22%3Cp%3E%3Cimg+src%3D%5C%22https%3A%2F%2Fgibs.earthdata.nasa.gov%2Flegends%2FGPM_Precipitation_Rate_H.png%5C%22+data-mce-src%3D%5C%22https%3A%2F%2Fgibs.earthdata.nasa.gov%2Flegends%2FGPM_Precipitation_Rate_H.png%5C%22+style%3D%5C%22max-height%3A+350px%3B+width%3A+auto%3B%5C%22+data-mce-style%3D%5C%22max-height%3A+350px%3B+width%3A+auto%3B%5C%22%3E%3C%2Fp%3E%22%2C%22id%22%3A%2256157dfd-3313-4452-a20c-55ff93c185c4%22%2C%22shareData%22%3A%7B%22version%22%3A%228.0.0%22%2C%22initSources%22%3A%5B%7B%22stratum%22%3A%22user%22%2C%22models%22%3A%7B%22%2F%22%3A%7B%22type%22%3A%22group%22%7D%2C%22%2F%2FIHP-WINS%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FGlobal+Precipitation+Datasets%22%3A%7B%22dereferenced%22%3A%7B%22isOpen%22%3Atrue%7D%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%22%5D%2C%22type%22%3A%22terria-reference%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%22%3A%7B%22dereferenced%22%3A%7B%22isOpen%22%3Atrue%7D%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%22%5D%2C%22type%22%3A%22terria-reference%22%7D%2C%22387416f0-7761-4d0e-8c70-a37b0f170cae%22%3A%7B%22isOpenInWorkbench%22%3Atrue%2C%22currentTime%22%3A%222019-03-20T00%3A00%3A00.000000000Z%22%2C%22isPaused%22%3Atrue%2C%22styles%22%3A%5B%7B%22id%22%3A%22Shape_Leng%22%2C%22color%22%3A%7B%22nullColor%22%3A%22rgba%28255%2C0%2C0%2C0.19%29%22%7D%2C%22outline%22%3A%7B%22null%22%3A%7B%22color%22%3A%22rgba%28255%2C0%2C0%2C1%29%22%2C%22width%22%3A1%7D%7D%2C%22hidden%22%3Afalse%7D%5D%2C%22type%22%3A%22shp%22%7D%2C%22%2F%2FClimate+Data%2FGlobal+Precipitation+Datasets%2FPrecipitation%22%3A%7B%22isOpen%22%3Afalse%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FGlobal+Precipitation+Datasets%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FGPM+-+Global+Precipitation+Measurement%22%3A%7B%22isOpen%22%3Atrue%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%5D%2C%22type%22%3A%22group%22%7D%2C%22IMERG_Precipitation_Rate%22%3A%7B%22name%22%3A%22IMERG+Precipitation+Rate%22%2C%22description%22%3A%22Integrated+Multi-satellite+Retrievals+for+GPM+daily+precipitation+rate%22%2C%22currentTime%22%3A%222019-03-14T00%3A00%3A00.000000000Z%22%2C%22startTime%22%3A%222000-06-01T00%3A00%3A00.000000000Z%22%2C%22stopTime%22%3A%222026-01-27T00%3A00%3A00.000000000Z%22%2C%22multiplier%22%3A43236.91151340382%2C%22isPaused%22%3Atrue%2C%22url%22%3A%22https%3A%2F%2Fgitc.earthdata.nasa.gov%2Fwms%2Fepsg4326%2Fbest%2F%22%2C%22legends%22%3A%5B%7B%22url%22%3A%22https%3A%2F%2Fgibs.earthdata.nasa.gov%2Flegends%2FGPM_Precipitation_Rate_H.png%22%2C%22backgroundColor%22%3A%22rgba%28255%2C+255%2C+255%2C+0.8%29%22%7D%5D%2C%22layers%22%3A%22IMERG_Precipitation_Rate%22%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FGPM+-+Global+Precipitation+Measurement%22%5D%2C%22type%22%3A%22wms%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FTRMM+-+Tropical+Rainfall+Measuring+Mission%22%3A%7B%22isOpen%22%3Afalse%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%5D%2C%22type%22%3A%22group%22%7D%2C%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%2FModel-Based+Precipitation+Products%22%3A%7B%22isOpen%22%3Afalse%2C%22knownContainerUniqueIds%22%3A%5B%22%2F%2FClimate+Data%2FSatellite+Precipitation%2FNASA+GIBS+-+Precipitation+Satellite%22%5D%2C%22type%22%3A%22group%22%7D%7D%2C%22workbench%22%3A%5B%22IMERG_Precipitation_Rate%22%5D%2C%22timeline%22%3A%5B%5D%2C%22initialCamera%22%3A%7B%22west%22%3A13.534237390773246%2C%22south%22%3A-30.641689052961897%2C%22east%22%3A56.25517098301112%2C%22north%22%3A-6.917273855940747%2C%22position%22%3A%7B%22x%22%3A7799082.739687021%2C%22y%22%3A5439643.872895184%2C%22z%22%3A-3441748.954078589%7D%2C%22direction%22%3A%7B%22x%22%3A-0.7701192958115631%2C%22y%22%3A-0.5371368465619317%2C%22z%22%3A0.3440934150549907%7D%2C%22up%22%3A%7B%22x%22%3A0.28222705527325087%2C%22y%22%3A0.19684554238284233%2C%22z%22%3A0.9389354193531065%7D%7D%2C%22homeCamera%22%3A%7B%22west%22%3A98%2C%22south%22%3A-75%2C%22east%22%3A50%2C%22north%22%3A0%7D%2C%22viewerMode%22%3A%223dSmooth%22%2C%22showSplitter%22%3Afalse%2C%22splitPosition%22%3A0.4999%2C%22settings%22%3A%7B%22baseMaximumScreenSpaceError%22%3A3%2C%22useNativeResolution%22%3Afalse%2C%22alwaysShowTimeline%22%3Afalse%2C%22baseMapId%22%3A%22basemap-openstreetmap%22%2C%22terrainSplitDirection%22%3A0%2C%22depthTestAgainstTerrainEnabled%22%3Afalse%7D%7D%5D%7D%2C%22position%22%3A%7B%22x%22%3A30.4408%2C%22y%22%3A68.7354%2C%22xRatio%22%3A0.022002877277508156%2C%22yRatio%22%3A0.5821694009620699%7D%2C%22dimensions%22%3A%7B%22width%22%3A399.9861145019531%2C%22height%22%3A362.9444580078125%7D%7D%5D%7D%5D%7D
+                - generic [ref=e127]: 
+                - text: Open this map in Terria
+        - article [ref=e128]:
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - generic [ref=e131]: "2"
+              - heading " Landslide impacts of Cyclone Idai" [level=2] [ref=e132]:
+                - generic [ref=e133]: 
+                - text: Landslide impacts of Cyclone Idai
+            - generic [ref=e134]:
+              - paragraph
+              - paragraph [ref=e136]:
+                - text: Cyclone Idai triggered
+                - strong [ref=e137]: over 10 000 landslides
+                - text: ", with most landslides occurring in eastern Chimanimani, which is more mountainous and received higher rainfall totals during the Cyclone overpass (330 mm on average)."
+              - paragraph [ref=e138]
+              - paragraph
+              - paragraph [ref=e140]:
+                - text: UNESCO, in collaboration with the University of Leuven (KULeuven), the Flemish Research Institute for Technology (VITO) and the GeoRisk research department of the Africa Museum initiated a rigorous
+                - strong [ref=e141]: landslide assessment
+                - text: ", documenting landslides through remote sensing and validating by field work."
+              - paragraph [ref=e142]
+              - paragraph [ref=e143]:
+                - text: The maps below present the
+                - strong [ref=e144]: extent and
+                - strong [ref=e145]: impact of the landslides
+                - text: ", both in source areas of sediments, as well as extended landslide runouts that cut across houses and villages and the subsequent debris flow and floods that affects a large area of the two Districts,"
+                - strong [ref=e146]: affecting thousands of people downstream
+                - text: .
+              - paragraph [ref=e147]
+              - paragraph [ref=e148]: The infographic presents the different elements of landslide impact observed during the Cyclone Idai overpass.
+              - paragraph [ref=e149]
+              - paragraph [ref=e151]:
+                - strong [ref=e152]: Figure 1.
+                - text: Illustration and definition of the landslide classification, showing
+                - strong [ref=e153]: landslide source
+                - text: ","
+                - strong [ref=e154]: landslide runout
+                - text: ", and associated"
+                - strong [ref=e155]: debris-rich flood zones
+                - text: as mapped in this case study. Adapted from Highland and Bobrowsky (2008).
+            - generic [ref=e156]:
+              - heading "Landslide Assessment in Chimanimani District" [level=3] [ref=e157]
+              - iframe [ref=e158]:
+                - generic [ref=f2e1]:
+                  - generic "YouTube Video Player" [ref=f2e3]
+                  - generic [ref=f2e5]:
+                    - generic:
+                      - generic:
+                        - generic [ref=f2e6] [cursor=pointer]
+                        - button "Play video" [ref=f2e10] [cursor=pointer]
+                        - button "Climate change • Climate change refers to long-term shifts in temperatures and weather patterns. Human activities have been the main driver of climate change, primarily due to the burning of fossil fuels like coal, oil and gas." [ref=f2e14] [cursor=pointer]
+                        - button "Hide player controls" [ref=f2e18] [cursor=pointer]
+                        - generic [ref=f2e20]:
+                          - generic [ref=f2e25]:
+                            - generic [ref=f2e26]:
+                              - link "Landslide Assessment Be Resilient" [ref=f2e27] [cursor=pointer]:
+                                - /url: https://www.youtube.com/watch?v=AesqQqAzaPM
+                              - link "Open Learning" [ref=f2e28] [cursor=pointer]:
+                                - /url: /channel/UCuXE-IqZE90bZfxMsF2OLrg
+                            - generic [ref=f2e30]:
+                              - button [ref=f2e31] [cursor=pointer]
+                              - generic [ref=f2e33]:
+                                - generic: Open Learning
+                                - generic: 1.47K subscribers
+                          - generic [ref=f2e34]:
+                            - button "Share" [ref=f2e37] [cursor=pointer]
+                            - link "Watch on YouTube" [ref=f2e48] [cursor=pointer]:
+                              - /url: https://www.youtube.com/watch?v=AesqQqAzaPM
+                              - generic [ref=f2e49]: Watch on
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - heading "1/2 Landslides affecting Chimanimani and Chipinge" [level=3] [ref=e161]:
+                  - generic [ref=e162]: 1/2
+                  - text: Landslides affecting Chimanimani and Chipinge
+                - paragraph [ref=e164]: Overview of the landslides that affected the Chimanimani and Chipinge Districts, showing the landslide origin (blue dot) and the debris-floods across the river basin (red lines)
+              - generic [ref=e165]:
+                - heading "2/2 Landslides affecting Chimanimani District" [level=3] [ref=e166]:
+                  - generic [ref=e167]: 2/2
+                  - text: Landslides affecting Chimanimani District
+                - paragraph [ref=e169]: Detailed zoom on Ngangu Township, Chimanimani, showing the classification of landslide source areas (red), runout (yellow), and debris-rich floods (orange) originating from the landslides.
+            - paragraph [ref=e170]:
+              - link " Open this map in Terria" [ref=e171] [cursor=pointer]:
+                - /url: https://ihp-wins.unesco.org/terria/#share=g-4e61021ba5c9224629670bd53d966a39
+                - generic [ref=e172]: 
+                - text: Open this map in Terria
+        - article [ref=e173]:
+          - generic [ref=e174]:
+            - generic [ref=e175]:
+              - generic [ref=e176]: "3"
+              - heading " Landslide and Flood Risk Assessment of Schools" [level=2] [ref=e177]:
+                - generic [ref=e178]: 
+                - text: Landslide and Flood Risk Assessment of Schools
+            - paragraph [ref=e180]:
+              - text: The second part of the case study focused on assessing the vulnerability and risk of the Districts to current and future landslides. Therefore, a
+              - strong [ref=e181]: landslide susceptibility map
+              - text: was developed to identify the areas potentially at risk of landslides, their runouts or the subsequent debris flows and floods using modelling techniques. This allowed to identify potential
+              - strong [ref=e182]: areas at risk
+              - text: ", and particularly"
+              - strong [ref=e183]: schools
+              - text: ","
+              - strong [ref=e184]: health facilities
+              - text: and
+              - strong [ref=e185]: roads
+              - text: . In the following maps, an overview of the landslide risks can be identified.
+            - group "Map views" [ref=e186]:
+              - button "Landslide Susceptibility Map" [ref=e187] [cursor=pointer]
+              - button "Schools at risk from Landslides" [ref=e188] [cursor=pointer]
+              - button "Health Facilities at risk from Landslides" [ref=e189] [cursor=pointer]
+              - button "Secondary Schools at risk from landslides" [ref=e190] [cursor=pointer]
+            - generic [ref=e191]:
+              - generic [ref=e192]:
+                - heading "1/4 Susceptibility Map" [level=3] [ref=e193]:
+                  - generic [ref=e194]: 1/4
+                  - text: Susceptibility Map
+                - generic [ref=e195]:
+                  - paragraph [ref=e196]: This map present the overall susceptibility of the Districts to landslides, its runouts and subsequent debris-rich floods. It shows a higher susceptibility in the eastern, northern parts of teh two Districts.
+                  - paragraph [ref=e197]
+              - generic [ref=e198]:
+                - heading "2/4 Susceptibility to landslide source areas" [level=3] [ref=e199]:
+                  - generic [ref=e200]: 2/4
+                  - text: Susceptibility to landslide source areas
+                - generic [ref=e201]:
+                  - paragraph [ref=e202]: This map shows the susceptibility to landslide source areas across the two districts.
+                  - paragraph [ref=e203]
+              - generic [ref=e204]:
+                - heading "3/4 Susceptibility to landslide runouts" [level=3] [ref=e205]:
+                  - generic [ref=e206]: 3/4
+                  - text: Susceptibility to landslide runouts
+                - paragraph [ref=e208]: This map shows the susceptibility of the area to landslide runouts.
+              - generic [ref=e209]:
+                - heading "4/4 Susceptibility to debris-flows and floods" [level=3] [ref=e210]:
+                  - generic [ref=e211]: 4/4
+                  - text: Susceptibility to debris-flows and floods
+                - paragraph [ref=e213]: This map shows the susceptibility to the subsequent debris-flows and floods originating from landslide source areas.
+            - paragraph [ref=e214]:
+              - link " Open this map in Terria" [ref=e215] [cursor=pointer]:
+                - /url: https://ihp-wins.unesco.org/terria/#share=g-74743b0a90130139249536e24d056667
+                - generic [ref=e216]: 
+                - text: Open this map in Terria
+    - generic [ref=e217]:
+      - generic [ref=e218]:
+        - heading " Research Publication" [level=2] [ref=e220]:
+          - generic [ref=e221]: 
+          - text: Research Publication
+        - generic [ref=e223]:
+          - paragraph [ref=e225]: Dille, A., Dewitte, O., Broeckx, J., Verbist, K., Sindiso Dube, A., Poesen, J., Vanmaercke, M. (2026). Capturing the complete landslide–debris-rich flood continuum for accurate inventory, susceptibility and exposure mapping – lessons from Cyclone Idai. https://doi.org/10.5194/nhess-26-2561-2026
+          - generic [ref=e226]:
+            - strong [ref=e227]: "DOI:"
+            - code [ref=e228]: 10.5194/nhess-26-2561-2026
+            - link " View Paper" [ref=e229] [cursor=pointer]:
+              - /url: https://doi.org/10.5194/nhess-26-2561-2026
+              - generic [ref=e230]: 
+              - text: View Paper
+      - generic [ref=e231]:
+        - heading " Datasets" [level=2] [ref=e233]:
+          - generic [ref=e234]: 
+          - text: Datasets
+        - generic [ref=e238]:
+          - generic [ref=e239]:
+            - generic [ref=e240]: Primary
+            - heading [level=4] [ref=e241]:
+              - link "Landslide Susceptibility and Exposure Assesment — Chimanimani and Chipinge districts, Zimbabwe" [ref=e242] [cursor=pointer]:
+                - /url: /dataset/landslide-susceptibility-exposure-assesment-chimanimani-chipinge
+            - paragraph [ref=e243]: This dataset contains layers for manuscript 'Capturing the complete landslide–debris-rich flood continuum for accurate inventory, susceptibility...
+          - link " View" [ref=e245] [cursor=pointer]:
+            - /url: /dataset/landslide-susceptibility-exposure-assesment-chimanimani-chipinge
+            - generic [ref=e246]: 
+            - text: View
+      - generic [ref=e247]:
+        - heading " Image Gallery" [level=2] [ref=e249]:
+          - generic [ref=e250]: 
+          - text: Image Gallery
+        - generic [ref=e252]:
+          - generic [ref=e253] [cursor=pointer]:
+            - img "Cyclone_Idai-NASA_2019" [ref=e254]
+            - generic [ref=e255]:
+              - paragraph [ref=e256]: Cyclone_Idai-NASA_2019
+              - paragraph [ref=e257]: Satellite Image from Cyclone Idai
+              - paragraph [ref=e258]:
+                - generic [ref=e259]: 
+                - text: NASA, 2019
+          - generic [ref=e260] [cursor=pointer]:
+            - img "Landslides in Chimanimani" [ref=e261]
+            - generic [ref=e262]:
+              - paragraph [ref=e263]: Landslides in Chimanimani
+              - paragraph [ref=e264]: Landslides cutting through the Ngangu Township, Chimanimani
+              - paragraph [ref=e265]:
+                - generic [ref=e266]: 
+                - text: Koen Verbist, UNESCO
+          - generic [ref=e267] [cursor=pointer]:
+            - img "Landslides in Chimanimani_panorama" [ref=e268]
+            - generic [ref=e269]:
+              - paragraph [ref=e270]: Landslides in Chimanimani_panorama
+              - paragraph [ref=e271]: View on the Ngangu Township, Chimanimani
+              - paragraph [ref=e272]:
+                - generic [ref=e273]: 
+                - text: M. Vanmaercke).
+  - contentinfo [ref=e274]:
+    - generic [ref=e276]:
+      - generic [ref=e277]:
+        - link "UNESCO" [ref=e278] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e279]:
+          - listitem [ref=e280]:
+            - link "Latest News" [ref=e281] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/newsroom
+          - listitem [ref=e282]:
+            - link "Take Action" [ref=e283] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/take-action
+          - listitem [ref=e284]:
+            - link "Ideas & Data" [ref=e285] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ideas-data
+          - listitem [ref=e286]:
+            - link "Our Impact" [ref=e287] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/impact
+          - listitem [ref=e288]:
+            - link "Our expertise" [ref=e289] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/our-expertise
+          - listitem [ref=e290]:
+            - link "Core Data Portal" [ref=e291] [cursor=pointer]:
+              - /url: https://core.unesco.org
+          - listitem [ref=e292]:
+            - link "Subscribe to our Newsletter" [ref=e293] [cursor=pointer]:
+              - /url: http://eepurl.com/hA0MhX
+      - generic [ref=e294]:
+        - link "Terms of use" [ref=e295] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e296]:
+          - listitem [ref=e297]:
+            - link "UNESCO Name & Logo" [ref=e298] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/logo-patronage
+          - listitem [ref=e299]:
+            - link "FAQ" [ref=e300] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/faq
+          - listitem [ref=e301]:
+            - link "Report fraud, abuse, misconduct" [ref=e302] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/ios/report-wrongdoing
+          - listitem [ref=e303]:
+            - link "Scam alert" [ref=e304] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/scamalert
+      - generic [ref=e305]:
+        - link "Policies" [ref=e306] [cursor=pointer]:
+          - /url: "#"
+        - list [ref=e307]:
+          - listitem [ref=e308]:
+            - link "Protection of human rights (Procedure 104)" [ref=e309] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/legal-affairs/cr-committee/104-procedure
+          - listitem [ref=e310]:
+            - link "Privacy Notice" [ref=e311] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/privacy-notice
+          - listitem [ref=e312]:
+            - link "Access to Information" [ref=e313] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/unesco-access-information-policy
+          - listitem [ref=e314]:
+            - link "Environmental and Social Policies" [ref=e315] [cursor=pointer]:
+              - /url: https://www.unesco.org/en/environmental-commitment-and-policy
+      - generic [ref=e316]:
+        - link "Follow us" [ref=e317] [cursor=pointer]:
+          - /url: "#"
+        - generic [ref=e318]:
+          - link " Facebook" [ref=e321] [cursor=pointer]:
+            - /url: https://www.facebook.com/unesco/
+            - generic [ref=e322]: 
+            - generic [ref=e323]: Facebook
+          - link " Threads" [ref=e326] [cursor=pointer]:
+            - /url: https://www.threads.net/@unesco
+            - generic [ref=e327]: 
+            - generic [ref=e328]: Threads
+          - link " Twitter" [ref=e331] [cursor=pointer]:
+            - /url: https://twitter.com/UNESCO?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor
+            - generic [ref=e332]: 
+            - generic [ref=e333]: Twitter
+          - link " YouTube" [ref=e336] [cursor=pointer]:
+            - /url: https://www.youtube.com/UNESCO
+            - generic [ref=e337]: 
+            - generic [ref=e338]: YouTube
+          - link " TikTok" [ref=e341] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@unesco?lang=en
+            - generic [ref=e342]: 
+            - generic [ref=e343]: TikTok
+          - link " Instagram" [ref=e346] [cursor=pointer]:
+            - /url: https://www.instagram.com/unesco/?hl=en
+            - generic [ref=e347]: 
+            - generic [ref=e348]: Instagram
+          - link " Whatsapp" [ref=e351] [cursor=pointer]:
+            - /url: https://whatsapp.com/channel/0029VaHUoHkAO7RCkmguOi1w
+            - generic [ref=e352]: 
+            - generic [ref=e353]: Whatsapp
+          - link " LinkedIn" [ref=e356] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/unesco
+            - generic [ref=e357]: 
+            - generic [ref=e358]: LinkedIn

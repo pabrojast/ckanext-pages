@@ -1,0 +1,1834 @@
+[    4525ms] [WARNING] Allow attribute will take precedence over 'allowfullscreen'. @ https://data.dev-wins.com/data-stories/assessing-catastrophic-landslide-risk-in-zimbabwe-building-resilience-in-the-wake-of-cyclone-idai?layout=storymap:348
+[    4827ms] [LOG] Inicializando navegación mobile: {toggleButtons: 1, navContainer: true, navContainerSelector: masthead-nav} @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:9
+[    4830ms] [LOG] Bootstrap 5 compatibility fix applied @ https://data.dev-wins.com/webassets/theme/theme-ejemplo-runtime.js?627e3284:17
+[    6076ms] [WARNING] No available adapters. @ https://www.youtube.com/embed/AesqQqAzaPM:0
+[   15403ms] [LOG] i18next::backendConnector: loaded namespace translation for language en {general: Object, browsers: Object, trainer: Object, tour: Object, measure: Object} @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   15426ms] [LOG] i18next::backendConnector: loaded namespace languageOverrides for language en {general: Object, browsers: Object, trainer: Object, tour: Object, measure: Object} @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   15431ms] [LOG] i18next: languageChanged en-US @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   15431ms] [LOG] i18next: initialized {debug: true, initImmediate: true, ns: Array(2), defaultNS: languageOverrides, fallbackLng: Array(1)} @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   15432ms] [LOG] Google Analytics tracking is disabled because terria.configParameters.googleAnalyticsKey is not specified @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   15580ms] [WARNING] `proxyableDomainsUrl` is no longer supported in v8 @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   16489ms] [ERROR] Multiple errors occurred: Error updating model `//Climate Data/Satellite Precipitation` from JSON
+  Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation" from JSON
+  Error
+      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+      at Array.forEach (<anonymous>)
+      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+      at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+      at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+    Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite`
+    Error
+        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+        at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+        at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+        at Array.map (<anonymous>)
+        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+        at Array.forEach (<anonymous>)
+        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+      Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite` from JSON
+      Error
+          at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+          at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+          at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+          at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+          at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+          at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+          at Array.map (<anonymous>)
+          at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+          at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+          at Array.forEach (<anonymous>)
+        Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite" from JSON
+        Error
+            at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+            at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+            at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+            at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+            at Array.forEach (<anonymous>)
+            at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+            at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+            at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+            at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/AIRS - Atmospheric Infrared Sounder`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/AIRS - Atmospheric Infrared Sounder` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/AIRS - Atmospheric Infrared Sounder" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `AIRS_Precipitation_Day`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AIRS_Precipitation_Day` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AIRS_Precipitation_Night`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AIRS_Precipitation_Night` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/AMSR - Advanced Microwave Scanning Radiometer`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/AMSR - Advanced Microwave Scanning Radiometer` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/AMSR - Advanced Microwave Scanning Radiometer" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `AMSRUE_Surface_Precipitation_Day`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRUE_Surface_Precipitation_Day` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRUE_Surface_Precipitation_Night`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRUE_Surface_Precipitation_Night` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRE_Surface_Precipitation_Rate_Day`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRE_Surface_Precipitation_Rate_Day` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRE_Surface_Precipitation_Rate_Night`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRE_Surface_Precipitation_Rate_Night` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `RSS_Total_Precipitable_Water_Climatology_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `RSS_Total_Precipitable_Water_Climatology_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/GCOM-W1 AMSR2`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/GCOM-W1 AMSR2` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/GCOM-W1 AMSR2" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `AMSRU2_Surface_Precipitation_Day`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_Surface_Precipitation_Day` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRU2_Surface_Precipitation_Night`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_Surface_Precipitation_Night` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRU2_Total_Precipitable_Water_Day`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_Total_Precipitable_Water_Day` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRU2_Total_Precipitable_Water_Night`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_Total_Precipitable_Water_Night` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRU2_L3_Total_Precipitable_Water_Daily`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_L3_Total_Precipitable_Water_Daily` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRU2_L3_Total_Precipitable_Water_Weekly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_L3_Total_Precipitable_Water_Weekly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `AMSRU2_L3_Total_Precipitable_Water_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `AMSRU2_L3_Total_Precipitable_Water_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/SSMI/SSMIS - Special Sensor Microwave Imager`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/SSMI/SSMIS - Special Sensor Microwave Imager` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/SSMI/SSMIS - Special Sensor Microwave Imager" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `SSMI_DMSP_F8_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F8_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F8_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F8_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F10_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F10_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F10_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F10_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F11_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F11_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F11_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F11_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F13_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F13_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F13_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F13_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F14_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F14_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F14_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F14_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F15_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F15_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F15_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F15_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F16_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F16_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F16_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F16_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F17_Rain_Rate_Over_Oceans_Ascending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F17_Rain_Rate_Over_Oceans_Ascending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `SSMI_DMSP_F17_Rain_Rate_Over_Oceans_Descending`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `SSMI_DMSP_F17_Rain_Rate_Over_Oceans_Descending` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/GPM - Global Precipitation Measurement`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/GPM - Global Precipitation Measurement` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/GPM - Global Precipitation Measurement" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `GMI_Precipitation_Rate_Asc`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `GMI_Precipitation_Rate_Asc` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `GMI_Precipitation_Rate_Dsc`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `GMI_Precipitation_Rate_Dsc` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `IMERG_Precipitation_Rate_30min`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `IMERG_Precipitation_Rate_30min` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `IMERG_Precipitation_Rate`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `IMERG_Precipitation_Rate` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/TRMM - Tropical Rainfall Measuring Mission`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/TRMM - Tropical Rainfall Measuring Mission` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/TRMM - Tropical Rainfall Measuring Mission" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `TRMM_Precipitation_Rate_Asc`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `TRMM_Precipitation_Rate_Asc` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `TRMM_Precipitation_Rate_Dsc`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `TRMM_Precipitation_Rate_Dsc` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+          Error upserting model JSON: `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/Model-Based Precipitation Products`
+          Error
+              at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+              at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+              at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+              at Array.map (<anonymous>)
+              at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+              at Array.forEach (<anonymous>)
+              at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+            Error updating model `//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/Model-Based Precipitation Products` from JSON
+            Error
+                at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                at Array.map (<anonymous>)
+                at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                at Array.forEach (<anonymous>)
+              Error updating modelReferenceArrayTrait model "//Climate Data/Satellite Precipitation/NASA GIBS - Precipitation Satellite/Model-Based Precipitation Products" from JSON
+              Error
+                  at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                  at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254709)
+                  at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567404)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                  at Array.forEach (<anonymous>)
+                  at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                  at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                  at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                  at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                Error upserting model JSON: `GLDAS_Surface_Total_Precipitation_Rate_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `GLDAS_Surface_Total_Precipitation_Rate_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `MERRA2_Precipitation_Bias_Corrected_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `MERRA2_Precipitation_Bias_Corrected_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `MERRA2_Snowfall_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `MERRA2_Snowfall_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `MERRA2_Total_Precipitable_Water_Vapor_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `MERRA2_Total_Precipitable_Water_Vapor_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+
+                Error upserting model JSON: `NLDAS_Surface_Total_Precipitation_Primary_Monthly`
+                Error
+                    at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                    at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                    at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290569)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                    at Array.map (<anonymous>)
+                    at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                    at Array.forEach (<anonymous>)
+                    at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                  Error updating model `NLDAS_Surface_Total_Precipitation_Primary_Monthly` from JSON
+                  Error
+                      at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:251752)
+                      at e.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:254535)
+                      at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4288690)
+                      at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+                      at Array.map (<anonymous>)
+                      at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6566751)
+                      at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                      at Array.forEach (<anonymous>)
+                    Property info is expected to be an array but instead it is of type object.
+                    Error
+                        at new e (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:249462)
+                        at t.value (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6577506)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287637
+                        at Array.forEach (<anonymous>)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287472
+                        at We (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:13691)
+                        at qt (https://ihp-wins.unesco.org/terria/build/813.TerriaMap.js:1:26742)
+                        at l (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4287414)
+                        at w (https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:4290440)
+                        at https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:2:6567040
+ @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   18290ms] [LOG] Creating new ImageryProvider for time 2019-03-14 @ https://ihp-wins.unesco.org/terria/build/724.TerriaMap.js:1
+[   38936ms] undefined
+[   39198ms] [WARNING] [.WebGL-0x3ebc000b2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ https://ihp-wins.unesco.org/terria/#hideWorkbench=1&hideExplorerPanel=1&hideStory=1&hideWelcomeMessage=1:0
+[   39272ms] [WARNING] [.WebGL-0x3ebc000b2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ https://ihp-wins.unesco.org/terria/#hideWorkbench=1&hideExplorerPanel=1&hideStory=1&hideWelcomeMessage=1:0
+[   39300ms] [WARNING] [.WebGL-0x3ebc000b2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ https://ihp-wins.unesco.org/terria/#hideWorkbench=1&hideExplorerPanel=1&hideStory=1&hideWelcomeMessage=1:0
+[   39325ms] [WARNING] [.WebGL-0x3ebc000b2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat) @ https://ihp-wins.unesco.org/terria/#hideWorkbench=1&hideExplorerPanel=1&hideStory=1&hideWelcomeMessage=1:0
