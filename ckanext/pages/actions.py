@@ -423,6 +423,18 @@ def _pages_update(context, data_dict):
     target_page_type = data.get('page_type') or data_dict.get('page_type')
     if not target_page_type and out:
         target_page_type = out.page_type
+    if target_page_type == 'rapid-response' or out.page_type == 'rapid-response':
+        from ckanext.pages.rapid_response_media import walk_images
+        inline_fields = {}
+        for field, value in data.items():
+            def reject_inline(uri):
+                inline_fields[field] = [tk._(
+                    'Please wait for image uploads to finish before saving. '
+                    'Inline base64 images are not supported in Rapid Response.')]
+                return uri
+            walk_images(value, reject_inline)
+        if inline_fields:
+            raise tk.ValidationError(inline_fields)
 
     if submission_action and target_page_type in water_family_types:
         # Protect publish from privilege escalation via crafted requests.

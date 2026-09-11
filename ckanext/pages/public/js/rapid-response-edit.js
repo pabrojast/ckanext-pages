@@ -988,7 +988,9 @@
       if (textarea.value) {
         try { quill.clipboard.dangerouslyPasteHTML(textarea.value); } catch(e) { quill.setText(textarea.value); }
       }
-      quill.on('text-change', function(){ textarea.value = quill.root.innerHTML; $(textarea).trigger('change'); });
+      function syncEditor() { textarea.value = quill.root.innerHTML; $(textarea).trigger('change'); }
+      quill.on('text-change', syncEditor);
+      window.RapidResponseImages.attach(quill, syncEditor);
       $(editorEl).attr('role','textbox').attr('aria-label', cfg.placeholder);
       quillEditors[editorId] = quill;
     });
@@ -1038,6 +1040,7 @@
         $(textarea).trigger('change');
       }
       mapQuill.on('text-change', syncMapStories);
+      window.RapidResponseImages.attach(mapQuill, syncMapStories);
 
       // Toggle source/visual
       $('#map-stories-toggle-source').on('click', function(){
@@ -1634,7 +1637,7 @@
       }
       
       // Update block data on change based on block type
-      quill.on('text-change', function() {
+      function syncBlock() {
         block.content = quill.root.innerHTML;
         if (blockType === 'impact') {
           updateImpactContentField();
@@ -1647,7 +1650,9 @@
         } else if (blockType === 'resilience') {
           updateResilienceContentField();
         }
-      });
+      }
+      quill.on('text-change', syncBlock);
+      window.RapidResponseImages.attach(quill, syncBlock);
 
       // Store in appropriate editors object
       if (blockType === 'impact') {
@@ -2003,6 +2008,8 @@
 
   // Update form submission to handle all block systems
   $('#rapid-response-form').on('submit', function(e) {
+    if (this.dataset.rrImagesReady === 'true') return true;
+    if (this.dataset.rrImagesSaving === 'true') { e.preventDefault(); return false; }
     // Update block content fields first
     updateImpactContentField();
     updateResponseContentField();
@@ -2050,8 +2057,31 @@
     updateTimelineData();
     updateUploadedImagesData();
     updateCountriesData();
-    
-    return true;
+
+    e.preventDefault();
+    const form = this;
+    const submitter = e.originalEvent && e.originalEvent.submitter;
+    const buttons = Array.from(form.querySelectorAll('button[type="submit"], input[type="submit"]'));
+    const disabled = buttons.map(button => button.disabled);
+    form.dataset.rrImagesSaving = 'true';
+    buttons.forEach(button => { button.disabled = true; });
+    window.RapidResponseImages.prepare(form).then(function() {
+      // With no uploads, microtasks finish inside the original submit event.
+      // Let that event finish before asking the browser to submit again.
+      return new Promise(function(resolve) { setTimeout(resolve, 0); });
+    }).then(function() {
+      buttons.forEach((button, index) => { button.disabled = disabled[index]; });
+      form.dataset.rrImagesSaving = 'false';
+      form.dataset.rrImagesReady = 'true';
+      try { form.requestSubmit(submitter || undefined); }
+      finally { form.dataset.rrImagesReady = 'false'; }
+    }).catch(function(error) {
+      window.RapidResponseImages.message('Images could not be uploaded. Your edits are preserved. ' + (error.message || error), true);
+    }).finally(function() {
+      form.dataset.rrImagesSaving = 'false';
+      buttons.forEach((button, index) => { button.disabled = disabled[index]; });
+    });
+    return false;
   });
   
   // Initialize generated HTML code toggle functionality for all block systems

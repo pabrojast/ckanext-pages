@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-09-04
+Actualizado: 2026-09-11
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -219,3 +219,7 @@ Ubicación:
 El botón Organize slides convierte una fuente Terria en slides independientes, ordenables junto a texto, media e imágenes. Hasta usarlo, las fuentes conservan su expansión anterior. Update slides from Terria actualiza explícitamente las copias: conserva las inserciones CKAN y marca las slides sin correspondencia, sin borrarlas. Una imagen nueva puede ocupar el ancho completo (default) o el panel del mapa; las antiguas mantienen el panel.
 
 El buscador geográfico usa `GET /data-stories/api/location-search`; requiere Redis y el proveedor Nominatim configurado en Terria. La configuración del ConfigMap de Kubernetes debe actualizarse además de la del repositorio TerriaMap.
+
+## Mantenimiento de imágenes de Rapid Response
+
+Las imágenes incrustadas en base64 pueden aumentar tanto el HTML público como los campos JSON y el historial. El comando `pages optimize-rapid-response-images` permite auditar y convertir contenido, extras y revisiones a referencias del uploader configurado, conservando textos y metadatos editoriales. Su simulación no sube archivos ni actualiza registros. Ver [[Deployment]] y [[Testing]].

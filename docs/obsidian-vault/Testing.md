@@ -1,7 +1,7 @@
 # Testing
 
 Tags: #testing #operacion
-Actualizado: 2026-03-26
+Actualizado: 2026-09-11
 
 Relacionadas: [[Setup Local]], [[Comandos Utiles]], [[Troubleshooting]]
 
@@ -116,3 +116,22 @@ La cobertura más madura parece estar en `pages` y `data_stories`. `featured_vie
 Pruebas unitarias: `test_storymap_helpers.py`, `test_sequence.py`, `test_geocoding.py`, `test_form_metadata.py` bajo `ckanext/pages/data_stories/tests`. Pueden ejecutarse con pytest `--noconftest` en un entorno CKAN sin base de datos (evita cargar fixtures generales de integración).
 
 `node --test ckanext/pages/data_stories/tests/sequence.test.cjs` verifica reconciliación, orden e identidades. `node ckanext/pages/data_stories/tests/storymap_browser.cjs /ruta/playwright_cli.sh` comprueba en navegador recepción lenta, fallo, reintento de la misma escena y fin de transición. La compilación de Terria y sus pruebas de cola se ejecutan en su propio repositorio.
+
+## Imágenes y rendimiento de Rapid Response
+
+Pruebas focalizadas en un entorno con las dependencias de CKAN, sin servicios de integración:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q ckanext/pages/tests/test_rapid_response_media.py ckanext/pages/tests/test_rapid_response_image_migration.py ckanext/pages/tests/test_rapid_response_edit.py
+node ckanext/pages/tests/rapid_response_images_browser.cjs /ruta/al/playwright_cli.sh
+node --check ckanext/pages/public/js/rapid-response-images.js
+node --check ckanext/pages/public/js/rapid-response-edit.js
+```
+
+La suite cubre reducción de fotografías, transparencia, animación, conservación del HTML/JSON, simulación sin escrituras, deduplicación, repetición segura, fallos de almacenamiento, ediciones simultáneas y restauración con comprobación de hashes. Las pruebas de migración usan SQLite y un uploader simulado.
+
+Verificación manual en dev: insertar/pegar imágenes, guardar, recargar, comprobar los metadatos de bloques y restaurar una revisión. Comprobar también guardar sin imágenes nuevas: debe producir un POST y redirigir al evento. El reenvío del formulario espera a que termine el evento de envío original; si solo espera microtareas, el navegador puede suprimir el segundo envío cuando no hay subidas pendientes. Comprobar errores de subida y reintento, escritorio/móvil y medios diferidos con red lenta. Medir por separado HTML/TTFB/DOMContentLoaded y la carga de Terria. Ver [[Deployment]].
+
+El test de navegador usa Quill real y un uploader simulado. Cubre pegado, drag/drop, transparencia, guardado durante una subida, deduplicación, metadatos de bloques, error/reintento inmediato y modo fuente. Sus capturas y logs se guardan en `output/playwright/`.
+
+En Rapid Response, comprobar que los iframes alejados aún no tienen navegación iniciada y que esta comienza al acercarse al mapa. No basta con inspeccionar `loading="lazy"`: mover los iframes a un wrapper después del render puede iniciar sus navegaciones. El diseño responsive aplica CSS directamente al iframe y conserva los wrappers ya guardados.

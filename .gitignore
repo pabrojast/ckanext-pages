@@ -13,3 +13,7 @@ distribute-*
 /request.venv/
 .venv/
 nul
+
+# Local browser evidence and reversible operational backups
+/output/playwright/
+/output/rapid-response/

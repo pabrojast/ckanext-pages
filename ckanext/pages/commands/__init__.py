@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from .rapid_response_images import get_commands as rapid_response_images_commands
 from .fix_datasets import get_commands as fix_datasets_commands
 from .fix_rapid_response_blocks import get_commands as fix_rapid_response_blocks_commands
 from .import_ai_tools import get_commands as import_ai_tools_commands
@@ -9,6 +10,7 @@ from .data_stories import get_commands as data_stories_commands
 def get_commands():
     """Return all available commands"""
     commands = []
+    commands.extend(rapid_response_images_commands())
     commands.extend(fix_datasets_commands())
     commands.extend(fix_rapid_response_blocks_commands())
     commands.extend(import_ai_tools_commands())

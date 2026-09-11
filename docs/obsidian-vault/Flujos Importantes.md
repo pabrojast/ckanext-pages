@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-09-04
+Actualizado: 2026-09-11
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -177,3 +177,9 @@ El patrón transversal más importante del repo es: “autor aporta contenido pr
 ## Organizar slides e imágenes
 
 Abrir una fuente Terria → Organize slides → insertar imágenes/texto y mover bloques con las flechas → guardar → reabrir. Las copias permanecen estables hasta Update slides from Terria. Los fallos al resolver una fuente conservan el contenido del editor. El diálogo de imágenes de Terria nativo sigue aceptando URLs; la carga de archivos de este flujo ocurre en CKAN mediante `/pages_upload`.
+
+## Guardado y lectura de Rapid Response
+
+Insertar/pegar/arrastrar una imagen → preparar versión para pantalla → subir mediante `/pages_upload` → sustituir base64 por URL → sincronizar HTML y metadatos → guardar. El formulario espera las subidas y conserva la edición ante fallos; la acción rechaza base64 residual.
+
+En lectura, los estilos del detalle se cargan desde la cabecera y las imágenes/iframes del contenido usan carga diferida nativa del navegador. El texto no espera a que terminen los mapas. Ver [[Frontend y Plantillas]].

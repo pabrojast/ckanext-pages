@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-09-04
+Actualizado: 2026-09-11
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -169,3 +169,9 @@ Si una fuente ya organizada cambia, usar Update slides from Terria y guardar. Un
 Si buscar un lugar solo ofrece el catálogo, comprobar `parameters.searchProviders` en la configuración pública y en `terria-terriamap-config-client`; cambiar solo el archivo local no cambia el despliegue activo.
 
 Si desaparecen bloques al guardar contenido que contiene `&quot;`, revisar la versión de `_parse_json_field`: debe leer JSON antes de decodificar entidades HTML. Los metadatos no vacíos e inválidos deben rechazar el formulario antes de modificar registros; reconstruirlos desde HTML perdería snapshots y orden.
+
+## Rapid Response tarda y muestra fases sin formato
+
+Diagnóstico observado en producción el 2026-09-11: Nepal devolvía 52,87 MB de HTML por dos JPEG incrustados; los estilos del detalle aparecían después de las imágenes. El navegador podía quedar sin completar `DOMContentLoaded`. El historial también almacenaba base64.
+
+Revisar tamaño del HTML, posición del CSS y ejecutar la auditoría `pages optimize-rapid-response-images`. La corrección combina CSS en cabecera, subida de imágenes desde el editor y conversión reversible del contenido existente; no basta con añadir `loading="lazy"` a una imagen que sigue incrustada en el HTML. Ver [[Deployment]].

@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-09-04
+Actualizado: 2026-09-11
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -151,3 +151,11 @@ La capa frontend fue creciendo por feature; eso explica que los assets estén re
 `data-stories-sequence.js` contiene importación y reconciliación, usada por el editor. El servidor convierte los bloques en una secuencia de lectura; las imágenes a ancho completo dividen la tarjeta en segmentos estáticos para evitar saltos de ancho al hacer scroll. Al continuar se recupera la slide correcta, incluso dentro de la misma fuente. Classic conserva la secuencia como HTML narrativo junto al embed. Los assets del editor y visor usan versión `20260911-1`.
 
 En móvil, el panel sticky mantiene 42vh y un margen inferior compensatorio aun cuando está oculto. No cambiar su altura al activar capítulos sin mapa: desplaza el documento y hace saltar el observer entre diapositivas.
+
+## Rapid Response: carga y subida de imágenes
+
+El detalle carga `rapid-response-detail-css` mediante el bloque `styles`, antes del contenido. El helper `rr_lazy_media` añade carga diferida a imágenes e iframes después del renderizado de CKAN; conserva el HTML, los tamaños y las opciones existentes. El banner mantiene su carga inicial y adapta su altura al contenido en móvil para no recortar títulos, fecha ni severidad.
+
+El editor usa `rapid-response-images.js` para subir imágenes insertadas, pegadas o arrastradas por `/pages_upload`. JPEG y PNG estáticos se reducen a un máximo de 1600 px, sin ampliación; PNG conserva transparencia y los formatos animados conservan sus bytes. El guardado espera las subidas y sincroniza editores, bloques y campos de código fuente. Los errores conservan la edición y permiten reintentar. La acción de guardado rechaza imágenes base64 pendientes únicamente para Rapid Response.
+
+Relacionadas: [[Modulos]], [[Flujos Importantes]], [[Testing]], [[Deployment]].

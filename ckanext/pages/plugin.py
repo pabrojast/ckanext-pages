@@ -14,6 +14,8 @@ from ckan.plugins import toolkit as tk
 import ckan.plugins as p
 from ckan.lib.helpers import build_nav_main as core_build_nav_main
 
+from ckanext.pages.rapid_response_media import lazy_media_html
+
 from ckanext.pages import actions
 from ckanext.pages import auth
 from ckanext.pages import blueprint
@@ -1468,6 +1470,7 @@ class PagesPlugin(PagesPluginBase):
     def get_helpers(self):
         helpers = {
             'build_nav_main': build_pages_nav_main,
+            'rr_lazy_media': lazy_media_html,
             'render_content': render_content,
             'strip_html_tags': strip_html_tags,
             'has_meaningful_content': has_meaningful_content,
