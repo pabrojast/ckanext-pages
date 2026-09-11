@@ -173,3 +173,7 @@ Particularidades:
 ## Inferencia
 
 El patrón transversal más importante del repo es: “autor aporta contenido privado o pendiente, admin lo valida y recién entonces pasa a público”.
+
+## Organizar slides e imágenes
+
+Abrir una fuente Terria → Organize slides → insertar imágenes/texto y mover bloques con las flechas → guardar → reabrir. Las copias permanecen estables hasta Update slides from Terria. Los fallos al resolver una fuente conservan el contenido del editor. El diálogo de imágenes de Terria nativo sigue aceptando URLs; la carga de archivos de este flujo ocurre en CKAN mediante `/pages_upload`.

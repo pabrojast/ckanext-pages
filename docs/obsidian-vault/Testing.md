@@ -110,3 +110,9 @@ Hallazgo importante:
 ## Inferencia
 
 La cobertura más madura parece estar en `pages` y `data_stories`. `featured_viewers` parece menos cubierto formalmente.
+
+## Secuencias y geocodificación
+
+Pruebas unitarias: `test_storymap_helpers.py`, `test_sequence.py`, `test_geocoding.py`, `test_form_metadata.py` bajo `ckanext/pages/data_stories/tests`. Pueden ejecutarse con pytest `--noconftest` en un entorno CKAN sin base de datos (evita cargar fixtures generales de integración).
+
+`node --test ckanext/pages/data_stories/tests/sequence.test.cjs` verifica reconciliación, orden e identidades. `node ckanext/pages/data_stories/tests/storymap_browser.cjs /ruta/playwright_cli.sh` comprueba en navegador recepción lenta, fallo, reintento de la misma escena y fin de transición. La compilación de Terria y sus pruebas de cola se ejecutan en su propio repositorio.

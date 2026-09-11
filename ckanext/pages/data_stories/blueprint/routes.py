@@ -659,6 +659,19 @@ def export_all():
 # Story map scene resolution (Phase 2: postMessage bridge)
 # ============================================================================
 
+@data_stories_blueprint.route('/api/location-search')
+def location_search():
+    from ckanext.pages.data_stories.helpers.geocoding import (
+        GeocodingError, search_locations)
+    try:
+        data = search_locations(request.args)
+    except GeocodingError as error:
+        headers = {'Retry-After': '2'} if error.status == 429 else {}
+        return Response(json.dumps({'error': str(error)}), status=error.status,
+                        mimetype='application/json', headers=headers)
+    return Response(json.dumps(data), mimetype='application/geo+json')
+
+
 @data_stories_blueprint.route('/api/terria-scene/<share_id>')
 def terria_scene(share_id):
     """
@@ -1394,6 +1407,9 @@ def _extract_sections_form_data(form):
 
         raw_blocks = raw.get('blocks_metadata')
         parsed_blocks = _parse_json_field(raw_blocks)
+        if (raw_blocks and str(raw_blocks).strip() not in ('null', '[]')
+                and not isinstance(parsed_blocks, list)):
+            tk.abort(400, 'Invalid section blocks. No changes were saved; return to the editor and try again.')
         if parsed_blocks is None:
             parsed_blocks = _reconstruct_blocks_metadata(raw)
             if parsed_blocks:
@@ -1640,7 +1656,7 @@ def _parse_json_field(raw_value, default_empty_list=False):
 
     # Handle string values
     if isinstance(raw_value, str):
-        raw_value = html.unescape(raw_value).strip()
+        raw_value = raw_value.strip()
         if not raw_value or raw_value == 'null':
             return [] if default_empty_list else None
         
@@ -1648,14 +1664,17 @@ def _parse_json_field(raw_value, default_empty_list=False):
         if raw_value == '[]':
             return []
 
-        try:
-            parsed = json.loads(raw_value)
-            # Handle double-encoded JSON (string containing JSON string)
-            if isinstance(parsed, str):
-                parsed = json.loads(parsed)
-            return parsed
-        except (TypeError, ValueError, json.JSONDecodeError):
-            return [] if default_empty_list else None
+        # El JSON válido puede contener entidades HTML como parte del texto.
+        # Decodificarlas antes del parse puede romper las comillas del JSON.
+        for candidate in (raw_value, html.unescape(raw_value)):
+            try:
+                parsed = json.loads(candidate)
+                if isinstance(parsed, str):
+                    parsed = json.loads(parsed)
+                return parsed
+            except (TypeError, ValueError, json.JSONDecodeError):
+                continue
+        return [] if default_empty_list else None
 
     return [] if default_empty_list else None
 

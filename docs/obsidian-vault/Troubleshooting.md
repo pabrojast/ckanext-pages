@@ -161,3 +161,11 @@ Desde sep-2026 no debería pasar: un `datasets_data` ausente o corrupto conserva
 - logs y observabilidad productiva
 - almacenamiento real de uploads
 - mecanismos de rollback productivo
+
+## Slides organizadas y mapas lentos
+
+Si una fuente ya organizada cambia, usar Update slides from Terria y guardar. Una advertencia de slide sin correspondencia conserva la copia anterior para revisión. Un fallo del mapa permite Retry; una recepción confirmada no debe activar el fallback de hash a los 2,5 segundos. El límite de aplicación es 90 segundos; una solicitud anterior no confirma una escena posterior.
+
+Si buscar un lugar solo ofrece el catálogo, comprobar `parameters.searchProviders` en la configuración pública y en `terria-terriamap-config-client`; cambiar solo el archivo local no cambia el despliegue activo.
+
+Si desaparecen bloques al guardar contenido que contiene `&quot;`, revisar la versión de `_parse_json_field`: debe leer JSON antes de decodificar entidades HTML. Los metadatos no vacíos e inválidos deben rechazar el formulario antes de modificar registros; reconstruirlos desde HTML perdería snapshots y orden.

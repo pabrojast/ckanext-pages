@@ -166,6 +166,7 @@ class TestGetStorymapScenes:
             'url': 'https://cdn.example.org/a.png',
             'alt': 'A chart',
             'caption': 'Figure 1',
+            'display': 'map',
         }
         # An image-only section becomes a full-width chapter.
         assert scenes[0]['scene_url'] is None

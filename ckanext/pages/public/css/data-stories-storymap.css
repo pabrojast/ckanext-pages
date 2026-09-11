@@ -56,6 +56,18 @@
   display: block;
 }
 
+.storymap-scene-error {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 1rem;
+  background: #fff4de;
+  color: #533b0a;
+  z-index: 5;
+  border-radius: 8px;
+}
+
 .storymap-placeholder {
   position: absolute;
   inset: 0;
@@ -608,14 +620,15 @@
     position: sticky;
     top: 0;
     height: 42vh;
+    /* Mantener la geometría al alternar mapas y capítulos de ancho completo.
+       El margen evita reservar un hueco antes del primer capítulo sin mapa. */
+    margin-bottom: -42vh;
     z-index: 5;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: height 0.3s ease, opacity 0.3s ease,
-      visibility 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
   .storymap.is-full-section .storymap-media {
-    height: 0;
     box-shadow: none;
   }
 

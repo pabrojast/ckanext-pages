@@ -177,3 +177,7 @@ El normalizador (`ckanext.pages.actions.html_to_plain_text`) descarta el cuerpo 
 ## Inferencia
 
 La superficie HTTP del plugin ya no es la de un CMS simple; es una mini plataforma de contenidos y visualización montada sobre CKAN.
+
+## Búsqueda de ubicaciones
+
+GET `/data-stories/api/location-search?q=...&viewbox=...` devuelve GeoJSON FeatureCollection. `q` debe tener entre 2 y 200 caracteres; `viewbox` opcional usa oeste,norte,este,sur. Se limita a ocho resultados. Los parámetros `url`, `limit` y otros no modifican el upstream ni los límites.

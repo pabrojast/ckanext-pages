@@ -142,3 +142,9 @@ El contenido base mantiene snapshots en `revisions`:
 ## Inferencia
 
 El módulo base prioriza flexibilidad y compatibilidad sobre normalización. Los módulos opcionales más nuevos se ven más modelados y explícitos.
+
+## Secuencias de slides guardadas
+
+`blocks_metadata` sigue siendo una lista JSON; no requiere migración. Cada tab Terria organizado conserva `source_id`, `sequenced` y `snapshot` (estado base sin stories). Un bloque `terria_slide` contiene `source_id`, `slide_id`, `title`, `content`, `share_data` y `orphaned`. Su posición en la lista determina el orden editorial. Las imágenes admiten `display: full|map`; sin valor mantienen el comportamiento antiguo.
+
+Las identidades se toman de Terria; sin ID se usa SHA-256 del contenido canónico. Las slides que desaparecen o cambian sin ID conservan su copia y quedan señaladas para revisión; las nuevas se añaden tras la última slide de esa fuente. El render usa las copias guardadas sin consultar el share remoto.

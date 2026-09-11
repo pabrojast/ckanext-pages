@@ -145,3 +145,9 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 ## Inferencia
 
 La capa frontend fue creciendo por feature; eso explica que los assets estén repartidos entre `public/`, `theme/public/`, `assets/` y `textbox/`.
+
+## Secuencia StoryMap
+
+`data-stories-sequence.js` contiene importación y reconciliación, usada por el editor. El servidor convierte los bloques en una secuencia de lectura; las imágenes a ancho completo dividen la tarjeta en segmentos estáticos para evitar saltos de ancho al hacer scroll. Al continuar se recupera la slide correcta, incluso dentro de la misma fuente. Classic conserva la secuencia como HTML narrativo junto al embed. Los assets del editor y visor usan versión `20260911-1`.
+
+En móvil, el panel sticky mantiene 42vh y un margen inferior compensatorio aun cuando está oculto. No cambiar su altura al activar capítulos sin mapa: desplaza el documento y hace saltar el observer entre diapositivas.

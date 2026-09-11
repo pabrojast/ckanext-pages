@@ -84,6 +84,7 @@
   var manualSourceIndex = null;
   var applySceneSupported = null;  // null=unknown, true/false after probe
   var pendingRequestId = null;
+  var pendingReceived = false;
   var pendingKey = null;       // key owned by pendingRequestId
   var ackMisses = 0;           // consecutive missed acks (2 latch hash mode)
   var switchSeq = 0;           // invalidates stale veil-clearing timers
@@ -203,6 +204,7 @@
 
   window.addEventListener('message', function (event) {
     if (!iframe) return;
+    if (event.source !== iframe.contentWindow) return;
     if (terriaOrigin && event.origin !== terriaOrigin) return;
 
     if (event.data === 'ready') {
@@ -241,17 +243,30 @@
       ackMisses = 0;
       if (event.data.phase === 'received') {
         // Keep the pill up and re-arm its failsafe for the apply itself.
-        if (event.data.requestId === pendingRequestId) setSwitching(true);
+        if (event.data.requestId === pendingRequestId) {
+          pendingReceived = true;
+          setSwitching(true);
+          var receivedId = pendingRequestId;
+          setTimeout(function () {
+            if (pendingRequestId !== receivedId) return;
+            pendingRequestId = pendingKey = inFlightKey = appliedKey = null;
+            setSwitching(false);
+            var notice = root.querySelector('.storymap-scene-error');
+            if (notice) notice.hidden = false;
+          }, 90000);
+        }
         return;
       }
       if (event.data.requestId === pendingRequestId) {
         // Only a confirmed completion promotes the key: a failed or
         // superseded apply must stay retryable.
-        appliedKey = pendingKey;
+        appliedKey = event.data.success === false ? null : pendingKey;
         inFlightKey = null;
         pendingRequestId = null;
         pendingKey = null;
         setSwitching(false);
+        var errorNotice = root.querySelector('.storymap-scene-error');
+        if (errorNotice) errorNotice.hidden = event.data.success !== false;
       } else if (!pendingRequestId) {
         // Stale/unsolicited completion with nothing in flight: just make
         // sure the veil isn't stuck.
@@ -338,6 +353,7 @@
     }
     var requestId = 'sm-' + (++requestCounter);
     pendingRequestId = requestId;
+    pendingReceived = false;
     pendingKey = key;
     try {
       iframe.contentWindow.postMessage({
@@ -356,7 +372,7 @@
       return;
     }
     setTimeout(function () {
-      if (pendingRequestId !== requestId) return; // acked or superseded
+      if (pendingRequestId !== requestId || pendingReceived) return; // received, completed or superseded
       pendingRequestId = null;
       pendingKey = null;
       ackMisses++;
@@ -406,6 +422,8 @@
     if (!source) return;
     var key = keyFor(sceneIndex, sourceIndex, stepIndex);
     if (key === appliedKey || key === inFlightKey) return;
+    var errorNotice = root.querySelector('.storymap-scene-error');
+    if (errorNotice) errorNotice.hidden = true;
 
     if (mode === 'bridge' && (source.shareId || source.startData) &&
         applySceneSupported !== false) {
@@ -503,7 +521,7 @@
   function activateImage(trigger) {
     var imageCard = trigger.closest('.storymap-card');
     if (imageCard && imageCard.getAttribute('data-layout') === 'full') {
-      deactivateImage();
+      activateCard(imageCard);
       return;
     }
     if (!mediaImage) return;
@@ -572,6 +590,11 @@
       manualSourceIndex = null;
     }
     if (isFull) return;
+    if (scene.initialStep) {
+      syncTabHighlight(index, scene.initialStep.sourceIndex);
+      scheduleApply(index, scene.initialStep.sourceIndex, scene.initialStep.stepIndex);
+      return;
+    }
     var stepSource = firstSourceWithSteps(scene);
     // Entering a chapter fresh: sync the tab highlight to the source that
     // will drive the map (a previous pin may linger on another tab).
@@ -590,6 +613,8 @@
   }
 
   function activateStep(stepEl) {
+    var card = stepEl.closest('.storymap-card');
+    if (card && !card.classList.contains('is-active')) activateCard(card);
     deactivateImage();
     var sceneIndex = parseInt(stepEl.getAttribute('data-scene-index'), 10);
     var stepIndex = parseInt(stepEl.getAttribute('data-step-index'), 10);
@@ -705,6 +730,10 @@
   /* ------------------------------------------------------------------ */
 
   root.addEventListener('click', function (event) {
+    if (event.target.closest('.storymap-scene-retry') && desired) {
+      applySource(desired.sceneIndex, desired.sourceIndex, desired.stepIndex);
+      return;
+    }
     var navBtn = event.target.closest('.storymap-nav-btn');
     if (navBtn) {
       jumpStop(navBtn.classList.contains('storymap-nav-next') ? 1 : -1);

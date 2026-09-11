@@ -9,6 +9,7 @@ authors paste into section blocks (blocks_metadata).
 """
 
 import json
+import copy
 import logging
 import re
 from html import escape
@@ -173,6 +174,9 @@ def _scene_source(tab):
 
     share_id = share_id_from_url(share_url)
     start_data = None if share_id else start_data_from_url(share_url)
+    if tab.get('sequenced') and isinstance(tab.get('snapshot'), dict):
+        start_data = copy.deepcopy(tab['snapshot'])
+        share_id = None
     if not share_id and start_data is None:
         return None
 
@@ -183,6 +187,8 @@ def _scene_source(tab):
         'share_id': share_id,
         'start_data': start_data,
         'steps': _story_steps(start_data),
+        'source_id': tab.get('source_id'),
+        'sequenced': bool(tab.get('sequenced')),
     }
 
 
@@ -305,7 +311,10 @@ def get_storymap_scenes(story, resolve_share=None):
                         'url': block['url'],
                         'alt': block.get('alt') or '',
                         'caption': block.get('caption') or '',
+                        'display': block.get('display', 'map'),
                     })
+                elif block_type == 'terria_slide':
+                    blocks.append(dict(block))
                 elif block_type == 'terria':
                     tabs = []
                     for tab in block.get('tabs') or []:
@@ -385,9 +394,72 @@ def get_storymap_scenes(story, resolve_share=None):
         [source for scene in scenes for source in scene['sources']],
         resolve_share)
     for scene in scenes:
+        # Las slides organizadas usan exclusivamente la copia guardada.
+        sources_by_id = {s['source_id']: s for s in scene['sources'] if s.get('source_id')}
+        for source in scene['sources']:
+            if source.get('sequenced'):
+                source['steps'] = []
+                source['start_data'] = copy.deepcopy(source.get('start_data') or {'version': '8', 'initSources': []})
+                source['start_data'].setdefault('initSources', []).append({'stories': []})
+        ordered_blocks = []
+        for block in scene['blocks']:
+            if block['type'] != 'terria_slide':
+                ordered_blocks.append(block)
+                continue
+            source = sources_by_id.get(block.get('source_id'))
+            if not source or not source.get('sequenced'):
+                ordered_blocks.append({'type': 'text', 'content': '<h3>%s</h3>%s' % (escape(block.get('title') or ''), block.get('content') or '')})
+                continue
+            step = {
+                'type': 'step', 'title': block.get('title') or '',
+                'text': block.get('content') or '',
+                'source_index': source['source_index'],
+                'source_title': source['title'],
+                'step_index': len(source['steps']),
+            }
+            source['steps'].append(step)
+            source['start_data']['initSources'][-1]['stories'].append({
+                'title': step['title'], 'text': step['text'],
+                'shareData': block.get('share_data') or {'version': '8', 'initSources': []},
+            })
+            ordered_blocks.append(step)
+        for source in scene['sources']:
+            if source.get('sequenced'):
+                for step in source['steps']:
+                    step['step_total'] = len(source['steps'])
         scene['steps'] = _flatten_scene_steps(scene['sources'])
+        # Compatibilidad: las fuentes antiguas mantienen sus slides al final.
+        legacy_steps = _flatten_scene_steps([s for s in scene['sources'] if not s.get('sequenced')])
+        for step in legacy_steps:
+            ordered_blocks.append(dict(step, type='step'))
+        scene['blocks'] = ordered_blocks
 
-    return scenes
+    # Una imagen editorial es una parada completa sin cambiar el ancho de
+    # una tarjeta durante el scroll (evita saltos de geometría del observer).
+    result = []
+    for scene in scenes:
+        groups = []
+        current = []
+        for block in scene['blocks']:
+            if block['type'] == 'image' and block.get('display') == 'full':
+                if current:
+                    groups.append((current, False))
+                    current = []
+                groups.append(([block], True))
+            else:
+                current.append(block)
+        if current or not groups:
+            groups.append((current, False))
+        for index, (blocks, full_image) in enumerate(groups):
+            part = dict(scene, blocks=blocks, continuation=index > 0)
+            if index:
+                part['section_id'] = '%s-part-%d' % (scene['section_id'], index)
+            if full_image:
+                part.update(layout='full', sources=[], scene_url=None, share_url=None, share_id=None, start_data=None, steps=[])
+            first_step = next((b for b in blocks if b['type'] == 'step'), None)
+            part['initial_step'] = ({'sourceIndex': first_step['source_index'], 'stepIndex': first_step['step_index']} if first_step else None)
+            result.append(part)
+    return result
 
 
 def _resolve_source_steps(sources, resolve_share):
@@ -403,7 +475,7 @@ def _resolve_source_steps(sources, resolve_share):
     included) and NOT cached, so a transient Terria outage heals on the
     next page load.
     """
-    pending = [s for s in sources if s.get('share_id') and not s.get('steps')]
+    pending = [s for s in sources if s.get('share_id') and not s.get('steps') and not s.get('sequenced')]
     if not pending:
         return
 
@@ -483,6 +555,13 @@ def get_storymap_config(story, scenes=None):
     if first_scene:
         embed_base_url = '%s#%s' % (first_scene.split('#', 1)[0],
                                     '&'.join(STORYMAP_EMBED_FLAGS))
+        # Permite probar el visor de dev con shares existentes de otra instancia.
+        runtime_url = tk.config.get('ckanext.data_stories.terria_runtime_url')
+        if runtime_url:
+            runtime = urlparse(runtime_url)
+            if runtime.scheme in ('http', 'https') and runtime.netloc:
+                embed_base_url = runtime_url.split('#', 1)[0].rstrip('/') + '/#' + '&'.join(STORYMAP_EMBED_FLAGS)
+                terria_origin = '%s://%s' % (runtime.scheme, runtime.netloc)
 
     placeholder_image = None
     for image in (story or {}).get('uploaded_images') or []:
@@ -501,6 +580,7 @@ def get_storymap_config(story, scenes=None):
                 'sceneUrl': s.get('scene_url'),
                 'shareId': s.get('share_id'),
                 'startData': s.get('start_data'),
+                'initialStep': s.get('initial_step'),
                 # Flattened total across all sources; per-source counts
                 # below drive the scroll-driven source sequencing.
                 'steps': len(s.get('steps') or []),

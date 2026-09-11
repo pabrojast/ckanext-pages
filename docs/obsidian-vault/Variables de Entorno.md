@@ -85,3 +85,11 @@ No se encontró lectura de ese flag en el código inspeccionado.
 ## Inferencia
 
 Para esta extensión, “variables de entorno” en la práctica significa “configuración CKAN + env vars de CKAN core”, más que `.env` específicos del plugin.
+
+## Geocodificación de Data Stories
+
+`ckanext.data_stories.geocoder_url`: URL del servicio Nominatim; default `https://nominatim.openstreetmap.org/search`. Solo se configura en servidor, nunca desde parámetros del visitante. Usa la conexión Redis de CKAN para caché de 24 horas y un cupo global de una consulta cada 1,1 segundos. Sin Redis responde 503; cupo agotado: 429 con Retry-After; error upstream: 502.
+
+Configurar el proveedor Terria con URL `/data-stories/api/location-search`, búsqueda explícita (Enter/botón) y atribución OpenStreetMap. No habilitar autocompletado contra el servicio público. Ver https://operations.osmfoundation.org/policies/nominatim/.
+
+`ckanext.data_stories.terria_runtime_url`: override opcional del visor embebido (por ejemplo, el Terria de dev); los enlaces y la resolución de shares siguen usando sus instancias originales. Sin override conserva la selección histórica por primer share.

@@ -1086,7 +1086,11 @@
         if (blocksMetadata && blocksMetadata.trim() && blocksMetadata !== 'null' && blocksMetadata !== '[]' && blocksMetadata !== 'None') {
           try {
             // Handle potential HTML-encoding (from input value attribute)
-            let cleanedMetadata = blocksMetadata
+            let cleanedMetadata = blocksMetadata.trim();
+            try {
+              JSON.parse(cleanedMetadata);
+            } catch (error) {
+              cleanedMetadata = blocksMetadata
               .replace(/&quot;/g, '"')
               .replace(/&amp;/g, '&')
               .replace(/&lt;/g, '<')
@@ -1095,6 +1099,7 @@
               .replace(/&#x27;/g, "'")
               .replace(/&#x2F;/g, '/')
               .trim();
+            }
 
             console.log('[Section ' + sectionId + '] Cleaned metadata:', cleanedMetadata.substring(0, 200));
 
@@ -1130,7 +1135,9 @@
                   addMediaBlock(sectionId, blockData);
                 } else if (blockData.type === 'image') {
                   console.log('[Section ' + sectionId + '] -> Adding IMAGE block');
-                  addImageBlock(sectionId, blockData);
+                  addImageBlock(sectionId, Object.assign({display: 'map'}, blockData));
+                } else if (blockData.type === 'terria_slide') {
+                  addTerriaSlideBlock(sectionId, blockData);
                 } else {
                   console.warn('[Section ' + sectionId + '] Unknown block type:', blockData.type);
                   // Try to add as text block with content if available
@@ -1382,10 +1389,100 @@
 
         insertBlockHtml($container, html, insertAfterBlockId);
         addTerriaBlockEventListeners(blockId, sectionId);
+        const $mapBlock = $container.find('[data-block-id="' + blockId + '"]');
+        $mapBlock.find('.terria-tab-panel').each(function(index) {
+          $(this).data('sequence-source', data.tabs[index]);
+        });
+        $mapBlock.find('.terria-block-form').append(
+          '<button type="button" class="btn btn-primary organize-slides">' +
+          (data.tabs.some(t => t.sequenced) ? 'Update slides from Terria' : 'Organize slides') +
+          '</button><p class="help-block sequence-status" role="status">Organize individual slides, then insert text or images between them. Updates are applied only when you use this button.</p>');
+        $mapBlock.find('.organize-slides').on('click', function() {
+          organizeSlides($mapBlock, resolveSectionId($mapBlock, sectionId));
+        });
         addBlockEventListeners(blockId, sectionId);
         updateSectionContentFor($container, sectionId);
       }
       
+      async function readTerriaShare(link) {
+        const url = new URL(link);
+        if (!/^https?:$/.test(url.protocol)) throw new Error('Use an HTTP(S) Terria share link.');
+        const hash = new URLSearchParams(url.hash.slice(1));
+        if (hash.has('start')) return JSON.parse(hash.get('start'));
+        const id = hash.get('share');
+        if (!id || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) throw new Error('A Terria share or start link is required.');
+        const endpoint = url.origin + url.pathname.replace(/\/$/, '') + '/api/v1/share/' + id;
+        const response = await fetch(endpoint, {credentials: 'omit', signal: AbortSignal.timeout(15000)});
+        if (!response.ok) throw new Error('Could not load this Terria share (' + response.status + ').');
+        return response.json();
+      }
+
+      async function organizeSlides($block, sectionId) {
+        const $section = $block.closest('.content-section-editor');
+        const $button = $block.find('.organize-slides');
+        const $status = $block.find('.sequence-status');
+        $button.prop('disabled', true);
+        $status.text('Loading slides…');
+        try {
+          const panels = $block.find('.terria-tab-panel').toArray();
+          // Preparar todas las fuentes antes de cambiar el contenido guardado.
+          const loaded = await Promise.all(panels.map(async panel => {
+            const url = $(panel).find('.terria-tab-url').val();
+            if (!url) return null;
+            const previous = $(panel).data('sequence-source') || {};
+            const sourceId = previous.source_id || crypto.randomUUID();
+            const share = await readTerriaShare(url);
+            return {panel, url, sourceId, snapshot: DataStorySequence.baseSnapshot(share),
+              slides: await DataStorySequence.importSlides(share, sourceId)};
+          }));
+          if (!$block[0].isConnected || loaded.some(item => item && $(item.panel).find('.terria-tab-url').val() !== item.url)) {
+            throw new Error('The map sources changed. Please try again.');
+          }
+          loaded.filter(Boolean).forEach(item => {
+            const $panel = $(item.panel);
+            $panel.data('sequence-source', Object.assign({}, $panel.data('sequence-source'), {
+              source_id: item.sourceId, snapshot: item.snapshot, sequenced: true
+            }));
+          });
+          updateSectionContent(sectionId);
+          let blocks = JSON.parse($section.find('.section-blocks-metadata').val());
+          loaded.filter(Boolean).forEach(item => { blocks = DataStorySequence.reconcile(blocks, item.sourceId, item.slides); });
+          $section.find('.section-content-blocks').empty();
+          sectionQuillEditors[sectionId] = {};
+          $section.find('.section-blocks-metadata').val(JSON.stringify(blocks));
+          loadExistingSectionBlocks($section, sectionId);
+          updateSectionContent(sectionId);
+          $section.find('.sequence-status').text('Slides ready. Use the arrows to reorder and the insert buttons to add text or images. Save the story to keep your changes.');
+        } catch (error) {
+          $status.text(error.message || 'Could not load the slides. Your sequence has been kept.');
+        } finally {
+          $button.prop('disabled', false);
+        }
+      }
+
+      function addTerriaSlideBlock(sectionId, data, insertAfterBlockId = null) {
+        const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
+        const $container = $('#section-' + sectionId + '-blocks');
+        const html = `<div class="content-block" data-block-id="${blockId}" data-block-type="terria_slide">
+          <div class="content-block-header"><h5 class="content-block-title"><i class="fa fa-map-o"></i> ${escapeHtml(data.title || 'Terria slide')}</h5>
+          <div class="content-block-controls">
+            <button type="button" class="btn btn-sm btn-default move-block-up" title="Move Up"><i class="fa fa-chevron-up"></i></button>
+            <button type="button" class="btn btn-sm btn-default move-block-down" title="Move Down"><i class="fa fa-chevron-down"></i></button>
+            <button type="button" class="btn btn-sm btn-danger delete-block" title="Delete"><i class="fa fa-trash"></i></button>
+          </div></div>
+          <div class="content-block-body"><p class="help-block">Saved Terria slide. Update its source to refresh its content and map.</p>
+          ${data.orphaned ? '<p class="alert alert-warning">This slide no longer matches its source. The saved version has been kept; you can remove it after reviewing.</p>' : ''}
+          <div class="sequence-slide-preview"></div></div>${renderInsertControlsHtml()}</div>`;
+        insertBlockHtml($container, html, insertAfterBlockId);
+        const $slide = $container.find('[data-block-id="' + blockId + '"]');
+        $slide.data('slide', data);
+        // Mostrar el texto de la fuente sin ejecutar HTML remoto en el editor.
+        const parsed = new DOMParser().parseFromString(data.content || '', 'text/html');
+        $slide.find('.sequence-slide-preview').text(parsed.body.textContent);
+        addBlockEventListeners(blockId, sectionId);
+        updateSectionContentFor($container, sectionId);
+      }
+
       // Add media/iframe block
       function addMediaBlock(sectionId, data = {}, insertAfterBlockId = null) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
@@ -1502,7 +1599,11 @@
                   <span class="image-block-status text-muted" style="margin-left: 0.5rem;"></span>
                   <input type="text" class="form-control image-block-url" value="${escapeAttr(url)}"
                          placeholder="https://... (or upload above)" style="margin-top: 0.5rem;">
-                  <small class="help-block">In story map mode this image covers the map while the reader passes it.</small>
+                  <label>Story Map presentation</label>
+                  <select class="form-control image-block-display">
+                    <option value="full"${data.display !== 'map' ? ' selected' : ''}>Full width</option>
+                    <option value="map"${data.display === 'map' ? ' selected' : ''}>Map panel</option>
+                  </select>
                 </div>
                 <div class="form-group">
                   <label>Alt text</label>
@@ -1527,7 +1628,7 @@
       function addImageBlockEventListeners(blockId, sectionId) {
         const $block = $('[data-block-id="' + blockId + '"]');
 
-        $block.find('.image-block-url, .image-block-alt, .image-block-caption').on('input', function() {
+        $block.find('.image-block-url, .image-block-alt, .image-block-caption, .image-block-display').on('input change', function() {
           const url = ($block.find('.image-block-url').val() || '').trim();
           $block.find('.image-block-preview').attr('src', url).toggle(!!url);
           updateSectionContentFor($block, sectionId);
@@ -1898,7 +1999,7 @@
               const html = quill.root.innerHTML;
               const text = quill.getText().trim();
               console.log('Text content length:', text.length);
-              if (text) {
+              if (text || quill.root.querySelector('img, video, iframe')) {
                 contentHtml += html + '\n\n';
                 blocksMetadata.push({
                   type: 'text',
@@ -1921,12 +2022,12 @@
               const height = normalizeDimension(rawHeight, '600px', 'px');
 
               if (tabUrl) {
-                tabs.push({
+                tabs.push(Object.assign({}, $panel.data('sequence-source') || {}, {
                   title: tabTitle || 'Map ' + (tabs.length + 1),
                   url: tabUrl,
                   width: width,
                   height: height
-                });
+                }));
               }
             });
 
@@ -1985,6 +2086,12 @@
                 height: height
               });
             }
+          } else if (blockType === 'terria_slide') {
+            const slide = $block.data('slide');
+            if (slide) {
+              blocksMetadata.push(slide);
+              contentHtml += '<section class="story-saved-slide"><h3>' + escapeHtml(slide.title || '') + '</h3>' + (slide.content || '') + '</section>\n';
+            }
           } else if (blockType === 'image') {
             const imageUrl = ($block.find('.image-block-url').val() || '').trim();
             const imageAlt = $block.find('.image-block-alt').val() || '';
@@ -2001,7 +2108,8 @@
                 type: 'image',
                 url: imageUrl,
                 alt: imageAlt,
-                caption: imageCaption
+                caption: imageCaption,
+                display: $block.find('.image-block-display').val() || 'full'
               });
             }
           }
