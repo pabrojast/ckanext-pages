@@ -74,11 +74,15 @@ async function check(page, assets) {
   if (await frame.evaluate(() => window.bootId) !== boot) throw Error('Dashboard reloaded between steps');
   await page.getByRole('button', {name:'Next',exact:true}).click();
   if (!(await page.locator('#storymap').getAttribute('class')).includes('is-full-section')) throw Error('Narrative-only slide retained media');
+  const fullWidth = await page.locator('.storymap-card:not([hidden])').evaluate(el => el.getBoundingClientRect().width);
+  if (fullWidth < 1200) throw Error('Full narrative slide was confined to the text column: '+fullWidth);
   await page.getByRole('button', {name:'Previous',exact:true}).click();
   await page.setViewportSize({width:390,height:844});
   await page.waitForFunction(() => document.querySelector('.has-mobile-slot'));
   const dimensions = await page.evaluate(() => ({width:document.documentElement.scrollWidth, viewport:innerWidth,
     inSlot:!!document.querySelector('.has-mobile-slot .storymap-media')}));
+  const mobileLayout = await page.locator('.storymap-card:not([hidden])').evaluate(card => ({body:card.querySelector('.storymap-card-body').getBoundingClientRect().toJSON(),slot:card.querySelector('.storymap-mobile-visual-slot').getBoundingClientRect().toJSON()}));
+  if (mobileLayout.body.width < 340 || mobileLayout.slot.top < mobileLayout.body.bottom - 1) throw Error('Mobile media must appear below full-width narrative: '+JSON.stringify(mobileLayout));
   if (dimensions.width > dimensions.viewport + 1 || !dimensions.inSlot) throw Error('Mobile visual layout overflow: '+JSON.stringify(dimensions));
 
   // Load the actual editor, serialize its blocks, then reconstruct it as after a save/reload.

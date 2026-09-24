@@ -18,9 +18,12 @@
 .storymap-visual-status { position: sticky; top: 0; z-index: 12; grid-column: 1 / -1; background: #fff4de; padding: .75rem; }
 .storymap-slide-controls { display: flex; align-items: center; justify-content: center; gap: .75rem; padding: .75rem; background: white; grid-column: 1 / -1; }
 .storymap-slide-controls select { max-width: min(45vw, 420px); min-width: 0; }
+.storymap-slide-controls [role="status"] { white-space: nowrap; }
 .storymap.is-slides { display: grid; grid-template-rows: auto 1fr; scroll-margin-top: 1rem; }
 .storymap.is-slides .storymap-media { grid-row: 2 !important; height: 80dvh; }
 .storymap.is-slides .storymap-cards { grid-row: 2; display: block; }
+.storymap.is-slides.is-full-section .storymap-cards { grid-column: 1 / -1; }
+.storymap.is-slides.is-full-section .storymap-media { display: none; }
 .storymap.is-slides .storymap-card { min-height: 0; grid-row: auto !important; }
 .storymap.is-slides .storymap-card-body { margin: 0; opacity: 1; transform: none; }
 .storymap.is-slides .storymap-progress { display: none; }
@@ -38,6 +41,7 @@
   .storymap.has-story-dashboards.has-mobile-slot > .storymap-media { display: block; position: absolute; }
   .storymap.has-combined-visuals.has-mobile-slot > .storymap-media { display: grid; }
   .storymap.has-story-dashboards .storymap-cards, .storymap.is-slides .storymap-cards { order: 1; width: 100%; }
+  .storymap.has-story-dashboards .storymap-card { flex-direction: column; align-items: stretch; }
   .storymap-slide-controls { order: 0; position: sticky; top: 0; z-index: 10; width: 100%; }
   .storymap.is-slides .storymap-card-body { padding: 1rem; }
   .storymap.has-story-dashboards .storymap-progress { display: none; }

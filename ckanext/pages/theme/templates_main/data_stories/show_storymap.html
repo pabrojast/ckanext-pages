@@ -9,7 +9,7 @@
 {% endif %}
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css?v=20260904-2" />
 <link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css?v=20260911-2" />
-<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-1" />
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-3" />
 
 <div class="homepage layout-1 storymap-page">
   <div id="content" class="container">
@@ -67,7 +67,7 @@
             </span>
             {% endif %}
             <span class="badge-modern" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); color: #0072BC; margin-left: 0.5rem;">
-              <i class="fa fa-map"></i> {{ _('Story Map') }}
+              <i class="fa fa-map"></i> {{ _('Slides') if storymap_config.displayMode == 'slides' else _('Story Map') }}
             </span>
           </div>
 
@@ -119,7 +119,7 @@
           </div>
 
           <p class="storymap-scroll-hint" style="margin: 1.25rem 0 0 0; color: #6c757d;">
-            <i class="fa fa-angle-double-down"></i> {{ _('Scroll to explore the story — the map updates as you read.') }}
+            <i class="fa fa-angle-double-down"></i> {{ _('Use Previous and Next to explore the story at your own pace.') if storymap_config.displayMode == 'slides' else _('Scroll to explore the story — the visualizations update as you read.') }}
           </p>
         </div>
       </section>
@@ -463,6 +463,6 @@
 
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
 {# ?v= busts browser caches when the viewer logic changes — bump on edits #}
-<script src="/js/data-stories-visuals.js?v=20260924-1" defer></script>
-<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-1" defer></script>
+<script src="/js/data-stories-visuals.js?v=20260924-3" defer></script>
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-3" defer></script>
 {% endblock %}
