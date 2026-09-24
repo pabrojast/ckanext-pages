@@ -1145,6 +1145,8 @@ def get_pending_approval_count():
 
 def get_pending_stories_count():
     """Return pending data stories count for sysadmins."""
+    if not tk.asbool(tk.config.get('ckanext.data_stories.enabled', False)):
+        return 0
     try:
         import ckan.authz as authz
         if not tk.g.user or not authz.is_sysadmin(tk.g.user):

@@ -1,0 +1,20 @@
+<fieldset class="form-section rr-story-fieldset">
+  <legend>{{ _('Emergency story') }}</legend>
+  <div class="form-section-content">
+    <p>{{ _('Build the story of this emergency with chapters, images, maps and supporting datasets.') }}</p>
+    <div id="rr-story-status" role="alert" {% if not rr_story_error %}hidden{% endif %}>{{ rr_story_error or '' }}</div>
+    {% if errors.rapid_response_story %}<div class="alert alert-danger">{{ errors.rapid_response_story|join(', ') }}</div>{% endif %}
+    <textarea id="rr-story-json" name="rapid_response_story" hidden>{{ rr_story_json }}</textarea>
+    <div id="rr-story-editor" data-scene-endpoint="{{ h.url_for('pages.rapid_response_terria_scene', share_id='__ID__') }}" data-terria-base="{{ h.get_terria_base_url() }}"></div>
+    <button type="button" id="rr-add-chapter" class="btn btn-primary">{{ _('Add chapter') }}</button>
+    <div class="rr-story-dataset-picker">
+      <h3>{{ _('Related datasets') }}</h3>
+      <label for="rr-dataset-search">{{ _('Search datasets or paste a dataset URL') }}</label>
+      <input type="text" id="rr-dataset-search" class="form-control" autocomplete="off">
+      <button type="button" id="rr-add-dataset" class="btn btn-default">{{ _('Add dataset') }}</button>
+      <div id="rr-dataset-results" aria-live="polite"></div>
+      <ul id="rr-story-datasets"></ul>
+      <script type="application/json" id="rr-dataset-labels">{{ (rr_story_datasets or [])|tojson }}</script>
+    </div>
+  </div>
+</fieldset>

@@ -208,7 +208,7 @@
       if (failed) pendingFailure = failed.reason;
     }
     if (pendingFailure) throw pendingFailure;
-    for (var state of editors) await processEditor(state);
+    for (var state of editors) { if (state.quill.root.isConnected) await processEditor(state); }
     // Also covers source mode, JSON metadata and gallery/header URL fields.
     for (var field of form.querySelectorAll('textarea, input[type="hidden"], input[type="text"], input[type="url"]')) {
       var value = await replaceText(field.value);
@@ -220,5 +220,7 @@
     message('', false);
   }
 
-  window.RapidResponseImages = {attach: attach, prepare: prepare, message: message};
+  function detach(quill) { editors = editors.filter(function (state) { return state.quill !== quill; }); }
+  function uploadFile(file) { return track(readFile(file).then(upload)); }
+  window.RapidResponseImages = {attach: attach, detach: detach, uploadFile: uploadFile, prepare: prepare, message: message};
 })();

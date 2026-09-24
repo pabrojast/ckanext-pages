@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, Response, redirect, request, url_for
 
 import ckanext.pages.utils as utils
 
@@ -75,6 +75,17 @@ def rapid_response_show(page):
 
 def rapid_response_edit(page=None, data=None, errors=None, error_summary=None):
     return utils.pages_edit(page, data, errors, error_summary, 'rapid-response')
+
+
+def rapid_response_terria_scene(share_id):
+    """Resolve only shares from the configured Terria instance."""
+    import json
+    from ckanext.pages.data_stories.helpers.storymap import resolve_terria_share
+    data = resolve_terria_share(share_id)
+    if data is None:
+        return Response('{"error":"share not found"}', status=404, mimetype='application/json')
+    return Response(json.dumps(data), mimetype='application/json',
+                    headers={'Cache-Control': 'public, max-age=3600'})
 
 
 def rapid_response_revisions(page):
@@ -497,6 +508,7 @@ pages.add_url_rule("/blog_edit/<page>", view_func=blog_edit, endpoint='blog_edit
 pages.add_url_rule("/blog_delete/<page>", view_func=blog_delete, endpoint='blog_delete', methods=['GET', 'POST'])
 
 
+pages.add_url_rule("/rapid-response/api/terria-scene/<share_id>", view_func=rapid_response_terria_scene)
 pages.add_url_rule("/rapid-response", view_func=rapid_response_index, endpoint='rapid_response_index')
 pages.add_url_rule("/rapid-response/<page>", view_func=rapid_response_show, endpoint='rapid_response_show')
 pages.add_url_rule("/rapid-response/<page>/revisions", view_func=rapid_response_revisions)

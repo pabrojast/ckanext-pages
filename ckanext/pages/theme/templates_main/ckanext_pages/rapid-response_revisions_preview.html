@@ -88,7 +88,7 @@
                       
                       <div class="alert alert-info">
                         <strong>{{ _('Revision Information:') }}</strong>
-                        {{ _('This is how the content looked at this revision.') }}
+                        {% if revision.rapid_response %}{{ _('This revision includes the emergency story and its media.') }}{% else %}{{ _('This older revision contains only the event overview. Restoring it preserves the other current chapters.') }}{% endif %}
                       </div>
                       
                       <!-- Content Preview -->
@@ -101,7 +101,7 @@
                         {% endif %}
 
                         <!-- Key Information -->
-                        {% if page.key_info %}
+                        {% if revision.rapid_response and page.key_info %}
                           <div class="revision-key-info">
                             <h3>{{ _('Key Information') }}</h3>
                             <div class="key-info-content">
@@ -110,6 +110,11 @@
                           </div>
                         {% endif %}
 
+                        {% if storymap_scenes is defined %}
+                        <link rel="stylesheet" href="/css/data-stories-storymap.css?v=20260911-2">
+                        {% snippet 'data_stories/components/storymap_viewer.html', storymap_scenes=storymap_scenes, storymap_config=storymap_config %}
+                        {% if rr_datasets %}<h3>{{ _('Related datasets') }}</h3><ul>{% for dataset in rr_datasets %}<li>{{ dataset.title }}</li>{% endfor %}</ul>{% endif %}
+                        {% else %}
                         <!-- Main Content -->
                         {% if page.content %}
                           <div class="revision-main-content">
@@ -120,8 +125,9 @@
                           </div>
                         {% endif %}
 
+                        {% endif %}
                         <!-- Additional Content -->
-                        {% if page.additional_content %}
+                        {% if revision.rapid_response and page.additional_content %}
                           <div class="revision-additional">
                             <h3>{{ _('Additional Information') }}</h3>
                             <div class="additional-content">
