@@ -47,7 +47,7 @@ async function check(page, assets) {
   await page.setContent(`<div id="storymap" class="storymap">
     <nav class="storymap-slide-controls" hidden><button data-direction="-1">Previous</button><select></select><span role="status"></span><button data-direction="1">Next</button></nav>
     <div class="storymap-visual-status" hidden></div>
-    <div class="storymap-media"><div class="storymap-map-pane"><iframe class="storymap-iframe"></iframe></div><div class="storymap-dashboard-pane" hidden></div></div>
+    <div class="storymap-media"><nav class="storymap-visual-tabs" hidden><button data-visual-view="map">Map</button><button data-visual-view="dashboard">Dashboard</button><button data-visual-view="both">Both</button></nav><div class="storymap-map-pane"><iframe class="storymap-iframe"></iframe></div><div class="storymap-dashboard-pane" hidden></div></div>
     <div class="storymap-cards"><article class="storymap-card" data-scene-index="0"><div class="storymap-card-body"><header>Chapter</header>
     <div class="section-content storymap-narrative">Read <a href="#story-ref-reference-1">Chile</a></div>
     <div class="section-content storymap-narrative">Second paragraph</div></div></article>
@@ -77,6 +77,14 @@ async function check(page, assets) {
   const fullWidth = await page.locator('.storymap-card:not([hidden])').evaluate(el => el.getBoundingClientRect().width);
   if (fullWidth < 1200) throw Error('Full narrative slide was confined to the text column: '+fullWidth);
   await page.getByRole('button', {name:'Previous',exact:true}).click();
+  await page.setViewportSize({width:1366,height:768});
+  await page.locator('.storymap-visual-tabs [data-visual-view="map"]').click();
+  const mapHeight = await page.locator('.storymap-map-pane').evaluate(el => el.getBoundingClientRect().height);
+  if (mapHeight < 500 || await page.locator('.storymap-dashboard-pane').isVisible()) throw Error('Compact map must use the full visual panel');
+  await page.locator('.storymap-visual-tabs [data-visual-view="dashboard"]').click();
+  if (await page.locator('.storymap-map-pane').isVisible() || !await page.locator('.storymap-dashboard-pane').isVisible()) throw Error('Dashboard tab did not select its panel');
+  if (await frame.evaluate(() => window.bootId) !== boot) throw Error('Changing visual tabs reloaded the dashboard');
+  await page.locator('.storymap-visual-tabs [data-visual-view="map"]').click();
   await page.setViewportSize({width:390,height:844});
   await page.waitForFunction(() => document.querySelector('.has-mobile-slot'));
   const dimensions = await page.evaluate(() => ({width:document.documentElement.scrollWidth, viewport:innerWidth,

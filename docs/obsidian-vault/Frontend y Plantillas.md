@@ -160,6 +160,12 @@ El editor usa `rapid-response-images.js` para subir imágenes insertadas, pegada
 
 Relacionadas: [[Modulos]], [[Flujos Importantes]], [[Testing]], [[Deployment]].
 
+## Lectura en pantallas de portátil y móvil (2026-09-24)
+
+El visor usa una única posición de lectura calculada desde la altura visible, con scroll limitado a un callback por frame. Evita las zonas vacías que producen márgenes porcentuales de IntersectionObserver en 1366×768 y la competencia entre observadores de capítulos y párrafos. El texto conserva contraste aunque su escena no esté activa. Los controles de capítulos quedan separados de los controles de Terria.
+
+En pantallas de hasta 1440 px de ancho o 850 px de alto, las secciones combinadas muestran un panel completo seleccionable con Map/Dashboard/Both. Cambiar de panel conserva sus iframes. En móvil, la vista integrada se coloca bajo el texto y no fuerza dos visores pequeños; el mapa de historias tradicionales mantiene 42vh y la posición de lectura se calcula bajo él. Assets del visor: `20260924-4`.
+
 ## Narrativas de Rapid Response
 
 El formulario carga `story-editor-core.js` y `rapid-response-story-edit.js`; la vista pública comparte `data_stories/components/storymap_viewer.html`. `rapid-response-story.css` adapta los controles a móvil. El visor admite `mobileStackedMedia` para situar el mapa después del texto en Rapid Response. Ver [[Stories en Rapid Response]].

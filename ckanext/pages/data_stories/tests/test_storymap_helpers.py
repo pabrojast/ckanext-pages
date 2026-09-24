@@ -438,6 +438,22 @@ class TestShareHelpers:
 
 class TestGetStorymapConfig:
 
+    def test_dev_runtime_preserves_original_share_resolution(self, monkeypatch):
+        import ckan.plugins.toolkit as tk
+        monkeypatch.setitem(tk.config, 'ckanext.data_stories.terria_runtime_url',
+                            'https://data.dev-wins.com/terria/')
+        story = {'sections': [{'id': 'sec-1', 'blocks_metadata': [
+            {'type': 'terria', 'tabs': [{'title': 'Map', 'url': SHARE}]}
+        ]}]}
+        scenes = get_storymap_scenes(story, resolve_share=_no_share)
+        config = get_storymap_config(story, scenes)
+        assert config['terriaOrigin'] == 'https://data.dev-wins.com'
+        assert config['embedBaseUrl'].startswith('https://data.dev-wins.com/terria/#')
+        source = config['scenes'][0]['sources'][0]
+        assert source['sceneUrl'].startswith(SHARE)
+        assert share_api_base_from_url(source['sceneUrl']) == (
+            'https://ihp-wins.unesco.org/terria/api/v1/share/')
+
     def test_scene_list_and_origin(self):
         story = {
             'sections': [{
