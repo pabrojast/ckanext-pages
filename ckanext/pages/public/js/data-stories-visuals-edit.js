@@ -1,15 +1,24 @@
 /* Visual authoring helpers shared by all section editors. No executable embeds. */
-(function ($) {
+(function () {
   'use strict';
+  // CKAN may defer its jQuery bundle. Resolve it only when the ready editor
+  // calls these helpers, instead of requiring it while this script loads.
+  const $ = (...args) => window.jQuery(...args);
   const id = () => 'visual-' + crypto.randomUUID();
   const copy = value => JSON.parse(JSON.stringify(value));
   const api = async (action, data) => {
-    const response = await fetch('/api/3/action/' + action + '?' + new URLSearchParams(data), {credentials: 'same-origin'});
+    // CKAN exposes resource_view_list as POST even though it only reads views.
+    const post = action === 'resource_view_list';
+    const response = await fetch('/api/3/action/' + action + (post ? '' : '?' + new URLSearchParams(data)), {
+      credentials: 'same-origin',
+      ...(post ? {method: 'POST', headers: {'Content-Type': 'application/json',
+        'X-CSRFToken': document.querySelector('[name="_csrf_token"]')?.value || ''}, body: JSON.stringify(data)} : {})
+    });
     const result = await response.json();
     if (!response.ok || !result.success) throw Error('Unable to load this resource. Check your access and try again.');
     return result.result;
   };
-  const field = (label, input) => $('<label class="ds-visual-field">').append($('<span>').text(label), input);
+  const field = (label, input) => $('<label class="ds-visual-field">').append($('<span>').text(label), input.attr('aria-label', label));
   const select = (items, value) => {
     const input = $('<select class="form-control">');
     items.forEach(item => input.append($('<option>').val(item[0]).text(item[1])));
@@ -223,4 +232,4 @@
     });
   }
   window.StoryVisualsEditor = {section, dashboard, text};
-})(jQuery);
+})();

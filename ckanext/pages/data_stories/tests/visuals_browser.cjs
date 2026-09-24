@@ -23,6 +23,15 @@ async function check(page, assets) {
   const ref = {id:'reference-1', dashboard_id:'dashboard-1', source_id:'map-1', slide_id:'native:map-1:1', on_enter:true, state:{filters:[{field:'country',op:'eq',value:'Chile'}],widgetId:'records'}};
   await page.route('https://stories.test/**', route => {
     const url = route.request().url();
+    if (url.includes('/api/3/action/')) {
+      const action = url.split('?')[0].split('/').pop();
+      const result = action === 'package_search' ? {results:[{id:'dataset',title:'Observations'}]} :
+        action === 'package_show' ? {resources:[{id:'resource',name:'Measurements'}]} :
+        [{id:view,title:'Observations dashboard',view_type:'dashboard_view'}];
+      if (action === 'resource_view_list' && (route.request().method() !== 'POST' || route.request().postDataJSON().id !== 'resource'))
+        return route.fulfill({status:400,body:'Use POST with resource id'});
+      return route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,result})});
+    }
     if (url.includes('/terria/')) return route.fulfill({contentType:'text/html',body:`<script>
       window.applied=[];addEventListener('message',e=>{if(e.data.type==='applyScene'){applied.push(e.data.shareData);parent.postMessage({type:'sceneApplied',phase:'complete',requestId:e.data.requestId,success:true},location.origin)}});parent.postMessage('ready',location.origin);
       </script>`});
@@ -82,10 +91,11 @@ async function check(page, assets) {
       <div class="add-block-controls"><div class="btn-group"></div></div><textarea class="section-content-field"></textarea>
       <input class="section-terria-link"><textarea class="section-blocks-metadata"></textarea></div></div></form>`);
     await page.locator('.section-blocks-metadata').fill(JSON.stringify(blocks));
+    // CKAN defers jQuery; helpers must also survive loading before it.
+    await page.addScriptTag({path:assets.visualsEditor});
     await page.addScriptTag({path:assets.jquery});
     await page.addScriptTag({path:assets.quill});
     await page.addScriptTag({path:assets.sequence});
-    await page.addScriptTag({path:assets.visualsEditor});
     await page.addScriptTag({path:assets.editor});
     await page.waitForFunction(() => document.querySelector('.ql-editor') && document.querySelector('.ds-state-editor'));
     await page.locator('.ql-editor').press('End');
@@ -94,6 +104,13 @@ async function check(page, assets) {
     return JSON.parse(await page.locator('.section-blocks-metadata').inputValue());
   }
   const saved = await editor(metadata);
+  const chooser = page.locator('.ds-dashboard-editor');
+  await chooser.getByPlaceholder('Search datasets').fill('Observations');
+  await chooser.getByRole('button',{name:'Search',exact:true}).click();
+  await chooser.getByLabel('Dataset',{exact:true}).selectOption('dataset');
+  await chooser.getByLabel('Resource',{exact:true}).selectOption('resource');
+  await chooser.getByLabel('Dashboard',{exact:true}).selectOption(view);
+  await chooser.locator('.ds-state-editor').waitFor();
   const reloaded = await editor(saved);
   if (reloaded.find(b=>b.type==='dashboard').view_id !== view || reloaded.find(b=>b.type==='text').references[0].id !== ref.id)
     throw Error('Visual metadata lost on reload');

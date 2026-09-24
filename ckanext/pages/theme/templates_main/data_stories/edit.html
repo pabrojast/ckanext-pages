@@ -322,7 +322,7 @@
         </select>
         <span class="help-text">
           <i class="fa fa-info-circle text-info"></i>
-          {{ _('In Story Map mode each section becomes a chapter card next to a single sticky map: add a Terria map block per section and paste a share link — that scene is shown when the reader reaches the card. Sections without a map are shown full-width, without the map panel.') }}
+          {{ _('Story Map advances as readers scroll; Slides uses Previous and Next. Choose a section template to place text beside a Terria map, a dashboard, or both. Use Link visualization on selected text to connect a map scene or dashboard filter. Full width keeps the focus on narrative and media.') }}
         </span>
         {% if story_slug %}
         <div style="margin-top: 0.5rem;">
@@ -791,7 +791,7 @@
   {# ?v= busts browser caches when the editor logic changes — bump on edits.
      Stale editor JS would silently drop unknown block types on save. #}
   <script src="/js/data-stories-sequence.js?v=20260911-1"></script>
-  <link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-1">
-  <script src="/js/data-stories-visuals-edit.js?v=20260924-1"></script>
-  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260924-1"></script>
+  <link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-2">
+  <script src="/js/data-stories-visuals-edit.js?v=20260924-2"></script>
+  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260924-2"></script>
 {% endblock %}

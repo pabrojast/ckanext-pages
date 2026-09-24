@@ -3163,7 +3163,7 @@
 
   function updateSceneBadges() {
     var modeSelect = document.getElementById('display_mode');
-    var isStorymap = modeSelect && modeSelect.value === 'storymap';
+    var isStorymap = modeSelect && ['storymap', 'slides'].indexOf(modeSelect.value) >= 0;
     var sections = document.querySelectorAll('.content-section-editor');
 
     Array.prototype.forEach.call(sections, function (section) {
@@ -3181,15 +3181,17 @@
         var titleRow = section.querySelector('.section-title-row > div');
         (titleRow || section).appendChild(badge);
       }
-      if (sectionHasScene(section)) {
+      var layout = section.querySelector('.ds-presentation');
+      var dashboard = window.jQuery && window.jQuery(section).find('.ds-dashboard-editor').toArray().some(function (el) { return !!window.jQuery(el).data('dashboard').view_id; });
+      if ((!layout || layout.value !== 'full') && (sectionHasScene(section) || dashboard)) {
         badge.style.background = '#d4edda';
         badge.style.color = '#155724';
-        badge.innerHTML = '<i class="fa fa-map"></i> Scene ✓';
+        badge.innerHTML = '<i class="fa fa-map"></i> Visual section ✓';
       } else {
         badge.style.background = '#fff3cd';
         badge.style.color = '#856404';
         badge.innerHTML = '<i class="fa fa-info-circle"></i> ' +
-          'No map — shown full-width';
+          'Narrative section — full width';
       }
     });
   }
