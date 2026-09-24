@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 

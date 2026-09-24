@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 

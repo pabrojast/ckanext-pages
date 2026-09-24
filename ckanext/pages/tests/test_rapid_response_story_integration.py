@@ -44,6 +44,11 @@ class TestRapidResponseStoryIntegration:
         full_revision = copy.deepcopy(page.revisions[revision_id])
         assert full_revision['rapid_response']['rapid_response_story'] == story
         self.save(user, dict(story, sections=[]))
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get('/rapid-response/emergency-story/revisions/' + revision_id, extra_environ=env)
+        assert response.status_code == 200
+        html = response.body.decode() if isinstance(response.body, bytes) else response.body
+        assert 'Original impact' in html and 'storymap-config' in html
         helpers.call_action('ckanext_pages_revision_restore', {'user': user['name']},
                             page='emergency-story', revision=revision_id)
         restored = helpers.call_action('ckanext_pages_show', {}, page='emergency-story')

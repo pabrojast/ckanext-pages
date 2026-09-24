@@ -1,7 +1,7 @@
 # Rutas y Entrypoints
 
 Tags: #arquitectura #backend
-Actualizado: 2026-03-26
+Actualizado: 2026-09-24
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Comandos Utiles]]
 

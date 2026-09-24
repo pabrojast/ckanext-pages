@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 

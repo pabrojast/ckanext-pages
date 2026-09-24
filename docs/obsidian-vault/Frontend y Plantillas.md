@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 

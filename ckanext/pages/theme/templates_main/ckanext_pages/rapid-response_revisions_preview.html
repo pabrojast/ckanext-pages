@@ -111,7 +111,7 @@
                         {% endif %}
 
                         {% if storymap_scenes is defined %}
-                        <link rel="stylesheet" href="/css/data-stories-storymap.css?v=20260911-2">
+                        <link rel="stylesheet" href="/css/data-stories-storymap.css?v=20260924-4">
                         {% snippet 'data_stories/components/storymap_viewer.html', storymap_scenes=storymap_scenes, storymap_config=storymap_config %}
                         {% if rr_datasets %}<h3>{{ _('Related datasets') }}</h3><ul>{% for dataset in rr_datasets %}<li>{{ dataset.title }}</li>{% endfor %}</ul>{% endif %}
                         {% else %}

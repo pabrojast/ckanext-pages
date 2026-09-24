@@ -6,6 +6,7 @@ const root = path.resolve(__dirname, '../..');
 const read = name => path.join(root, name);
 const assets = {
   editor: read('public/js/data-stories-edit.js'),
+  core: read('public/js/story-editor-core.js'),
   visualsEditor: read('public/js/data-stories-visuals-edit.js'),
   sequence: read('public/js/data-stories-sequence.js'),
   visuals: read('public/js/data-stories-visuals.js'),
@@ -107,6 +108,7 @@ async function check(page, assets) {
     await page.addScriptTag({path:assets.visualsEditor});
     await page.addScriptTag({path:assets.jquery});
     await page.addScriptTag({path:assets.quill});
+    await page.addScriptTag({path:assets.core});
     await page.addScriptTag({path:assets.sequence});
     await page.addScriptTag({path:assets.editor});
     await page.waitForFunction(() => document.querySelector('.ql-editor') && document.querySelector('.ds-state-editor'));

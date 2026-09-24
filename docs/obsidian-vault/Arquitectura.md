@@ -1,7 +1,7 @@
 # Arquitectura
 
 Tags: #arquitectura #backend
-Actualizado: 2026-03-26
+Actualizado: 2026-09-24
 
 Relacionadas: [[Rutas y Entrypoints]], [[Modulos]], [[Datos y Persistencia]], [[Frontend y Plantillas]]
 

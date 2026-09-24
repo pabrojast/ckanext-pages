@@ -118,6 +118,13 @@ async function check(page, rootPath) {
     window.failUploads = false; click(upload.closest('.rr-story-block'), 'Retry image upload');
     await window.RapidResponseStory.prepare(form);
     assert(documentValue().sections[1].blocks_metadata.some(b => b.type === 'image' && b.url.endsWith('/image.png')), 'Retry must save the uploaded URL');
+    const holder = document.createElement('div'); document.body.append(holder);
+    const originalHtml = '<p><img src="https://rr.test/original.png" style="width:240px"></p>';
+    const mediaEditor = StoryEditorCore.createText(holder, originalHtml, {theme: 'snow'});
+    assert(mediaEditor.getHtml() === originalHtml, 'Unedited image attributes must survive hydration');
+    mediaEditor.quill.root.querySelector('img').src = 'https://rr.test/uploaded.png';
+    assert(mediaEditor.getHtml().includes('/uploaded.png'), 'Direct upload URL replacements must be serialized immediately');
+    mediaEditor.destroy(); holder.remove();
     return 'PASS: no-op preservation, gap IDs, block/chapter reorder, deletion, legacy HTML, Terria import/refresh, datasets, pending upload, failure/retry';
   });
   for (const width of [320, 390, 768, 1366, 1920]) {

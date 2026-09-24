@@ -27,14 +27,14 @@ Las revisiones nuevas incluyen narrativa, fases, metadatos, imágenes, ficha y t
 
 Rapid Response y Data Stories comparten `data_stories/components/storymap_viewer.html` y el visor StoryMap. Rapid Response conserva banner, ficha, timeline y galería. La narrativa ofrece navegación por capítulos, imágenes y escenas de mapa. En móvil, `mobileStackedMedia` coloca el mapa después del texto del capítulo activo, evitando que lo tape; en escritorio se conserva la disposición lateral.
 
-`rapid-response-story.css` limita los estilos del compositor y reduce los márgenes anidados en móvil. La revisión local cubrió 320, 390, 768, 1366 y 1920 px de ancho, en formulario y vista pública. Las capturas están en `output/playwright/` (no versionadas).
+`rapid-response-story.css` limita los estilos del compositor y reduce los márgenes anidados en móvil. La revisión local cubrió 320, 390, 768, 1366 y 1920 px de ancho, en formulario y vista pública. Las capturas están en `output/playwright/rapid-response-stories/` (no versionadas). Los iframes de mapas y vídeo se simularon para comprobar el diseño de forma reproducible.
 
 ## Verificación
 
 - `test_rapid_response_story.py`: adaptación sin escrituras, conservación de HTML, identidades, borrado, revisiones, compatibilidad y permisos de datasets.
 - `test_rapid_response_story_integration.py`: acciones y DB CKAN reales, guardar/restaurar, formularios autenticados y vista pública con Data Stories desactivado.
 - `rapid_response_story_browser.cjs`: Quill real, reapertura sin cambios, IDs con huecos, reordenar/editar/eliminar, Terria, datasets y errores/reintentos de subida; comprueba los cinco anchos.
-- Las suites compartidas de Stories y de imágenes siguen siendo necesarias. Comandos en [[Testing]].
+- Verificación local: 100 pruebas unitarias, 4 de integración y 5 de secuencias Node; pruebas de navegador para compositor, imágenes, estados Terria, scroll y visualizaciones de Stories. El formulario completo también se guardó y reabrió autenticado sin cambios en narrativa ni ficha. Comandos en [[Testing]].
 
 ## Pendiente por confirmar
 

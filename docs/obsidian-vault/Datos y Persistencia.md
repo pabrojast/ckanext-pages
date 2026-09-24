@@ -1,7 +1,7 @@
 # Datos y Persistencia
 
 Tags: #datos #backend
-Actualizado: 2026-09-04
+Actualizado: 2026-09-24
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Flujos Importantes]], [[Troubleshooting]]
 

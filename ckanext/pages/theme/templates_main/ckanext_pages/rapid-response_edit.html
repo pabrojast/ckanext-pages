@@ -509,7 +509,7 @@
                           <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
-                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="rr-form-control">
+                            <input type="text" inputmode="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="rr-form-control">
                             {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
                             </div>
                           </div>

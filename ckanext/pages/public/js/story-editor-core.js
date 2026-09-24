@@ -29,6 +29,7 @@
     const quill = new root.Quill(element, options);
     const state = {original: html || '', dirty: false};
     if (html) quill.clipboard.dangerouslyPasteHTML(html, 'silent');
+    state.hydrated = quill.root.innerHTML;
     editors.set(quill, state);
     const changed = function () {
       state.dirty = true;
@@ -39,7 +40,8 @@
   }
   function getHtml(quill) {
     const state = editors.get(quill);
-    return state && !state.dirty ? state.original : quill.root.innerHTML;
+    return state && !state.dirty && quill.root.innerHTML === state.hydrated
+      ? state.original : quill.root.innerHTML;
   }
   function id() {
     if (root.crypto.randomUUID) return root.crypto.randomUUID();
