@@ -181,3 +181,7 @@ La superficie HTTP del plugin ya no es la de un CMS simple; es una mini platafor
 ## Búsqueda de ubicaciones
 
 GET `/data-stories/api/location-search?q=...&viewbox=...` devuelve GeoJSON FeatureCollection. `q` debe tener entre 2 y 200 caracteres; `viewbox` opcional usa oeste,norte,este,sur. Se limita a ocho resultados. Los parámetros `url`, `limit` y otros no modifican el upstream ni los límites.
+
+## Narrativas de Rapid Response
+
+`GET /rapid-response/api/terria-scene/<share_id>` resuelve escenas únicamente desde el Terria configurado. Está registrado en el blueprint base aunque Data Stories esté desactivado. La edición y publicación mantienen sus rutas existentes; ver [[Stories en Rapid Response]].

@@ -70,4 +70,27 @@ jobs:
         ckan -c test.ini db upgrade -p pages
     - name: Run tests
       run: pytest --ckan-ini=test.ini --cov=ckanext.pages --cov-report=term-missing --cov-append --disable-warnings ckanext/pages/tests
+    - name: Shared story helpers
+      run: >-
+        PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q
+        ckanext/pages/data_stories/tests/test_storymap_helpers.py
+        ckanext/pages/data_stories/tests/test_sequence.py
+        ckanext/pages/data_stories/tests/test_form_metadata.py
 
+  story-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser tooling
+        run: |
+          npm install -g @playwright/cli@0.1.21
+          playwright-cli install-browser chrome --with-deps
+      - name: Story and image regressions
+        run: |
+          node --test ckanext/pages/data_stories/tests/sequence.test.cjs
+          node ckanext/pages/tests/rapid_response_images_browser.cjs
+          node ckanext/pages/tests/rapid_response_story_browser.cjs
+          node ckanext/pages/data_stories/tests/storymap_browser.cjs

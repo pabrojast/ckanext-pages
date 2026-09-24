@@ -193,3 +193,7 @@ El bloque `dashboard` selecciona dataset, recurso y vista Dashboard Builder publ
 En un bloque de texto, seleccionar palabras y usar `Link visualization`: referencia a fuente/slide Terria, dashboard y filtros/gráfico opcionales, al pulsar o al entrar al paso. Los enlaces `#story-ref-<id>` y sus metadatos `references` se guardan juntos. IDs ausentes o vistas eliminadas muestran un error recuperable y mantienen la narración. Al cambiar de paso se restablece el estado inicial del dashboard. Se reutilizan hasta tres iframes; en móvil se posicionan junto a la narración sin reinsertarlos en el DOM (moverlos recarga su documento).
 
 Terria obtiene sesión, token CSRF y límite por `GET /pages_upload` autenticado con `Cache-Control: private, no-store`; `POST` usa el almacenamiento y permisos de imágenes existentes. No requiere migración de base de datos.
+
+## Narrativas de Rapid Response
+
+La narrativa de una emergencia se edita por capítulos y se publica con el visor compartido de Stories. Guardar sin cambios conserva el HTML original; mover o eliminar bloques respeta sus identidades. Ver [[Stories en Rapid Response]] para importación Terria, datasets, imágenes y restauración.

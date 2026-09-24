@@ -296,6 +296,7 @@ def view_context(page, context):
     view['uploaded_images'] = decode(page.get('uploaded_images') or '[]', legacy=True)
     scenes = get_storymap_scenes(view)
     config = get_storymap_config(view, scenes)
+    config['mobileStackedMedia'] = True
     config['sceneResolveEndpoint'] = tk.url_for('pages.rapid_response_terria_scene', share_id='__ID__')
     return {'storymap_scenes': scenes, 'storymap_config': config,
             'rr_datasets': readable_datasets(story, context)}

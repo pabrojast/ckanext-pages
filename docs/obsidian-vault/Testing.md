@@ -84,7 +84,7 @@ pytest --ckan-ini=test.ini --cov=ckanext.pages --cov-report=term-missing ckanext
 
 ## CI actual
 
-La workflow detectada corre solo:
+La suite principal de la workflow ejecuta:
 
 ```bash
 pytest --ckan-ini=test.ini --cov=ckanext.pages --cov-report=term-missing --cov-append --disable-warnings ckanext/pages/tests
@@ -93,7 +93,7 @@ pytest --ckan-ini=test.ini --cov=ckanext.pages --cov-report=term-missing --cov-a
 Hallazgo importante:
 
 - `data_stories/tests` existen
-- pero no se observó su ejecución en la workflow principal
+- la workflow también ejecuta las suites puras de helpers, secuencias y metadatos; las demás suites de integración de Data Stories requieren ejecución separada
 
 ## Qué revisar antes de mergear cambios
 
@@ -144,3 +144,20 @@ En Rapid Response, comprobar que los iframes alejados aún no tienen navegación
 - Validación integrada: crear/editar/guardar con sesión real de CKAN en dev, recargar como lector, probar el dashboard accesible y la referencia al mapa. El harness aislado no sustituye permisos ni persistencia real.
 
 `test_featured_viewer_schema.py` requiere `PAGES_SCHEMA_TEST_URL` hacia PostgreSQL aislado. Mantiene un bloqueo ACCESS SHARE como un respaldo y comprueba que el arranque no pide ALTER TABLE para columnas existentes; también verifica creación y persistencia de columnas faltantes. La inicialización consulta el esquema antes de ejecutar una migración, porque `ADD COLUMN IF NOT EXISTS` también solicita un bloqueo exclusivo en PostgreSQL.
+
+## Stories en Rapid Response
+
+Con PostgreSQL, Solr y Redis de prueba, ejecutar los tests reales de formulario/acciones:
+
+```bash
+pytest --ckan-ini=test.ini ckanext/pages/tests/test_rapid_response_story_integration.py
+```
+
+El fixture desactiva Data Stories para comprobar que Rapid Response funciona por sí solo. No ejecutar `clean_db` contra dev ni producción.
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q ckanext/pages/tests/test_rapid_response_story.py
+node ckanext/pages/tests/rapid_response_story_browser.cjs /ruta/al/playwright_cli.sh
+```
+
+El test de navegador comprueba 320, 390, 768, 1366 y 1920 px. La revisión de diseño debe añadir las páginas completas de CKAN, el banner, capítulos con y sin mapa y controles de edición. Ver [[Stories en Rapid Response]]. CI incluye ahora las suites puras compartidas de StoryMap y los navegadores de imágenes y compositor.

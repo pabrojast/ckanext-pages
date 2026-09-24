@@ -46,6 +46,7 @@ La mejor forma de entenderlo es como un plugin CKAN con varios subproductos sobr
 - [[Modulos]]
 - [[Datos y Persistencia]]
 - [[Frontend y Plantillas]]
+- [[Stories en Rapid Response]]
 
 ### Operación
 

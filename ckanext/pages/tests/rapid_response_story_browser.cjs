@@ -120,9 +120,11 @@ async function check(page, rootPath) {
     assert(documentValue().sections[1].blocks_metadata.some(b => b.type === 'image' && b.url.endsWith('/image.png')), 'Retry must save the uploaded URL');
     return 'PASS: no-op preservation, gap IDs, block/chapter reorder, deletion, legacy HTML, Terria import/refresh, datasets, pending upload, failure/retry';
   });
-  await page.setViewportSize({width: 390, height: 844});
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
-  if (overflow) throw new Error('Mobile editor has horizontal overflow');
+  for (const width of [320, 390, 768, 1366, 1920]) {
+    await page.setViewportSize({width, height: 900});
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+    if (overflow) throw new Error('Editor has horizontal overflow at ' + width + 'px');
+  }
   if (errors.length) throw new Error(errors.join('\n'));
   return result;
 }

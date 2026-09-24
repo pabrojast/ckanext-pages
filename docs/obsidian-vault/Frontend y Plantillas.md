@@ -159,3 +159,7 @@ El detalle carga `rapid-response-detail-css` mediante el bloque `styles`, antes 
 El editor usa `rapid-response-images.js` para subir imágenes insertadas, pegadas o arrastradas por `/pages_upload`. JPEG y PNG estáticos se reducen a un máximo de 1600 px, sin ampliación; PNG conserva transparencia y los formatos animados conservan sus bytes. El guardado espera las subidas y sincroniza editores, bloques y campos de código fuente. Los errores conservan la edición y permiten reintentar. La acción de guardado rechaza imágenes base64 pendientes únicamente para Rapid Response.
 
 Relacionadas: [[Modulos]], [[Flujos Importantes]], [[Testing]], [[Deployment]].
+
+## Narrativas de Rapid Response
+
+El formulario carga `story-editor-core.js` y `rapid-response-story-edit.js`; la vista pública comparte `data_stories/components/storymap_viewer.html`. `rapid-response-story.css` adapta los controles a móvil. El visor admite `mobileStackedMedia` para situar el mapa después del texto en Rapid Response. Ver [[Stories en Rapid Response]].

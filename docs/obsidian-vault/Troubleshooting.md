@@ -175,3 +175,7 @@ Si desaparecen bloques al guardar contenido que contiene `&quot;`, revisar la ve
 Diagnóstico observado en producción el 2026-09-11: Nepal devolvía 52,87 MB de HTML por dos JPEG incrustados; los estilos del detalle aparecían después de las imágenes. El navegador podía quedar sin completar `DOMContentLoaded`. El historial también almacenaba base64.
 
 Revisar tamaño del HTML, posición del CSS y ejecutar la auditoría `pages optimize-rapid-response-images`. La corrección combina CSS en cabecera, subida de imágenes desde el editor y conversión reversible del contenido existente; no basta con añadir `loading="lazy"` a una imagen que sigue incrustada en el HTML. Ver [[Deployment]].
+
+## Narrativas de Rapid Response
+
+Si el nuevo compositor no carga o el documento es inválido, muestra el error y evita guardar un reemplazo vacío. No pasar HTML antiguo con iframes por Quill: el adaptador lo conserva como contenido original. La cabecera omite consultas de Stories cuando el módulo está desactivado, evitando transacciones fallidas por tablas ausentes. Ver [[Stories en Rapid Response]].
