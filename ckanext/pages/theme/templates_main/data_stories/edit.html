@@ -316,8 +316,9 @@
         <select id="display_mode"
                 name="display_mode"
                 class="form-control">
-          <option value="classic"{% if data.get('display_mode', 'classic') != 'storymap' %} selected{% endif %}>{{ _('Classic (stacked sections)') }}</option>
+          <option value="classic"{% if data.get('display_mode', 'classic') == 'classic' %} selected{% endif %}>{{ _('Classic (stacked sections)') }}</option>
           <option value="storymap"{% if data.get('display_mode') == 'storymap' %} selected{% endif %}>{{ _('Story Map (scrolling map, like ArcGIS StoryMaps)') }}</option>
+          <option value="slides"{% if data.get('display_mode') == 'slides' %} selected{% endif %}>{{ _('Slides (previous / next)') }}</option>
         </select>
         <span class="help-text">
           <i class="fa fa-info-circle text-info"></i>
@@ -790,5 +791,7 @@
   {# ?v= busts browser caches when the editor logic changes — bump on edits.
      Stale editor JS would silently drop unknown block types on save. #}
   <script src="/js/data-stories-sequence.js?v=20260911-1"></script>
-  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260911-1"></script>
+  <link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-1">
+  <script src="/js/data-stories-visuals-edit.js?v=20260924-1"></script>
+  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260924-1"></script>
 {% endblock %}

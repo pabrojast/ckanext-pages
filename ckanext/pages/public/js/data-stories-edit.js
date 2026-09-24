@@ -831,6 +831,7 @@
               <button type="button" class="btn btn-xs btn-warning insert-block-btn" data-block-type="image">
                 <i class="fa fa-image"></i> Image
               </button>
+              <button type="button" class="btn btn-xs btn-primary insert-block-btn" data-block-type="dashboard">Dashboard</button>
             </div>
           </div>
         `;
@@ -1024,6 +1025,10 @@
       function initializeSectionBlocks($section, sectionId) {
         sectionBlockCounters[sectionId] = 0;
         sectionQuillEditors[sectionId] = {};
+        StoryVisualsEditor.section($section, () => updateSectionContentFor($section, sectionId));
+        $section.find('.add-dashboard-block').on('click', function() {
+          addDashboardBlock(resolveSectionId(this, sectionId));
+        });
 
         const $blocksContainer = $section.find('.section-content-blocks');
         const blocksContainerId = 'section-' + sectionId + '-blocks';
@@ -1126,7 +1131,11 @@
 
                 if (blockData.type === 'text') {
                   console.log('[Section ' + sectionId + '] -> Adding TEXT block');
-                  addTextBlock(sectionId, blockData.content);
+                  addTextBlock(sectionId, blockData.content, null, blockData);
+                } else if (blockData.type === 'presentation') {
+                  $section.find('.ds-presentation').val(blockData.layout || 'auto');
+                } else if (blockData.type === 'dashboard') {
+                  addDashboardBlock(sectionId, blockData);
                 } else if (blockData.type === 'terria') {
                   console.log('[Section ' + sectionId + '] -> Adding TERRIA block with tabs:', blockData.tabs);
                   addTerriaBlock(sectionId, blockData);
@@ -1174,7 +1183,7 @@
       }
       
       // Add text block
-      function addTextBlock(sectionId, content = '', insertAfterBlockId = null) {
+      function addTextBlock(sectionId, content = '', insertAfterBlockId = null, visualData = {}) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
         const $container = $('#section-' + sectionId + '-blocks');
         
@@ -1263,6 +1272,8 @@
           });
           
           sectionQuillEditors[sectionId][blockId] = quill;
+          StoryVisualsEditor.text($('[data-block-id="' + blockId + '"]'), quill, visualData,
+            () => updateSectionContentFor(quill.root, sectionId));
         });
         
         addBlockEventListeners(blockId, sectionId);
@@ -1270,6 +1281,21 @@
       }
       
       // Add Terria map block with tabs support
+      function addDashboardBlock(sectionId, data = {}, insertAfterBlockId = null) {
+        const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
+        const $container = $('#section-' + sectionId + '-blocks');
+        const html = `<div class="content-block" data-block-id="${blockId}" data-block-type="dashboard">
+          <div class="content-block-header"><h5>Dashboard</h5><div class="content-block-controls">
+          <button type="button" class="btn btn-default move-block-up" aria-label="Move up">↑</button>
+          <button type="button" class="btn btn-default move-block-down" aria-label="Move down">↓</button>
+          <button type="button" class="btn btn-danger delete-block">Delete</button></div></div>
+          <div class="content-block-body"></div>${renderInsertControlsHtml()}</div>`;
+        insertBlockHtml($container, html, insertAfterBlockId);
+        const $block = $('[data-block-id="' + blockId + '"]');
+        $block.find('.content-block-body').append(StoryVisualsEditor.dashboard(data, () => updateSectionContentFor($block, sectionId)));
+        addBlockEventListeners(blockId, sectionId);
+      }
+
       function addTerriaBlock(sectionId, data = {}, insertAfterBlockId = null) {
         const blockId = 'section-' + sectionId + '-block-' + (++sectionBlockCounters[sectionId]);
         const $container = $('#section-' + sectionId + '-blocks');
@@ -1706,6 +1732,8 @@
             addMediaBlock(currentSectionId, {}, afterBlockId);
           } else if (blockType === 'image') {
             addImageBlock(currentSectionId, {}, afterBlockId);
+          } else if (blockType === 'dashboard') {
+            addDashboardBlock(currentSectionId, {}, afterBlockId);
           }
         });
       }
@@ -1982,7 +2010,7 @@
         
         const $container = $section.find('.section-content-blocks');
         let contentHtml = '';
-        const blocksMetadata = [];
+        const blocksMetadata = [{type: 'presentation', version: 1, layout: $section.find('.ds-presentation').val() || 'auto'}];
         let hasTerriaMap = false;
         let terriaLink = '';
         
@@ -2003,11 +2031,20 @@
                 contentHtml += html + '\n\n';
                 blocksMetadata.push({
                   type: 'text',
+                  ...($block.data('visual-text') || {}),
                   content: html
                 });
               }
             } else {
               console.warn('Quill editor not found for block:', blockId);
+            }
+          } else if (blockType === 'dashboard') {
+            const $visual = $block.find('.ds-dashboard-editor');
+            const dashboard = $visual.data('read')();
+            if (dashboard.view_id) {
+              blocksMetadata.push(dashboard);
+              contentHtml += '<iframe title="' + escapeAttr(dashboard.title || 'Dashboard') + '" src="/dashboard/' +
+                encodeURIComponent(dashboard.view_id) + '/embed" loading="lazy" allowfullscreen style="width:100%;height:650px;border:0"></iframe>';
             }
           } else if (blockType === 'terria') {
             // Collect all tabs
@@ -2525,7 +2562,7 @@
           })
           .catch(function(err) {
             console.error('Error uploading inline images:', err);
-            alert('Inline images could not be uploaded. Please try again.');
+            alert(err.message || 'Images or visualization settings could not be saved. Please correct the error and try again.');
             $(form).data('submitting-inline', false);
           });
       });

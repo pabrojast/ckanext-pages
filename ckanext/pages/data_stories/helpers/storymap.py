@@ -288,6 +288,10 @@ def get_storymap_scenes(story, resolve_share=None):
 
         blocks = []
         sources = []
+        dashboards = []
+        visual_references = []
+        presentation = 'auto'
+        from .visuals import dashboard_block, references
 
         if isinstance(blocks_raw, list) and blocks_raw:
             for block in blocks_raw:
@@ -295,8 +299,23 @@ def get_storymap_scenes(story, resolve_share=None):
                     continue
                 block_type = block.get('type')
                 if block_type == 'text' and block.get('content'):
-                    blocks.append({'type': 'text',
-                                   'content': block['content']})
+                    refs = references(block)
+                    visual_references.extend(refs)
+                    text_block = {'type': 'text', 'content': block['content']}
+                    if block.get('id'):
+                        text_block['id'] = block['id']
+                    if refs:
+                        text_block['references'] = refs
+                    blocks.append(text_block)
+                elif block_type == 'presentation':
+                    if block.get('layout') in ('auto', 'map', 'dashboard', 'combined', 'full'):
+                        presentation = block['layout']
+                elif block_type == 'dashboard':
+                    dashboard = dashboard_block(block)
+                    if dashboard['type'] == 'dashboard':
+                        dashboards.append(dashboard)
+                    else:
+                        blocks.append(dashboard)
                 elif block_type == 'media' and block.get('url'):
                     blocks.append({
                         'type': 'media',
@@ -380,11 +399,14 @@ def get_storymap_scenes(story, resolve_share=None):
             'section_type': section.get('section_type') or '',
             'blocks': blocks,
             'sources': sources,
+            'dashboards': dashboards,
+            'references': visual_references,
+            'presentation': presentation,
             'scene_url': default_source.get('scene_url'),
             'share_url': default_source.get('share_url'),
             'share_id': default_source.get('share_id'),
             'start_data': default_source.get('start_data'),
-            'layout': 'split' if sources else 'full',
+            'layout': 'full' if presentation == 'full' else ('split' if sources or dashboards else 'full'),
         })
 
     # Story Slides live in the share JSON: resolve them for EVERY source
@@ -416,6 +438,7 @@ def get_storymap_scenes(story, resolve_share=None):
                 'source_index': source['source_index'],
                 'source_title': source['title'],
                 'step_index': len(source['steps']),
+                'slide_id': block.get('slide_id'),
             }
             source['steps'].append(step)
             source['start_data']['initSources'][-1]['stories'].append({
@@ -455,7 +478,7 @@ def get_storymap_scenes(story, resolve_share=None):
             if index:
                 part['section_id'] = '%s-part-%d' % (scene['section_id'], index)
             if full_image:
-                part.update(layout='full', sources=[], scene_url=None, share_url=None, share_id=None, start_data=None, steps=[])
+                part.update(layout='full', sources=[], dashboards=[], scene_url=None, share_url=None, share_id=None, start_data=None, steps=[])
             first_step = next((b for b in blocks if b['type'] == 'step'), None)
             part['initial_step'] = ({'sourceIndex': first_step['source_index'], 'stepIndex': first_step['step_index']} if first_step else None)
             result.append(part)
@@ -581,16 +604,21 @@ def get_storymap_config(story, scenes=None):
                 'shareId': s.get('share_id'),
                 'startData': s.get('start_data'),
                 'initialStep': s.get('initial_step'),
+                'dashboards': s.get('dashboards', []),
+                'references': s.get('references', []),
+                'presentation': s.get('presentation', 'auto'),
                 # Flattened total across all sources; per-source counts
                 # below drive the scroll-driven source sequencing.
                 'steps': len(s.get('steps') or []),
                 'sources': [
                     {
                         'sceneUrl': source.get('scene_url'),
+                        'sourceId': source.get('source_id'),
                         'shareId': source.get('share_id'),
                         'startData': source.get('start_data'),
                         'title': source.get('title'),
                         'steps': len(source.get('steps') or []),
+                        'slideIds': [step.get('slide_id') for step in source.get('steps') or []],
                     }
                     for source in (s.get('sources') or [])
                 ],
@@ -599,7 +627,7 @@ def get_storymap_config(story, scenes=None):
         ],
         'terriaOrigin': terria_origin,
         'embedBaseUrl': embed_base_url,
-        'hasMedia': bool(first_scene),
+        'hasMedia': bool(first_scene or any(s.get('dashboards') for s in scenes)),
         'placeholderImage': placeholder_image,
     }
 

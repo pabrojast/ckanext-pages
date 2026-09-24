@@ -776,12 +776,13 @@ def show(slug):
     # Layout selection: '?layout=' overrides the stored display_mode so a
     # classic story can be previewed as a storymap before converting it.
     layout = request.args.get('layout') or story.get('display_mode') or 'classic'
-    if layout == 'storymap':
+    if layout in ('storymap', 'slides'):
         from ckanext.pages.data_stories.helpers.storymap import (
             get_storymap_scenes, get_storymap_config)
         scenes = get_storymap_scenes(story)
         extra_vars['storymap_scenes'] = scenes
         extra_vars['storymap_config'] = get_storymap_config(story, scenes)
+        extra_vars['storymap_config']['displayMode'] = layout
         return render_template('data_stories/show_storymap.html', **extra_vars)
 
     return render_template('data_stories/show.html', **extra_vars)

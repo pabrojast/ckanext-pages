@@ -79,8 +79,8 @@ def _display_mode_validator(key, data, errors, context):
     if not value:
         data[key] = 'classic'
         return
-    if value not in ('classic', 'storymap'):
-        errors[key].append("Must be one of 'classic' or 'storymap'")
+    if value not in ('classic', 'storymap', 'slides'):
+        errors[key].append("Must be one of 'classic', 'storymap' or 'slides'")
 
 
 def _default_to_none(key, data, errors, context):

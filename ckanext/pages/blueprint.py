@@ -34,6 +34,22 @@ def pages_delete(page):
 
 
 def upload():
+    if request.method == 'GET':
+        from flask import jsonify
+        from ckan.plugins import toolkit as tk
+        from ckan.lib import uploader
+        try:
+            tk.check_access('ckanext_pages_upload', {'user': getattr(tk.g, 'user', None)})
+        except tk.NotAuthorized:
+            tk.abort(401, 'Sign in to upload story images.')
+        try:
+            from flask_wtf.csrf import generate_csrf
+            token = generate_csrf()
+        except ImportError:
+            token = None
+        response = jsonify(csrf_token=token, max_bytes=uploader.get_max_image_size() * 1024 * 1024)
+        response.headers['Cache-Control'] = 'private, no-store'
+        return response
     return utils.pages_upload()
 
 
@@ -483,7 +499,7 @@ pages.add_url_rule("/pages_edit/", view_func=pages_edit, endpoint='new', methods
 pages.add_url_rule("/pages_edit/<page>", view_func=pages_edit, endpoint='edit', methods=['GET', 'POST'])
 pages.add_url_rule("/pages_delete/<page>", view_func=pages_delete, endpoint='delete', methods=['GET', 'POST'])
 
-pages.add_url_rule("/pages_upload", view_func=upload, methods=['POST'])
+pages.add_url_rule("/pages_upload", view_func=upload, methods=['GET', 'POST'])
 
 
 pages.add_url_rule("/blog", view_func=blog_index)
