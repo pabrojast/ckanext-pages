@@ -735,34 +735,7 @@
           Quill.register('modules/imageResize', ImageResize.default || ImageResize);
         }
 
-        // Preserve inline image styles/classes (e.g., float alignment) when loading existing content
-        const BaseImage = Quill.import('formats/image');
-        const imageAttributes = ['alt', 'height', 'width', 'style', 'class'];
-        class StyledImage extends BaseImage {
-          static formats(domNode) {
-            const formats = super.formats(domNode);
-            imageAttributes.forEach(function(attr) {
-              const value = domNode.getAttribute(attr);
-              if (value) {
-                formats[attr] = value;
-              }
-            });
-            return formats;
-          }
-
-          format(name, value) {
-            if (imageAttributes.indexOf(name) !== -1) {
-              if (value) {
-                this.domNode.setAttribute(name, value);
-              } else {
-                this.domNode.removeAttribute(name);
-              }
-            } else {
-              super.format(name, value);
-            }
-          }
-        }
-        Quill.register(StyledImage, true);
+        window.StoryEditorCore.registerFormats();
       });
       
       // Section management
@@ -1250,15 +1223,13 @@
             modulesConfig.imageResize = { displaySize: true };
           }
           
-          const quill = new Quill('#' + blockId + '-editor', {
+          const textEditor = window.StoryEditorCore.createText('#' + blockId + '-editor', content, {
             theme: 'snow',
             modules: modulesConfig,
             placeholder: 'Enter your content here...'
           });
           
-          if (content) {
-            quill.clipboard.dangerouslyPasteHTML(content);
-          }
+          const quill = textEditor.quill;
 
           // If legacy content has inline data URIs, upload immediately and replace
           replaceInlineImagesInEditor(quill).catch(function(err) {
@@ -2024,7 +1995,7 @@
             const quill = sectionQuillEditors[sectionId] && sectionQuillEditors[sectionId][editorId];
             console.log('Processing text block:', blockId, 'Editor ID:', editorId, 'Quill exists:', !!quill);
             if (quill) {
-              const html = quill.root.innerHTML;
+              const html = window.StoryEditorCore.getHtml(quill);
               const text = quill.getText().trim();
               console.log('Text content length:', text.length);
               if (text || quill.root.querySelector('img, video, iframe')) {

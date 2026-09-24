@@ -7,11 +7,13 @@
 {% block styles %}
   {{ super() }}
   {% asset 'pages/rapid-response-detail-css' %}
+  <link rel="stylesheet" href="/css/data-stories-storymap.css?v=20260924-4">
+  <link rel="stylesheet" href="/css/rapid-response-story.css?v=20260924-1">
 {% endblock %}
 
 {% block content %}
 
-<div class="homepage layout-1">
+<div class="homepage layout-1 storymap-page rr-story-page">
     <div id="content" class="container">
       {{ self.flash() }}
     </div>
@@ -197,7 +199,7 @@
                 {% endif %}
 
                 <!-- 1. Event Overview (Main Content) -->
-                {% if c.page.content %}
+                {% if storymap_scenes is not defined and c.page.content %}
                 <div class="rapid-response-main-content" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-overview">
                     <div class="module-content">
@@ -330,6 +332,22 @@
                 </div>
                 {% endif %}
 
+                {% if storymap_scenes is defined %}
+                <div class="rr-story-display">
+                  <nav class="rr-story-chapters" aria-label="{{ _('Story chapters') }}">
+                    {% for scene in storymap_scenes if not scene.continuation %}
+                    <a href="#scene-{{ scene.section_id }}">{{ scene.title }}</a>
+                    {% endfor %}
+                  </nav>
+                  {% snippet 'data_stories/components/storymap_viewer.html', storymap_scenes=storymap_scenes, storymap_config=storymap_config %}
+                </div>
+                {% if rr_datasets %}
+                <section class="module module-narrow"><div class="module-content">
+                  <h2>{{ _('Related datasets') }}</h2>
+                  <ul>{% for dataset in rr_datasets %}<li><a href="{{ h.url_for('dataset.read', id=dataset.name) }}">{{ dataset.title }}</a></li>{% endfor %}</ul>
+                </div></section>
+                {% endif %}
+                {% else %}
                 <!-- 4. Impact Assessment -->
                 {% if c.page.impact_assessment and h.has_meaningful_content(c.page.impact_assessment) %}
                 <div class="rapid-response-impact" style="margin-bottom: 3rem;">
@@ -427,6 +445,7 @@
                 {% endif %}
 
                 <!-- 7. Enhanced Image Gallery Section -->
+                {% endif %}
                 {% if c.page.uploaded_images or c.page.image_carousel %}
                 <div class="rapid-response-gallery" style="margin-bottom: 3rem;">
                   <section class="module module-narrow rr-module-gallery">

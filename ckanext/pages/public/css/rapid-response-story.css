@@ -1,0 +1,53 @@
+/* Scoped to the emergency narrative; shared StoryMap handles map transitions. */
+.rr-story-chapter { margin: 1.5rem 0; padding: 1.5rem; border: 1px solid #cbdce8; border-radius: 12px; background: #f6f9fc; }
+.rr-story-chapter > header, .rr-story-block > header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.rr-story-chapter > header > label { flex: 1; min-width: 180px; }
+.rr-story-block { margin: 1rem 0; background: white; border: 1px solid #dce5ec; border-radius: 8px; overflow: visible; }
+.rr-story-block > header { padding: .75rem 1rem; background: #eaf2f8; border-radius: 8px 8px 0 0; }
+.rr-story-block h4 { font-size: 1.1rem; margin: 0; }
+.rr-story-block-body { padding: 1rem; }
+.rr-story-input { display: block; margin: .6rem 0; font-weight: 600; }
+.rr-story-input input, .rr-story-input textarea { margin-top: .3rem; font-weight: 400; width: 100%; }
+.rr-story-input textarea { min-height: 130px; }
+.rr-story-input::after { content: none; }
+.rr-story-fieldset .btn { padding: 8px 12px; border-radius: 6px; min-height: 40px; white-space: normal; }
+.rr-story-fieldset input, .rr-story-fieldset textarea, .rr-story-fieldset select { max-width: 100%; min-width: 0; }
+.rr-story-fieldset { min-width: 0; }
+.rr-story-fieldset #rr-add-dataset { margin-top: .5rem; }
+.rr-story-block, .rr-map-tab { min-width: 0; }
+.rr-story-controls, .rr-story-add { display: flex; flex-wrap: wrap; gap: .5rem; }
+.rr-story-add { padding: .75rem; }
+.rr-story-block .ql-editor { min-height: 120px; font-size: 16px; }
+.rr-story-block .ql-toolbar { border-radius: 6px 6px 0 0; }
+.rr-story-block .ql-container { height: auto; }
+.rr-legacy-preview { border: 1px solid #e0e6ec; width: 100%; min-height: 220px; background: white; }
+.rr-image-preview { display: block; max-width: 100%; max-height: 300px; object-fit: contain; }
+.rr-map-tab { border: 1px solid #cbdce8; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+.rr-story-dataset-picker { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #cbdce8; }
+#rr-dataset-results { display: flex; flex-direction: column; align-items: stretch; gap: .4rem; margin-top: .75rem; }
+#rr-dataset-results .btn { text-align: left; white-space: normal; }
+#rr-story-datasets { padding-left: 0; list-style: none; }
+#rr-story-datasets li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 0; }
+.rr-story-page .main, .rr-story-page .main > .container { overflow: visible; }
+.rr-story-display { width: calc(100vw - 32px); max-width: 1800px; position: relative; left: 50%; transform: translateX(-50%); }
+.rr-story-chapters { display: flex; gap: .5rem; flex-wrap: wrap; padding: 1rem; }
+.rr-story-chapters a { color: #075c96; border: 1px solid #cbdce8; border-radius: 18px; padding: .5rem 1rem; background: white; }
+.rr-story-page .section-content img { max-width: 100%; height: auto; }
+.rr-story-page .section-content iframe { max-width: 100%; }
+@media (max-width: 767px) {
+  .rr-story-edit-page .rapid-response-form-wrapper > .module > .module-content { padding: 0; }
+  .rr-story-edit-page .form-section { padding: 0; border-left-width: 3px; border-radius: 10px; }
+  .rr-story-edit-page .form-section > .form-section-content { padding: .75rem; }
+  .rr-story-edit-page .form-section > legend { padding: 1rem; font-size: 1.2rem; }
+  .rr-story-chapter { padding: .75rem; }
+  .rr-story-chapter > header > label { min-width: 0; flex-basis: 100%; }
+  .rr-story-controls { gap: .3rem; }
+  .rr-story-controls .btn { padding: 6px 8px; font-size: 12px; }
+  .rr-story-block > header { padding: .75rem .5rem; gap: .5rem; }
+  .rr-story-block-body { padding: .5rem; }
+  .rr-story-block .ql-editor { padding: .75rem .5rem; }
+  .rr-map-tab { padding: .5rem; }
+  .rr-story-add { padding: .5rem; gap: .3rem; }
+  #rr-story-datasets li { flex-wrap: wrap; overflow-wrap: anywhere; }
+  .rr-story-display { width: 100%; left: auto; transform: none; }
+}

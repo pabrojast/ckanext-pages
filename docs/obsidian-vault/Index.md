@@ -1,7 +1,7 @@
 # Index
 
 Tags: #hub #onboarding
-Actualizado: 2026-03-26
+Actualizado: 2026-09-24
 
 ## Qué es este proyecto
 
@@ -46,6 +46,7 @@ La mejor forma de entenderlo es como un plugin CKAN con varios subproductos sobr
 - [[Modulos]]
 - [[Datos y Persistencia]]
 - [[Frontend y Plantillas]]
+- [[Stories en Rapid Response]]
 
 ### Operación
 

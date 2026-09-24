@@ -359,6 +359,7 @@ def pages_list_pages(page_type):
 # inputs. actions.py stores JSON-parseable extras as native lists/dicts
 # (since a954592), so they must be re-serialized before rendering the form.
 RAPID_RESPONSE_JSON_FORM_FIELDS = (
+    'rapid_response_story',
     'impact_assessment_blocks_metadata',
     'response_activities_blocks_metadata',
     'recovery_phase_blocks_metadata',
@@ -724,6 +725,16 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             'error_summary': error_summary, 'page': page_object,
             'page_name': page or '',
             'form_snippet': form_snippet}
+
+    if page_type == 'rapid-response':
+        from ckanext.pages.rapid_response_story import story_for_page, readable_datasets
+        try:
+            document = story_for_page(data or {}, new=not page)
+            vars['rr_story_json'] = json.dumps(document)
+            vars['rr_story_datasets'] = readable_datasets(document, {'user': tk.g.user})
+        except ValueError as error:
+            vars['rr_story_json'] = data.get('rapid_response_story') or ''
+            vars['rr_story_error'] = str(error)
 
     # Load organizations server-side for page types that need them
     if page_type in ['open-source-software', 'ai-water-tools', 'water-news', 'water-events', 'water-publications']:
@@ -1895,6 +1906,14 @@ def pages_show(page=None, page_type='page'):
 
     extra_vars = {}
 
+    if page_type == 'rapid-response':
+        from ckanext.pages.rapid_response_story import view_context
+        try:
+            extra_vars.update(view_context(_page, {'user': tk.g.user}))
+        except ValueError:
+            logging.getLogger(__name__).exception('Invalid Rapid Response story: %s', page)
+            extra_vars['rr_story_error'] = True
+
     # Enrich water-family detail pages with org/group details for card displays
     if page_type in ('water-publications', 'water-news', 'water-events'):
         if page_type == 'water-publications':
@@ -1925,7 +1944,7 @@ def pages_revisions(page, page_type='page'):
     # Get revisions list for the template
     revisions = []
     if _page.revisions:
-        revisions = list(_page.revisions.values())
+        revisions = [dict(value, id=key) for key, value in _page.revisions.items()]
         # Sort by timestamp descending (newest first)
         revisions.sort(key=lambda x: x.get('created', ''), reverse=True)
     
@@ -1952,9 +1971,18 @@ def pages_revisions_preview(page, revision, page_type='page'):
     tk.c.page_type = page_type
     tk.c.page = _page
     try:
+        revision_data = dict(_page.revisions[revision], id=revision)
+        if page_type == 'rapid-response':
+            from ckanext.pages.rapid_response_story import restore_content, view_context
+            from ckanext.pages.db import table_dictize
+            preview_page = restore_content(table_dictize(_page, {}), revision_data)
+            preview_vars = {'page': preview_page, 'revision': revision_data}
+            if revision_data.get('rapid_response'):
+                preview_vars.update(view_context(preview_page, {'user': tk.g.user}))
+            return tk.render('ckanext_pages/rapid-response_revisions_preview.html', extra_vars=preview_vars)
         return tk.render('ckanext_pages/%s_revisions_preview.html' % page_type, extra_vars={
             "page": _page,
-            "revision": _page.revisions[revision]
+            "revision": revision_data
         })
     except KeyError:
         return tk.abort(404, _('Revision not found'))

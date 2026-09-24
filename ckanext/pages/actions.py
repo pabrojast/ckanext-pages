@@ -371,6 +371,17 @@ def _pages_update(context, data_dict):
     revisions_limit = tk.asint(tk.config.get('ckanext.pages.revisions_limit', '3')) + 1
     force_revisions_limit = tk.asbool(tk.config.get('ckanext.pages.revisions_force_limit', False))
 
+    existing_page = db.Page.get(group_id=org_id, name=page)
+    rr_previous = None
+    is_rapid_response = (data_dict.get('page_type') == 'rapid-response' or
+                         existing_page and existing_page.page_type == 'rapid-response')
+    if is_rapid_response:
+        from ckanext.pages import rapid_response_story as rr_story
+        if existing_page:
+            rr_previous = db.table_dictize(existing_page, context)
+        if isinstance(data_dict.get('rapid_response_story'), dict):
+            data_dict = dict(data_dict, rapid_response_story=json.dumps(data_dict['rapid_response_story']))
+
     data, errors = df.validate(data_dict, schema, context)
 
     # DEBUG: Log data after validation
@@ -425,6 +436,29 @@ def _pages_update(context, data_dict):
         target_page_type = out.page_type
     if target_page_type == 'rapid-response' or out.page_type == 'rapid-response':
         from ckanext.pages.rapid_response_media import walk_images
+        try:
+            if 'rapid_response_story' in data:
+                document = rr_story.parse_story(data['rapid_response_story'])
+                previous_ids = {d['id'] for d in rr_story.story_for_page(rr_previous or {}).get('datasets', [])}
+                canonical = []
+                for reference in document['datasets']:
+                    if reference['id'] in previous_ids:
+                        canonical.append({'id': reference['id']})
+                        continue
+                    dataset = tk.get_action('package_show')(context, {'id': reference['id']})
+                    canonical.append({'id': dataset['id']})
+                document['datasets'] = canonical
+                document = rr_story.parse_story(document)
+            elif rr_previous and rr_previous.get('rapid_response_story'):
+                document = rr_story.sync_legacy_submission(
+                    rr_story.parse_story(rr_previous['rapid_response_story']), data)
+            else:
+                document = None
+            if document is not None:
+                data['rapid_response_story'] = document
+                data.update(rr_story.project_story(document))
+        except (ValueError, tk.ObjectNotFound, tk.NotAuthorized) as error:
+            raise tk.ValidationError({'rapid_response_story': [str(error)]})
         inline_fields = {}
         for field, value in data.items():
             def reject_inline(uri):
@@ -633,6 +667,15 @@ def _pages_update(context, data_dict):
     out.user_id = user.id
 
     revisions = out.revisions
+    if is_rapid_response and rr_previous and not any(
+            'rapid_response' in value for value in (revisions or {}).values()):
+        revisions = dict(revisions or {})
+        revisions[make_uuid()] = {
+            'content': rr_previous.get('content') or '',
+            'user_id': rr_previous.get('user_id'),
+            'created': str(rr_previous.get('modified') or datetime.datetime.now(datetime.timezone.utc)),
+            'rapid_response': rr_story.snapshot(rr_previous),
+        }
 
     new_revision = {
         make_uuid(): {
@@ -642,11 +685,14 @@ def _pages_update(context, data_dict):
             "current": True
         }
     }
+    if is_rapid_response:
+        next(iter(new_revision.values()))['rapid_response'] = rr_story.snapshot(
+            dict(extras, content=out.content))
     if not revisions:
         out.revisions = new_revision
     else:
         if (len(revisions) >= revisions_limit):
-            revisions = out.get_ordered_revisions()
+            revisions = dict(sorted(revisions.items(), key=lambda item: item[1]["created"], reverse=True))
 
             if not force_revisions_limit:
                 revisions.popitem()
@@ -915,7 +961,17 @@ def pages_revision_restore(context, data_dict):
 
         try:
             revision['current'] = True
-            page.content = revision['content']
+            if page.page_type == 'rapid-response':
+                from ckanext.pages.rapid_response_story import restore_content, SNAPSHOT_FIELDS
+                restored = restore_content(db.table_dictize(page, context), revision)
+                extras = json.loads(page.extras or '{}')
+                for field in SNAPSHOT_FIELDS:
+                    if field != 'content':
+                        extras[field] = restored.get(field)
+                page.extras = json.dumps(extras)
+                page.content = restored.get('content') or ''
+            else:
+                page.content = revision['content']
             page.save()
             return revision
         except TypeError:

@@ -9,7 +9,6 @@
 {% endif %}
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css?v=20260904-2" />
 <link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css?v=20260924-4" />
-<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-4" />
 
 <div class="homepage layout-1 storymap-page">
   <div id="content" class="container">
@@ -126,143 +125,7 @@
     </div>
 
     {# ====================== Scrollytelling sidecar ====================== #}
-    {% if storymap_scenes %}
-    <div class="storymap{% if not storymap_config.hasMedia %} has-no-map{% endif %}" id="storymap">
-      <nav class="storymap-slide-controls" aria-label="{{ _('Story slides') }}" hidden>
-        <button type="button" class="btn btn-default" data-direction="-1">{{ _('Previous') }}</button>
-        <select aria-label="{{ _('Choose slide') }}"></select>
-        <span role="status" aria-live="polite"></span>
-        <button type="button" class="btn btn-primary" data-direction="1">{{ _('Next') }}</button>
-      </nav>
-      <div class="storymap-visual-status" role="status" aria-live="polite" hidden></div>
-
-      {% if storymap_config.hasMedia %}
-      <div class="storymap-media" style="grid-row: 1 / span {{ storymap_scenes|length }};">
-        <nav class="storymap-visual-tabs" aria-label="{{ _('Visualization') }}" hidden>
-          <button type="button" data-visual-view="map" aria-pressed="false">{{ _('Map') }}</button>
-          <button type="button" data-visual-view="dashboard" aria-pressed="false">{{ _('Dashboard') }}</button>
-          <button type="button" data-visual-view="both" aria-pressed="false">{{ _('Both') }}</button>
-        </nav>
-        <div class="storymap-map-pane">
-        <div class="storymap-placeholder" aria-hidden="true"
-             {% if storymap_config.placeholderImage %}style="background-image: url('{{ storymap_config.placeholderImage }}');"{% endif %}>
-          <div class="storymap-placeholder-overlay">
-            <div class="storymap-spinner"></div>
-            <p>{{ _('Loading interactive map…') }}</p>
-          </div>
-        </div>
-        <iframe class="storymap-iframe" title="{{ _('Interactive map') }}"
-                allow="geolocation; fullscreen" allowfullscreen></iframe>
-        <button type="button" class="storymap-visual-fullscreen btn btn-default">{{ _('Full screen') }}</button>
-        <div class="storymap-scene-loading" role="status" aria-live="polite">
-          <span class="storymap-spinner storymap-spinner-sm"></span>
-          {{ _('Loading scene…') }}
-        </div>
-        <div class="storymap-scene-error" role="alert" hidden>
-          {{ _('This map could not be loaded.') }}
-          <button type="button" class="btn btn-default storymap-scene-retry">{{ _('Retry') }}</button>
-        </div>
-        {# Full-bleed image slide shown over the map while an image block
-           is the active scroll stop (populated by the viewer JS). #}
-        <div class="storymap-media-image" aria-hidden="true">
-          <img alt="" />
-          <div class="storymap-media-image-caption"></div>
-        </div>
-        </div>
-        <div class="storymap-dashboard-pane" hidden>
-          <div class="storymap-dashboard-tools">
-            <button type="button" class="storymap-visual-fullscreen btn btn-default">{{ _('Full screen') }}</button>
-            <button type="button" class="storymap-dashboard-retry btn btn-default">{{ _('Retry') }}</button>
-            <a class="storymap-dashboard-link" target="_blank" rel="noopener">{{ _('Open dashboard') }}</a>
-          </div>
-        </div>
-        <nav class="storymap-progress" aria-label="{{ _('Story chapters') }}">
-          <button type="button" class="storymap-nav-btn storymap-nav-prev"
-                  title="{{ _('Previous') }}" aria-label="{{ _('Previous block') }}">
-            <i class="fa fa-chevron-up" aria-hidden="true"></i>
-          </button>
-          {% for scene in storymap_scenes %}
-          <button type="button" class="storymap-dot{% if loop.first %} is-active{% endif %}"
-                  data-target="scene-{{ scene.section_id }}"
-                  title="{{ scene.title or loop.index }}"
-                  aria-label="{{ _('Go to chapter') }} {{ loop.index }}"></button>
-          {% endfor %}
-          <button type="button" class="storymap-nav-btn storymap-nav-next"
-                  title="{{ _('Next') }}" aria-label="{{ _('Next block') }}">
-            <i class="fa fa-chevron-down" aria-hidden="true"></i>
-          </button>
-        </nav>
-      </div>
-      {% endif %}
-
-      <div class="storymap-cards">
-        {% for scene in storymap_scenes %}
-        {% set scene_index = loop.index0 %}
-        <article class="storymap-card{% if scene.layout == 'full' %} is-full-width{% endif %}"
-                 id="scene-{{ scene.section_id }}" data-scene-index="{{ scene_index }}"
-                 data-layout="{{ scene.layout }}" style="grid-row: {{ loop.index }};">
-          <div class="storymap-card-body">
-            {% if not scene.continuation %}<header class="storymap-card-header">
-              <span class="storymap-card-number">{{ loop.index }}</span>
-              <h2><i class="fa {{ h.get_section_icon(scene.section_type) }}"></i>
-                {{ scene.title or scene.section_type|replace('_', ' ')|title }}</h2>
-            </header>{% endif %}
-
-            {% for block in scene.blocks %}
-              {% if block.type == 'text' %}
-              <div class="section-content storymap-narrative" data-block-id="{{ block.id or '' }}">{{ block.content | safe }}</div>
-              {% elif block.type == 'visual_error' %}
-              <p role="status">{{ _(block.message) }}</p>
-              {% elif block.type == 'media' %}
-              <div class="storymap-card-media">{{ block.embed_html | safe }}</div>
-              {% elif block.type == 'image' %}
-              <figure class="storymap-image-trigger"
-                      data-image-url="{{ block.url }}"
-                      data-image-alt="{{ block.alt }}"
-                      data-image-caption="{{ block.caption }}">
-                <img src="{{ block.url }}" alt="{{ block.alt }}" loading="lazy" />
-                {% if block.caption %}<figcaption>{{ block.caption }}</figcaption>{% endif %}
-                <span class="storymap-image-trigger-hint">
-                  <i class="fa fa-expand"></i>
-                  {% if scene.layout == 'full' %}
-                    {{ _('Shown as a full-width story image') }}
-                  {% else %}
-                    {{ _('Shown over the map as you read') }}
-                  {% endif %}
-                </span>
-              </figure>
-              {% elif block.type == 'step' %}
-              <section class="storymap-step" data-scene-index="{{ scene_index }}"
-                       data-source-index="{{ block.source_index }}" data-step-index="{{ block.step_index }}">
-                <h3 class="storymap-step-title"><span class="storymap-step-number">{{ block.step_index + 1 }}/{{ block.step_total }}</span> {{ block.title }}</h3>
-                {% if block.text %}<div class="storymap-step-text section-content">{{ block.text | safe }}</div>{% endif %}
-              </section>
-              {% elif block.type == 'scene_tabs' and block.tabs|length > 1 %}
-              <div class="storymap-scene-tabs" role="group" aria-label="{{ _('Map views') }}">
-                {% for tab in block.tabs %}
-                <button type="button" class="scene-tab-btn{% if loop.first %} is-active{% endif %}"
-                        data-source-index="{{ tab.source_index }}">
-                  <i class="fa fa-map-o"></i> {{ tab.title }}
-                </button>
-                {% endfor %}
-              </div>
-              {% endif %}
-            {% endfor %}
-
-            {% if scene.share_url %}
-            <p class="storymap-open-terria">
-              <a href="{{ scene.share_url }}" target="_blank" rel="noopener">
-                <i class="fa fa-external-link"></i> {{ _('Open this map in Terria') }}
-              </a>
-            </p>
-            {% endif %}
-          </div>
-        </article>
-        {% endfor %}
-      </div>
-
-    </div>
-    {% endif %}
+    {% snippet 'data_stories/components/storymap_viewer.html', storymap_scenes=storymap_scenes, storymap_config=storymap_config %}
 
     {# ====================== Classic tail sections ====================== #}
     {# Full container width, matching the hero above (no narrow column). #}
@@ -466,8 +329,4 @@
 </a>
 {% endif %}
 
-<script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
-{# ?v= busts browser caches when the viewer logic changes — bump on edits #}
-<script src="/js/data-stories-visuals.js?v=20260924-4" defer></script>
-<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-4" defer></script>
 {% endblock %}

@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -181,3 +181,7 @@ Revisar tamaño del HTML, posición del CSS y ejecutar la auditoría `pages opti
 Los porcentajes de `rootMargin` en IntersectionObserver se calculan sobre el ancho: márgenes de 45% y 35% pueden eliminar toda la zona activa en una pantalla baja. El visor usa ahora una posición de lectura en píxeles de altura y una única selección de paso. Verificar avanzar, volver y saltar entre fuentes; no limitarse a probar Slides.
 
 Si una historia importada abre Terria de otra instancia y cae al modo hash, revisar `ckanext.data_stories.terria_runtime_url`. En dev debe apuntar a `https://data.dev-wins.com/terria/`. Los enlaces originales permanecen como fuente para resolver shares y recursos; configurar el runtime no migra ni modifica las historias.
+
+## Narrativas de Rapid Response
+
+Si el nuevo compositor no carga o el documento es inválido, muestra el error y evita guardar un reemplazo vacío. No pasar HTML antiguo con iframes por Quill: el adaptador lo conserva como contenido original. La cabecera omite consultas de Stories cuando el módulo está desactivado, evitando transacciones fallidas por tablas ausentes. Ver [[Stories en Rapid Response]].

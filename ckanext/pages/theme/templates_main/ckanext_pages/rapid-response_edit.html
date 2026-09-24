@@ -11,7 +11,7 @@
 
 {% block content %}
 
-<div class="homepage layout-1">
+<div class="homepage layout-1 rr-story-edit-page">
     <div id="content" class="container">
       {{ self.flash() }}
     </div>
@@ -266,22 +266,7 @@
                           </div>
                         </fieldset>
 
-                        <!-- 1. Event Description & Overview -->
-                        <fieldset class="form-section">
-                          <legend>{{ _('Event Overview') }}</legend>
-                          <div class="form-section-content">
-                          <p class="help-block">{{ _('Detailed description of the emergency event, when and where it occurred, and its overall impact.') }}</p>
-                          <div class="form-group">
-                            <label for="field-content" class="control-label">{{ _('Event Description') }} <span class="text-danger">*</span></label>
-                            <div class="quill-wrapper">
-                              <div id="content-editor" class="quill-editor"></div>
-                              <textarea id="field-content" name="content" style="display: none;">{{ data.content or '' }}</textarea>
-                            </div>
-                            <div class="help-text">{{ _('This is the main description that appears first. Focus on what happened, where, and when.') }}</div>
-                            {% if errors.content %}<span class="error-block">{{ errors.content }}</span>{% endif %}
-                          </div>
-                          </div>
-                        </fieldset>
+                        {% snippet 'ckanext_pages/snippets/rapid_response_story_editor.html', rr_story_json=rr_story_json, rr_story_error=rr_story_error, rr_story_datasets=rr_story_datasets, errors=errors %}
 
                         <!-- 2. Key Information Summary -->
                         <fieldset class="form-section">
@@ -459,327 +444,6 @@
                           </div>
                         </fieldset>
 
-                        <!-- 4. Impact Assessment - Advanced Block System -->
-                        <fieldset class="form-section collapsible collapsed" data-section="impact-assessment">
-                          <div class="collapsible-header">
-                            <div class="collapsible-title">
-                              <div class="section-icon">
-                                <i class="fa fa-exclamation-triangle"></i>
-                              </div>
-                              <h3>{{ _('Impact Assessment') }}</h3>
-                            </div>
-                            <div class="collapsible-status">
-                              <div class="collapsible-indicators">
-                                <div class="content-indicator empty">
-                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
-                                </div>
-                              </div>
-                              <button type="button" class="collapse-toggle">
-                                <i class="fa fa-chevron-down"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div class="collapsible-content">
-                            <div class="form-section-content">
-                            <p class="help-block">{{ _('Build comprehensive impact assessments with text, maps, videos, and interactive content. Document damage to heritage sites, communities affected, and ongoing concerns.') }}</p>
-                            
-                            <!-- Content Blocks Container for Impact Assessment -->
-                            <div id="impact-assessment-content-blocks">
-                              <!-- Blocks will be added here -->
-                            </div>
-                            
-                            <!-- Add Block Controls for Impact Assessment -->
-                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
-                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new impact assessment content:') }}</p>
-                              <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary btn-sm" id="add-impact-text-block">
-                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" id="add-impact-iframe-block">
-                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <!-- Hidden fields to store Impact Assessment content -->
-                            <textarea id="field-impact-assessment" name="impact_assessment" style="display: none;">{{ data.impact_assessment or '' }}</textarea>
-                            <input type="hidden" id="impact-assessment-blocks-metadata" name="impact_assessment_blocks_metadata" value="{{ data.impact_assessment_blocks_metadata or '' }}">
-                            {% if errors.impact_assessment %}<span class="error-block">{{ errors.impact_assessment }}</span>{% endif %}
-                            
-                            <!-- Toggle button for generated HTML code -->
-                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
-                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-impact-generated-code" style="border-color: #0072BC; color: #0072BC;">
-                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
-                              </button>
-                              <div id="impact-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
-                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Impact Assessment') }}</h5>
-                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
-                                  {{ _('This is the HTML code generated from your impact assessment blocks.') }}
-                                </p>
-                                <pre id="impact-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
-                              </div>
-                            </div>
-                            </div>
-                          </div>
-                        </fieldset>
-
-                        <!-- 5. Response Activities - Advanced Block System -->
-                        <fieldset class="form-section collapsible collapsed" data-section="response-activities">
-                          <div class="collapsible-header">
-                            <div class="collapsible-title">
-                              <div class="section-icon">
-                                <i class="fa fa-users"></i>
-                              </div>
-                              <h3>{{ _('Response Activities') }}</h3>
-                            </div>
-                            <div class="collapsible-status">
-                              <div class="collapsible-indicators">
-                                <div class="content-indicator empty">
-                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
-                                </div>
-                              </div>
-                              <button type="button" class="collapse-toggle">
-                                <i class="fa fa-chevron-down"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div class="collapsible-content">
-                            <div class="form-section-content">
-                            <p class="help-block">{{ _('Document comprehensive response efforts with text, coordination maps, video reports, and interactive content. Detail immediate response efforts, agencies involved, and current response status.') }}</p>
-                            
-                            <!-- Content Blocks Container for Response Activities -->
-                            <div id="response-activities-content-blocks">
-                              <!-- Blocks will be added here -->
-                            </div>
-                            
-                            <!-- Add Block Controls for Response Activities -->
-                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
-                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new response activities content:') }}</p>
-                              <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary btn-sm" id="add-response-text-block">
-                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" id="add-response-iframe-block">
-                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <!-- Hidden fields to store Response Activities content -->
-                            <textarea id="field-response-activities" name="response_activities" style="display: none;">{{ data.response_activities or '' }}</textarea>
-                            <input type="hidden" id="response-activities-blocks-metadata" name="response_activities_blocks_metadata" value="{{ data.response_activities_blocks_metadata or '' }}">
-                            {% if errors.response_activities %}<span class="error-block">{{ errors.response_activities }}</span>{% endif %}
-                            
-                            <!-- Toggle button for generated HTML code -->
-                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
-                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-response-generated-code" style="border-color: #0072BC; color: #0072BC;">
-                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
-                              </button>
-                              <div id="response-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
-                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Response Activities') }}</h5>
-                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
-                                  {{ _('This is the HTML code generated from your response activities blocks.') }}
-                                </p>
-                                <pre id="response-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
-                              </div>
-                            </div>
-                            </div>
-                          </div>
-                        </fieldset>
-
-                        <!-- 6. Recovery Phase - Advanced Block System -->
-                        <fieldset class="form-section collapsible collapsed" data-section="recovery-phase">
-                          <div class="collapsible-header">
-                            <div class="collapsible-title">
-                              <div class="section-icon">
-                                <i class="fa fa-refresh"></i>
-                              </div>
-                              <h3>{{ _('Recovery Phase') }}</h3>
-                            </div>
-                            <div class="collapsible-status">
-                              <div class="collapsible-indicators">
-                                <div class="content-indicator empty">
-                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
-                                </div>
-                              </div>
-                              <button type="button" class="collapse-toggle">
-                                <i class="fa fa-chevron-down"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div class="collapsible-content">
-                            <div class="form-section-content">
-                            <p class="help-block">{{ _('Document comprehensive recovery efforts with text, recovery plans, reconstruction activities, and interactive content. Detail long-term recovery strategies, community rebuilding, and restoration progress.') }}</p>
-                            
-                            <!-- Content Blocks Container for Recovery Phase -->
-                            <div id="recovery-phase-content-blocks">
-                              <!-- Blocks will be added here -->
-                            </div>
-                            
-                            <!-- Add Block Controls for Recovery Phase -->
-                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
-                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new recovery phase content:') }}</p>
-                              <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary btn-sm" id="add-recovery-text-block">
-                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" id="add-recovery-iframe-block">
-                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <!-- Hidden fields to store Recovery Phase content -->
-                            <textarea id="field-recovery-phase" name="recovery_phase" style="display: none;">{{ data.recovery_phase or '' }}</textarea>
-                            <input type="hidden" id="recovery-phase-blocks-metadata" name="recovery_phase_blocks_metadata" value="{{ data.recovery_phase_blocks_metadata or '' }}">
-                            {% if errors.recovery_phase %}<span class="error-block">{{ errors.recovery_phase }}</span>{% endif %}
-                            
-                            <!-- Toggle button for generated HTML code -->
-                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
-                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-recovery-generated-code" style="border-color: #0072BC; color: #0072BC;">
-                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
-                              </button>
-                              <div id="recovery-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
-                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Recovery Phase') }}</h5>
-                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
-                                  {{ _('This is the HTML code generated from your recovery phase blocks.') }}
-                                </p>
-                                <pre id="recovery-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
-                              </div>
-                            </div>
-                            </div>
-                          </div>
-                        </fieldset>
-
-                        <!-- 7. Resilience Phase - Advanced Block System -->
-                        <fieldset class="form-section collapsible collapsed" data-section="resilience-phase">
-                          <div class="collapsible-header">
-                            <div class="collapsible-title">
-                              <div class="section-icon">
-                                <i class="fa fa-shield"></i>
-                              </div>
-                              <h3>{{ _('Resilience Phase') }}</h3>
-                            </div>
-                            <div class="collapsible-status">
-                              <div class="collapsible-indicators">
-                                <div class="content-indicator empty">
-                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
-                                </div>
-                              </div>
-                              <button type="button" class="collapse-toggle">
-                                <i class="fa fa-chevron-down"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div class="collapsible-content">
-                            <div class="form-section-content">
-                            <p class="help-block">{{ _('Document resilience building efforts with text, preparedness plans, risk reduction activities, and interactive content. Detail long-term resilience strategies, capacity building, and disaster risk reduction measures.') }}</p>
-                            
-                            <!-- Content Blocks Container for Resilience Phase -->
-                            <div id="resilience-phase-content-blocks">
-                              <!-- Blocks will be added here -->
-                            </div>
-                            
-                            <!-- Add Block Controls for Resilience Phase -->
-                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
-                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new resilience phase content:') }}</p>
-                              <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary btn-sm" id="add-resilience-text-block">
-                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" id="add-resilience-iframe-block">
-                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <!-- Hidden fields to store Resilience Phase content -->
-                            <textarea id="field-resilience-phase" name="resilience_phase" style="display: none;">{{ data.resilience_phase or '' }}</textarea>
-                            <input type="hidden" id="resilience-phase-blocks-metadata" name="resilience_phase_blocks_metadata" value="{{ data.resilience_phase_blocks_metadata or '' }}">
-                            {% if errors.resilience_phase %}<span class="error-block">{{ errors.resilience_phase }}</span>{% endif %}
-                            
-                            <!-- Toggle button for generated HTML code -->
-                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
-                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-resilience-generated-code" style="border-color: #0072BC; color: #0072BC;">
-                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
-                              </button>
-                              <div id="resilience-generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
-                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code - Resilience Phase') }}</h5>
-                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
-                                  {{ _('This is the HTML code generated from your resilience phase blocks.') }}
-                                </p>
-                                <pre id="resilience-generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
-                              </div>
-                            </div>
-                            </div>
-                          </div>
-                        </fieldset>
-
-                        <!-- 8. Additional Information - Advanced Block System -->
-                        <fieldset class="form-section collapsible collapsed" data-section="additional-info">
-                          <div class="collapsible-header">
-                            <div class="collapsible-title">
-                              <div class="section-icon">
-                                <i class="fa fa-info-circle"></i>
-                              </div>
-                              <h3>{{ _('Additional Information') }}</h3>
-                            </div>
-                            <div class="collapsible-status">
-                              <div class="collapsible-indicators">
-                                <div class="content-indicator empty">
-                                  <i class="fa fa-circle-o"></i> {{ _('Empty') }}
-                                </div>
-                              </div>
-                              <button type="button" class="collapse-toggle">
-                                <i class="fa fa-chevron-down"></i>
-                              </button>
-                            </div>
-                          </div>
-                          <div class="collapsible-content">
-                            <div class="form-section-content">
-                            <p class="help-block">{{ _('Add supplementary content blocks with text, spatial data, maps, and interactive elements. Include additional context, recovery plans, or specialized information.') }}</p>
-                            
-                            <!-- Content Blocks Container -->
-                            <div id="additional-information-content-blocks">
-                              <!-- Blocks will be added here -->
-                            </div>
-                            
-                            <!-- Add Block Controls for Additional Information -->
-                            <div class="add-block-controls" style="margin-top: 1rem; padding: 1rem; border: 2px dashed #ddd; border-radius: 8px; text-align: center; background-color: #f8f9fa;">
-                              <p class="text-muted" style="margin-bottom: 0.75rem;">{{ _('Add new additional information content:') }}</p>
-                              <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary btn-sm" id="add-additional-text-block">
-                                  <i class="fa fa-text-width"></i> {{ _('Text Block') }}
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" id="add-additional-iframe-block">
-                                  <i class="fa fa-play-circle"></i> {{ _('Maps & Media Block') }}
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <!-- Hidden fields to store Additional Information content -->
-                            <textarea id="field-map-stories" name="map_stories" style="display: none;">{{ data.map_stories or '' }}</textarea>
-                            <input type="hidden" id="additional-info-blocks-metadata" name="additional_info_blocks_metadata" value="{{ data.additional_info_blocks_metadata or '' }}">
-                            
-                            <!-- Toggle button for generated HTML code -->
-                            <div class="generated-code-controls" style="margin-top: 1rem; text-align: center;">
-                              <button type="button" class="btn btn-outline-primary btn-sm" id="toggle-generated-code" style="border-color: #0072BC; color: #0072BC;">
-                                <i class="fa fa-code"></i> {{ _('Show Generated HTML Code') }}
-                              </button>
-                              <div id="generated-code-container" style="display: none; margin-top: 1rem; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background-color: #f8f9fa;">
-                                <h5 style="color: #0072BC; margin-bottom: 0.5rem;">{{ _('Generated HTML Code') }}</h5>
-                                <p class="help-text" style="font-size: 0.85em; color: #6c757d; margin-bottom: 1rem;">
-                                  {{ _('This is the HTML code generated from your spatial content blocks. You can copy this code if needed, but it will be automatically generated when you save.') }}
-                                </p>
-                                <pre id="generated-code-display" style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0.75rem; font-size: 0.85em; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;"></pre>
-                              </div>
-                            </div>
-                            
-                            {% if errors.map_stories %}<span class="error-block">{{ errors.map_stories }}</span>{% endif %}
-                          </div>
-                          </div>
-                        </fieldset>
-
                         <!-- 7. Image Gallery -->
                         <fieldset class="form-section">
                           <legend>{{ _('Image Gallery') }}</legend>
@@ -845,7 +509,7 @@
                           <p class="help-block">{{ _('Optional: Custom header image URL. If not provided, default rapid response header will be used.') }}</p>
                           <div class="form-group">
                             <label for="field-header-image" class="control-label">{{ _('Header Image URL') }}</label>
-                            <input type="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="rr-form-control">
+                            <input type="text" inputmode="url" id="field-header-image" name="header_image" value="{{ data.header_image or '' }}" placeholder="{{ _('Enter the URL of your header image') }}" class="rr-form-control">
                             {% if errors.header_image %}<span class="error-block">{{ errors.header_image }}</span>{% endif %}
                             </div>
                           </div>
@@ -909,8 +573,12 @@
 
 <!-- Load external CSS and JavaScript files -->
 <link rel="stylesheet" type="text/css" href="/css/rapid-response-edit.css" />
-<script type="text/javascript" src="/js/rapid-response-images.js?v=20260911-6"></script>
-<script type="text/javascript" src="/js/rapid-response-edit.js?v=20260911-6"></script>
+<script type="text/javascript" src="/js/rapid-response-images.js?v=20260924-1"></script>
+<link rel="stylesheet" href="/css/rapid-response-story.css?v=20260924-1">
+<script src="/js/story-editor-core.js?v=20260924-1"></script>
+<script src="/js/data-stories-sequence.js?v=20260911-1"></script>
+<script src="/js/rapid-response-story-edit.js?v=20260924-1"></script>
+<script type="text/javascript" src="/js/rapid-response-edit.js?v=20260924-1"></script>
 
 <!-- Collapsible Form Sections CSS -->
 <style>

@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -223,3 +223,7 @@ El buscador geográfico usa `GET /data-stories/api/location-search`; requiere Re
 ## Mantenimiento de imágenes de Rapid Response
 
 Las imágenes incrustadas en base64 pueden aumentar tanto el HTML público como los campos JSON y el historial. El comando `pages optimize-rapid-response-images` permite auditar y convertir contenido, extras y revisiones a referencias del uploader configurado, conservando textos y metadatos editoriales. Su simulación no sube archivos ni actualiza registros. Ver [[Deployment]] y [[Testing]].
+
+## Narrativas de Rapid Response
+
+Una narrativa por emergencia con capítulos flexibles, bloques multimedia, escenas Terria y datasets CKAN. Conserva la ficha y los permisos propios del módulo. Detalles en [[Stories en Rapid Response]].

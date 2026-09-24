@@ -1,7 +1,7 @@
 # Arquitectura
 
 Tags: #arquitectura #backend
-Actualizado: 2026-03-26
+Actualizado: 2026-09-24
 
 Relacionadas: [[Rutas y Entrypoints]], [[Modulos]], [[Datos y Persistencia]], [[Frontend y Plantillas]]
 
@@ -121,3 +121,7 @@ Esto implica que parte del esquema se inicializa en arranque, no solo por migrac
 ## Inferencia
 
 La evolución del repo parece incremental: primero CMS simple y luego verticales de producto agregados sobre la misma extensión. Eso explica la coexistencia de una tabla genérica con módulos más especializados.
+
+## Narrativas de Rapid Response
+
+Rapid Response reutiliza el núcleo Quill y el visor StoryMap de Data Stories, con persistencia independiente en `ckanext_pages.extras`. No necesita activar el módulo opcional. Ver [[Stories en Rapid Response]].

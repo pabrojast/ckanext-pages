@@ -13,10 +13,12 @@
     const visualTabs = root.querySelector('.storymap-visual-tabs');
     let visualChoice = null;
     const hasDashboards = config.scenes.some(scene => scene.dashboards?.length);
+    const stackedMedia = hasDashboards || config.mobileStackedMedia;
     root.classList.toggle('has-story-dashboards', hasDashboards);
+    root.classList.toggle('has-stacked-media', !!stackedMedia);
     const slots = cards.map((card, index) => {
       const scene = config.scenes[index];
-      if (!hasDashboards || scene.layout === 'full') return null;
+      if (!stackedMedia || scene.layout === 'full') return null;
       const slot = document.createElement('div');
       slot.className = 'storymap-mobile-visual-slot';
       const combined = scene.sources.length && scene.dashboards?.length && !['map', 'dashboard'].includes(scene.presentation);
@@ -43,7 +45,7 @@
     visualTabs?.querySelectorAll('[data-visual-view]').forEach(button => button.addEventListener('click', () => chooseVisual(button.dataset.visualView)));
     compact.addEventListener('change', () => chooseVisual());
     function placeMedia() {
-      if (!media || !hasDashboards) return;
+      if (!media || !stackedMedia) return;
       const slot = mobile.matches && slots[active];
       root.classList.toggle('has-mobile-slot', !!slot);
       if (slot) {

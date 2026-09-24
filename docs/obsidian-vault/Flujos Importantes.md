@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -195,3 +195,7 @@ En un bloque de texto, seleccionar palabras y usar `Link visualization`: referen
 Terria obtiene sesión, token CSRF y límite por `GET /pages_upload` autenticado con `Cache-Control: private, no-store`; `POST` usa el almacenamiento y permisos de imágenes existentes. No requiere migración de base de datos.
 
 La selección manual de una pestaña de mapa se mantiene durante el paso actual. Al desplazarse a otro paso, se retoma la secuencia narrativa; no queda bloqueado todo el capítulo. Una referencia a un dashboard lo hace visible en pantallas compactas y mantiene actualizada la escena de mapa asociada.
+
+## Narrativas de Rapid Response
+
+La narrativa de una emergencia se edita por capítulos y se publica con el visor compartido de Stories. Guardar sin cambios conserva el HTML original; mover o eliminar bloques respeta sus identidades. Ver [[Stories en Rapid Response]] para importación Terria, datasets, imágenes y restauración.

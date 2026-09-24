@@ -132,6 +132,7 @@ def default_pages_schema():
         'publish_date': [
             not_empty_if_blog, ignore_missing, isodate],
         # Rapid Response specific fields
+        'rapid_response_story': [ignore_missing, json_validator, unicode_safe],
         'subtitle': [ignore_missing, unicode_safe],
         'key_info': [ignore_missing, unicode_safe],
         'image_carousel': [ignore_missing, unicode_safe],
