@@ -8,8 +8,8 @@
 <link rel="dns-prefetch" href="{{ storymap_config.terriaOrigin }}" />
 {% endif %}
 <link rel="stylesheet" type="text/css" href="/css/data-stories.css?v=20260904-2" />
-<link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css?v=20260911-2" />
-<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-3" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories-storymap.css?v=20260924-4" />
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-4" />
 
 <div class="homepage layout-1 storymap-page">
   <div id="content" class="container">
@@ -138,6 +138,11 @@
 
       {% if storymap_config.hasMedia %}
       <div class="storymap-media" style="grid-row: 1 / span {{ storymap_scenes|length }};">
+        <nav class="storymap-visual-tabs" aria-label="{{ _('Visualization') }}" hidden>
+          <button type="button" data-visual-view="map" aria-pressed="false">{{ _('Map') }}</button>
+          <button type="button" data-visual-view="dashboard" aria-pressed="false">{{ _('Dashboard') }}</button>
+          <button type="button" data-visual-view="both" aria-pressed="false">{{ _('Both') }}</button>
+        </nav>
         <div class="storymap-map-pane">
         <div class="storymap-placeholder" aria-hidden="true"
              {% if storymap_config.placeholderImage %}style="background-image: url('{{ storymap_config.placeholderImage }}');"{% endif %}>
@@ -463,6 +468,6 @@
 
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
 {# ?v= busts browser caches when the viewer logic changes — bump on edits #}
-<script src="/js/data-stories-visuals.js?v=20260924-3" defer></script>
-<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-3" defer></script>
+<script src="/js/data-stories-visuals.js?v=20260924-4" defer></script>
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-4" defer></script>
 {% endblock %}

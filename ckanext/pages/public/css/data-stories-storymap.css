@@ -120,7 +120,7 @@
    the veil IS the crossfade: it tints+blurs in fast when a swap starts and
    fades out slowly once the new scene is applied — the asymmetric timing
    reads as a deliberate transition instead of a hard cut. */
-.storymap-media::after {
+.storymap-map-pane::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -133,13 +133,13 @@
   transition: opacity 0.55s ease 0.05s;
 }
 
-.storymap.is-switching .storymap-media::after {
+.storymap.is-switching .storymap-map-pane::after {
   opacity: 1;
   transition: opacity 0.2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .storymap-media::after,
+  .storymap-map-pane::after,
   .storymap-scene-loading {
     transition: none;
   }
@@ -266,13 +266,17 @@
 
 .storymap-progress {
   position: absolute;
-  right: 1.25rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  align-items: center;
+  padding: .5rem;
+  border-radius: 24px;
+  background: rgba(0, 42, 70, .8);
 }
 
 .storymap-dot {
@@ -362,7 +366,7 @@
   box-shadow: 0 4px 20px rgba(0, 114, 188, 0.12);
   padding: 2.25rem 2.5rem;
   margin: 12vh 0;
-  opacity: 0.55;
+  opacity: 1;
   transform: translateY(4px);
   transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
@@ -477,7 +481,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 1.25rem 0;
-  opacity: 0.55;
+  opacity: 1;
   border-left: 4px solid transparent;
   padding-left: 1rem;
   transition: opacity 0.3s ease, border-color 0.3s ease;
@@ -653,6 +657,10 @@
     transform: none;
   }
 
+  .storymap:not(.has-story-dashboards):not(.is-slides):not(.has-no-map) .storymap-card:first-child:not(.is-full-width) .storymap-card-body {
+    margin-top: calc(42vh + 1.25rem);
+  }
+
   .storymap-card.is-full-width .storymap-card-body {
     max-width: none;
   }
@@ -662,11 +670,15 @@
   }
 
   .storymap-progress {
-    top: auto;
-    bottom: 0.75rem;
-    right: 50%;
-    transform: translateX(50%);
-    flex-direction: row;
+    left: .5rem;
+    gap: .25rem;
+  }
+
+  .storymap-progress .storymap-dot { display: none; }
+  .storymap-nav-btn { width: 44px; height: 44px; margin: 0; }
+  .storymap-map-pane > .storymap-visual-fullscreen {
+    left: auto;
+    right: 1rem;
   }
 }
 

@@ -175,3 +175,9 @@ Si desaparecen bloques al guardar contenido que contiene `&quot;`, revisar la ve
 Diagnóstico observado en producción el 2026-09-11: Nepal devolvía 52,87 MB de HTML por dos JPEG incrustados; los estilos del detalle aparecían después de las imágenes. El navegador podía quedar sin completar `DOMContentLoaded`. El historial también almacenaba base64.
 
 Revisar tamaño del HTML, posición del CSS y ejecutar la auditoría `pages optimize-rapid-response-images`. La corrección combina CSS en cabecera, subida de imágenes desde el editor y conversión reversible del contenido existente; no basta con añadir `loading="lazy"` a una imagen que sigue incrustada en el HTML. Ver [[Deployment]].
+
+## Story Map no cambia de escena en 1366×768
+
+Los porcentajes de `rootMargin` en IntersectionObserver se calculan sobre el ancho: márgenes de 45% y 35% pueden eliminar toda la zona activa en una pantalla baja. El visor usa ahora una posición de lectura en píxeles de altura y una única selección de paso. Verificar avanzar, volver y saltar entre fuentes; no limitarse a probar Slides.
+
+Si una historia importada abre Terria de otra instancia y cae al modo hash, revisar `ckanext.data_stories.terria_runtime_url`. En dev debe apuntar a `https://data.dev-wins.com/terria/`. Los enlaces originales permanecen como fuente para resolver shares y recursos; configurar el runtime no migra ni modifica las historias.

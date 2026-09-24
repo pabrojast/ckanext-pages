@@ -9,6 +9,9 @@
     const frames = new Map();
     const media = root.querySelector('.storymap-media');
     const mobile = window.matchMedia('(max-width: 768px)');
+    const compact = window.matchMedia('(max-width: 1440px), (max-height: 850px)');
+    const visualTabs = root.querySelector('.storymap-visual-tabs');
+    let visualChoice = null;
     const hasDashboards = config.scenes.some(scene => scene.dashboards?.length);
     root.classList.toggle('has-story-dashboards', hasDashboards);
     const slots = cards.map((card, index) => {
@@ -23,6 +26,22 @@
     let active = -1, currentFrame, serial = 0, slideIndex = 0;
     const slides = config.displayMode === 'slides';
     const say = message => {if (status) {status.textContent = message; status.hidden = !message;}};
+    function chooseVisual(choice) {
+      if (choice) visualChoice = choice;
+      const combined = root.classList.contains('has-combined-visuals');
+      const selected = visualChoice || (compact.matches ? 'map' : 'both');
+      root.dataset.visualView = combined ? selected : '';
+      if (visualTabs) {
+        visualTabs.hidden = !combined;
+        visualTabs.querySelectorAll('[data-visual-view]').forEach(button => {
+          button.setAttribute('aria-pressed', String(button.dataset.visualView === selected));
+        });
+      }
+      slots.forEach(slot => {if (slot) slot.classList.toggle('shows-both', selected === 'both');});
+      requestAnimationFrame(placeMedia);
+    }
+    visualTabs?.querySelectorAll('[data-visual-view]').forEach(button => button.addEventListener('click', () => chooseVisual(button.dataset.visualView)));
+    compact.addEventListener('change', () => chooseVisual());
     function placeMedia() {
       if (!media || !hasDashboards) return;
       const slot = mobile.matches && slots[active];
@@ -104,6 +123,7 @@
       const hasDashboard = scene.dashboards?.length > 0 && !['map', 'full'].includes(presentation);
       root.classList.toggle('has-dashboard', !!hasDashboard);
       root.classList.toggle('has-combined-visuals', !!(hasMap && hasDashboard));
+      chooseVisual();
       if (mapPane) mapPane.hidden = !hasMap;
       if (pane) pane.hidden = !hasDashboard;
       root.classList.toggle('is-full-section', scene.layout === 'full');
@@ -129,7 +149,10 @@
       }
       if (ref.dashboard_id) {
         const target = (scene.dashboards || []).find(d => d.id === ref.dashboard_id);
-        if (target) dashboard(target, ref.state);
+        if (target) {
+          dashboard(target, ref.state);
+          if (compact.matches) chooseVisual('dashboard');
+        }
         else say('This dashboard reference is no longer available.');
       }
     }
@@ -147,7 +170,9 @@
       const card = element.closest('.storymap-card');
       if (!card) return;
       const index = Number(card.dataset.sceneIndex);
-      options.activateCard(card); activate(index, true);
+      if (!card.classList.contains('is-active')) options.activateCard(card);
+      activate(index, true);
+      if (!element.classList.contains('storymap-image-trigger')) options.deactivateImage();
       if (element.classList.contains('storymap-step')) options.activateStep(element);
       if (element.classList.contains('storymap-image-trigger')) options.activateImage(element);
       const refs = config.scenes[index].references || [];
@@ -155,12 +180,6 @@
         const ref = refs.find(r => r.on_enter && '#story-ref-' + r.id === link.getAttribute('href'));
         if (ref) reference(ref, index);
       }
-    }
-    if (!slides && 'IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-        if (entry.isIntersecting) enter(entry.target);
-      }), {rootMargin: '-40% 0px -45% 0px'});
-      root.querySelectorAll('.storymap-narrative').forEach(el => observer.observe(el));
     }
     const stops = cards.flatMap(card => {
       const content = Array.from(card.querySelector('.storymap-card-body').children).filter(el =>
@@ -209,7 +228,7 @@
       if (currentFrame.ready) send(currentFrame);
       else currentFrame.frame.src = currentFrame.frame.src;
     });
-    return {activate, slides, jump: direction => show(slideIndex + direction),
+    return {activate, enter, slides, jump: direction => show(slideIndex + direction),
       showElement: el => {const index = stops.findIndex(stop => stop === el || el.contains(stop)); if (index >= 0) show(index, true);}};
   };
 })();

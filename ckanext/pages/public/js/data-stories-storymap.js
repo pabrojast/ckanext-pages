@@ -36,6 +36,7 @@
   var configEl = document.getElementById('storymap-config');
   var root = document.getElementById('storymap');
   if (!configEl || !root) return;
+  document.body.classList.add('storymap-reader');
 
   var config;
   try {
@@ -573,6 +574,7 @@
 
   function activateCard(card) {
     deactivateImage();
+    steps.forEach(function (step) { step.classList.remove('is-active'); });
     cards.forEach(function (c) { c.classList.toggle('is-active', c === card); });
     var index = parseInt(card.getAttribute('data-scene-index'), 10);
     dots.forEach(function (dot, dotIndex) {
@@ -631,9 +633,7 @@
       manualSourceIndex = null;
     }
     steps.forEach(function (s) {
-      if (parseInt(s.getAttribute('data-scene-index'), 10) === sceneIndex) {
-        s.classList.toggle('is-active', s === stepEl);
-      }
+      s.classList.toggle('is-active', s === stepEl);
     });
     // The tab row follows the scroll through multi-map chapters.
     syncTabHighlight(sceneIndex, sourceIndex);
@@ -642,32 +642,62 @@
 
   if (window.StoryVisualsViewer) visuals = window.StoryVisualsViewer({
     root: root, config: config, activateCard: activateCard, activateStep: activateStep,
-    activateImage: activateImage, scheduleApply: scheduleApply
+    activateImage: activateImage, deactivateImage: deactivateImage, scheduleApply: scheduleApply
   });
 
-  if ('IntersectionObserver' in window && config.displayMode !== 'slides') {
-    var activeObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        if (entry.target.classList.contains('storymap-image-trigger')) {
-          activateImage(entry.target);
-        } else if (entry.target.classList.contains('storymap-step')) {
-          activateStep(entry.target);
-        } else {
-          activateCard(entry.target);
-        }
-      });
-      // Asymmetric band [45%, 65%]: scrolling DOWN activates ~10vh earlier
-      // (heavy layers get a head start) while scrolling up is unchanged.
-    }, { rootMargin: '-45% 0px -35% 0px', threshold: 0 });
-    cards.forEach(function (card) { activeObserver.observe(card); });
-    steps.forEach(function (step) { activeObserver.observe(step); });
-    imageTriggers.forEach(function (t) { activeObserver.observe(t); });
-  } else {
-    cards.forEach(function (card) { card.classList.add('is-active'); });
-  }
-
   if (cards.length && config.displayMode !== 'slides') activateCard(cards[0]);
+
+  // One reading position owns the active stop. IntersectionObserver percentage
+  // margins are relative to WIDTH, so a 1366x768 viewport could have an empty
+  // observation area. Separate card/paragraph observers also raced each other.
+  var activeStop = null;
+  var readingFrame = null;
+  function readingArea() {
+    var top = 0;
+    if (window.innerWidth <= 768 && !root.classList.contains('has-story-dashboards') &&
+        !root.classList.contains('has-no-map')) {
+      top = window.innerHeight * 0.42;
+    }
+    return {top: top, height: window.innerHeight - top};
+  }
+  function updateReadingStop() {
+    readingFrame = null;
+    var area = readingArea();
+    var line = area.top + area.height * 0.45;
+    var bounds = root.getBoundingClientRect();
+    if (bounds.top > line || bounds.bottom < line) return;
+    var card = cards[0];
+    cards.forEach(function (candidate) {
+      if (candidate.getBoundingClientRect().top <= line) card = candidate;
+    });
+    var target = card;
+    Array.prototype.forEach.call(card.querySelectorAll(
+      '.storymap-narrative, .storymap-step, .storymap-image-trigger, .storymap-card-media'
+    ), function (candidate) {
+      if (candidate.getBoundingClientRect().top <= line) target = candidate;
+    });
+    if (target === activeStop) return;
+    activeStop = target;
+    // A manual map tab stays selected while reading this stop; moving to the
+    // next stop resumes the narrative instead of pinning an entire chapter.
+    manualSceneChapter = null;
+    manualSourceIndex = null;
+    if (visuals) visuals.enter(target);
+    else if (target.classList.contains('storymap-step')) activateStep(target);
+    else if (target.classList.contains('storymap-image-trigger')) {
+      if (!card.classList.contains('is-active')) activateCard(card);
+      activateImage(target);
+    } else if (!card.classList.contains('is-active')) activateCard(card);
+  }
+  function scheduleReadingStop() {
+    if (readingFrame === null) readingFrame = requestAnimationFrame(updateReadingStop);
+  }
+  if (config.displayMode !== 'slides') {
+    window.addEventListener('scroll', scheduleReadingStop, {passive: true});
+    window.addEventListener('resize', scheduleReadingStop);
+    if ('ResizeObserver' in window) new ResizeObserver(scheduleReadingStop).observe(root);
+    scheduleReadingStop();
+  }
 
   /* ------------------------------------------------------------------ */
   /* Prev/next block navigation (buttons + arrow keys)                   */
@@ -686,14 +716,15 @@
     if (visuals && visuals.slides) return visuals.showElement(el);
     var reduceMotion = window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    el.scrollIntoView({
-      behavior: reduceMotion ? 'auto' : 'smooth',
-      block: 'center'
-    });
+    var area = readingArea();
+    var rect = el.getBoundingClientRect();
+    // Keep headings visible even when the stop is taller than the screen.
+    window.scrollTo({top: window.scrollY + rect.top - area.top - area.height * 0.15,
+      behavior: reduceMotion ? 'auto' : 'smooth'});
   }
 
-  // Position is computed geometrically at jump time (nearest stop relative
-  // to the viewport midline) — activation state can lag a smooth scroll.
+  // Advance from the active reading stop, not its center: a long step's
+  // center may remain below the viewport after navigating to its heading.
   var lastJumpAt = 0;
   function jumpStop(direction) {
     if (visuals && visuals.slides) return visuals.jump(direction);
@@ -701,20 +732,24 @@
     var now = Date.now();
     if (now - lastJumpAt < 300) return; // held keys shouldn't skip stops
     lastJumpAt = now;
-    var mid = window.innerHeight / 2;
-    var EPS = 24;
-    var i, rect, center;
+    var current = stops.findIndex(function (stop) {
+      return stop === activeStop || (activeStop && stop.contains(activeStop));
+    });
+    if (current >= 0) {
+      var next = stops[current + direction];
+      if (next) scrollToStop(next);
+      return;
+    }
+    var area = readingArea();
+    var line = area.top + area.height * 0.45;
+    var i;
     if (direction > 0) {
       for (i = 0; i < stops.length; i++) {
-        rect = stops[i].getBoundingClientRect();
-        center = rect.top + rect.height / 2;
-        if (center > mid + EPS) return scrollToStop(stops[i]);
+        if (stops[i].getBoundingClientRect().top > line) return scrollToStop(stops[i]);
       }
     } else {
       for (i = stops.length - 1; i >= 0; i--) {
-        rect = stops[i].getBoundingClientRect();
-        center = rect.top + rect.height / 2;
-        if (center < mid - EPS) return scrollToStop(stops[i]);
+        if (stops[i].getBoundingClientRect().top < line) return scrollToStop(stops[i]);
       }
     }
   }
@@ -782,12 +817,7 @@
       var target = document.getElementById(dot.getAttribute('data-target'));
       if (target) {
         if (visuals && visuals.slides) { visuals.showElement(target); return; }
-        var reduceMotion = window.matchMedia &&
-          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        target.scrollIntoView({
-          behavior: reduceMotion ? 'auto' : 'smooth',
-          block: 'center'
-        });
+        scrollToStop(target);
       }
     }
   });

@@ -159,3 +159,9 @@ El detalle carga `rapid-response-detail-css` mediante el bloque `styles`, antes 
 El editor usa `rapid-response-images.js` para subir imágenes insertadas, pegadas o arrastradas por `/pages_upload`. JPEG y PNG estáticos se reducen a un máximo de 1600 px, sin ampliación; PNG conserva transparencia y los formatos animados conservan sus bytes. El guardado espera las subidas y sincroniza editores, bloques y campos de código fuente. Los errores conservan la edición y permiten reintentar. La acción de guardado rechaza imágenes base64 pendientes únicamente para Rapid Response.
 
 Relacionadas: [[Modulos]], [[Flujos Importantes]], [[Testing]], [[Deployment]].
+
+## Lectura en pantallas de portátil y móvil (2026-09-24)
+
+El visor usa una única posición de lectura calculada desde la altura visible, con scroll limitado a un callback por frame. Evita las zonas vacías que producen márgenes porcentuales de IntersectionObserver en 1366×768 y la competencia entre observadores de capítulos y párrafos. El texto conserva contraste aunque su escena no esté activa. Los controles de capítulos quedan separados de los controles de Terria.
+
+En pantallas de hasta 1440 px de ancho o 850 px de alto, las secciones combinadas muestran un panel completo seleccionable con Map/Dashboard/Both. Cambiar de panel conserva sus iframes. En móvil, la vista integrada se coloca bajo el texto y no fuerza dos visores pequeños; el mapa de historias tradicionales mantiene 42vh y la posición de lectura se calcula bajo él. Assets del visor: `20260924-4`.

@@ -193,3 +193,5 @@ El bloque `dashboard` selecciona dataset, recurso y vista Dashboard Builder publ
 En un bloque de texto, seleccionar palabras y usar `Link visualization`: referencia a fuente/slide Terria, dashboard y filtros/gráfico opcionales, al pulsar o al entrar al paso. Los enlaces `#story-ref-<id>` y sus metadatos `references` se guardan juntos. IDs ausentes o vistas eliminadas muestran un error recuperable y mantienen la narración. Al cambiar de paso se restablece el estado inicial del dashboard. Se reutilizan hasta tres iframes; en móvil se posicionan junto a la narración sin reinsertarlos en el DOM (moverlos recarga su documento).
 
 Terria obtiene sesión, token CSRF y límite por `GET /pages_upload` autenticado con `Cache-Control: private, no-store`; `POST` usa el almacenamiento y permisos de imágenes existentes. No requiere migración de base de datos.
+
+La selección manual de una pestaña de mapa se mantiene durante el paso actual. Al desplazarse a otro paso, se retoma la secuencia narrativa; no queda bloqueado todo el capítulo. Una referencia a un dashboard lo hace visible en pantallas compactas y mantiene actualizada la escena de mapa asociada.
