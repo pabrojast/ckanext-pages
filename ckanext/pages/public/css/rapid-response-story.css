@@ -35,6 +35,9 @@
 .rr-story-page .section-content img { max-width: 100%; height: auto; }
 .rr-story-page .section-content iframe { max-width: 100%; }
 @media (max-width: 767px) {
+  .rr-story-edit-page .section-title { height: auto; min-height: 250px; padding: 2rem 1.25rem; }
+  .rr-story-edit-page .section-title-content { position: relative; top: auto; left: auto; transform: none; width: 100%; margin: 0 auto; }
+  .rr-story-edit-page .section-title-content h1 { font-size: 1.8rem; }
   .rr-story-edit-page .rapid-response-form-wrapper > .module > .module-content { padding: 0; }
   .rr-story-edit-page .form-section { padding: 0; border-left-width: 3px; border-radius: 10px; }
   .rr-story-edit-page .form-section > .form-section-content { padding: .75rem; }

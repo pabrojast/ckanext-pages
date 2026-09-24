@@ -185,3 +185,7 @@ Si una historia importada abre Terria de otra instancia y cae al modo hash, revi
 ## Narrativas de Rapid Response
 
 Si el nuevo compositor no carga o el documento es inválido, muestra el error y evita guardar un reemplazo vacío. No pasar HTML antiguo con iframes por Quill: el adaptador lo conserva como contenido original. La cabecera omite consultas de Stories cuando el módulo está desactivado, evitando transacciones fallidas por tablas ausentes. Ver [[Stories en Rapid Response]].
+
+## Banner de Rapid Response recortado en móvil
+
+Si el título o la descripción desaparecen parcialmente a 320 o 390 px, comprobar la altura fija de `.section-title` y el posicionamiento absoluto de `.section-title-content`. El listado y el editor ajustan la altura al texto en móvil. En el editor, verificar también la clase `.rr-story-edit-page` y la carga de `rapid-response-story.css?v=20260924-2`. No basta con comprobar que no haya scroll horizontal: comparar los límites del título y la descripción con los del banner. Ver [[Frontend y Plantillas]] y [[Testing]].

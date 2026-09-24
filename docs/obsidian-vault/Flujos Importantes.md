@@ -199,3 +199,5 @@ La selección manual de una pestaña de mapa se mantiene durante el paso actual.
 ## Narrativas de Rapid Response
 
 La narrativa de una emergencia se edita por capítulos y se publica con el visor compartido de Stories. Guardar sin cambios conserva el HTML original; mover o eliminar bloques respeta sus identidades. Ver [[Stories en Rapid Response]] para importación Terria, datasets, imágenes y restauración.
+
+La revisión de diseño debe recorrer listado, detalle y formulario a distintos anchos, comprobando que título, descripción y controles no queden recortados. La vista previa con CSS local permite comprobar el tema de dev sin guardar eventos; no sustituye la prueba de persistencia autenticada. Ver [[Testing]].

@@ -163,3 +163,11 @@ node ckanext/pages/tests/rapid_response_story_browser.cjs /ruta/al/playwright_cl
 ```
 
 El test de navegador comprueba 320, 390, 768, 1366 y 1920 px. La revisión de diseño debe añadir las páginas completas de CKAN, el banner, capítulos con y sin mapa y controles de edición. Ver [[Stories en Rapid Response]]. CI incluye ahora las suites puras compartidas de StoryMap y los navegadores de imágenes y compositor.
+
+### Revisión con el tema de dev (2026-09-24)
+
+Se revisaron `/rapid-response` y los detalles de Melissa e Idai en `https://data.dev-wins.com` a 320, 390, 768, 1024, 1366 y 1920 px. Las 18 combinaciones no presentaron desbordamiento horizontal ni excepciones JavaScript; el banner del listado recortaba texto a 320 y 390 px. El formulario generado por CKAN se obtuvo con conexiones SQL de solo lectura y se abrió como snapshot con los assets de dev y solicitudes de escritura bloqueadas; también recortaba su banner en móvil.
+
+La vista previa con el CSS local corrigió ambos banners en los seis anchos y comprobó los márgenes móviles del editor. Las capturas y resultados están en `output/playwright/rapid-response-dev-review/` (no versionado). Esta prueba valida diseño, no guardado ni persistencia en dev. No se modificaron eventos ni archivos del servidor.
+
+En esa revisión, el pod de dev aún tenía `ckanext-pages` en `0b69977dc8b9549d103cd97a116a9799b05faec7`; faltaban `rapid_response_story.py` y `rapid-response-story-edit.js`, cuya URL pública devolvía 404. La integración de Stories estaba en Git (`51e4c4160316b765d0f5b338d8e10d6bcf4e07b8`), pero no desplegada allí. Ver [[Deployment]] para distinguir los contextos Kubernetes.

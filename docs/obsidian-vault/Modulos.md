@@ -227,3 +227,5 @@ Las imágenes incrustadas en base64 pueden aumentar tanto el HTML público como 
 ## Narrativas de Rapid Response
 
 Una narrativa por emergencia con capítulos flexibles, bloques multimedia, escenas Terria y datasets CKAN. Conserva la ficha y los permisos propios del módulo. Detalles en [[Stories en Rapid Response]].
+
+En móvil, el listado y el editor dejan crecer el banner según su contenido. El compositor reduce los márgenes anidados del formulario para aprovechar el ancho disponible; ver [[Frontend y Plantillas]].

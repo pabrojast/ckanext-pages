@@ -38,4 +38,4 @@ Rapid Response y Data Stories comparten `data_stories/components/storymap_viewer
 
 ## Pendiente por confirmar
 
-La revisión de dev se limitó a lectura. El despliegue de esta implementación y su comprobación con el tema completo de dev se verifican por separado; las pruebas integradas usan una instancia CKAN local aislada. No se modificaron registros de emergencias en dev.
+El 2026-09-24 se confirmó que dev todavía ejecutaba la versión anterior a esta implementación. Se revisó el diseño público y una vista previa del formulario con su tema real en seis anchos, sin escrituras; resultados en [[Testing]]. Sigue pendiente desplegar el compositor nuevo y comprobar el flujo autenticado completo allí. Las pruebas integradas de guardado se ejecutaron en una instancia CKAN local aislada.

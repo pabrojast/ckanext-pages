@@ -1772,8 +1772,19 @@
 /* Modern Responsive Design */
 @media (max-width: 768px) {
   .section-title {
-    height: 250px;
+    height: auto;
+    min-height: 250px;
+    padding: 2rem 1.25rem;
     margin-bottom: 2rem;
+  }
+
+  .section-title-content {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    margin: 0 auto;
   }
   
   .section-title-content h1 {
@@ -1871,7 +1882,7 @@
 
 @media (max-width: 480px) {
   .section-title {
-    height: 200px;
+    min-height: 200px;
   }
   
   .section-title-content h1 {
@@ -2122,4 +2133,4 @@
 })();
 </script>
 
-{% endblock %} 
+{% endblock %}
