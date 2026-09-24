@@ -183,3 +183,13 @@ Abrir una fuente Terria → Organize slides → insertar imágenes/texto y mover
 Insertar/pegar/arrastrar una imagen → preparar versión para pantalla → subir mediante `/pages_upload` → sustituir base64 por URL → sincronizar HTML y metadatos → guardar. El formulario espera las subidas y conserva la edición ante fallos; la acción rechaza base64 residual.
 
 En lectura, los estilos del detalle se cargan desde la cabecera y las imágenes/iframes del contenido usan carga diferida nativa del navegador. El texto no espera a que terminen los mapas. Ver [[Frontend y Plantillas]].
+
+## Plantillas y referencias visuales de Data Stories
+
+El modo `slides` comparte el renderer StoryMap y ofrece Anterior/Siguiente, índice y teclado, sin autoplay. Cada sección guarda un bloque `presentation` (`auto`, `map`, `dashboard`, `combined`, `full`); cada párrafo, escena o imagen es un paso. Se conservan el modo clásico, scroll, fuentes Terria y secuencias organizadas existentes.
+
+El bloque `dashboard` selecciona dataset, recurso y vista Dashboard Builder publicados/accesibles, y persiste UUID de la vista, ID estable y estado inicial (filtros y gráfico destacado). La URL se genera internamente como `/dashboard/<view_id>/embed`; el contenido privado sigue sujeto a permisos CKAN. El iframe comparte el contrato versionado `dashboard:hello/ready/applyState/stateApplied`, solo con el padre del mismo origen. La confirmación distingue recepción, finalización y solicitudes superadas. Los filtros se aplican temporalmente al lector y no modifican la vista guardada.
+
+En un bloque de texto, seleccionar palabras y usar `Link visualization`: referencia a fuente/slide Terria, dashboard y filtros/gráfico opcionales, al pulsar o al entrar al paso. Los enlaces `#story-ref-<id>` y sus metadatos `references` se guardan juntos. IDs ausentes o vistas eliminadas muestran un error recuperable y mantienen la narración. Al cambiar de paso se restablece el estado inicial del dashboard. Se reutilizan hasta tres iframes; en móvil se posicionan junto a la narración sin reinsertarlos en el DOM (moverlos recarga su documento).
+
+Terria obtiene sesión, token CSRF y límite por `GET /pages_upload` autenticado con `Cache-Control: private, no-store`; `POST` usa el almacenamiento y permisos de imágenes existentes. No requiere migración de base de datos.

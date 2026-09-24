@@ -1,8 +1,16 @@
     {% if storymap_scenes %}
     <div class="storymap{% if not storymap_config.hasMedia %} has-no-map{% endif %}" id="storymap">
+      <nav class="storymap-slide-controls" aria-label="{{ _('Story slides') }}" hidden>
+        <button type="button" class="btn btn-default" data-direction="-1">{{ _('Previous') }}</button>
+        <select aria-label="{{ _('Choose slide') }}"></select>
+        <span role="status" aria-live="polite"></span>
+        <button type="button" class="btn btn-primary" data-direction="1">{{ _('Next') }}</button>
+      </nav>
+      <div class="storymap-visual-status" role="status" aria-live="polite" hidden></div>
 
       {% if storymap_config.hasMedia %}
       <div class="storymap-media" style="grid-row: 1 / span {{ storymap_scenes|length }};">
+        <div class="storymap-map-pane">
         <div class="storymap-placeholder" aria-hidden="true"
              {% if storymap_config.placeholderImage %}style="background-image: url('{{ storymap_config.placeholderImage }}');"{% endif %}>
           <div class="storymap-placeholder-overlay">
@@ -12,6 +20,7 @@
         </div>
         <iframe class="storymap-iframe" title="{{ _('Interactive map') }}"
                 allow="geolocation; fullscreen" allowfullscreen></iframe>
+        <button type="button" class="storymap-visual-fullscreen btn btn-default">{{ _('Full screen') }}</button>
         <div class="storymap-scene-loading" role="status" aria-live="polite">
           <span class="storymap-spinner storymap-spinner-sm"></span>
           {{ _('Loading scene…') }}
@@ -25,6 +34,14 @@
         <div class="storymap-media-image" aria-hidden="true">
           <img alt="" />
           <div class="storymap-media-image-caption"></div>
+        </div>
+        </div>
+        <div class="storymap-dashboard-pane" hidden>
+          <div class="storymap-dashboard-tools">
+            <button type="button" class="storymap-visual-fullscreen btn btn-default">{{ _('Full screen') }}</button>
+            <button type="button" class="storymap-dashboard-retry btn btn-default">{{ _('Retry') }}</button>
+            <a class="storymap-dashboard-link" target="_blank" rel="noopener">{{ _('Open dashboard') }}</a>
+          </div>
         </div>
         <nav class="storymap-progress" aria-label="{{ _('Story chapters') }}">
           <button type="button" class="storymap-nav-btn storymap-nav-prev"
@@ -60,7 +77,9 @@
 
             {% for block in scene.blocks %}
               {% if block.type == 'text' %}
-              <div class="section-content">{{ block.content | safe }}</div>
+              <div class="section-content storymap-narrative" data-block-id="{{ block.id or '' }}">{{ block.content | safe }}</div>
+              {% elif block.type == 'visual_error' %}
+              <p role="status">{{ _(block.message) }}</p>
               {% elif block.type == 'media' %}
               <div class="storymap-card-media">{{ block.embed_html | safe }}</div>
               {% elif block.type == 'image' %}
@@ -112,6 +131,8 @@
     </div>
     {% endif %}
 
-
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-3" />
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
-<script src="/js/data-stories-storymap.js?v=20260911-1" defer></script>
+{# ?v= busts browser caches when the viewer logic changes — bump on edits #}
+<script src="/js/data-stories-visuals.js?v=20260924-3" defer></script>
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-3" defer></script>

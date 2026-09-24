@@ -55,6 +55,7 @@
   if (!cards.length) return;
 
   var scenes = config.scenes || [];
+  var visuals;
   var terriaOrigin = config.terriaOrigin || null;
   var resolveEndpoint = config.sceneResolveEndpoint || null;
   var firstSceneUrl = null;
@@ -579,7 +580,8 @@
     });
     var scene = scenes[index];
     if (!scene) return;
-    var isFull = scene.layout === 'full' || !scene.sources || !scene.sources.length;
+    var isFull = scene.layout === 'full' || ((!scene.sources || !scene.sources.length) && !(scene.dashboards || []).length);
+    if (visuals) visuals.activate(index);
     // Full chapters fade the media panel out but deliberately keep the last
     // scene loaded underneath: re-entering a split chapter re-applies by key.
     root.classList.toggle('is-full-section', isFull);
@@ -617,6 +619,7 @@
     if (card && !card.classList.contains('is-active')) activateCard(card);
     deactivateImage();
     var sceneIndex = parseInt(stepEl.getAttribute('data-scene-index'), 10);
+    if (visuals) visuals.activate(sceneIndex, true);
     var stepIndex = parseInt(stepEl.getAttribute('data-step-index'), 10);
     var sourceIndex = parseInt(stepEl.getAttribute('data-source-index'), 10);
     if (isNaN(sourceIndex)) sourceIndex = 0;
@@ -637,7 +640,12 @@
     scheduleApply(sceneIndex, sourceIndex, stepIndex);
   }
 
-  if ('IntersectionObserver' in window) {
+  if (window.StoryVisualsViewer) visuals = window.StoryVisualsViewer({
+    root: root, config: config, activateCard: activateCard, activateStep: activateStep,
+    activateImage: activateImage, scheduleApply: scheduleApply
+  });
+
+  if ('IntersectionObserver' in window && config.displayMode !== 'slides') {
     var activeObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
@@ -659,7 +667,7 @@
     cards.forEach(function (card) { card.classList.add('is-active'); });
   }
 
-  if (cards.length) activateCard(cards[0]);
+  if (cards.length && config.displayMode !== 'slides') activateCard(cards[0]);
 
   /* ------------------------------------------------------------------ */
   /* Prev/next block navigation (buttons + arrow keys)                   */
@@ -675,6 +683,7 @@
   });
 
   function scrollToStop(el) {
+    if (visuals && visuals.slides) return visuals.showElement(el);
     var reduceMotion = window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     el.scrollIntoView({
@@ -687,6 +696,7 @@
   // to the viewport midline) — activation state can lag a smooth scroll.
   var lastJumpAt = 0;
   function jumpStop(direction) {
+    if (visuals && visuals.slides) return visuals.jump(direction);
     if (!stops.length) return;
     var now = Date.now();
     if (now - lastJumpAt < 300) return; // held keys shouldn't skip stops
@@ -771,6 +781,7 @@
     if (dot) {
       var target = document.getElementById(dot.getAttribute('data-target'));
       if (target) {
+        if (visuals && visuals.slides) { visuals.showElement(target); return; }
         var reduceMotion = window.matchMedia &&
           window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         target.scrollIntoView({

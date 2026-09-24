@@ -135,3 +135,12 @@ Verificación manual en dev: insertar/pegar imágenes, guardar, recargar, compro
 El test de navegador usa Quill real y un uploader simulado. Cubre pegado, drag/drop, transparencia, guardado durante una subida, deduplicación, metadatos de bloques, error/reintento inmediato y modo fuente. Sus capturas y logs se guardan en `output/playwright/`.
 
 En Rapid Response, comprobar que los iframes alejados aún no tienen navegación iniciada y que esta comienza al acercarse al mapa. No basta con inspeccionar `loading="lazy"`: mover los iframes a un wrapper después del render puede iniciar sus navegaciones. El diseño responsive aplica CSS directamente al iframe y conserva los wrappers ya guardados.
+
+## Plantillas visuales (2026-09-24)
+
+- `test_visuals.py`: dashboard sin mapa, pantalla narrativa completa, referencias, URL interna y rechazo de filtros inválidos.
+- `node ckanext/pages/data_stories/tests/visuals_browser.cjs /ruta/playwright_cli.sh /ruta/ckan/public/base/vendor/jquery.js`: Quill real, guardar/reconstruir metadatos, pasos manuales, filtros/restablecimiento, iframe persistente, sección narrativa y viewport móvil.
+- Mantener `test_storymap_helpers.py`, `test_sequence.py`, `sequence.test.cjs` y `storymap_browser.cjs` como regresiones de escenas importadas y confirmaciones lentas/fallidas.
+- Validación integrada: crear/editar/guardar con sesión real de CKAN en dev, recargar como lector, probar el dashboard accesible y la referencia al mapa. El harness aislado no sustituye permisos ni persistencia real.
+
+`test_featured_viewer_schema.py` requiere `PAGES_SCHEMA_TEST_URL` hacia PostgreSQL aislado. Mantiene un bloqueo ACCESS SHARE como un respaldo y comprueba que el arranque no pide ALTER TABLE para columnas existentes; también verifica creación y persistencia de columnas faltantes. La inicialización consulta el esquema antes de ejecutar una migración, porque `ADD COLUMN IF NOT EXISTS` también solicita un bloqueo exclusivo en PostgreSQL.

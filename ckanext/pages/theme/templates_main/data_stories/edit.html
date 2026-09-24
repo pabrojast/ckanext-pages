@@ -316,12 +316,13 @@
         <select id="display_mode"
                 name="display_mode"
                 class="form-control">
-          <option value="classic"{% if data.get('display_mode', 'classic') != 'storymap' %} selected{% endif %}>{{ _('Classic (stacked sections)') }}</option>
+          <option value="classic"{% if data.get('display_mode', 'classic') == 'classic' %} selected{% endif %}>{{ _('Classic (stacked sections)') }}</option>
           <option value="storymap"{% if data.get('display_mode') == 'storymap' %} selected{% endif %}>{{ _('Story Map (scrolling map, like ArcGIS StoryMaps)') }}</option>
+          <option value="slides"{% if data.get('display_mode') == 'slides' %} selected{% endif %}>{{ _('Slides (previous / next)') }}</option>
         </select>
         <span class="help-text">
           <i class="fa fa-info-circle text-info"></i>
-          {{ _('In Story Map mode each section becomes a chapter card next to a single sticky map: add a Terria map block per section and paste a share link — that scene is shown when the reader reaches the card. Sections without a map are shown full-width, without the map panel.') }}
+          {{ _('Story Map advances as readers scroll; Slides uses Previous and Next. Choose a section template to place text beside a Terria map, a dashboard, or both. Use Link visualization on selected text to connect a map scene or dashboard filter. Full width keeps the focus on narrative and media.') }}
         </span>
         {% if story_slug %}
         <div style="margin-top: 0.5rem;">
@@ -791,5 +792,7 @@
      Stale editor JS would silently drop unknown block types on save. #}
   <script src="/js/story-editor-core.js?v=20260924-1"></script>
   <script src="/js/data-stories-sequence.js?v=20260911-1"></script>
-  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260924-1"></script>
+  <link rel="stylesheet" href="/css/data-stories-visuals.css?v=20260924-3">
+  <script src="/js/data-stories-visuals-edit.js?v=20260924-3"></script>
+  <script type="text/javascript" src="/js/data-stories-edit.js?v=20260924-4"></script>
 {% endblock %}
