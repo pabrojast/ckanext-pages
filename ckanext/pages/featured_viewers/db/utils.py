@@ -63,7 +63,11 @@ def init_tables(engine):
 
 def _add_column_if_not_exists(engine, table, column, col_type):
     """Add a column to an existing table if it doesn't already exist."""
-    from sqlalchemy import text
+    from sqlalchemy import inspect, text
+    # PostgreSQL takes an ACCESS EXCLUSIVE lock even with IF NOT EXISTS.
+    # Avoid queuing no-op migrations behind backups on every CKAN startup.
+    if any(item['name'] == column for item in inspect(engine).get_columns(table)):
+        return
     try:
         engine.execute(text(
             f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {col_type}"
