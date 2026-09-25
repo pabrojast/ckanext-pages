@@ -8,6 +8,12 @@ a Python repr and JSON.parse fails client-side, collapsing the blocks).
 """
 
 import json
+from html.parser import HTMLParser
+from pathlib import Path
+import re
+
+from jinja2 import Environment
+import pytest
 
 from ckanext.pages.utils import (
     RAPID_RESPONSE_JSON_FORM_FIELDS,
@@ -18,6 +24,34 @@ from ckanext.pages.commands.fix_rapid_response_blocks import (
     _is_collapsed,
     _resplit_collapsed_html,
 )
+
+
+@pytest.mark.parametrize('value,expected', [
+    (True, 'True'), ('True', 'True'), ('true', 'True'), (1, 'True'),
+    (False, 'False'), ('False', 'False'), ('false', 'False'), (None, 'False'),
+    ('review', 'review'),
+])
+def test_visibility_select_preserves_drafts(value, expected):
+    template = (Path(__file__).parents[1] / 'theme/templates_main'
+                / 'ckanext_pages/rapid-response_edit.html').read_text()
+    selector = re.search(r'<select[^>]+name="private".*?</select>',
+                         template, re.S).group()
+    html = Environment().from_string(selector).render(
+        data={'private': value}, _=lambda text: text)
+
+    class SelectedOptions(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.values = []
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == 'option' and 'selected' in attrs:
+                self.values.append(attrs['value'])
+
+    options = SelectedOptions()
+    options.feed(html)
+    assert options.values == [expected]
 
 
 class TestSerializeJsonFieldsForForm(object):

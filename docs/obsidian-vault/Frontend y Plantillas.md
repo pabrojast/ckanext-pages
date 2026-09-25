@@ -171,3 +171,5 @@ En pantallas de hasta 1440 px de ancho o 850 px de alto, las secciones combinada
 El formulario carga `story-editor-core.js` y `rapid-response-story-edit.js`; la vista pública comparte `data_stories/components/storymap_viewer.html`. `rapid-response-story.css` adapta los controles a móvil. El visor admite `mobileStackedMedia` para situar el mapa después del texto en Rapid Response. Ver [[Stories en Rapid Response]].
 
 Los banners del listado y del editor usan altura automática y contenido en el flujo normal en móvil; una altura fija con texto centrado de forma absoluta recorta el título y la descripción a 320 y 390 px. El ajuste del editor está limitado a `.rr-story-edit-page`; su CSS usa versión `20260924-2`. Evidencia con el tema de dev en [[Testing]].
+
+El selector de visibilidad de Rapid Response acepta booleanos y representaciones históricas de `private`. Reabrir un borrador debe seleccionar Draft y conservarlo al guardar; Under Review debe tener una sola opción seleccionada.

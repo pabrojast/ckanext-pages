@@ -184,8 +184,9 @@
                               <div class="form-group">
                                 <label for="field-activity-visibility" class="control-label">{{ _('Activity Visibility') }}</label>
                                 <select id="field-activity-visibility" name="private" class="rr-form-control">
-                                  <option value="False" {% if data.private != 'True' %}selected{% endif %}>{{ _('Public - visible') }}</option>
-                                  <option value="True" {% if data.private == 'True' %}selected{% endif %}>{{ _('Draft - not visible') }}</option>
+                                  {% set is_private = data.private in [True, 'True', 'true', 1] %}
+                                  <option value="False" {% if not is_private and data.private != 'review' %}selected{% endif %}>{{ _('Public - visible') }}</option>
+                                  <option value="True" {% if is_private %}selected{% endif %}>{{ _('Draft - not visible') }}</option>
                                   <option value="review" {% if data.private == 'review' %}selected{% endif %}>{{ _('Under Review - not visible') }}</option>
                                 </select>
                                 <div class="help-text">{{ _('Visibility status of this emergency event') }}</div>
