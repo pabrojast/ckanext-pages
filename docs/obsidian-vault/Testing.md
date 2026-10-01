@@ -135,3 +135,9 @@ Verificación manual en dev: insertar/pegar imágenes, guardar, recargar, compro
 El test de navegador usa Quill real y un uploader simulado. Cubre pegado, drag/drop, transparencia, guardado durante una subida, deduplicación, metadatos de bloques, error/reintento inmediato y modo fuente. Sus capturas y logs se guardan en `output/playwright/`.
 
 En Rapid Response, comprobar que los iframes alejados aún no tienen navegación iniciada y que esta comienza al acercarse al mapa. No basta con inspeccionar `loading="lazy"`: mover los iframes a un wrapper después del render puede iniciar sus navegaciones. El diseño responsive aplica CSS directamente al iframe y conserva los wrappers ya guardados.
+
+## Regresión de encabezados de Rapid Response
+
+Comprobar listado, los cuatro eventos públicos y los banners de alta y edición a 320, 390, 768, 800, 820, 991, 992, 1024, 1199, 1366, 1440 y 1920 px. Además de comparar el ancho de documento y viewport, verificar que los rectángulos del texto estén contenidos en el banner. Repetir con un título largo, palabras sin espacios y la ruta en español. Las pruebas visuales del banner del editor renderizan su fragmento Jinja real sobre el tema servido; no prueban guardado ni persistencia.
+
+Validar los assets de la imagen candidata y repetir sobre las URLs públicas después del rollout. Evidencia local privada: `output/rapid-response/header-release-20261001/`. Ver [[Frontend y Plantillas]] y el registro de release del repositorio Docker.

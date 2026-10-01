@@ -159,3 +159,9 @@ El detalle carga `rapid-response-detail-css` mediante el bloque `styles`, antes 
 El editor usa `rapid-response-images.js` para subir imágenes insertadas, pegadas o arrastradas por `/pages_upload`. JPEG y PNG estáticos se reducen a un máximo de 1600 px, sin ampliación; PNG conserva transparencia y los formatos animados conservan sus bytes. El guardado espera las subidas y sincroniza editores, bloques y campos de código fuente. Los errores conservan la edición y permiten reintentar. La acción de guardado rechaza imágenes base64 pendientes únicamente para Rapid Response.
 
 Relacionadas: [[Modulos]], [[Flujos Importantes]], [[Testing]], [[Deployment]].
+
+## Encabezados de Rapid Response (2026-10-01)
+
+El listado, los detalles y el editor usan altura automática, una altura mínima y contenido en el flujo normal. Los títulos y descripciones largos pueden aumentar la altura del banner; las palabras sin espacios también se ajustan al ancho. Se conserva el fondo y el texto centrado, sin recortar título, fecha o severidad. El ajuste del editor vive en `public/css/rapid-response-edit.css`, independientemente del compositor Stories. Su URL incorpora la versión `20261001-header-1`.
+
+El backport productivo parte de Pages `46d8ad5` y conserva el editor existente y la biblioteca de imágenes. Ver [[Testing]] y [[Troubleshooting]].

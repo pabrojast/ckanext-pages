@@ -175,3 +175,7 @@ Si desaparecen bloques al guardar contenido que contiene `&quot;`, revisar la ve
 Diagnóstico observado en producción el 2026-09-11: Nepal devolvía 52,87 MB de HTML por dos JPEG incrustados; los estilos del detalle aparecían después de las imágenes. El navegador podía quedar sin completar `DOMContentLoaded`. El historial también almacenaba base64.
 
 Revisar tamaño del HTML, posición del CSS y ejecutar la auditoría `pages optimize-rapid-response-images`. La corrección combina CSS en cabecera, subida de imágenes desde el editor y conversión reversible del contenido existente; no basta con añadir `loading="lazy"` a una imagen que sigue incrustada en el HTML. Ver [[Deployment]].
+
+## Banner recortado después de un release reciente
+
+Que el despliegue sea reciente no garantiza que incluya una corrección de otra rama. El release de biblioteca de imágenes de 2026-10-01 usó Pages `46d8ad5`, cuyo listado aún tenía alturas fijas de 250/200 px. Comparar refs y archivos dentro del pod con los assets servidos antes de atribuir el problema a caché. El backport del encabezado adapta también el detalle en escritorio y el editor original, sin depender de `rapid-response-story.css`. Ver [[Frontend y Plantillas]] y [[Testing]].

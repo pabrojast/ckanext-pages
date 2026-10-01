@@ -775,7 +775,11 @@
 /* Banner Section - Enhanced */
 .section-title {
   position: relative;
-  height: 300px;
+  height: auto;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  padding: 2rem 1.25rem;
   overflow: hidden;
   border-radius: 16px;
   margin-bottom: 3rem;
@@ -809,14 +813,14 @@
 }
 
 .section-title-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  margin: 0 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
   text-align: center;
   color: white;
   z-index: 10;
-  width: 90%;
+  width: 100%;
   max-width: 700px;
 }
 
@@ -1772,7 +1776,7 @@
 /* Modern Responsive Design */
 @media (max-width: 768px) {
   .section-title {
-    height: 250px;
+    min-height: 250px;
     margin-bottom: 2rem;
   }
   
@@ -1871,7 +1875,7 @@
 
 @media (max-width: 480px) {
   .section-title {
-    height: 200px;
+    min-height: 200px;
   }
   
   .section-title-content h1 {
@@ -2122,4 +2126,4 @@
 })();
 </script>
 
-{% endblock %} 
+{% endblock %}
