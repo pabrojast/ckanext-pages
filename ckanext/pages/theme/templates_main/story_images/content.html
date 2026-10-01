@@ -1,0 +1,22 @@
+<section id="story-image-library" data-owner="{{ image_owner_id }}" data-picker="{{ 'true' if picker else 'false' }}">
+  <h1>{{ _('My images') }}</h1>
+  <p>{{ _('Reuse your images in Terria and Data Stories. Anyone with an image link can view it.') }}</p>
+  <div class="story-images-controls">
+    <label>{{ _('Upload images') }} <input id="story-images-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple></label>
+    <form id="story-images-search"><label>{{ _('Search') }} <input type="search" name="q"></label><button type="submit">{{ _('Search') }}</button></form>
+    <label><input type="checkbox" id="story-images-archived"> {{ _('Archived') }}</label>
+  </div>
+  <p role="status" id="story-images-status"></p>
+  <p role="alert" id="story-images-error"></p>
+  <div id="story-images-grid" class="story-images-grid"></div>
+  <div class="story-images-pagination"><button type="button" id="story-images-previous">{{ _('Previous') }}</button><span id="story-images-count"></span><button type="button" id="story-images-next">{{ _('Next') }}</button></div>
+  <p>{{ _('Archiving hides an image from the selector. Images already used in stories remain available.') }}</p>
+  <dialog id="story-image-metadata"><form>
+    <h2>{{ _('Image details') }}</h2>
+    <label>{{ _('Alternative text') }}<input name="alt" maxlength="500"></label>
+    <label>{{ _('Caption') }}<textarea name="caption" maxlength="2000"></textarea></label>
+    <label>{{ _('Credit') }}<input name="credit" maxlength="500"></label>
+    <p>{{ _('These changes apply when you insert the image again. Existing stories keep their text.') }}</p>
+    <button type="submit">{{ _('Save') }}</button><button type="button" id="story-image-metadata-cancel">{{ _('Cancel') }}</button>
+  </form></dialog>
+</section>
