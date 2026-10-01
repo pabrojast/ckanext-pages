@@ -769,6 +769,8 @@
       let sectionIndex = $('.content-section-editor').length;
       let sectionBlockCounters = {};
       let sectionQuillEditors = {};
+      const basicQuillEditors = [];
+      const failedGalleryUploads = new Set();
 
       function resolveSectionId(context, fallbackId) {
         const $section = $(context).closest('.content-section-editor');
@@ -1251,13 +1253,8 @@
             quill.clipboard.dangerouslyPasteHTML(content);
           }
 
-          // If legacy content has inline data URIs, upload immediately and replace
-          replaceInlineImagesInEditor(quill).catch(function(err) {
-            console.error('Inline image sanitize on init failed:', err);
-            alert('Inline pasted images could not be uploaded. Please save again or upload through the gallery.');
-          });
-
           bindQuillPasteDrop(quill);
+          attachImageLibrary(quill);
           quill.on('text-change', function() {
             updateSectionContentFor(quill.root, sectionId);
           });
@@ -1638,21 +1635,31 @@
           $block.find('.image-block-file').trigger('click');
         });
 
+        $('<button type="button" class="btn btn-default">My images</button>').insertAfter($block.find('.image-block-upload')).on('click', async function() {
+          const image = await StoryImages.choose();
+          if (!image) return;
+          $block.find('.image-block-alt').val(image.alt);
+          $block.find('.image-block-caption').val([image.caption, image.credit].filter(Boolean).join(' — '));
+          $block.find('.image-block-url').val(image.url).trigger('change');
+        });
+
         $block.find('.image-block-file').on('change', function() {
           const file = this.files && this.files[0];
           this.value = '';
           if (!file) return;
           const $status = $block.find('.image-block-status');
           $status.text('Uploading…');
-          // Same compress + retry pipeline as inline Quill images.
-          uploadInlineFile(file).then(function(uploadedUrl) {
+          StoryImages.track(readFileAsDataURL(file).then(function(uri) {
+            $block.find('.image-block-url').val(uri).trigger('change');
+            return uploadInlineFile(file);
+          }).then(function(uploadedUrl) {
             $block.find('.image-block-url').val(uploadedUrl);
             $block.find('.image-block-preview').attr('src', uploadedUrl).show();
             $status.text('');
             updateSectionContentFor($block, sectionId);
           }, function(err) {
-            $status.text(typeof err === 'string' ? err : 'Upload failed');
-          });
+            $status.text(err.message || 'Upload failed. Save again to retry.');
+          }));
         });
       }
 
@@ -2174,42 +2181,8 @@
       }
 
       function compressFileForUpload(file) {
-        if (!file) {
-          return $.Deferred().reject('Invalid image file').promise();
-        }
-
-        // Skip compression for very small files to speed things up
-        const shouldCompress = !file.size || file.size > 600000;
-        if (!shouldCompress) {
-          return Promise.resolve(file);
-        }
-
-        return readFileAsDataURL(file)
-          .then(function(dataUrl) {
-            return compressDataUri(dataUrl, { maxSide: 1200, quality: 0.72 })
-              .catch(function() { return dataUrl; });
-          })
-          .then(function(uri) {
-            let blob = dataURItoBlob(uri);
-            if (!blob) {
-              return $.Deferred().reject('Invalid image data').promise();
-            }
-            if (blob.size > 1200000) {
-              return compressDataUri(uri, { maxSide: 900, quality: 0.6 })
-                .catch(function() { return uri; })
-                .then(function(uri2) {
-                  const blob2 = dataURItoBlob(uri2) || blob;
-                  return blob2.size < blob.size ? blob2 : blob;
-                });
-            }
-            return blob;
-          })
-          .then(function(blob) {
-            if (blob.size > 2000000) {
-              return $.Deferred().reject('The image is too large to upload from the editor. Please use the gallery.').promise();
-            }
-            return blob;
-          });
+        // CKAN applies one format-preserving pipeline for both editors.
+        return Promise.resolve(file);
       }
 
       function uploadBlobWithRetry(blob, maxAttempts) {
@@ -2238,19 +2211,39 @@
       }
 
       function handleQuillFiles(quill, files) {
-        // Upload sequentially to avoid large parallel requests
-        let chain = Promise.resolve();
-        Array.from(files).forEach(function(file) {
-          if (!file || !file.type || !file.type.startsWith('image/')) {
-            return;
+        return StoryImages.track((async function() {
+          for (const file of Array.from(files)) {
+            if (!file || !file.type.startsWith('image/')) continue;
+            // Keep the local image visible until CKAN confirms persistence.
+            handleInlineImageInsert(quill, await readFileAsDataURL(file));
           }
-          chain = chain.then(function() {
-            return uploadInlineFile(file).then(function(url) {
-              handleInlineImageInsert(quill, url);
-            });
-          });
+          await StoryImages.normalizeQuill(quill);
+        })());
+      }
+
+      function attachImageLibrary(quill) {
+        const toolbar = quill.getModule('toolbar');
+        toolbar.addHandler('image', function() {
+          const input = document.createElement('input');
+          input.type = 'file'; input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+          input.onchange = () => handleQuillFiles(quill, input.files).catch(err => alert(err.message));
+          input.click();
         });
-        return chain;
+        const button = document.createElement('button');
+        button.type = 'button'; button.textContent = 'My images';
+        button.title = 'Insert from My images'; button.style.width = 'auto';
+        button.onclick = async function() {
+          const range = quill.getSelection(true);
+          const image = await StoryImages.choose();
+          if (!image) return;
+          quill.setSelection(range || {index: quill.getLength() - 1, length: 0}, 'silent');
+          const index = quill.getSelection(true).index;
+          handleInlineImageInsert(quill, image.url);
+          quill.formatText(index, 1, 'alt', image.alt || '', 'user');
+          const caption = [image.caption, image.credit].filter(Boolean).join(' — ');
+          if (caption) quill.insertText(index + 1, '\n' + caption + '\n', 'user');
+        };
+        toolbar.container.append(button);
       }
 
       function bindQuillPasteDrop(quill) {
@@ -2295,41 +2288,6 @@
         });
       }
 
-      function compressDataUri(dataURI, opts) {
-        opts = opts || {};
-        const maxSide = opts.maxSide || 1600;
-        const quality = opts.quality || 0.8;
-
-        return new Promise(function(resolve, reject) {
-          const img = new Image();
-          img.onload = function() {
-            try {
-              let width = img.width;
-              let height = img.height;
-              const scale = Math.min(1, maxSide / Math.max(width, height));
-              width = Math.round(width * scale);
-              height = Math.round(height * scale);
-
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-
-              // Always export as JPEG to shrink size
-              const compressed = canvas.toDataURL('image/jpeg', quality);
-              resolve(compressed || dataURI);
-            } catch (err) {
-              reject(err);
-            }
-          };
-          img.onerror = function(err) {
-            reject(err);
-          };
-          img.src = dataURI;
-        });
-      }
-
       function dataURItoBlob(dataURI) {
         const parts = dataURI.split(',');
         if (parts.length < 2) return null;
@@ -2347,62 +2305,11 @@
       }
 
       function uploadDataUriImage(dataURI) {
-        return compressDataUri(dataURI, { maxSide: 1200, quality: 0.68 })
-          .catch(function() {
-            // If compression fails, fallback to original data URI
-            return dataURI;
-          })
-          .then(function(processedUri) {
-            const blob = dataURItoBlob(processedUri);
-            if (!blob) {
-              return $.Deferred().reject('Invalid image data').promise();
-            }
-            // If still heavy, re-compress more aggressively
-            if (blob.size > 1200000) {
-              return compressDataUri(dataURI, { maxSide: 900, quality: 0.6 })
-                .catch(function() { return processedUri; })
-                .then(function(retryUri) {
-                  const retryBlob = dataURItoBlob(retryUri);
-                  if (retryBlob && retryBlob.size < blob.size) {
-                    return retryBlob;
-                  }
-                  return blob;
-                })
-                .then(function(finalBlob) {
-                  if (finalBlob.size > 1800000) {
-                    return $.Deferred().reject('The pasted image is too large; please upload it via the gallery.').promise();
-                  }
-                  return doUploadBlob(finalBlob);
-                });
-            }
-            if (blob.size > 1800000) {
-              return $.Deferred().reject('The pasted image is too large; please upload it via the gallery.').promise();
-            }
-            return doUploadBlob(blob);
-          });
+        return StoryImages.dataImage(dataURI).then(image => image.url);
       }
 
       function doUploadBlob(blob) {
-        const mime = blob.type || 'image/jpeg';
-        const ext = mime.split('/')[1] || 'jpg';
-        const filename = `inline-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const formData = new FormData();
-        formData.append('upload', blob, filename);
-
-        return $.ajax({
-          url: '/pages_upload',
-          type: 'POST',
-          data: formData,
-          processData: false,
-          contentType: false,
-          timeout: 45000
-        }).then(function(response) {
-          if (response && response.uploaded === 1 && response.url) {
-            return response.url;
-          }
-          const errorMsg = response && response.error && response.error.message ? response.error.message : 'Upload failed';
-          return $.Deferred().reject(errorMsg).promise();
-        });
+        return StoryImages.upload(blob).then(image => image.url);
       }
 
       function extractDataUris(html) {
@@ -2417,80 +2324,48 @@
         return Array.from(matches);
       }
 
-      function replaceInlineImagesInSection(sectionId) {
-        const editors = sectionQuillEditors[sectionId] || {};
-        const blockIds = Object.keys(editors);
-        let chain = Promise.resolve();
-
-        blockIds.forEach(function(blockId) {
-          chain = chain.then(function() {
-            const quill = editors[blockId];
-            if (!quill) {
-              return Promise.resolve();
-            }
-            let html = quill.root.innerHTML || '';
-            const dataUris = extractDataUris(html);
-            if (!dataUris.length) {
-              return Promise.resolve();
-            }
-
-            console.log('[DataStories] Found', dataUris.length, 'inline images in section', sectionId, 'block', blockId);
-
-            // Upload sequentially to avoid large parallel payloads
-            let uploadChain = Promise.resolve();
-            dataUris.forEach(function(dataUri) {
-              uploadChain = uploadChain.then(function() {
-                return uploadDataUriImage(dataUri).then(function(url) {
-                  html = html.split(dataUri).join(url);
-                });
-              });
-            });
-
-            return uploadChain.then(function() {
-              quill.root.innerHTML = html;
-            });
-          });
-        });
-
-        return chain;
-      }
-
-      function replaceInlineImagesInEditor(quill) {
-        if (!quill) return Promise.resolve();
-        let html = quill.root.innerHTML || '';
-        const dataUris = extractDataUris(html);
-        if (!dataUris.length) {
-          return Promise.resolve();
+      async function replaceInlineImagesInSection(sectionId) {
+        for (const quill of Object.values(sectionQuillEditors[sectionId] || {})) {
+          await StoryImages.normalizeQuill(quill);
         }
-        let uploadChain = Promise.resolve();
-        dataUris.forEach(function(dataUri) {
-          uploadChain = uploadChain.then(function() {
-            return uploadDataUriImage(dataUri).then(function(url) {
-              html = html.split(dataUri).join(url);
-            });
-          });
-        });
-        return uploadChain.then(function() {
-          quill.root.innerHTML = html;
-        });
       }
 
-      function replaceInlineImagesInAllSections() {
-        let chain = Promise.resolve();
-        $('.content-section-editor').each(function() {
-          const sectionId = $(this).attr('data-section-id');
-          if (sectionId !== undefined) {
-            chain = chain.then(function() {
-              return replaceInlineImagesInSection(sectionId);
-            });
+      async function replaceInlineImagesInAllSections() {
+        await StoryImages.wait();
+        if (isUploading || uploadQueue.length) throw new Error('Please wait for the gallery uploads to finish.');
+        if (failedGalleryUploads.size) throw new Error('Retry or remove the failed gallery uploads before saving.');
+        for (const sectionId of Object.keys(sectionQuillEditors)) await replaceInlineImagesInSection(sectionId);
+        for (const entry of basicQuillEditors) {
+          await StoryImages.normalizeQuill(entry.quill);
+          $(entry.field).val(entry.quill.root.innerHTML);
+        }
+        for (const input of document.querySelectorAll('.image-block-url, .section-image-url')) {
+          if (/^data:/i.test(input.value)) {
+            input.value = await uploadDataUriImage(input.value);
+            $(input).trigger('change');
           }
-        });
-        return chain;
+        }
+        for (const image of uploadedImages) {
+          if (/^data:/i.test(image.url || '')) image.url = await uploadDataUriImage(image.url);
+        }
+        // Keep the gallery DOM and its serialized field consistent after legacy conversion.
+        for (const card of document.querySelectorAll('.uploaded-image-item')) {
+          const photo = card.querySelector('img');
+          if (photo && /^data:/i.test(photo.getAttribute('src') || '')) {
+            const old = photo.getAttribute('src');
+            const url = await uploadDataUriImage(old);
+            photo.src = url;
+            $(card).find('[data-url]').attr('data-url', url).data('url', url);
+            $(card).find('[data-image-url]').attr('data-image-url', url).data('image-url', url);
+          }
+        }
+        updateUploadedImagesData();
       }
-      
+
       // Form submission - Only for the main data stories form, not delete forms
       $('.data-stories-form, form.data-stories-form').on('submit', function(e) {
         if ($(this).data('submitting-inline')) {
+          e.preventDefault();
           return;
         }
         e.preventDefault();
@@ -2500,7 +2375,7 @@
         console.log('Data story form submitting, processing inline images...');
 
         replaceInlineImagesInAllSections()
-          .then(function() {
+          .then(async function() {
             console.log('Inline images processed, updating section content...');
             updateCountriesHiddenField();
             updatePartnersHiddenField();
@@ -2521,6 +2396,9 @@
                 console.log('Updated section ' + sectionId);
               }
             });
+            await StoryImages.normalizeForm(form);
+            const serialized = $(form).serialize();
+            if (/data%3Aimage|blob%3A/i.test(serialized)) throw new Error('Some images are still pending. Retry before saving.');
             form.submit();
           })
           .catch(function(err) {
@@ -2581,6 +2459,13 @@
         processUploadQueue();
       }
       
+      $('<button type="button" class="btn btn-default">Insert from My images</button>').insertBefore('#image-dropzone').on('click', async function() {
+        const image = await StoryImages.choose();
+        if (!image) return;
+        const entry = {url: image.url, alt: image.alt, caption: image.caption, copyright: image.credit};
+        uploadedImages.push(entry); addUploadedImagePreview(entry); updateUploadedImagesData();
+      });
+
       // Handle file upload
       $('#image-upload').on('change', function(e) {
         e.stopPropagation();
@@ -2632,86 +2517,28 @@
       
       // Upload image function (internal - called by queue processor)
       function uploadImageInternal(file, onComplete) {
-        // Show upload progress
-        const progressId = 'progress-' + Date.now();
-        const progressHtml = `
-          <div id="${progressId}" class="upload-progress">
-            <p>Uploading ${file.name}...</p>
-            <div class="progress">
-              <div class="progress-bar" style="width: 0%"></div>
-            </div>
-          </div>
-        `;
-        $('#uploaded-images-preview').append(progressHtml);
-
-        compressFileForUpload(file)
-          .then(function(blob) {
-            function send(attempt) {
-              const formData = new FormData();
-              formData.append('upload', blob, file.name || ('upload-' + Date.now() + '.jpg'));
-
-              return $.ajax({
-                url: '/pages_upload',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                xhr: function() {
-                  const xhr = new window.XMLHttpRequest();
-                  xhr.upload.addEventListener("progress", function(evt) {
-                    if (evt.lengthComputable) {
-                      const percentComplete = (evt.loaded / evt.total) * 100;
-                      $('#' + progressId + ' .progress-bar').css('width', percentComplete + '%');
-                    }
-                  }, false);
-                  return xhr;
-                }
-              }).catch(function(err) {
-                if (attempt < 2) {
-                  return send(attempt + 1);
-                }
-                return $.Deferred().reject(err || 'Upload failed').promise();
-              });
-            }
-            return send(1);
-          })
-          .then(function(response) {
-            $('#' + progressId).remove();
-            if (response && response.uploaded === 1) {
-              // Only store essential fields - no fileName to avoid JSON issues
-              const imageData = {
-                url: response.url,
-                alt: file.name.replace(/\.[^/.]+$/, ""),
-                caption: '',
-                copyright: ''
-              };
-              uploadedImages.push(imageData);
-              addUploadedImagePreview(imageData);
-              updateUploadedImagesData();
-
-              // Update the first section's image_url field with the uploaded image
-              const $firstSection = $('.content-section-editor').first();
-              if ($firstSection.length) {
-                const $imageUrlField = $firstSection.find('.section-image-url');
-                if ($imageUrlField.length && !$imageUrlField.val()) {
-                  $imageUrlField.val(response.url);
-                  console.log('[DataStories] Updated first section image_url:', response.url);
-                }
-              }
-            } else {
-              alert('Error uploading image: ' + (response && response.error ? response.error.message : 'Unknown error'));
-            }
-          })
-          .catch(function(err) {
-            $('#' + progressId).remove();
-            const message = typeof err === 'string' ? err : 'Error uploading image. Please try again.';
-            alert(message);
-          })
-          .then(function() {
-            if (onComplete) onComplete();
-          });
+        const $progress = $('<div class="upload-progress"><span></span></div>');
+        $('#uploaded-images-preview').append($progress);
+        function run() {
+          failedGalleryUploads.delete(file);
+          $progress.empty().append($('<span>').text('Uploading ' + file.name + '…'));
+          return StoryImages.upload(file, percent => $progress.find('span').text(file.name + ': ' + percent + '%'))
+            .then(function(response) {
+              $progress.remove();
+              const imageData = {url: response.url, alt: response.alt || '', caption: response.caption || '', copyright: response.credit || ''};
+              uploadedImages.push(imageData); addUploadedImagePreview(imageData); updateUploadedImagesData();
+            }).catch(function(err) {
+              failedGalleryUploads.add(file);
+              $progress.empty().append($('<span>').text(err.message + ' '));
+              $('<button type="button" class="btn btn-default">Retry</button>').on('click', run).appendTo($progress);
+              $('<button type="button" class="btn btn-default">Remove</button>').on('click', function() {
+                failedGalleryUploads.delete(file); $progress.remove();
+              }).appendTo($progress);
+            });
+        }
+        return StoryImages.track(run().then(function() { if (onComplete) onComplete(); }));
       }
-      
+
       // Escape HTML entities for safe display in attributes
       function escapeHtml(str) {
         if (!str) return '';
@@ -2870,6 +2697,9 @@
           if ($abstractTextarea.val()) {
             abstractEditor.clipboard.dangerouslyPasteHTML($abstractTextarea.val());
           }
+          bindQuillPasteDrop(abstractEditor);
+          attachImageLibrary(abstractEditor);
+          basicQuillEditors.push({quill: abstractEditor, field: '#abstract'});
           abstractEditor.on('text-change', function() {
             $abstractTextarea.val(abstractEditor.root.innerHTML);
           });
@@ -2884,6 +2714,9 @@
           if ($researchQuestionTextarea.val()) {
             researchQuestionEditor.clipboard.dangerouslyPasteHTML($researchQuestionTextarea.val());
           }
+          bindQuillPasteDrop(researchQuestionEditor);
+          attachImageLibrary(researchQuestionEditor);
+          basicQuillEditors.push({quill: researchQuestionEditor, field: '#research_question'});
           researchQuestionEditor.on('text-change', function() {
             $researchQuestionTextarea.val(researchQuestionEditor.root.innerHTML);
           });
@@ -2898,6 +2731,9 @@
           if ($studyAreaTextarea.val()) {
             studyAreaEditor.clipboard.dangerouslyPasteHTML($studyAreaTextarea.val());
           }
+          bindQuillPasteDrop(studyAreaEditor);
+          attachImageLibrary(studyAreaEditor);
+          basicQuillEditors.push({quill: studyAreaEditor, field: '#study_area'});
           studyAreaEditor.on('text-change', function() {
             $studyAreaTextarea.val(studyAreaEditor.root.innerHTML);
           });

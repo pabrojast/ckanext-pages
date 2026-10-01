@@ -386,6 +386,8 @@ def create():
             datasets_data = _prepare_story_datasets(context, datasets_data)
             data_dict['datasets_data'] = datasets_data
 
+            from ckanext.pages.story_image_processing import validate_story_images
+            validate_story_images(sections_data)
             # Create story
             story = tk.get_action('data_story_create')(context, data_dict)
 
@@ -841,6 +843,8 @@ def edit(slug):
             # Store original status to check if it changed
             original_status = story.get('status')
 
+            from ckanext.pages.story_image_processing import validate_story_images
+            validate_story_images(sections_data)
             # Update story
             updated_story = tk.get_action('data_story_update')(context, data_dict)
 

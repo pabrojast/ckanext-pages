@@ -18,6 +18,7 @@ from ckanext.pages.rapid_response_media import lazy_media_html
 
 from ckanext.pages import actions
 from ckanext.pages import auth
+from ckanext.pages import story_images
 from ckanext.pages import blueprint
 from ckanext.pages.utils import is_ckan_download_url
 
@@ -1387,7 +1388,7 @@ class PagesPlugin(PagesPluginBase):
         return tk.asbool(tk.config.get('ckanext.featured_viewers.enabled', False))
 
     def get_blueprint(self):
-        blueprints = [blueprint.pages]
+        blueprints = [blueprint.pages, story_images.blueprint]
         # Register data stories blueprint only when enabled
         if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and data_stories_blueprint:
             blueprints.append(data_stories_blueprint)
@@ -1413,6 +1414,9 @@ class PagesPlugin(PagesPluginBase):
         return [pages]
 
     def update_config(self, config):
+        config.setdefault('ckan.upload.story_images.mimetypes',
+                          ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+        config.setdefault('ckan.upload.story_images.types', ['image'])
         self.organization_pages = tk.asbool(config.get('ckanext.pages.organization', False))
         self.group_pages = tk.asbool(config.get('ckanext.pages.group', False))
         self.data_stories_enabled = tk.asbool(config.get('ckanext.data_stories.enabled', False))
@@ -1585,6 +1589,9 @@ class PagesPlugin(PagesPluginBase):
 
     def get_actions(self):
         actions_dict = {
+            'story_image_create': story_images.story_image_create,
+            'story_image_list': story_images.story_image_list,
+            'story_image_update': story_images.story_image_update,
             'ckanext_pages_show': actions.pages_show,
             'ckanext_pages_update': actions.pages_update,
             'ckanext_pages_revision_restore': actions.pages_revision_restore,
@@ -1694,6 +1701,9 @@ class PagesPlugin(PagesPluginBase):
 
     def get_auth_functions(self):
         auth_functions = {
+            'story_image_create': story_images.auth_create,
+            'story_image_list': story_images.auth_list,
+            'story_image_update': story_images.auth_update,
             'ckanext_pages_show': auth.pages_show,
             'ckanext_pages_update': auth.pages_update,
             'ckanext_pages_delete': auth.pages_delete,

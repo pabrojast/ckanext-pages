@@ -77,6 +77,8 @@ def data_story_update(context, data_dict):
 
     # Check authorization
     tk.check_access('data_story_update', context, data_dict)
+    from ckanext.pages.story_image_processing import validate_story_images
+    validate_story_images(data_dict)
 
     # Get story
     story_id = data_dict.get('id')
@@ -277,6 +279,8 @@ def data_story_section_update(context, data_dict):
 
     # Check authorization
     tk.check_access('data_story_section_update', context, data_dict)
+    from ckanext.pages.story_image_processing import validate_story_images
+    validate_story_images(data_dict)
 
     # Get section
     section_id = data_dict.get('id')

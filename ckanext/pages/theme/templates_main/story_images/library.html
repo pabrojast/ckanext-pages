@@ -1,0 +1,10 @@
+{% extends "user/read_base.html" %}
+{% block subtitle %}{{ _('My images') }}{% endblock %}
+{% block primary_content_inner %}
+  {% include 'story_images/content.html' %}
+{% endblock %}
+{% block styles %}{{ super() }}<link rel="stylesheet" href="/css/story-images.css?v=1">{% endblock %}
+{% block scripts %}{{ super() }}
+  <script src="/js/story-images.js?v=1"></script>
+  <script src="/js/story-images-library.js?v=1"></script>
+{% endblock %}
