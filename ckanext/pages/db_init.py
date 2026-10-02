@@ -60,10 +60,10 @@ def create_pages_table():
         );
         """
         
-        with engine.connect() as conn:
+        with engine.begin() as conn:
+        
+            pass
             conn.execute(sa.text(create_table_sql))
-            conn.commit()
-            
         log.info("Successfully created ckanext_pages table")
         
     except Exception as e:
@@ -87,10 +87,10 @@ def ensure_all_columns_exist():
             ADD COLUMN revisions jsonb;
             """
             
-            with engine.connect() as conn:
+            with engine.begin() as conn:
+            
+                pass
                 conn.execute(sa.text(add_revisions_column_sql))
-                conn.commit()
-                
             log.info("Successfully added revisions column")
         
         # Check for new submission workflow columns
@@ -164,10 +164,10 @@ def add_missing_column(column_name):
             ADD COLUMN {column_name} {column_definitions[column_name]};
             """
             
-            with engine.connect() as conn:
+            with engine.begin() as conn:
+            
+                pass
                 conn.execute(sa.text(alter_sql))
-                conn.commit()
-                
             log.info(f"Successfully added column {column_name}")
         else:
             log.warning(f"Unknown column definition for {column_name}")
@@ -184,7 +184,7 @@ def check_table_health():
         
         # First check basic connectivity
         engine = model.meta.engine
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             # Simple connectivity test
             conn.execute(sa.text("SELECT 1"))
         
@@ -222,7 +222,7 @@ def repair_table_if_needed():
         # First, check if we have basic database connectivity
         try:
             engine = model.meta.engine
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 # Simple connectivity test
                 conn.execute(sa.text("SELECT 1"))
         except Exception as conn_error:
