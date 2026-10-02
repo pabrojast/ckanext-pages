@@ -1145,6 +1145,11 @@ def get_pending_approval_count():
         return 0
 
 
+def get_featured_viewers_hero_image():
+    """Background image of the featured viewers pages (ckanext.featured_viewers.hero_image)."""
+    return tk.config.get('ckanext.featured_viewers.hero_image') or '/Landing_page/Content/IHPTITLE04VIEWERS.jpg'
+
+
 def get_pending_stories_count():
     """Return pending data stories count for sysadmins."""
     if not tk.asbool(tk.config.get('ckanext.data_stories.enabled', False)):
@@ -1518,6 +1523,7 @@ class PagesPlugin(PagesPluginBase):
             'get_user_organization': get_user_organization,
             'get_pending_approval_count': get_pending_approval_count,
             'get_pending_stories_count': get_pending_stories_count,
+            'get_featured_viewers_hero_image': get_featured_viewers_hero_image,
             'get_pending_oss_count': get_pending_oss_count,
             'get_pending_water_count': get_pending_water_count,
             'get_published_page_counts': get_published_page_counts,

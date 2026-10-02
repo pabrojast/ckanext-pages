@@ -47,7 +47,7 @@ class StoryImage(BaseModel):
 def _user(context):
     user = model.User.get(context.get('user')) if context.get('user') else None
     if not user or user.state != 'active':
-        raise tk.NotAuthorized('Sign in to IHP to use your images.')
+        raise tk.NotAuthorized('Sign in to use your images.')
     return user
 
 
@@ -232,7 +232,7 @@ def upload():
         result = tk.get_action('story_image_create')(_context(), {'upload': request.files.get('upload')})
         return _private(jsonify(result))
     except tk.NotAuthorized:
-        return _private(jsonify(uploaded=0, error={'message': 'Sign in to IHP to upload images.'})), 401
+        return _private(jsonify(uploaded=0, error={'message': 'Sign in to upload images.'})), 401
     except tk.ValidationError as exc:
         return _private(jsonify(uploaded=0, error={'message': str(exc)})), 400
     except Exception:

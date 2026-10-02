@@ -7,7 +7,7 @@
 
   async function settings() {
     const response = await fetch(endpoint, {credentials: 'same-origin', cache: 'no-store'});
-    if (!response.ok) throw new Error('Sign in to IHP to upload images. Your draft has been kept.');
+    if (!response.ok) throw new Error('Sign in to upload images. Your draft has been kept.');
     return response.json();
   }
 

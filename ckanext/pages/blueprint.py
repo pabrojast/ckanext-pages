@@ -5,6 +5,18 @@ import ckanext.pages.utils as utils
 pages = Blueprint('pages', __name__)
 
 
+def _water_family_enabled():
+    """UNESCO Water Family page types (news, events, publications, open-source and AI
+    tools, CRIDA, rapid response). Default on; white-label deployments set
+    ckanext.pages.water_family.enabled = false to keep only pages, blog, data
+    stories and featured viewers."""
+    try:
+        from ckan.plugins import toolkit as _tk
+        return _tk.asbool(_tk.config.get('ckanext.pages.water_family.enabled', True))
+    except Exception:
+        return True
+
+
 def index():
     return utils.pages_list_pages('page')
 
@@ -524,16 +536,17 @@ pages.add_url_rule("/blog_edit/<page>", view_func=blog_edit, endpoint='blog_edit
 pages.add_url_rule("/blog_delete/<page>", view_func=blog_delete, endpoint='blog_delete', methods=['GET', 'POST'])
 
 
-pages.add_url_rule("/rapid-response/api/terria-scene/<share_id>", view_func=rapid_response_terria_scene)
-pages.add_url_rule("/rapid-response", view_func=rapid_response_index, endpoint='rapid_response_index')
-pages.add_url_rule("/rapid-response/<page>", view_func=rapid_response_show, endpoint='rapid_response_show')
-pages.add_url_rule("/rapid-response/<page>/revisions", view_func=rapid_response_revisions)
-pages.add_url_rule("/rapid-response/<page>/revisions/<revision>", view_func=rapid_response_revisions_preview)
-pages.add_url_rule("/rapid-response/<page>/revisions/<revision>/restore", view_func=rapid_response_revision_restore, methods=['GET'])
-pages.add_url_rule("/rapid-response_edit", view_func=rapid_response_edit, endpoint='rapid_response_new', methods=['GET', 'POST'])
-pages.add_url_rule("/rapid-response_edit/", view_func=rapid_response_edit, endpoint='rapid_response_new', methods=['GET', 'POST'])
-pages.add_url_rule("/rapid-response_edit/<page>", view_func=rapid_response_edit, endpoint='rapid_response_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/rapid-response_delete/<page>", view_func=rapid_response_delete, endpoint='rapid_response_delete', methods=['GET', 'POST'])
+if _water_family_enabled():
+    pages.add_url_rule("/rapid-response/api/terria-scene/<share_id>", view_func=rapid_response_terria_scene)
+    pages.add_url_rule("/rapid-response", view_func=rapid_response_index, endpoint='rapid_response_index')
+    pages.add_url_rule("/rapid-response/<page>", view_func=rapid_response_show, endpoint='rapid_response_show')
+    pages.add_url_rule("/rapid-response/<page>/revisions", view_func=rapid_response_revisions)
+    pages.add_url_rule("/rapid-response/<page>/revisions/<revision>", view_func=rapid_response_revisions_preview)
+    pages.add_url_rule("/rapid-response/<page>/revisions/<revision>/restore", view_func=rapid_response_revision_restore, methods=['GET'])
+    pages.add_url_rule("/rapid-response_edit", view_func=rapid_response_edit, endpoint='rapid_response_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/rapid-response_edit/", view_func=rapid_response_edit, endpoint='rapid_response_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/rapid-response_edit/<page>", view_func=rapid_response_edit, endpoint='rapid_response_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/rapid-response_delete/<page>", view_func=rapid_response_delete, endpoint='rapid_response_delete', methods=['GET', 'POST'])
 
 
 pages.add_url_rule("/organization/pages/<id>", view_func=org_show, endpoint='organization_pages_index')
@@ -557,124 +570,125 @@ pages.add_url_rule("/group/pages_delete/<id>/<page>", view_func=group_delete,
                    endpoint='group_pages_delete', methods=['GET', 'POST'])
 
 
-# Water Family Community of Practice URLs
-pages.add_url_rule("/water-family", view_func=water_family_index, endpoint='water_family_index')
+if _water_family_enabled():
+    # Water Family Community of Practice URLs
+    pages.add_url_rule("/water-family", view_func=water_family_index, endpoint='water_family_index')
 
-# Water News URLs
-pages.add_url_rule("/water-news", view_func=water_news_index, endpoint='water_news_index')
-pages.add_url_rule("/water-news/<page>", view_func=water_news_show, endpoint='water_news_show')
-pages.add_url_rule("/water-news/<page>/revisions", view_func=water_news_revisions, endpoint='water_news_revisions')
-pages.add_url_rule("/water-news/<page>/revisions/<revision>", view_func=water_news_revisions_preview, endpoint='water_news_revisions_preview')
-pages.add_url_rule("/water-news/<page>/revisions/<revision>/restore", view_func=water_news_revision_restore, endpoint='water_news_revision_restore', methods=['GET'])
-pages.add_url_rule("/water-news_edit", view_func=water_news_edit, endpoint='water_news_new', methods=['GET', 'POST'])
-pages.add_url_rule("/water-news_edit/", view_func=water_news_edit, endpoint='water_news_new', methods=['GET', 'POST'])
-pages.add_url_rule("/water-news_edit/<page>", view_func=water_news_edit, endpoint='water_news_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/water-news_delete/<page>", view_func=water_news_delete, endpoint='water_news_delete', methods=['GET', 'POST'])
+    # Water News URLs
+    pages.add_url_rule("/water-news", view_func=water_news_index, endpoint='water_news_index')
+    pages.add_url_rule("/water-news/<page>", view_func=water_news_show, endpoint='water_news_show')
+    pages.add_url_rule("/water-news/<page>/revisions", view_func=water_news_revisions, endpoint='water_news_revisions')
+    pages.add_url_rule("/water-news/<page>/revisions/<revision>", view_func=water_news_revisions_preview, endpoint='water_news_revisions_preview')
+    pages.add_url_rule("/water-news/<page>/revisions/<revision>/restore", view_func=water_news_revision_restore, endpoint='water_news_revision_restore', methods=['GET'])
+    pages.add_url_rule("/water-news_edit", view_func=water_news_edit, endpoint='water_news_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-news_edit/", view_func=water_news_edit, endpoint='water_news_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-news_edit/<page>", view_func=water_news_edit, endpoint='water_news_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-news_delete/<page>", view_func=water_news_delete, endpoint='water_news_delete', methods=['GET', 'POST'])
 
-# Water Events URLs
-pages.add_url_rule("/water-events", view_func=water_events_index, endpoint='water_events_index')
-pages.add_url_rule("/water-events/calendar", view_func=water_events_calendar, endpoint='water_events_calendar')
-pages.add_url_rule("/water-events/<page>/feature", view_func=water_events_toggle_featured, endpoint='water_events_toggle_featured', methods=['POST'])
-pages.add_url_rule("/water-events/<page>", view_func=water_events_show, endpoint='water_events_show')
-pages.add_url_rule("/water-events/<page>/revisions", view_func=water_events_revisions, endpoint='water_events_revisions')
-pages.add_url_rule("/water-events/<page>/revisions/<revision>", view_func=water_events_revisions_preview, endpoint='water_events_revisions_preview')
-pages.add_url_rule("/water-events/<page>/revisions/<revision>/restore", view_func=water_events_revision_restore, endpoint='water_events_revision_restore', methods=['GET'])
-pages.add_url_rule("/water-events_edit", view_func=water_events_edit, endpoint='water_events_new', methods=['GET', 'POST'])
-pages.add_url_rule("/water-events_edit/", view_func=water_events_edit, endpoint='water_events_new', methods=['GET', 'POST'])
-pages.add_url_rule("/water-events_edit/<page>", view_func=water_events_edit, endpoint='water_events_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/water-events_delete/<page>", view_func=water_events_delete, endpoint='water_events_delete', methods=['GET', 'POST'])
+    # Water Events URLs
+    pages.add_url_rule("/water-events", view_func=water_events_index, endpoint='water_events_index')
+    pages.add_url_rule("/water-events/calendar", view_func=water_events_calendar, endpoint='water_events_calendar')
+    pages.add_url_rule("/water-events/<page>/feature", view_func=water_events_toggle_featured, endpoint='water_events_toggle_featured', methods=['POST'])
+    pages.add_url_rule("/water-events/<page>", view_func=water_events_show, endpoint='water_events_show')
+    pages.add_url_rule("/water-events/<page>/revisions", view_func=water_events_revisions, endpoint='water_events_revisions')
+    pages.add_url_rule("/water-events/<page>/revisions/<revision>", view_func=water_events_revisions_preview, endpoint='water_events_revisions_preview')
+    pages.add_url_rule("/water-events/<page>/revisions/<revision>/restore", view_func=water_events_revision_restore, endpoint='water_events_revision_restore', methods=['GET'])
+    pages.add_url_rule("/water-events_edit", view_func=water_events_edit, endpoint='water_events_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-events_edit/", view_func=water_events_edit, endpoint='water_events_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-events_edit/<page>", view_func=water_events_edit, endpoint='water_events_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-events_delete/<page>", view_func=water_events_delete, endpoint='water_events_delete', methods=['GET', 'POST'])
 
-# Water Publications URLs
-pages.add_url_rule("/water-publications", view_func=water_publications_index, endpoint='water_publications_index')
-pages.add_url_rule("/water-publications/<page>", view_func=water_publications_show, endpoint='water_publications_show')
-pages.add_url_rule("/water-publications/<page>/revisions", view_func=water_publications_revisions, endpoint='water_publications_revisions')
-pages.add_url_rule("/water-publications/<page>/revisions/<revision>", view_func=water_publications_revisions_preview, endpoint='water_publications_revisions_preview')
-pages.add_url_rule("/water-publications/<page>/revisions/<revision>/restore", view_func=water_publications_revision_restore, endpoint='water_publications_revision_restore', methods=['GET'])
-pages.add_url_rule("/water-publications_edit", view_func=water_publications_edit, endpoint='water_publications_new', methods=['GET', 'POST'])
-pages.add_url_rule("/water-publications_edit/", view_func=water_publications_edit, endpoint='water_publications_new_slash', methods=['GET', 'POST'])
-pages.add_url_rule("/water-publications/new/quick", view_func=water_publications_quick, endpoint='water_publications_quick', methods=['GET', 'POST'])
-pages.add_url_rule("/water-publications_edit/<page>", view_func=water_publications_edit, endpoint='water_publications_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/water-publications_delete/<page>", view_func=water_publications_delete, endpoint='water_publications_delete', methods=['GET', 'POST'])
+    # Water Publications URLs
+    pages.add_url_rule("/water-publications", view_func=water_publications_index, endpoint='water_publications_index')
+    pages.add_url_rule("/water-publications/<page>", view_func=water_publications_show, endpoint='water_publications_show')
+    pages.add_url_rule("/water-publications/<page>/revisions", view_func=water_publications_revisions, endpoint='water_publications_revisions')
+    pages.add_url_rule("/water-publications/<page>/revisions/<revision>", view_func=water_publications_revisions_preview, endpoint='water_publications_revisions_preview')
+    pages.add_url_rule("/water-publications/<page>/revisions/<revision>/restore", view_func=water_publications_revision_restore, endpoint='water_publications_revision_restore', methods=['GET'])
+    pages.add_url_rule("/water-publications_edit", view_func=water_publications_edit, endpoint='water_publications_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-publications_edit/", view_func=water_publications_edit, endpoint='water_publications_new_slash', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-publications/new/quick", view_func=water_publications_quick, endpoint='water_publications_quick', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-publications_edit/<page>", view_func=water_publications_edit, endpoint='water_publications_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/water-publications_delete/<page>", view_func=water_publications_delete, endpoint='water_publications_delete', methods=['GET', 'POST'])
 
-# Water Admin URLs
-pages.add_url_rule("/water-admin", view_func=water_admin_dashboard, endpoint='water_admin_dashboard')
-pages.add_url_rule("/water-admin/approve/<page_type>/<page>", view_func=water_admin_approve, endpoint='water_admin_approve', methods=['POST'])
-pages.add_url_rule("/water-admin/reject/<page_type>/<page>", view_func=water_admin_reject, endpoint='water_admin_reject', methods=['POST'])
+    # Water Admin URLs
+    pages.add_url_rule("/water-admin", view_func=water_admin_dashboard, endpoint='water_admin_dashboard')
+    pages.add_url_rule("/water-admin/approve/<page_type>/<page>", view_func=water_admin_approve, endpoint='water_admin_approve', methods=['POST'])
+    pages.add_url_rule("/water-admin/reject/<page_type>/<page>", view_func=water_admin_reject, endpoint='water_admin_reject', methods=['POST'])
 
-# Water Family Upload URL
-pages.add_url_rule("/water_family_upload", view_func=water_family_upload, endpoint='water_family_upload', methods=['POST'])
+    # Water Family Upload URL
+    pages.add_url_rule("/water_family_upload", view_func=water_family_upload, endpoint='water_family_upload', methods=['POST'])
 
-# Open Source Software Admin URLs
-pages.add_url_rule("/open-source-admin", view_func=open_source_admin_dashboard, endpoint='open_source_admin_dashboard')
-pages.add_url_rule("/open-source-admin/approve/<page>", view_func=open_source_admin_approve, endpoint='open_source_admin_approve', methods=['POST'])
-pages.add_url_rule("/open-source-admin/reject/<page>", view_func=open_source_admin_reject, endpoint='open_source_admin_reject', methods=['POST'])
-pages.add_url_rule("/open-source-admin/change-org/<page>", view_func=open_source_admin_change_org, endpoint='open_source_admin_change_org', methods=['POST'])
+    # Open Source Software Admin URLs
+    pages.add_url_rule("/open-source-admin", view_func=open_source_admin_dashboard, endpoint='open_source_admin_dashboard')
+    pages.add_url_rule("/open-source-admin/approve/<page>", view_func=open_source_admin_approve, endpoint='open_source_admin_approve', methods=['POST'])
+    pages.add_url_rule("/open-source-admin/reject/<page>", view_func=open_source_admin_reject, endpoint='open_source_admin_reject', methods=['POST'])
+    pages.add_url_rule("/open-source-admin/change-org/<page>", view_func=open_source_admin_change_org, endpoint='open_source_admin_change_org', methods=['POST'])
 
-# Open Source Tools URLs (primary routes)
-pages.add_url_rule("/open-source-tools", view_func=open_source_software_index, endpoint='open_source_software_index')
-pages.add_url_rule("/open-source-tools/<page>", view_func=open_source_software_show, endpoint='open_source_software_show')
-pages.add_url_rule("/open-source-tools/<page>/revisions", view_func=open_source_software_revisions, endpoint='open_source_software_revisions')
-pages.add_url_rule("/open-source-tools/<page>/revisions/<revision>", view_func=open_source_software_revisions_preview, endpoint='open_source_software_revisions_preview')
-pages.add_url_rule("/open-source-tools/<page>/revisions/<revision>/restore", view_func=open_source_software_revision_restore, endpoint='open_source_software_revision_restore', methods=['GET'])
-pages.add_url_rule("/open-source-tools_edit", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-tools_edit/", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-tools_edit/<page>", view_func=open_source_software_edit, endpoint='open_source_software_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-tools_delete/<page>", view_func=open_source_software_delete, endpoint='open_source_software_delete', methods=['GET', 'POST'])
+    # Open Source Tools URLs (primary routes)
+    pages.add_url_rule("/open-source-tools", view_func=open_source_software_index, endpoint='open_source_software_index')
+    pages.add_url_rule("/open-source-tools/<page>", view_func=open_source_software_show, endpoint='open_source_software_show')
+    pages.add_url_rule("/open-source-tools/<page>/revisions", view_func=open_source_software_revisions, endpoint='open_source_software_revisions')
+    pages.add_url_rule("/open-source-tools/<page>/revisions/<revision>", view_func=open_source_software_revisions_preview, endpoint='open_source_software_revisions_preview')
+    pages.add_url_rule("/open-source-tools/<page>/revisions/<revision>/restore", view_func=open_source_software_revision_restore, endpoint='open_source_software_revision_restore', methods=['GET'])
+    pages.add_url_rule("/open-source-tools_edit", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/open-source-tools_edit/", view_func=open_source_software_edit, endpoint='open_source_software_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/open-source-tools_edit/<page>", view_func=open_source_software_edit, endpoint='open_source_software_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/open-source-tools_delete/<page>", view_func=open_source_software_delete, endpoint='open_source_software_delete', methods=['GET', 'POST'])
 
-# Open Source Software URLs (legacy with 301 redirects to canonical /open-source-tools)
-pages.add_url_rule("/open-source-software", view_func=redirect_open_source_software_index)
-pages.add_url_rule("/open-source-software/<page>", view_func=redirect_open_source_software_show)
-pages.add_url_rule("/open-source-software/<page>/revisions", view_func=redirect_open_source_software_revisions)
-pages.add_url_rule("/open-source-software/<page>/revisions/<revision>", view_func=redirect_open_source_software_revisions_preview)
-pages.add_url_rule("/open-source-software/<page>/revisions/<revision>/restore", view_func=redirect_open_source_software_revision_restore, methods=['GET'])
-pages.add_url_rule("/open-source-software_edit", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-software_edit/", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-software_edit/<page>", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
-pages.add_url_rule("/open-source-software_delete/<page>", view_func=redirect_open_source_software_delete, methods=['GET', 'POST'])
+    # Open Source Software URLs (legacy with 301 redirects to canonical /open-source-tools)
+    pages.add_url_rule("/open-source-software", view_func=redirect_open_source_software_index)
+    pages.add_url_rule("/open-source-software/<page>", view_func=redirect_open_source_software_show)
+    pages.add_url_rule("/open-source-software/<page>/revisions", view_func=redirect_open_source_software_revisions)
+    pages.add_url_rule("/open-source-software/<page>/revisions/<revision>", view_func=redirect_open_source_software_revisions_preview)
+    pages.add_url_rule("/open-source-software/<page>/revisions/<revision>/restore", view_func=redirect_open_source_software_revision_restore, methods=['GET'])
+    pages.add_url_rule("/open-source-software_edit", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
+    pages.add_url_rule("/open-source-software_edit/", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
+    pages.add_url_rule("/open-source-software_edit/<page>", view_func=redirect_open_source_software_edit, methods=['GET', 'POST'])
+    pages.add_url_rule("/open-source-software_delete/<page>", view_func=redirect_open_source_software_delete, methods=['GET', 'POST'])
 
-# AI Water Tools URLs
-pages.add_url_rule("/ai-water-tools", view_func=ai_water_tools_index, endpoint='ai_water_tools_index')
-pages.add_url_rule("/ai-water-tools/<page>", view_func=ai_water_tools_show, endpoint='ai_water_tools_show')
-pages.add_url_rule("/ai-water-tools/<page>/revisions", view_func=ai_water_tools_revisions, endpoint='ai_water_tools_revisions')
-pages.add_url_rule("/ai-water-tools/<page>/revisions/<revision>", view_func=ai_water_tools_revisions_preview, endpoint='ai_water_tools_revisions_preview')
-pages.add_url_rule("/ai-water-tools/<page>/revisions/<revision>/restore", view_func=ai_water_tools_revision_restore, endpoint='ai_water_tools_revision_restore', methods=['GET'])
-pages.add_url_rule("/ai-water-tools_edit", view_func=ai_water_tools_edit, endpoint='ai_water_tools_new', methods=['GET', 'POST'])
-pages.add_url_rule("/ai-water-tools_edit/", view_func=ai_water_tools_edit, endpoint='ai_water_tools_new', methods=['GET', 'POST'])
-pages.add_url_rule("/ai-water-tools_edit/<page>", view_func=ai_water_tools_edit, endpoint='ai_water_tools_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/ai-water-tools_delete/<page>", view_func=ai_water_tools_delete, endpoint='ai_water_tools_delete', methods=['GET', 'POST'])
+    # AI Water Tools URLs
+    pages.add_url_rule("/ai-water-tools", view_func=ai_water_tools_index, endpoint='ai_water_tools_index')
+    pages.add_url_rule("/ai-water-tools/<page>", view_func=ai_water_tools_show, endpoint='ai_water_tools_show')
+    pages.add_url_rule("/ai-water-tools/<page>/revisions", view_func=ai_water_tools_revisions, endpoint='ai_water_tools_revisions')
+    pages.add_url_rule("/ai-water-tools/<page>/revisions/<revision>", view_func=ai_water_tools_revisions_preview, endpoint='ai_water_tools_revisions_preview')
+    pages.add_url_rule("/ai-water-tools/<page>/revisions/<revision>/restore", view_func=ai_water_tools_revision_restore, endpoint='ai_water_tools_revision_restore', methods=['GET'])
+    pages.add_url_rule("/ai-water-tools_edit", view_func=ai_water_tools_edit, endpoint='ai_water_tools_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/ai-water-tools_edit/", view_func=ai_water_tools_edit, endpoint='ai_water_tools_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/ai-water-tools_edit/<page>", view_func=ai_water_tools_edit, endpoint='ai_water_tools_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/ai-water-tools_delete/<page>", view_func=ai_water_tools_delete, endpoint='ai_water_tools_delete', methods=['GET', 'POST'])
 
-# AI Water Tools Admin URLs
-pages.add_url_rule("/ai-water-admin", view_func=ai_water_admin_dashboard, endpoint='ai_water_admin_dashboard')
-pages.add_url_rule("/ai-water-admin/approve/<page>", view_func=ai_water_admin_approve, endpoint='ai_water_admin_approve', methods=['POST'])
-pages.add_url_rule("/ai-water-admin/reject/<page>", view_func=ai_water_admin_reject, endpoint='ai_water_admin_reject', methods=['POST'])
-pages.add_url_rule("/ai-water-admin/change-org/<page>", view_func=ai_water_admin_change_org, endpoint='ai_water_admin_change_org', methods=['POST'])
+    # AI Water Tools Admin URLs
+    pages.add_url_rule("/ai-water-admin", view_func=ai_water_admin_dashboard, endpoint='ai_water_admin_dashboard')
+    pages.add_url_rule("/ai-water-admin/approve/<page>", view_func=ai_water_admin_approve, endpoint='ai_water_admin_approve', methods=['POST'])
+    pages.add_url_rule("/ai-water-admin/reject/<page>", view_func=ai_water_admin_reject, endpoint='ai_water_admin_reject', methods=['POST'])
+    pages.add_url_rule("/ai-water-admin/change-org/<page>", view_func=ai_water_admin_change_org, endpoint='ai_water_admin_change_org', methods=['POST'])
 
-# Event Types Administration URLs (Sysadmin only)
-pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='event_types_admin')
-pages.add_url_rule("/admin/event-types/new", view_func=event_types_new, endpoint='event_types_new', methods=['GET', 'POST'])
-pages.add_url_rule("/admin/event-types/edit/<event_type_id>", view_func=event_types_edit, endpoint='event_types_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/admin/event-types/delete/<event_type_id>", view_func=event_types_delete, endpoint='event_types_delete', methods=['GET', 'POST'])
+    # Event Types Administration URLs (Sysadmin only)
+    pages.add_url_rule("/admin/event-types", view_func=event_types_admin, endpoint='event_types_admin')
+    pages.add_url_rule("/admin/event-types/new", view_func=event_types_new, endpoint='event_types_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/admin/event-types/edit/<event_type_id>", view_func=event_types_edit, endpoint='event_types_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/admin/event-types/delete/<event_type_id>", view_func=event_types_delete, endpoint='event_types_delete', methods=['GET', 'POST'])
 
-# Disaster Types Administration URLs (Sysadmin only)
-pages.add_url_rule("/admin/disaster-types", view_func=disaster_types_admin, endpoint='disaster_types_admin')
-pages.add_url_rule("/admin/disaster-types/new", view_func=disaster_types_new, endpoint='disaster_types_new', methods=['GET', 'POST'])
-pages.add_url_rule("/admin/disaster-types/edit/<disaster_type_id>", view_func=disaster_types_edit_view, endpoint='disaster_types_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/admin/disaster-types/delete/<disaster_type_id>", view_func=disaster_types_delete_view, endpoint='disaster_types_delete', methods=['GET', 'POST'])
+    # Disaster Types Administration URLs (Sysadmin only)
+    pages.add_url_rule("/admin/disaster-types", view_func=disaster_types_admin, endpoint='disaster_types_admin')
+    pages.add_url_rule("/admin/disaster-types/new", view_func=disaster_types_new, endpoint='disaster_types_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/admin/disaster-types/edit/<disaster_type_id>", view_func=disaster_types_edit_view, endpoint='disaster_types_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/admin/disaster-types/delete/<disaster_type_id>", view_func=disaster_types_delete_view, endpoint='disaster_types_delete', methods=['GET', 'POST'])
 
-# CRIDA Case Study routes
-pages.add_url_rule("/crida", view_func=crida_index, endpoint='crida_index')
-pages.add_url_rule("/crida/case-studies", view_func=crida_case_studies_index, endpoint='crida_case_studies_index')
-pages.add_url_rule("/crida/case-studies/<page>", view_func=crida_case_study_show, endpoint='crida_case_study_show')
-pages.add_url_rule("/crida/case-studies/<page>/revisions", view_func=crida_case_study_revisions, endpoint='crida_case_study_revisions')
-pages.add_url_rule("/crida/case-studies/<page>/revisions/<revision>", view_func=crida_case_study_revisions_preview, endpoint='crida_case_study_revisions_preview')
-pages.add_url_rule("/crida/case-studies/<page>/revisions/<revision>/restore", view_func=crida_case_study_revision_restore, endpoint='crida_case_study_revision_restore', methods=['GET'])
-pages.add_url_rule("/crida/case-studies_edit", view_func=crida_case_study_edit, endpoint='crida_case_study_new', methods=['GET', 'POST'])
-pages.add_url_rule("/crida/case-studies_edit/", view_func=crida_case_study_edit, endpoint='crida_case_study_new_slash', methods=['GET', 'POST'])
-pages.add_url_rule("/crida/case-studies_edit/<page>", view_func=crida_case_study_edit, endpoint='crida_case_study_edit', methods=['GET', 'POST'])
-pages.add_url_rule("/crida/case-studies_delete/<page>", view_func=crida_case_study_delete, endpoint='crida_case_study_delete', methods=['GET', 'POST'])
-pages.add_url_rule("/crida/admin", view_func=crida_admin_dashboard, endpoint='crida_admin_dashboard')
-pages.add_url_rule("/crida/admin/approve/<page>", view_func=crida_admin_approve, endpoint='crida_admin_approve', methods=['POST'])
-pages.add_url_rule("/crida/admin/reject/<page>", view_func=crida_admin_reject, endpoint='crida_admin_reject', methods=['POST'])
-pages.add_url_rule("/crida/admin/reseed", view_func=crida_admin_reseed, endpoint='crida_admin_reseed', methods=['POST'])
-pages.add_url_rule("/crida/api/case-studies", view_func=crida_case_studies_api, endpoint='crida_case_studies_api')
-pages.add_url_rule("/crida/api/geojson", view_func=crida_geojson_api, endpoint='crida_geojson_api')
+    # CRIDA Case Study routes
+    pages.add_url_rule("/crida", view_func=crida_index, endpoint='crida_index')
+    pages.add_url_rule("/crida/case-studies", view_func=crida_case_studies_index, endpoint='crida_case_studies_index')
+    pages.add_url_rule("/crida/case-studies/<page>", view_func=crida_case_study_show, endpoint='crida_case_study_show')
+    pages.add_url_rule("/crida/case-studies/<page>/revisions", view_func=crida_case_study_revisions, endpoint='crida_case_study_revisions')
+    pages.add_url_rule("/crida/case-studies/<page>/revisions/<revision>", view_func=crida_case_study_revisions_preview, endpoint='crida_case_study_revisions_preview')
+    pages.add_url_rule("/crida/case-studies/<page>/revisions/<revision>/restore", view_func=crida_case_study_revision_restore, endpoint='crida_case_study_revision_restore', methods=['GET'])
+    pages.add_url_rule("/crida/case-studies_edit", view_func=crida_case_study_edit, endpoint='crida_case_study_new', methods=['GET', 'POST'])
+    pages.add_url_rule("/crida/case-studies_edit/", view_func=crida_case_study_edit, endpoint='crida_case_study_new_slash', methods=['GET', 'POST'])
+    pages.add_url_rule("/crida/case-studies_edit/<page>", view_func=crida_case_study_edit, endpoint='crida_case_study_edit', methods=['GET', 'POST'])
+    pages.add_url_rule("/crida/case-studies_delete/<page>", view_func=crida_case_study_delete, endpoint='crida_case_study_delete', methods=['GET', 'POST'])
+    pages.add_url_rule("/crida/admin", view_func=crida_admin_dashboard, endpoint='crida_admin_dashboard')
+    pages.add_url_rule("/crida/admin/approve/<page>", view_func=crida_admin_approve, endpoint='crida_admin_approve', methods=['POST'])
+    pages.add_url_rule("/crida/admin/reject/<page>", view_func=crida_admin_reject, endpoint='crida_admin_reject', methods=['POST'])
+    pages.add_url_rule("/crida/admin/reseed", view_func=crida_admin_reseed, endpoint='crida_admin_reseed', methods=['POST'])
+    pages.add_url_rule("/crida/api/case-studies", view_func=crida_case_studies_api, endpoint='crida_case_studies_api')
+    pages.add_url_rule("/crida/api/geojson", view_func=crida_geojson_api, endpoint='crida_geojson_api')

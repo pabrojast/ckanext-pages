@@ -24,8 +24,8 @@ def get_terria_base_url():
     """
     from ckan.plugins import toolkit as tk
 
-    default_url = 'https://terria.water-data.org'
-    return tk.config.get('ckanext.pages.terria_base_url', default_url)
+    default_url = tk.config.get('ckan.site_url', '').rstrip('/') + '/terria'
+    return tk.config.get('ckanext.pages.terria_base_url') or default_url
 
 
 def parse_terria_share_link(share_link: str) -> Optional[Dict[str, Any]]:
