@@ -11,7 +11,7 @@ function run(...args) {
     {cwd: outputDir, encoding: 'utf8', maxBuffer: 3 * 1024 * 1024});
   } catch (error) { throw new Error(error.stdout || error.stderr || error.message); }
 }
-async function check(page, rootPath) {
+async function check(page, rootPath, processJquery) {
   page.on('dialog', dialog => dialog.accept());
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -26,7 +26,9 @@ async function check(page, rootPath) {
     <script type="application/json" id="rr-dataset-labels">[]</script>
   </form>`);
   await page.addStyleTag({path: rootPath + '/assets/vendor/quill/quill.snow.css'});
+  await page.addScriptTag({path: processJquery});
   await page.addStyleTag({path: rootPath + '/public/css/rapid-response-story.css'});
+  await page.addStyleTag({path: rootPath + '/public/css/data-stories-visuals.css'});
   await page.evaluate(() => {
     window.originalStory = {version: 1, sections: [
       {id: 'chapter-1', origin: 'overview', title: 'Context', order_index: 0, blocks_metadata: [
@@ -41,15 +43,10 @@ async function check(page, rootPath) {
     document.getElementById('rr-story-json').value = JSON.stringify(window.originalStory);
     window.confirm = () => true;
     window.failUploads = false;
-    window.jQuery = {ajax(options) {
-      const callbacks = {};
-      const result = {done(fn) {callbacks.done = fn; return result;}, fail(fn) {callbacks.fail = fn; return result;}};
-      setTimeout(() => {
-        if (window.failUploads) callbacks.fail();
-        else callbacks.done({uploaded: 1, url: 'https://rr.test/uploads/image.png'});
-      }, 50);
-      return result;
-    }};
+    window.StoryImages = {
+      dataImage: async () => {if (window.failUploads) throw Error('Upload failed'); return {url: 'https://rr.test/story-images/image.png'};},
+      choose: async () => ({url: 'https://rr.test/story-images/image.png'})
+    };
     window.fetch = async url => {
       if (String(url).includes('package_show')) return {ok: true, json: async () => ({success: true, result: {id: 'dataset-id', name: 'floods', title: 'Flood observations'}})};
       if (String(url).includes('package_search')) return {ok: true, json: async () => ({success: true, result: {results: [{id: 'dataset-id', name: 'floods', title: 'Flood observations'}]}})};
@@ -60,7 +57,7 @@ async function check(page, rootPath) {
     };
   });
   for (const file of ['assets/vendor/quill/quill.min.js', 'public/js/story-editor-core.js',
-    'public/js/data-stories-sequence.js', 'public/js/rapid-response-images.js', 'public/js/rapid-response-story-edit.js']) {
+    'public/js/data-stories-sequence.js', 'public/js/data-stories-visuals-edit.js', 'public/js/rapid-response-images.js', 'public/js/rapid-response-story-edit.js']) {
     await page.addScriptTag({path: rootPath + '/' + file});
   }
   await page.waitForFunction(() => document.getElementById('rr-story-editor').dataset.ready === 'true');
@@ -138,7 +135,7 @@ async function check(page, rootPath) {
 try {
   run('open', 'about:blank');
   const rootPath = path.resolve(__dirname, '..');
-  const output = run('run-code', `async page => { return await (${check.toString()})(page, ${JSON.stringify(rootPath)}); }`);
+  const output = run('run-code', `async page => { return await (${check.toString()})(page, ${JSON.stringify(rootPath)}, ${JSON.stringify(path.resolve(process.argv[3]))}); }`);
   writeFileSync(path.join(outputDir, 'rr-story-browser.txt'), output);
   if (!/### Result\s+[\s\S]*PASS:/.test(output) || output.includes('### Error')) throw new Error(output.slice(0, 1500));
   console.log(output.slice(0, output.indexOf('### Ran Playwright')));

@@ -48,70 +48,11 @@
     });
   }
 
-  function asBlob(uri) {
-    var parts = uri.split(',');
-    var mime = parts[0].slice(5).split(';')[0];
-    var raw = atob(parts[1].replace(/\s/g, ''));
-    var bytes = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i += 1) bytes[i] = raw.charCodeAt(i);
-    return new Blob([bytes], {type: mime});
-  }
-
-  function optimize(uri) {
-    var original = asBlob(uri);
-    // Keep animations and vector images intact. JPEG/PNG cover photographs
-    // and screenshots; PNG output retains transparency.
-    if (!/^image\/(jpeg|png)$/i.test(original.type)) return Promise.resolve(original);
-    // Animated PNG also uses image/png. Keep its animation control chunk.
-    if (original.type === 'image/png' && atob(uri.split(',')[1].replace(/\s/g, '')).includes('acTL')) {
-      return Promise.resolve(original);
-    }
-    return new Promise(function (resolve, reject) {
-      var img = new Image();
-      img.onerror = function () { reject(new Error('Invalid image.')); };
-      img.onload = function () {
-        var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
-        var canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(function (blob) {
-          if (!blob) return reject(new Error('Could not prepare the image.'));
-          resolve(scale === 1 && original.size < blob.size ? original : blob);
-        }, original.type, 0.8);
-      };
-      img.src = uri;
-    });
-  }
-
   function upload(uri) {
     if (uploads.has(uri)) return uploads.get(uri);
     var job = queue.then(function () {
       message('Uploading images…', false);
-      return optimize(uri).then(function (blob) {
-        var ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif',
-          'image/webp': 'webp', 'image/svg+xml': 'svg' }[blob.type];
-        if (!ext) throw new Error('Unsupported image format.');
-        function attempt(remaining) {
-          var body = new FormData();
-          body.append('upload', blob, 'rapid-response-' + Date.now() + '.' + ext);
-          return new Promise(function (resolve, reject) {
-            window.jQuery.ajax({url: '/pages_upload', method: 'POST', data: body,
-              processData: false, contentType: false, timeout: 45000})
-              .done(function (result) {
-                if (result && result.uploaded === 1 && /^https?:\/\//.test(result.url)) {
-                  resolve(result.url);
-                } else {
-                  reject(new Error(result && result.error ? result.error.message : 'Upload failed.'));
-                }
-              }).fail(function () { reject(new Error('Could not upload the image.')); });
-          }).catch(function (error) {
-            if (remaining) return attempt(remaining - 1);
-            throw error;
-          });
-        }
-        return attempt(1);
-      });
+      return window.StoryImages.dataImage(uri).then(function (image) { return image.url; });
     });
     uploads.set(uri, job);
     queue = job.catch(function () {});

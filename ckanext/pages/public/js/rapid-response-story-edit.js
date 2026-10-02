@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const labels = {text: 'Text', image: 'Image', media: 'Video / iframe', terria: 'Terria maps',
-    terria_slide: 'Map scene', legacy_html: 'Existing content'};
+    dashboard: 'Dashboard', terria_slide: 'Map scene', legacy_html: 'Existing content'};
   let story, root, field, core;
   let ready = false;
   const instances = new Map();
@@ -26,7 +26,25 @@
   }
   function saveState() {
     if (!ready) return;
-    story.sections.forEach((section, index) => { section.order_index = index; });
+    story.sections.forEach((section, index) => {
+      section.order_index = index;
+      const node = document.getElementById('rr-chapter-' + section.id);
+      if (!node) return;
+      const $ = window.jQuery;
+      const saved = section.blocks_metadata.find(b => b.type === 'presentation');
+      if (saved || $(node).data('presentation-dirty')) {
+        const presentation = Object.assign(saved || {id: core.id()}, $(node).data('presentation').read());
+        if (!saved) section.blocks_metadata.unshift(presentation);
+      }
+      section.blocks_metadata.forEach(block => {
+        const element = node.querySelector('[data-block-id="' + block.id + '"]');
+        if (!element) return;
+        const refs = $(element).data('visual-text');
+        if (refs && (block.references || refs.references.length)) block.references = refs.references;
+        const dashboard = $(element).find('.ds-dashboard-editor');
+        if (dashboard.length) Object.assign(block, dashboard.data('read')());
+      });
+    });
     field.value = JSON.stringify(story);
   }
   function input(container, label, object, key, type) {
@@ -90,13 +108,14 @@
     details.addEventListener('input', () => { preview.srcdoc = block.content || ''; });
   }
   function renderBlock(section, block, container) {
-    const node = el('article', undefined, 'rr-story-block'); node.dataset.blockId = block.id;
+    const node = el('article', undefined, 'rr-story-block'); node.dataset.blockId = block.id; node.dataset.blockType = block.type;
+    if (block.type === 'terria_slide') window.jQuery(node).data('slide', block);
     const heading = el('header'); heading.append(el('h4', labels[block.type] || 'Existing block'));
     heading.append(controls(section.blocks_metadata, block, node, () => {
       destroyBlock(block);
       // Removed map sources retain their imported scenes as standalone snapshots.
     })); node.append(heading);
-    const body = el('div', undefined, 'rr-story-block-body'); node.append(body); container.append(node);
+    const body = el('div', undefined, 'rr-story-block-body content-block-body'); node.append(body); container.append(node);
     if (block.type === 'text') {
       const editor = el('div'); body.append(editor);
       const options = {theme: 'snow', modules: {toolbar: [
@@ -107,9 +126,12 @@
         block.content = html; saveState();
       });
       instances.set(block.id, instance);
+      window.StoryVisualsEditor.text(window.jQuery(node), instance.quill, block, saveState);
       window.RapidResponseImages.attach(instance.quill, () => {
         block.content = instance.getHtml(); saveState();
       });
+    } else if (block.type === 'dashboard') {
+      body.append(window.StoryVisualsEditor.dashboard(block, saveState)[0]);
     } else if (block.type === 'legacy_html' || !labels[block.type]) {
       sourceEditor(body, block);
     } else if (block.type === 'image') {
@@ -137,6 +159,10 @@
         }).finally(() => { upload.disabled = false; retry.disabled = false; }));
       }
       upload.addEventListener('change', () => sendImage(upload.files[0]));
+      body.append(button('My images', () => track(window.StoryImages.choose().then(selected => {
+        if (!selected) return;
+        block.url = selected.url; url.value = selected.url; image.src = selected.url; image.hidden = false; saveState();
+      }))));
       input(body, 'Alternative text', block, 'alt'); input(body, 'Caption', block, 'caption');
       const display = el('label', 'Image layout', 'rr-story-input');
       const select = el('select'); select.className = 'form-control';
@@ -151,9 +177,9 @@
     } else if (block.type === 'terria') {
       const tabs = el('div', undefined, 'rr-map-tabs'); body.append(tabs);
       const renderTab = tab => {
-        const panel = el('fieldset', undefined, 'rr-map-tab'); tabs.append(panel);
-        input(panel, 'Map title', tab, 'title');
-        const url = input(panel, 'Terria share link', tab, 'url');
+        const panel = el('fieldset', undefined, 'rr-map-tab terria-tab-panel'); window.jQuery(panel).data('sequence-source', tab); tabs.append(panel);
+        input(panel, 'Map title', tab, 'title').classList.add('terria-tab-title');
+        const url = input(panel, 'Terria share link', tab, 'url'); url.classList.add('terria-tab-url');
         input(panel, 'Width', tab, 'width'); input(panel, 'Height', tab, 'height');
         panel.addEventListener('input', () => { delete block.legacy_embed; saveState(); });
         url.addEventListener('input', () => { tab.sequenced = false; delete tab.snapshot; saveState(); });
@@ -173,7 +199,7 @@
       if (block.orphaned) body.append(el('p', 'This scene is no longer in the source map. Its saved snapshot is preserved.'));
     }
     const insert = el('div', undefined, 'rr-story-add');
-    Object.entries(labels).filter(([type]) => ['text', 'image', 'media', 'terria'].includes(type)).forEach(([type, title]) => {
+    Object.entries(labels).filter(([type]) => ['text', 'image', 'media', 'terria', 'dashboard'].includes(type)).forEach(([type, title]) => {
       insert.append(button('+ ' + title, () => {
         const added = newBlock(type);
         section.blocks_metadata.splice(section.blocks_metadata.indexOf(block) + 1, 0, added);
@@ -218,17 +244,19 @@
     message(slides.length + ' map scenes imported. You can move text and images between them.');
   }
   function renderSection(section) {
-    const node = el('section', undefined, 'rr-story-chapter'); node.id = 'rr-chapter-' + section.id;
+    const node = el('section', undefined, 'rr-story-chapter content-section-editor'); node.id = 'rr-chapter-' + section.id;
     node.dataset.sectionId = section.id;
     const header = el('header'); node.append(header);
     const title = input(header, 'Chapter title', section, 'title'); title.required = true;
     header.append(controls(story.sections, section, node, () => section.blocks_metadata.forEach(destroyBlock)));
-    const blocks = el('div', undefined, 'rr-story-blocks'); node.append(blocks);
+    const blocks = el('div', undefined, 'rr-story-blocks section-content-blocks'); node.append(blocks);
     // Quill needs connected nodes; callers append before hydrating text blocks.
     root.append(node);
-    section.blocks_metadata.forEach(block => renderBlock(section, block, blocks));
+    window.StoryVisualsEditor.section(window.jQuery(node), () => {window.jQuery(node).data('presentation-dirty', true); saveState();});
+    window.jQuery(node).data('presentation').load(section.blocks_metadata.find(b => b.type === 'presentation') || {});
+    section.blocks_metadata.filter(b => b.type !== 'presentation').forEach(block => renderBlock(section, block, blocks));
     const add = el('div', undefined, 'rr-story-add'); node.append(add);
-    ['text', 'image', 'media', 'terria'].forEach(type => add.append(button('+ ' + labels[type], () => {
+    ['text', 'image', 'media', 'terria', 'dashboard'].forEach(type => add.append(button('+ ' + labels[type], () => {
       const block = newBlock(type); section.blocks_metadata.push(block); renderBlock(section, block, blocks); saveState();
     }, 'btn-primary')));
     return node;
@@ -307,13 +335,21 @@
     window.RapidResponseStory = {prepare};
     const started = Date.now();
     function load() {
-      if (!window.Quill || !window.StoryEditorCore || !window.RapidResponseImages || !window.DataStorySequence) {
+      if (!window.Quill || !window.StoryEditorCore || !window.RapidResponseImages || !window.DataStorySequence || !window.StoryVisualsEditor || !window.jQuery || !window.StoryImages) {
         if (Date.now() - started > 10000) { message('The story editor could not load. Your original content is preserved. Reload to retry.', true); return; }
         setTimeout(load, 50); return;
       }
       try {
         core = window.StoryEditorCore; story = JSON.parse(field.value);
         if (story.version !== 1 || !Array.isArray(story.sections) || !Array.isArray(story.datasets)) throw new Error('Invalid story document.');
+        const modeLabel = el('label', 'Reading mode', 'rr-story-input');
+        const mode = el('select'); mode.id = 'display_mode'; mode.className = 'form-control';
+        [['storymap', 'Scrolling story'], ['slides', 'Slides with optional playback']].forEach(([value, label]) => {
+          const option = el('option', label); option.value = value; mode.append(option);
+        });
+        mode.value = story.display_mode || 'storymap';
+        mode.addEventListener('change', () => {story.display_mode = mode.value; saveState();});
+        modeLabel.append(mode); root.before(modeLabel);
         const ids = new Set();
         story.sections.forEach(section => {
           [section].concat(section.blocks_metadata).forEach(item => {

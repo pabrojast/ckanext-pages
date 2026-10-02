@@ -1,0 +1,17 @@
+{% extends "page.html" %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block secondary %}{% endblock %}
+{% block primary %}
+<main class="module-content" id="story-dashboard-picker">
+  <h1>{{ _('Choose a dashboard') }}</h1>
+  <p>{{ _('Choose a saved dashboard, its filters and the chart to highlight.') }}</p>
+  <input type="hidden" name="_csrf_token" value="{{ picker_csrf }}">
+  <div id="story-dashboard-picker-editor"></div>
+  <p role="alert" id="story-dashboard-picker-error"></p>
+  <button type="button" class="btn btn-primary" id="story-dashboard-insert">{{ _('Use this dashboard') }}</button>
+</main>
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261002-compositions">
+<script src="/js/data-stories-visuals-edit.js?v=20261002-compositions" defer></script>
+<script src="/js/story-dashboard-picker.js?v=20261002-compositions" defer></script>
+{% endblock %}

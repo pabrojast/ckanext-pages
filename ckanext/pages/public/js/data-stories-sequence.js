@@ -24,6 +24,7 @@
     var slides = owner ? owner.stories : [];
     var occurrences = {};
     var result = [];
+    var byId = new Map();
     for (var index = 0; index < slides.length; index++) {
       var slide = slides[index];
       if (!slide || typeof slide !== 'object') continue;
@@ -34,13 +35,20 @@
       }
       identity = String(identity);
       occurrences[identity] = (occurrences[identity] || 0) + 1;
+      if (!byId.has(identity)) byId.set(identity, identity + ':' + occurrences[identity]);
       result.push({
         type: 'terria_slide', source_id: sourceId,
         slide_id: identity + ':' + occurrences[identity],
         title: slide.title || 'Scene ' + (index + 1), content: slide.text || '',
-        share_data: baseSnapshot(slide.shareData || data), orphaned: false
+        share_data: baseSnapshot(slide.shareData || data), orphaned: false,
+        ...(slide.composition?.version === 1 ? {composition: JSON.parse(JSON.stringify(slide.composition))} : {})
       });
     }
+    result.forEach(slide => {
+      (slide.composition?.references || []).forEach(ref => {
+        if (ref.scene_id) {ref.source_id = sourceId; ref.slide_id = byId.get(ref.scene_id) || ref.scene_id + ':1';}
+      });
+    });
     return result;
   }
   function reconcile(blocks, sourceId, incoming) {

@@ -255,6 +255,7 @@
             setSwitching(false);
             var notice = root.querySelector('.storymap-scene-error');
             if (notice) notice.hidden = false;
+            root.dispatchEvent(new CustomEvent('story:map-state', {detail: {pending: false, error: true}}));
           }, 90000);
         }
         return;
@@ -262,6 +263,7 @@
       if (event.data.requestId === pendingRequestId) {
         // Only a confirmed completion promotes the key: a failed or
         // superseded apply must stay retryable.
+        root.dispatchEvent(new CustomEvent('story:map-state', {detail: {pending: false, error: event.data.success === false || event.data.superseded}}));
         appliedKey = event.data.success === false ? null : pendingKey;
         inFlightKey = null;
         pendingRequestId = null;
@@ -423,7 +425,10 @@
     var source = sourceFor(sceneIndex, sourceIndex);
     if (!source) return;
     var key = keyFor(sceneIndex, sourceIndex, stepIndex);
-    if (key === appliedKey || key === inFlightKey) return;
+    if (key === appliedKey || key === inFlightKey) {
+      root.dispatchEvent(new CustomEvent('story:map-state', {detail: {pending: key !== appliedKey}}));
+      return;
+    }
     var errorNotice = root.querySelector('.storymap-scene-error');
     if (errorNotice) errorNotice.hidden = true;
 
@@ -480,6 +485,7 @@
   }
 
   function applyHash(url, key) {
+    root.dispatchEvent(new CustomEvent('story:map-state', {detail: {pending: false, error: true}}));
     if (!iframe) return;
     // Fragment navigation into a cross-origin iframe has no observable
     // completion, so the key is claimed up front and the veil cleared on a
@@ -501,6 +507,7 @@
   }
 
   function scheduleApply(sceneIndex, sourceIndex, stepIndex) {
+    root.dispatchEvent(new CustomEvent('story:map-state', {detail: {pending: true}}));
     desired = {
       sceneIndex: sceneIndex,
       sourceIndex: sourceIndex || 0,
@@ -642,7 +649,8 @@
 
   if (window.StoryVisualsViewer) visuals = window.StoryVisualsViewer({
     root: root, config: config, activateCard: activateCard, activateStep: activateStep,
-    activateImage: activateImage, deactivateImage: deactivateImage, scheduleApply: scheduleApply
+    activateImage: activateImage, deactivateImage: deactivateImage, scheduleApply: scheduleApply,
+    mapPending: function () { return !!(pendingTimer || inFlightKey || pendingRequestId); }
   });
 
   if (cards.length && config.displayMode !== 'slides') activateCard(cards[0]);

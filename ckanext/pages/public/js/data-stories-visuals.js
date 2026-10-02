@@ -3,6 +3,13 @@
   window.StoryVisualsViewer = function (options) {
     const {root, config} = options;
     const cards = Array.from(root.querySelectorAll('.storymap-card'));
+    cards.forEach((card, index) => {
+      if (config.scenes[index].presentation !== 'media') return;
+      const body = card.querySelector('.storymap-card-body');
+      const visual = document.createElement('div'); visual.className = 'storymap-composition-media';
+      Array.from(body.children).filter(el => el.matches('.storymap-card-media, .storymap-image-trigger')).forEach(el => visual.append(el));
+      body.append(visual);
+    });
     const pane = root.querySelector('.storymap-dashboard-pane');
     const mapPane = root.querySelector('.storymap-map-pane');
     const status = root.querySelector('.storymap-visual-status');
@@ -12,6 +19,8 @@
     const compact = window.matchMedia('(max-width: 1440px), (max-height: 850px)');
     const visualTabs = root.querySelector('.storymap-visual-tabs');
     let visualChoice = null;
+    let playback;
+    const visualState = (pending, error) => playback?.visual('dashboard', pending, error);
     const hasDashboards = config.scenes.some(scene => scene.dashboards?.length);
     const stackedMedia = hasDashboards || config.mobileStackedMedia;
     root.classList.toggle('has-story-dashboards', hasDashboards);
@@ -27,7 +36,7 @@
     });
     let active = -1, currentFrame, serial = 0, slideIndex = 0;
     const slides = config.displayMode === 'slides';
-    const say = message => {if (status) {status.textContent = message; status.hidden = !message;}};
+    const say = message => {if (message) playback?.pause(); if (status) {status.textContent = message; status.hidden = !message;}};
     function chooseVisual(choice) {
       if (choice) visualChoice = choice;
       const combined = root.classList.contains('has-combined-visuals');
@@ -67,7 +76,7 @@
     function send(record) {
       if (!record.ready || !record.state || currentFrame !== record) return;
       const requestId = 'story-' + (++serial);
-      record.request = requestId;
+      record.request = requestId; visualState(true);
       clearTimeout(record.timer);
       record.timer = setTimeout(() => {
         if (currentFrame === record && record.request === requestId) say('The dashboard is taking longer than expected. Retry or continue reading.');
@@ -84,6 +93,7 @@
       } else if (event.data.type === 'dashboard:stateApplied' && record === currentFrame &&
                  event.data.requestId === record.request && event.data.phase === 'complete') {
         clearTimeout(record.timer);
+        if (!event.data.superseded) visualState(false, !event.data.success);
         if (!event.data.superseded) say(event.data.success ? '' : (event.data.error || 'The dashboard filters could not be applied.'));
       }
     });
@@ -98,7 +108,7 @@
         frame.addEventListener('load', () => frame.contentWindow.postMessage({type: 'dashboard:hello', version: 1}, location.origin));
         frame.src = data.url;
       }
-      currentFrame = record;
+      currentFrame = record; visualState(true);
       frames.forEach(r => {r.frame.hidden = r !== record; if (r !== record) clearTimeout(r.timer);});
       record.state = state || data.state || {filters: [], widgetId: null};
       record.touched = Date.now();
@@ -121,8 +131,10 @@
       if (!scene) return;
       say('');
       const presentation = scene.presentation || 'auto';
-      const hasMap = scene.sources.length > 0 && !['dashboard', 'full'].includes(presentation);
-      const hasDashboard = scene.dashboards?.length > 0 && !['map', 'full'].includes(presentation);
+      root.dataset.textSide = scene.composition?.text_side || 'left';
+      root.style.setProperty('--story-text-width', (scene.composition?.text_width || 35) + '%');
+      const hasMap = scene.sources.length > 0 && !['dashboard', 'full', 'media'].includes(presentation);
+      const hasDashboard = scene.dashboards?.length > 0 && !['map', 'full', 'media'].includes(presentation);
       root.classList.toggle('has-dashboard', !!hasDashboard);
       root.classList.toggle('has-combined-visuals', !!(hasMap && hasDashboard));
       chooseVisual();
@@ -130,7 +142,7 @@
       if (pane) pane.hidden = !hasDashboard;
       root.classList.toggle('is-full-section', scene.layout === 'full');
       if (hasDashboard) dashboard(scene.dashboards[0]);
-      else {if (currentFrame) clearTimeout(currentFrame.timer); currentFrame = null;}
+      else {if (currentFrame) clearTimeout(currentFrame.timer); currentFrame = null; visualState(false);}
       if ((presentation === 'combined' && (!hasMap || !hasDashboard)) ||
           (presentation === 'map' && !hasMap) || (presentation === 'dashboard' && !hasDashboard))
         say('Add the missing visualization to complete this section template.');
@@ -142,7 +154,7 @@
       let sourceIndex = scene.sources.findIndex(s => s.sourceId === ref.source_id);
       let stepIndex = null;
       if (ref.slide_id) {
-        sourceIndex = scene.sources.findIndex(s => (s.slideIds || []).includes(ref.slide_id));
+        sourceIndex = scene.sources.findIndex(s => (!ref.source_id || s.sourceId === ref.source_id) && (s.slideIds || []).includes(ref.slide_id));
         if (sourceIndex >= 0) stepIndex = scene.sources[sourceIndex].slideIds.indexOf(ref.slide_id);
       }
       if (ref.source_id || ref.slide_id) {
@@ -184,18 +196,25 @@
       }
     }
     const stops = cards.flatMap(card => {
+      if (config.scenes[Number(card.dataset.sceneIndex)].presentation === 'media' || config.scenes[Number(card.dataset.sceneIndex)].composedStep) return [card];
       const content = Array.from(card.querySelector('.storymap-card-body').children).filter(el =>
         el.matches('.section-content, .storymap-step, .storymap-card-media, .storymap-image-trigger'));
       return content.length ? content : [card];
     });
     const navigation = root.querySelector('.storymap-slide-controls');
     const indexSelect = navigation?.querySelector('select');
-    function show(index, scroll) {
+    function show(index, scroll, automatic) {
+      if (!automatic) playback?.pause();
       if (!slides || !stops.length) return;
       slideIndex = Math.max(0, Math.min(stops.length - 1, index));
       const target = stops[slideIndex], card = target.closest('.storymap-card');
       cards.forEach(c => {c.hidden = c !== card;});
       stops.forEach(el => {if (!el.matches('.storymap-card')) el.hidden = el !== target;});
+      const scene = config.scenes[Number(card.dataset.sceneIndex)];
+      const waiting = [];
+      if (options.mapPending?.() && scene.sources?.length && !['dashboard', 'full', 'media'].includes(scene.presentation)) waiting.push('map');
+      if (scene.dashboards?.length && !['map', 'full', 'media'].includes(scene.presentation)) waiting.push('dashboard');
+      playback?.step(Number(target.dataset.duration || scene.composition?.duration || 10), slideIndex === stops.length - 1, waiting);
       enter(target);
       if (indexSelect) indexSelect.value = String(slideIndex);
       navigation.querySelector('[data-direction="-1"]').disabled = slideIndex === 0;
@@ -217,6 +236,21 @@
             event.target.closest('input,textarea,select,[contenteditable=true]') || root.getBoundingClientRect().top > innerHeight) return;
         event.preventDefault(); show(slideIndex + (event.key === 'ArrowRight' ? 1 : -1));
       });
+      const play = navigation.querySelector('[data-playback]') || document.createElement('button');
+      if (!play.isConnected) {play.type = 'button'; play.dataset.playback = ''; play.textContent = 'Play'; navigation.append(play);}
+      playback = new window.StoryPlayback({
+        advance: () => show(slideIndex + 1, false, true),
+        changed: playing => {play.textContent = playing ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(playing));}
+      });
+      play.addEventListener('click', () => playback.toggle());
+      root.addEventListener('story:map-state', event => {
+        const scene = config.scenes[active];
+        if (scene?.sources?.length && !['dashboard', 'full', 'media'].includes(scene.presentation)) playback.visual('map', event.detail.pending, event.detail.error);
+      });
+      root.addEventListener('click', event => {if (!event.target.closest('[data-playback]')) playback.pause();}, true);
+      root.addEventListener('play', () => playback.pause(), true);
+      document.addEventListener('visibilitychange', () => {if (document.hidden) playback.pause();});
+      window.addEventListener('pagehide', () => playback.dispose(), {once: true});
       show(0);
     }
     root.querySelectorAll('.storymap-visual-fullscreen').forEach(button => button.addEventListener('click', () => {

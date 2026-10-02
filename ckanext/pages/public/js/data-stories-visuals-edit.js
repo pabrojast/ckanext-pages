@@ -74,9 +74,31 @@
     if ($section.data('visuals-initialized')) return;
     $section.data('visuals-initialized', true);
     const layout = select([['auto', 'Automatic'], ['map', 'Text + map'], ['dashboard', 'Text + dashboard'],
-      ['combined', 'Text + map and dashboard'], ['full', 'Narrative (no side panel)']], 'auto').addClass('ds-presentation');
+      ['combined', 'Text + map and dashboard'], ['media', 'Text + image / multimedia'], ['full', 'Narrative (no side panel)']], 'auto').addClass('ds-presentation');
     $section.find('.section-content-blocks').before(field('Section template', layout));
-    layout.on('change', changed);
+    const side = select([['left', 'Text on the left'], ['right', 'Text on the right']], 'left');
+    const ratio = select([['35', 'One third text'], ['50', 'Equal columns'], ['65', 'Two thirds text']], '35');
+    const duration = $('<input type="number" min="1" max="600" step="1" class="form-control">').val(10);
+    const preview = $('<div class="ds-template-preview" aria-label="Template preview">');
+    const composition = $('<div class="ds-composition-controls">').append(field('Text position', side),
+      field('Column proportions', ratio), field('Slide duration (seconds)', duration), preview);
+    $section.find('.section-content-blocks').before(composition);
+    function showPreview() {
+      preview.empty().attr('data-side', side.val()).css('--story-text-width', ratio.val() + '%');
+      preview.append($('<span>').text('Text'));
+      if (layout.val() !== 'full') preview.append($('<span>').text({map: 'Map', dashboard: 'Dashboard', combined: 'Map + Dashboard', media: 'Image / Multimedia', auto: 'Visualizations'}[layout.val()]));
+    }
+    $section.data('presentation', {
+      read: () => ({type: 'presentation', version: 1, layout: layout.val() || 'auto',
+        text_side: side.val(), text_width: Number(ratio.val()), duration: Number(duration.val()) || 10,
+        width: $section.data('section-width').read()}),
+      load: data => {layout.val(data.layout || 'auto'); side.val(data.text_side || 'left');
+        ratio.val(String(data.text_width || 35)); duration.val(data.duration || 10);
+        $section.data('section-width').load(data.width); showPreview();}
+    });
+    composition.on('input change', () => {showPreview(); changed();});
+    layout.on('change', () => {showPreview(); changed();});
+    showPreview();
     const mode = select([['normal', 'Normal'], ['full', '100% of screen'], ['custom', 'Custom']], 'normal').addClass('ds-section-width-mode');
     const value = $('<input type="number" step="any" class="form-control ds-section-width-value">');
     const unit = select([['%', '%'], ['px', 'px']], '%').addClass('ds-section-width-unit');

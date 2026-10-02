@@ -159,6 +159,8 @@ def _story_steps(share_json):
     return [{
         'title': story.get('title') or 'Scene %d' % (index + 1),
         'text': story.get('text') or '',
+        'slide_id': str(story['id']) if story.get('id') else None,
+        'composition': story.get('composition'),
     } for index, story in enumerate(stories)]
 
 
@@ -291,7 +293,8 @@ def get_storymap_scenes(story, resolve_share=None):
         dashboards = []
         visual_references = []
         presentation = 'auto'
-        from .visuals import dashboard_block, references
+        from .visuals import dashboard_block, references, presentation_options
+        composition = presentation_options({})
         from .section_width import get_section_width
 
         if isinstance(blocks_raw, list) and blocks_raw:
@@ -309,7 +312,8 @@ def get_storymap_scenes(story, resolve_share=None):
                         text_block['references'] = refs
                     blocks.append(text_block)
                 elif block_type == 'presentation':
-                    if block.get('layout') in ('auto', 'map', 'dashboard', 'combined', 'full'):
+                    composition = presentation_options(block)
+                    if block.get('layout') in ('auto', 'map', 'dashboard', 'combined', 'media', 'full'):
                         presentation = block['layout']
                 elif block_type == 'dashboard':
                     dashboard = dashboard_block(block)
@@ -403,12 +407,13 @@ def get_storymap_scenes(story, resolve_share=None):
             'dashboards': dashboards,
             'references': visual_references,
             'presentation': presentation,
+            'composition': composition,
             'width': get_section_width(section),
             'scene_url': default_source.get('scene_url'),
             'share_url': default_source.get('share_url'),
             'share_id': default_source.get('share_id'),
             'start_data': default_source.get('start_data'),
-            'layout': 'full' if presentation == 'full' else ('split' if sources or dashboards else 'full'),
+            'layout': 'full' if presentation in ('full', 'media') else ('split' if sources or dashboards else 'full'),
         })
 
     # Story Slides live in the share JSON: resolve them for EVERY source
@@ -441,6 +446,7 @@ def get_storymap_scenes(story, resolve_share=None):
                 'source_title': source['title'],
                 'step_index': len(source['steps']),
                 'slide_id': block.get('slide_id'),
+                'composition': block.get('composition'),
             }
             source['steps'].append(step)
             source['start_data']['initSources'][-1]['stories'].append({
@@ -466,7 +472,13 @@ def get_storymap_scenes(story, resolve_share=None):
         groups = []
         current = []
         for block in scene['blocks']:
-            if block['type'] == 'image' and block.get('display') == 'full':
+            if isinstance(block.get('composition'), dict) and block['composition'].get('version') == 1:
+                if current:
+                    groups.append((current, False))
+                    current = []
+                groups.append(([block], False))
+                continue
+            if block['type'] == 'image' and block.get('display') == 'full' and scene['presentation'] != 'media':
                 if current:
                     groups.append((current, False))
                     current = []
@@ -479,6 +491,27 @@ def get_storymap_scenes(story, resolve_share=None):
             part = dict(scene, blocks=blocks, continuation=index > 0)
             if index:
                 part['section_id'] = '%s-part-%d' % (scene['section_id'], index)
+            composed = next((b.get('composition') for b in blocks if isinstance(b.get('composition'), dict) and b['composition'].get('version') == 1), None)
+            if composed:
+                from .visuals import dashboard_block, references, presentation_options
+                part['composed_step'] = True
+                part['composition'] = presentation_options(composed)
+                part['presentation'] = composed.get('layout') if composed.get('layout') in ('map', 'dashboard', 'combined', 'media', 'full', 'auto') else 'auto'
+                part['layout'] = 'full' if part['presentation'] in ('media', 'full') else 'split'
+                part['dashboards'] = [dashboard_block(d) for d in composed.get('dashboards', []) if isinstance(d, dict)]
+                part['dashboards'] = [d for d in part['dashboards'] if d['type'] == 'dashboard']
+                part['references'] = references(composed)
+                part['blocks'] = list(blocks)
+                for media in composed.get('media', []):
+                    if not isinstance(media, dict) or not isinstance(media.get('url'), str):
+                        continue
+                    url = media['url']
+                    if not (url.startswith('/') and not url.startswith('//')) and urlparse(url).scheme not in ('http', 'https'):
+                        continue
+                    if media.get('type') == 'image':
+                        part['blocks'].append({'type': 'image', 'url': url, 'alt': media.get('alt') or '', 'caption': media.get('title') or '', 'display': 'map'})
+                    elif media.get('type') == 'media':
+                        part['blocks'].append({'type': 'media', 'embed_html': _media_embed_html(media)})
             if full_image:
                 part.update(layout='full', sources=[], dashboards=[], scene_url=None, share_url=None, share_id=None, start_data=None, steps=[])
             first_step = next((b for b in blocks if b['type'] == 'step'), None)
@@ -542,6 +575,12 @@ def _flatten_scene_steps(sources):
     for source in sources:
         src_steps = source.get('steps') or []
         for idx, step in enumerate(src_steps):
+            composition = copy.deepcopy(step.get('composition'))
+            if isinstance(composition, dict):
+                for ref in composition.get('references', []):
+                    if isinstance(ref, dict) and ref.get('scene_id') and not ref.get('slide_id'):
+                        ref['source_id'] = source.get('source_id')
+                        ref['slide_id'] = str(ref['scene_id'])
             steps.append({
                 'title': step.get('title') or '',
                 'text': step.get('text') or '',
@@ -549,6 +588,7 @@ def _flatten_scene_steps(sources):
                 'step_index': idx,
                 'step_total': len(src_steps),
                 'source_title': source.get('title') or '',
+                **({'composition': composition} if isinstance(composition, dict) else {}),
             })
     return steps
 
@@ -609,6 +649,8 @@ def get_storymap_config(story, scenes=None):
                 'dashboards': s.get('dashboards', []),
                 'references': s.get('references', []),
                 'presentation': s.get('presentation', 'auto'),
+                'composition': s.get('composition', {}),
+                'composedStep': s.get('composed_step', False),
                 # Flattened total across all sources; per-source counts
                 # below drive the scroll-driven source sequencing.
                 'steps': len(s.get('steps') or []),

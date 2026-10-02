@@ -49,3 +49,14 @@ test('initial import of multiple tabs follows tab order', async () => {
   }
   assert.deepEqual(blocks.slice(1).map(b=>b.source_id), ['first','second']);
 });
+
+
+test('composed native scenes preserve media and map-reference identity on import', async () => {
+  const native = slide('a'); native.composition = {version: 1, layout: 'combined', duration: 7,
+    references: [{id: 'ref', scene_id: 'b'}], media: [{id: 'photo', type: 'image', url: '/story-images/photo'}]};
+  const imported = await sequence.importSlides(share([null, native, slide('b')]), 'map');
+  assert.equal(imported[0].composition.duration, 7);
+  assert.equal(imported[0].composition.references[0].slide_id, imported[1].slide_id);
+  assert.equal(imported[0].composition.references[0].source_id, 'map');
+  assert.equal(native.composition.references[0].slide_id, undefined);
+});

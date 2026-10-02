@@ -58,3 +58,14 @@ def references(block):
         except ValueError:
             continue
     return result
+
+
+def presentation_options(block):
+    """Bound presentation values; never interpolate arbitrary author CSS."""
+    block = block if isinstance(block, dict) else {}
+    duration = block.get('duration', 10)
+    if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not 1 <= duration <= 600:
+        duration = 10
+    return {'text_side': 'right' if block.get('text_side') == 'right' else 'left',
+            'text_width': block.get('text_width') if block.get('text_width') in (35, 50, 65) else 35,
+            'duration': duration}

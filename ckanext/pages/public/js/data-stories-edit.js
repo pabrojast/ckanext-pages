@@ -1108,8 +1108,7 @@
                   console.log('[Section ' + sectionId + '] -> Adding TEXT block');
                   addTextBlock(sectionId, blockData.content, null, blockData);
                 } else if (blockData.type === 'presentation') {
-                  $section.find('.ds-presentation').val(blockData.layout || 'auto');
-                  $section.data('section-width').load(blockData.width);
+                  $section.data('presentation').load(blockData);
                 } else if (blockData.type === 'dashboard') {
                   addDashboardBlock(sectionId, blockData);
                 } else if (blockData.type === 'terria') {
@@ -1989,9 +1988,7 @@
         
         const $container = $section.find('.section-content-blocks');
         let contentHtml = '';
-        const blocksMetadata = [{type: 'presentation', version: 1,
-          layout: $section.find('.ds-presentation').val() || 'auto',
-          width: $section.data('section-width').read()}];
+        const blocksMetadata = [$section.data('presentation').read()];
         let hasTerriaMap = false;
         let terriaLink = '';
         

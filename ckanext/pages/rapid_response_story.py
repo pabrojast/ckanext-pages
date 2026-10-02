@@ -289,14 +289,15 @@ def view_context(page, context):
     for section in view['sections']:
         for block in section['blocks_metadata']:
             if block['type'] in ('text', 'legacy_html') or block['type'] not in (
-                    'terria', 'terria_slide', 'media', 'image'):
+                    'terria', 'terria_slide', 'media', 'image', 'dashboard', 'presentation'):
                 block['type'] = 'text'
                 block['content'] = lazy_media_html(tk.h.render_markdown(block.get('content') or '', allow_html=True))
-    view['sections'] = [s for s in view['sections'] if any(block_html(b).strip() for b in s['blocks_metadata'])]
+    view['sections'] = [s for s in view['sections'] if any(b.get('type') == 'dashboard' or block_html(b).strip() for b in s['blocks_metadata'])]
     view['uploaded_images'] = decode(page.get('uploaded_images') or '[]', legacy=True)
     scenes = get_storymap_scenes(view)
     config = get_storymap_config(view, scenes)
     config['mobileStackedMedia'] = True
+    config['displayMode'] = 'slides' if story.get('display_mode') == 'slides' else 'storymap'
     config['sceneResolveEndpoint'] = tk.url_for('pages.rapid_response_terria_scene', share_id='__ID__')
     return {'storymap_scenes': scenes, 'storymap_config': config,
             'rr_datasets': readable_datasets(story, context)}

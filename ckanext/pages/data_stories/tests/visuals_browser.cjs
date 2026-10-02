@@ -10,6 +10,7 @@ const assets = {
   visualsEditor: read('public/js/data-stories-visuals-edit.js'),
   sequence: read('public/js/data-stories-sequence.js'),
   visuals: read('public/js/data-stories-visuals.js'),
+  playback: read('public/js/story-playback.js'),
   viewer: read('public/js/data-stories-storymap.js'),
   css: [read('public/css/data-stories-storymap.css'), read('public/css/data-stories-visuals.css')],
   jquery: path.resolve(process.argv[3]),
@@ -57,9 +58,10 @@ async function check(page, assets) {
   for (const css of assets.css) await page.addStyleTag({path:css});
   await page.evaluate(({dashboard,ref}) => {
     document.querySelector('#storymap-config').textContent = JSON.stringify({displayMode:'slides',embedBaseUrl:'https://stories.test/terria/',terriaOrigin:location.origin,scenes:[
-      {layout:'split',presentation:'combined',sources:[{sourceId:'map-1',sceneUrl:'https://stories.test/terria/',steps:2,slideIds:['native:map-1:0','native:map-1:1'],startData:{version:'8',initSources:[{stories:[{shareData:{version:'8',initSources:[{camera:'first'}]}},{shareData:{version:'8',initSources:[{camera:'second'}]}}]}]}}],dashboards:[dashboard],references:[ref]},
-      {layout:'full',sources:[],dashboards:[],references:[]} ]});
+      {layout:'split',composition:{duration:1},presentation:'combined',sources:[{sourceId:'map-1',sceneUrl:'https://stories.test/terria/',steps:2,slideIds:['native:map-1:0','native:map-1:1'],startData:{version:'8',initSources:[{stories:[{shareData:{version:'8',initSources:[{camera:'first'}]}},{shareData:{version:'8',initSources:[{camera:'second'}]}}]}]}}],dashboards:[dashboard],references:[ref]},
+      {layout:'full',composition:{duration:1},sources:[],dashboards:[],references:[]} ]});
   }, {dashboard,ref});
+  await page.addScriptTag({path:assets.playback});
   await page.addScriptTag({path:assets.visuals});
   await page.addScriptTag({path:assets.viewer});
   await page.waitForFunction(() => [...document.querySelectorAll('.storymap-dashboard-pane iframe')].some(f => f.contentWindow.received?.length));
@@ -93,6 +95,17 @@ async function check(page, assets) {
   const mobileLayout = await page.locator('.storymap-card:not([hidden])').evaluate(card => ({body:card.querySelector('.storymap-card-body').getBoundingClientRect().toJSON(),slot:card.querySelector('.storymap-mobile-visual-slot').getBoundingClientRect().toJSON()}));
   if (mobileLayout.body.width < 340 || mobileLayout.slot.top < mobileLayout.body.bottom - 1) throw Error('Mobile media must appear below full-width narrative: '+JSON.stringify(mobileLayout));
   if (dimensions.width > dimensions.viewport + 1 || !dimensions.inSlot) throw Error('Mobile visual layout overflow: '+JSON.stringify(dimensions));
+
+  await page.locator('.storymap-slide-controls select').selectOption('0');
+  await page.getByRole('button', {name:'Play', exact:true}).click();
+  await page.waitForFunction(() => document.querySelector('.storymap-slide-controls select').value === '2');
+  await page.waitForFunction(() => document.querySelector('[data-playback]').getAttribute('aria-pressed') === 'false');
+  if (await frame.evaluate(() => window.bootId) !== boot) throw Error('Automatic playback reloaded the dashboard');
+  await page.locator('.storymap-slide-controls select').selectOption('0');
+  await page.getByRole('button', {name:'Play', exact:true}).click();
+  await page.getByRole('button', {name:'Pause', exact:true}).click();
+  await page.waitForTimeout(1200);
+  if (await page.locator('.storymap-slide-controls select').inputValue() !== '0') throw Error('Pause did not cancel advancement');
 
   // Load the actual editor, serialize its blocks, then reconstruct it as after a save/reload.
   const metadata = [{type:'presentation',layout:'dashboard'},dashboard,
@@ -130,7 +143,7 @@ async function check(page, assets) {
     throw Error('Visual metadata lost on reload');
   if (!reloaded.find(b=>b.type==='text').content.includes('#story-ref-reference-1')) throw Error('Quill removed the narrative link');
   if (failures.length) throw Error('Browser errors: '+failures.join('; '));
-  return 'PASS: combined template, imported map slide and dashboard on-enter refs, slide navigation, filters and reset, iframe reuse, narrative-only slide, mobile layout, editor save/reload';
+  return 'PASS: combined template, imported map slide and dashboard on-enter refs, slide navigation and automatic playback/pause/end, filters and reset, iframe reuse, narrative-only slide, mobile layout, editor save/reload';
 }
 try {
   run('open');

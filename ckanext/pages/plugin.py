@@ -18,7 +18,7 @@ from ckanext.pages.rapid_response_media import lazy_media_html
 
 from ckanext.pages import actions
 from ckanext.pages import auth
-from ckanext.pages import story_images
+from ckanext.pages import story_images, story_dashboards
 from ckanext.pages import blueprint
 from ckanext.pages.utils import is_ckan_download_url
 
@@ -1391,7 +1391,7 @@ class PagesPlugin(PagesPluginBase):
         return tk.asbool(tk.config.get('ckanext.featured_viewers.enabled', False))
 
     def get_blueprint(self):
-        blueprints = [blueprint.pages, story_images.blueprint]
+        blueprints = [blueprint.pages, story_images.blueprint, story_dashboards.blueprint]
         # Register data stories blueprint only when enabled
         if self._data_stories_enabled() and DATA_STORIES_AVAILABLE and data_stories_blueprint:
             blueprints.append(data_stories_blueprint)

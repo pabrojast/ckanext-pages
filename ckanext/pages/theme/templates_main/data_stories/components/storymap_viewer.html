@@ -3,6 +3,7 @@
       <nav class="storymap-slide-controls" aria-label="{{ _('Story slides') }}" hidden>
         <button type="button" class="btn btn-default" data-direction="-1">{{ _('Previous') }}</button>
         <select aria-label="{{ _('Choose slide') }}"></select>
+        <button type="button" class="btn btn-default" data-playback aria-pressed="false">{{ _('Play') }}</button>
         <span role="status" aria-live="polite"></span>
         <button type="button" class="btn btn-primary" data-direction="1">{{ _('Next') }}</button>
       </nav>
@@ -72,8 +73,8 @@
         {% set scene_index = loop.index0 %}
         <article class="storymap-card{% if scene.layout == 'full' %} is-full-width{% endif %}"
                  id="scene-{{ scene.section_id }}" data-scene-index="{{ scene_index }}"
-                 data-layout="{{ scene.layout }}" data-section-width="{{ scene.width.mode if scene.width else 'normal' }}"
-                 style="grid-row: {{ loop.index }};{% if scene.width and scene.width.css %} --ds-section-width: {{ scene.width.css }};{% endif %}">
+                 data-presentation="{{ scene.presentation }}" data-text-side="{{ scene.composition.text_side }}" data-layout="{{ scene.layout }}" data-section-width="{{ scene.width.mode if scene.width else 'normal' }}"
+                 style="--story-text-width: {{ scene.composition.text_width }}%; grid-row: {{ loop.index }};{% if scene.width and scene.width.css %} --ds-section-width: {{ scene.width.css }};{% endif %}">
           <div class="storymap-card-body">
             {% if not scene.continuation %}<header class="storymap-card-header">
               <span class="storymap-card-number">{{ loop.index }}</span>
@@ -137,8 +138,9 @@
     </div>
     {% endif %}
 
-<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261001-width-1" />
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261002-compositions" />
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
 {# ?v= busts browser caches when the viewer logic changes — bump on edits #}
-<script src="/js/data-stories-visuals.js?v=20260924-rr1" defer></script>
-<script type="text/javascript" src="/js/data-stories-storymap.js?v=20260924-4" defer></script>
+<script src="/js/story-playback.js?v=20261002-compositions" defer></script>
+<script src="/js/data-stories-visuals.js?v=20261002-compositions" defer></script>
+<script type="text/javascript" src="/js/data-stories-storymap.js?v=20261002-compositions" defer></script>

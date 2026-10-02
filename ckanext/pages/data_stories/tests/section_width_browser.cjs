@@ -6,7 +6,7 @@ const [cli, jquery, fixtures] = process.argv.slice(2);
 const root = path.resolve(__dirname, '../..');
 const assets = Object.fromEntries([
   'data-stories-edit', 'data-stories-visuals-edit', 'data-stories-sequence',
-  'data-stories-visuals', 'data-stories-storymap', 'story-editor-core', 'terria-tabs-display'
+  'story-playback', 'data-stories-visuals', 'data-stories-storymap', 'story-editor-core', 'terria-tabs-display'
 ].map(name => ['/js/' + name + '.js', path.join(root, 'public/js', name + '.js')]));
 for (const name of ['data-stories-edit', 'data-stories-visuals', 'data-stories-storymap'])
   assets['/css/' + name + '.css'] = path.join(root, 'public/css', name + '.css');

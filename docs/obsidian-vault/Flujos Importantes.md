@@ -205,3 +205,14 @@ La narrativa de una emergencia se edita por capítulos y se publica con el visor
 La revisión de diseño debe recorrer listado, detalle y formulario a distintos anchos, comprobando que título, descripción y controles no queden recortados. La vista previa con CSS local permite comprobar el tema de dev sin guardar eventos; no sustituye la prueba de persistencia autenticada. Ver [[Testing]].
 
 Al guardar y reabrir un borrador de Rapid Response, comprobar también Activity Visibility: debe seguir en Draft sin requerir que el autor vuelva a seleccionarlo.
+
+
+## Composiciones y reproduccion de Stories (2026-10-02)
+
+Data Stories y Rapid Response comparten `StoryVisualsEditor`: plantillas con vista previa, texto a izquierda/derecha, proporcion 35/50/65 y duracion de 1–600 segundos (10 por defecto). El bloque `presentation` conserva anchos narrativos anteriores. La nueva plantilla `media` mantiene texto e imagen/video juntos; los controles existentes de Map/Dashboard/Both siguen disponibles. Rapid Response persiste `display_mode` en su documento versionado y conserva bloques dashboard/presentation/references durante render y revisiones. Guardar sin editar conserva el documento antiguo.
+
+`/story-dashboards/picker` reutiliza acciones CKAN y el editor de filtros con la sesion actual. Devuelve un mensaje `ckan-story-dashboard-selected`, version 1, con ID de vista y estado declarativo al padre del mismo origen. No crea vistas ni modifica el dashboard guardado. Terria nativo usa ese selector.
+
+La importacion de escenas conserva `composition`, medios y referencias. Los destinos nativos `scene_id` se vinculan a los IDs estables de las escenas importadas; las copias de escenas y el contenido anterior permanecen hasta actualizar explicitamente.
+
+Slides incluye Reproducir/Pausar, inicio manual, espera de confirmacion de mapa/dashboard, pausa por error/navegacion/pestaña oculta y parada al final. Scroll mantiene referencias por posicion de lectura. Las nuevas imagenes de Rapid Response usan `StoryImages` y la biblioteca de perfil, conservando enlaces antiguos y reintento de subidas.

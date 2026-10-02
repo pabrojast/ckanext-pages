@@ -200,3 +200,10 @@ Validar los assets de la imagen candidata y repetir sobre las URLs públicas des
 La combinación de `f725475` (Stories) y `8acd275` (encabezados) pasó 148 pruebas Python sin servicios de integración y cinco pruebas Node de secuencias. Se repitieron las 48 combinaciones de ancho de sección, el navegador del compositor de Rapid Response (guardado sin cambios, reordenación, HTML heredado, importación de escenas, datasets y reintentos de subida) y 30 comprobaciones del banner de alta/edición con el CSS del compositor, sin errores JavaScript.
 
 Los assets de encabezado de listado, detalle y editor son idénticos a los del fix productivo; las resoluciones de las acciones y el editor de Data Stories conservan el código de la rama Stories. Las pruebas del compositor simulan uploads y acciones CKAN, y el banner se renderiza desde su fragmento Jinja sobre el tema real: no equivalen a guardar eventos en producción. Evidencia local: `output/playwright/merge-rapid-20261001/`. Esta verificación corresponde al merge en Git, sin nuevo despliegue; ver [[Deployment]].
+
+
+## Composiciones, referencias y reproduccion
+
+`test_compositions.py` valida la importacion de composiciones nativas, medios, presentacion acotada y persistencia en Rapid Response. `node --test ckanext/pages/data_stories/tests/sequence.test.cjs ckanext/pages/data_stories/tests/playback.test.cjs` cubre IDs importados y el temporizador coordinado con confirmaciones visuales.
+
+Los harnesses `visuals_browser.cjs`, `section_width_browser.cjs` y `tests/rapid_response_story_browser.cjs` usan Playwright CLI y jQuery real de CKAN. Pasar el wrapper como primer argumento y el archivo local jquery.js como segundo; el de anchos recibe ademas el JSON generado por `test_section_width.py`. Comprueban filtros, iframe reutilizado, 48 combinaciones de anchos/modos y preservacion/reordenamiento del editor RR. Las rutas reales y autenticacion requieren una segunda comprobacion integrada en DEV.
