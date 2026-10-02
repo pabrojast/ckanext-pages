@@ -25,8 +25,8 @@ No se convierten stories al visitarlas ni se realiza migracion masiva. Los enlac
 
 ## Operacion y pruebas
 
-Aplicar `ckan -c /app/production.ini db upgrade --plugin pages` (migracion `5c6d7e8f9a0b`). El despliegue de CKAN ya ejecuta este comando en `docker-afterinit.d/02_updatedb.sh`. Desplegar CKAN/tema antes de Terria. En TerriaMap configurar `storyImageUploadUrl: /story-images/upload` y `storyImageLibraryUrl: /story-images/library`, en el mismo origen; nunca por el proxy del mapa.
+Aplicar `ckan -c /app/production.ini db upgrade --plugin pages` (migracion `5c6d7e8f9a0b`). La imagen de produccion debe incluir el comando en `docker-afterinit.d/02_updatedb.sh`; el overlay de esta entrega serializa las migraciones con un bloqueo PostgreSQL para admitir varias replicas. Desplegar CKAN/tema antes de Terria. En TerriaMap configurar `storyImageUploadUrl: /story-images/upload` y `storyImageLibraryUrl: /story-images/library`, en el mismo origen; nunca por el proxy del mapa.
 
 Pruebas focalizadas: `test_story_image_processing.py` y `test_story_images.py`, con pytest-ckan sobre una base aislada. Cubren raster real, limites, animaciones, transparencia, deduplicacion, permisos, archivo, CSRF, cache privado, descarga anonima y rechazo de imagenes pendientes. La verificacion de navegador debe incluir ambas superficies, conversion al guardar, reintento y ancho 390 px.
 
-La entrega inicial es solo desarrollo (`data.dev-wins.com`, contexto `default`, namespace `ckan`). Los identificadores finales y evidencia de despliegue se registran en la nota de release del repositorio Docker.
+La entrega inicial se verifico en desarrollo (`data.dev-wins.com`, contexto `default`, namespace `ckan`). El backport inicial de produccion partio de `61a4eab` y agrego solo la biblioteca, conservando el editor y Rapid Response de esa imagen productiva. La rama `RapidResponseAndRecovery` integra ahora tambien Stories y los ajustes de encabezados; su integracion en Git no cambia la imagen desplegada. Los identificadores finales y evidencia de despliegue se registran en la nota de release del repositorio Docker.

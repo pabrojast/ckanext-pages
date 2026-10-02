@@ -188,3 +188,15 @@ Se revisaron `/rapid-response` y los detalles de Melissa e Idai en `https://data
 La vista previa con el CSS local corrigió ambos banners en los seis anchos y comprobó los márgenes móviles del editor. Las capturas y resultados están en `output/playwright/rapid-response-dev-review/` (no versionado). Esta prueba valida diseño, no guardado ni persistencia en dev. No se modificaron eventos ni archivos del servidor.
 
 En esa revisión, el pod de dev aún tenía `ckanext-pages` en `0b69977dc8b9549d103cd97a116a9799b05faec7`; faltaban `rapid_response_story.py` y `rapid-response-story-edit.js`, cuya URL pública devolvía 404. La integración de Stories estaba en Git (`51e4c4160316b765d0f5b338d8e10d6bcf4e07b8`), pero no desplegada allí. Ver [[Deployment]] para distinguir los contextos Kubernetes.
+
+## Regresión de encabezados de Rapid Response
+
+Comprobar listado, los cuatro eventos públicos y los banners de alta y edición a 320, 390, 768, 800, 820, 991, 992, 1024, 1199, 1366, 1440 y 1920 px. Además de comparar el ancho de documento y viewport, verificar que los rectángulos del texto estén contenidos en el banner. Repetir con un título largo, palabras sin espacios y la ruta en español. Las pruebas visuales del banner del editor renderizan su fragmento Jinja real sobre el tema servido; no prueban guardado ni persistencia.
+
+Validar los assets de la imagen candidata y repetir sobre las URLs públicas después del rollout. Evidencia local privada: `output/rapid-response/header-release-20261001/`. Ver [[Frontend y Plantillas]] y el registro de release del repositorio Docker.
+
+### Consolidación en RapidResponseAndRecovery (2026-10-01)
+
+La combinación de `f725475` (Stories) y `8acd275` (encabezados) pasó 148 pruebas Python sin servicios de integración y cinco pruebas Node de secuencias. Se repitieron las 48 combinaciones de ancho de sección, el navegador del compositor de Rapid Response (guardado sin cambios, reordenación, HTML heredado, importación de escenas, datasets y reintentos de subida) y 30 comprobaciones del banner de alta/edición con el CSS del compositor, sin errores JavaScript.
+
+Los assets de encabezado de listado, detalle y editor son idénticos a los del fix productivo; las resoluciones de las acciones y el editor de Data Stories conservan el código de la rama Stories. Las pruebas del compositor simulan uploads y acciones CKAN, y el banner se renderiza desde su fragmento Jinja sobre el tema real: no equivalen a guardar eventos en producción. Evidencia local: `output/playwright/merge-rapid-20261001/`. Esta verificación corresponde al merge en Git, sin nuevo despliegue; ver [[Deployment]].

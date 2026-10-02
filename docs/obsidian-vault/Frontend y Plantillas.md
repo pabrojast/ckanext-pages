@@ -179,3 +179,9 @@ El formulario carga `story-editor-core.js` y `rapid-response-story-edit.js`; la 
 Los banners del listado y del editor usan altura automática y contenido en el flujo normal en móvil; una altura fija con texto centrado de forma absoluta recorta el título y la descripción a 320 y 390 px. El ajuste del editor está limitado a `.rr-story-edit-page`; su CSS usa versión `20260924-2`. Evidencia con el tema de dev en [[Testing]].
 
 El selector de visibilidad de Rapid Response acepta booleanos y representaciones históricas de `private`. Reabrir un borrador debe seleccionar Draft y conservarlo al guardar; Under Review debe tener una sola opción seleccionada.
+
+## Encabezados de Rapid Response (2026-10-01)
+
+El listado, los detalles y el editor usan altura automática, una altura mínima y contenido en el flujo normal. Los títulos y descripciones largos pueden aumentar la altura del banner; las palabras sin espacios también se ajustan al ancho. Se conserva el fondo y el texto centrado, sin recortar título, fecha o severidad. El ajuste del editor vive en `public/css/rapid-response-edit.css`, independientemente del compositor Stories. Su URL incorpora la versión `20261001-header-1`.
+
+El backport productivo partió de Pages `46d8ad5` y conservó el editor existente y la biblioteca de imágenes. Al integrarlo en `RapidResponseAndRecovery`, se conserva el compositor Stories y su validación, junto con los estilos y la versión de caché del encabezado. Ver [[Testing]] y [[Troubleshooting]].

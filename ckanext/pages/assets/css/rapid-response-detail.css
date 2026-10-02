@@ -15,7 +15,11 @@
 /* Banner Section - Enhanced */
 .section-title {
   position: relative;
-  height: 350px;
+  height: auto;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  padding: 2rem 1.25rem;
   overflow: hidden;
   border-radius: 16px;
   margin-bottom: 3rem;
@@ -49,14 +53,14 @@
 }
 
 .section-title-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
+  margin: 0 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
   text-align: center;
   color: white;
   z-index: 10;
-  width: 90%;
+  width: 100%;
   max-width: 800px;
 }
 

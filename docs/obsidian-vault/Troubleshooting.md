@@ -197,3 +197,7 @@ Si el título o la descripción desaparecen parcialmente a 320 o 390 px, comprob
 ## Borrador de Rapid Response aparece como Public al editar
 
 El dictizado puede devolver `private=True` como booleano. Compararlo solo con `'True'` seleccionaba Public al abrir el formulario. El selector acepta ambas representaciones y selecciona una sola opción; el test de plantilla en `test_rapid_response_edit.py` cubre booleanos, valores históricos, ausencia de valor y Under Review. Ver [[Flujos Importantes]].
+
+## Banner recortado después de un release reciente
+
+Que el despliegue sea reciente no garantiza que incluya una corrección de otra rama. El release de biblioteca de imágenes de 2026-10-01 usó Pages `46d8ad5`, cuyo listado aún tenía alturas fijas de 250/200 px. Comparar refs y archivos dentro del pod con los assets servidos antes de atribuir el problema a caché. El backport del encabezado adapta también el detalle en escritorio y el editor original, sin depender de `rapid-response-story.css`. Ver [[Frontend y Plantillas]] y [[Testing]].

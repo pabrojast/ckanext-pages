@@ -1,7 +1,7 @@
 # Deployment
 
 Tags: #deployment #operacion
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Setup Local]], [[Variables de Entorno]], [[Testing]], [[Datos y Persistencia]]
 
@@ -137,3 +137,9 @@ La imagen conserva como base el dev activo (`sha256:68897e01a0515953a9de1fb7da46
 El directorio local ignorado `output/rapid-response/deploy-stories-20260924/` conserva Dockerfile, pruebas, publicación de imagen, manifiesto anterior protegido, snapshot completo de los eventos, hashes y parche de rollback con precondición. Son artefactos de reversión de este release, no un respaldo completo de la plataforma. El rollback de código vuelve al digest original; no restaurar datos sobre ediciones posteriores de usuarios.
 
 La imagen final pasó 116 pruebas focalizadas en un contenedor descartable; pytest se instaló solo en ese contenedor de comprobación. Ver [[Testing]] para la prueba de navegador con el tema real y [[Stories en Rapid Response]] para el contrato editorial.
+
+## Rama consolidada de Pages (2026-10-01)
+
+`RapidResponseAndRecovery` reúne `feat/story-image-library` (`f725475`) y `fix/rapid-response-header-production-20261001` (`8acd275`), incluyendo la biblioteca de imágenes, los anchos de Data Stories, el compositor de Rapid Response y los encabezados adaptables. La resolución conserva la validación de ancho, el editor compartido y todos los assets del compositor; incorpora también la versión `20261001-header-1` del CSS del editor.
+
+Esta consolidación publica código en Git. La imagen de producción sigue fijada a revisiones concretas en el repositorio Docker; integrar ramas no actualiza sus referencias ni ejecuta un despliegue. Para una entrega posterior, usar el procedimiento oficial de ese repositorio y verificar la imagen resultante. Ver [[Testing]] y [[Biblioteca de Imagenes]].
