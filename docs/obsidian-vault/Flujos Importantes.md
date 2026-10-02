@@ -1,7 +1,7 @@
 # Flujos Importantes
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -185,6 +185,8 @@ Insertar/pegar/arrastrar una imagen → preparar versión para pantalla → subi
 En lectura, los estilos del detalle se cargan desde la cabecera y las imágenes/iframes del contenido usan carga diferida nativa del navegador. El texto no espera a que terminen los mapas. Ver [[Frontend y Plantillas]].
 
 ## Plantillas y referencias visuales de Data Stories
+
+Para ajustar una sección normal, elegir `Section width`: Normal, 100% of screen o Custom. Custom pide valor y unidad (`%`/`px`); guardar y reabrir conserva el ancho incluso después de reordenar secciones o cambiar el modo de lectura. En Story Map/Slides con panel lateral, seleccionar `Narrative (no side panel)` para habilitar el ajuste. Cambiar el ancho no cambia la plantilla ni elimina mapas guardados. Ver [[Frontend y Plantillas]] y [[Datos y Persistencia]].
 
 El modo `slides` comparte el renderer StoryMap y ofrece Anterior/Siguiente, índice y teclado, sin autoplay. Cada sección guarda un bloque `presentation` (`auto`, `map`, `dashboard`, `combined`, `full`); cada párrafo, escena o imagen es un paso. Se conservan el modo clásico, scroll, fuentes Terria y secuencias organizadas existentes.
 

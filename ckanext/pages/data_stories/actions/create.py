@@ -262,6 +262,8 @@ def data_story_section_create(context, data_dict):
 
     # Check authorization
     tk.check_access('data_story_section_create', context, data_dict)
+    from ckanext.pages.data_stories.helpers.section_width import validate_story_section_widths
+    validate_story_section_widths([data_dict])
     from ckanext.pages.story_image_processing import validate_story_images
     validate_story_images(data_dict)
 

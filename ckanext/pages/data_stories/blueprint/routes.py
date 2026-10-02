@@ -383,6 +383,8 @@ def create():
         draft_story_context = _build_story_context({**data_dict, 'sections': sections_data})
 
         try:
+            from ckanext.pages.data_stories.helpers.section_width import validate_story_section_widths
+            validate_story_section_widths(sections_data)
             datasets_data = _prepare_story_datasets(context, datasets_data)
             data_dict['datasets_data'] = datasets_data
 
@@ -837,6 +839,8 @@ def edit(slug):
         story_context = _build_story_context({**story, **data_dict, 'sections': sections_data})
 
         try:
+            from ckanext.pages.data_stories.helpers.section_width import validate_story_section_widths
+            validate_story_section_widths(sections_data)
             if not keep_datasets:
                 datasets_data = _prepare_story_datasets(context, datasets_data)
                 data_dict['datasets_data'] = datasets_data

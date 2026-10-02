@@ -131,6 +131,9 @@ def data_story_import(context, data_dict):
     if not story_data:
         raise tk.ValidationError({'data': ['Missing story data in export']})
 
+    from ckanext.pages.data_stories.helpers.section_width import validate_story_section_widths
+    validate_story_section_widths(story_data.get('sections') or [])
+
     # Get options
     slug_conflict = data_dict.get('slug_conflict', 'rename')
     owner_user_id = data_dict.get('owner_user_id')

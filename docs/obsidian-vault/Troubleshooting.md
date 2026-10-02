@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -23,6 +23,10 @@ Pasos:
 3. confirmar que `plugin.configure()` no está fallando
 
 El código también intenta auto-crear o reparar `ckanext_pages`, pero no conviene depender solo de eso.
+
+## Ancho de secciones en Data Stories
+
+Para dudas sobre ancho de Data Stories: la antigua plantilla `Full width` ahora se llama `Narrative (no side panel)` y solo controla la composición. El tamaño se elige aparte en `Section width`. Si está desactivado en Story Map/Slides, la sección tiene un panel lateral. Si no aparece, comprobar que se sirve el editor con cache-bust `20261001-width-1`; ver [[Frontend y Plantillas]].
 
 ## `data_stories` o `featured_viewers` no aparecen
 

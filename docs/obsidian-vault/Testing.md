@@ -1,7 +1,7 @@
 # Testing
 
 Tags: #testing #operacion
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Setup Local]], [[Comandos Utiles]], [[Troubleshooting]]
 
@@ -43,13 +43,28 @@ Cobertura observable:
 
 ### Data Stories
 
-Archivos `test_*.py` detectados: 7
+El ancho por sección tiene cobertura en `test_section_width.py`: valores válidos/incorrectos, conservación de metadatos del formulario y de continuaciones, rechazo por API antes de acceder a la base de datos y render de las plantillas reales. El navegador usa esas plantillas con assets locales y Quill real para medir Normal/100%/80%/900px, probar reordenación/reapertura, panel lateral y validación.
+
+En un entorno con CKAN y pytest instalados:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q ckanext/pages/data_stories/tests/test_section_width.py
+python ckanext/pages/data_stories/tests/test_section_width.py > /tmp/data-stories-width-fixtures.json
+node ckanext/pages/data_stories/tests/section_width_browser.cjs /ruta/playwright_cli.sh /ruta/ckan/public/base/vendor/jquery.js /tmp/data-stories-width-fixtures.json
+```
+
+La prueba de navegador recorre Classic, Story Map y Slides a 1920, 1440, 768 y 390px. Genera HTML de prueba junto al JSON temporal. Estos checks locales no equivalen a guardar una story en una instancia desplegada; la prueba de formulario verifica serialización y reconstrucción de los metadatos.
+
+Verificación local del cambio de ancho (2026-10-01): 103 pruebas pasaron al ejecutar conjuntamente `test_section_width.py`, `test_visuals.py`, `test_storymap_helpers.py`, `test_form_metadata.py`, `test_sequence.py` y `pages/tests/test_rapid_response_story.py` en una imagen CKAN temporal con el checkout montado en solo lectura. El navegador confirmó 48 combinaciones de modo/ancho/viewport, conservación tras reordenar y reconstruir el editor, validación y navegación manual. También pasaron `visuals_browser.cjs` y `scroll_browser.cjs` con los assets finales. No se desplegó este cambio.
+
+Suites principales:
 
 - `test_actions.py`
 - `test_auth.py`
 - `test_models.py`
 - `test_routes.py`
 - `test_storymap_helpers.py`
+- `test_section_width.py`
 - `test_validation.py`
 - `test_workflow.py`
 

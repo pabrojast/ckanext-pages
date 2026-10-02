@@ -1,7 +1,7 @@
 # Datos y Persistencia
 
 Tags: #datos #backend
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Flujos Importantes]], [[Troubleshooting]]
 
@@ -62,6 +62,10 @@ Eso hace:
 - intentar reparar problemas de tabla
 
 ## Data Stories
+
+El bloque `presentation` de `DataStorySection.blocks_metadata` acepta la propiedad opcional `width`: `mode` (`normal`, `full`, `custom`) y, para `custom`, `value` numérico positivo y `unit` (`%` o `px`). Los porcentajes no pueden superar 100. Sin esa propiedad se conserva el ancho Normal; no se agrega columna ni migración.
+
+`helpers/section_width.py` centraliza la validación y la generación de CSS seguro. El formulario valida todas las secciones antes de escribir la historia; las acciones de crear/editar sección y el import también validan. Lectura histórica inválida vuelve a Normal. Import/export conserva la propiedad dentro de los metadatos existentes; el ancho no se codifica en el HTML de Quill. Ver [[Frontend y Plantillas]].
 
 Tablas detectadas en `ckanext/pages/data_stories/db/models.py`:
 

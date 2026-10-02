@@ -6,6 +6,9 @@
 .ds-reference-dialog::backdrop { background: #0008; }
 .ds-reference-dialog > button { margin: .5rem .5rem 0 0; }
 .ds-link-visual { margin-bottom: .5rem; }
+.ds-section-width-custom { display: flex; flex-wrap: wrap; gap: 1rem; }
+.ds-section-width-custom[hidden] { display: none; }
+.ds-section-width-custom .ds-visual-field { flex: 1 1 140px; min-width: 0; }
 .storymap [hidden] { display: none !important; }
 .storymap-map-pane, .storymap-dashboard-pane { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; }
 .storymap-dashboard-pane { background: white; display: flex; flex-direction: column; }

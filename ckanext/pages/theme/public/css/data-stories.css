@@ -1476,6 +1476,39 @@ body.ds-lightbox-open .ds-lightbox-modal * {
   max-width: 100%;
 }
 
+/* Explicit section widths override the legacy reading column, not the
+   dimensions saved on individual media. Percentages use the full story row. */
+.story-sections-full .story-section:is([data-section-width="full"], [data-section-width="custom"]) {
+  box-sizing: border-box;
+  width: min(100%, var(--ds-section-width));
+  min-width: 0;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+  border-left: 0;
+  --ds-section-padding: 24px;
+}
+
+.story-sections-full .story-section:is([data-section-width="full"], [data-section-width="custom"]) .story-section-heading h2,
+.story-sections-full .story-section:is([data-section-width="full"], [data-section-width="custom"]) .section-content > * {
+  max-width: 100%;
+  padding-left: var(--ds-section-padding);
+  padding-right: var(--ds-section-padding);
+  overflow-wrap: anywhere;
+}
+
+.story-sections-full .story-section:is([data-section-width="full"], [data-section-width="custom"]) :is(iframe, img, video, .ds-map-shell) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .story-sections-full .story-section:is([data-section-width="full"], [data-section-width="custom"]) {
+    width: 100%;
+    --ds-section-padding: 16px;
+  }
+}
+
 /* Map / media shell (fullscreen + full-bleed) */
 .ds-map-shell {
   position: relative;

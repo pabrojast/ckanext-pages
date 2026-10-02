@@ -292,6 +292,7 @@ def get_storymap_scenes(story, resolve_share=None):
         visual_references = []
         presentation = 'auto'
         from .visuals import dashboard_block, references
+        from .section_width import get_section_width
 
         if isinstance(blocks_raw, list) and blocks_raw:
             for block in blocks_raw:
@@ -402,6 +403,7 @@ def get_storymap_scenes(story, resolve_share=None):
             'dashboards': dashboards,
             'references': visual_references,
             'presentation': presentation,
+            'width': get_section_width(section),
             'scene_url': default_source.get('scene_url'),
             'share_url': default_source.get('share_url'),
             'share_id': default_source.get('share_id'),

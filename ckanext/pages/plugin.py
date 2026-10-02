@@ -50,6 +50,7 @@ try:
         build_terria_scene_url,
         get_storymap_scenes,
         get_storymap_config,
+        get_section_width,
         render_story_date,
         render_story_abstract,
         get_story_status_badge,
@@ -1542,6 +1543,7 @@ class PagesPlugin(PagesPluginBase):
                 'build_terria_scene_url': build_terria_scene_url,
                 'get_storymap_scenes': get_storymap_scenes,
                 'get_storymap_config': get_storymap_config,
+                'get_section_width': get_section_width,
                 # Formatting helpers
                 'render_story_date': render_story_date,
                 'render_story_abstract': render_story_abstract,

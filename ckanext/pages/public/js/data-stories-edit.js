@@ -1109,6 +1109,7 @@
                   addTextBlock(sectionId, blockData.content, null, blockData);
                 } else if (blockData.type === 'presentation') {
                   $section.find('.ds-presentation').val(blockData.layout || 'auto');
+                  $section.data('section-width').load(blockData.width);
                 } else if (blockData.type === 'dashboard') {
                   addDashboardBlock(sectionId, blockData);
                 } else if (blockData.type === 'terria') {
@@ -1988,7 +1989,9 @@
         
         const $container = $section.find('.section-content-blocks');
         let contentHtml = '';
-        const blocksMetadata = [{type: 'presentation', version: 1, layout: $section.find('.ds-presentation').val() || 'auto'}];
+        const blocksMetadata = [{type: 'presentation', version: 1,
+          layout: $section.find('.ds-presentation').val() || 'auto',
+          width: $section.data('section-width').read()}];
         let hasTerriaMap = false;
         let terriaLink = '';
         
@@ -2378,6 +2381,10 @@
         }
         e.preventDefault();
         const form = this;
+        $(form).find('.content-section-editor').each(function() {
+          $(this).data('section-width')?.refresh();
+        });
+        if (!form.reportValidity()) return;
         $(form).data('submitting-inline', true);
 
         console.log('Data story form submitting, processing inline images...');
@@ -2405,6 +2412,10 @@
               }
             });
             await StoryImages.normalizeForm(form);
+            if (!form.reportValidity()) {
+              $(form).data('submitting-inline', false);
+              return;
+            }
             const serialized = $(form).serialize();
             if (/data%3Aimage|blob%3A/i.test(serialized)) throw new Error('Some images are still pending. Retry before saving.');
             form.submit();
@@ -2998,7 +3009,7 @@
         badge.style.background = '#fff3cd';
         badge.style.color = '#856404';
         badge.innerHTML = '<i class="fa fa-info-circle"></i> ' +
-          'Narrative section — full width';
+          'Narrative section — no side panel';
       }
     });
   }

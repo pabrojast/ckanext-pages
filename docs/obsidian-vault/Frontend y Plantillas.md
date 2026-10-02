@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -145,6 +145,12 @@ El repo incluye vendor assets de CKEditor tanto en `assets/vendor/ckeditor/` com
 ## Inferencia
 
 La capa frontend fue creciendo por feature; eso explica que los assets estén repartidos entre `public/`, `theme/public/`, `assets/` y `textbox/`.
+
+## Ancho de sección en Data Stories
+
+En Data Stories, `Section width` permite `Normal`, `100% of screen` y `Custom` (porcentaje o píxeles) en Classic, Story Map y Slides. `Normal` mantiene el diseño anterior. Las otras opciones ajustan título y contenido, eliminan los límites de lectura de 1180px/78ch y centran los anchos personalizados; los embeds conservan su propio ancho con un máximo del ancho disponible. Hasta 768px, las opciones nuevas usan todo el ancho disponible con 16px interiores; en escritorio usan 24px interiores.
+
+La plantilla `Narrative (no side panel)` mantiene el valor persistido `layout: full`: describe la composición, no el tamaño. En Story Map y Slides, el control de ancho queda desactivado mientras hay panel lateral, conservando el valor guardado. El renderer solo lo aplica a tarjetas narrativas, incluidas sus continuaciones. Ver [[Datos y Persistencia]] y [[Testing]]. Los assets modificados usan cache-bust `20261001-width-1`.
 
 ## Secuencia StoryMap
 

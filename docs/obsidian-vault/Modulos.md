@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-09-24
+Actualizado: 2026-10-01
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -114,6 +114,7 @@ Características:
 Responsabilidad:
 
 - storytelling estructurado con secciones, datasets vinculados, comentarios y embebidos Terria.
+- ancho por sección Normal, 100% de pantalla o personalizado en Classic, Story Map y Slides; el detalle y su relación con el panel lateral están en [[Frontend y Plantillas]].
 
 Ubicación:
 

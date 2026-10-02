@@ -21,6 +21,8 @@ from ckanext.pages.data_stories.helpers.storymap import (
     get_storymap_config,
 )
 
+from ckanext.pages.data_stories.helpers.section_width import get_section_width
+
 from ckanext.pages.data_stories.helpers.formatting import (
     render_story_date,
     render_story_abstract,
@@ -48,6 +50,7 @@ __all__ = [
     'build_terria_scene_url',
     'get_storymap_scenes',
     'get_storymap_config',
+    'get_section_width',
     # Formatting helpers
     'render_story_date',
     'render_story_abstract',

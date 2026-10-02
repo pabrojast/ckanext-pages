@@ -74,9 +74,49 @@
     if ($section.data('visuals-initialized')) return;
     $section.data('visuals-initialized', true);
     const layout = select([['auto', 'Automatic'], ['map', 'Text + map'], ['dashboard', 'Text + dashboard'],
-      ['combined', 'Text + map and dashboard'], ['full', 'Full width']], 'auto').addClass('ds-presentation');
+      ['combined', 'Text + map and dashboard'], ['full', 'Narrative (no side panel)']], 'auto').addClass('ds-presentation');
     $section.find('.section-content-blocks').before(field('Section template', layout));
     layout.on('change', changed);
+    const mode = select([['normal', 'Normal'], ['full', '100% of screen'], ['custom', 'Custom']], 'normal').addClass('ds-section-width-mode');
+    const value = $('<input type="number" step="any" class="form-control ds-section-width-value">');
+    const unit = select([['%', '%'], ['px', 'px']], '%').addClass('ds-section-width-unit');
+    const custom = $('<div class="ds-section-width-custom">').append(field('Width value', value), field('Width unit', unit));
+    const note = $('<p class="help-block ds-section-width-note">');
+    const controls = $('<div class="ds-section-width-controls">').append(field('Section width', mode), custom, note);
+    $section.find('.section-content-blocks').before(controls);
+
+    function refresh() {
+      const hasVisual = $section.find('.terria-tab-url').toArray().some(el => el.value.trim()) ||
+        $section.find('.ds-dashboard-editor').toArray().some(el => !!$(el).data('dashboard')?.view_id);
+      const sidePanel = ['storymap', 'slides'].includes($('#display_mode').val()) && layout.val() !== 'full' && hasVisual;
+      const isCustom = mode.val() === 'custom';
+      mode.prop('disabled', sidePanel);
+      custom.prop('hidden', !isCustom);
+      value.add(unit).prop('disabled', sidePanel || !isCustom);
+      value.prop('required', isCustom && !sidePanel);
+      value.attr('max', unit.val() === '%' ? '100' : null);
+      const number = Number(value.val());
+      const invalid = isCustom && (!value.val() || !Number.isFinite(number) || number <= 0 || (unit.val() === '%' && number > 100));
+      value[0].setCustomValidity(!sidePanel && invalid ? 'Enter positive pixels or a percentage greater than 0 and at most 100.' : '');
+      note.text(sidePanel ? 'Width applies to narrative sections without a side panel. The saved width is kept.' :
+        'Applies to the section title and content. Custom widths are centered and adapt to mobile screens.');
+    }
+    function read() {
+      refresh();
+      return mode.val() === 'custom' ? {mode: 'custom', value: value.val() === '' ? null : Number(value.val()), unit: unit.val()} : {mode: mode.val()};
+    }
+    function load(width) {
+      width = width || {mode: 'normal'};
+      mode.val(['normal', 'full', 'custom'].includes(width.mode) ? width.mode : 'normal');
+      value.val(width.value ?? '');
+      unit.val(width.unit === 'px' ? 'px' : '%');
+      refresh();
+    }
+    $section.data('section-width', {read, load, refresh});
+    controls.on('input change', 'input, select', () => { refresh(); changed(); });
+    layout.on('change', refresh);
+    $('#display_mode').on('change', refresh);
+    refresh();
     $section.find('.add-block-controls .btn-group').append('<button type="button" class="btn btn-primary btn-sm add-dashboard-block"><i class="fa fa-bar-chart"></i> Dashboard</button>');
   }
 

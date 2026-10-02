@@ -217,7 +217,9 @@
                  data-fs-exit="{{ _('Exit Full Screen') }}">
               {% for section in story.sections %}
               {% if section.is_visible %}
-              <section class="module module-narrow story-section" id="section-{{ section.id }}">
+              {% set section_width = h.get_section_width(section) %}
+              <section class="module module-narrow story-section" id="section-{{ section.id }}"
+                       data-section-width="{{ section_width.mode }}"{% if section_width.css %} style="--ds-section-width: {{ section_width.css }};"{% endif %}>
                 <div class="module-heading story-section-heading">
                   <h2>
                     {% if section.section_type == 'introduction' %}
@@ -703,7 +705,7 @@
 </div>
 
 <!-- Load CSS -->
-<link rel="stylesheet" type="text/css" href="/css/data-stories.css?v=20260904-2" />
+<link rel="stylesheet" type="text/css" href="/css/data-stories.css?v=20261001-width-1" />
 <link rel="stylesheet" type="text/css" href="/css/data-stories-edit.css?v=20260904-2" />
 
 <!-- Load JavaScript for Terria Tabs / map fullscreen -->
