@@ -39,7 +39,7 @@
                        style="border-radius: 25px 0 0 25px; border: 2px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.95); font-size: 1rem; padding: 0.6rem 1.5rem;">
                 <div class="input-group-btn">
                   <button type="submit" class="btn btn-primary"
-                          style="border-radius: 0 25px 25px 0; padding: 0.6rem 1.5rem; background: #0072BC; border-color: #0072BC;">
+                          style="border-radius: 0 25px 25px 0; padding: 0.6rem 1.5rem; background: var(--pages-primary, #0072BC); border-color: var(--pages-primary, #0072BC);">
                     <i class="fa fa-search"></i>
                   </button>
                 </div>
@@ -190,7 +190,7 @@
       <section class="fv-rooms-section" style="margin-bottom: 3rem;">
         <div class="fv-section-header" style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; border: none;">
+            <h2 style="margin: 0; color: var(--pages-primary, #0072BC); font-size: 1.5rem; border: none;">
               <i class="fa fa-th-large" style="margin-right: 0.5rem;"></i>
               {{ _('Map Room Collections') }}
             </h2>
@@ -226,7 +226,7 @@
       {# ================================================================ #}
       <section class="fv-viewers-section">
         <div class="fv-section-header" style="margin-bottom: 1.5rem;">
-          <h2 style="margin: 0; color: #0072BC; font-size: 1.5rem; border: none;">
+          <h2 style="margin: 0; color: var(--pages-primary, #0072BC); font-size: 1.5rem; border: none;">
             <i class="fa fa-map" style="margin-right: 0.5rem;"></i>
             {{ _('Individual Viewers') }}
           </h2>
@@ -284,7 +284,7 @@
                 <li>
                   <a href="{{ h.url_for('featured_viewers.index', page=page-1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter, q=q) }}"
                      aria-label="{{ _('Previous') }}"
-                     style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                     style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #005A9C 100%); color: white;">
                     <i class="fa fa-chevron-left"></i> {{ _('Previous') }}
                   </a>
                 </li>
@@ -293,12 +293,12 @@
                 {% for p in range(1, total_pages + 1) %}
                   {% if p == page %}
                   <li class="active">
-                    <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
+                    <span style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #005A9C 100%); color: white; font-weight: 700;">{{ p }}</span>
                   </li>
                   {% elif p <= 3 or p > total_pages - 3 or (p >= page - 1 and p <= page + 1) %}
                   <li>
                     <a href="{{ h.url_for('featured_viewers.index', page=p, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter, q=q) }}"
-                       style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: #0072BC; border: 2px solid #e9ecef;">{{ p }}</a>
+                       style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: #f8f9fa; color: var(--pages-primary, #0072BC); border: 2px solid #e9ecef;">{{ p }}</a>
                   </li>
                   {% elif p == 4 or p == total_pages - 3 %}
                   <li class="disabled"><span style="padding: 0.5rem 0.75rem;">...</span></li>
@@ -309,7 +309,7 @@
                 <li>
                   <a href="{{ h.url_for('featured_viewers.index', page=page+1, limit=limit, sort=sort, category=category_filter, initiative=initiative_filter, member_state=member_state_filter, organization=organization_filter, q=q) }}"
                      aria-label="{{ _('Next') }}"
-                     style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white;">
+                     style="padding: 0.5rem 1rem; border-radius: 8px; margin: 0 0.25rem; background: linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #005A9C 100%); color: white;">
                     {{ _('Next') }} <i class="fa fa-chevron-right"></i>
                   </a>
                 </li>
@@ -407,7 +407,7 @@
   position: relative;
   height: 200px;
   overflow: hidden;
-  background: linear-gradient(135deg, #0072BC 0%, #00A5E3 100%);
+  background: linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #00A5E3 100%);
 }
 .room-card-image img {
   width: 100%;
@@ -501,7 +501,7 @@
   text-decoration: none;
 }
 .room-card-title a:hover {
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
 }
 .room-card-desc {
   color: #6c757d;
@@ -514,7 +514,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
   font-weight: 600;
   font-size: 0.9rem;
   text-decoration: none;

@@ -69,7 +69,7 @@
       {% set viewers = room.get('viewers', []) %}
       {% if viewers %}
       <h2 style="margin-bottom: 1.5rem; color: #263238;">
-        <i class="fa fa-map" style="color: #0072BC;"></i>
+        <i class="fa fa-map" style="color: var(--pages-primary, #0072BC);"></i>
         {{ _('Viewers in this Room') }}
         <small class="text-muted">({{ viewers|length }})</small>
       </h2>

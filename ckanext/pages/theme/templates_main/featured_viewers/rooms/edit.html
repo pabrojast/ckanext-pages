@@ -216,7 +216,7 @@
                 <i class="fa fa-trash"></i> {{ _('Remove') }}
               </button>
             {% else %}
-              <i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>
+              <i class="fa fa-cloud-upload fa-3x" style="color: var(--pages-primary, #0072BC);"></i>
               <p>{{ _('Drop an image here or click to browse') }}</p>
               <p class="text-muted" style="font-size: 0.85rem;">{{ _('JPG, PNG or GIF — Max 5 MB') }}</p>
             {% endif %}
@@ -479,7 +479,7 @@
   font-weight: 600;
 }
 .fv-selector-item:has(input:checked) {
-  border-color: #0072BC;
+  border-color: var(--pages-primary, #0072BC);
   background: linear-gradient(135deg, #E3F2FD 0%, #fff 100%);
 }
 .fv-selector-item-content {
@@ -505,7 +505,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
 }
 .fv-selector-item-info {
   display: flex;
@@ -543,7 +543,7 @@
 }
 .upload-dropzone:hover,
 .upload-dropzone.drag-over {
-  border-color: #0072BC;
+  border-color: var(--pages-primary, #0072BC);
   background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%);
 }
 .upload-dropzone .dropzone-preview-img {
@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function() {
     formData.append('upload', file);
 
     var content = document.getElementById('room-dropzone-content');
-    content.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i><p>' + _i18n_room.uploading + '</p>';
+    content.innerHTML = '<i class="fa fa-spinner fa-spin fa-2x" style="color: var(--pages-primary, #0072BC);"></i><p>' + _i18n_room.uploading + '</p>';
 
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/pages_upload');
@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function resetRoomDropzone() {
     hiddenUrl.value = '';
     document.getElementById('room-dropzone-content').innerHTML =
-      '<i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>' +
+      '<i class="fa fa-cloud-upload fa-3x" style="color: var(--pages-primary, #0072BC);"></i>' +
       '<p>' + _i18n_room.drop_image + '</p>' +
       '<p class="text-muted" style="font-size: 0.85rem;">' + _i18n_room.file_hint + '</p>';
   }

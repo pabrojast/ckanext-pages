@@ -200,7 +200,7 @@
                 <i class="fa fa-trash"></i> {{ _('Remove') }}
               </button>
             {% else %}
-              <i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>
+              <i class="fa fa-cloud-upload fa-3x" style="color: var(--pages-primary, #0072BC);"></i>
               <p>{{ _('Drop an image here or click to browse') }}</p>
               <p class="text-muted" style="font-size: 0.85rem;">{{ _('JPG, PNG or GIF — Max 5 MB') }}</p>
             {% endif %}
@@ -247,7 +247,7 @@
 
         <div id="fv-icon-selected" class="fv-icon-selected" style="margin-top: 0.5rem;">
           {% if current_icon %}
-          <span class="badge" style="background: #E3F2FD; color: #0072BC; padding: 0.4rem 0.8rem; border-radius: 8px;">
+          <span class="badge" style="background: #E3F2FD; color: var(--pages-primary, #0072BC); padding: 0.4rem 0.8rem; border-radius: 8px;">
             <i class="fa {{ current_icon }}"></i> {{ current_icon }}
           </span>
           {% else %}
@@ -266,7 +266,7 @@
       {# Tab navigation — datastories style #}
       <div class="fv-map-tabs-nav" id="fv-map-tabs" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;">
         <button type="button" class="fv-map-tab-btn active" data-target="#fv-tab-simple"
-                style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #0072BC; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                style="padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid var(--pages-primary, #0072BC); background: linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #005A9C 100%); color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
           <i class="fa fa-link"></i> {{ _('Share Link') }}
         </button>
         <button type="button" class="fv-map-tab-btn" data-target="#fv-tab-advanced"
@@ -419,7 +419,7 @@
 
             {# Loading indicator #}
             <div id="fv-catalog-loading" style="display: none; text-align: center; padding: 2rem;">
-              <i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i>
+              <i class="fa fa-spinner fa-spin fa-2x" style="color: var(--pages-primary, #0072BC);"></i>
               <p style="margin-top: 0.5rem; color: #6c757d;">{{ _('Searching datasets...') }}</p>
             </div>
 
@@ -727,7 +727,7 @@
 <style>
 /* ── Quill ── */
 .ql-editor img { cursor: pointer; max-width: 100%; }
-.ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
+.ql-editor img.selected { outline: 2px solid var(--unesco-blue, var(--pages-primary, #0072BC)); }
 
 /* ── Code editor ── */
 .code-editor {
@@ -753,7 +753,7 @@
 }
 .upload-dropzone:hover,
 .upload-dropzone.drag-over {
-  border-color: #0072BC;
+  border-color: var(--pages-primary, #0072BC);
   background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%);
   box-shadow: 0 4px 16px rgba(0, 114, 188, 0.12);
 }
@@ -794,12 +794,12 @@
 .fv-icon-option:hover {
   border-color: #90caf9;
   background: #E3F2FD;
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
   transform: scale(1.08);
 }
 .fv-icon-option.active {
-  border-color: #0072BC;
-  background: #0072BC;
+  border-color: var(--pages-primary, #0072BC);
+  background: var(--pages-primary, #0072BC);
   color: #fff;
   box-shadow: 0 2px 8px rgba(0, 114, 188, 0.3);
 }
@@ -842,11 +842,11 @@
   margin-top: 0.3rem;
   width: 18px;
   height: 18px;
-  accent-color: #0072BC;
+  accent-color: var(--pages-primary, #0072BC);
   flex-shrink: 0;
 }
 .fv-checkbox-label input[type="checkbox"]:checked ~ .fv-checkbox-icon {
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
 }
 .fv-checkbox-icon {
   font-size: 1.3rem;
@@ -896,7 +896,7 @@
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   background: #e3f2fd;
-  color: #0072bc;
+  color: var(--pages-primary, #0072BC);
   font-weight: 600;
   font-size: 0.85rem;
   box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);
@@ -965,7 +965,7 @@
   margin-bottom: 0.4rem;
 }
 .fv-datasets-list .fv-dataset-row .fv-dataset-icon {
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
 }
 .fv-datasets-list .fv-dataset-row .fv-dataset-title {
   flex: 1;
@@ -1074,9 +1074,9 @@
         $('#fv-map-tabs .fv-map-tab-btn').each(function() {
           var isActive = ($(this).data('target') === target);
           $(this).removeClass('active')
-            .css('background', isActive ? 'linear-gradient(135deg, #0072BC 0%, #005A9C 100%)' : '#f8f9fa')
+            .css('background', isActive ? 'linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #005A9C 100%)' : '#f8f9fa')
             .css('color', isActive ? 'white' : '#6c757d')
-            .css('border-color', isActive ? '#0072BC' : '#e9ecef');
+            .css('border-color', isActive ? 'var(--pages-primary, #0072BC)' : '#e9ecef');
           if (isActive) $(this).addClass('active');
         });
 
@@ -1133,7 +1133,7 @@
 
         // Show uploading state
         $('#fv-dropzone-content').html(
-          '<i class="fa fa-spinner fa-spin fa-2x" style="color: #0072BC;"></i>' +
+          '<i class="fa fa-spinner fa-spin fa-2x" style="color: var(--pages-primary, #0072BC);"></i>' +
           '<p>{{ _("Uploading...") }}</p>'
         );
 
@@ -1165,7 +1165,7 @@
         $hiddenUrl.val('');
         $urlInput.val('');
         $('#fv-dropzone-content').html(
-          '<i class="fa fa-cloud-upload fa-3x" style="color: #0072BC;"></i>' +
+          '<i class="fa fa-cloud-upload fa-3x" style="color: var(--pages-primary, #0072BC);"></i>' +
           '<p>{{ _("Drop an image here or click to browse") }}</p>' +
           '<p class="text-muted" style="font-size: 0.85rem;">{{ _("JPG, PNG or GIF — Max 5 MB") }}</p>'
         );
@@ -1206,7 +1206,7 @@
           $this.addClass('active');
           $iconHidden.val(icon);
           $iconSelected.html(
-            '<span class="badge" style="background: #E3F2FD; color: #0072BC; padding: 0.4rem 0.8rem; border-radius: 8px;">' +
+            '<span class="badge" style="background: #E3F2FD; color: var(--pages-primary, #0072BC); padding: 0.4rem 0.8rem; border-radius: 8px;">' +
             '<i class="fa ' + icon + '"></i> ' + icon + '</span>'
           );
         }
@@ -1649,14 +1649,14 @@
         datasets.forEach(function(ds) {
           html += '<div class="fv-catalog-dataset" style="border: 1px solid #e9ecef; border-radius: 10px; margin-bottom: 0.75rem; overflow: hidden;">';
           html += '<div class="fv-catalog-dataset-header" data-dataset-id="' + ds.id + '" style="padding: 0.75rem 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; background: #f8fafe; transition: background 0.2s;">';
-          html += '<i class="fa fa-chevron-right fv-catalog-chevron" style="transition: transform 0.2s; color: #0072BC;"></i>';
+          html += '<i class="fa fa-chevron-right fv-catalog-chevron" style="transition: transform 0.2s; color: var(--pages-primary, #0072BC);"></i>';
           html += '<div style="flex: 1; min-width: 0;">';
           html += '<strong style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + $('<span>').text(ds.title).html() + '</strong>';
           if (ds.organization) {
             html += '<small style="color: #6c757d;"><i class="fa fa-building-o"></i> ' + $('<span>').text(ds.organization).html() + '</small>';
           }
           html += '</div>';
-          html += '<span class="badge" style="background: #0072BC; color: white; border-radius: 12px; padding: 0.2rem 0.6rem; font-size: 0.75em;">' + ds.resources.length + ' {{ _("resources") }}</span>';
+          html += '<span class="badge" style="background: var(--pages-primary, #0072BC); color: white; border-radius: 12px; padding: 0.2rem 0.6rem; font-size: 0.75em;">' + ds.resources.length + ' {{ _("resources") }}</span>';
           html += '</div>';
 
           // Resources (collapsed by default)

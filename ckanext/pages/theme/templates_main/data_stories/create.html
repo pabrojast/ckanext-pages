@@ -195,7 +195,7 @@
     }
 
     .quill-editor:focus-within {
-      border-color: #0072BC;
+      border-color: var(--pages-primary, #0072BC);
       box-shadow: 0 0 0 3px rgba(0, 114, 188, 0.1);
     }
 
@@ -235,7 +235,7 @@
 
     /* Quill Image Resize Styles */
     .ql-editor img { cursor: pointer; max-width: 100%; }
-    .ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
+    .ql-editor img.selected { outline: 2px solid var(--unesco-blue, var(--pages-primary, #0072BC)); }
   </style>
 {% endblock %}
 

@@ -27,7 +27,7 @@ Variables:
         <!-- Story Title -->
         <h4 class="compact-title" style="margin: 0.25rem 0 0.5rem 0; font-size: 1.1rem; font-weight: 700; line-height: 1.3;">
           <a href="{{ h.url_for('data_stories.show', slug=story.slug) }}"
-             style="color: #0072BC; text-decoration: none;">
+             style="color: var(--pages-primary, #0072BC); text-decoration: none;">
             {{ story.title }}
           </a>
         </h4>
@@ -38,20 +38,20 @@ Variables:
       <div class="compact-meta" style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; font-size: 0.8rem; color: #6c757d;">
         
         <div class="meta-item" style="display: flex; align-items: center; gap: 0.35rem;">
-          <i class="fa fa-calendar" style="color: #0072BC;"></i>
+          <i class="fa fa-calendar" style="color: var(--pages-primary, #0072BC);"></i>
           <span>{{ h.render_story_date(story.updated_at or story.created_at) }}</span>
         </div>
 
         {% if story.organization %}
         <div class="meta-item" style="display: flex; align-items: center; gap: 0.35rem;">
-          <i class="fa fa-building" style="color: #0072BC;"></i>
+          <i class="fa fa-building" style="color: var(--pages-primary, #0072BC);"></i>
           <span>{{ story.organization.title }}</span>
         </div>
         {% endif %}
 
         {% if story.section_count %}
         <div class="meta-item" style="display: flex; align-items: center; gap: 0.35rem;">
-          <i class="fa fa-list" style="color: #0072BC;"></i>
+          <i class="fa fa-list" style="color: var(--pages-primary, #0072BC);"></i>
           <span>{{ story.section_count }} {{ h.pluralize(story.section_count, _('section'), _('sections')) }}</span>
         </div>
         {% endif %}
@@ -74,7 +74,7 @@ Variables:
       <div class="compact-actions" style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
         <a href="{{ h.url_for('data_stories.edit', slug=story.slug) }}"
            class="btn btn-sm btn-primary"
-           style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: linear-gradient(135deg, #0072BC 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; flex: 1; justify-content: center;">
+           style="padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: linear-gradient(135deg, var(--pages-primary, #0072BC) 0%, #005A9C 100%); border: none; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; flex: 1; justify-content: center;">
           <i class="fa fa-edit"></i> {{ _('Edit') }}
         </a>
 
