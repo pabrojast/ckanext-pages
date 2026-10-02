@@ -1,7 +1,7 @@
 # Deployment
 
 Tags: #deployment #operacion
-Actualizado: 2026-09-11
+Actualizado: 2026-09-24
 
 Relacionadas: [[Setup Local]], [[Variables de Entorno]], [[Testing]], [[Datos y Persistencia]]
 
@@ -127,3 +127,13 @@ Imágenes finales (sobre la imagen anterior de cada entorno, sin sincronizar ext
 - Dev: `pabrojast/ckan-base210:rapid-response-dev-20260911-r7@sha256:c8e2e024617704eda92358ce70c584a5932918d9d5d0ce23cffec3ec54dd37bc`.
 
 En cinco descargas completas de la URL canónica de Nepal, HTML de 42.572 bytes y mediana TTFB de 0,639 s, frente a 52.870.351 bytes y aproximadamente 7,3 s antes del cambio. Prueba de navegador: DOMContentLoaded a 1,00 s, fases con formato, imágenes cargadas, sin overflow a 390 px y navegación de mapas iniciada automáticamente al acercarse. Estos tiempos son mediciones de esa sesión, no una garantía para todas las redes o capas de Terria.
+
+## Stories en Rapid Response en dev (2026-09-24)
+
+Código: `dcaac7d77be4f867b681b206d1752ac030990608` de `RapidResponseAndRecovery`, incluyendo el ajuste de visibilidad de borradores detectado durante la validación. Imagen: `pabrojast/ckan-base210:rapid-response-stories-dev-dcaac7d-20260924@sha256:2adecd08435fec9e166f84ea05d647f80189be55470331cfa4c2a1a91a24ca2b`.
+
+La imagen conserva como base el dev activo (`sha256:68897e01a0515953a9de1fb7da46fbe053ec649e84560cd96cc1bc8b8186bdb2`) y actualiza únicamente el checkout de `ckanext-pages`. El parche de Kubernetes afecta al contenedor `ckan` de `deployment/ckan`, en contexto `default` y namespace `ckan`; verifica el digest anterior antes de reemplazarlo. Los workers y su configuración conservan sus versiones. Esta implementación no requiere migración de esquema ni conversión masiva de eventos.
+
+El directorio local ignorado `output/rapid-response/deploy-stories-20260924/` conserva Dockerfile, pruebas, publicación de imagen, manifiesto anterior protegido, snapshot completo de los eventos, hashes y parche de rollback con precondición. Son artefactos de reversión de este release, no un respaldo completo de la plataforma. El rollback de código vuelve al digest original; no restaurar datos sobre ediciones posteriores de usuarios.
+
+La imagen final pasó 116 pruebas focalizadas en un contenedor descartable; pytest se instaló solo en ese contenedor de comprobación. Ver [[Testing]] para la prueba de navegador con el tema real y [[Stories en Rapid Response]] para el contrato editorial.

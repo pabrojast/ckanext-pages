@@ -130,6 +130,8 @@ node --check ckanext/pages/public/js/rapid-response-edit.js
 
 La suite cubre reducción de fotografías, transparencia, animación, conservación del HTML/JSON, simulación sin escrituras, deduplicación, repetición segura, fallos de almacenamiento, ediciones simultáneas y restauración con comprobación de hashes. Las pruebas de migración usan SQLite y un uploader simulado.
 
+`test_rapid_response_edit.py` también renderiza el selector real de visibilidad con nueve representaciones de `private` y comprueba que exista una sola opción seleccionada. En el flujo autenticado, abrir un borrador debe mostrar Draft y conservarlo después de guardar sin cambios.
+
 Verificación manual en dev: insertar/pegar imágenes, guardar, recargar, comprobar los metadatos de bloques y restaurar una revisión. Comprobar también guardar sin imágenes nuevas: debe producir un POST y redirigir al evento. El reenvío del formulario espera a que termine el evento de envío original; si solo espera microtareas, el navegador puede suprimir el segundo envío cuando no hay subidas pendientes. Comprobar errores de subida y reintento, escritorio/móvil y medios diferidos con red lenta. Medir por separado HTML/TTFB/DOMContentLoaded y la carga de Terria. Ver [[Deployment]].
 
 El test de navegador usa Quill real y un uploader simulado. Cubre pegado, drag/drop, transparencia, guardado durante una subida, deduplicación, metadatos de bloques, error/reintento inmediato y modo fuente. Sus capturas y logs se guardan en `output/playwright/`.
