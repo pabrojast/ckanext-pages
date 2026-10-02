@@ -96,14 +96,14 @@
                       data-image-caption="{{ block.caption }}">
                 <img src="{{ block.url }}" alt="{{ block.alt }}" loading="lazy" />
                 {% if block.caption %}<figcaption>{{ block.caption }}</figcaption>{% endif %}
-                <span class="storymap-image-trigger-hint">
+                {% if scene.presentation != 'media' %}<span class="storymap-image-trigger-hint">
                   <i class="fa fa-expand"></i>
                   {% if scene.layout == 'full' %}
                     {{ _('Shown as a full-width story image') }}
                   {% else %}
                     {{ _('Shown over the map as you read') }}
                   {% endif %}
-                </span>
+                </span>{% endif %}
               </figure>
               {% elif block.type == 'step' %}
               <section class="storymap-step" data-scene-index="{{ scene_index }}"
@@ -138,9 +138,9 @@
     </div>
     {% endif %}
 
-<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261002-compositions" />
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261002-showcase" />
 <script type="application/json" id="storymap-config">{{ storymap_config | tojson }}</script>
 {# ?v= busts browser caches when the viewer logic changes — bump on edits #}
 <script src="/js/story-playback.js?v=20261002-compositions" defer></script>
-<script src="/js/data-stories-visuals.js?v=20261002-compositions" defer></script>
+<script src="/js/data-stories-visuals.js?v=20261002-showcase" defer></script>
 <script type="text/javascript" src="/js/data-stories-storymap.js?v=20261002-compositions" defer></script>

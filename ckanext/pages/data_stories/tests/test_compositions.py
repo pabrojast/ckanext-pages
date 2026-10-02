@@ -5,6 +5,17 @@ from ckanext.pages.rapid_response_story import parse_story
 VIEW = '70441d68-3fa1-4e54-b7be-f87b6b27f515'
 
 
+def test_direct_media_has_accessible_native_controls_without_autoplay():
+    from ckanext.pages.data_stories.helpers.storymap import _media_embed_html
+    for extension, tag in [('mp4', 'video'), ('webm', 'video'), ('mp3', 'audio')]:
+        html = _media_embed_html({'url': 'https://example.test/clip.' + extension + '?download=1', 'title': 'Demo "water"'})
+        assert '<' + tag + ' controls preload="metadata"' in html
+        assert 'autoplay' not in html
+        assert 'aria-label="Demo &quot;water&quot;"' in html
+        assert '<iframe' not in html
+    assert 'title="Multimedia"' in _media_embed_html({'url': 'https://example.test/embed'})
+
+
 def test_composed_native_scene_retains_dashboard_references_and_media():
     composition = {'version': 1, 'layout': 'combined', 'text_side': 'right', 'text_width': 50, 'duration': 7,
                    'dashboards': [{'id': 'dashboard', 'view_id': VIEW}],

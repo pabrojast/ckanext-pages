@@ -125,6 +125,7 @@
     }
     function activate(index, force) {
       if (index === active && !force) return;
+      if (index !== active) root.querySelectorAll('video, audio').forEach(element => element.pause());
       active = index;
       placeMedia();
       const scene = config.scenes[index];
@@ -226,7 +227,7 @@
       root.classList.add('is-slides'); navigation.hidden = false;
       stops.forEach((el, i) => {
         const option = document.createElement('option'); option.value = i;
-        option.textContent = (i + 1) + '. ' + (el.querySelector('h2,h3')?.textContent || el.textContent).trim().slice(0, 80);
+        option.textContent = (i + 1) + '. ' + (el.querySelector('h2,h3')?.textContent || el.closest('.storymap-card')?.querySelector('h2')?.textContent || el.textContent).trim().slice(0, 80);
         indexSelect.append(option);
       });
       indexSelect.addEventListener('change', () => show(Number(indexSelect.value)));

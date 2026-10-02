@@ -703,6 +703,13 @@ def _media_embed_html(block):
     if '<iframe' in url or '<embed' in url:
         return heading + url
 
+    extension = urlparse(url).path.lower().rsplit('.', 1)[-1]
+    if extension in ('mp4', 'webm', 'ogv', 'mp3', 'wav', 'ogg', 'm4a'):
+        tag = 'audio' if extension in ('mp3', 'wav', 'ogg', 'm4a') else 'video'
+        return ('%s<%s controls preload="metadata"%s src="%s" aria-label="%s"></%s>'
+                % (heading, tag, ' playsinline' if tag == 'video' else '',
+                   escape(url, quote=True), escape(title or tag.title(), quote=True), tag))
+
     youtube = _YOUTUBE_RE.search(url)
     if youtube:
         src = 'https://www.youtube.com/embed/%s' % youtube.group(1)
@@ -710,9 +717,9 @@ def _media_embed_html(block):
         src = url
 
     return ('%s<iframe src="%s" width="%s" height="%s" frameborder="0" '
-            'allow="geolocation; fullscreen" allowfullscreen></iframe>'
+            'title="%s" allow="geolocation; fullscreen" allowfullscreen></iframe>'
             % (heading, escape(src, quote=True),
-               escape(width, quote=True), escape(height, quote=True)))
+               escape(width, quote=True), escape(height, quote=True), escape(title or 'Multimedia', quote=True)))
 
 
 def _strip_terria_tab_markup(content):

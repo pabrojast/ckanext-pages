@@ -185,3 +185,7 @@ El selector de visibilidad de Rapid Response acepta booleanos y representaciones
 El listado, los detalles y el editor usan altura automática, una altura mínima y contenido en el flujo normal. Los títulos y descripciones largos pueden aumentar la altura del banner; las palabras sin espacios también se ajustan al ancho. Se conserva el fondo y el texto centrado, sin recortar título, fecha o severidad. El ajuste del editor vive en `public/css/rapid-response-edit.css`, independientemente del compositor Stories. Su URL incorpora la versión `20261001-header-1`.
 
 El backport productivo partió de Pages `46d8ad5` y conservó el editor existente y la biblioteca de imágenes. Al integrarlo en `RapidResponseAndRecovery`, se conserva el compositor Stories y su validación, junto con los estilos y la versión de caché del encabezado. Ver [[Testing]] y [[Troubleshooting]].
+
+## Demo y lectura multimedia (2026-10-02)
+
+El selector de diapositivas usa el titulo del capitulo, con controles de al menos 44 px y una fila propia para el selector en pantallas estrechas. La plantilla de medios no muestra la indicacion de imagen sobre mapa. Las URLs directas MP4/WebM/OGV y MP3/WAV/OGG/M4A se renderizan como video/audio nativo con controles y precarga de metadatos; los iframes conservan su titulo accesible. Cambiar de capitulo pausa los medios nativos.
