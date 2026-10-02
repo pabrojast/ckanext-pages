@@ -45,3 +45,7 @@ Relacionadas: [[Deployment]], [[Variables de Entorno]], [[Testing]], [[Guia de M
 
 - Qué partes del backlog son conocidas por el equipo y cuáles son hallazgos nuevos.
 - Si existen docs fuera del repo que cubran varios de estos puntos.
+
+## Sobrescritura de importación JSON (2026-10-02)
+
+Confirmado durante la preparación de la demo DEV: `data_story_import` con `slug_conflict=overwrite` llama a `data_story_delete` sin `hard_delete`, archiva la historia y luego intenta insertar otra con el mismo slug único. La importación devuelve 500 y la historia anterior queda archivada. Se restauró la demo mediante el workflow de publicación y se actualizó con las acciones de edición. Pendiente: sustituir el contenido de forma atómica, conservando la identidad y sin archivar antes de validar/confirmar la importación. Este flujo de importación JSON es distinto de importar escenas de Terria dentro de un capítulo.
