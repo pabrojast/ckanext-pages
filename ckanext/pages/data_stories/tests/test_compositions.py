@@ -35,13 +35,18 @@ def test_media_template_keeps_text_and_full_image_in_one_composition():
 def test_rapid_response_roundtrip_retains_visual_blocks_and_reading_mode():
     story = {'version': 1, 'display_mode': 'slides', 'datasets': [], 'sections': [{
         'id': 'chapter', 'title': 'Emergency', 'origin': 'overview', 'blocks_metadata': [
-            {'id': 'presentation', 'type': 'presentation', 'layout': 'combined', 'duration': 5},
+            {'id': 'presentation', 'type': 'presentation', 'layout': 'combined', 'duration': 5, 'width': {'mode': 'normal'}},
             {'id': 'dashboard', 'type': 'dashboard', 'view_id': VIEW},
             {'id': 'text', 'type': 'text', 'content': '<p>Text</p>', 'references': [{'id': 'ref', 'dashboard_id': 'dashboard'}]}]}]}
     saved = parse_story(story)
     assert parse_story(saved) == saved
     assert saved['display_mode'] == 'slides'
     assert saved['sections'][0]['blocks_metadata'] == story['sections'][0]['blocks_metadata']
+
+    import pytest
+    story['sections'][0]['blocks_metadata'][0]['width'] = {'mode': 'custom', 'value': -1, 'unit': '%'}
+    with pytest.raises(ValueError, match='Section width'):
+        parse_story(story)
 
 
 def test_presentation_rejects_unbounded_css_and_duration():

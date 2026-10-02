@@ -88,6 +88,10 @@ def parse_story(value):
                 raise ValueError('Invalid story block.')
             identity(block)
             for key in ('content', 'url', 'title', 'alt', 'caption', 'width', 'height'):
+                if key == 'width' and block['type'] == 'presentation':
+                    from .data_stories.helpers.section_width import normalize_section_width
+                    normalize_section_width(block.get(key))
+                    continue
                 if key in block and not isinstance(block[key], str):
                     raise ValueError('Invalid %s in story block.' % key)
             if block['type'] == 'terria':
