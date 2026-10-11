@@ -76,6 +76,12 @@ jobs:
         ckanext/pages/data_stories/tests/test_storymap_helpers.py
         ckanext/pages/data_stories/tests/test_sequence.py
         ckanext/pages/data_stories/tests/test_form_metadata.py
+    - name: Atomic story imports
+      env:
+        PAGES_IMPORT_TEST_URL: postgresql://postgres:postgres@postgres/postgres
+      run: >-
+        PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q
+        ckanext/pages/data_stories/tests/test_import_atomic.py
 
   story-browser:
     runs-on: ubuntu-latest

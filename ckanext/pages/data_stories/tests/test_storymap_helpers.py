@@ -37,14 +37,16 @@ class TestBuildTerriaSceneUrl:
         url = build_terria_scene_url(SHARE)
         assert url == ('https://ihp-wins.unesco.org/terria/'
                        '#share=g-abc123&hideWorkbench=1&hideExplorerPanel=1'
-                       '&hideStory=1&hideWelcomeMessage=1')
+                       '&hideStory=1&hideWelcomeMessage=1&narrative=1')
 
     def test_does_not_duplicate_existing_flags(self):
-        url = build_terria_scene_url(SHARE + '&hideWorkbench=1')
+        url = build_terria_scene_url(SHARE + '&hideWorkbench=1&narrative=1')
         assert url.count('hideWorkbench=1') == 1
+        assert url.count('narrative=1') == 1
         assert 'hideExplorerPanel=1' in url
         assert 'hideStory=1' in url
         assert 'hideWelcomeMessage=1' in url
+        assert 'narrative=1' in url
 
     def test_start_fragment_passes_through(self):
         url = build_terria_scene_url(
@@ -98,6 +100,7 @@ class TestGetStorymapScenes:
         # The first tab becomes the card's scene
         assert scene['scene_url'] == tabs[0]['scene_url']
         assert scene['share_url'] == SHARE
+        assert 'narrative=1' not in scene['share_url']
         assert scene['layout'] == 'split'
         assert len(scene['sources']) == 2
         assert tabs[1]['source_index'] == 1
@@ -483,7 +486,7 @@ class TestGetStorymapConfig:
         assert config['embedBaseUrl'] == (
             'https://ihp-wins.unesco.org/terria/'
             '#hideWorkbench=1&hideExplorerPanel=1&hideStory=1'
-            '&hideWelcomeMessage=1')
+            '&hideWelcomeMessage=1&narrative=1')
         assert config['placeholderImage'] == 'https://cdn.example.org/b.png'
 
     def test_config_carries_per_source_step_counts(self):

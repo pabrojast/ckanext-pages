@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 # stock terriajs via interpretHash). They must live in the URL fragment,
 # not the query string: Terria parses the fragment as user properties.
 STORYMAP_EMBED_FLAGS = ('hideWorkbench=1', 'hideExplorerPanel=1',
-                        'hideStory=1', 'hideWelcomeMessage=1')
+                        'hideStory=1', 'hideWelcomeMessage=1', 'narrative=1')
 
 _YOUTUBE_RE = re.compile(
     r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]+)')

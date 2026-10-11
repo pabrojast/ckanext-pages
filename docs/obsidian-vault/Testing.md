@@ -1,5 +1,28 @@
 # Testing
 
+## Regresión de importación transaccional (2026-10-11)
+
+`test_import_atomic.py` ejecuta acciones y modelos reales sobre PostgreSQL;
+sustituye únicamente el registro de permisos por las mismas reglas del módulo.
+Comprueba sustitución repetida conservando ID/slug/autor/visitas/revisiones,
+reemplazo de asociaciones sin duplicados, rechazo anónimo/autor/no-admin,
+rollback de un error SQL y lotes con historias correctas y fallidas. Cada prueba
+crea y elimina su propio esquema `story_import_<uuid>`; no usa `clean_db`.
+
+```bash
+PAGES_IMPORT_TEST_URL=postgresql://usuario:clave@postgres-pruebas/stories_test \
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest --noconftest -q \
+  ckanext/pages/data_stories/tests/test_import_atomic.py \
+  ckanext/pages/data_stories/tests/test_storymap_helpers.py
+```
+
+La variable debe apuntar a PostgreSQL aislado de desarrollo/producción. Los
+helpers comprueban `narrative=1` en ambos caminos del iframe (bridge y URL de
+escena), sin contaminar el enlace externo. La comprobación visual del modo
+compacto requiere desplegar también la implementación Terria correspondiente.
+La workflow `test.yml` incorpora esta suite como paso separado, usando el
+servicio PostgreSQL efímero de CI y esquemas distintos de la base CKAN.
+
 Tags: #testing #operacion
 Actualizado: 2026-10-01
 

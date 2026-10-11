@@ -1,5 +1,28 @@
 # Flujos Importantes
 
+## Importar una historia sobre su URL existente
+
+`data_story_import` con `slug_conflict=overwrite` actualiza la historia existente
+sin archivar otra fila ni cambiar su ID o slug. Sustituye secciones, colaboradores
+y enlaces a datasets en un savepoint; un error conserva el contenido anterior.
+Se mantienen autor y organización salvo reasignación explícita, visitas,
+fecha de creación y revisiones existentes; se incrementa la versión. Las
+secciones importadas reciben IDs nuevos y sus comentarios asociados no se
+trasladan a contenido diferente. `preserve_dates` conserva su significado de
+usar fechas del archivo cuando se proporcionan.
+
+Los permisos siguen limitados a sysadmins. El estado sigue las opciones de
+importación: borrador por defecto; para actualizar una publicación usando su
+exportación, enviar `preserve_status=true` o `status=published`. `rename` y
+`error` siguen disponibles. Cada historia de una importación masiva tiene su
+propio savepoint: un error no elimina las importaciones correctas del lote.
+
+Los lectores compartidos StoryMap/Slides/Rapid Response añaden `narrative=1`
+al fragmento del iframe Terria para activar el visor editorial compacto. Los
+enlaces para abrir Terria conservan la URL original y el visor completo. Esta
+opción requiere una versión compatible de TerriaJS; no altera el documento
+compartido ni los datos de la historia.
+
 Tags: #onboarding #backend #operacion
 Actualizado: 2026-10-01
 

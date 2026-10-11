@@ -134,13 +134,7 @@ def data_story_import(context, data_dict):
     from ckanext.pages.data_stories.helpers.section_width import validate_story_section_widths
     validate_story_section_widths(story_data.get('sections') or [])
 
-    # Get options
-    slug_conflict = data_dict.get('slug_conflict', 'rename')
     owner_user_id = data_dict.get('owner_user_id')
-    organization_id = data_dict.get('organization_id')
-    target_status = data_dict.get('status', 'draft')
-    preserve_status = data_dict.get('preserve_status', False)
-    preserve_dates = data_dict.get('preserve_dates', False)
 
     # Get current user as default owner
     user = context.get('user')
@@ -160,6 +154,30 @@ def data_story_import(context, data_dict):
     else:
         author_id = user_obj.id
 
+    session = context.get('session', model.Session)
+    try:
+        # La sustitución completa se revierte si falla cualquier capítulo.
+        with session.begin_nested():
+            result = _import_story_data(context, data_dict, story_data, author_id)
+        if not context.get('_defer_commit'):
+            session.commit()
+        return result
+    except Exception:
+        if not context.get('_defer_commit'):
+            session.rollback()
+        raise
+
+
+def _import_story_data(context, data_dict, story_data, author_id):
+    """Apply an import inside the transaction owned by the public action."""
+    session = context.get('session', model.Session)
+    slug_conflict = data_dict.get('slug_conflict', 'rename')
+    organization_id = data_dict.get('organization_id')
+    target_status = data_dict.get('status', 'draft')
+    preserve_status = data_dict.get('preserve_status', False)
+    preserve_dates = data_dict.get('preserve_dates', False)
+    story = None
+
     # Handle slug conflicts
     slug = story_data.get('slug', '')
     original_slug = slug
@@ -170,18 +188,24 @@ def data_story_import(context, data_dict):
             if slug_conflict == 'error':
                 raise tk.ValidationError({'slug': [f'Story with slug "{slug}" already exists']})
             elif slug_conflict == 'overwrite':
-                # Delete existing story
-                log.warning(f"[DATA_STORY_IMPORT] Overwriting existing story: {existing.id}")
-                tk.get_action('data_story_delete')(context, {'id': existing.id})
+                # Conservar identidad, URL e historial; reemplazar solo contenido.
+                log.info(f"[DATA_STORY_IMPORT] Updating existing story: {existing.id}")
+                story = existing
+                session.expire(story, ['sections', 'contributors', 'datasets'])
+                story.sections = []
+                story.contributors = []
+                story.datasets = []
+                # Borrar asociaciones antes de insertar claves únicas equivalentes.
+                session.flush()
             else:  # rename
                 slug = _generate_unique_slug(slug)
                 log.info(f"[DATA_STORY_IMPORT] Renamed slug from {original_slug} to {slug}")
 
-    # Create new story
     now = datetime.datetime.utcnow()
-
-    story = DataStory()
-    story.id = make_uuid()
+    overwriting = story is not None
+    if not overwriting:
+        story = DataStory()
+        story.id = make_uuid()
     story.title = story_data.get('title', 'Imported Story')
     story.slug = slug or _generate_unique_slug('imported-story')
     story.abstract = story_data.get('abstract', '')
@@ -198,8 +222,10 @@ def data_story_import(context, data_dict):
     story.meta_keywords = story_data.get('meta_keywords', '')
 
     # Set ownership
-    story.author_id = author_id
-    story.organization_id = organization_id or story_data.get('organization_id')
+    if not overwriting or data_dict.get('owner_user_id'):
+        story.author_id = author_id
+    if not overwriting or organization_id or 'organization_id' in story_data:
+        story.organization_id = organization_id or story_data.get('organization_id')
 
     # Set status — preserve original or use target
     if preserve_status and story_data.get('status'):
@@ -210,8 +236,9 @@ def data_story_import(context, data_dict):
         story.is_public = target_status == 'published'
 
     story.is_featured = story_data.get('is_featured', False) if preserve_status else False
-    story.view_count = 0
-    story.version = 1
+    if not overwriting:
+        story.view_count = 0
+    story.version = (story.version or 0) + 1 if overwriting else 1
 
     # Timestamps — preserve original or use current
     if preserve_dates and story_data.get('created_at'):
@@ -219,7 +246,7 @@ def data_story_import(context, data_dict):
             story.created_at = datetime.datetime.fromisoformat(story_data['created_at'])
         except (ValueError, TypeError):
             story.created_at = now
-    else:
+    elif not overwriting:
         story.created_at = now
 
     story.updated_at = now
@@ -229,7 +256,7 @@ def data_story_import(context, data_dict):
             story.published_at = datetime.datetime.fromisoformat(story_data['published_at'])
         except (ValueError, TypeError):
             story.published_at = None
-    else:
+    elif not overwriting:
         story.published_at = None
 
     # Save story
@@ -243,6 +270,7 @@ def data_story_import(context, data_dict):
     for idx, section_data in enumerate(sections_data):
         section = DataStorySection()
         section.id = make_uuid()
+        section.story = story
         section.story_id = story.id
         section.section_type = section_data.get('section_type', 'text')
         section.title = section_data.get('title', '')
@@ -265,6 +293,7 @@ def data_story_import(context, data_dict):
     for contrib_data in contributors_data:
         contributor = DataStoryContributor()
         contributor.id = make_uuid()
+        contributor.story = story
         contributor.story_id = story.id
         contributor.name = contrib_data.get('name', '')
         contributor.email = contrib_data.get('email', '')
@@ -292,6 +321,7 @@ def data_story_import(context, data_dict):
             continue
         ds_link = DataStoryDataset()
         ds_link.id = make_uuid()
+        ds_link.story = story
         ds_link.story_id = story.id
         ds_link.dataset_id = pkg.id
         ds_link.relationship_type = ds_ref.get('relationship_type', '')
@@ -301,9 +331,8 @@ def data_story_import(context, data_dict):
         session.add(ds_link)
         imported_datasets += 1
 
-    # Commit all changes (skipped when called from bulk import with deferred commit)
-    if not context.get('_defer_commit'):
-        session.commit()
+    # Comprobar restricciones antes de devolver el resultado al savepoint.
+    session.flush()
 
     log.info(f"[DATA_STORY_IMPORT] Imported story: {story.id} with {len(imported_sections)} sections")
 
@@ -452,8 +481,8 @@ def data_story_bulk_import(context, data_dict):
                 'preserve_dates': preserve_dates,
             })
 
-            # Flush to DB within savepoint
-            session.flush()
+            # Confirmar el savepoint; la transacción del lote sigue abierta.
+            savepoint.commit()
 
             imported.append({
                 'title': story_title,
