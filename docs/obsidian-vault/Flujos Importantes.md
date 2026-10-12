@@ -244,3 +244,5 @@ Slides incluye Reproducir/Pausar, inicio manual, espera de confirmacion de mapa/
 ## Guía de dashboards en historias (2026-10-12)
 
 El selector exige metadatos vigentes para insertar, descarta respuestas tardías y conserva un dashboard guardado si una búsqueda falla. Cambiar explícitamente conjunto/recurso/vista reinicia la selección. Ver [[Dashboards en Historias]].
+
+El picker abre directamente con la guía y sus campos, sin reservar espacio para la cabecera del portal. El ajuste visual conserva la secuencia conjunto → archivo → dashboard y la validación de inserción.

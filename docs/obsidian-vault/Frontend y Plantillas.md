@@ -194,3 +194,5 @@ El selector de diapositivas usa el titulo del capitulo, con controles de al meno
 ## Guía de dashboards en historias (2026-10-12)
 
 La guía EN/ES de `StoryVisualsEditor.dashboard` es compartida por ambos editores CKAN y el iframe de Terria. Incluye tres pasos, filtros opcionales, vista previa original y ayuda de creación. Ver [[Dashboards en Historias]].
+
+El picker omite la toolbar vacía y usa `.story-dashboard-picker-page` para evitar el espacio reservado a una cabecera ausente. El CSS de campos dashboard elimina el `label::after` heredado; los tres editores cargan la versión `20261012-dashboard-polish` del CSS compartido.

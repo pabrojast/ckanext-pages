@@ -237,3 +237,5 @@ La edición conserva la visibilidad de borradores tanto si `private` llega como 
 ## Guía de dashboards en historias (2026-10-12)
 
 El módulo de selector `story_dashboards.py` reutiliza el editor compartido y las acciones CKAN. Su parámetro de idioma EN/ES no altera la sesión. Ver [[Dashboards en Historias]].
+
+Su plantilla es un selector sin cabecera ni toolbar; el ajuste de espacio superior se limita a su contenedor y no cambia las páginas generales del portal.

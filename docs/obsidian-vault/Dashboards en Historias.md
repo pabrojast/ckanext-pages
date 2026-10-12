@@ -11,6 +11,8 @@ Data Stories, Rapid Response y el selector embebido de Terria usan `StoryVisuals
 
 La vista previa está rotulada como dashboard original: todavía no refleja los filtros ni el gráfico destacado elegidos. Estas opciones se aplican al capítulo y no modifican la vista guardada. La ayuda desplegable explica `Manage views > New view > Dashboard > Save`, requiere permisos de edición del conjunto y ofrece un enlace local al recurso seleccionado. No crea dashboards ni modifica Dashboard Builder.
 
+El picker usa una clase de contenedor propia y omite la barra vacía de navegación: al no tener cabecera del sitio, no reserva los 144 px que el tema añade a `.main`. Los campos del editor de dashboards también anulan el `label::after` de CKAN, que mostraba un `:` en una fila separada bajo cada control. El ajuste queda acotado al picker y a esos campos; los formularios generales conservan sus estilos.
+
 ## Idioma y protocolo
 
 `/story-dashboards/picker?lang=en|es` acepta esos dos valores explícitos. Un parámetro no admitido usa el idioma normal de CKAN (sus variantes EN/ES) o inglés. El selector no escribe el idioma de sesión. El HTML inicial ya muestra título y mensaje de carga localizados; JS completa la guía después de cargar jQuery. Los editores CKAN usan el idioma del documento.
@@ -34,3 +36,5 @@ node ckanext/pages/data_stories/tests/dashboard_picker_browser.cjs /ruta/playwri
 ```
 
 El harness usa el template Jinja, JS/CSS y jQuery reales, con acciones CKAN y dashboards simulados. Comprueba EN/ES, filtros por tipo y límites, mensaje de inserción, carreras de conjunto/recurso/búsqueda/iframe, duplicados, filtros históricos vacíos y diseños de 1280×800 y 390×844 sin desbordamiento. Las capturas se denominan `picker-es-1280.png`, `picker-es-390.png` y sus variantes `-insert`; son evidencia local, no del despliegue DEV. También se ejecutan las regresiones `visuals_browser.cjs` y `tests/rapid_response_story_browser.cjs` para los dos editores compartidos. La autenticación, permisos y persistencia real requieren comprobación separada en DEV.
+
+Para revisar estilos heredados, abrir el selector con los assets reales del tema: el harness aislado no incluye el padding de cabecera ni los dos puntos de CKAN. El ajuste visual del 12 de octubre se comprobó con esos assets DEV y un override local de CSS/HTML en 1280×800 y 390×844: sin desbordamiento, sin `:` extra y con el contenedor empezando en 0 px en vez de 164 px. Se verificó buscar Madagascar con Enter y elegir su archivo hasta listar el dashboard guardado. Esta comprobación local no acredita el despliegue del parche.

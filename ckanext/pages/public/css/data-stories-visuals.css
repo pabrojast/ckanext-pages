@@ -3,6 +3,8 @@
 .ds-filter-row .ds-visual-field { flex: 1 1 150px; min-width: 0; }
 .ds-dashboard-preview { width: 100%; height: 480px; border: 1px solid #ccd9e2; margin-top: 1rem; }
 .ds-dashboard-editor { color: #183e58; min-width: 0; }
+/* CKAN appends a colon to labels; here it becomes an extra flex row. */
+.ds-dashboard-editor .ds-visual-field::after { content: none; }
 .ds-dashboard-editor *, #story-dashboard-picker { box-sizing: border-box; }
 .ds-dashboard-current { display: block; margin: .5rem 0 1rem; overflow-wrap: anywhere; }
 .ds-dashboard-step { border: 1px solid #cfdee8; border-radius: 10px; padding: 1rem; margin: .75rem 0; background: #fff; }
@@ -18,6 +20,8 @@
 .ds-dashboard-preview-area > h4 { margin: 1rem 0 .35rem; }
 .ds-dashboard-preview-area > p { color: #465e6d; }
 .ds-dashboard-editor :focus-visible, #story-dashboard-insert:focus-visible { outline: 3px solid #ffb800; outline-offset: 2px; }
+/* The embedded selector has no site header to reserve space for. */
+.story-dashboard-picker-page { padding-top: 0 !important; }
 #story-dashboard-picker { max-width: 960px; margin: 0 auto; padding: 1.25rem; }
 #story-dashboard-picker h1 { color: #005b88; font-size: 26px; line-height: 1.3; }
 .ds-dashboard-brand { color: #006a9e; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin-bottom: .5rem; }

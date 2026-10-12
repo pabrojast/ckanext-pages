@@ -206,3 +206,5 @@ Que el despliegue sea reciente no garantiza que incluya una corrección de otra 
 ## Guía de dashboards en historias (2026-10-12)
 
 Si Añadir está deshabilitado, esperar los campos de la selección actual y revisar filtros incompletos o valores incompatibles con su tipo. La vista previa muestra el dashboard original y no las opciones del capítulo. Buscar de nuevo no elimina un dashboard guardado del editor; cambiar la selección sí lo reemplaza. Ver [[Dashboards en Historias]].
+
+Un gran blanco superior o `:` debajo de los selectores indica estilos heredados del portal: `.main` reserva 9rem para su cabecera y `label::after` añade los dos puntos. El picker aplica un reset acotado y omite la toolbar; verificar que se cargue `data-stories-visuals.css?v=20261012-dashboard-polish`. Validar con el tema real, además del harness aislado.
