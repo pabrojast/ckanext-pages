@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-10-01
+Actualizado: 2026-10-12
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -232,3 +232,8 @@ Una narrativa por emergencia con capítulos flexibles, bloques multimedia, escen
 En móvil, el listado y el editor dejan crecer el banner según su contenido. El compositor reduce los márgenes anidados del formulario para aprovechar el ancho disponible; ver [[Frontend y Plantillas]].
 
 La edición conserva la visibilidad de borradores tanto si `private` llega como booleano como si usa la representación histórica en texto.
+
+
+## Guía de dashboards en historias (2026-10-12)
+
+El módulo de selector `story_dashboards.py` reutiliza el editor compartido y las acciones CKAN. Su parámetro de idioma EN/ES no altera la sesión. Ver [[Dashboards en Historias]].

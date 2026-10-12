@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-10-01
+Actualizado: 2026-10-12
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -201,3 +201,8 @@ El dictizado puede devolver `private=True` como booleano. Compararlo solo con `'
 ## Banner recortado después de un release reciente
 
 Que el despliegue sea reciente no garantiza que incluya una corrección de otra rama. El release de biblioteca de imágenes de 2026-10-01 usó Pages `46d8ad5`, cuyo listado aún tenía alturas fijas de 250/200 px. Comparar refs y archivos dentro del pod con los assets servidos antes de atribuir el problema a caché. El backport del encabezado adapta también el detalle en escritorio y el editor original, sin depender de `rapid-response-story.css`. Ver [[Frontend y Plantillas]] y [[Testing]].
+
+
+## Guía de dashboards en historias (2026-10-12)
+
+Si Añadir está deshabilitado, esperar los campos de la selección actual y revisar filtros incompletos o valores incompatibles con su tipo. La vista previa muestra el dashboard original y no las opciones del capítulo. Buscar de nuevo no elimina un dashboard guardado del editor; cambiar la selección sí lo reemplaza. Ver [[Dashboards en Historias]].

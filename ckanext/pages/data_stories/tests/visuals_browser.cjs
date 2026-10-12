@@ -135,7 +135,7 @@ async function check(page, assets) {
   await chooser.getByPlaceholder('Search datasets').fill('Observations');
   await chooser.getByRole('button',{name:'Search',exact:true}).click();
   await chooser.getByLabel('Dataset',{exact:true}).selectOption('dataset');
-  await chooser.getByLabel('Resource',{exact:true}).selectOption('resource');
+  await chooser.getByLabel('File (resource)',{exact:true}).selectOption('resource');
   await chooser.getByLabel('Dashboard',{exact:true}).selectOption(view);
   await chooser.locator('.ds-state-editor').waitFor();
   const reloaded = await editor(saved);

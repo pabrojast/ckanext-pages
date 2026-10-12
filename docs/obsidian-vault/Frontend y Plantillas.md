@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-10-01
+Actualizado: 2026-10-12
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -189,3 +189,8 @@ El backport productivo partió de Pages `46d8ad5` y conservó el editor existent
 ## Demo y lectura multimedia (2026-10-02)
 
 El selector de diapositivas usa el titulo del capitulo, con controles de al menos 44 px y una fila propia para el selector en pantallas estrechas. La plantilla de medios no muestra la indicacion de imagen sobre mapa. Las URLs directas MP4/WebM/OGV y MP3/WAV/OGG/M4A se renderizan como video/audio nativo con controles y precarga de metadatos; los iframes conservan su titulo accesible. Cambiar de capitulo pausa los medios nativos.
+
+
+## Guía de dashboards en historias (2026-10-12)
+
+La guía EN/ES de `StoryVisualsEditor.dashboard` es compartida por ambos editores CKAN y el iframe de Terria. Incluye tres pasos, filtros opcionales, vista previa original y ayuda de creación. Ver [[Dashboards en Historias]].

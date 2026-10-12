@@ -24,7 +24,7 @@ La workflow `test.yml` incorpora esta suite como paso separado, usando el
 servicio PostgreSQL efímero de CI y esquemas distintos de la base CKAN.
 
 Tags: #testing #operacion
-Actualizado: 2026-10-01
+Actualizado: 2026-10-12
 
 Relacionadas: [[Setup Local]], [[Comandos Utiles]], [[Troubleshooting]]
 
@@ -232,3 +232,8 @@ Los assets de encabezado de listado, detalle y editor son idénticos a los del f
 Los harnesses `visuals_browser.cjs`, `section_width_browser.cjs` y `tests/rapid_response_story_browser.cjs` usan Playwright CLI y jQuery real de CKAN. Pasar el wrapper como primer argumento y el archivo local jquery.js como segundo; el de anchos recibe ademas el JSON generado por `test_section_width.py`. Comprueban filtros, iframe reutilizado, 48 combinaciones de anchos/modos y preservacion/reordenamiento del editor RR. Las rutas reales y autenticacion requieren una segunda comprobacion integrada en DEV.
 
 La demo de composiciones verifica nombres de capitulos, controles tactiles, lectura de medios en movil, video sin autoplay y pausa al cambiar de capitulo. `test_compositions.py` cubre controles multimedia, escape del titulo e iframes etiquetados. Validar ademas los enlaces del texto contra escenas y filtros reales en DEV.
+
+
+## Guía de dashboards en historias (2026-10-12)
+
+`tests/test_story_dashboard_picker.py` valida idioma, sesión y headers; `data_stories/tests/dashboard_picker_browser.cjs` cubre inserción, filtros tipados, respuestas tardías, ventanas/orígenes, EN/ES y escritorio/móvil. Incluye regresión para filtros de texto vacío guardados. Comandos y límites de la prueba local en [[Dashboards en Historias]].

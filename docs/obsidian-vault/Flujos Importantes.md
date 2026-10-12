@@ -24,7 +24,7 @@ opción requiere una versión compatible de TerriaJS; no altera el documento
 compartido ni los datos de la historia.
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-10-01
+Actualizado: 2026-10-12
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -239,3 +239,8 @@ Data Stories y Rapid Response comparten `StoryVisualsEditor`: plantillas con vis
 La importacion de escenas conserva `composition`, medios y referencias. Los destinos nativos `scene_id` se vinculan a los IDs estables de las escenas importadas; las copias de escenas y el contenido anterior permanecen hasta actualizar explicitamente.
 
 Slides incluye Reproducir/Pausar, inicio manual, espera de confirmacion de mapa/dashboard, pausa por error/navegacion/pestaña oculta y parada al final. Scroll mantiene referencias por posicion de lectura. Las nuevas imagenes de Rapid Response usan `StoryImages` y la biblioteca de perfil, conservando enlaces antiguos y reintento de subidas.
+
+
+## Guía de dashboards en historias (2026-10-12)
+
+El selector exige metadatos vigentes para insertar, descarta respuestas tardías y conserva un dashboard guardado si una búsqueda falla. Cambiar explícitamente conjunto/recurso/vista reinicia la selección. Ver [[Dashboards en Historias]].

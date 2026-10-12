@@ -1,7 +1,7 @@
 # Rutas y Entrypoints
 
 Tags: #arquitectura #backend
-Actualizado: 2026-09-24
+Actualizado: 2026-10-12
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Comandos Utiles]]
 
@@ -185,3 +185,8 @@ GET `/data-stories/api/location-search?q=...&viewbox=...` devuelve GeoJSON Featu
 ## Narrativas de Rapid Response
 
 `GET /rapid-response/api/terria-scene/<share_id>` resuelve escenas únicamente desde el Terria configurado. Está registrado en el blueprint base aunque Data Stories esté desactivado. La edición y publicación mantienen sus rutas existentes; ver [[Stories en Rapid Response]].
+
+
+## Guía de dashboards en historias (2026-10-12)
+
+`/story-dashboards/picker?lang=en|es` selecciona el idioma de la guía sin cambiar la sesión CKAN. Otros valores usan el idioma normal compatible o inglés. Conserva permisos CKAN y protocolo `ckan-story-dashboard-selected` v1. Ver [[Dashboards en Historias]].

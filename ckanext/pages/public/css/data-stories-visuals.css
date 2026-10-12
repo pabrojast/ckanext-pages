@@ -2,6 +2,32 @@
 .ds-filter-row { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem; }
 .ds-filter-row .ds-visual-field { flex: 1 1 150px; min-width: 0; }
 .ds-dashboard-preview { width: 100%; height: 480px; border: 1px solid #ccd9e2; margin-top: 1rem; }
+.ds-dashboard-editor { color: #183e58; min-width: 0; }
+.ds-dashboard-editor *, #story-dashboard-picker { box-sizing: border-box; }
+.ds-dashboard-current { display: block; margin: .5rem 0 1rem; overflow-wrap: anywhere; }
+.ds-dashboard-step { border: 1px solid #cfdee8; border-radius: 10px; padding: 1rem; margin: .75rem 0; background: #fff; }
+.ds-dashboard-step h3 { font-size: 18px; color: #006a9e; line-height: 1.4; margin: 0 0 .5rem; }
+.ds-dashboard-step > p { margin: 0 0 .75rem; color: #465e6d; }
+.ds-dashboard-editor .form-control { max-width: 100%; width: 100%; min-width: 0; min-height: 42px; }
+.ds-dashboard-editor button, .ds-dashboard-help summary { min-height: 42px; }
+.ds-dashboard-help { padding-top: .75rem; border-top: 1px solid #e0eaf0; margin-top: 1rem; }
+.ds-dashboard-help summary { cursor: pointer; color: #006a9e; font-weight: 600; }
+.ds-dashboard-help p { margin: .5rem 0; }
+.ds-dashboard-status:not(:empty) { padding: .75rem; background: #edf5fa; border-left: 3px solid #0072bc; }
+.ds-dashboard-preview-area[hidden], .ds-dashboard-editor [hidden] { display: none !important; }
+.ds-dashboard-preview-area > h4 { margin: 1rem 0 .35rem; }
+.ds-dashboard-preview-area > p { color: #465e6d; }
+.ds-dashboard-editor :focus-visible, #story-dashboard-insert:focus-visible { outline: 3px solid #ffb800; outline-offset: 2px; }
+#story-dashboard-picker { max-width: 960px; margin: 0 auto; padding: 1.25rem; }
+#story-dashboard-picker h1 { color: #005b88; font-size: 26px; line-height: 1.3; }
+.ds-dashboard-brand { color: #006a9e; font-size: 13px; font-weight: 700; letter-spacing: .04em; margin-bottom: .5rem; }
+@media (max-width: 480px) {
+  #story-dashboard-picker { padding: .75rem; }
+  .ds-dashboard-step { padding: .75rem; }
+  .ds-dashboard-editor .ds-filter-row { flex-direction: column; align-items: stretch; }
+  .ds-dashboard-editor .ds-filter-row .ds-visual-field { flex-basis: auto; width: 100%; }
+  .ds-dashboard-preview { height: 360px; }
+}
 .ds-reference-dialog { width: min(760px, 94vw); max-height: 90dvh; overflow: auto; border: 1px solid #ccd9e2; border-radius: 12px; padding: 1.5rem; }
 .ds-reference-dialog::backdrop { background: #0008; }
 .ds-reference-dialog > button { margin: .5rem .5rem 0 0; }

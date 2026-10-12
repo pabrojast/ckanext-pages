@@ -3,15 +3,16 @@
 {% block footer %}{% endblock %}
 {% block secondary %}{% endblock %}
 {% block primary %}
-<main class="module-content" id="story-dashboard-picker">
-  <h1>{{ _('Choose a dashboard') }}</h1>
-  <p>{{ _('Choose a saved dashboard, its filters and the chart to highlight.') }}</p>
+<main class="module-content" id="story-dashboard-picker" lang="{{ picker_language }}" data-language="{{ picker_language }}">
+  <p class="ds-dashboard-brand">IHP-WINS · Story Studio</p>
+  <h1 id="story-dashboard-picker-heading">{{ 'Añadir un dashboard de IHP-WINS' if picker_language == 'es' else 'Add an IHP-WINS dashboard' }}</h1>
+  <p id="story-dashboard-picker-intro">{{ 'Cargando el selector de dashboards…' if picker_language == 'es' else 'Loading dashboard selector…' }}</p>
   <input type="hidden" name="_csrf_token" value="{{ picker_csrf }}">
   <div id="story-dashboard-picker-editor"></div>
   <p role="alert" id="story-dashboard-picker-error"></p>
-  <button type="button" class="btn btn-primary" id="story-dashboard-insert">{{ _('Use this dashboard') }}</button>
+  <button type="button" class="btn btn-primary" id="story-dashboard-insert" disabled>{{ 'Añadir dashboard al capítulo' if picker_language == 'es' else 'Add dashboard to chapter' }}</button>
 </main>
-<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261002-compositions">
-<script src="/js/data-stories-visuals-edit.js?v=20261002-compositions" defer></script>
-<script src="/js/story-dashboard-picker.js?v=20261002-compositions" defer></script>
+<link rel="stylesheet" href="/css/data-stories-visuals.css?v=20261012-dashboard-guidance">
+<script src="/js/data-stories-visuals-edit.js?v=20261012-dashboard-guidance" defer></script>
+<script src="/js/story-dashboard-picker.js?v=20261012-dashboard-guidance" defer></script>
 {% endblock %}
