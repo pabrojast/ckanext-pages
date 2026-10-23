@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-10-12
+Actualizado: 2026-10-23
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -62,6 +62,7 @@ Características:
 - upload especializado
 - filtros por iniciativa, member state, water type y publication type
 - formularios enriquecidos
+- News y Events: selección múltiple opcional de iniciativas junto a organización, con publicación en las iniciativas mediante el lector público compartido; ver [[Flujos Importantes]]
 
 Particularidad:
 

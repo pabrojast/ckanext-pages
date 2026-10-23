@@ -1,7 +1,7 @@
 # Datos y Persistencia
 
 Tags: #datos #backend
-Actualizado: 2026-10-01
+Actualizado: 2026-10-09
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Flujos Importantes]], [[Troubleshooting]]
 
@@ -156,3 +156,7 @@ Las identidades se toman de Terria; sin ID se usa SHA-256 del contenido canónic
 ## Narrativas de Rapid Response
 
 El documento canónico versión 1 vive en `extras.rapid_response_story`. La adaptación histórica ocurre al leer; guardar actualiza las proyecciones heredadas y las revisiones incorporan el contenido completo de la emergencia. No hay migración de tablas. Ver [[Stories en Rapid Response]].
+
+## Asociaciones con iniciativas
+
+`extras.initiative_groups` conserva la lista de objetos `{name: slug}` existente. La organización sigue en `ihp_organization`. No se agrega esquema ni migración. La API y el helper `get_pages_by_initiative` comparan nombres completos sin distinguir mayúsculas después de decodificar el JSON histórico; no dependen de encontrar comillas sin escapar mediante `LIKE`. La consulta del helper filtra primero `private=False` y `submission_status=approved`. Ver [[Flujos Importantes]].

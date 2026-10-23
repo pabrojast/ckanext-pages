@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-10-12
+Actualizado: 2026-10-23
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -196,3 +196,7 @@ El selector de diapositivas usa el titulo del capitulo, con controles de al meno
 La guía EN/ES de `StoryVisualsEditor.dashboard` es compartida por ambos editores CKAN y el iframe de Terria. Incluye tres pasos, filtros opcionales, vista previa original y ayuda de creación. Ver [[Dashboards en Historias]].
 
 El picker omite la toolbar vacía y usa `.story-dashboard-picker-page` para evitar el espacio reservado a una cabecera ausente. El CSS de campos dashboard elimina el `label::after` heredado; los tres editores cargan la versión `20261012-dashboard-polish` del CSS compartido.
+
+## Iniciativas en News y Events
+
+En alta y edición, «Associated Initiatives» comparte la fila con «Organization» en la primera sección; en móvil se apila debajo. El selector permite agregar varias iniciativas, quitar asociaciones y conservarlas al reabrir. La sección inferior queda dedicada a «Member States». Los nombres largos se ajustan al ancho disponible. El formulario admite asociaciones históricas con hasta tres niveles de serialización JSON.

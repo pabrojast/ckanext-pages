@@ -1,7 +1,7 @@
 # Rutas y Entrypoints
 
 Tags: #arquitectura #backend
-Actualizado: 2026-10-12
+Actualizado: 2026-10-23
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Comandos Utiles]]
 
@@ -190,3 +190,7 @@ GET `/data-stories/api/location-search?q=...&viewbox=...` devuelve GeoJSON Featu
 ## Guía de dashboards en historias (2026-10-12)
 
 `/story-dashboards/picker?lang=en|es` selecciona el idioma de la guía sin cambiar la sesión CKAN. Otros valores usan el idioma normal compatible o inglés. Conserva permisos CKAN y protocolo `ckan-story-dashboard-selected` v1. Ver [[Dashboards en Historias]].
+
+## Iniciativas en Water Family
+
+Las rutas existentes `/water-news_edit`, `/water-news_edit/<page>`, `/water-events_edit` y `/water-events_edit/<page>` incluyen «Associated Initiatives» junto a organización. Se conserva `initiative_groups`; no se agrega endpoint. Las pestañas de iniciativas pertenecen a `ckan-unesco-theme` y consumen el lector compartido de Pages. Ver [[Flujos Importantes]].

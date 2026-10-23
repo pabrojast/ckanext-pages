@@ -24,7 +24,7 @@ opción requiere una versión compatible de TerriaJS; no altera el documento
 compartido ni los datos de la historia.
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-10-12
+Actualizado: 2026-10-23
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -246,3 +246,7 @@ Slides incluye Reproducir/Pausar, inicio manual, espera de confirmacion de mapa/
 El selector exige metadatos vigentes para insertar, descarta respuestas tardías y conserva un dashboard guardado si una búsqueda falla. Cambiar explícitamente conjunto/recurso/vista reinicia la selección. Ver [[Dashboards en Historias]].
 
 El picker abre directamente con la guía y sus campos, sin reservar espacio para la cabecera del portal. El ajuste visual conserva la secuencia conjunto → archivo → dashboard y la validación de inserción.
+
+## Asociación de News y Events con iniciativas
+
+El autor selecciona una organización y, opcionalmente, varias iniciativas al principio del formulario. Guardar conserva ambas relaciones; quitar todas las iniciativas guarda `[]`. La asociación no concede permisos ni cambia el workflow editorial: las pestañas públicas de las iniciativas muestran únicamente registros públicos con estado `approved`. El lector compartido de Pages es usado también por `ckan-unesco-theme`; reconoce JSON histórico y conserva el orden descendente de creación. Ver [[Datos y Persistencia]] y [[Testing]].

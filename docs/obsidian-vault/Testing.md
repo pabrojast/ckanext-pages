@@ -24,7 +24,7 @@ La workflow `test.yml` incorpora esta suite como paso separado, usando el
 servicio PostgreSQL efímero de CI y esquemas distintos de la base CKAN.
 
 Tags: #testing #operacion
-Actualizado: 2026-10-12
+Actualizado: 2026-10-23
 
 Relacionadas: [[Setup Local]], [[Comandos Utiles]], [[Troubleshooting]]
 
@@ -237,3 +237,17 @@ La demo de composiciones verifica nombres de capitulos, controles tactiles, lect
 ## Guía de dashboards en historias (2026-10-12)
 
 `tests/test_story_dashboard_picker.py` valida idioma, sesión y headers; `data_stories/tests/dashboard_picker_browser.cjs` cubre inserción, filtros tipados, respuestas tardías, ventanas/orígenes, EN/ES y escritorio/móvil. Incluye regresión para filtros de texto vacío guardados. Comandos y límites de la prueba local en [[Dashboards en Historias]].
+
+## News y Events asociados a iniciativas
+
+`test_water_family_initiatives.py` cubre alta, reapertura, eliminación parcial/total de asociaciones, ubicación junto a organización, catálogo vacío, autor y sysadmin, filtros de API, JSON histórico y exclusión de privados/borradores/pendientes/rechazados. Requiere PostgreSQL, Solr y Redis aislados: sus fixtures limpian los datos de prueba.
+
+```bash
+pytest --ckan-ini=test.ini -q ckanext/pages/tests/test_water_family_initiatives.py ckanext/pages/tests/test_water_family_api.py
+```
+
+La prueba complementaria `test_initiative_pages.py` vive en `ckan-unesco-theme` y comprueba su lector contra Pages con datos reales. Verificar en navegador ambos formularios a 390 y 1366 px: agregar dos iniciativas, guardar, reabrir, quitar una y quitar todas; comprobar que la asociación aparece en cada iniciativa sólo después de publicación/aprobación.
+
+Verificación local del 2026-10-09 con CKAN 2.10 y servicios Docker aislados: 13 pruebas enfocadas aprobadas (9 de Pages y 4 del tema). La suite Water Family existente aprobó 33 pruebas y falló en `test_list_filter_by_water_type` y `test_show_non_water_type_returns_none`; ambos fallos se reprodujeron con el `plugin.py` original. Sus correcciones quedan fuera del cambio de iniciativas. Evidencia local: `output/playwright/water-family-initiatives/`. No se ejecutaron fixtures contra dev ni producción.
+
+Playwright CLI comprobó los formularios completos con `theme_ejemplo` en la instancia aislada a 390 y 1366 px: alta, publicación, reapertura, eliminación parcial/total, aparición y retiro de las tarjetas en las pestañas de iniciativas, y guardado de asociaciones con JSON doblemente serializado. No hubo excepciones JavaScript ni desbordamiento horizontal en esas cuatro combinaciones. Las capturas, el resumen y el harness local están en el directorio de evidencia anterior; no equivalen a una validación desplegada en producción.

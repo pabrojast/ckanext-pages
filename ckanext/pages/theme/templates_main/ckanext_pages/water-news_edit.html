@@ -164,6 +164,9 @@
                                 {% if errors.private %}<span class="error-block">{{ errors.private }}</span>{% endif %}
                               </div>
                             </div>
+                          </div>
+
+                          <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
                                 <label for="field-ihp-organization" class="control-label">{{ _('Organization') }}</label>
@@ -178,6 +181,39 @@
                                 </select>
                                 <div class="help-text">{{ _('The organization that will own and manage this news article.') }}</div>
                                 {% if errors.ihp_organization %}<span class="error-block">{{ errors.ihp_organization }}</span>{% endif %}
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <!-- Associated Initiatives -->
+                              <div class="form-group">
+                                <label for="initiative-select" class="control-label">{{ _('Associated Initiatives') }}</label>
+                                <p class="help-text">{{ _('Optional. Add one or more initiatives. Public, approved content will appear on their pages.') }}</p>
+
+                                <div class="initiatives-container">
+                                  <div class="initiative-selector">
+                                    <div class="input-group">
+                                      <select id="initiative-select" class="form-control">
+                                        <option value="">{{ _('Select an initiative...') }}</option>
+                                        {% for ini in initiatives_list|default([]) %}
+                                          <option value="{{ ini.name }}" data-display="{{ ini.formatted_name }}">{{ ini.formatted_name }}</option>
+                                        {% endfor %}
+                                        {% if not initiatives_list|default([]) %}
+                                          <option value="" disabled>{{ _('No initiatives available') }}</option>
+                                        {% endif %}
+                                      </select>
+                                      <div class="input-group-btn">
+                                        <button type="button" class="btn btn-primary" id="add-initiative">
+                                          <i class="fa fa-plus"></i> {{ _('Add') }}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
+                                  </div>
+
+                                  <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson|forceescape }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -335,9 +371,9 @@
                           </div>
                         </fieldset>
 
-                        <!-- Member States & Initiatives -->
+                        <!-- Member States -->
                         <fieldset class="form-section water-form-section">
-                          <legend>{{ _('Member States & Initiatives') }}</legend>
+                          <legend>{{ _('Member States') }}</legend>
                           <div class="form-section-content">
 
                           <!-- Member States -->
@@ -370,38 +406,6 @@
                               </div>
 
                               <input type="hidden" id="country_groups" name="country_groups" value="{% if data.country_groups is defined and data.country_groups is sequence and data.country_groups is not string %}{{ data.country_groups|tojson|forceescape }}{% elif data.country_groups is defined and data.country_groups %}{{ data.country_groups }}{% else %}[]{% endif %}">
-                            </div>
-                          </div>
-
-                          <!-- Associated Initiatives -->
-                          <div class="form-group" style="margin-top: 1.5rem;">
-                            <label class="control-label">{{ _('Associated Initiatives') }}</label>
-                            <p class="help-text">{{ _('Select the initiatives (e.g. IslandWatch, Riverwatch, Be Resilient) associated with this news article. This enables the content to appear on initiative pages and be available via API.') }}</p>
-
-                            <div class="initiatives-container">
-                              <div class="initiative-selector">
-                                <div class="input-group">
-                                  <select id="initiative-select" class="form-control">
-                                    <option value="">{{ _('Select an initiative...') }}</option>
-                                    {% for ini in initiatives_list|default([]) %}
-                                      <option value="{{ ini.name }}" data-display="{{ ini.formatted_name }}">{{ ini.formatted_name }}</option>
-                                    {% endfor %}
-                                    {% if not initiatives_list|default([]) %}
-                                      <option value="" disabled>{{ _('No initiatives available') }}</option>
-                                    {% endif %}
-                                  </select>
-                                  <div class="input-group-btn">
-                                    <button type="button" class="btn btn-primary" id="add-initiative">
-                                      <i class="fa fa-plus"></i> {{ _('Add') }}
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div id="selected-initiatives" class="selected-initiatives" data-empty-text="{{ _('No initiatives selected yet. Select and add initiatives from the dropdown above.') }}">
-                              </div>
-
-                              <input type="hidden" id="initiative_groups" name="initiative_groups" value="{% if data.initiative_groups is defined and data.initiative_groups is sequence and data.initiative_groups is not string %}{{ data.initiative_groups|tojson|forceescape }}{% elif data.initiative_groups is defined and data.initiative_groups %}{{ data.initiative_groups }}{% else %}[]{% endif %}">
                             </div>
                           </div>
 
@@ -580,14 +584,15 @@
 }
 
 .initiative-selector { margin-bottom: 1.5rem; }
-.initiative-selector .input-group { width: 100%; }
-.initiative-selector .form-control { border-radius: 12px 0 0 12px; }
+.initiative-selector .input-group { width: 100%; display: flex; flex-wrap: nowrap; }
+.initiative-selector .input-group-btn { width: auto; flex: 0 0 auto; }
+.initiative-selector .form-control { border-radius: 12px 0 0 12px; min-width: 0; width: 1%; flex: 1 1 auto; height: auto; }
 .initiative-selector .btn { border-radius: 0 12px 12px 0; padding: 12px 20px; font-weight: 600; }
 
 .selected-initiatives { display: flex; flex-wrap: wrap; gap: 0.75rem; min-height: 45px; padding: 0.5rem 0; }
 
 .initiative-item {
-  display: inline-flex; align-items: center; gap: 0.5rem;
+  display: inline-flex; align-items: center; gap: 0.5rem; max-width: 100%;
   background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
   border: 2px solid #43a047; border-radius: 20px;
   padding: 6px 12px 6px 16px; font-size: 0.95rem;
@@ -596,7 +601,7 @@
 .initiative-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-medium); background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%); color: white; }
 .initiative-item:hover .initiative-name { color: white; }
 .initiative-item:hover .remove-initiative { background: white; color: #43a047; border-color: white; }
-.initiative-name { font-weight: 600; color: #2e7d32; }
+.initiative-name { font-weight: 600; color: #2e7d32; min-width: 0; overflow-wrap: anywhere; }
 .remove-initiative { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 2px 8px; font-size: 0.75rem; border-radius: 12px; transition: all 0.2s ease; line-height: 1.2; min-width: auto; }
 .remove-initiative:hover { background: #dc3545; color: white; transform: scale(1.05); }
 .selected-initiatives:empty::before {
@@ -1714,9 +1719,9 @@ select.wn-form-control option:selected {
       if (!rawValue) return [];
 
       var parsed = rawValue;
-      if (typeof rawValue === 'string') {
+      for (var depth = 0; depth < 3 && typeof parsed === 'string'; depth++) {
         try {
-          parsed = JSON.parse(rawValue);
+          parsed = JSON.parse(parsed);
         } catch (e) {
           return [];
         }

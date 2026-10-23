@@ -1,7 +1,7 @@
 # Arquitectura
 
 Tags: #arquitectura #backend
-Actualizado: 2026-09-24
+Actualizado: 2026-10-09
 
 Relacionadas: [[Rutas y Entrypoints]], [[Modulos]], [[Datos y Persistencia]], [[Frontend y Plantillas]]
 
@@ -125,3 +125,7 @@ La evolución del repo parece incremental: primero CMS simple y luego verticales
 ## Narrativas de Rapid Response
 
 Rapid Response reutiliza el núcleo Quill y el visor StoryMap de Data Stories, con persistencia independiente en `ckanext_pages.extras`. No necesita activar el módulo opcional. Ver [[Stories en Rapid Response]].
+
+## Lectura compartida de iniciativas
+
+`plugin.get_pages_by_initiative` centraliza las asociaciones públicas de Water Family. Reutiliza la normalización y comparación de la API en `actions.py`; el lector de `ckan-unesco-theme` delega en este helper. Las firmas y rutas existentes se conservan. Ver [[Flujos Importantes]] y [[Datos y Persistencia]].
