@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-10-12
+Actualizado: 2026-10-23
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -208,3 +208,9 @@ Que el despliegue sea reciente no garantiza que incluya una corrección de otra 
 Si Añadir está deshabilitado, esperar los campos de la selección actual y revisar filtros incompletos o valores incompatibles con su tipo. La vista previa muestra el dashboard original y no las opciones del capítulo. Buscar de nuevo no elimina un dashboard guardado del editor; cambiar la selección sí lo reemplaza. Ver [[Dashboards en Historias]].
 
 Un gran blanco superior o `:` debajo de los selectores indica estilos heredados del portal: `.main` reserva 9rem para su cabecera y `label::after` añade los dos puntos. El picker aplica un reset acotado y omite la toolbar; verificar que se cargue `data-stories-visuals.css?v=20261012-dashboard-polish`. Validar con el tema real, además del harness aislado.
+
+## News o Events no aparecen en una iniciativa
+
+Comprobar que `initiative_groups` contiene el nombre de la iniciativa y que la entrada es pública y está aprobada. La selección está junto a organización, al principio del formulario. Una lista vacía de opciones puede indicar ausencia de grupos activos o un fallo de carga del catálogo; no implica un nuevo permiso de edición. Ver [[Flujos Importantes]] y [[Testing]].
+
+Si las pestañas News/Events de una iniciativa devuelven 500 con `has no attribute group_dict`, verificar que sus vistas en `ckan-unesco-theme` inicialicen `c.group_dict` antes de renderizar el menú compartido de Pages.

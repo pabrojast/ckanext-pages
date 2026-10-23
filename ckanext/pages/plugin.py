@@ -1303,7 +1303,7 @@ def get_user_organization():
 
 
 def get_pages_by_initiative(initiative_name, page_type=None):
-    """Get pages associated with a given initiative via the initiative_groups extras field.
+    """Get public, approved pages associated with an initiative.
 
     Args:
         initiative_name: The group name of the initiative (e.g. 'IslandWatch')
@@ -1312,14 +1312,16 @@ def get_pages_by_initiative(initiative_name, page_type=None):
     Returns:
         List of page dicts with title, name, content, publish_date, created, page_type, extras
     """
+    if not initiative_name or not initiative_name.strip():
+        return []
+
     try:
         import ckan.model as model
         from ckanext.pages.db import Page
 
-        search_pattern = '"%s"' % initiative_name
-
         query = model.Session.query(Page).filter(
-            Page.extras.like('%' + search_pattern + '%')
+            Page.private.is_(False),
+            Page.submission_status == 'approved',
         )
 
         if page_type:
@@ -1334,24 +1336,11 @@ def get_pages_by_initiative(initiative_name, page_type=None):
 
         results = []
         for pg in pages:
-            extras = {}
-            if pg.extras:
-                try:
-                    extras = json.loads(pg.extras)
-                except (ValueError, TypeError):
-                    pass
-
-            initiative_groups = extras.get('initiative_groups', '[]')
-            if isinstance(initiative_groups, str):
-                try:
-                    initiative_groups = json.loads(initiative_groups)
-                except (ValueError, TypeError):
-                    initiative_groups = []
-
-            names = [g.get('name', '') if isinstance(g, dict) else str(g)
-                     for g in initiative_groups]
-            if initiative_name not in names:
+            # Use the API's exact matching, including legacy nested JSON.
+            if not actions._page_matches_group_filter(
+                    pg, 'initiative_groups', initiative_name):
                 continue
+            extras = actions._decode_nested_json(pg.extras)
 
             page_dict = {
                 'title': pg.title,
