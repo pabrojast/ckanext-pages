@@ -52,8 +52,8 @@
 
       <!-- Warning for non-admin editing published story -->
       {% if not is_new_story and story.status == 'published' and not h.is_sysadmin() %}
-      <div class="alert alert-info" style="margin-bottom: 2rem; padding: 1.25rem; border-radius: 12px; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid #0072BC; box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);">
-        <h4 style="margin-top: 0; color: #0072BC; font-weight: 600;">
+      <div class="alert alert-info" style="margin-bottom: 2rem; padding: 1.25rem; border-radius: 12px; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid var(--pages-primary, #0072BC); box-shadow: 0 2px 8px rgba(0, 114, 188, 0.08);">
+        <h4 style="margin-top: 0; color: var(--pages-primary, #0072BC); font-weight: 600;">
           <i class="fa fa-info-circle"></i> {{ _('Editing Published Story') }}
         </h4>
         <p style="margin-bottom: 0; color: #2c3e50;">
@@ -477,7 +477,7 @@
           <span class="text-muted">({{ _('Optional') }})</span>
         </label>
         <div class="input-group">
-          <span class="input-group-addon" style="background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-color: #0072BC; min-width: 60px; padding-left: 12px; padding-right: 12px;">
+          <span class="input-group-addon" style="background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-color: var(--pages-primary, #0072BC); min-width: 60px; padding-left: 12px; padding-right: 12px;">
             <strong>DOI:</strong>
           </span>
           <input type="text"
@@ -540,13 +540,13 @@
     <fieldset>
       <legend>{{ _('Sections') }}</legend>
 
-      <div class="alert alert-info" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid #0072BC;">
-        <h4 style="margin-top: 0; color: #0072BC;">
+      <div class="alert alert-info" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #E3F2FD 0%, #ffffff 100%); border-left: 4px solid var(--pages-primary, #0072BC);">
+        <h4 style="margin-top: 0; color: var(--pages-primary, #0072BC);">
           <i class="fa fa-info-circle"></i> {{ _('Understanding Sections') }}
         </h4>
         <div class="row">
           <div class="col-md-6" style="padding-right: 2rem;">
-            <p style="margin-bottom: 0.75rem;"><strong style="color: #0072BC;">{{ _('Section Title') }}</strong></p>
+            <p style="margin-bottom: 0.75rem;"><strong style="color: var(--pages-primary, #0072BC);">{{ _('Section Title') }}</strong></p>
             <ul style="list-style: none; padding-left: 0; margin-bottom: 0;">
               <li style="padding: 0.5rem; background: white; border-radius: 8px; margin-bottom: 0.5rem;">
                 <i class="fa fa-check-circle" style="color: #28a745;"></i>
@@ -561,8 +561,8 @@
               </li>
             </ul>
           </div>
-          <div class="col-md-6" style="padding-left: 2rem; border-left: 2px dashed #0072BC;">
-            <p style="margin-bottom: 0.75rem;"><strong style="color: #0072BC;">{{ _('Section Type') }}</strong></p>
+          <div class="col-md-6" style="padding-left: 2rem; border-left: 2px dashed var(--pages-primary, #0072BC);">
+            <p style="margin-bottom: 0.75rem;"><strong style="color: var(--pages-primary, #0072BC);">{{ _('Section Type') }}</strong></p>
             <ul style="list-style: none; padding-left: 0; margin-bottom: 0;">
               <li style="padding: 0.5rem; background: white; border-radius: 8px; margin-bottom: 0.5rem;">
                 <i class="fa fa-check-circle" style="color: #28a745;"></i>
@@ -777,7 +777,7 @@
   <!-- Quill Image Resize Styles -->
   <style>
     .ql-editor img { cursor: pointer; max-width: 100%; }
-    .ql-editor img.selected { outline: 2px solid var(--unesco-blue, #0072BC); }
+    .ql-editor img.selected { outline: 2px solid var(--unesco-blue, var(--pages-primary, #0072BC)); }
   </style>
 {% endblock %}
 

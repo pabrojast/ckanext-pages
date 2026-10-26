@@ -1,7 +1,7 @@
 # Datos y Persistencia
 
 Tags: #datos #backend
-Actualizado: 2026-10-09
+Actualizado: 2026-10-26
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Flujos Importantes]], [[Troubleshooting]]
 
@@ -60,6 +60,8 @@ Eso hace:
 - crear la tabla si no existe
 - verificar columnas faltantes
 - intentar reparar problemas de tabla
+
+Desde la consolidación de 2026-10-26, el DDL de `db_init.py`, los helpers de columnas de Data Stories y el fallback de Featured Viewers usan `engine.begin()`: la transacción confirma al salir y revierte si falla. Evita depender de `Connection.commit()`, ausente en conexiones legacy de SQLAlchemy 1.4. No incorpora columnas nuevas; corrige la persistencia de la inicialización existente. La lista de columnas se actualiza tras cada alta para que la comprobación final no intente crear de nuevo `revisions` o las columnas editoriales durante el mismo arranque. Featured Viewers conserva la inspección previa para no pedir un bloqueo exclusivo cuando la columna ya existe. Ver [[Testing]].
 
 ## Data Stories
 

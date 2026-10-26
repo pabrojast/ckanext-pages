@@ -43,7 +43,7 @@
       <!-- Header -->
       <div class="fv-show-header">
         <h1>
-          <i class="fa {{ cat_info.icon or 'fa-map' }}" style="color: {{ cat_info.color or '#0072BC' }};"></i>
+          <i class="fa {{ cat_info.icon or 'fa-map' }}" style="color: {{ cat_info.color or 'var(--pages-primary, #0072BC)' }};"></i>
           {{ viewer.title }}
         </h1>
 
@@ -53,7 +53,7 @@
 
         <!-- Badges Row -->
         <div class="fv-tags-row">
-          <span class="fv-badge fv-badge-category" style="background: {{ cat_info.color or '#0072BC' }};">
+          <span class="fv-badge fv-badge-category" style="background: {{ cat_info.color or 'var(--pages-primary, #0072BC)' }};">
             <i class="fa {{ cat_info.icon or 'fa-map' }}"></i> {{ cat_info.title }}
           </span>
 

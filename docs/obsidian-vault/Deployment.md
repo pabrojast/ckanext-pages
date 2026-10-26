@@ -1,7 +1,7 @@
 # Deployment
 
 Tags: #deployment #operacion
-Actualizado: 2026-10-01
+Actualizado: 2026-10-26
 
 Relacionadas: [[Setup Local]], [[Variables de Entorno]], [[Testing]], [[Datos y Persistencia]]
 
@@ -143,3 +143,9 @@ La imagen final pasó 116 pruebas focalizadas en un contenedor descartable; pyte
 `RapidResponseAndRecovery` reúne `feat/story-image-library` (`f725475`) y `fix/rapid-response-header-production-20261001` (`8acd275`), incluyendo la biblioteca de imágenes, los anchos de Data Stories, el compositor de Rapid Response y los encabezados adaptables. La resolución conserva la validación de ancho, el editor compartido y todos los assets del compositor; incorpora también la versión `20261001-header-1` del CSS del editor.
 
 Esta consolidación publica código en Git. La imagen de producción sigue fijada a revisiones concretas en el repositorio Docker; integrar ramas no actualiza sus referencias ni ejecuta un despliegue. Para una entrega posterior, usar el procedimiento oficial de ese repositorio y verificar la imagen resultante. Ver [[Testing]] y [[Biblioteca de Imagenes]].
+
+## Consolidación de ramas activas (2026-10-26)
+
+Al revisar los refs remotos, `RapidResponseAndRecovery` en `a543f00` ya contiene las ramas de Stories, biblioteca de imágenes, composiciones, showcase, Water Information, guía/pulido del selector de dashboards y Water Family. La integración incorpora los tres commits pendientes de `node`: `00905d1` (configuración de portal), `ed8106b` (transacciones de inicialización) y `c27be14` (marca/cabeceras). Los cambios locales sin confirmar del checkout original quedan fuera de esta consolidación.
+
+Antes de desplegar, revisar `ckan.site_url`, `ckanext.pages.terria_base_url` y los hosts adicionales de Featured Viewers: el fallback de Terria ahora pertenece al propio portal. Water Family y Rapid Response siguen habilitados por defecto. La publicación de la rama no despliega DEV ni producción. Ver [[Variables de Entorno]], [[Datos y Persistencia]] y [[Testing]].

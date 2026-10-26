@@ -42,7 +42,7 @@ def search_locations(args):
         raise GeocodingError('Location search is temporarily unavailable.', 503)
     try:
         response = requests.get(endpoint, params=params, timeout=8, headers={
-            'User-Agent': 'IHP-WINS location search (' + tk.config.get('ckan.site_url', '') + ')',
+            'User-Agent': 'CKAN data stories location search (' + tk.config.get('ckan.site_url', '') + ')',
             'Accept': 'application/geo+json, application/json',
         })
         response.raise_for_status()

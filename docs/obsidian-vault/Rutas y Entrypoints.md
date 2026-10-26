@@ -1,7 +1,7 @@
 # Rutas y Entrypoints
 
 Tags: #arquitectura #backend
-Actualizado: 2026-10-23
+Actualizado: 2026-10-26
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Comandos Utiles]]
 
@@ -26,6 +26,8 @@ Según `setup.py`, el paquete expone:
 ## Blueprint base del módulo `pages`
 
 Registrado desde `ckanext/pages/blueprint.py`.
+
+Desde la integración de `node`, `ckanext.pages.water_family.enabled` permite omitir las rutas de Water Family, Rapid Response, Open Source/AI, CRIDA y administración de tipos, incluido `/water_family_upload`. El valor predeterminado es `true`, por lo que se conserva el registro anterior. Páginas, blog, `/pages_upload` y sus rutas de organización/grupo permanecen disponibles. Las acciones CKAN y los datos del dominio no se desactivan con este interruptor. Ver [[Variables de Entorno]].
 
 ### Rutas principales
 

@@ -24,7 +24,7 @@ La workflow `test.yml` incorpora esta suite como paso separado, usando el
 servicio PostgreSQL efímero de CI y esquemas distintos de la base CKAN.
 
 Tags: #testing #operacion
-Actualizado: 2026-10-23
+Actualizado: 2026-10-26
 
 Relacionadas: [[Setup Local]], [[Comandos Utiles]], [[Troubleshooting]]
 
@@ -251,3 +251,19 @@ La prueba complementaria `test_initiative_pages.py` vive en `ckan-unesco-theme` 
 Verificación local del 2026-10-09 con CKAN 2.10 y servicios Docker aislados: 13 pruebas enfocadas aprobadas (9 de Pages y 4 del tema). La suite Water Family existente aprobó 33 pruebas y falló en `test_list_filter_by_water_type` y `test_show_non_water_type_returns_none`; ambos fallos se reprodujeron con el `plugin.py` original. Sus correcciones quedan fuera del cambio de iniciativas. Evidencia local: `output/playwright/water-family-initiatives/`. No se ejecutaron fixtures contra dev ni producción.
 
 Playwright CLI comprobó los formularios completos con `theme_ejemplo` en la instancia aislada a 390 y 1366 px: alta, publicación, reapertura, eliminación parcial/total, aparición y retiro de las tarjetas en las pestañas de iniciativas, y guardado de asociaciones con JSON doblemente serializado. No hubo excepciones JavaScript ni desbordamiento horizontal en esas cuatro combinaciones. Las capturas, el resumen y el harness local están en el directorio de evidencia anterior; no equivalen a una validación desplegada en producción.
+
+## Integración de `node` en RapidResponseAndRecovery (2026-10-26)
+
+`test_portal_configuration.py` comprueba el registro de rutas con el ajuste Water Family ausente, activado y desactivado, además del Terria local/configurado, hosts adicionales y cabeceras predeterminadas/personalizadas. `test_startup_transactions.py` crea esquemas PostgreSQL efímeros para probar el DDL real en conexiones SQLAlchemy 1.4 legacy y future: creación inicial, columnas editoriales, instalaciones sin `revisions`, ocho columnas de Stories y el fallback de Featured Viewers. La repetición verifica que el arranque conserva las columnas sin crearlas dos veces.
+
+```bash
+PAGES_SCHEMA_TEST_URL=postgresql://usuario:clave@postgres-pruebas/pages_test \
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q \
+  ckanext/pages/tests/test_portal_configuration.py \
+  ckanext/pages/tests/test_startup_transactions.py \
+  ckanext/pages/tests/test_featured_viewer_schema.py
+```
+
+La workflow incorpora estas suites a los pasos de helpers y transacciones, reutilizando el PostgreSQL efímero de CI. La prueba de geocodificación espera el identificador genérico de la integración. Verificación local: 197 pruebas Python y ocho subtests pasaron con CKAN 2.10, SQLAlchemy 1.4.41 y PostgreSQL 17, incluyendo importación atómica, Stories, imágenes, anchos, compositor y selector de dashboards. Pasaron también las nueve pruebas JavaScript de secuencia/playback y el control de sintaxis.
+
+La CI general de la base `a543f00` ya fallaba en lint y `story-browser`, omitiendo la matriz CKAN: [ejecución anterior a la integración](https://github.com/pabrojast/ckanext-pages/actions/runs/39965624412). El resultado local no acredita un despliegue ni sustituye esa matriz. Ver [[Deployment]].
