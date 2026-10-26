@@ -17,3 +17,4 @@ nul
 # Local browser evidence and reversible operational backups
 /output/playwright/
 /output/rapid-response/
+.playwright-cli
