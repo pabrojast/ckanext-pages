@@ -224,8 +224,8 @@ def project_story(story):
         sections = [s for s in story['sections'] if s['origin'] == origin]
         blocks = [b for s in sections for b in s['blocks_metadata']]
         fields[field] = '\n'.join(
-            section['legacy_content'] if section.get('legacy_blocks') == section['blocks_metadata']
-            and 'legacy_content' in section else '\n'.join(block_html(b) for b in section['blocks_metadata'])
+            section['legacy_content'] if section.get('legacy_blocks') == section['blocks_metadata'] and
+            'legacy_content' in section else '\n'.join(block_html(b) for b in section['blocks_metadata'])
             for section in sections)
         if metadata:
             fields[metadata] = copy.deepcopy(blocks)
@@ -296,7 +296,8 @@ def view_context(page, context):
                     'terria', 'terria_slide', 'media', 'image', 'dashboard', 'presentation'):
                 block['type'] = 'text'
                 block['content'] = lazy_media_html(tk.h.render_markdown(block.get('content') or '', allow_html=True))
-    view['sections'] = [s for s in view['sections'] if any(b.get('type') == 'dashboard' or block_html(b).strip() for b in s['blocks_metadata'])]
+    view['sections'] = [s for s in view['sections'] if any(
+        b.get('type') == 'dashboard' or block_html(b).strip() for b in s['blocks_metadata'])]
     view['uploaded_images'] = decode(page.get('uploaded_images') or '[]', legacy=True)
     scenes = get_storymap_scenes(view)
     config = get_storymap_config(view, scenes)

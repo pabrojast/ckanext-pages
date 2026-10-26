@@ -25,7 +25,8 @@ def _column_exists(table_name, column_name):
 
 def upgrade():
     columns = [
-        ('submission_status', sa.Column('submission_status', sa.UnicodeText(), nullable=True, server_default=sa.text("'draft'"))),
+        ('submission_status', sa.Column('submission_status', sa.UnicodeText(), nullable=True,
+                                        server_default=sa.text("'draft'"))),
         ('ihp_organization', sa.Column('ihp_organization', sa.UnicodeText(), nullable=True)),
         ('submitted_at', sa.Column('submitted_at', sa.DateTime(), nullable=True)),
         ('reviewed_at', sa.Column('reviewed_at', sa.DateTime(), nullable=True)),

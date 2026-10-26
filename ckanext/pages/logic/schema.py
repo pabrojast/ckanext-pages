@@ -18,9 +18,8 @@ def default_pages_schema():
     unicode_safe = p.toolkit.get_validator('unicode_safe')
     boolean_validator = p.toolkit.get_validator('boolean_validator')
     url_validator = p.toolkit.get_validator('url_validator')
-    int_validator = p.toolkit.get_validator('int_validator')
     email_validator = p.toolkit.get_validator('email_validator')
-    
+
     def clean_categories_validator(key, data, errors, context):
         """Clean categories by removing duplicates and empty values"""
         value = data.get(key)
@@ -67,7 +66,7 @@ def default_pages_schema():
             except (ValueError, TypeError):
                 errors[key].append('Invalid JSON format')
         return data[key]
-    
+
     def optional_int_validator(key, data, errors, context):
         """Validate integer fields that can be empty"""
         value = data.get(key)
@@ -77,7 +76,7 @@ def default_pages_schema():
             except (ValueError, TypeError):
                 errors[key].append('Must be a valid number')
         return data[key]
-    
+
     def safe_boolean_validator(key, data, errors, context):
         """Normalise checkbox-style values before boolean validation"""
         value = data.get(key)
@@ -137,12 +136,18 @@ def default_pages_schema():
         'key_info': [ignore_missing, unicode_safe],
         'image_carousel': [ignore_missing, unicode_safe],
         'map_stories': [ignore_missing, unicode_safe],
-        'spatial_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for spatial content blocks (legacy)
-        'impact_assessment_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for impact assessment content blocks
-        'response_activities_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for response activities content blocks
-        'recovery_phase_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for recovery phase content blocks
-        'resilience_phase_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for resilience phase content blocks
-        'additional_info_blocks_metadata': [ignore_missing, json_validator, unicode_safe],  # Metadata for additional information content blocks
+        # Metadata for spatial content blocks (legacy)
+        'spatial_blocks_metadata': [ignore_missing, json_validator, unicode_safe],
+        # Metadata for impact assessment content blocks
+        'impact_assessment_blocks_metadata': [ignore_missing, json_validator, unicode_safe],
+        # Metadata for response activities content blocks
+        'response_activities_blocks_metadata': [ignore_missing, json_validator, unicode_safe],
+        # Metadata for recovery phase content blocks
+        'recovery_phase_blocks_metadata': [ignore_missing, json_validator, unicode_safe],
+        # Metadata for resilience phase content blocks
+        'resilience_phase_blocks_metadata': [ignore_missing, json_validator, unicode_safe],
+        # Metadata for additional information content blocks
+        'additional_info_blocks_metadata': [ignore_missing, json_validator, unicode_safe],
         'additional_content': [ignore_missing, unicode_safe],
         'agenda_document': [ignore_missing, unicode_safe],       # Agenda or flyer document URL
         'header_image': [ignore_missing, unicode_safe],
@@ -151,7 +156,7 @@ def default_pages_schema():
         # Key Information fields for rapid response
         'key_event_start': [ignore_missing, isodate],               # Event start date
         'key_activation': [ignore_missing, isodate],                # Activation date
-        'key_world_heritage_sites': [ignore_missing, unicode_safe], # World Heritage Sites
+        'key_world_heritage_sites': [ignore_missing, unicode_safe],  # World Heritage Sites
         'key_biosphere_reserves': [ignore_missing, unicode_safe],   # Biosphere Reserves
         'key_geoparks': [ignore_missing, unicode_safe],             # Geoparks
         'key_people_affected': [ignore_missing, optional_int_validator, unicode_safe],      # People affected
@@ -161,13 +166,13 @@ def default_pages_schema():
         'timeline_events': [ignore_missing, json_validator, unicode_safe],  # Dynamic timeline events
         'uploaded_images': [ignore_missing, json_validator, unicode_safe],  # Uploaded images metadata
         'image_gallery': [ignore_missing, unicode_safe],     # Markdown/text gallery content
-        'response_activities': [ignore_missing, unicode_safe], # Response activities for rapid response
+        'response_activities': [ignore_missing, unicode_safe],  # Response activities for rapid response
         'impact_assessment': [ignore_missing, unicode_safe],  # Impact assessment for rapid response
         'recovery_phase': [ignore_missing, unicode_safe],     # Recovery phase for rapid response
         'resilience_phase': [ignore_missing, unicode_safe],   # Resilience phase for rapid response
         'activity_status': [ignore_missing, unicode_safe],   # Activity status phase
         'country': [ignore_missing, unicode_safe],           # Country/countries affected
-        'countries_affected': [ignore_missing, json_validator, unicode_safe], # Countries affected (JSON array)
+        'countries_affected': [ignore_missing, json_validator, unicode_safe],  # Countries affected (JSON array)
         'partners': [ignore_missing, json_validator, unicode_safe],  # Partners/organizations (JSON array of names)
         'project_type': [ignore_missing, unicode_safe],  # Project type (scientific, project, case_study, etc.)
         'priority': [ignore_missing, unicode_safe],          # Priority level
@@ -186,20 +191,21 @@ def default_pages_schema():
         # Water Events specific fields
         'location': [ignore_missing, unicode_safe],         # Event location
         'organization': [ignore_missing, unicode_safe],     # Organizing institution
-        'ihp_organization': [ignore_missing, unicode_safe], # Primary organization (id)
-        'ihp_official': [ignore_missing, ignore_empty, safe_boolean_validator, boolean_validator],  # Sysadmin "IHP Official" override; empty/missing = auto-detect
+        'ihp_organization': [ignore_missing, unicode_safe],  # Primary organization (id)
+        # Sysadmin "IHP Official" override; empty/missing = auto-detect
+        'ihp_official': [ignore_missing, ignore_empty, safe_boolean_validator, boolean_validator],
         'co_organizers': [ignore_missing, unicode_safe],    # Co-organizers text
         'event_details': [ignore_missing, unicode_safe],    # Event details and schedule
         'event_format': [ignore_missing, unicode_safe],     # Event format (in-person, online, hybrid)
         'event_end_date': [ignore_missing, isodate],        # Event end date (for multi-day events)
         'speakers': [ignore_missing, unicode_safe],         # Speakers and organizers
-        'registration_info': [ignore_missing, unicode_safe], # Registration information
-        'registration_url': [ignore_missing, url_validator, unicode_safe], # Registration URL
+        'registration_info': [ignore_missing, unicode_safe],  # Registration information
+        'registration_url': [ignore_missing, url_validator, unicode_safe],  # Registration URL
         # Water Publications specific fields
         'publication_url': [not_empty_if_water_publication, ignore_missing, url_validator, unicode_safe],  # URL to publication
-        'publication_type': [ignore_missing, unicode_safe], # Type of publication
+        'publication_type': [ignore_missing, unicode_safe],  # Type of publication
         'authors': [ignore_missing, unicode_safe],          # Publication authors
-        'publication_details': [ignore_missing, unicode_safe], # Publication bibliographic details
+        'publication_details': [ignore_missing, unicode_safe],  # Publication bibliographic details
         'download_url': [ignore_missing, url_validator, unicode_safe],     # Direct download URL
         'isbn': [ignore_missing, unicode_safe],             # ISBN for books
         'doi': [ignore_missing, unicode_safe],              # DOI for papers
@@ -226,30 +232,35 @@ def default_pages_schema():
         'initiative_groups': [ignore_missing, json_validator, unicode_safe],  # Initiative groups JSON payload
         # Water Management Tools specific fields (formerly Open Source Software)
         'key_features': [ignore_missing, unicode_safe],     # Key features list
-        'technical_requirements': [ignore_missing, unicode_safe], # Technical requirements
-        'installation_instructions': [ignore_missing, unicode_safe], # Installation instructions
+        'technical_requirements': [ignore_missing, unicode_safe],  # Technical requirements
+        'installation_instructions': [ignore_missing, unicode_safe],  # Installation instructions
         'repository_url': [ignore_missing, url_validator, unicode_safe],   # Repository URL
         'website_url': [ignore_missing, url_validator, unicode_safe],      # Official website
-        'documentation_url': [ignore_missing, url_validator, unicode_safe], # Documentation URL
-        'learning_resources': [ignore_missing, unicode_safe], # Learning resources
-        'example_applications': [ignore_missing, unicode_safe], # Example applications
-        'software_category': [ignore_missing, clean_categories_validator, unicode_safe], # Software categories (comma-separated for multiple)
-        'software_license': [ignore_missing, unicode_safe], # Software license
-        'development_status': [ignore_missing, unicode_safe], # Development status (Active, Beta, Stable, Maintained, Deprecated, Archived)
+        'documentation_url': [ignore_missing, url_validator, unicode_safe],  # Documentation URL
+        'learning_resources': [ignore_missing, unicode_safe],  # Learning resources
+        'example_applications': [ignore_missing, unicode_safe],  # Example applications
+        # Software categories (comma-separated for multiple)
+        'software_category': [ignore_missing, clean_categories_validator, unicode_safe],
+        'software_license': [ignore_missing, unicode_safe],  # Software license
+        # Development status (Active, Beta, Stable, Maintained, Deprecated, Archived)
+        'development_status': [ignore_missing, unicode_safe],
         'access_type': [ignore_missing, unicode_safe],      # Open Source or Open Access
-        'programming_language': [ignore_missing, clean_categories_validator, unicode_safe], # Programming languages (comma-separated for multiple)
-        'additional_languages': [ignore_missing, unicode_safe], # Additional programming languages not in the main list
-        'platform': [ignore_missing, clean_categories_validator, unicode_safe],         # Platform compatibility (comma-separated for multiple)
+        # Programming languages (comma-separated for multiple)
+        'programming_language': [ignore_missing, clean_categories_validator, unicode_safe],
+        'additional_languages': [ignore_missing, unicode_safe],  # Additional programming languages not in the main list
+        # Platform compatibility (comma-separated for multiple)
+        'platform': [ignore_missing, clean_categories_validator, unicode_safe],
         'version': [ignore_missing, unicode_safe],          # Current version
         'release_date': [ignore_missing, unicode_safe],     # Release date (open text field)
         'attribution': [ignore_missing, unicode_safe],      # Attribution requirements
         'organization_id': [ignore_missing, unicode_safe],  # CKAN organization
-        'credit_organization': [ignore_missing, unicode_safe], # Credit organization name
+        'credit_organization': [ignore_missing, unicode_safe],  # Credit organization name
         'member_states': [ignore_missing, json_validator, unicode_safe],    # Member states JSON array
-        'header_display_mode': [ignore_missing, unicode_safe], # Header display mode (text, logo, logo_text)
-        'logo_image': [ignore_missing, unicode_safe], # Logo image URL
-        'include_logo_in_gallery': [safe_boolean_validator, ignore_missing, boolean_validator], # Include logo in gallery option
-        'add_background': [safe_boolean_validator, ignore_missing, boolean_validator], # Add white background to logo
+        'header_display_mode': [ignore_missing, unicode_safe],  # Header display mode (text, logo, logo_text)
+        'logo_image': [ignore_missing, unicode_safe],  # Logo image URL
+        # Include logo in gallery option
+        'include_logo_in_gallery': [safe_boolean_validator, ignore_missing, boolean_validator],
+        'add_background': [safe_boolean_validator, ignore_missing, boolean_validator],  # Add white background to logo
         # AI Water Tools specific fields
         'ai_technique': [ignore_missing, clean_categories_validator, unicode_safe],
         'water_application': [ignore_missing, clean_categories_validator, unicode_safe],
@@ -307,7 +318,7 @@ def default_event_types_schema():
         'description': [ignore_missing, unicode_safe],      # Description of the event type
         'icon': [ignore_missing, unicode_safe],             # Icon class (e.g., 'fa-hurricane')
         'color': [ignore_missing, unicode_safe],            # Color code for the event type
-        'active': [ignore_missing, p.toolkit.get_validator('boolean_validator')], # Whether active
+        'active': [ignore_missing, p.toolkit.get_validator('boolean_validator')],  # Whether active
         'order': [ignore_missing, unicode_safe],            # Display order
         'created': [ignore_missing, p.toolkit.get_validator('isodate')],
         'modified': [ignore_missing, p.toolkit.get_validator('isodate')],
@@ -418,7 +429,6 @@ def water_family_schema():
     unicode_safe = p.toolkit.get_validator('unicode_safe')
     url_validator = p.toolkit.get_validator('url_validator')
     email_validator = p.toolkit.get_validator('email_validator')
-    int_validator = p.toolkit.get_validator('int_validator')
 
     def json_validator(key, data, errors, context):
         """Validate and safely handle JSON fields"""

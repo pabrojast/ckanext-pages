@@ -3,7 +3,6 @@
 Tests for Data Stories validation logic.
 """
 
-import pytest
 import json
 
 from ckanext.pages.data_stories.logic.validation import (

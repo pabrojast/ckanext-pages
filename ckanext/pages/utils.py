@@ -178,6 +178,7 @@ def _build_user_display_lookup(pages):
 
     return lookup
 
+
 config = tk.config
 _ = tk._
 
@@ -194,7 +195,7 @@ def _parse_form_data(request):
 
 def pages_list_pages(page_type):
     data_dict = {'org_id': None, 'page_type': page_type}
-    
+
     # Pass search and filter parameters from request
     if tk.request.args.get('q'):
         data_dict['q'] = tk.request.args.get('q')
@@ -209,31 +210,32 @@ def pages_list_pages(page_type):
         data_dict['order_by'] = tk.request.args.get('order_by')
     else:
         # Default ordering for different page types
-        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events', 'water-publications', 'open-source-software', 'ai-water-tools']:
+        if page_type in ['blog', 'rapid-response', 'water-news', 'water-events',
+                         'water-publications', 'open-source-software', 'ai-water-tools']:
             data_dict['order_by'] = 'recent'  # Default to most recent first
-    
+
     # Additional filters for rapid-response pages
     if page_type == 'rapid-response':
         filter_params = ['country', 'activity_status', 'severity', 'event_status']
         for param in filter_params:
             if tk.request.args.get(param):
                 data_dict[param] = tk.request.args.get(param)
-    
+
     # Additional filters for open-source-software and ai-water-tools
     if page_type in ['open-source-software', 'ai-water-tools']:
         # Handle multiple values for category and language filters
         multi_value_params = ['category', 'language']
         single_value_params = ['access_type', 'license', 'platform', 'attribution']
-        
+
         for param in multi_value_params:
             param_values = tk.request.args.getlist(param)
             if param_values and any(v.strip() for v in param_values):
                 data_dict[param] = [v for v in param_values if v.strip()]
-        
+
         for param in single_value_params:
             if tk.request.args.get(param):
                 data_dict[param] = tk.request.args.get(param)
-    
+
     # Filter content based on user permissions
     if not authz.is_sysadmin(tk.g.user):
         # Regular users only see public items
@@ -243,7 +245,7 @@ def pages_list_pages(page_type):
             # Only show approved content to regular users
             if page_type in ['open-source-software', 'ai-water-tools']:
                 data_dict['submission_status'] = 'approved'
-    
+
     tk.g.pages_dict = tk.get_action('ckanext_pages_list')(
         context={}, data_dict=data_dict
     )
@@ -290,8 +292,8 @@ def pages_list_pages(page_type):
 
         tk.g.pages_dict = pages_list
 
-    
     # Create custom pager URL to preserve search parameters
+
     def pager_url_with_params(page):
         params = []
         for key, value in tk.request.args.items():
@@ -300,7 +302,7 @@ def pages_list_pages(page_type):
         params.append(f"page={page}")
         base_url = tk.request.path
         return f"{base_url}?{'&'.join(params)}"
-    
+
     tk.c.page = helpers.Page(
         collection=tk.g.pages_dict,
         page=tk.request.args.get('page', 1),
@@ -418,7 +420,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
     permission_needed = 'ckanext_pages_update'
     if page_type in ['water-news', 'water-events', 'water-publications']:
         permission_needed = f'ckanext_{page_type.replace("-", "_")}_update'
-    
+
     try:
         tk.check_access(permission_needed, {'user': tk.g.user}, {'page': page, 'page_type': _page_type})
     except tk.NotAuthorized:
@@ -499,7 +501,8 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                         primary_org = orgs[0]
                         page_dict['ihp_organization'] = primary_org.get('id') or primary_org.get('name')
                         if not page_dict.get('organization'):
-                            page_dict['organization'] = primary_org.get('title') or primary_org.get('display_name') or primary_org.get('name')
+                            page_dict['organization'] = primary_org.get('title') or primary_org.get(
+                                'display_name') or primary_org.get('name')
                 except Exception:
                     pass
 
@@ -608,9 +611,9 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                     _recover_water_publication_dataset_links(page_dict)
                     update_page_dict = dict(page_dict)
                     update_page_dict['page'] = (
-                        update_page_dict.get('page')
-                        or page
-                        or update_page_dict.get('name')
+                        update_page_dict.get('page') or
+                        page or
+                        update_page_dict.get('name')
                     )
                     resource_url = page_dict.get('download_url')
                     dataset_page_url = page_dict.get('associated_dataset_url')
@@ -674,7 +677,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
             endpoint = 'open_source_software_show'
         elif page_type == 'ai-water-tools':
             endpoint = 'ai_water_tools_show'
-        
+
         return tk.redirect_to('pages.%s' % endpoint, page=page_dict['name'])
 
     if not data:
@@ -698,7 +701,8 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
                 if orgs:
                     primary_org = orgs[0]
                     data['ihp_organization'] = primary_org.get('id') or primary_org.get('name')
-                    data.setdefault('organization', primary_org.get('title') or primary_org.get('display_name') or primary_org.get('name'))
+                    data.setdefault('organization', primary_org.get('title') or
+                                    primary_org.get('display_name') or primary_org.get('name'))
             except Exception:
                 pass
         # Ensure organization_id is set for the edit form dropdown
@@ -715,12 +719,12 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
         def __init__(self, data_dict):
             for key, value in data_dict.items():
                 setattr(self, key, value)
-    
+
     # Pass both the page object (if editing) and page name for the template
     page_object = None
     if page and page_dict:
         page_object = PageObject(page_dict)
-    
+
     vars = {'data': data, 'errors': errors,
             'error_summary': error_summary, 'page': page_object,
             'page_name': page or '',
@@ -776,7 +780,7 @@ def pages_edit(page=None, data=None, errors=None, error_summary=None, page_type=
 
     # Load member states server-side
     if page_type in ['open-source-software', 'ai-water-tools',
-                      'water-publications', 'water-news', 'water-events']:
+                     'water-publications', 'water-news', 'water-events']:
         try:
             # Direct DB query to avoid N+1 from group_show(include_groups=True)
             ms_group = model.Group.get('member-states')
@@ -876,8 +880,8 @@ def _resolve_documents_dataset_type():
       4) Fallback to 'documents' for backward compatibility
     """
     override = (
-        tk.config.get('ckanext.pages.documents_dataset_type')
-        or tk.config.get('ckanext.pages.document_dataset_type')
+        tk.config.get('ckanext.pages.documents_dataset_type') or
+        tk.config.get('ckanext.pages.document_dataset_type')
     )
     if override:
         return str(override).strip()
@@ -1428,15 +1432,15 @@ def _maybe_create_documents_dataset(form_data):
     # Owner org
     owner_org = form_data.get('organization_id') or None
     if not owner_org:
-      try:
-          orgs = tk.get_action('organization_list_for_user')(
-              {'user': tk.g.user} if getattr(tk.g, 'user', None) else {},
-              {'permission': 'create_dataset'}
-          )
-          if orgs:
-              owner_org = orgs[0].get('id') or orgs[0].get('name')
-      except Exception:
-          pass
+        try:
+            orgs = tk.get_action('organization_list_for_user')(
+                {'user': tk.g.user} if getattr(tk.g, 'user', None) else {},
+                {'permission': 'create_dataset'}
+            )
+            if orgs:
+                owner_org = orgs[0].get('id') or orgs[0].get('name')
+        except Exception:
+            pass
 
     # Notes/Abstract
     dataset_notes = (form_data.get('dataset_description') or form_data.get('content') or '').strip()
@@ -1705,8 +1709,8 @@ def _enrich_publication_display(_page):
     }
 
     # --- Organization details ---
-    org_id = (_page.get('organization_id') or _page.get('ihp_organization')
-              or '').strip()
+    org_id = (_page.get('organization_id') or _page.get('ihp_organization') or
+              '').strip()
     if org_id:
         try:
             org = tk.get_action('organization_show')(
@@ -1937,17 +1941,17 @@ def pages_revisions(page, page_type='page'):
 
     if not _page:
         return tk.abort(404, _('Page Not Found'))
-    
+
     tk.c.page_type = page_type
     tk.c.page = _page
-    
+
     # Get revisions list for the template
     revisions = []
     if _page.revisions:
         revisions = [dict(value, id=key) for key, value in _page.revisions.items()]
         # Sort by timestamp descending (newest first)
         revisions.sort(key=lambda x: x.get('created', ''), reverse=True)
-    
+
     return tk.render('ckanext_pages/%s_revisions.html' % page_type, extra_vars={
         'page': _page,
         'revisions': revisions
@@ -1964,10 +1968,10 @@ def pages_revisions_preview(page, revision, page_type='page'):
         return tk.abort(401, _('Unauthorized to view this page'))
 
     _page = Page.get(name=page)
-    
+
     if not _page:
         return tk.abort(404, _('Page Not Found'))
-        
+
     tk.c.page_type = page_type
     tk.c.page = _page
     try:
@@ -2066,7 +2070,7 @@ def pages_delete(page, page_type='pages'):
     if tk.request.method == 'POST':
         try:
             tk.get_action('ckanext_pages_delete')({}, {'page': page})
-            
+
             # Handle redirects for different page types after successful deletion
             endpoint = page_type + '_index'
             if page_type == 'rapid-response':
@@ -2090,7 +2094,7 @@ def pages_delete(page, page_type='pages'):
             else:
                 endpoint = 'pages_index'
                 tk.h.flash_success(_('Page deleted successfully'))
-            
+
             return tk.redirect_to('pages.%s' % endpoint)
         except tk.ObjectNotFound:
             return tk.abort(404, _('Page Not Found'))
@@ -2118,7 +2122,7 @@ def pages_delete(page, page_type='pages'):
             delete_url = tk.h.url_for('pages.ai_water_tools_delete', page=page)
         else:
             delete_url = tk.h.url_for('pages.delete', page=page)
-        
+
         return tk.render('ckanext_pages/confirm_delete.html', extra_vars={
             'page': page,
             'page_dict': page_dict,
@@ -2248,7 +2252,6 @@ def get_water_family_data(page, page_type):
         tk.ObjectNotFound: If page doesn't exist
         tk.NotAuthorized: If user not authorized to view
     """
-    import json
 
     # Validate page_type
     valid_types = ['water-news', 'water-events', 'water-publications']
@@ -2370,7 +2373,8 @@ def process_water_family_metadata(data_dict, page_type):
     from datetime import datetime
 
     # Process JSON fields safely
-    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups', 'initiative_groups']
+    json_fields = ['uploaded_images', 'attachments', 'water_metadata',
+                   'timeline_events', 'country_groups', 'initiative_groups']
 
     for field in json_fields:
         if field in data_dict and isinstance(data_dict[field], str):
@@ -2478,7 +2482,8 @@ def _process_water_family_json_fields(page_dict):
     """Helper to safely parse JSON fields in water-family data."""
     import json
 
-    json_fields = ['uploaded_images', 'attachments', 'water_metadata', 'timeline_events', 'country_groups', 'initiative_groups']
+    json_fields = ['uploaded_images', 'attachments', 'water_metadata',
+                   'timeline_events', 'country_groups', 'initiative_groups']
 
     for field in json_fields:
         if field in page_dict and isinstance(page_dict[field], str):
@@ -3009,12 +3014,12 @@ def group_delete(id, group_type, page):
 # Water Family Community of Practice Functions
 def water_family_main_page():
     """Main water family page showing all three content types"""
-    
+
     # Get recent items from each category (only approved/public items)
     try:
         news_items = tk.get_action('ckanext_pages_list')(
             context={}, data_dict={
-                'org_id': None, 
+                'org_id': None,
                 'page_type': 'water-news',
                 'order_publish_date': True,
                 'private': False
@@ -3022,11 +3027,11 @@ def water_family_main_page():
         )[:3]  # Latest 3 news items
     except Exception:
         news_items = []
-    
+
     try:
         events_items = tk.get_action('ckanext_pages_list')(
             context={}, data_dict={
-                'org_id': None, 
+                'org_id': None,
                 'page_type': 'water-events',
                 'order_publish_date': True,
                 'private': False
@@ -3034,11 +3039,11 @@ def water_family_main_page():
         )[:3]  # Latest 3 events
     except Exception:
         events_items = []
-    
+
     try:
         publications_items = tk.get_action('ckanext_pages_list')(
             context={}, data_dict={
-                'org_id': None, 
+                'org_id': None,
                 'page_type': 'water-publications',
                 'order_publish_date': True,
                 'private': False
@@ -3076,17 +3081,17 @@ def _filter_non_admin_pages(page_type):
     """Get pending private pages created by non-admin users for the specified page type."""
     from ckanext.pages.db import Page
     from ckan import model
-    
+
     # Only moderation queue items (pending) should appear here.
     query = model.Session.query(Page).filter(
         Page.page_type == page_type,
-        Page.private == True,
+        Page.private.is_(True),
         Page.submission_status == 'pending',
-        Page.group_id == None
+        Page.group_id.is_(None)
     ).order_by(Page.publish_date.desc())
-    
+
     private_pages = query.all()
-    
+
     filtered_pages = []
     for page in private_pages:
         if page.user_id:
@@ -3101,7 +3106,7 @@ def _filter_non_admin_pages(page_type):
             except Exception:
                 # Any error, include for review
                 pass
-        
+
         # Convert page object to dict format expected by template
         page_dict = {
             'title': page.title,
@@ -3115,7 +3120,7 @@ def _filter_non_admin_pages(page_type):
             'created': page.created.isoformat() if page.created else None,
             'user_id': page.user_id
         }
-        
+
         # Add extras if they exist
         if page.extras:
             try:
@@ -3124,18 +3129,18 @@ def _filter_non_admin_pages(page_type):
                 page_dict.update(extras)
             except (ValueError, TypeError):
                 pass
-        
+
         filtered_pages.append(page_dict)
-    
+
     return filtered_pages
 
 
 def water_admin_dashboard():
     """Admin dashboard to approve/reject water family content"""
-    
+
     if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to access admin dashboard'))
-    
+
     # Get pending items created by non-admin users
     try:
         pending_news = _filter_non_admin_pages('water-news')
@@ -3151,7 +3156,7 @@ def water_admin_dashboard():
         pending_publications = _filter_non_admin_pages('water-publications')
     except Exception:
         pending_publications = []
-    
+
     return tk.render('ckanext_pages/water-admin-dashboard.html', extra_vars={
         'pending_news': pending_news,
         'pending_events': pending_events,
@@ -3161,10 +3166,10 @@ def water_admin_dashboard():
 
 def water_admin_approve(page, page_type):
     """Approve a water family content item (make it public)"""
-    
+
     if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to approve content'))
-    
+
     if tk.request.method == 'POST':
         try:
             # Get the page first
@@ -3175,7 +3180,7 @@ def water_admin_approve(page, page_type):
             if not page_dict:
                 tk.h.flash_error(_('Content not found'))
                 return tk.redirect_to('pages.water_admin_dashboard')
-            
+
             page_dict['page'] = page
             page_dict['org_id'] = None
             page_dict['page_type'] = page_dict.get('page_type') or page_type
@@ -3189,16 +3194,16 @@ def water_admin_approve(page, page_type):
             page_dict['submitted_at'] = page_dict.get('submitted_at') or now.isoformat()
             if not page_dict.get('publish_date'):
                 page_dict['publish_date'] = now.isoformat()
-            
+
             tk.get_action('ckanext_pages_update')(
                 context={}, data_dict=page_dict
             )
-            
+
             tk.h.flash_success(_('Content approved and published successfully'))
-            
+
         except Exception as e:
             tk.h.flash_error(_('Error approving content: %s') % str(e))
-    
+
     return tk.redirect_to('pages.water_admin_dashboard')
 
 
@@ -3359,10 +3364,10 @@ def water_events_calendar():
 
 def open_source_admin_dashboard():
     """Admin dashboard to approve/reject open source software submissions"""
-    
+
     if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to access admin dashboard'))
-    
+
     # Get pending open source software submissions
     try:
         pending_software = _filter_pending_open_source_software()
@@ -3403,7 +3408,10 @@ def open_source_admin_approve(page):
             new_organization = tk.request.form.get('new_organization')
 
             # Log current state
-            log.info(f"[APPROVE] Before approval - page: {page}, submission_status: {page_dict.get('submission_status')}, private: {page_dict.get('private')}, current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}")
+            log.info(
+                f"[APPROVE] Before approval - page: {page}, submission_status: "
+                f"{page_dict.get('submission_status')}, private: {page_dict.get('private')}, "
+                f"current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}")
 
             page_dict['page'] = page
             page_dict['org_id'] = None
@@ -3424,7 +3432,10 @@ def open_source_admin_approve(page):
                 page_dict['ihp_organization'] = new_organization
                 log.info(f"[APPROVE] Organization will be updated to: {new_organization}")
 
-            log.info(f"[APPROVE] Attempting to update - submission_status: {page_dict['submission_status']}, private: {page_dict['private']}, ihp_organization: {page_dict.get('ihp_organization')}")
+            log.info(
+                f"[APPROVE] Attempting to update - submission_status: "
+                f"{page_dict['submission_status']}, private: {page_dict['private']}, "
+                f"ihp_organization: {page_dict.get('ihp_organization')}")
 
             tk.get_action('ckanext_pages_update')(
                 context={
@@ -3435,11 +3446,11 @@ def open_source_admin_approve(page):
                 },
                 data_dict=page_dict
             )
-            
+
             # Force session flush and commit to ensure database write
             model.Session.flush()
             model.Session.commit()
-            
+
             # Verify the update was successful
             verified_page = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
@@ -3447,7 +3458,10 @@ def open_source_admin_approve(page):
             verified_status = verified_page.get('submission_status')
             verified_private = verified_page.get('private')
             verified_org = verified_page.get('ihp_organization')
-            log.info(f"[APPROVE] After approval - submission_status: {verified_status} (type: {type(verified_status)}), private: {verified_private} (type: {type(verified_private)}), ihp_organization: {verified_org}")
+            log.info(
+                f"[APPROVE] After approval - submission_status: {verified_status} (type: "
+                f"{type(verified_status)}), private: {verified_private} (type: "
+                f"{type(verified_private)}), ihp_organization: {verified_org}")
 
             # Check if values are correct (handle both bool and string values)
             status_ok = verified_status == 'approved'
@@ -3459,7 +3473,9 @@ def open_source_admin_approve(page):
                     log.error(f"[APPROVE] Organization not updated! Expected: {new_organization}, Got: {verified_org}")
 
             if not status_ok or not private_ok or not org_ok:
-                log.error(f"[APPROVE] Verification failed - entry not properly approved! status_ok: {status_ok}, private_ok: {private_ok}, org_ok: {org_ok}")
+                log.error(
+                    f"[APPROVE] Verification failed - entry not properly approved! status_ok: "
+                    f"{status_ok}, private_ok: {private_ok}, org_ok: {org_ok}")
                 tk.h.flash_error(_('Entry approval may have failed. Please verify the entry status.'))
             else:
                 success_msg = _('Open source software entry approved and published successfully.')
@@ -3469,21 +3485,21 @@ def open_source_admin_approve(page):
                     org_name = org.title or org.display_name or org.name if org else new_organization
                     success_msg += ' ' + _('Organization set to "{0}".').format(org_name)
                 tk.h.flash_success(success_msg)
-                
+
         except Exception as e:
             log.error(f"[APPROVE] Error approving entry: {str(e)}", exc_info=True)
             model.Session.rollback()
             tk.h.flash_error(_('Error approving entry: {0}').format(str(e)))
-    
+
     return tk.redirect_to('pages.open_source_admin_dashboard')
 
 
 def open_source_admin_reject(page):
     """Reject an open source software submission"""
-    
+
     if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to reject content'))
-    
+
     if tk.request.method == 'POST':
         try:
             # Get the page first
@@ -3514,11 +3530,11 @@ def open_source_admin_reject(page):
                 },
                 data_dict=page_dict
             )
-            
+
             tk.h.flash_success(_('Open source software entry rejected.'))
         except Exception as e:
             tk.h.flash_error(_('Error rejecting entry: {0}').format(str(e)))
-    
+
     return tk.redirect_to('pages.open_source_admin_dashboard')
 
 
@@ -3526,14 +3542,14 @@ def _filter_pending_open_source_software():
     """Get pending open source software submissions for admin review"""
     from ckanext.pages.db import Page
     from ckan import model
-    
+
     # Get all pending open-source-software submissions
     query = model.Session.query(Page).filter(
         Page.page_type == 'open-source-software',
         Page.submission_status == 'pending',
-        Page.group_id == None
+        Page.group_id.is_(None)
     ).order_by(Page.submitted_at.desc())
-    
+
     return query.all()
 
 
@@ -3545,15 +3561,15 @@ def open_source_admin_change_org(page):
 
     if not authz.is_sysadmin(tk.g.user):
         return tk.abort(401, _('Unauthorized to change organization'))
-    
+
     if tk.request.method == 'POST':
         try:
             new_organization = tk.request.form.get('new_organization')
-            
+
             if not new_organization:
                 tk.h.flash_error(_('Please select an organization'))
                 return tk.redirect_to('pages.open_source_admin_dashboard')
-            
+
             # Get the page first
             page_dict = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
@@ -3566,7 +3582,10 @@ def open_source_admin_change_org(page):
             # Log current state
             current_submission_status = page_dict.get('submission_status')
             current_private = page_dict.get('private')
-            log.info(f"[CHANGE_ORG] Before change - page: {page}, current_org: {page_dict.get('ihp_organization')}, new_org: {new_organization}, submission_status: {current_submission_status}, private: {current_private}")
+            log.info(
+                f"[CHANGE_ORG] Before change - page: {page}, current_org: "
+                f"{page_dict.get('ihp_organization')}, new_org: {new_organization}, "
+                f"submission_status: {current_submission_status}, private: {current_private}")
 
             page_dict['page'] = page
             page_dict['org_id'] = None
@@ -3582,7 +3601,10 @@ def open_source_admin_change_org(page):
             if current_private is not None:
                 page_dict['private'] = current_private
 
-            log.info(f"[CHANGE_ORG] Attempting to update - ihp_organization: {new_organization}, preserving submission_status: {page_dict.get('submission_status')}, private: {page_dict.get('private')}")
+            log.info(
+                f"[CHANGE_ORG] Attempting to update - ihp_organization: {new_organization}, "
+                f"preserving submission_status: {page_dict.get('submission_status')}, private: "
+                f"{page_dict.get('private')}")
 
             tk.get_action('ckanext_pages_update')(
                 context={
@@ -3593,32 +3615,38 @@ def open_source_admin_change_org(page):
                 },
                 data_dict=page_dict
             )
-            
+
             # Force session flush and commit to ensure database write
             model.Session.flush()
             model.Session.commit()
-            
+
             # Verify the update was successful
             verified_page = tk.get_action('ckanext_pages_show')(
                 context={}, data_dict={'org_id': None, 'page': page}
             )
-            log.info(f"[CHANGE_ORG] After change - ihp_organization: {verified_page.get('ihp_organization')}, submission_status: {verified_page.get('submission_status')}, private: {verified_page.get('private')}")
+            log.info(
+                f"[CHANGE_ORG] After change - ihp_organization: "
+                f"{verified_page.get('ihp_organization')}, submission_status: "
+                f"{verified_page.get('submission_status')}, private: "
+                f"{verified_page.get('private')}")
 
             # Get organization name for message
             org = model.Group.get(new_organization)
             org_name = org.title or org.display_name or org.name if org else new_organization
-            
+
             if verified_page.get('ihp_organization') != new_organization:
-                log.error(f"[CHANGE_ORG] Verification failed - organization not changed! Expected: {new_organization}, Got: {verified_page.get('ihp_organization')}")
+                log.error(
+                    f"[CHANGE_ORG] Verification failed - organization not changed! Expected: "
+                    f"{new_organization}, Got: {verified_page.get('ihp_organization')}")
                 tk.h.flash_error(_('Organization change may have failed. Please verify the entry.'))
             else:
                 tk.h.flash_success(_('Organization changed to "{0}" successfully.').format(org_name))
-            
+
         except Exception as e:
             log.error(f"[CHANGE_ORG] Error changing organization: {str(e)}", exc_info=True)
             model.Session.rollback()
             tk.h.flash_error(_('Error changing organization: {0}').format(str(e)))
-    
+
     return tk.redirect_to('pages.open_source_admin_dashboard')
 
 
@@ -3630,10 +3658,10 @@ def event_types_admin():
         tk.check_access('ckanext_event_types_list', {'user': tk.g.user})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to access event types administration'))
-    
+
     # Check if user is sysadmin for edit/delete actions
     tk.c.is_sysadmin = authz.is_sysadmin(tk.g.user)
-    
+
     # Get all event types
     try:
         event_types = tk.get_action('ckanext_event_types_list')(
@@ -3643,7 +3671,7 @@ def event_types_admin():
     except Exception as e:
         tk.h.flash_error(_('Error loading event types: %s') % str(e))
         tk.c.event_types = []
-    
+
     return tk.render('ckanext_pages/admin/event_types_admin.html')
 
 
@@ -3660,7 +3688,7 @@ def event_types_edit(event_type_id=None, data=None, errors=None, error_summary=N
             tk.check_access('ckanext_event_types_create', {'user': tk.g.user})
         except tk.NotAuthorized:
             return tk.abort(401, _('Unauthorized to create event types'))
-    
+
     # Get existing event type if editing
     event_type_dict = {}
     if event_type_id:
@@ -3674,31 +3702,31 @@ def event_types_edit(event_type_id=None, data=None, errors=None, error_summary=N
         except Exception as e:
             tk.h.flash_error(_('Error loading event type: %s') % str(e))
             return tk.redirect_to('pages.event_types_admin')
-    
+
     if tk.request.method == 'POST' and not data:
         data = _parse_form_data(tk.request)
-        
+
         # Prepare data for action
         data_dict = event_type_dict.copy()
         data_dict.update(data)
-        
+
         if event_type_id:
             data_dict['id'] = event_type_id
-        
+
         try:
             if event_type_id:
-                result = tk.get_action('ckanext_event_types_update')(
+                tk.get_action('ckanext_event_types_update')(
                     context={}, data_dict=data_dict
                 )
                 tk.h.flash_success(_('Event type updated successfully'))
             else:
-                result = tk.get_action('ckanext_event_types_create')(
+                tk.get_action('ckanext_event_types_create')(
                     context={}, data_dict=data_dict
                 )
                 tk.h.flash_success(_('Event type created successfully'))
-            
+
             return tk.redirect_to('pages.event_types_admin')
-            
+
         except tk.ValidationError as e:
             errors = e.error_dict
             error_summary = e.error_summary
@@ -3707,21 +3735,21 @@ def event_types_edit(event_type_id=None, data=None, errors=None, error_summary=N
         except Exception as e:
             tk.h.flash_error(_('Error saving event type: %s') % str(e))
             return event_types_edit(event_type_id, data, errors, error_summary)
-    
+
     if not data:
         data = event_type_dict
-    
+
     errors = errors or {}
     error_summary = error_summary or {}
-    
+
     vars = {
-        'data': data, 
+        'data': data,
         'errors': errors,
-        'error_summary': error_summary, 
+        'error_summary': error_summary,
         'event_type_id': event_type_id,
         'is_edit': bool(event_type_id)
     }
-    
+
     return tk.render('ckanext_pages/admin/event_types_edit.html', extra_vars=vars)
 
 
@@ -3731,7 +3759,7 @@ def event_types_delete(event_type_id):
         tk.check_access('ckanext_event_types_delete', {'user': tk.g.user})
     except tk.NotAuthorized:
         return tk.abort(401, _('Unauthorized to delete event types'))
-    
+
     # Get event type info for confirmation
     try:
         event_type_dict = tk.get_action('ckanext_event_types_show')(
@@ -3743,17 +3771,17 @@ def event_types_delete(event_type_id):
     except Exception as e:
         tk.h.flash_error(_('Error loading event type: %s') % str(e))
         return tk.redirect_to('pages.event_types_admin')
-    
+
     if 'cancel' in tk.request.args:
         return tk.redirect_to('pages.event_types_admin')
-    
+
     if tk.request.method == 'POST':
         try:
             tk.get_action('ckanext_event_types_delete')(
                 context={}, data_dict={'id': event_type_id}
             )
             tk.h.flash_success(_('Event type "%s" deleted successfully') % event_type_dict.get('title', event_type_id))
-            
+
         except tk.ValidationError as e:
             # Handle business logic errors (like "cannot delete because in use")
             for field, messages in e.error_dict.items():
@@ -3761,7 +3789,7 @@ def event_types_delete(event_type_id):
                     tk.h.flash_error(message)
         except Exception as e:
             tk.h.flash_error(_('Error deleting event type: %s') % str(e))
-        
+
         return tk.redirect_to('pages.event_types_admin')
     else:
         # GET request - show confirmation page
@@ -3830,12 +3858,12 @@ def disaster_types_edit(disaster_type_id=None, data=None, errors=None, error_sum
 
         try:
             if disaster_type_id:
-                result = tk.get_action('ckanext_disaster_types_update')(
+                tk.get_action('ckanext_disaster_types_update')(
                     context={}, data_dict=data_dict
                 )
                 tk.h.flash_success(_('Disaster type updated successfully'))
             else:
-                result = tk.get_action('ckanext_disaster_types_create')(
+                tk.get_action('ckanext_disaster_types_create')(
                     context={}, data_dict=data_dict
                 )
                 tk.h.flash_success(_('Disaster type created successfully'))
@@ -3894,7 +3922,8 @@ def disaster_types_delete(disaster_type_id):
             tk.get_action('ckanext_disaster_types_delete')(
                 context={}, data_dict={'id': disaster_type_id}
             )
-            tk.h.flash_success(_('Disaster type "%s" deleted successfully') % disaster_type_dict.get('title', disaster_type_id))
+            tk.h.flash_success(_('Disaster type "%s" deleted successfully') %
+                               disaster_type_dict.get('title', disaster_type_id))
 
         except tk.ValidationError as e:
             for field, messages in e.error_dict.items():
@@ -3921,7 +3950,7 @@ def _filter_pending_ai_water_tools():
     query = model.Session.query(Page).filter(
         Page.page_type == 'ai-water-tools',
         Page.submission_status == 'pending',
-        Page.group_id == None
+        Page.group_id.is_(None)
     ).order_by(Page.submitted_at.desc())
 
     return query.all()
@@ -4437,142 +4466,6 @@ def crida_admin_reject(page):
             tk.h.flash_error(_('Error rejecting content: %s') % str(e))
 
         return tk.redirect_to('pages.crida_admin_dashboard')
-
-    return tk.redirect_to('pages.crida_admin_dashboard')
-
-
-def crida_admin_reseed():
-    """Force re-seed all CRIDA case studies from data files."""
-    if not authz.is_sysadmin(tk.g.user):
-        return tk.abort(401, _('Unauthorized'))
-
-    import json as json_module
-    import logging
-    logger = logging.getLogger(__name__)
-
-    try:
-        from ckanext.pages.commands.seed_crida import (
-            _load_data, _slugify, COORDINATES, IMAGE_MAP, CATEGORY_MAP
-        )
-        import ckan.logic as logic
-
-        items = _load_data()
-        if not items:
-            tk.h.flash_error(_('No data files found to seed.'))
-            return tk.redirect_to('pages.crida_admin_dashboard')
-
-        site_user = logic.get_action('get_site_user')(
-            {'ignore_auth': True}, {}
-        )
-        context = {
-            'user': site_user['name'],
-            'ignore_auth': True,
-        }
-
-        created = 0
-        updated = 0
-        errors = 0
-
-        for item_id, item in items.items():
-            name = _slugify(item['title'])[:80] or item_id
-            try:
-                coords = COORDINATES.get(item_id, (None, None, ''))
-                lat, lon, coord_note = (
-                    coords if len(coords) == 3
-                    else (coords[0], coords[1], '')
-                )
-                header_image = IMAGE_MAP.get(item_id, '')
-
-                existing = None
-                try:
-                    existing = logic.get_action('ckanext_pages_show')(
-                        dict(context), {'page': name}
-                    )
-                except (logic.NotFound, KeyError):
-                    pass
-
-                page_data = {
-                    'page': name,
-                    'name': name,
-                    'title': item['title'],
-                    'page_type': 'crida-case-study',
-                    'content': item.get('summary', ''),
-                    'excerpt': (
-                        item.get('summary', '')[:300]
-                        if item.get('summary') else ''
-                    ),
-                    'country': item.get('country', ''),
-                    'crida_status': item.get('status', 'Finished'),
-                    'themes': json_module.dumps(
-                        item.get('themes', [])
-                    ),
-                    'partners': json_module.dumps(
-                        item.get('partners', [])
-                    ),
-                    'highlights': json_module.dumps(
-                        item.get('highlights', [])
-                    ),
-                    'case_study_url': item.get('url_unesco', ''),
-                    'external_link': item.get(
-                        'url_original', ''
-                    ),
-                    'crida_context': item.get('context', ''),
-                    'crida_actions': item.get('actions', ''),
-                    'crida_outcomes': item.get('outcomes', ''),
-                    'image_credit': item.get(
-                        'image_credit', ''
-                    ),
-                    'header_image': header_image,
-                    'publish_date': '2025-01-01',
-                    'submission_action': 'publish',
-                }
-
-                # Add category classification if available
-                cats = CATEGORY_MAP.get(item_id, {})
-                if cats:
-                    page_data['sector'] = json_module.dumps(
-                        cats.get('sector', []))
-                    page_data['crida_stage'] = cats.get(
-                        'crida_stage', '')
-                    page_data['region'] = cats.get('region', '')
-                    page_data['scale'] = cats.get('scale', '')
-                    page_data['climate_challenge'] = json_module.dumps(
-                        cats.get('climate_challenge', []))
-                    page_data['solution_type'] = json_module.dumps(
-                        cats.get('solution_type', []))
-
-                if lat is not None:
-                    page_data['latitude'] = str(lat)
-                if lon is not None:
-                    page_data['longitude'] = str(lon)
-                if coord_note:
-                    page_data['coord_note'] = coord_note
-
-                logic.get_action('ckanext_pages_update')(
-                    dict(context), page_data
-                )
-
-                if existing:
-                    updated += 1
-                else:
-                    created += 1
-
-            except Exception:
-                errors += 1
-                logger.exception(
-                    'Error re-seeding CRIDA: %s', name
-                )
-
-        tk.h.flash_success(
-            _('Re-seed complete: %d created, %d updated, '
-              '%d errors') % (created, updated, errors)
-        )
-
-    except Exception as e:
-        logger.exception('Error during CRIDA re-seed')
-        tk.h.flash_error(
-            _('Error during re-seed: %s') % str(e)
-        )
 
     return tk.redirect_to('pages.crida_admin_dashboard')
 

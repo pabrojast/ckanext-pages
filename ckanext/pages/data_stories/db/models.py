@@ -6,7 +6,6 @@ Defines the database schema for data stories and related entities.
 
 import datetime
 import logging
-from typing import Optional, List
 
 from sqlalchemy import (
     Column,
@@ -55,7 +54,7 @@ class DataStory(DomainObject, BaseModel):
     abstract = Column(Text)
     research_question = Column(Text)
     study_area = Column(Text)
-    
+
     # Research publication fields
     paper_doi = Column(String(255), nullable=True)  # DOI of the research paper
     paper_citation = Column(Text, nullable=True)  # Full citation of the research paper
@@ -99,7 +98,8 @@ class DataStory(DomainObject, BaseModel):
     meta_keywords = Column(Text)
 
     # Relationships
-    sections = relationship('DataStorySection', back_populates='story', cascade='all, delete-orphan', order_by='DataStorySection.order_index')
+    sections = relationship('DataStorySection', back_populates='story',
+                            cascade='all, delete-orphan', order_by='DataStorySection.order_index')
     datasets = relationship('DataStoryDataset', back_populates='story', cascade='all, delete-orphan')
     contributors = relationship('DataStoryContributor', back_populates='story', cascade='all, delete-orphan')
     comments = relationship('DataStoryComment', back_populates='story', cascade='all, delete-orphan')

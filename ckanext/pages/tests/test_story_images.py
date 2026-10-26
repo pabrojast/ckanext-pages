@@ -70,6 +70,7 @@ class TestStoryImages:
     def test_storage_failure_is_not_a_success(self, monkeypatch):
         owner = factories.User()
         from ckanext.pages import story_images
+
         def fail(*args):
             raise OSError('Storage unavailable')
         monkeypatch.setattr(story_images.uploader, 'get_uploader', fail)
@@ -81,7 +82,7 @@ class TestStoryImages:
         owner = factories.User()
         with pytest.raises(tk.ValidationError):
             helpers.call_action('data_story_create', {'user': owner['name']},
-                title='Inline', abstract='<img src="data:image/png;base64,eA==">')
+                                title='Inline', abstract='<img src="data:image/png;base64,eA==">')
 
     def test_browser_requires_csrf_and_private_library(self, tmp_path, monkeypatch, app):
         monkeypatch.setitem(tk.config, 'ckan.storage_path', str(tmp_path))
@@ -95,15 +96,15 @@ class TestStoryImages:
         missing = app.post('/story-images/upload', data={'upload': photo()}, extra_environ=env)
         assert missing.status_code == 400
         valid = app.post('/story-images/upload', data={'upload': photo()},
-            headers={'X-CSRFToken': settings.json['csrf_token']}, extra_environ=env)
+                         headers={'X-CSRFToken': settings.json['csrf_token']}, extra_environ=env)
         assert valid.status_code == 200, valid.json
         assert valid.json['uploaded'] == 1
         no_csrf_api = app.post('/api/3/action/story_image_update',
-            json={'id': valid.json['id'], 'archived': True}, extra_environ=env)
+                               json={'id': valid.json['id'], 'archived': True}, extra_environ=env)
         assert no_csrf_api.status_code in (400, 409)
         update = app.post('/api/3/action/story_image_update',
-            json={'id': valid.json['id'], 'alt': 'River'},
-            headers={'X-CSRFToken': settings.json['csrf_token']}, extra_environ=env)
+                          json={'id': valid.json['id'], 'alt': 'River'},
+                          headers={'X-CSRFToken': settings.json['csrf_token']}, extra_environ=env)
         assert update.status_code == 200
         assert update.json['result']['alt'] == 'River'
         page = app.get('/user/' + owner['name'] + '/story-images', extra_environ=env)

@@ -3,9 +3,7 @@ Database initialization and migration utilities for ckanext-pages
 """
 import logging
 import sqlalchemy as sa
-from sqlalchemy.exc import ProgrammingError
 from ckan import model
-from ckan.plugins import toolkit as tk
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +18,7 @@ def ensure_pages_table_exists():
         # Check if table exists
         engine = model.meta.engine
         inspector = sa.inspect(engine)
-        
+
         if 'ckanext_pages' not in inspector.get_table_names():
             log.info("Creating ckanext_pages table...")
             create_pages_table()
@@ -28,7 +26,7 @@ def ensure_pages_table_exists():
             log.info("ckanext_pages table already exists")
             # Check if all required columns exist
             ensure_all_columns_exist()
-            
+
     except Exception as e:
         log.error("Error ensuring pages table exists: %s", str(e))
         raise
@@ -38,7 +36,7 @@ def create_pages_table():
     """Create the ckanext_pages table with all required columns"""
     try:
         engine = model.meta.engine
-        
+
         # Create the table
         create_table_sql = """
         CREATE TABLE IF NOT EXISTS ckanext_pages (
@@ -59,11 +57,11 @@ def create_pages_table():
             revisions jsonb
         );
         """
-        
+
         with engine.begin() as conn:
             conn.execute(sa.text(create_table_sql))
         log.info("Successfully created ckanext_pages table")
-        
+
     except Exception as e:
         log.error("Error creating ckanext_pages table: %s", str(e))
         raise
@@ -74,22 +72,22 @@ def ensure_all_columns_exist():
     try:
         engine = model.meta.engine
         inspector = sa.inspect(engine)
-        
+
         columns = [col['name'] for col in inspector.get_columns('ckanext_pages')]
-        
+
         # Check for revisions column (added in later migration)
         if 'revisions' not in columns:
             log.info("Adding revisions column to ckanext_pages table...")
             add_revisions_column_sql = """
-            ALTER TABLE ckanext_pages 
+            ALTER TABLE ckanext_pages
             ADD COLUMN revisions jsonb;
             """
-            
+
             with engine.begin() as conn:
                 conn.execute(sa.text(add_revisions_column_sql))
             columns.append('revisions')
             log.info("Successfully added revisions column")
-        
+
         # Check for new submission workflow columns
         new_columns = [
             'submission_status', 'ihp_organization', 'submitted_at',
@@ -110,9 +108,9 @@ def ensure_all_columns_exist():
             'ihp_organization', 'submitted_at', 'reviewed_at', 'reviewed_by',
             'featured'
         ]
-        
+
         missing_columns = [col for col in required_columns if col not in columns]
-        
+
         if missing_columns:
             log.warning("Missing columns in ckanext_pages table: %s", missing_columns)
             # Add missing columns with defaults
@@ -120,7 +118,7 @@ def ensure_all_columns_exist():
                 add_missing_column(col)
         else:
             log.info("All required columns exist in ckanext_pages table")
-            
+
     except Exception as e:
         log.error("Error checking columns: %s", str(e))
         raise
@@ -130,7 +128,7 @@ def add_missing_column(column_name):
     """Add a missing column to the ckanext_pages table"""
     try:
         engine = model.meta.engine
-        
+
         column_definitions = {
             'id': 'text PRIMARY KEY',
             'title': 'text DEFAULT \'\'',
@@ -155,19 +153,19 @@ def add_missing_column(column_name):
             'reviewed_by': 'text DEFAULT NULL',
             'featured': 'boolean NOT NULL DEFAULT false'
         }
-        
+
         if column_name in column_definitions:
             alter_sql = f"""
-            ALTER TABLE ckanext_pages 
+            ALTER TABLE ckanext_pages
             ADD COLUMN {column_name} {column_definitions[column_name]};
             """
-            
+
             with engine.begin() as conn:
                 conn.execute(sa.text(alter_sql))
             log.info(f"Successfully added column {column_name}")
         else:
             log.warning(f"Unknown column definition for {column_name}")
-            
+
     except Exception as e:
         log.error(f"Error adding column {column_name}: {str(e)}")
         raise
@@ -177,23 +175,23 @@ def check_table_health():
     """Check if the ckanext_pages table is healthy and accessible"""
     try:
         from ckanext.pages.db import Page
-        
+
         # First check basic connectivity
         engine = model.meta.engine
         with engine.begin() as conn:
             # Simple connectivity test
             conn.execute(sa.text("SELECT 1"))
-        
+
         # Try to query the table
         query = model.Session.query(Page).limit(1)
-        result = query.first()
-        
+        query.first()
+
         log.info("Table health check passed - can query ckanext_pages table")
         return True
-        
+
     except Exception as e:
         error_str = str(e).lower()
-        
+
         # Log different types of errors differently
         if any(keyword in error_str for keyword in [
             'server closed the connection',
@@ -208,7 +206,7 @@ def check_table_health():
             log.warning("Table health check failed - table does not exist: %s", str(e))
         else:
             log.error("Table health check failed: %s", str(e))
-            
+
         return False
 
 
@@ -235,11 +233,11 @@ def repair_table_if_needed():
             ]):
                 log.warning("Database connection issue detected. Cannot repair table while connection is unstable.")
                 return False
-            
+
         if not check_table_health():
             log.info("Attempting to repair ckanext_pages table...")
             ensure_pages_table_exists()
-            
+
             # Test again
             if check_table_health():
                 log.info("Table repair successful")
@@ -250,11 +248,11 @@ def repair_table_if_needed():
         else:
             log.info("Table is healthy, no repair needed")
             return True
-            
+
     except Exception as e:
         log.error("Error during table repair: %s", str(e))
         error_str = str(e).lower()
-        
+
         # Don't attempt repair for connection issues
         if any(keyword in error_str for keyword in [
             'server closed the connection',

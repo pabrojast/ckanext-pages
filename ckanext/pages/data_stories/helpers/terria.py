@@ -7,9 +7,8 @@ share links, and embedding Terria visualizations.
 """
 
 import json
-import re
 import logging
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+from urllib.parse import urlparse
 from typing import Dict, Optional, List, Any, Tuple
 
 log = logging.getLogger(__name__)
@@ -96,8 +95,8 @@ def parse_terria_share_link(share_link: str) -> Optional[Dict[str, Any]]:
 
 
 def generate_terria_embed_url(init_json: Optional[str] = None,
-                               share_link: Optional[str] = None,
-                               hide_ui_controls: bool = True) -> Optional[str]:
+                              share_link: Optional[str] = None,
+                              hide_ui_controls: bool = True) -> Optional[str]:
     """
     Generate an embed-friendly URL for Terria map.
 

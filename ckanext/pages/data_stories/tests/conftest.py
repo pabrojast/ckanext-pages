@@ -5,7 +5,6 @@ Pytest configuration and fixtures for Data Stories tests.
 
 import pytest
 
-from ckan import model
 from ckan.tests import factories
 
 
@@ -57,7 +56,7 @@ def complete_story(clean_db):
     # Add all required sections
     sections = []
     for section_type in ['introduction', 'data_sources', 'methodology',
-                        'spatial_analysis', 'conclusions']:
+                         'spatial_analysis', 'conclusions']:
         section = helpers.call_action(
             'data_story_section_create',
             context={'user': user['name']},

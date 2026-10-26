@@ -10,7 +10,6 @@ import logging
 import json
 
 from ckan import model
-import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckan.lib.navl.dictization_functions as df
 
@@ -253,7 +252,9 @@ def data_story_section_create(context, data_dict):
         ValidationError: If data validation fails
     """
     log.info("[DATA_STORY_SECTION_CREATE] Starting section creation")
-    log.info(f"[DATA_STORY_SECTION_CREATE] Input data_dict blocks_metadata: {type(data_dict.get('blocks_metadata'))} = {data_dict.get('blocks_metadata')}")
+    log.info(
+        f"[DATA_STORY_SECTION_CREATE] Input data_dict blocks_metadata: "
+        f"{type(data_dict.get('blocks_metadata'))} = {data_dict.get('blocks_metadata')}")
 
     # Preserve raw blocks metadata before validation
     raw_blocks_metadata = _normalize_blocks_metadata(data_dict.get('blocks_metadata'))
@@ -274,7 +275,9 @@ def data_story_section_create(context, data_dict):
     if data.get('blocks_metadata') is None and raw_blocks_metadata is not None:
         data['blocks_metadata'] = raw_blocks_metadata
 
-    log.info(f"[DATA_STORY_SECTION_CREATE] After validation blocks_metadata: {type(data.get('blocks_metadata'))} = {data.get('blocks_metadata')}")
+    log.info(
+        f"[DATA_STORY_SECTION_CREATE] After validation blocks_metadata: "
+        f"{type(data.get('blocks_metadata'))} = {data.get('blocks_metadata')}")
 
     if errors:
         raise tk.ValidationError(errors)
@@ -338,7 +341,9 @@ def data_story_section_create(context, data_dict):
     session.commit()
 
     log.info(f"[DATA_STORY_SECTION_CREATE] Created section: {section.id} - {section.section_type}")
-    log.info(f"[DATA_STORY_SECTION_CREATE] After commit, section.blocks_metadata: {type(section.blocks_metadata)} = {section.blocks_metadata}")
+    log.info(
+        f"[DATA_STORY_SECTION_CREATE] After commit, section.blocks_metadata: "
+        f"{type(section.blocks_metadata)} = {section.blocks_metadata}")
 
     # Convert to dict
     section_dict = table_dictize(section, context)

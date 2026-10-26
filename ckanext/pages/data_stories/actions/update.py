@@ -10,7 +10,6 @@ import json
 
 from ckan import model
 from ckan import authz
-import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 import ckan.lib.navl.dictization_functions as df
 
@@ -236,7 +235,7 @@ def data_story_update(context, data_dict):
 
     # If a non-admin edited a published story, resubmit it for review
     if was_published and not is_admin:
-        log.info(f"[DATA_STORY_UPDATE] Non-admin edited published story, resubmitting for review")
+        log.info("[DATA_STORY_UPDATE] Non-admin edited published story, resubmitting for review")
         try:
             # Transition back to submitted state
             story_dict = transition_state(story.id, 'submitted', context)
@@ -270,7 +269,10 @@ def data_story_section_update(context, data_dict):
     """
     log.info("[DATA_STORY_SECTION_UPDATE] Starting section update")
     blocks_meta_input = data_dict.get('blocks_metadata')
-    log.debug(f"[DATA_STORY_SECTION_UPDATE] Input blocks_metadata type: {type(blocks_meta_input)}, len: {len(str(blocks_meta_input)) if blocks_meta_input else 0}")
+    log.debug(
+        f"[DATA_STORY_SECTION_UPDATE] Input blocks_metadata type: "
+        f"{type(blocks_meta_input)}, len: "
+        f"{len(str(blocks_meta_input)) if blocks_meta_input else 0}")
 
     # Preserve raw blocks metadata before validation
     raw_blocks_metadata = _normalize_blocks_metadata(data_dict.get('blocks_metadata'))

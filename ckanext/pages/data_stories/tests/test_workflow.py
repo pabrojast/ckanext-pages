@@ -52,7 +52,7 @@ class TestStoryWorkflow:
 
         # Add required sections
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': user['name']},
@@ -115,7 +115,7 @@ class TestStoryWorkflow:
 
         # Add sections and submit
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': user['name']},
@@ -152,7 +152,7 @@ class TestStoryWorkflow:
 
         # Add required sections
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': author['name']},
@@ -198,7 +198,7 @@ class TestStoryWorkflow:
         )
 
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': author['name']},
@@ -338,7 +338,7 @@ class TestWorkflowPermissions:
         )
 
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': author['name']},
@@ -385,7 +385,7 @@ class TestWorkflowPermissions:
         )
 
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': author['name']},
@@ -431,7 +431,7 @@ class TestWorkflowTimestamps:
         )
 
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': user['name']},

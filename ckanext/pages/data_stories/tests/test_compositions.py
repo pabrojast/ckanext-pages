@@ -21,8 +21,9 @@ def test_composed_native_scene_retains_dashboard_references_and_media():
                    'dashboards': [{'id': 'dashboard', 'view_id': VIEW}],
                    'references': [{'id': 'ref', 'dashboard_id': 'dashboard', 'on_enter': True}],
                    'media': [{'id': 'image', 'type': 'image', 'url': '/story-images/example', 'title': 'Image'}]}
-    source = {'type': 'terria', 'tabs': [{'source_id': 'map', 'title': 'Map', 'url': 'https://example.test/terria/#share=example',
-              'sequenced': True, 'snapshot': {'version': '8', 'initSources': []}}]}
+    source = {'type': 'terria', 'tabs': [{'source_id': 'map', 'title': 'Map',
+              'url': 'https://example.test/terria/#share=example',
+                                          'sequenced': True, 'snapshot': {'version': '8', 'initSources': []}}]}
     slide = {'type': 'terria_slide', 'source_id': 'map', 'slide_id': 'a:1', 'title': 'A', 'content': '<p>Text</p>',
              'share_data': {'version': '8', 'initSources': [{'workbench': ['cog-series']}]}, 'composition': composition}
     story = {'sections': [{'id': 'chapter', 'blocks_metadata': [source, slide]}]}
@@ -48,7 +49,8 @@ def test_rapid_response_roundtrip_retains_visual_blocks_and_reading_mode():
         'id': 'chapter', 'title': 'Emergency', 'origin': 'overview', 'blocks_metadata': [
             {'id': 'presentation', 'type': 'presentation', 'layout': 'combined', 'duration': 5, 'width': {'mode': 'normal'}},
             {'id': 'dashboard', 'type': 'dashboard', 'view_id': VIEW},
-            {'id': 'text', 'type': 'text', 'content': '<p>Text</p>', 'references': [{'id': 'ref', 'dashboard_id': 'dashboard'}]}]}]}
+            {'id': 'text', 'type': 'text', 'content': '<p>Text</p>',
+             'references': [{'id': 'ref', 'dashboard_id': 'dashboard'}]}]}]}
     saved = parse_story(story)
     assert parse_story(saved) == saved
     assert saved['display_mode'] == 'slides'

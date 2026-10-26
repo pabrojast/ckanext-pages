@@ -48,7 +48,6 @@ def data_story_schema():
     not_empty = tk.get_validator('not_empty')
     unicode_safe = tk.get_validator('unicode_safe')
     boolean_validator = tk.get_validator('boolean_validator')
-    int_validator = tk.get_validator('int_validator')
     user_id_exists = tk.get_validator('user_id_exists')
     group_id_exists = tk.get_validator('group_id_exists')
     json_validator = _get_json_validator()

@@ -6,7 +6,7 @@ import pytest
 from PIL import Image
 
 spec = importlib.util.spec_from_file_location('story_image_processing',
-    Path(__file__).parents[1] / 'story_image_processing.py')
+                                              Path(__file__).parents[1] / 'story_image_processing.py')
 processing = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(processing)
 
@@ -28,7 +28,7 @@ def test_resize_keeps_alpha_and_format():
 def test_animation_keeps_all_frames():
     data = io.BytesIO()
     Image.new('RGB', (20, 20), 'red').save(data, 'GIF', save_all=True,
-        append_images=[Image.new('RGB', (20, 20), 'blue')], duration=100, loop=0)
+                                           append_images=[Image.new('RGB', (20, 20), 'blue')], duration=100, loop=0)
     result, (_, mime), size = processing.prepare_image(data.getvalue())
     assert result == data.getvalue()
     assert mime == 'image/gif'

@@ -14,7 +14,6 @@ Usage:
 
 import json
 import logging
-import sys
 
 import click
 
@@ -37,7 +36,6 @@ def get_commands():
               help='Pretty-print JSON output (default: pretty)')
 def data_stories_export(output, status, pretty):
     """Export all data stories as JSON for migration."""
-    flask_app = tk.config.get('flask_app') or tk.config.get('pylons.app')
 
     site_user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
     context = {
@@ -116,16 +114,21 @@ def data_stories_import(filepath, slug_conflict, preserve_status, preserve_dates
             stories = export_data['stories']
             click.echo(f'Bulk import: {len(stories)} stories found\n')
             for idx, s in enumerate(stories, 1):
-                click.echo(f'  {idx}. "{s.get("title", "Untitled")}" (slug: {s.get("slug", "N/A")}, status: {s.get("status", "N/A")})')
+                click.echo(f'  {idx}. "{s.get("title", "Untitled")}" (slug: {s.get("slug", "N/A")}, status: '
+                           f'{s.get("status", "N/A")})')
         else:
             s = export_data['story']
-            click.echo(f'Single import: "{s.get("title", "Untitled")}" (slug: {s.get("slug", "N/A")}, status: {s.get("status", "N/A")})')
+            click.echo(
+                f'Single import: "{s.get("title", "Untitled")}" (slug: {s.get("slug", "N/A")}, '
+                f'status: {s.get("status", "N/A")})')
             sections = s.get('sections', [])
             click.echo(f'  Sections: {len(sections)}')
             contributors = s.get('contributors', [])
             click.echo(f'  Contributors: {len(contributors)}')
 
-        click.echo(f'\nOptions: slug_conflict={slug_conflict}, preserve_status={preserve_status}, preserve_dates={preserve_dates}, status={status}')
+        click.echo(
+            f'\nOptions: slug_conflict={slug_conflict}, preserve_status={preserve_status}, '
+            f'preserve_dates={preserve_dates}, status={status}')
         return
 
     try:
@@ -138,7 +141,7 @@ def data_stories_import(filepath, slug_conflict, preserve_status, preserve_dates
                 'status': status,
             })
 
-            click.echo(f'Bulk import complete:')
+            click.echo('Bulk import complete:')
             click.echo(f'  Imported: {result["total_imported"]}')
             click.echo(f'  Errors:   {result["total_errors"]}')
 
@@ -162,7 +165,7 @@ def data_stories_import(filepath, slug_conflict, preserve_status, preserve_dates
             })
 
             info = result.get('import_info', {})
-            click.echo(f'Story imported successfully!')
+            click.echo('Story imported successfully!')
             click.echo(f'  Title: {result.get("title", "N/A")}')
             click.echo(f'  Slug:  {info.get("final_slug", result.get("slug", "N/A"))}')
             click.echo(f'  Sections: {info.get("sections_imported", 0)}')

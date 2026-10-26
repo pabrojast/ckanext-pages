@@ -66,4 +66,4 @@ def validate_story_images(data):
     if has_pending_images(data):
         from ckan.plugins import toolkit as tk
         raise tk.ValidationError({'images': [tk._(
-            'Please wait for image uploads to finish, then save again. Your draft has been kept.') ]})
+            'Please wait for image uploads to finish, then save again. Your draft has been kept.')]})

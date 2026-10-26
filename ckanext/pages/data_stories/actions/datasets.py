@@ -11,7 +11,7 @@ from ckan import model
 import ckan.plugins.toolkit as tk
 
 from ckanext.pages.data_stories.db.models import DataStory, DataStoryDataset
-from ckanext.pages.data_stories.db.utils import make_uuid, table_dictize, dictize_datasets
+from ckanext.pages.data_stories.db.utils import make_uuid, table_dictize
 from ckanext.pages.data_stories.logic.validation import validate_dataset_link
 
 log = logging.getLogger(__name__)

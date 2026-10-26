@@ -152,7 +152,9 @@ def index():
             model.Session.rollback()
 
     # Get available initiatives and member states for filter dropdowns
-    from ckanext.pages.featured_viewers.helpers import get_available_initiatives, get_available_member_states, get_available_organizations
+    from ckanext.pages.featured_viewers.helpers import (
+        get_available_initiatives, get_available_member_states, get_available_organizations,
+    )
     initiatives = get_available_initiatives()
     member_states = get_available_member_states()
     organizations = get_available_organizations()

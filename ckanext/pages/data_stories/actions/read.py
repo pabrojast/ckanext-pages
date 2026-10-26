@@ -8,7 +8,7 @@ import logging
 
 from ckan import model, authz
 import ckan.plugins.toolkit as tk
-from sqlalchemy import or_, and_, func
+from sqlalchemy import or_, func
 
 from ckanext.pages.data_stories.db.models import (
     DataStory,
@@ -223,10 +223,10 @@ def data_story_list(context, data_dict):
                         query = query.filter(DataStory.author_id == user_obj.id)
                 else:
                     # No access to review statuses without login
-                    query = query.filter(DataStory.id == None)  # Return nothing
+                    query = query.filter(DataStory.id.is_(None))  # Return nothing
             else:
                 # No access to review statuses without login
-                query = query.filter(DataStory.id == None)  # Return nothing
+                query = query.filter(DataStory.id.is_(None))  # Return nothing
         else:
             # Show public stories (is_public=True OR status='published') OR user's own stories
             if user:
@@ -234,7 +234,7 @@ def data_story_list(context, data_dict):
                 if user_obj:
                     query = query.filter(
                         or_(
-                            DataStory.is_public == True,
+                            DataStory.is_public.is_(True),
                             DataStory.status == 'published',
                             DataStory.author_id == user_obj.id
                         )
@@ -242,14 +242,14 @@ def data_story_list(context, data_dict):
                 else:
                     query = query.filter(
                         or_(
-                            DataStory.is_public == True,
+                            DataStory.is_public.is_(True),
                             DataStory.status == 'published'
                         )
                     )
             else:
                 query = query.filter(
                     or_(
-                        DataStory.is_public == True,
+                        DataStory.is_public.is_(True),
                         DataStory.status == 'published'
                     )
                 )
