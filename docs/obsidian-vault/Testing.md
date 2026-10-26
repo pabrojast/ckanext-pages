@@ -66,7 +66,7 @@ Cobertura observable:
 
 ### Data Stories
 
-El ancho por sección tiene cobertura en `test_section_width.py`: valores válidos/incorrectos, conservación de metadatos del formulario y de continuaciones, rechazo por API antes de acceder a la base de datos y render de las plantillas reales. El navegador usa esas plantillas con assets locales y Quill real para medir Normal/100%/80%/900px, probar reordenación/reapertura, panel lateral y validación.
+El ancho por sección tiene cobertura en `test_section_width.py`: valores válidos/incorrectos, conservación de metadatos del formulario y de continuaciones, rechazo por API antes de acceder a la base de datos y render de las plantillas reales. Desde 2026-10-23 los fixtures incluyen dos secciones `Text + image / multimedia` (100 % y 80 %) con imagen en la tarjeta; el test unitario comprueba que siguen siendo una sola tarjeta narrativa. El navegador usa esas plantillas con assets locales y Quill real para medir Normal/100%/80%/900px, probar reordenación/reapertura, panel lateral y validación, y en Story Map/Slides exige además que en esas tarjetas el párrafo llene la sección (ancho − 48 px), que el medio quede debajo del texto y que el iframe de 600 px conserve su tamaño.
 
 En un entorno con CKAN y pytest instalados:
 
@@ -229,7 +229,7 @@ Los assets de encabezado de listado, detalle y editor son idénticos a los del f
 
 `test_compositions.py` valida la importacion de composiciones nativas, medios, presentacion acotada y persistencia en Rapid Response. `node --test ckanext/pages/data_stories/tests/sequence.test.cjs ckanext/pages/data_stories/tests/playback.test.cjs` cubre IDs importados y el temporizador coordinado con confirmaciones visuales.
 
-Los harnesses `visuals_browser.cjs`, `section_width_browser.cjs` y `tests/rapid_response_story_browser.cjs` usan Playwright CLI y jQuery real de CKAN. Pasar el wrapper como primer argumento y el archivo local jquery.js como segundo; el de anchos recibe ademas el JSON generado por `test_section_width.py`. Comprueban filtros, iframe reutilizado, 48 combinaciones de anchos/modos y preservacion/reordenamiento del editor RR. Las rutas reales y autenticacion requieren una segunda comprobacion integrada en DEV.
+Los harnesses `visuals_browser.cjs`, `section_width_browser.cjs` y `tests/rapid_response_story_browser.cjs` usan Playwright CLI y jQuery real de CKAN. Pasar el wrapper como primer argumento y el archivo local jquery.js como segundo; el de anchos recibe ademas el JSON generado por `test_section_width.py`. Comprueban filtros, iframe reutilizado, 48 combinaciones de anchos/modos más 16 de la plantilla multimedia apilada y preservacion/reordenamiento del editor RR. Las rutas reales y autenticacion requieren una segunda comprobacion integrada en DEV.
 
 La demo de composiciones verifica nombres de capitulos, controles tactiles, lectura de medios en movil, video sin autoplay y pausa al cambiar de capitulo. `test_compositions.py` cubre controles multimedia, escape del titulo e iframes etiquetados. Validar ademas los enlaces del texto contra escenas y filtros reales en DEV.
 
@@ -267,3 +267,11 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q \
 La workflow incorpora estas suites a los pasos de helpers y transacciones, reutilizando el PostgreSQL efímero de CI. La prueba de geocodificación espera el identificador genérico de la integración. Verificación local: 197 pruebas Python y ocho subtests pasaron con CKAN 2.10, SQLAlchemy 1.4.41 y PostgreSQL 17, incluyendo importación atómica, Stories, imágenes, anchos, compositor y selector de dashboards. Pasaron también las nueve pruebas JavaScript de secuencia/playback y el control de sintaxis.
 
 La CI general de la base `a543f00` ya fallaba en lint y `story-browser`, omitiendo la matriz CKAN: [ejecución anterior a la integración](https://github.com/pabrojast/ckanext-pages/actions/runs/39965624412). El resultado local no acredita un despliegue ni sustituye esa matriz. Ver [[Deployment]].
+
+## Integración del ancho multimedia (2026-10-26)
+
+El parche local de ancho se integró sobre `RapidResponseAndRecovery` (`726a881`), conservando la configuración y las transacciones de arranque de la consolidación anterior. Pasaron 112 pruebas Python de anchos, plantillas, helpers, metadatos, composiciones, Rapid Response y configuración del portal; también lint focalizado, sintaxis JavaScript y comprobación de whitespace.
+
+`section_width_browser.cjs` pasó 64 combinaciones de modo/ancho/viewport a 1920, 1440, 768 y 390 px, con Quill y las plantillas reales: 48 casos generales y 16 de multimedia. Verificó texto y medios apilados con ancho explícito, iframe de 600 px, ausencia de overflow, vista previa, reordenación, reapertura y validación del formulario. También pasaron `visuals_browser.cjs` y `rapid_response_story_browser.cjs`: composición compartida, dashboard/mapa, reproducción, metadatos, importación Terria y reintento de uploads simulados.
+
+Evidencia local en `output/playwright/media-width-integration-20261026/`. Son pruebas de navegador aisladas con servicios simulados, sin despliegue ni guardado contra una instancia real. La CI general conserva los fallos previos de lint e imágenes descritos en la consolidación anterior.

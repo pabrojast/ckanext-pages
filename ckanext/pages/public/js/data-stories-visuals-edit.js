@@ -168,7 +168,8 @@
       field('Column proportions', ratio), field('Slide duration (seconds)', duration), preview);
     $section.find('.section-content-blocks').before(composition);
     function showPreview() {
-      preview.empty().attr('data-side', side.val()).css('--story-text-width', ratio.val() + '%');
+      const stacked = layout.val() === 'media' && ($section.find('.ds-section-width-mode').val() || 'normal') !== 'normal';
+      preview.empty().attr('data-side', side.val()).attr('data-stacked', stacked ? '' : null).css('--story-text-width', ratio.val() + '%');
       preview.append($('<span>').text('Text'));
       if (layout.val() !== 'full') preview.append($('<span>').text({map: 'Map', dashboard: 'Dashboard', combined: 'Map + Dashboard', media: 'Image / Multimedia', auto: 'Visualizations'}[layout.val()]));
     }
@@ -205,7 +206,8 @@
       const invalid = isCustom && (!value.val() || !Number.isFinite(number) || number <= 0 || (unit.val() === '%' && number > 100));
       value[0].setCustomValidity(!sidePanel && invalid ? 'Enter positive pixels or a percentage greater than 0 and at most 100.' : '');
       note.text(sidePanel ? 'Width applies to narrative sections without a side panel. The saved width is kept.' :
-        'Applies to the section title and content. Custom widths are centered and adapt to mobile screens.');
+        'Applies to the section title and content. Custom widths are centered and adapt to mobile screens. ' +
+        'In Text + image / multimedia sections the text and media stack to use the full width.');
     }
     function read() {
       refresh();
@@ -219,7 +221,7 @@
       refresh();
     }
     $section.data('section-width', {read, load, refresh});
-    controls.on('input change', 'input, select', () => { refresh(); changed(); });
+    controls.on('input change', 'input, select', () => { refresh(); showPreview(); changed(); });
     layout.on('change', refresh);
     $('#display_mode').on('change', refresh);
     refresh();

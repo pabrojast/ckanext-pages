@@ -72,6 +72,27 @@ async function check(page, assets, pages) {
         await page.getByRole('button', {name: 'Next', exact: true}).click();
         if (!await page.locator('#scene-width-3').isVisible()) throw Error('Next failed');
       }
+      // Text + image / multimedia cards: explicit widths stack text and media (desktop only).
+      if (mode !== 'classic') for (const index of [1, 2]) {
+        if (mode === 'slides') await page.locator('.storymap-slide-controls select').selectOption(String(7 + index));
+        const body = page.locator('#scene-width-media-' + index + ' .storymap-card-body');
+        const metrics = await body.evaluate(el => {
+          const text = el.querySelector('.section-content p').getBoundingClientRect();
+          const media = el.querySelector('.storymap-composition-media').getBoundingClientRect();
+          return {width: el.getBoundingClientRect().width, text: text.width, textBottom: text.bottom,
+            mediaTop: media.top, media: el.querySelector('iframe').getBoundingClientRect().width,
+            viewport: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth};
+        });
+        const expected = width <= 768 || index === 1 ? metrics.viewport : metrics.viewport * .8;
+        if (width > 768 && metrics.text < expected - 48 - 1)
+          throw Error('Media template keeps its text column: ' + JSON.stringify({mode, index, width, expected, metrics}));
+        if (width > 768 && metrics.mediaTop < metrics.textBottom - 1)
+          throw Error('Media template did not stack media below the text: ' + JSON.stringify({mode, index, width, metrics}));
+        if (width > 768 && Math.abs(metrics.media - 600) > 1)
+          throw Error('Custom media width lost in media template: ' + JSON.stringify({mode, index, width, metrics}));
+        if (metrics.scroll > metrics.viewport + 1) throw Error('Horizontal overflow (media template): ' + JSON.stringify({mode, index, width, metrics}));
+        measurements.push({mode, viewport: width, section: 'media-' + index, width: metrics.width});
+      }
     }
   }
 
@@ -81,8 +102,11 @@ async function check(page, assets, pages) {
     await page.addStyleTag({path: assets['/css/data-stories-visuals.css']});
     for (const src of ['/quill.js', '/js/story-editor-core.js', '/js/data-stories-sequence.js', '/js/data-stories-visuals-edit.js', '/js/data-stories-edit.js'])
       await page.addScriptTag({path: assets[src]});
-    await page.waitForFunction(() => document.querySelectorAll('.ql-editor').length === 4 &&
-      [...document.querySelectorAll('.section-blocks-metadata')].every(el => JSON.parse(el.value)[0].width));
+    await page.waitForFunction(() => {
+      const fields = document.querySelectorAll('.section-blocks-metadata');
+      return fields.length && document.querySelectorAll('.ql-editor').length === fields.length &&
+        [...fields].every(el => JSON.parse(el.value)[0].width);
+    });
   }
   await page.setViewportSize({width: 1440, height: 900});
   await editor();
@@ -115,8 +139,16 @@ async function check(page, assets, pages) {
   await changed.getByLabel('Section template', {exact: true}).selectOption('full');
   if (await changed.getByLabel('Section width', {exact: true}).isDisabled() || await changed.getByLabel('Width value', {exact: true}).inputValue() !== '80')
     throw Error('Returning to narrative lost the custom width');
+  // Media template: the preview stacks and the note explains it once a width is chosen.
+  const mediaSection = sections.nth(4);
+  if (await mediaSection.getByLabel('Section template', {exact: true}).inputValue() !== 'media') throw Error('Media fixture missing');
+  await mediaSection.getByLabel('Section width', {exact: true}).selectOption('normal');
+  if (await mediaSection.locator('.ds-template-preview[data-stacked]').count()) throw Error('Normal width stacked the preview');
+  await mediaSection.getByLabel('Section width', {exact: true}).selectOption('full');
+  if (!await mediaSection.locator('.ds-template-preview[data-stacked]').count()) throw Error('Full width did not stack the preview');
+  if (!(await mediaSection.locator('.ds-section-width-note').textContent()).includes('stack')) throw Error('Width note does not explain stacking');
   if (errors.length) throw Error('Browser errors: ' + errors.join('; '));
-  return {result: 'PASS: real templates in all modes, responsive widths, custom media, navigation, editor reload/reorder and validation', measurements};
+  return {result: 'PASS: real templates in all modes, responsive widths, custom media, stacked media template, navigation, editor reload/reorder and validation', measurements};
 }
 
 try {

@@ -1,5 +1,6 @@
 """Width validation, form metadata and the actual reader templates (no DB)."""
 import json
+import re
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -26,16 +27,24 @@ INVALID = [{'mode': 'unknown'}, '80%', {'mode': 'custom'},
            {'mode': 'custom', 'value': '1; color:red', 'unit': 'px'}]
 
 
-def make_section(width, index=0):
-    presentation = {'type': 'presentation', 'version': 1, 'layout': 'full'}
+MEDIA_WIDTHS = [{'mode': 'full'}, {'mode': 'custom', 'value': 80, 'unit': '%'}]
+
+
+def make_section(width, index=0, layout='full'):
+    """``media`` sections use the Text + image / multimedia template with an in-card image."""
+    presentation = {'type': 'presentation', 'version': 1, 'layout': layout}
     if width is not None:
         presentation['width'] = width
     content = '<p>Section narrative ' + ('content ' * 70) + '</p>'
     media = '<iframe title="Sized media" src="about:blank" width="600" height="250"></iframe>'
-    return {'id': 'width-%d' % index, 'section_type': 'introduction', 'title': 'Width %d' % index,
+    blocks = [presentation, {'type': 'text', 'content': content},
+              {'type': 'media', 'url': 'about:blank', 'width': '600', 'height': '250'}]
+    if layout == 'media':
+        blocks.append({'type': 'image', 'url': '/picture.png', 'alt': 'Picture', 'display': 'full'})
+    prefix = 'width-media-' if layout == 'media' else 'width-'
+    return {'id': prefix + str(index), 'section_type': 'introduction', 'title': 'Width %d' % index,
             'is_visible': True, 'order_index': index, 'content': content + media,
-            'blocks_metadata': [presentation, {'type': 'text', 'content': content},
-                                {'type': 'media', 'url': 'about:blank', 'width': '600', 'height': '250'}]}
+            'blocks_metadata': blocks}
 
 
 @pytest.mark.parametrize('width', WIDTHS + [{'mode': 'normal'}])
@@ -52,6 +61,16 @@ def test_width_survives_form_and_scene_continuations(width):
     scenes = get_storymap_scenes({'sections': sections})
     assert len(scenes) == 3
     assert all(scene['width'] == get_section_width(section) for scene in scenes)
+
+
+@pytest.mark.parametrize('width', MEDIA_WIDTHS)
+def test_media_template_keeps_its_media_in_the_card_with_explicit_widths(width):
+    """The viewer stacks text and media with CSS, so the scene must stay one narrative card."""
+    scenes = get_storymap_scenes({'sections': [make_section(width, 1, layout='media')]})
+    assert len(scenes) == 1
+    assert scenes[0]['presentation'] == 'media' and scenes[0]['layout'] == 'full'
+    assert [block['type'] for block in scenes[0]['blocks']] == ['text', 'media', 'image']
+    assert scenes[0]['width']['mode'] == width['mode'] and scenes[0]['width']['css']
 
 
 @pytest.mark.parametrize('width', INVALID)
@@ -99,8 +118,11 @@ def render_fixtures():
                                          url_for=lambda *a, **kw: '/', check_access=lambda *a: False,
                                          is_sysadmin=lambda: False,
                                          render_datetime=lambda *a, **kw: '2026-10-01'))
-    story = {'title': 'Section widths', 'slug': 'widths', 'status': 'published',
-             'sections': [make_section(width, index) for index, width in enumerate(WIDTHS)]}
+    sections = [make_section(width, index) for index, width in enumerate(WIDTHS)]
+    sections += [make_section(width, index, layout='media') for index, width in enumerate(MEDIA_WIDTHS, 1)]
+    for order, section in enumerate(sections):
+        section['order_index'] = order
+    story = {'title': 'Section widths', 'slug': 'widths', 'status': 'published', 'sections': sections}
     result = {'classic': env.get_template('data_stories/show.html').render(story=story)}
     scenes = get_storymap_scenes(story)
     for mode in ('storymap', 'slides'):
@@ -122,9 +144,14 @@ def test_rendered_templates_use_the_same_safe_widths():
     fixtures = render_fixtures()
     for mode in ('classic', 'storymap', 'slides'):
         assert fixtures[mode].count('data-section-width="normal"') == 1
-        assert fixtures[mode].count('data-section-width="full"') == 1
-        assert '--ds-section-width: 80%;' in fixtures[mode]
-        assert '--ds-section-width: 900px;' in fixtures[mode]
+        assert fixtures[mode].count('data-section-width="full"') == 2
+        assert fixtures[mode].count('--ds-section-width: 80%;') == 2
+        assert fixtures[mode].count('--ds-section-width: 900px;') == 1
+    for mode in ('storymap', 'slides'):
+        assert fixtures[mode].count('data-presentation="media"') == 2
+        for section_id, width_mode in (('width-media-1', 'full'), ('width-media-2', 'custom')):
+            assert re.search(r'id="scene-%s"[^>]*data-presentation="media"[^>]*data-section-width="%s"'
+                             % (section_id, width_mode), fixtures[mode])
 
 
 if __name__ == '__main__':

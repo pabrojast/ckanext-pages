@@ -1,7 +1,7 @@
 # Backlog Documentacion
 
 Tags: #referencia #estado/pendiente
-Actualizado: 2026-03-26
+Actualizado: 2026-10-26
 
 Relacionadas: [[Deployment]], [[Variables de Entorno]], [[Testing]], [[Guia de Mantenimiento]]
 
@@ -32,6 +32,11 @@ Relacionadas: [[Deployment]], [[Variables de Entorno]], [[Testing]], [[Guia de M
 - Hidratación client-side de steps cuando la resolución server-side de un share falla (hoy: warning en logs + reintento natural al siguiente render; el viewer ya tiene `extractStories()` si se quisiera).
 - Mapas simultáneos side-by-side por escena (el JS del viewer es singleton de iframe; cada Terria tarda ~10 s en arrancar). Hoy: tabs + secuencia en scroll.
 - Botón de upload de imágenes en el editor de stories de Terria (TinyMCE es URL-only; el patch iría en el fork `pabrojast/terriajs`, `lib/ReactViews/Generic/Editor.jsx` — `images_upload_handler`/`file_picker_callback`). Mientras: subir la imagen a CKAN y pegar la URL.
+
+## Observado al corregir el ancho de secciones (2026-10-23)
+
+- Una tarjeta `Text + image / multimedia` sin ningún medio conserva en modo `Normal` su columna de texto (35/50/65 %) con la otra columna vacía. Defecto previo e independiente del ancho de sección; no se cambió.
+- El reporte de texto estrecho en Classic no se reprodujo con el CSS del repo; ver `Pendiente por confirmar` en [[Troubleshooting]].
 
 ## Documentación futura recomendada
 
