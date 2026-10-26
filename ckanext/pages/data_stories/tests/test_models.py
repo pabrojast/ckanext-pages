@@ -4,10 +4,9 @@ Tests for Data Stories database models.
 """
 
 import pytest
-from datetime import datetime
 
 from ckan import model
-from ckan.tests import factories, helpers
+from ckan.tests import factories
 
 from ckanext.pages.data_stories.db.models import (
     DataStory,

@@ -91,11 +91,12 @@ def test_restore_roundtrip_and_repeated_restore(migration_db, tmp_path):
 
 def test_failed_upload_keeps_entire_record(migration_db, tmp_path, monkeypatch):
     _, _, before, _ = migration_db
+
     def fail(*args):
         raise IOError('Storage unavailable')
     monkeypatch.setattr(migration, 'upload_display', fail)
     result = CliRunner().invoke(migration.optimize_rapid_response_images,
-                               ['--apply', '--backup-dir', str(tmp_path)])
+                                ['--apply', '--backup-dir', str(tmp_path)])
     assert result.exit_code == 1
     assert migration.snapshot('page-1') == before
     assert (tmp_path / 'page-1.before.json.gz').is_file()
@@ -103,13 +104,14 @@ def test_failed_upload_keeps_entire_record(migration_db, tmp_path, monkeypatch):
 
 def test_concurrent_edit_prevents_conversion(migration_db, tmp_path, monkeypatch):
     session, table, before, _ = migration_db
+
     def upload(*args):
         session.execute(table.update().values(modified='new edit'))
         session.commit()
         return 'https://example.test/photo.jpg'
     monkeypatch.setattr(migration, 'upload_display', upload)
     result = CliRunner().invoke(migration.optimize_rapid_response_images,
-                               ['--apply', '--backup-dir', str(tmp_path)])
+                                ['--apply', '--backup-dir', str(tmp_path)])
     assert result.exit_code == 1
     current = migration.snapshot('page-1')
     assert current['modified'] == 'new edit'

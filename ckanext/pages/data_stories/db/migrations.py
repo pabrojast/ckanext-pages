@@ -51,7 +51,8 @@ def upgrade():
             sa.Column('display_mode', sa.String(20), nullable=True),
             sa.Column('view_count', sa.Integer, default=0),
             sa.Column('version', sa.Integer, default=1),
-            sa.Column('parent_version_id', sa.String(100), sa.ForeignKey('data_stories.id', ondelete='SET NULL'), nullable=True),
+            sa.Column('parent_version_id', sa.String(100), sa.ForeignKey(
+                'data_stories.id', ondelete='SET NULL'), nullable=True),
             sa.Column('meta_description', sa.Text),
             sa.Column('meta_keywords', sa.Text),
         )
@@ -141,10 +142,12 @@ def upgrade():
             sa.Column('id', sa.String(100), primary_key=True),
             sa.Column('story_id', sa.String(100), sa.ForeignKey('data_stories.id', ondelete='CASCADE'), nullable=False),
             sa.Column('user_id', sa.String(100), sa.ForeignKey('user.id', ondelete='CASCADE'), nullable=False),
-            sa.Column('section_id', sa.String(100), sa.ForeignKey('data_story_sections.id', ondelete='CASCADE'), nullable=True),
+            sa.Column('section_id', sa.String(100), sa.ForeignKey(
+                'data_story_sections.id', ondelete='CASCADE'), nullable=True),
             sa.Column('content', sa.Text, nullable=False),
             sa.Column('comment_type', sa.String(50), default='comment'),
-            sa.Column('parent_comment_id', sa.String(100), sa.ForeignKey('data_story_comments.id', ondelete='CASCADE'), nullable=True),
+            sa.Column('parent_comment_id', sa.String(100), sa.ForeignKey(
+                'data_story_comments.id', ondelete='CASCADE'), nullable=True),
             sa.Column('is_resolved', sa.Boolean, default=False),
             sa.Column('created_at', sa.DateTime, default=sa.func.now()),
             sa.Column('updated_at', sa.DateTime, default=sa.func.now(), onupdate=sa.func.now()),

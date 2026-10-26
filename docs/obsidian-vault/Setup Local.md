@@ -1,7 +1,7 @@
 # Setup Local
 
 Tags: #onboarding #operacion
-Actualizado: 2026-03-26
+Actualizado: 2026-10-26
 
 Relacionadas: [[Comandos Utiles]], [[Variables de Entorno]], [[Testing]], [[Troubleshooting]]
 
@@ -22,6 +22,8 @@ Compatibilidad observada:
 pip install -r requirements.txt -r dev-requirements.txt
 pip install -e .
 ```
+
+`requirements.txt` incluye Pillow y Flask-WTF; este último es necesario para la protección CSRF de imágenes también en CKAN 2.9.
 
 ## Habilitar el plugin
 
@@ -51,7 +53,9 @@ ckanext.featured_viewers.enabled = true
 Para CKAN 2.9+:
 
 ```bash
-ckan -c test.ini db init
+# Usar una configuración cuyo test-core.ini ya tenga una ruta absoluta.
+sed 's/^ckan.plugins =.*/ckan.plugins =/' test.ini > /tmp/pages-core-init.ini
+ckan -c /tmp/pages-core-init.ini db init
 ckan -c test.ini db upgrade -p pages
 ```
 

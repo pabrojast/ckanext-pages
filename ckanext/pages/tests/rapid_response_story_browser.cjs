@@ -135,7 +135,7 @@ async function check(page, rootPath, processJquery) {
 try {
   run('open', 'about:blank');
   const rootPath = path.resolve(__dirname, '..');
-  const output = run('run-code', `async page => { return await (${check.toString()})(page, ${JSON.stringify(rootPath)}, ${JSON.stringify(path.resolve(process.argv[3]))}); }`);
+  const output = run('run-code', `async page => { return await (${check.toString()})(page, ${JSON.stringify(rootPath)}, ${JSON.stringify(process.argv[3] ? path.resolve(process.argv[3]) : require.resolve('jquery/dist/jquery.js'))}); }`);
   writeFileSync(path.join(outputDir, 'rr-story-browser.txt'), output);
   if (!/### Result\s+[\s\S]*PASS:/.test(output) || output.includes('### Error')) throw new Error(output.slice(0, 1500));
   console.log(output.slice(0, output.indexOf('### Ran Playwright')));

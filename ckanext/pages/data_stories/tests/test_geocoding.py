@@ -38,7 +38,8 @@ def test_cache_hit_does_not_consume_slot_or_call_upstream(service):
     redis.set.assert_not_called()
 
 
-@pytest.mark.parametrize('args', [{'q': 'x'}, {'q': 'x' * 201}, {'q': 'Accra', 'viewbox': 'nan,0,1,2'}, {'q': 'Accra', 'viewbox': '1,2,3'}, {'q': 'Accra', 'viewbox': '0,100,0,0'}])
+@pytest.mark.parametrize('args', [{'q': 'x'}, {'q': 'x' * 201}, {'q': 'Accra', 'viewbox': 'nan,0,1,2'},
+                         {'q': 'Accra', 'viewbox': '1,2,3'}, {'q': 'Accra', 'viewbox': '0,100,0,0'}])
 def test_invalid_requests_never_reach_upstream(service, args):
     with pytest.raises(geo.GeocodingError) as error:
         geo.search_locations(args)

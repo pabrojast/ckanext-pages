@@ -62,8 +62,9 @@ Qué hace:
 - lint con `flake8`
 - matrix sobre CKAN 2.9, 2.10 y 2.11
 - usa contenedores CKAN oficiales en GitHub Actions
-- corre migraciones `pages`
-- ejecuta tests del directorio `ckanext/pages/tests`
+- inicializa CKAN sin plugins y después corre migraciones `pages`
+- ejecuta tests del directorio `ckanext/pages/tests`, helpers y transacciones en PostgreSQL
+- ejecuta regresiones de imágenes, compositor Rapid Response y Story Map en navegador; ver [[Testing]]
 
 ## Lo que no aparece en el repo
 

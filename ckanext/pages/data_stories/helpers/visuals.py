@@ -19,10 +19,10 @@ def dashboard_state(value):
             raise ValueError('Invalid story filter.')
         op = item.get('op')
         values = item.get('value') if op in ('in', 'between') else [item.get('value')]
-        if (op not in ('eq', 'in', 'gte', 'lte', 'between') or not isinstance(values, list)
-                or not 1 <= len(values) <= 1000 or (op == 'between' and len(values) != 2)
-                or any(not isinstance(v, (str, int, float, bool)) or
-                       (isinstance(v, float) and not math.isfinite(v)) for v in values)):
+        if (op not in ('eq', 'in', 'gte', 'lte', 'between') or not isinstance(values, list) or
+                not 1 <= len(values) <= 1000 or (op == 'between' and len(values) != 2) or
+                any(not isinstance(v, (str, int, float, bool)) or
+                    (isinstance(v, float) and not math.isfinite(v)) for v in values)):
             raise ValueError('Invalid story filter value.')
         result.append({k: item[k] for k in ('field', 'op', 'value')})
     return {'filters': result, 'widgetId': identifier(value.get('widgetId'))}
@@ -51,7 +51,8 @@ def references(block):
         try:
             result.append({'id': ref['id'], 'version': 1,
                            'source_id': identifier(ref.get('source_id')),
-                           'slide_id': ref.get('slide_id') if isinstance(ref.get('slide_id'), str) and len(ref['slide_id']) <= 512 else None,
+                           'slide_id': (ref.get('slide_id') if isinstance(ref.get('slide_id'), str)
+                                        and len(ref['slide_id']) <= 512 else None),
                            'dashboard_id': identifier(ref.get('dashboard_id')),
                            'state': dashboard_state(ref.get('state')),
                            'on_enter': bool(ref.get('on_enter'))})

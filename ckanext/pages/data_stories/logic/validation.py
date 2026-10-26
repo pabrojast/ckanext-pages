@@ -9,7 +9,6 @@ import logging
 import re
 from typing import Tuple, Dict, Any, List
 
-from ckan import model
 import ckan.plugins.toolkit as tk
 
 log = logging.getLogger(__name__)
@@ -76,7 +75,6 @@ def validate_terria_config(terria_config: Any) -> Tuple[bool, List[str]]:
         return (False, errors)
 
     # Check for recommended fields
-    recommended_fields = ['initSources', 'catalog', 'homeCamera']
 
     has_init_sources = 'initSources' in terria_config
     has_catalog = 'catalog' in terria_config

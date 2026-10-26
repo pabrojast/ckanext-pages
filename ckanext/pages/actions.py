@@ -27,14 +27,13 @@ except ImportError:
         def decorator(func):
             return func
         return decorator
+
     def ensure_valid_session():
         pass
 
 # Nuevas importaciones para el procesamiento de imágenes
-from PIL import Image, ImageOps
+from PIL import Image
 import os
-import tempfile
-import shutil
 
 
 class HTMLFirstImage(HTMLParser):
@@ -165,7 +164,7 @@ def _pages_show(context, data_dict):
     except Exception as e:
         log = logging.getLogger(__name__)
         error_str = str(e).lower()
-        
+
         # Different logging based on error type
         if any(keyword in error_str for keyword in [
             'server closed the connection',
@@ -191,23 +190,23 @@ def _pages_list(context, data_dict):
     private = data_dict.get('private', True)
     limit = data_dict.get('limit')
     offset = data_dict.get('offset')
-    
+
     # New search and filter parameters
     q = data_dict.get('q')  # Search query
     event_type = data_dict.get('event_type')  # Event type filter
     order_by = data_dict.get('order_by')  # Custom ordering
     submission_status = data_dict.get('submission_status')  # Submission status filter
-    
+
     # DEBUG: Log filtering parameters for open-source-software
     if page_type == 'open-source-software':
         log.info(f"[PAGES_LIST] Filtering open-source-software - private: {private}, submission_status: {submission_status}")
-    
+
     # Additional filters for rapid-response pages
     country = data_dict.get('country')  # Country filter
     activity_status = data_dict.get('activity_status')  # Activity status filter
     severity = data_dict.get('severity')  # Severity filter
     event_status = data_dict.get('event_status')  # Event status filter
-    
+
     if ordered:
         search['order'] = True
     if page_type:
@@ -246,7 +245,7 @@ def _pages_list(context, data_dict):
             search['offset'] = offset_value
         except (TypeError, ValueError):
             log.warning("Invalid pages_list offset value: %r", offset)
-        
+
     if not org_id:
         search['group_id'] = None
         try:
@@ -263,13 +262,13 @@ def _pages_list(context, data_dict):
         search['group_id'] = org_id
         if not member:
             search['private'] = False
-    
+
     try:
         # Ensure valid database session before query
         if not ensure_valid_session():
             log.error("Database session is invalid, returning empty list")
             return []
-        
+
         # Debug logging for filtering
         if log.isEnabledFor(logging.DEBUG):
             log.debug(f"Pages list search parameters: {search}")
@@ -277,20 +276,20 @@ def _pages_list(context, data_dict):
                 log.debug(f"Filtering by country: {country}")
             if activity_status:
                 log.debug(f"Filtering by activity_status: {activity_status}")
-        
+
         # Additional debug for open-source-software
         if search.get('page_type') == 'open-source-software':
             log.info(f"[PAGES_LIST] Executing query with search params: {search}")
-            
+
         out = db.Page.pages(**search)
-        
+
         # Log results count for open-source-software
         if search.get('page_type') == 'open-source-software':
             log.info(f"[PAGES_LIST] Query returned {len(out)} results for open-source-software")
     except Exception as e:
         # Log the error and return empty list as fallback
         error_str = str(e).lower()
-        
+
         # Different logging based on error type
         if any(keyword in error_str for keyword in [
             'server closed the connection',
@@ -304,7 +303,7 @@ def _pages_list(context, data_dict):
         else:
             log.error("Error fetching pages list: %s", str(e))
         return []
-    
+
     out_list = []
     for pg in out:
         try:
@@ -363,9 +362,12 @@ def _pages_update(context, data_dict):
     log.info(f"[PAGES_UPDATE] Processing page '{page}' with data_dict keys: {list(data_dict.keys())}")
     if 'content' in data_dict:
         content_preview = data_dict['content'][:100] if data_dict['content'] else 'EMPTY'
-        log.info(f"[PAGES_UPDATE] 'content' field present in data_dict: {len(data_dict['content']) if data_dict['content'] else 0} chars, preview: {content_preview}")
+        log.info(
+            f"[PAGES_UPDATE] 'content' field present in data_dict: "
+            f"{len(data_dict['content']) if data_dict['content'] else 0} chars, preview: "
+            f"{content_preview}")
     else:
-        log.warning(f"[PAGES_UPDATE] 'content' field NOT present in data_dict!")
+        log.warning("[PAGES_UPDATE] 'content' field NOT present in data_dict!")
 
     # +1 is the Current state by default while ckanext.pages.revisions_limit is the amounf of previous states
     revisions_limit = tk.asint(tk.config.get('ckanext.pages.revisions_limit', '3')) + 1
@@ -387,13 +389,20 @@ def _pages_update(context, data_dict):
     # DEBUG: Log data after validation
     if 'content' in data:
         content_preview = data['content'][:100] if data['content'] else 'EMPTY'
-        log.info(f"[PAGES_UPDATE] After validation - 'content' field: {len(data['content']) if data['content'] else 0} chars, preview: {content_preview}")
+        log.info(
+            f"[PAGES_UPDATE] After validation - 'content' field: "
+            f"{len(data['content']) if data['content'] else 0} chars, preview: "
+            f"{content_preview}")
     else:
-        log.warning(f"[PAGES_UPDATE] After validation - 'content' field NOT in validated data!")
+        log.warning("[PAGES_UPDATE] After validation - 'content' field NOT in validated data!")
 
     # DEBUG: Check if submission_status survived validation
-    log.info(f"[PAGES_UPDATE] After validation - submission_status in data: {'submission_status' in data}, value: {data.get('submission_status')}")
-    log.info(f"[PAGES_UPDATE] After validation - submission_status in data_dict: {'submission_status' in data_dict}, value: {data_dict.get('submission_status')}")
+    log.info(
+        f"[PAGES_UPDATE] After validation - submission_status in data: "
+        f"{'submission_status' in data}, value: {data.get('submission_status')}")
+    log.info(
+        f"[PAGES_UPDATE] After validation - submission_status in data_dict: "
+        f"{'submission_status' in data_dict}, value: {data_dict.get('submission_status')}")
 
     if errors:
         raise p.toolkit.ValidationError(errors)
@@ -430,7 +439,8 @@ def _pages_update(context, data_dict):
         if normalized_action in {'draft', 'submit', 'publish'}:
             submission_action = normalized_action
 
-    water_family_types = ['open-source-software', 'ai-water-tools', 'water-news', 'water-events', 'water-publications', 'crida-case-study']
+    water_family_types = ['open-source-software', 'ai-water-tools',
+                          'water-news', 'water-events', 'water-publications', 'crida-case-study']
     target_page_type = data.get('page_type') or data_dict.get('page_type')
     if not target_page_type and out:
         target_page_type = out.page_type
@@ -505,7 +515,10 @@ def _pages_update(context, data_dict):
                 if user_org:
                     data['ihp_organization'] = user_org.id
                     log = logging.getLogger(__name__)
-                    log.info(f"Auto-assigned organization {user_org.title or user_org.display_name or user_org.name} to user {context['user']}")
+                    log.info(
+                        f"Auto-assigned organization "
+                        f"{user_org.title or user_org.display_name or user_org.name} to user "
+                        f"{context['user']}")
         elif submission_action == 'publish':
             data['submission_status'] = 'approved'
             data['private'] = False
@@ -615,7 +628,9 @@ def _pages_update(context, data_dict):
                 log.info(f"[PAGES_UPDATE] Setting 'content' attribute: {content_len} chars")
             # DEBUG: Log critical fields for open-source-software
             if item in ['submission_status', 'ihp_organization', 'private']:
-                log.info(f"[PAGES_UPDATE] Setting '{item}' attribute: {value} (from data_dict: {data_dict.get(item)}, from data: {data.get(item)})")
+                log.info(
+                    f"[PAGES_UPDATE] Setting '{item}' attribute: {value} (from data_dict: "
+                    f"{data_dict.get(item)}, from data: {data.get(item)})")
 
     # Start with existing extras from DB to preserve fields not in the
     # current form submission (prevents silent data loss on edit).
@@ -712,15 +727,18 @@ def _pages_update(context, data_dict):
     session.commit()
 
     # DEBUG: Log final saved content and critical fields
-    log.info(f"[PAGES_UPDATE] Page '{page}' saved successfully. Content length: {len(out.content) if out.content else 0} chars")
-    log.info(f"[PAGES_UPDATE] Final state - submission_status: {out.submission_status}, private: {out.private}, ihp_organization: {out.ihp_organization}")
+    log.info(
+        f"[PAGES_UPDATE] Page '{page}' saved successfully. Content length: {len(out.content) if out.content else 0} chars")
+    log.info(
+        f"[PAGES_UPDATE] Final state - submission_status: {out.submission_status}, "
+        f"private: {out.private}, ihp_organization: {out.ihp_organization}")
 
 
 def _remove_keys_revision_from_dict(data_dict, keys=['current']):
     return {
         id: {
             key: data_dict[id][key] for key in data_dict[id] if key not in keys
-            } for id in data_dict
+        } for id in data_dict
     }
 
 
@@ -728,7 +746,7 @@ def pages_upload(context, data_dict):
     """ Upload a file to the CKAN server with automatic image processing.
 
     This method implements the logic for file uploads used by CKEditor with
-    automatic image resizing and cropping for logos. For more details on 
+    automatic image resizing and cropping for logos. For more details on
     implementation and expected return values see:
      - https://ckeditor.com/docs/ckeditor4/latest/guide/dev_file_upload.html#server-side-configuration
 
@@ -746,9 +764,8 @@ def pages_upload(context, data_dict):
 
         # Use the plugin system to get the appropriate uploader
         # This will use asset-storage if available, or fall back to default Upload
-        use_fallback = False
         log.info("[PAGES_UPLOAD] Getting uploader through plugin system")
-        
+
         try:
             # Use CKAN's plugin system to get the right uploader
             # This will call asset-storage's get_uploader() if available
@@ -796,7 +813,7 @@ def pages_upload(context, data_dict):
         image_url = str(image_url) if image_url else None
     is_logo = data_dict.get('is_logo', False)
     add_background = data_dict.get('add_background', False)
-    
+
     if image_url and is_logo:
         try:
             # Obtener la ruta del archivo subido
@@ -804,44 +821,44 @@ def pages_upload(context, data_dict):
                 # Es un archivo local
                 upload_dir = upload.get_directory()
                 image_path = os.path.join(upload_dir, image_url)
-                
+
                 # Procesar la imagen
                 processed_image_path = _process_logo_image(image_path, upload_dir, add_background)
-                
+
                 if processed_image_path:
                     # Actualizar la URL de la imagen procesada
                     image_url = os.path.basename(processed_image_path)
                     upload.filename = image_url
-                    
+
         except Exception as e:
             # Log el error pero continúa con la imagen original
             log = logging.getLogger(__name__)
             log.error(f"Error processing logo image: {str(e)}")
-    
+
     # Generar URL final
     if image_url and isinstance(image_url, str) and image_url[0:6] not in {'http:/', 'https:'}:
         image_url = h.url_for_static(
             'uploads/page_images/%s' % image_url,
             qualified=True
         )
-    
+
     # Ensure filename is a string
     filename = upload.filename if hasattr(upload, 'filename') else None
     if filename is not None and not isinstance(filename, str):
         filename = str(filename) if filename else None
-    
+
     return {'url': image_url, 'fileName': filename, 'uploaded': 1}
 
 
 def _process_logo_image(image_path, upload_dir, add_background=False):
     """
     Procesa una imagen para convertirla en un logo con dimensiones estándar.
-    
+
     Args:
         image_path: Ruta al archivo de imagen original
         upload_dir: Directorio donde guardar la imagen procesada
         add_background: Si se debe agregar fondo blanco (default: False)
-        
+
     Returns:
         Ruta al archivo procesado o None si hay error
     """
@@ -849,7 +866,7 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
         # Dimensiones estándar para logos
         LOGO_WIDTH = 200
         LOGO_HEIGHT = 80
-        
+
         # Abrir la imagen original
         with Image.open(image_path) as img:
             # Convertir a RGB si es necesario
@@ -867,11 +884,11 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
                         img = img.convert('RGBA')
             elif img.mode != 'RGB' and img.mode != 'RGBA':
                 img = img.convert('RGB')
-            
+
             # Calcular las dimensiones para mantener la proporción
             img_width, img_height = img.size
             aspect_ratio = img_width / img_height
-            
+
             # Determinar si la imagen es más ancha o alta
             if aspect_ratio > LOGO_WIDTH / LOGO_HEIGHT:
                 # Imagen más ancha - ajustar por ancho
@@ -881,10 +898,10 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
                 # Imagen más alta - ajustar por altura
                 new_height = LOGO_HEIGHT
                 new_width = int(LOGO_HEIGHT * aspect_ratio)
-            
+
             # Redimensionar la imagen manteniendo proporción
             img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-            
+
             # Crear lienzo final
             if add_background or img.mode == 'RGB':
                 # Con fondo blanco
@@ -903,7 +920,7 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
                 x_offset = (LOGO_WIDTH - new_width) // 2
                 y_offset = (LOGO_HEIGHT - new_height) // 2
                 final_img.paste(img_resized, (x_offset, y_offset), img_resized if img_resized.mode == 'RGBA' else None)
-            
+
             # Generar nombre para la imagen procesada
             base_name = os.path.splitext(os.path.basename(image_path))[0]
             if add_background or img.mode == 'RGB' or final_img.mode == 'RGB':
@@ -916,16 +933,16 @@ def _process_logo_image(image_path, upload_dir, add_background=False):
                 processed_path = os.path.join(upload_dir, processed_name)
                 # Guardar como PNG para mantener transparencia
                 final_img.save(processed_path, 'PNG', optimize=True)
-            
+
             # Eliminar la imagen original si es diferente
             if os.path.abspath(image_path) != os.path.abspath(processed_path):
                 try:
                     os.remove(image_path)
                 except (OSError, IOError):
                     pass
-            
+
             return processed_path
-            
+
     except Exception as e:
         log = logging.getLogger(__name__)
         log.error(f"Error processing logo image: {str(e)}")
@@ -1242,7 +1259,7 @@ def _water_family_list(context, data_dict):
             # If no page_type specified, filter to water family types only
             if not page_type:
                 total_results = [pg for pg in total_results
-                                if pg.page_type in WATER_FAMILY_TYPES]
+                                 if pg.page_type in WATER_FAMILY_TYPES]
                 total_count = len(total_results)
 
             # Get paginated results
@@ -1511,11 +1528,11 @@ def event_types_list(context, data_dict):
         pass
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
-    
+
     # Get custom event types from configuration or database
     # For now, we'll use CKAN config to store event types
     # In a full implementation, you might want to use a separate database table
-    
+
     try:
         # Try to get custom event types from config
         custom_types_json = tk.config.get('ckanext.pages.event_types', '')
@@ -1527,15 +1544,15 @@ def event_types_list(context, data_dict):
     except (json.JSONDecodeError, ValueError):
         # Fallback to default types if JSON is invalid
         event_types = _get_default_event_types()
-    
+
     # Filter by active status if requested
     active_only = data_dict.get('active_only', False)
     if active_only:
         event_types = [et for et in event_types if et.get('active', True)]
-    
+
     # Sort by order
     event_types.sort(key=lambda x: x.get('order', 999))
-    
+
     return event_types
 
 
@@ -1546,18 +1563,18 @@ def event_types_show(context, data_dict):
         p.toolkit.check_access('ckanext_event_types_show', context, data_dict)
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to see this page'))
-    
+
     event_type_id = data_dict.get('id')
     if not event_type_id:
         raise p.toolkit.ValidationError({'id': ['Missing value']})
-    
+
     # Get all event types and find the requested one
     all_types = event_types_list(context, {})
     event_type = next((et for et in all_types if et['id'] == event_type_id), None)
-    
+
     if not event_type:
         p.toolkit.abort(404, p.toolkit._('Event type not found'))
-    
+
     return event_type
 
 
@@ -1567,24 +1584,24 @@ def event_types_create(context, data_dict):
         p.toolkit.check_access('ckanext_event_types_create', context, data_dict)
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to create event types'))
-    
+
     from ckanext.pages.logic.schema import update_event_types_schema
     import ckan.lib.navl.dictization_functions as df
-    
+
     schema = update_event_types_schema()
     data, errors = df.validate(data_dict, schema, context)
-    
+
     if errors:
         raise p.toolkit.ValidationError(errors)
-    
+
     # Get existing event types
     existing_types = event_types_list(context, {})
-    
+
     # Check if name already exists
     event_name = data['name']
     if any(et['name'] == event_name for et in existing_types):
         raise p.toolkit.ValidationError({'name': [tk._('Event type with this name already exists')]})
-    
+
     # Create new event type
     new_event_type = {
         'id': event_name,
@@ -1599,21 +1616,21 @@ def event_types_create(context, data_dict):
         'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'is_default': False
     }
-    
+
     # Add to existing types
     existing_types.append(new_event_type)
-    
+
     # Save to config (in a full implementation, you'd save to database)
     try:
         # Note: This requires CKAN configuration to be writable
         # In production, you might want to use a separate configuration mechanism
-        config_value = json.dumps(existing_types)
+        json.dumps(existing_types)
         # For now, we'll just return the new type since config writing requires special permissions
         # tk.config['ckanext.pages.event_types'] = config_value
     except Exception as e:
         log = logging.getLogger(__name__)
         log.warning("Could not save event types to config: %s", str(e))
-    
+
     return new_event_type
 
 
@@ -1623,33 +1640,33 @@ def event_types_update(context, data_dict):
         p.toolkit.check_access('ckanext_event_types_update', context, data_dict)
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to update event types'))
-    
+
     from ckanext.pages.logic.schema import update_event_types_schema
     import ckan.lib.navl.dictization_functions as df
-    
+
     schema = update_event_types_schema()
     data, errors = df.validate(data_dict, schema, context)
-    
+
     if errors:
         raise p.toolkit.ValidationError(errors)
-    
+
     event_type_id = data.get('id')
     if not event_type_id:
         raise p.toolkit.ValidationError({'id': ['Missing value']})
-    
+
     # Get existing event types
     existing_types = event_types_list(context, {})
-    
+
     # Find the event type to update
     event_type_index = None
     for i, et in enumerate(existing_types):
         if et['id'] == event_type_id:
             event_type_index = i
             break
-    
+
     if event_type_index is None:
         p.toolkit.abort(404, p.toolkit._('Event type not found'))
-    
+
     # Check if it's a default type and prevent certain changes
     current_type = existing_types[event_type_index]
     if current_type.get('is_default', False):
@@ -1658,21 +1675,21 @@ def event_types_update(context, data_dict):
         for field in data:
             if field not in allowed_fields and field in current_type:
                 data[field] = current_type[field]
-    
+
     # Update the event type
     updated_type = existing_types[event_type_index].copy()
     updated_type.update(data)
     updated_type['modified'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     existing_types[event_type_index] = updated_type
-    
+
     # Save to config (in a full implementation, you'd save to database)
     try:
-        config_value = json.dumps(existing_types)
+        json.dumps(existing_types)
         # tk.config['ckanext.pages.event_types'] = config_value
     except Exception as e:
         log = logging.getLogger(__name__)
         log.warning("Could not save event types to config: %s", str(e))
-    
+
     return updated_type
 
 
@@ -1682,29 +1699,29 @@ def event_types_delete(context, data_dict):
         p.toolkit.check_access('ckanext_event_types_delete', context, data_dict)
     except p.toolkit.NotAuthorized:
         p.toolkit.abort(401, p.toolkit._('Not authorized to delete event types'))
-    
+
     event_type_id = data_dict.get('id')
     if not event_type_id:
         raise p.toolkit.ValidationError({'id': ['Missing value']})
-    
+
     # Get existing event types
     existing_types = event_types_list(context, {})
-    
+
     # Find the event type to delete
     event_type_index = None
     for i, et in enumerate(existing_types):
         if et['id'] == event_type_id:
             event_type_index = i
             break
-    
+
     if event_type_index is None:
         p.toolkit.abort(404, p.toolkit._('Event type not found'))
-    
+
     # Check if it's a default type
     current_type = existing_types[event_type_index]
     if current_type.get('is_default', False):
         raise p.toolkit.ValidationError({'id': [tk._('Cannot delete default event types. You can deactivate them instead.')]})
-    
+
     # Check if any rapid response pages are using this event type
     try:
         pages_using_type = tk.get_action('ckanext_pages_list')(
@@ -1717,18 +1734,18 @@ def event_types_delete(context, data_dict):
     except Exception:
         # If we can't check, allow deletion but warn
         pass
-    
+
     # Remove the event type
     deleted_type = existing_types.pop(event_type_index)
-    
+
     # Save to config
     try:
-        config_value = json.dumps(existing_types)
+        json.dumps(existing_types)
         # tk.config['ckanext.pages.event_types'] = config_value
     except Exception as e:
         log = logging.getLogger(__name__)
         log.warning("Could not save event types to config: %s", str(e))
-    
+
     return deleted_type
 
 
@@ -1838,7 +1855,8 @@ def _get_default_disaster_types():
             'name': 'man-made-disaster',
             'title': 'Man-made Disaster',
             'title_plural': 'Man-made Disasters',
-            'description': 'Human-caused disasters such as industrial contamination, bombing of water infrastructure, or chemical spills',
+            'description': 'Human-caused disasters such as industrial contamination, bombing of water '
+            'infrastructure, or chemical spills',
             'icon': 'fa-industry',
             'color': '#696969',
             'active': True,
@@ -1933,7 +1951,7 @@ def disaster_types_create(context, data_dict):
     existing_types.append(new_disaster_type)
 
     try:
-        config_value = json.dumps(existing_types)
+        json.dumps(existing_types)
     except Exception as e:
         log = logging.getLogger(__name__)
         log.warning("Could not save disaster types to config: %s", str(e))
@@ -1980,7 +1998,7 @@ def disaster_types_update(context, data_dict):
     existing_types[disaster_type_index] = updated_type
 
     try:
-        config_value = json.dumps(existing_types)
+        json.dumps(existing_types)
     except Exception as e:
         log = logging.getLogger(__name__)
         log.warning("Could not save disaster types to config: %s", str(e))
@@ -2030,7 +2048,7 @@ def disaster_types_delete(context, data_dict):
     deleted_type = existing_types.pop(disaster_type_index)
 
     try:
-        config_value = json.dumps(existing_types)
+        json.dumps(existing_types)
     except Exception as e:
         log = logging.getLogger(__name__)
         log.warning("Could not save disaster types to config: %s", str(e))
@@ -2120,7 +2138,8 @@ def water_family_upload(context, data_dict):
         log.error(f"[WATER_FAMILY_UPLOAD] Invalid water_content_type: {water_content_type}")
         return {'uploaded': 0, 'error': {'message': f'Invalid water content type: {water_content_type}'}}
 
-    log.info(f"[WATER_FAMILY_UPLOAD] Water content type: {water_content_type}, file type: {file_type}, asset role: {asset_role}")
+    log.info(
+        f"[WATER_FAMILY_UPLOAD] Water content type: {water_content_type}, file type: {file_type}, asset role: {asset_role}")
 
     try:
         # Authorization check - use water-specific auth
@@ -2137,9 +2156,8 @@ def water_family_upload(context, data_dict):
             return {'uploaded': 0, 'error': {'message': validation_result['message']}}
 
         # Use the plugin system to get the appropriate uploader
-        use_fallback = False
         log.info("[WATER_FAMILY_UPLOAD] Getting uploader through plugin system")
-        
+
         try:
             upload = uploader.get_uploader('page_images')
             log.info(f"[WATER_FAMILY_UPLOAD] Successfully got uploader: {type(upload).__name__}")

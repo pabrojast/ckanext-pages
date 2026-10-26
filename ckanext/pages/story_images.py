@@ -140,7 +140,7 @@ def story_image_create(context, data_dict):
         return dict(_serialize(item), uploaded=1, fileName=item.original_name)
     image_id = str(uuid.uuid4())
     values = {'upload': FileStorage(stream=io.BytesIO(content),
-                                   filename=image_id + '.' + extension, content_type=mime)}
+                                    filename=image_id + '.' + extension, content_type=mime)}
     # No silent local fallback if the configured backend fails.
     store = uploader.get_uploader(STORAGE_TYPE)
     store.update_data_dict(values, 'image_url', 'upload', 'clear_upload')
@@ -173,7 +173,7 @@ def story_image_list(context, data_dict):
     if term:
         pattern = '%' + term.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_') + '%'
         query = query.filter(sa.or_(StoryImage.original_name.ilike(pattern, escape='\\'),
-                                   StoryImage.alt.ilike(pattern, escape='\\')))
+                                    StoryImage.alt.ilike(pattern, escape='\\')))
     count = query.count()
     items = query.order_by(StoryImage.created_at.desc(), StoryImage.id).offset(offset).limit(limit).all()
     return {'items': [_serialize(item) for item in items], 'count': count, 'offset': offset, 'limit': limit}

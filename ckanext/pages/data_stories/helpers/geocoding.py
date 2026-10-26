@@ -22,7 +22,8 @@ def search_locations(args):
     if args.get('viewbox'):
         try:
             values = [float(v) for v in args['viewbox'].split(',')]
-            if len(values) != 4 or any(not math.isfinite(v) or abs(v) > (180 if i % 2 == 0 else 90) for i, v in enumerate(values)):
+            if len(values) != 4 or any(not math.isfinite(v) or abs(v) > (180 if i % 2 == 0 else 90)
+                                       for i, v in enumerate(values)):
                 raise ValueError()
         except (ValueError, TypeError):
             raise GeocodingError('Invalid map bounds.', 400)

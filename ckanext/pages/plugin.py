@@ -12,6 +12,7 @@ from six.moves.urllib.parse import quote, urlencode
 from ckan.plugins import toolkit as tk
 
 import ckan.plugins as p
+from ckan.lib.plugins import DefaultTranslation
 from ckan.lib.helpers import build_nav_main as core_build_nav_main
 
 from ckanext.pages.rapid_response_media import lazy_media_html
@@ -98,8 +99,6 @@ except ImportError as e:
     log.warning("Featured viewers modules not available: %s", str(e))
 
 
-from ckan.lib.plugins import DefaultTranslation
-
 # Import database initialization utilities
 try:
     from ckanext.pages.db_init import repair_table_if_needed, ensure_pages_table_exists
@@ -107,9 +106,9 @@ except ImportError:
     # Fallback functions if db_init is not available
     def repair_table_if_needed():
         return True
+
     def ensure_pages_table_exists():
         pass
-
 
 
 def build_pages_nav_main(*args):
@@ -137,7 +136,7 @@ def build_pages_nav_main(*args):
     except Exception as e:
         log.error("Error getting pages list for navigation: %s", str(e))
         error_str = str(e).lower()
-        
+
         # Check for database connection issues
         if any(keyword in error_str for keyword in [
             'server closed the connection',
@@ -151,7 +150,7 @@ def build_pages_nav_main(*args):
         ]):
             log.warning("Database connection issue detected in navigation. Skipping pages menu to prevent cascading errors.")
             return output
-        
+
         # Try to repair the table if there's a table-specific database issue
         try:
             if "ckanext_pages" in error_str:
@@ -180,39 +179,39 @@ def build_pages_nav_main(*args):
         if not pages_list or not isinstance(pages_list, list):
             log.debug("Pages list is empty or invalid, skipping navigation menu")
             return output
-            
+
         for page in pages_list:
             try:
                 # Safely extract page data with defaults
                 page_type = page.get('page_type', 'pages')
                 page_name_raw = page.get('name', '')
                 page_title = page.get('title', '')
-                
+
                 # Skip pages with missing essential data
                 if not page_name_raw or not page_title:
                     log.warning("Skipping page with missing name or title: %s", page)
                     continue
-                
+
                 type_ = 'blog' if page_type == 'blog' else 'pages'
                 if page_type == 'rapid-response':
                     type_ = 'rapid-response'
                 elif page_type == 'open-source-software':
                     type_ = 'open-source-tools'
-                    
+
                 name = quote(page_name_raw)
                 title = html_escape(page_title)
                 link = tk.h.literal(u'<a href="{}/{}/{}">{}</a>'.format(root_path, type_, name, title))
-                
+
                 if page_name_raw == page_name:
                     li = tk.literal('<li class="active">') + link + tk.literal('</li>')
                 else:
                     li = tk.literal('<li>') + link + tk.literal('</li>')
                 output = output + li
             except Exception as page_error:
-                log.warning("Error processing individual page for navigation: %s. Page data: %s", 
-                          str(page_error), page)
+                log.warning("Error processing individual page for navigation: %s. Page data: %s",
+                            str(page_error), page)
                 continue
-                
+
     except Exception as e:
         log.error("Error building pages navigation: %s", str(e))
         # Continue with basic navigation if there's an error processing pages
@@ -244,39 +243,39 @@ def has_meaningful_content(content):
     """Check if content has meaningful text beyond HTML tags and whitespace"""
     if not content:
         return False
-    
+
     # Remove HTML tags and decode HTML entities
     clean_text = re.sub('<[^<]+?>', '', content)
     clean_text = re.sub(r'&[a-zA-Z0-9#]+;', '', clean_text)
-    
+
     # Remove all whitespace characters (spaces, tabs, newlines)
     clean_text = re.sub(r'\s+', '', clean_text)
-    
+
     # Remove common empty content patterns
     clean_text = re.sub(r'&nbsp;', '', clean_text)
     clean_text = re.sub(r'<br\s*/?>', '', clean_text)
-    
+
     # Check if there's any meaningful content left
     return len(clean_text) > 0
 
 
 def sanitize_html_content(content):
     """Sanitize HTML content to fix common encoding issues from WYSIWYG editors.
-    
+
     This helper cleans up content that may have encoding issues or strange characters
     from editors like Quill, CKEditor, etc.
     """
     if not content:
         return content
-    
+
     import html
-    
+
     # First, decode any HTML entities that might have been double-encoded
     try:
         content = html.unescape(content)
     except Exception:
         pass
-    
+
     # Fix common problematic patterns
     replacements = [
         # Double-encoded entities
@@ -302,10 +301,10 @@ def sanitize_html_content(content):
         # Ellipsis
         ('\u2026', '...'),
     ]
-    
+
     for old, new in replacements:
         content = content.replace(old, new)
-    
+
     return content
 
 
@@ -325,9 +324,9 @@ def gravatar_url(email, size=40, default='identicon', rating='g'):
     if not email:
         email = ''
     email_bytes = email.strip().lower().encode('utf-8')
-    salt = (tk.config.get('ckanext.pages.avatar_salt')
-            or tk.config.get('beaker.session.secret')
-            or 'ckanext-pages')
+    salt = (tk.config.get('ckanext.pages.avatar_salt') or
+            tk.config.get('beaker.session.secret') or
+            'ckanext-pages')
     email_hash = hmac.new(
         salt.encode('utf-8'), email_bytes, hashlib.sha256
     ).hexdigest()[:32]
@@ -399,7 +398,7 @@ def get_recent_rapid_response_posts(number=5, exclude=None):
     except Exception as e:
         log.error("Error getting rapid response posts list: %s", str(e))
         return []
-        
+
     new_list = []
     for rr_post in rapid_response_list:
         if exclude and rr_post.get('name') == exclude:
@@ -541,25 +540,25 @@ def get_event_status(page):
     """Determine event status based on timeline events"""
     if not page.get('timeline_events'):
         return 'active'
-    
+
     try:
         timeline_events = json.loads(page['timeline_events'])
         if not timeline_events:
             return 'active'
-        
+
         # Check for closure events
         closure_types = ['closure', 'closed', 'end', 'completed', 'resolved']
         for event in timeline_events:
             event_type = event.get('type', '').lower()
             description = event.get('description', '').lower()
-            
+
             # Check if event type or description indicates closure
-            if (event_type in closure_types or 
-                any(closure_word in description for closure_word in closure_types)):
+            if (event_type in closure_types or
+                    any(closure_word in description for closure_word in closure_types)):
                 return 'closed'
-        
+
         return 'active'
-    except:
+    except Exception:
         return 'active'
 
 
@@ -595,7 +594,7 @@ def count_unique_countries(pages):
                     country = country.strip()
                     if country:
                         countries.add(country)
-        
+
         # Fallback to legacy country field (comma-separated string)
         elif page.get('country'):
             country_text = str(page['country'])
@@ -603,7 +602,7 @@ def count_unique_countries(pages):
                 country = country.strip()
                 if country:
                     countries.add(country)
-        
+
         # Fallback to key_info field (legacy format)
         elif page.get('key_info'):
             lines = page['key_info'].split('\n')
@@ -715,7 +714,7 @@ def get_software_difficulty_class(difficulty):
     """Get CSS class for software difficulty level"""
     difficulty_classes = {
         'beginner': 'difficulty-beginner',
-        'intermediate': 'difficulty-intermediate', 
+        'intermediate': 'difficulty-intermediate',
         'advanced': 'difficulty-advanced',
         'expert': 'difficulty-expert'
     }
@@ -821,7 +820,7 @@ def get_event_types(active_only=True):
             {}, {'active_only': active_only}
         )
         return event_types
-    except:
+    except Exception:
         # Fallback to default water event types
         return [
             {'id': 'conference', 'name': 'conference', 'title': 'Conference', 'title_plural': 'Conferences'},
@@ -842,7 +841,7 @@ def get_event_type_by_id(event_type_id):
             {}, {'id': event_type_id}
         )
         return event_type
-    except:
+    except Exception:
         # Fallback to default types
         default_types = get_event_types(active_only=False)
         return next((et for et in default_types if et['id'] == event_type_id), None)
@@ -855,17 +854,20 @@ def get_disaster_types(active_only=True):
             {}, {'active_only': active_only}
         )
         return disaster_types
-    except:
+    except Exception:
         return [
-            {'id': 'tropical-cyclone', 'name': 'tropical-cyclone', 'title': 'Tropical Cyclone', 'title_plural': 'Tropical Cyclones'},
+            {'id': 'tropical-cyclone', 'name': 'tropical-cyclone', 'title': 'Tropical Cyclone',
+             'title_plural': 'Tropical Cyclones'},
             {'id': 'earthquake', 'name': 'earthquake', 'title': 'Earthquake', 'title_plural': 'Earthquakes'},
             {'id': 'tsunami', 'name': 'tsunami', 'title': 'Tsunami', 'title_plural': 'Tsunamis'},
             {'id': 'flood', 'name': 'flood', 'title': 'Flood', 'title_plural': 'Floods'},
             {'id': 'wildfire', 'name': 'wildfire', 'title': 'Wildfire', 'title_plural': 'Wildfires'},
-            {'id': 'volcanic-eruption', 'name': 'volcanic-eruption', 'title': 'Volcanic Eruption', 'title_plural': 'Volcanic Eruptions'},
+            {'id': 'volcanic-eruption', 'name': 'volcanic-eruption',
+                'title': 'Volcanic Eruption', 'title_plural': 'Volcanic Eruptions'},
             {'id': 'drought', 'name': 'drought', 'title': 'Drought', 'title_plural': 'Droughts'},
             {'id': 'armed-conflict', 'name': 'armed-conflict', 'title': 'Armed Conflict', 'title_plural': 'Armed Conflicts'},
-            {'id': 'man-made-disaster', 'name': 'man-made-disaster', 'title': 'Man-made Disaster', 'title_plural': 'Man-made Disasters'},
+            {'id': 'man-made-disaster', 'name': 'man-made-disaster',
+                'title': 'Man-made Disaster', 'title_plural': 'Man-made Disasters'},
         ]
 
 
@@ -876,7 +878,7 @@ def get_disaster_type_by_id(disaster_type_id):
             {}, {'id': disaster_type_id}
         )
         return disaster_type
-    except:
+    except Exception:
         default_types = get_disaster_types(active_only=False)
         return next((dt for dt in default_types if dt['id'] == disaster_type_id), None)
 
@@ -896,7 +898,7 @@ def _sysadmin_user_ids_cached(cache_buster):
     try:
         import ckan.model as model
         rows = model.Session.query(model.User.id).filter(
-            model.User.sysadmin == True,
+            model.User.sysadmin.is_(True),
             model.User.state == 'active',
         ).all()
         return frozenset(r[0] for r in rows if r and r[0])
@@ -967,9 +969,9 @@ def get_pending_crida_count():
         from ckan import model
         return model.Session.query(Page).filter(
             Page.page_type == 'crida-case-study',
-            Page.private == True,
+            Page.private.is_(True),
             Page.submission_status == 'pending',
-            Page.group_id == None
+            Page.group_id.is_(None)
         ).count()
     except Exception:
         return 0
@@ -1182,9 +1184,9 @@ def get_pending_oss_count():
         from ckan import model
         return model.Session.query(Page).filter(
             Page.page_type == 'open-source-software',
-            Page.private == True,
+            Page.private.is_(True),
             Page.submission_status == 'pending',
-            Page.group_id == None
+            Page.group_id.is_(None)
         ).count()
     except Exception:
         return 0
@@ -1255,17 +1257,17 @@ def get_ihp_organizations():
     """Get all organizations that are marked as IHP WINS organizations"""
     try:
         import ckan.model as model
-        
+
         # Get all organizations
         orgs = model.Session.query(model.Group).filter(
             model.Group.type == 'organization',
             model.Group.state == 'active'
         ).order_by(model.Group.title, model.Group.name).all()
-        
+
         # For now, return all organizations
         # In the future, you could add a custom field to mark IHP organizations
         return orgs
-        
+
     except Exception as e:
         log.error("Error getting IHP organizations: %s", str(e))
         return []
@@ -1276,14 +1278,14 @@ def get_user_organization():
     try:
         if not tk.g.user:
             return None
-            
+
         import ckan.model as model
-        
+
         # Get user's organizations (as a member)
         user_obj = model.User.get(tk.g.user)
         if not user_obj:
             return None
-            
+
         # Get organizations where user is a member (prioritize admin/editor roles)
         member_orgs = model.Session.query(model.Member).filter(
             model.Member.table_name == 'user',
@@ -1299,14 +1301,14 @@ def get_user_organization():
             # Prioritize admin and editor roles
             model.Member.capacity.desc()
         ).all()
-        
+
         if member_orgs:
             # Return the first organization (prioritized by role)
             org_id = member_orgs[0].group_id
             return model.Group.get(org_id)
-            
+
         return None
-        
+
     except Exception as e:
         log.error("Error getting user organization: %s", str(e))
         return None

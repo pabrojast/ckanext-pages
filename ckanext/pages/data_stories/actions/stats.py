@@ -4,7 +4,6 @@ Analytics and statistics actions for data stories.
 Handles view tracking and statistics generation.
 """
 
-import datetime
 import logging
 
 from ckan import model
@@ -12,7 +11,6 @@ import ckan.plugins.toolkit as tk
 from sqlalchemy import func
 
 from ckanext.pages.data_stories.db.models import DataStory
-from ckanext.pages.data_stories.db.utils import table_dictize
 
 log = logging.getLogger(__name__)
 
@@ -104,7 +102,7 @@ def data_story_stats(context, data_dict):
 
         unresolved_comment_count = model.Session.query(DataStoryComment).filter(
             DataStoryComment.story_id == story_id,
-            DataStoryComment.is_resolved == False
+            DataStoryComment.is_resolved.is_(False)
         ).count()
 
         stats = {

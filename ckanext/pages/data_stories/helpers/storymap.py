@@ -217,8 +217,8 @@ def build_terria_scene_url(share_link):
         return None
 
     fragment = parsed.fragment
-    if not (fragment.startswith('share=') or fragment.startswith('start=')
-            or '&share=' in fragment or '&start=' in fragment):
+    if not (fragment.startswith('share=') or fragment.startswith('start=') or
+            '&share=' in fragment or '&start=' in fragment):
         return None
 
     for flag in STORYMAP_EMBED_FLAGS:
@@ -437,7 +437,9 @@ def get_storymap_scenes(story, resolve_share=None):
                 continue
             source = sources_by_id.get(block.get('source_id'))
             if not source or not source.get('sequenced'):
-                ordered_blocks.append({'type': 'text', 'content': '<h3>%s</h3>%s' % (escape(block.get('title') or ''), block.get('content') or '')})
+                ordered_blocks.append(
+                    {'type': 'text', 'content': '<h3>%s</h3>%s' %
+                     (escape(block.get('title') or ''), block.get('content') or '')})
                 continue
             step = {
                 'type': 'step', 'title': block.get('title') or '',
@@ -491,12 +493,14 @@ def get_storymap_scenes(story, resolve_share=None):
             part = dict(scene, blocks=blocks, continuation=index > 0)
             if index:
                 part['section_id'] = '%s-part-%d' % (scene['section_id'], index)
-            composed = next((b.get('composition') for b in blocks if isinstance(b.get('composition'), dict) and b['composition'].get('version') == 1), None)
+            composed = next((b.get('composition') for b in blocks if isinstance(
+                b.get('composition'), dict) and b['composition'].get('version') == 1), None)
             if composed:
                 from .visuals import dashboard_block, references, presentation_options
                 part['composed_step'] = True
                 part['composition'] = presentation_options(composed)
-                part['presentation'] = composed.get('layout') if composed.get('layout') in ('map', 'dashboard', 'combined', 'media', 'full', 'auto') else 'auto'
+                part['presentation'] = composed.get('layout') if composed.get('layout') in (
+                    'map', 'dashboard', 'combined', 'media', 'full', 'auto') else 'auto'
                 part['layout'] = 'full' if part['presentation'] in ('media', 'full') else 'split'
                 part['dashboards'] = [dashboard_block(d) for d in composed.get('dashboards', []) if isinstance(d, dict)]
                 part['dashboards'] = [d for d in part['dashboards'] if d['type'] == 'dashboard']
@@ -506,16 +510,20 @@ def get_storymap_scenes(story, resolve_share=None):
                     if not isinstance(media, dict) or not isinstance(media.get('url'), str):
                         continue
                     url = media['url']
-                    if not (url.startswith('/') and not url.startswith('//')) and urlparse(url).scheme not in ('http', 'https'):
+                    if not (url.startswith('/') and not url.startswith('//')
+                            ) and urlparse(url).scheme not in ('http', 'https'):
                         continue
                     if media.get('type') == 'image':
-                        part['blocks'].append({'type': 'image', 'url': url, 'alt': media.get('alt') or '', 'caption': media.get('title') or '', 'display': 'map'})
+                        part['blocks'].append({'type': 'image', 'url': url, 'alt': media.get(
+                            'alt') or '', 'caption': media.get('title') or '', 'display': 'map'})
                     elif media.get('type') == 'media':
                         part['blocks'].append({'type': 'media', 'embed_html': _media_embed_html(media)})
             if full_image:
-                part.update(layout='full', sources=[], dashboards=[], scene_url=None, share_url=None, share_id=None, start_data=None, steps=[])
+                part.update(layout='full', sources=[], dashboards=[], scene_url=None,
+                            share_url=None, share_id=None, start_data=None, steps=[])
             first_step = next((b for b in blocks if b['type'] == 'step'), None)
-            part['initial_step'] = ({'sourceIndex': first_step['source_index'], 'stepIndex': first_step['step_index']} if first_step else None)
+            part['initial_step'] = ({'sourceIndex': first_step['source_index'],
+                                    'stepIndex': first_step['step_index']} if first_step else None)
             result.append(part)
     return result
 

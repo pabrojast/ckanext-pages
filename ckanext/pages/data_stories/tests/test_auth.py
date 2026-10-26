@@ -167,7 +167,7 @@ class TestDataStoryAuth:
 
         # Add required sections
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': user['name']},

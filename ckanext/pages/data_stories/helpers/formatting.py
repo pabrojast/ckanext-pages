@@ -15,8 +15,8 @@ log = logging.getLogger(__name__)
 
 
 def render_story_date(date_obj,
-                     format_string: str = '%B %d, %Y',
-                     with_time: bool = False) -> str:
+                      format_string: str = '%B %d, %Y',
+                      with_time: bool = False) -> str:
     """
     Render a datetime object or ISO string as a formatted string.
 

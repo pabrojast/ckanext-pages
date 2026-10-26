@@ -403,7 +403,7 @@ class TestDataStoryWorkflowActions:
 
         # Add required sections
         for section_type in ['introduction', 'data_sources', 'methodology',
-                            'spatial_analysis', 'conclusions']:
+                             'spatial_analysis', 'conclusions']:
             helpers.call_action(
                 'data_story_section_create',
                 context={'user': user['name']},
@@ -701,7 +701,7 @@ class TestDataStoryExportImportActions:
         """Test exporting a single story."""
         sysadmin = factories.Sysadmin()
 
-        story = self._create_story_with_sections(sysadmin, 'Export Test', slug='export-test')
+        self._create_story_with_sections(sysadmin, 'Export Test', slug='export-test')
 
         result = helpers.call_action(
             'data_story_export',
@@ -718,7 +718,7 @@ class TestDataStoryExportImportActions:
     def test_single_export_requires_sysadmin(self):
         """Test that export requires sysadmin."""
         user = factories.User()
-        story = self._create_story_with_sections(user, 'Protected Story', slug='protected')
+        self._create_story_with_sections(user, 'Protected Story', slug='protected')
 
         with pytest.raises(toolkit.NotAuthorized):
             helpers.call_action(
@@ -780,7 +780,7 @@ class TestDataStoryExportImportActions:
         )
 
         assert result['status'] == 'published'
-        assert result['is_public'] == True
+        assert result['is_public'] is True
 
     def test_import_preserve_dates(self):
         """Test importing with preserve_dates flag."""

@@ -26,8 +26,8 @@ def no_network(*args):
 
 def test_interleaved_order_and_frozen_map_data():
     scenes = get_storymap_scenes(story([source(), slide('A'),
-        {'type': 'image', 'url': '/image.png', 'display': 'map'},
-        {'type': 'text', 'content': 'Between'}, slide('B')]), resolve_share=no_network)
+                                        {'type': 'image', 'url': '/image.png', 'display': 'map'},
+                                        {'type': 'text', 'content': 'Between'}, slide('B')]), resolve_share=no_network)
     assert len(scenes) == 1
     assert [b['type'] for b in scenes[0]['blocks']] == ['scene_tabs', 'step', 'image', 'text', 'step']
     config = get_storymap_config({}, scenes)
@@ -38,7 +38,8 @@ def test_interleaved_order_and_frozen_map_data():
 
 def test_full_image_is_separate_stop_and_next_slide_resumes_correct_map():
     scenes = get_storymap_scenes(story([source(), slide('A'),
-        {'type': 'image', 'url': '/image.png', 'display': 'full'}, slide('B')]), resolve_share=no_network)
+                                        {'type': 'image', 'url': '/image.png', 'display': 'full'}, slide('B')]),
+                                 resolve_share=no_network)
     assert [s['layout'] for s in scenes] == ['split', 'full', 'split']
     assert len({s['section_id'] for s in scenes}) == 3
     assert scenes[1]['sources'] == []

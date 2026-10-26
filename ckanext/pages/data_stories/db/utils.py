@@ -5,7 +5,6 @@ Provides helper functions for database operations.
 """
 
 import datetime
-import json
 import logging
 import uuid as uuid_module
 from typing import Dict, Any
@@ -47,7 +46,8 @@ def _ensure_blocks_metadata_column(engine):
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_story_sections'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_story_sections'
         AND column_name = 'blocks_metadata'
     """)
 
@@ -55,7 +55,8 @@ def _ensure_blocks_metadata_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_story_sections'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_story_sections'
     """)
 
     try:
@@ -110,13 +111,15 @@ def _ensure_countries_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'countries'
     """)
 
@@ -151,13 +154,15 @@ def _ensure_paper_doi_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'paper_doi'
     """)
 
@@ -192,13 +197,15 @@ def _ensure_paper_citation_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'paper_citation'
     """)
 
@@ -233,13 +240,15 @@ def _ensure_uploaded_images_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'uploaded_images'
     """)
 
@@ -272,13 +281,15 @@ def _ensure_partners_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'partners'
     """)
 
@@ -311,13 +322,15 @@ def _ensure_project_type_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'project_type'
     """)
 
@@ -350,13 +363,15 @@ def _ensure_display_mode_column(engine):
     check_table_sql = sa.text("""
         SELECT table_name
         FROM information_schema.tables
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
     """)
 
     check_column_sql = sa.text("""
         SELECT column_name
         FROM information_schema.columns
-        WHERE table_name = 'data_stories'
+        WHERE table_schema = current_schema()
+        AND table_name = 'data_stories'
         AND column_name = 'display_mode'
     """)
 
@@ -389,7 +404,8 @@ def init_tables(engine):
 
     This should be called during CKAN database initialization.
     """
-    from ckanext.pages.data_stories.db.models import (
+    # Import models to register their tables before metadata.create_all().
+    from ckanext.pages.data_stories.db.models import (  # noqa: F401
         DataStory,
         DataStorySection,
         DataStoryDataset,
@@ -397,8 +413,6 @@ def init_tables(engine):
         DataStoryComment,
         DataStoryRevision,
     )
-    import sqlalchemy as sa
-    from sqlalchemy.dialects.postgresql import JSONB
 
     # Import BaseModel to get metadata
     try:

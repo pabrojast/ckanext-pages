@@ -868,7 +868,8 @@ def edit(slug):
             # Check if story was resubmitted for review
             new_status = updated_story.get('status')
             if original_status == 'published' and new_status == 'submitted':
-                flash(tk._('Story updated and resubmitted for review. It will be reviewed before being published again.'), 'info')
+                flash(tk._('Story updated and resubmitted for review. It will be reviewed before being '
+                           'published again.'), 'info')
             else:
                 flash(tk._('Story updated successfully'), 'success')
             log.info("[DATA_STORIES_ROUTE] Flash message set")
@@ -1198,9 +1199,9 @@ def create_section(slug):
 def create_comment(slug):
     """
     Create a comment on a story.
-    
+
     URL: /data-stories/<slug>/comments (POST)
-    
+
     Form data:
         - content: Comment text (required)
         - section_id: Section ID if commenting on a section (optional)
@@ -1208,23 +1209,23 @@ def create_comment(slug):
         - comment_type: Type of comment (comment, suggestion, required_change)
     """
     log.info(f"[DATA_STORIES_ROUTE] Creating comment for story: {slug}")
-    
+
     context = _get_context()
-    
+
     # Get story
     try:
         story = tk.get_action('data_story_show')(context, {'slug': slug})
     except tk.ObjectNotFound:
         flash(tk._('Story not found'), 'error')
         return redirect(url_for('data_stories.index'))
-    
+
     # Extract comment data
     content = request.form.get('content', '').strip()
-    
+
     if not content:
         flash(tk._('Comment cannot be empty'), 'error')
         return redirect(url_for('data_stories.show', slug=slug))
-    
+
     data_dict = {
         'story_id': story['id'],
         'content': content,
@@ -1232,13 +1233,13 @@ def create_comment(slug):
         'parent_comment_id': request.form.get('parent_comment_id'),
         'comment_type': request.form.get('comment_type', 'comment')
     }
-    
+
     # Create comment
     try:
         comment = tk.get_action('data_story_comment_create')(context, data_dict)
         flash(tk._('Comment added successfully'), 'success')
         log.info(f"[DATA_STORIES_ROUTE] Comment created: {comment['id']}")
-        
+
     except tk.NotAuthorized:
         flash(tk._('You are not authorized to comment'), 'error')
     except tk.ValidationError as e:
@@ -1247,7 +1248,7 @@ def create_comment(slug):
     except Exception as e:
         log.error(f"Error creating comment: {str(e)}")
         flash(tk._('Error adding comment'), 'error')
-    
+
     # Redirect back to story
     return redirect(url_for('data_stories.show', slug=slug) + '#comments')
 
@@ -1332,16 +1333,16 @@ def _extract_story_form_data(form):
     log.info(f"[EXTRACT_FORM] countries raw from form: {countries_raw!r}")
     countries_parsed = _parse_json_field(countries_raw, default_empty_list=True)
     log.info(f"[EXTRACT_FORM] countries parsed: {countries_parsed!r}")
-    
+
     partners_raw = form.get('partners')
     log.info(f"[EXTRACT_FORM] partners raw from form: {partners_raw!r}")
     partners_parsed = _parse_json_field(partners_raw, default_empty_list=True)
     log.info(f"[EXTRACT_FORM] partners parsed: {partners_parsed!r}")
-    
+
     uploaded_images_raw = form.get('uploaded_images')
     uploaded_images_parsed = _parse_json_field(uploaded_images_raw, default_empty_list=True)
     log.info(f"[EXTRACT_FORM] uploaded_images: {len(uploaded_images_parsed) if uploaded_images_parsed else 0} images")
-    
+
     return {
         'title': form.get('title', '').strip(),
         'slug': form.get('slug', '').strip(),
@@ -1416,14 +1417,16 @@ def _extract_sections_form_data(form):
 
         raw_blocks = raw.get('blocks_metadata')
         parsed_blocks = _parse_json_field(raw_blocks)
-        if (raw_blocks and str(raw_blocks).strip() not in ('null', '[]')
-                and not isinstance(parsed_blocks, list)):
+        if (raw_blocks and str(raw_blocks).strip() not in ('null', '[]') and
+                not isinstance(parsed_blocks, list)):
             tk.abort(400, 'Invalid section blocks. No changes were saved; return to the editor and try again.')
         if parsed_blocks is None:
             parsed_blocks = _reconstruct_blocks_metadata(raw)
             if parsed_blocks:
                 log.info(f"[EXTRACT_SECTIONS] Section {index} reconstructed blocks_metadata from content/terria")
-        log.debug(f"[EXTRACT_SECTIONS] Section {index} raw blocks_metadata: {type(raw_blocks)} len={len(raw_blocks) if raw_blocks else 0}")
+        log.debug(
+            f"[EXTRACT_SECTIONS] Section {index} raw blocks_metadata: {type(raw_blocks)} "
+            f"len={len(raw_blocks) if raw_blocks else 0}")
         log.debug(f"[EXTRACT_SECTIONS] Section {index} parsed blocks_metadata type: {type(parsed_blocks)}")
 
         section = {
@@ -1652,7 +1655,7 @@ def _extract_datasets_form_data(form):
 
 def _parse_json_field(raw_value, default_empty_list=False):
     """Parse JSON stored in form fields, returning None when unset/invalid.
-    
+
     Args:
         raw_value: The raw value from the form field
         default_empty_list: If True, return [] instead of None for empty/null values
@@ -1668,7 +1671,7 @@ def _parse_json_field(raw_value, default_empty_list=False):
         raw_value = raw_value.strip()
         if not raw_value or raw_value == 'null':
             return [] if default_empty_list else None
-        
+
         # Handle empty array string - return actual empty list
         if raw_value == '[]':
             return []
@@ -1784,22 +1787,22 @@ def _dataset_form_metadata(dataset):
     """Return the canonical, JSON-safe dataset shape used by the editor."""
     extras = dataset.get('extras')
     doi = (
-        dataset.get('doi')
-        or dataset.get('dataset_doi')
-        or _get_extra_value(extras, 'doi')
-        or _get_extra_value(extras, 'dataset_doi')
+        dataset.get('doi') or
+        dataset.get('dataset_doi') or
+        _get_extra_value(extras, 'doi') or
+        _get_extra_value(extras, 'dataset_doi')
     )
     doi_status = (
-        dataset.get('doi_status')
-        or _get_extra_value(extras, 'doi_status')
-        or _get_extra_value(extras, 'doi_state')
+        dataset.get('doi_status') or
+        _get_extra_value(extras, 'doi_status') or
+        _get_extra_value(extras, 'doi_state')
     )
     citation = dataset.get('citation') or _get_extra_value(extras, 'citation')
     authors_text = (
-        _get_extra_value(extras, 'authors')
-        or dataset.get('author')
-        or dataset.get('maintainer')
-        or ', '.join(
+        _get_extra_value(extras, 'authors') or
+        dataset.get('author') or
+        dataset.get('maintainer') or
+        ', '.join(
             author.get('name', '')
             for author in (dataset.get('authors') or [])
             if isinstance(author, dict) and author.get('name')

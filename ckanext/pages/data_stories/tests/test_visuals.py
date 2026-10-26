@@ -37,7 +37,8 @@ def test_dashboard_urls_cannot_be_injected():
 
 
 @pytest.mark.parametrize('filters', [[{'field': 'a', 'op': 'sql', 'value': 'x'}],
-    [{'field': 'a', 'op': 'between', 'value': [1]}], [{'field': 'a', 'op': 'eq', 'value': {}}]])
+                                     [{'field': 'a', 'op': 'between', 'value': [1]}],
+                                     [{'field': 'a', 'op': 'eq', 'value': {}}]])
 def test_invalid_filters_are_rejected(filters):
     with pytest.raises(ValueError):
         dashboard_state({'filters': filters})

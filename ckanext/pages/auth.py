@@ -43,7 +43,7 @@ def page_privacy(context, data_dict):
     page = data_dict.get('page')
     out = db.Page.get(group_id=org_id, name=page)
     if out and out.private is False:
-        return {'success':  True}
+        return {'success': True}
     # no org_id means it's a universal page
     if not org_id:
         if out and out.private:
@@ -79,11 +79,11 @@ def pages_update_with_org_check(context, data_dict):
     # First check if user is sysadmin
     if sysadmin(context, data_dict)['success']:
         return {'success': True}
-    
+
     user = context.get('user')
     if not user:
         return {'success': False}
-    
+
     # Get the page to check its organization and author
     page_name = data_dict.get('page')
     if not page_name:
@@ -103,14 +103,14 @@ def pages_update_with_org_check(context, data_dict):
             except Exception:
                 pass
         return {'success': False}
-        
+
     try:
         from ckanext.pages.db import Page
         page = Page.get(name=page_name)
-        
+
         if not page:
             return {'success': False}
-        
+
         # Check if user is the author of the page
         import ckan.model as model
         user_obj = model.User.get(user)
@@ -131,16 +131,16 @@ def pages_update_with_org_check(context, data_dict):
                 model.Member.group_id == page.ihp_organization,
                 model.Member.state == 'active'
             )
-            
+
             if member_query.first():
                 return {'success': True}
-                
+
     except Exception as e:
         # Log error but don't fail authentication
         import logging
         log = logging.getLogger(__name__)
         log.error("Error in pages_update_with_org_check: %s", str(e))
-        
+
     return {'success': False}
 
 
@@ -150,6 +150,7 @@ def pages_upload_auth(context, data_dict):
         return {'success': True}
 
     return user_authenticated(context, data_dict)
+
 
 pages_show = page_privacy
 pages_update = pages_update_with_org_check
@@ -296,7 +297,7 @@ def event_types_show(context, data_dict):
     return {'success': True}
 
 
-@p.toolkit.auth_allow_anonymous_access  
+@p.toolkit.auth_allow_anonymous_access
 def event_types_list(context, data_dict):
     '''Anyone can list event types (used for filters and dropdowns)'''
     return {'success': True}

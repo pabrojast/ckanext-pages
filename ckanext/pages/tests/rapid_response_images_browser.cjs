@@ -11,29 +11,47 @@ function run(...args) {
     {cwd: outputDir, encoding: 'utf8', maxBuffer: 2 * 1024 * 1024});
   } catch (error) {throw new Error(error.stdout || error.stderr || 'Browser command failed');}
 }
-async function check(page, quillPath, imagesPath) {
+async function check(page, quillPath, libraryPath, imagesPath) {
   await page.setContent('<form id="rapid-response-form"><div id="editor"></div><div id="block"></div>' +
     '<textarea id="content"></textarea><input type="hidden" id="metadata"><textarea id="source"></textarea></form>');
   await page.addScriptTag({path: quillPath});
+  await page.addScriptTag({path: libraryPath});
   await page.addScriptTag({path: imagesPath});
   await page.evaluate(() => {
     window.uploads = [];
     window.failUploads = false;
-    window.jQuery = {ajax(options) {
-      const callbacks = {};
-      const result = {done(fn) {callbacks.done = fn; return result;}, fail(fn) {callbacks.fail = fn; return result;}};
-      setTimeout(async () => {
-        if (window.failUploads) return callbacks.fail();
-        const blob = options.data.get('upload');
+    // Exercise the real shared library; only its server transport is simulated.
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = (url, options) => {
+      if (url !== '/story-images/upload') return originalFetch(url, options);
+      if (options.credentials !== 'same-origin') throw new Error('Missing upload credentials');
+      return Promise.resolve(new Response(JSON.stringify({max_bytes: 10 * 1024 * 1024, csrf_token: 'test-csrf'})));
+    };
+    window.XMLHttpRequest = class {
+      constructor() { this.upload = {}; this.headers = {}; }
+      open(method, url) {
+        if (method !== 'POST' || url !== '/story-images/upload') throw new Error('Unexpected upload endpoint');
+      }
+      setRequestHeader(name, value) { this.headers[name] = value; }
+      send(data) { setTimeout(async () => {
+        if (this.headers['X-CSRFToken'] !== 'test-csrf' || data.get('_csrf_token') !== 'test-csrf')
+          throw new Error('Missing upload CSRF token');
+        if (window.failUploads) {
+          this.status = 503;
+          this.responseText = JSON.stringify({uploaded: 0, error: {message: 'Retry upload'}});
+          return this.onload();
+        }
+        const blob = data.get('upload');
         const bitmap = await createImageBitmap(blob);
         const canvas = document.createElement('canvas'); canvas.width = 1; canvas.height = 1;
         const context = canvas.getContext('2d'); context.drawImage(bitmap, 0, 0);
         window.uploads.push({width: bitmap.width, height: bitmap.height, bytes: blob.size,
           mime: blob.type, alpha: context.getImageData(0, 0, 1, 1).data[3]});
-        callbacks.done({uploaded: 1, url: 'https://assets.invalid/image-' + window.uploads.length + '.png'});
-      }, 25);
-      return result;
-    }};
+        this.status = 200;
+        this.responseText = JSON.stringify({uploaded: 1, url: 'https://assets.invalid/image-' + window.uploads.length + '.png'});
+        this.onload();
+      }, 25); }
+    };
     window.editor = new Quill('#editor', {modules: {toolbar: [['image']]}});
     window.block = new Quill('#block', {modules: {toolbar: [['image']]}});
     const sync = () => {
@@ -59,7 +77,8 @@ async function check(page, quillPath, imagesPath) {
     // Calling prepare immediately must also await FileReader and the upload.
     await manager.prepare(form);
     assert(window.uploads.length === 1, 'Paste must upload exactly once');
-    assert(window.uploads[0].width === 1600 && window.uploads[0].height === 1200, 'PNG must be resized');
+    // Resizing is now performed by prepare_image on the server, covered by its Python tests.
+    assert(window.uploads[0].width === 2400 && window.uploads[0].height === 1800, 'Original PNG must reach the server');
     assert(window.uploads[0].alpha > 0 && window.uploads[0].alpha < 255, 'Transparency must survive');
     assert(!document.getElementById('content').value.includes('data:image'), 'Hidden content must contain URLs');
     assert(document.getElementById('rr-image-status').hidden, 'Finished uploads must clear progress');
@@ -86,13 +105,14 @@ async function check(page, quillPath, imagesPath) {
     await manager.prepare(form);
     assert(!document.getElementById('source').value.includes('data:image'), 'Source mode must be converted');
     assert(document.getElementById('source').value.includes('width="500"'), 'Source dimensions must be retained');
-    return 'PASS: paste, resize, transparency, pending save, drag/drop, deduplication, block metadata, upload failure, retry, source mode';
+    return 'PASS: shared image library, original upload, CSRF, transparency, pending save, drag/drop, deduplication, block metadata, upload failure, retry, source mode';
   });
   return result;
 }
 try {
   run('open', 'about:blank');
-  const args = [path.resolve(__dirname, '../assets/vendor/quill/quill.min.js'), path.resolve(__dirname, '../public/js/rapid-response-images.js')];
+  const args = [path.resolve(__dirname, '../assets/vendor/quill/quill.min.js'),
+    path.resolve(__dirname, '../public/js/story-images.js'), path.resolve(__dirname, '../public/js/rapid-response-images.js')];
   const output = run('run-code', `async page => (${check.toString()})(page, ${args.map(JSON.stringify).join(',')})`);
   if (!output.includes('PASS:') || output.includes('### Error')) throw new Error(output);
   console.log(output.slice(0, output.indexOf('### Ran Playwright')));

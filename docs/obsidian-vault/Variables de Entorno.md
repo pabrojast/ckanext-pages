@@ -7,7 +7,7 @@ Relacionadas: [[Setup Local]], [[Deployment]], [[Troubleshooting]]
 
 ## Hallazgo principal
 
-No se detectó un contrato propio de variables de entorno consumidas directamente por el código de la extensión con `os.environ` o `getenv`.
+Las suites PostgreSQL independientes leen `PAGES_IMPORT_TEST_URL` y `PAGES_SCHEMA_TEST_URL`. Deben apuntar a una base aislada de pruebas; crean y eliminan esquemas o tablas temporales. CI usa la base `ckan_test` y el rol `ckan_default`, sin requerir acceso de superusuario.
 
 La configuración real del plugin vive principalmente en settings CKAN leídos desde `tk.config`.
 
@@ -15,6 +15,7 @@ La configuración real del plugin vive principalmente en settings CKAN leídos d
 
 En `.github/workflows/test.yml` se inyectan:
 
+- `CKAN_SITE_URL` (`http://test.ckan.net`; evita el puerto localhost heredado de la imagen, rechazado por el validador URL de CKAN 2.9)
 - `CKAN_SQLALCHEMY_URL`
 - `CKAN_DATASTORE_WRITE_URL`
 - `CKAN_DATASTORE_READ_URL`

@@ -9,6 +9,7 @@ from collections import OrderedDict
 import datetime
 import json
 import re
+from html import unescape
 
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
@@ -48,7 +49,7 @@ class TestPages():
             params={
                 'title': 'Allowed',
                 'name': 'page_html_allowed',
-                'content': '<a href="/test">Test Link</a>',
+                'content': '<a href="/test" onclick="alert(1)">Test Link</a>',
                 'private': False,
             },
             extra_environ=env,
@@ -66,14 +67,15 @@ class TestPages():
             params={
                 'title': 'Disallowed',
                 'name': 'page_html_disallowed',
-                'content': '<a href="/test">Test Link</a>',
+                'content': '<a href="/test" onclick="alert(1)">Test Link</a>',
                 'private': False,
             },
             extra_environ=env,
         )
         assert '<h1 class="page-heading">Disallowed</h1>' in response.body
         assert 'Test Link' in response.body
-        assert '<a href="/test">Test Link</a>' not in response.body
+        # CKAN retains safe Markdown links but removes unsafe attributes.
+        assert 'onclick="alert(1)"' not in response.body
 
     @pytest.mark.ckan_config('ckanext.pages.allow_html', False)
     def test_rendering_no_p_tags_added_with_html_disallowed(self, app):
@@ -150,6 +152,7 @@ class TestPages():
 
     def test_open_source_submission_appears_in_pending_list(self, app):
         submitter = factories.User()
+        factories.Organization(users=[{'name': submitter['name'], 'capacity': 'member'}])
         env = {'REMOTE_USER': submitter['name'].encode('ascii')}
         slug = 'pending-tool'
 
@@ -163,6 +166,7 @@ class TestPages():
             },
             extra_environ=env,
             status=302,
+            follow_redirects=False,
         )
 
         page = helpers.call_action(
@@ -191,6 +195,7 @@ class TestPages():
                 name='ai-tool-{0}'.format(idx),
                 page='ai-tool-{0}'.format(idx),
                 title='AI Tool {0}'.format(idx),
+                publish_date=datetime.datetime(2025, 1, idx + 1).isoformat(),
                 content='AI tool content {0}'.format(idx),
                 page_type='ai-water-tools',
                 private=False,
@@ -205,7 +210,9 @@ class TestPages():
             extra_environ=env,
         )
 
-        assert 'AI Tool 21' in response.body
+        # Newest first: the oldest tool is alone on page two.
+        assert 'AI Tool 0' in response.body
+        assert 'AI Tool 21' not in response.body
         assert re.search(
             r'<div class="metric-number">\s*22\s*</div>\s*<div class="metric-label">Total Tools</div>',
             response.body,
@@ -225,6 +232,7 @@ class TestPages():
 
     def test_non_admin_publish_request_is_converted_to_pending_for_water_news(self, app):
         submitter = factories.User()
+        factories.Organization(users=[{'name': submitter['name'], 'capacity': 'member'}])
         env = {'REMOTE_USER': submitter['name'].encode('ascii')}
         slug = 'pending-water-news'
 
@@ -240,6 +248,7 @@ class TestPages():
             },
             extra_environ=env,
             status=302,
+            follow_redirects=False,
         )
 
         page = helpers.call_action(
@@ -251,6 +260,8 @@ class TestPages():
     def test_water_news_show_renders_uploaded_gallery_and_associations(self, app):
         admin = factories.Sysadmin()
         env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        factories.Group(name='chile', title='Chile')
+        factories.Group(name='crida', title='Crida')
         slug = 'water-news-gallery'
 
         app.post(
@@ -274,6 +285,7 @@ class TestPages():
             },
             extra_environ=env,
             status=302,
+            follow_redirects=False,
         )
 
         response = app.get(
@@ -284,7 +296,7 @@ class TestPages():
 
         assert 'https://example.com/gallery-image.jpg' in response.body
         assert 'Gallery caption' in response.body
-        assert 'Member States &amp; Initiatives' in response.body
+        assert 'Member States & Initiatives' in unescape(response.body)
         assert 'Chile' in response.body
         assert 'Crida' in response.body
         assert '/memberstates/chile' in response.body
@@ -293,6 +305,8 @@ class TestPages():
     def test_water_events_show_renders_uploaded_gallery_and_associations(self, app):
         admin = factories.Sysadmin()
         env = {'REMOTE_USER': admin['name'].encode('ascii')}
+        factories.Group(name='chile', title='Chile')
+        factories.Group(name='crida', title='Crida')
         slug = 'water-events-gallery'
 
         app.post(
@@ -315,6 +329,7 @@ class TestPages():
             },
             extra_environ=env,
             status=302,
+            follow_redirects=False,
         )
 
         response = app.get(
@@ -325,7 +340,7 @@ class TestPages():
 
         assert 'https://example.com/event-gallery-image.jpg' in response.body
         assert 'Event gallery caption' in response.body
-        assert 'Member States &amp; Initiatives' in response.body
+        assert 'Member States & Initiatives' in unescape(response.body)
         assert 'Chile' in response.body
         assert 'Crida' in response.body
         assert '/memberstates/chile' in response.body
@@ -461,8 +476,13 @@ class TestPages():
         sysadmin_data = helpers.call_action('user_show', {'ignore_auth': True}, id=sysadmin['name'])
         expected_display = sysadmin_data.get('fullname') or sysadmin_data.get('display_name') or sysadmin_data['name']
 
-        assert expected_display in response.body
-        assert sysadmin_data['id'] not in response.body
+        author_labels = re.findall(
+            r'<span class="admin-info-item">\s*<i class="fa fa-user"></i>(.*?)</span>',
+            response.body, re.S,
+        )
+        assert len(author_labels) == 1
+        assert expected_display in author_labels[0]
+        assert sysadmin_data['id'] not in author_labels[0]
 
     def test_water_admin_approve_route_sets_workflow_metadata(self, app):
         sysadmin = factories.Sysadmin()
@@ -485,6 +505,7 @@ class TestPages():
         response = app.post(
             toolkit.url_for('pages.water_admin_approve', page_type='water-news', page=slug),
             status=302,
+            follow_redirects=False,
             extra_environ=env,
         )
         assert response.status_code == 302
@@ -518,6 +539,7 @@ class TestPages():
         response = app.post(
             toolkit.url_for('pages.open_source_admin_approve', page='approve-route-tool'),
             status=302,
+            follow_redirects=False,
             extra_environ=env,
         )
         assert response.status_code == 302
@@ -571,6 +593,7 @@ class TestPages():
             toolkit.url_for('pages.open_source_admin_change_org', page=slug),
             params={'new_organization': replacement_org['id']},
             status=302,
+            follow_redirects=False,
             extra_environ=env,
         )
         assert response.status_code == 302
@@ -598,8 +621,9 @@ class TestPages():
 
         assert u'<p>Çöñtéñt</p>' in response.get_data(as_text=True)
         assert u'<title>Tïtlé - CKAN</title>' in response.get_data(as_text=True)
-        assert u'<a href="/pages/page_unicode">Tïtlé</a>' in response.get_data(as_text=True)
         assert u'<h1 class="page-heading">Tïtlé</h1>' in response.get_data(as_text=True)
+        index = app.get(toolkit.url_for('pages.pages_index'), extra_environ=env)
+        assert re.search(r'<a[^>]*href="/pages/page_unicode"[^>]*>\s*Tïtlé\s*</a>', index.body)
 
     def test_pages_saves_custom_schema_fields(self, app):
         user = factories.Sysadmin()
@@ -675,6 +699,7 @@ class TestPages():
             },
             extra_environ=env,
             status=302,
+            follow_redirects=False,
         )
 
         assert 'fresh-publication-title' in response.location
@@ -738,6 +763,7 @@ class TestPages():
                 },
                 extra_environ=env,
                 status=302,
+                follow_redirects=False,
             )
 
         assert 'regression-publication' in response.location
@@ -825,6 +851,7 @@ class TestPages():
                 },
                 extra_environ=env,
                 status=302,
+                follow_redirects=False,
             )
 
         assert 'deferred-owner-org' in response.location

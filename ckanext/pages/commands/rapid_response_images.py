@@ -51,10 +51,11 @@ def read_json(path, compressed=False):
 
 
 def snapshot(page_id, lock=False):
-    query = sa.select(Page.__table__).where(Page.id == page_id)
+    query = Page.__table__.select().where(Page.id == page_id)
     if lock:
         query = query.with_for_update()
-    row = model.Session.execute(query).mappings().first()
+    row = model.Session.execute(query).first()
+    row = getattr(row, '_mapping', row)
     return json.loads(encoded(dict(row))) if row else None
 
 
@@ -143,10 +144,10 @@ def optimize_rapid_response_images(page_name, do_apply, backup_dir, restore):
             manifest = read_json(manifest_path)
             if manifest['site'] != tk.config.get('ckan.site_url'):
                 raise click.ClickException('Backup belongs to a different site')
-    query = sa.select(Page.id).where(Page.page_type == 'rapid-response')
+    query = model.Session.query(Page.id).filter(Page.page_type == 'rapid-response')
     if page_name:
-        query = query.where(Page.name == page_name)
-    ids = [row[0] for row in model.Session.execute(query)]
+        query = query.filter(Page.name == page_name)
+    ids = [row[0] for row in query]
     model.Session.rollback()
     failures = []
     converted = 0
