@@ -154,6 +154,12 @@ La plantilla `Narrative (no side panel)` mantiene el valor persistido `layout: f
 
 Las tarjetas `Text + image / multimedia` son narrativas (sin panel lateral) pero reparten su cuerpo en dos columnas según `Column proportions` (`--story-text-width`, 35/50/65 %). Desde 2026-10-23, con `100% of screen` o `Custom` ese grid pasa a una sola columna en escritorio: el texto ocupa todo el ancho de la sección y la imagen o el embed se apilan debajo (`data-stories-visuals.css`, reglas `[data-presentation="media"]:is([data-section-width="full"], [data-section-width="custom"])`). Con `Normal` la composición lado a lado no cambia; en móvil el grid no existe. La vista previa del editor se apila y la nota del control lo indica. Los assets del visor y del editor de visuales usan cache-bust `20261023-width-2`; `rapid-response.html` y la vista previa de revisiones cargan `data-stories-storymap.css` con `20261001-width-1`, que antes pedían una versión anterior a las reglas de ancho.
 
+## Etiquetas del editor y países (2026-10-26)
+
+Los campos compartidos `.ds-visual-field` contienen tanto el título como el control. `data-stories-visuals.css` anula su `::after` para que el `:` global de CKAN no aparezca debajo del selector. La regla cubre plantilla, composición, duración, ancho y dashboards; las etiquetas ordinarias conservan su puntuación y los indicadores de obligatoriedad. Las cuatro inclusiones de este CSS usan ahora `20261026-labels-1`, sustituyendo `20261023-width-2`; el JavaScript mantiene su versión.
+
+Los países se muestran como etiquetas de texto. Las seis plantillas de detalle, tarjetas y revisión aceptan tanto nombres simples (`"Ghana"`) como objetos con `display_name` o `name`, igual que el editor. No requieren migrar historias ni añadir imágenes. Se verificó el escape HTML y ambos formatos; el ajuste CSS se comprobó con el tema de DEV a 1440, 768 y 390 px, y las etiquetas de países a 1440 y 390 px mediante una vista previa local en el navegador. Esto no acredita un despliegue.
+
 ## Secuencia StoryMap
 
 `data-stories-sequence.js` contiene importación y reconciliación, usada por el editor. El servidor convierte los bloques en una secuencia de lectura; las imágenes a ancho completo dividen la tarjeta en segmentos estáticos para evitar saltos de ancho al hacer scroll. Al continuar se recupera la slide correcta, incluso dentro de la misma fuente. Classic conserva la secuencia como HTML narrativo junto al embed. Los assets del editor y visor usan versión `20260911-1`.

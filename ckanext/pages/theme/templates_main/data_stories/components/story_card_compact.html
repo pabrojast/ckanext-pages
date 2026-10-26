@@ -62,7 +62,7 @@ Variables:
       {% if story_countries %}
       <div class="compact-countries" style="margin-bottom: 0.75rem;">
         {% for country in story_countries[:2] %}
-        <span class="story-country-chip" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; margin-right: 0.35rem; display: inline-block;">{{ country.display_name or country.name }}</span>
+        <span class="story-country-chip" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; margin-right: 0.35rem; display: inline-block;">{{ country if country is string else country.display_name or country.name }}</span>
         {% endfor %}
         {% if story_countries|length > 2 %}
         <span class="story-country-chip more" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; display: inline-block;">+{{ story_countries|length - 2 }}</span>

@@ -70,7 +70,7 @@ Variables:
       {% if story_countries %}
       <div class="story-country-badges">
         {% for country in story_countries[:2] %}
-        <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+        <span class="story-country-chip">{{ country if country is string else country.display_name or country.name }}</span>
         {% endfor %}
         {% if story_countries|length > 2 %}
         <span class="story-country-chip more">+{{ story_countries|length - 2 }}</span>

@@ -101,7 +101,7 @@
                   <strong style="color: var(--pages-primary, #0072BC);"><i class="fa fa-globe"></i> {{ _('Countries') }}:</strong>
                   <div class="story-country-badges" style="margin-top: 0.5rem;">
                     {% for country in story_countries %}
-                      <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+                      <span class="story-country-chip">{{ country if country is string else country.display_name or country.name }}</span>
                     {% endfor %}
                   </div>
                 </div>

@@ -32,6 +32,12 @@ Si con `100% of screen` la tarjeta se ensancha pero el texto sigue en una column
 
 En Classic el CSS del repo no limita el texto con `100% of screen` (el harness mide el párrafo a ancho − 48 px). `Pendiente por confirmar`: el reporte del 2026-10-23 incluía Classic; si se reproduce en un entorno desplegado, comprobar con DevTools que se sirve `data-stories.css?v=20261001-width-1` y que la sección lleva `data-section-width="full"`.
 
+## Dos puntos debajo de selectores y países vacíos en Data Stories
+
+Si aparece `:` debajo de Section template, Text position, Column proportions, Slide duration o Section width, comprobar que `data-stories-visuals.css?v=20261026-labels-1` anula `.ds-visual-field::after`. El reset anterior solo cubría los dashboards. La regla global de CKAN sigue aplicándose a las etiquetas ordinarias.
+
+Si Countries muestra cápsulas vacías, inspeccionar el formato guardado: las plantillas antiguas solo leían `display_name`/`name`. En la demo `demo-mapas-imagenes-texto-intercalados`, la API de DEV devolvió `["Ghana", "Mozambique"]` el 2026-10-26 y el HTML contenía dos spans vacíos, sin imágenes. Las plantillas ahora aceptan también nombres simples. Ver [[Frontend y Plantillas]].
+
 ## `data_stories` o `featured_viewers` no aparecen
 
 Revisar flags:

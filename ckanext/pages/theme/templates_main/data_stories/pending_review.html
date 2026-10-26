@@ -140,7 +140,7 @@
                           <i class="fa fa-globe"></i> {{ _('Countries') }}
                         </span>
                         {% for country in story_countries %}
-                          <span class="story-country-chip">{{ country.display_name or country.name }}</span>
+                          <span class="story-country-chip">{{ country if country is string else country.display_name or country.name }}</span>
                         {% endfor %}
                       </div>
                       {% endif %}

@@ -115,6 +115,7 @@ Características:
 Responsabilidad:
 
 - storytelling estructurado con secciones, datasets vinculados, comentarios y embebidos Terria.
+- países visibles como etiquetas de texto en detalle, tarjetas y revisión, compatibles con nombres simples y objetos históricos; los controles visuales del editor neutralizan el sufijo global de CKAN. Ver [[Frontend y Plantillas]].
 - ancho por sección Normal, 100% de pantalla o personalizado en Classic, Story Map y Slides. En escritorio, la plantilla `Text + image / multimedia` apila texto y medios en Story Map/Slides cuando se elige ancho completo o personalizado; Normal conserva las columnas. El detalle y su relación con el panel lateral están en [[Frontend y Plantillas]].
 
 Ubicación:

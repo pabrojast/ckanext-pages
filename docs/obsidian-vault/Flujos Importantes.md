@@ -209,6 +209,8 @@ En lectura, los estilos del detalle se cargan desde la cabecera y las imágenes/
 
 ## Plantillas y referencias visuales de Data Stories
 
+Las etiquetas de plantilla, composición, duración y ancho aparecen encima del control, sin un `:` suelto debajo. Las historias con países guardados como nombres simples muestran las mismas etiquetas de país que las guardadas desde el editor como objetos; no necesitan volver a guardarse. Ver [[Frontend y Plantillas]].
+
 En la plantilla `Text + image / multimedia`, elegir `100% of screen` o `Custom` hace que el texto ocupe el ancho seleccionado y los medios queden debajo en Story Map/Slides de escritorio. La vista previa del editor refleja esa disposición; `Normal` conserva las columnas. Ver [[Frontend y Plantillas]] y [[Testing]].
 
 Para ajustar una sección normal, elegir `Section width`: Normal, 100% of screen o Custom. Custom pide valor y unidad (`%`/`px`); guardar y reabrir conserva el ancho incluso después de reordenar secciones o cambiar el modo de lectura. En Story Map/Slides con panel lateral, seleccionar `Narrative (no side panel)` para habilitar el ajuste. Cambiar el ancho no cambia la plantilla ni elimina mapas guardados. Ver [[Frontend y Plantillas]] y [[Datos y Persistencia]].
