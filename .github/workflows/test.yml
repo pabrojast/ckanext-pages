@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.ckan-image }}
+      options: --user 0
     services:
       solr:
         image: ckan/ckan-solr:${{ matrix.ckan-version }}-solr9
@@ -41,7 +42,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "pg_isready -U postgres" --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
           image: redis:3
     env:

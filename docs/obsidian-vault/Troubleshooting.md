@@ -227,3 +227,4 @@ Si las pestañas News/Events de una iniciativa devuelven 500 con `has no attribu
 - `package already exists` durante `db init`: inicializar CKAN sin plugins y después migrar Pages; los módulos opcionales registran tablas durante el arranque.
 - SQLAlchemy 1.3 no ofrece `Inspector.has_table`, `Result.mappings` ni el modo `future`: las migraciones y el comando de imágenes usan APIs compatibles, y las pruebas ejercitan los modos que soporta cada versión.
 - Los servicios PostgreSQL de CI pueden traer un usuario postgres ya inicializado: las suites de esquemas temporales usan el rol CKAN con permiso sobre su propia base, sin depender de una contraseña de superusuario.
+- `EACCES` en `/__w/_temp/_runner_file_commands/save_state_*`: los contenedores de CI usan `--user 0` para poder escribir los archivos montados por GitHub y ejecutar la instalación de dependencias. Esta opción pertenece únicamente al job de pruebas.
