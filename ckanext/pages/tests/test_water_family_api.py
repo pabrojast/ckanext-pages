@@ -223,6 +223,30 @@ class TestWaterFamilyList:
 
         assert 'wf-ground' in names
         assert 'wf-surface' not in names
+        assert result['count'] == 1
+
+    def test_list_combines_extras_filters_before_pagination(self, app):
+        sysadmin = factories.Sysadmin()
+        for index in range(3):
+            _create_water_page(
+                sysadmin, 'wf-filtered-%d' % index,
+                extras={'water_type': 'groundwater', 'water_category': 'monitoring'},
+            )
+        _create_water_page(
+            sysadmin, 'wf-other-category',
+            extras={'water_type': 'groundwater', 'water_category': 'management'},
+        )
+        _create_water_page(
+            sysadmin, 'wf-other-type',
+            extras={'water_type': 'surface_water', 'water_category': 'monitoring'},
+        )
+        result = helpers.call_action(
+            'ckanext_water_family_list', {}, page_type='water-news',
+            water_type='groundwater', water_category='monitoring', limit=1, offset=1,
+        )
+        assert result['count'] == 3
+        assert len(result['results']) == 1
+        assert result['results'][0]['name'].startswith('wf-filtered-')
 
     def test_list_search_by_q(self, app):
         sysadmin = factories.Sysadmin()
@@ -356,6 +380,7 @@ class TestWaterFamilyShow:
             name='wf-show-blog', page='wf-show-blog',
             title='Blog', content='Blog content',
             page_type='blog', private=False,
+            publish_date=datetime.datetime.utcnow().isoformat(),
             submission_status='approved',
         )
 

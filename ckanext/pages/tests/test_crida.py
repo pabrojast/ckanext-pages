@@ -4,6 +4,7 @@ import pytest
 import json
 
 from ckan.tests import factories, helpers
+from ckanext.pages.db import Page
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")
@@ -56,10 +57,10 @@ class TestCRIDACaseStudy:
         """Test listing CRIDA case studies via custom action."""
         sysadmin = factories.Sysadmin()
         self._create_crida_case_study(sysadmin, name="crida-cs-1",
-                                       title="Case Study 1")
+                                      title="Case Study 1")
         self._create_crida_case_study(sysadmin, name="crida-cs-2",
-                                       title="Case Study 2",
-                                       country="Zimbabwe")
+                                      title="Case Study 2",
+                                      country="Zimbabwe")
 
         result = helpers.call_action(
             "ckanext_crida_case_study_list",
@@ -86,8 +87,8 @@ class TestCRIDACaseStudy:
         """Test GeoJSON generation from CRIDA case studies."""
         sysadmin = factories.Sysadmin()
         self._create_crida_case_study(sysadmin, name="geojson-test",
-                                       latitude="-30.60",
-                                       longitude="-71.05")
+                                      latitude="-30.60",
+                                      longitude="-71.05")
 
         result = helpers.call_action(
             "ckanext_crida_geojson",
@@ -140,10 +141,9 @@ class TestCRIDACaseStudy:
             page="test-crida-cs",
         )
 
-        with pytest.raises(Exception):
-            helpers.call_action(
-                "ckanext_pages_show", {}, page="test-crida-cs"
-            )
+        assert helpers.call_action(
+            "ckanext_pages_show", {}, page="test-crida-cs"
+        ) is None
 
     def test_crida_themes_stored_as_json(self, app):
         """Test that themes are stored/retrieved correctly as JSON."""
@@ -156,8 +156,9 @@ class TestCRIDACaseStudy:
         page = helpers.call_action(
             "ckanext_pages_show", {}, page="test-crida-cs"
         )
-        stored_themes = json.loads(page["themes"])
+        stored_themes = page["themes"]
         assert stored_themes == themes
+        assert json.loads(Page.get(name="test-crida-cs").extras)["themes"] == themes
 
     def test_crida_partners_stored_as_json(self, app):
         """Test that partners are stored/retrieved correctly as JSON."""
@@ -170,8 +171,9 @@ class TestCRIDACaseStudy:
         page = helpers.call_action(
             "ckanext_pages_show", {}, page="test-crida-cs"
         )
-        stored_partners = json.loads(page["partners"])
+        stored_partners = page["partners"]
         assert stored_partners == partners
+        assert json.loads(Page.get(name="test-crida-cs").extras)["partners"] == partners
 
 
 @pytest.mark.usefixtures("with_plugins", "clean_db")

@@ -45,6 +45,7 @@ jobs:
       redis:
           image: redis:3
     env:
+      CKAN_SITE_URL: http://test.ckan.net
       CKAN_SQLALCHEMY_URL: postgresql://ckan_default:pass@postgres/ckan_test
       CKAN_DATASTORE_WRITE_URL: postgresql://datastore_write:pass@postgres/datastore_test
       CKAN_DATASTORE_READ_URL: postgresql://datastore_read:pass@postgres/datastore_test
@@ -66,7 +67,9 @@ jobs:
         sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
     - name: Setup extension (CKAN >= 2.9)
       run: |
-        ckan -c test.ini db init
+        # Initialize CKAN before extension startup can register/create its tables.
+        sed 's/^ckan.plugins =.*/ckan.plugins =/' test.ini > /tmp/pages-core-init.ini
+        ckan -c /tmp/pages-core-init.ini db init
         ckan -c test.ini db upgrade -p pages
     - name: Run tests
       run: pytest --ckan-ini=test.ini --cov=ckanext.pages --cov-report=term-missing --cov-append --disable-warnings ckanext/pages/tests
@@ -79,8 +82,8 @@ jobs:
         ckanext/pages/tests/test_portal_configuration.py
     - name: Atomic story imports and startup transactions
       env:
-        PAGES_IMPORT_TEST_URL: postgresql://postgres:postgres@postgres/postgres
-        PAGES_SCHEMA_TEST_URL: postgresql://postgres:postgres@postgres/postgres
+        PAGES_IMPORT_TEST_URL: postgresql://ckan_default:pass@postgres/ckan_test
+        PAGES_SCHEMA_TEST_URL: postgresql://ckan_default:pass@postgres/ckan_test
       run: >-
         PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest --noconftest -q
         ckanext/pages/data_stories/tests/test_import_atomic.py
@@ -96,6 +99,7 @@ jobs:
           node-version: '22'
       - name: Install browser tooling
         run: |
+          npm install --no-save --package-lock=false jquery@3.7.1
           npm install -g @playwright/cli@0.1.21
           playwright-cli install-browser chrome --with-deps
       - name: Story and image regressions

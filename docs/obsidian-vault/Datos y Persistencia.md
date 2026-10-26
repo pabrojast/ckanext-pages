@@ -162,3 +162,9 @@ El documento canónico versión 1 vive en `extras.rapid_response_story`. La adap
 ## Asociaciones con iniciativas
 
 `extras.initiative_groups` conserva la lista de objetos `{name: slug}` existente. La organización sigue en `ihp_organization`. No se agrega esquema ni migración. La API y el helper `get_pages_by_initiative` comparan nombres completos sin distinguir mayúsculas después de decodificar el JSON histórico; no dependen de encontrar comillas sin escapar mediante `LIKE`. La consulta del helper filtra primero `private=False` y `submission_status=approved`. Ver [[Flujos Importantes]].
+
+## Compatibilidad de consultas y arranque (2026-10-26)
+
+`Page.pages` consume los filtros guardados en `extras` antes de aplicar los restantes como columnas; así funcionan `water_type`, `water_category` y sus combinaciones con paginación. Las comprobaciones de columnas de Data Stories limitan `information_schema` a `current_schema()` para evitar confundir tablas homónimas de otros esquemas.
+
+La migración de la biblioteca de imágenes inspecciona `get_table_names()` y el comando reversible de imágenes lee filas compatibles con SQLAlchemy 1.3 y 1.4. Conserva bloqueo de fila, detección de edición concurrente, backups y restauración. Ver [[Testing]] y [[Deployment]].

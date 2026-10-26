@@ -18,3 +18,4 @@ nul
 /output/playwright/
 /output/rapid-response/
 .playwright-cli
+/node_modules/

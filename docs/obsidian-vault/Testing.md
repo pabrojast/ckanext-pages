@@ -275,3 +275,20 @@ El parche local de ancho se integró sobre `RapidResponseAndRecovery` (`726a881`
 `section_width_browser.cjs` pasó 64 combinaciones de modo/ancho/viewport a 1920, 1440, 768 y 390 px, con Quill y las plantillas reales: 48 casos generales y 16 de multimedia. Verificó texto y medios apilados con ancho explícito, iframe de 600 px, ausencia de overflow, vista previa, reordenación, reapertura y validación del formulario. También pasaron `visuals_browser.cjs` y `rapid_response_story_browser.cjs`: composición compartida, dashboard/mapa, reproducción, metadatos, importación Terria y reintento de uploads simulados.
 
 Evidencia local en `output/playwright/media-width-integration-20261026/`. Son pruebas de navegador aisladas con servicios simulados, sin despliegue ni guardado contra una instancia real. La CI general conserva los fallos previos de lint e imágenes descritos en la consolidación anterior.
+
+## Reparación de CI y compatibilidad (2026-10-26)
+
+Lint conserva sus comprobaciones completas (`flake8 . --max-line-length=127 --exclude=ckan`), sin excluir módulos nuevos. La matriz mantiene CKAN 2.9, 2.10 y 2.11. CKAN se inicializa con los plugins desactivados antes de ejecutar las migraciones Pages; ver [[Setup Local]].
+
+Las pruebas HTTP que esperan un 302 usan `follow_redirects=False`. Los submitters de Water Family y Open Source pertenecen a una organización; las publicaciones que validan URLs usan un hostname de prueba con dominio. Se comprueban las listas normalizadas de la API CRIDA y su persistencia JSON, el texto visible de las asociaciones y la paginación con fechas deterministas.
+
+La regresión Water Family combina filtros de `extras`, comprueba el total y pagina después del filtrado. Las pruebas de arranque usan esquemas temporales dentro de la base CKAN de prueba: detectan columnas ajenas al esquema activo. SQLAlchemy 1.3 ejecuta el modo legacy; 1.4 ejecuta legacy y future. Las pruebas de importación conservan los casos de rollback, autorización, identidad y restauración.
+
+El navegador carga Quill y `story-images.js` reales; solo simula el transporte HTTP. Comprueba CSRF, espera de upload, fallos/reintentos, deduplicación y transparencia. El cliente envía la imagen original y `test_story_image_processing.py` comprueba la reducción del lado servidor. El compositor resuelve jQuery 3.7.1 instalado por CI o acepta una ruta como segundo argumento:
+
+```bash
+npm install --no-save --package-lock=false jquery@3.7.1
+node ckanext/pages/tests/rapid_response_story_browser.cjs
+```
+
+Los resultados de ejecución deben revisarse en el run del commit correspondiente; estas reparaciones no implican un despliegue.

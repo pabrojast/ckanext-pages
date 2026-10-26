@@ -20,8 +20,10 @@ except ImportError:
         def decorator(func):
             return func
         return decorator
+
     def ensure_valid_session():
         pass
+
     def safe_rollback():
         try:
             from ckan import model
@@ -133,14 +135,11 @@ class Page(DomainObject, BaseModel):
                 f"limit: {limit}, offset: {offset}"
             )
 
-            # Apply basic filters
-            query = query.filter_by(**kw)
-
             # Apply submission status filter
             if submission_status:
                 query = query.filter(cls.submission_status == submission_status)
                 log.info(f"[DB.PAGES] Applying submission_status filter: {submission_status}")
-            
+
             # Apply search query
             if q:
                 search_filter = sa.or_(
@@ -149,7 +148,7 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%' + q + '%')
                 )
                 query = query.filter(search_filter)
-            
+
             # Apply event type filter (stored in extras JSON)
             if event_type:
                 # Map legacy and current filter IDs to descriptive subtitles (rapid response)
@@ -188,20 +187,20 @@ class Page(DomainObject, BaseModel):
                     )
 
                 query = query.filter(sa.or_(*event_type_filters))
-            
+
             # Apply priority filter (stored in extras JSON)
             if priority:
                 query = query.filter(
                     cls.extras.ilike('%"priority": "' + priority + '"%')
                 )
-            
+
             # Apply severity filter (stored in extras JSON)
             if severity:
                 # Debug logging for severity filtering
                 log = logging.getLogger(__name__)
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug(f"Applying severity filter: {severity}")
-                
+
                 severity_filter = sa.or_(
                     # Severity stored in extras JSON - exact match
                     cls.extras.ilike('%"severity": "' + severity + '"%'),
@@ -211,14 +210,14 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%severity%' + severity + '%')
                 )
                 query = query.filter(severity_filter)
-            
+
             # Apply country filter (stored in extras JSON)
             if country:
                 # Debug logging for country filtering
                 log = logging.getLogger(__name__)
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug(f"Applying country filter: {country}")
-                
+
                 # Support both new countries_affected format and legacy country format
                 country_filter = sa.or_(
                     # New format: countries_affected with JSON array - check for country name in array
@@ -234,14 +233,14 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%' + country + '%')
                 )
                 query = query.filter(country_filter)
-            
+
             # Apply activity status filter (stored in extras JSON)
             if activity_status:
                 # Debug logging for activity status filtering
                 log = logging.getLogger(__name__)
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug(f"Applying activity_status filter: {activity_status}")
-                
+
                 activity_filter = sa.or_(
                     # Activity status stored in extras JSON - exact match
                     cls.extras.ilike('%"activity_status": "' + activity_status + '"%'),
@@ -249,7 +248,7 @@ class Page(DomainObject, BaseModel):
                     cls.extras.ilike('%"activity_status":"' + activity_status + '"%')
                 )
                 query = query.filter(activity_filter)
-            
+
             # Water Family specific filters (stored in extras JSON)
             # Filter by initiative (initiative_groups JSON array in extras)
             initiative = kw.pop('initiative', None)
@@ -308,7 +307,7 @@ class Page(DomainObject, BaseModel):
                         cls.extras.ilike('%"software_category":' + category + '%')
                     )
                     query = query.filter(category_filter)
-            
+
             # Handle language filter (can be list or single value)
             language = kw.pop('language', None)
             if language:
@@ -331,11 +330,11 @@ class Page(DomainObject, BaseModel):
                         cls.extras.ilike('%"programming_language":' + language + '%')
                     )
                     query = query.filter(language_filter)
-            
+
             # Handle other open-source-software filters
             for filter_name, field_name in [
                 ('access_type', 'access_type'),
-                ('license', 'software_license'), 
+                ('license', 'software_license'),
                 ('platform', 'platform'),
                 ('attribution', 'attribution')
             ]:
@@ -408,7 +407,10 @@ class Page(DomainObject, BaseModel):
                         cls.extras.ilike('%"' + field_name + '":' + filter_value + '%')
                     )
                     query = query.filter(filter_condition)
-            
+
+            # Extras filters above must be consumed before filtering real columns.
+            query = query.filter_by(**kw)
+
             # Apply ordering - improved with GDACS Alert Level
             if order_by == 'recent':
                 query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
@@ -422,7 +424,7 @@ class Page(DomainObject, BaseModel):
                 # Order by severity using post-processing (kept for backward compatibility)
                 query = query.order_by(cls.publish_date.desc().nullslast(), cls.created.desc())
             elif order_by == 'country':
-                # Order alphabetically by title (kept for backward compatibility)  
+                # Order alphabetically by title (kept for backward compatibility)
                 query = query.order_by(cls.title.asc())
             elif order:
                 # Safe ordering by order field
@@ -442,19 +444,19 @@ class Page(DomainObject, BaseModel):
                 query = query.offset(offset)
             if limit is not None:
                 query = query.limit(limit)
-            
+
             # Execute query with error handling
             try:
                 results = query.all()
-                
+
                 # Post-process results for complex sorting if needed
                 if order_by == 'severity':
                     results = cls._sort_by_severity(results)
                 elif order_by == 'gdacs_alert':
                     results = cls._sort_by_gdacs_alert_level(results)
-                    
+
                 return results
-                
+
             except Exception as e:
                 log.error("Error executing query in Page.pages: %s", str(e))
                 log.error("Query filters: %s", kw)
@@ -462,7 +464,7 @@ class Page(DomainObject, BaseModel):
                 safe_rollback()
                 # Re-raise to trigger retry
                 raise
-                
+
         except Exception as e:
             log.error("Error in Page.pages: %s", str(e))
             # Rollback on error to prevent connection pool issues
@@ -553,30 +555,30 @@ class Page(DomainObject, BaseModel):
                 if hasattr(page, 'extras') and page.extras:
                     extras = json.loads(page.extras) if isinstance(page.extras, str) else page.extras
                     severity = extras.get('severity', '').lower()
-                    
+
                     # GDACS Alert Level weights (highest to lowest priority)
                     gdacs_weights = {
                         # General GDACS Alerts (Floods, Drought, Volcano, Tsunami, Earthquake, Wildfire)
                         'red_alert': 10,        # Most critical
                         'orange_alert': 8,      # High severity
                         'green_alert': 6,       # Moderate severity
-                        
+
                         # Tropical Cyclone Categories (most severe first)
                         'category_5': 9,        # Catastrophic damage
-                        'category_4': 8,        # Extreme damage 
+                        'category_4': 8,        # Extreme damage
                         'category_3': 7,        # Extensive damage
                         'category_2': 5,        # Moderate damage
                         'category_1': 4,        # Light damage
                         'tropical_storm': 3,    # Minimal hurricane-force winds
-                        'tropical_depression': 2, # Organized low pressure
-                        
+                        'tropical_depression': 2,  # Organized low pressure
+
                         # Legacy compatibility
                         'critical': 9,
                         'high': 7,
                         'moderate': 5,
                         'low': 3
                     }
-                    
+
                     return gdacs_weights.get(severity, 1)  # Default to 1 for unknown levels
                 return 1
             except Exception as e:
@@ -598,12 +600,12 @@ class Page(DomainObject, BaseModel):
         try:
             if not self.revisions:
                 return OrderedDict()
-            
+
             return OrderedDict(reversed(sorted(
-                    self.revisions.items(),
-                    key=lambda x: datetime.datetime.timestamp(
-                        datetime.datetime.fromisoformat(x[1]['created'])
-                        )
+                self.revisions.items(),
+                key=lambda x: datetime.datetime.timestamp(
+                    datetime.datetime.fromisoformat(x[1]['created'])
+                )
             )))
         except Exception as e:
             log.error("Error in get_ordered_revisions: %s", str(e))
@@ -628,7 +630,7 @@ def table_dictize(obj, context, **kw):
                 continue
             if name == 'continuity_id':
                 continue
-            
+
             try:
                 value = getattr(obj, name)
                 if name == 'extras' and value:
@@ -663,7 +665,7 @@ def table_dictize(obj, context, **kw):
                                            context.get('metadata_modified', ''))
 
         return result_dict
-        
+
     except Exception as e:
         log.error("Error in table_dictize: %s", str(e))
         return {}

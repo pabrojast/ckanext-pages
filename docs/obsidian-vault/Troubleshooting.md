@@ -218,3 +218,12 @@ Un gran blanco superior o `:` debajo de los selectores indica estilos heredados 
 Comprobar que `initiative_groups` contiene el nombre de la iniciativa y que la entrada es pública y está aprobada. La selección está junto a organización, al principio del formulario. Una lista vacía de opciones puede indicar ausencia de grupos activos o un fallo de carga del catálogo; no implica un nuevo permiso de edición. Ver [[Flujos Importantes]] y [[Testing]].
 
 Si las pestañas News/Events de una iniciativa devuelven 500 con `has no attribute group_dict`, verificar que sus vistas en `ckan-unesco-theme` inicialicen `c.group_dict` antes de renderizar el menú compartido de Pages.
+
+## Fallos de CI corregidos el 2026-10-26
+
+- `StoryImages.dataImage` indefinido: el harness de imágenes debe cargar `story-images.js` antes de `rapid-response-images.js`.
+- `Actual: 200. Expected: 302`: el cliente CKAN sigue redirecciones por defecto cuando se pasa la URL como argumento posicional. Comprobar explícitamente la respuesta inicial.
+- `Entity namespace ... has no property water_type`: consumir los filtros JSON antes de aplicar `filter_by` a las columnas del modelo.
+- `package already exists` durante `db init`: inicializar CKAN sin plugins y después migrar Pages; los módulos opcionales registran tablas durante el arranque.
+- SQLAlchemy 1.3 no ofrece `Inspector.has_table`, `Result.mappings` ni el modo `future`: las migraciones y el comando de imágenes usan APIs compatibles, y las pruebas ejercitan los modos que soporta cada versión.
+- Los servicios PostgreSQL de CI pueden traer un usuario postgres ya inicializado: las suites de esquemas temporales usan el rol CKAN con permiso sobre su propia base, sin depender de una contraseña de superusuario.

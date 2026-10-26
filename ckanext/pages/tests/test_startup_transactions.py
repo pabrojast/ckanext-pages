@@ -1,9 +1,9 @@
-"""Startup DDL persists on SQLAlchemy 1.4 legacy and future connections."""
+"""Startup DDL persists on supported SQLAlchemy connection modes."""
 import os
 import uuid
 
 import pytest
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import __version__ as sa_version, create_engine, inspect, text
 
 from ckan import model
 from ckanext.pages import db_init
@@ -11,7 +11,11 @@ from ckanext.pages.data_stories.db import utils as stories
 from ckanext.pages.featured_viewers.db.utils import _add_column_if_not_exists
 
 
-@pytest.fixture(params=[False, True], ids=['legacy', 'future'])
+SA_VERSION = tuple(int(part) for part in sa_version.split('.')[:2])
+CONNECTION_MODES = [False, True] if SA_VERSION >= (1, 4) else [False]
+
+
+@pytest.fixture(params=CONNECTION_MODES, ids=lambda future: 'future' if future else 'legacy')
 def database(request):
     url = os.environ.get('PAGES_SCHEMA_TEST_URL')
     if not url:
@@ -20,7 +24,8 @@ def database(request):
     admin = create_engine(url)
     with admin.begin() as conn:
         conn.execute(text('CREATE SCHEMA ' + schema))
-    engine = create_engine(url, future=request.param,
+    engine_options = {'future': request.param} if SA_VERSION >= (1, 4) else {}
+    engine = create_engine(url, **engine_options,
                            connect_args={'options': '-csearch_path=' + schema})
     try:
         yield engine
