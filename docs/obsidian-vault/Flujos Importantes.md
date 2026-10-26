@@ -24,7 +24,7 @@ opción requiere una versión compatible de TerriaJS; no altera el documento
 compartido ni los datos de la historia.
 
 Tags: #onboarding #backend #operacion
-Actualizado: 2026-10-23
+Actualizado: 2026-10-26
 
 Relacionadas: [[Arquitectura]], [[Modulos]], [[Datos y Persistencia]], [[Troubleshooting]]
 
@@ -208,6 +208,8 @@ Insertar/pegar/arrastrar una imagen → preparar versión para pantalla → subi
 En lectura, los estilos del detalle se cargan desde la cabecera y las imágenes/iframes del contenido usan carga diferida nativa del navegador. El texto no espera a que terminen los mapas. Ver [[Frontend y Plantillas]].
 
 ## Plantillas y referencias visuales de Data Stories
+
+En la plantilla `Text + image / multimedia`, elegir `100% of screen` o `Custom` hace que el texto ocupe el ancho seleccionado y los medios queden debajo en Story Map/Slides de escritorio. La vista previa del editor refleja esa disposición; `Normal` conserva las columnas. Ver [[Frontend y Plantillas]] y [[Testing]].
 
 Para ajustar una sección normal, elegir `Section width`: Normal, 100% of screen o Custom. Custom pide valor y unidad (`%`/`px`); guardar y reabrir conserva el ancho incluso después de reordenar secciones o cambiar el modo de lectura. En Story Map/Slides con panel lateral, seleccionar `Narrative (no side panel)` para habilitar el ajuste. Cambiar el ancho no cambia la plantilla ni elimina mapas guardados. Ver [[Frontend y Plantillas]] y [[Datos y Persistencia]].
 

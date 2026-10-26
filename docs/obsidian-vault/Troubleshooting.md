@@ -1,7 +1,7 @@
 # Troubleshooting
 
 Tags: #operacion #onboarding
-Actualizado: 2026-10-23
+Actualizado: 2026-10-26
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Testing]], [[Datos y Persistencia]]
 
@@ -27,6 +27,10 @@ El código también intenta auto-crear o reparar `ckanext_pages`, pero no convie
 ## Ancho de secciones en Data Stories
 
 Para dudas sobre ancho de Data Stories: la antigua plantilla `Full width` ahora se llama `Narrative (no side panel)` y solo controla la composición. El tamaño se elige aparte en `Section width`. Si está desactivado en Story Map/Slides, la sección tiene un panel lateral. Si no aparece, comprobar que se sirve el editor con cache-bust `20261001-width-1`; ver [[Frontend y Plantillas]].
+
+Si con `100% of screen` la tarjeta se ensancha pero el texto sigue en una columna de un tercio (o la proporción elegida), la sección usa la plantilla `Text + image / multimedia`: desde 2026-10-23 el texto y el medio se apilan a todo el ancho. Requiere servir `data-stories-visuals.css?v=20261023-width-2`. Las tarjetas con mapa o dashboard lateral siguen sin aplicar el ancho por diseño. En Rapid Response, `rapid-response.html` pedía `data-stories-storymap.css?v=20260924-4` (anterior a las reglas de ancho); ahora pide `20261001-width-1`.
+
+En Classic el CSS del repo no limita el texto con `100% of screen` (el harness mide el párrafo a ancho − 48 px). `Pendiente por confirmar`: el reporte del 2026-10-23 incluía Classic; si se reproduce en un entorno desplegado, comprobar con DevTools que se sirve `data-stories.css?v=20261001-width-1` y que la sección lleva `data-section-width="full"`.
 
 ## `data_stories` o `featured_viewers` no aparecen
 

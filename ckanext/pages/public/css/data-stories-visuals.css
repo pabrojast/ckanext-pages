@@ -103,6 +103,7 @@
 .ds-template-preview span { background: #eaf2f8; padding: 8px; color: #17374d; }
 .ds-template-preview span:only-child { grid-column: 1 / -1; }
 .ds-template-preview[data-side="right"] span:first-child { order: 2; }
+.ds-template-preview[data-stacked] { grid-template-columns: 1fr; }
 .storymap-slide-controls { flex-wrap: wrap; }
 @media (min-width: 769px) {
   .storymap:not(.has-no-map) { grid-template-columns: minmax(280px, var(--story-text-width, 35%)) minmax(0, 1fr); }
@@ -125,6 +126,9 @@
   .storymap-card[data-presentation="media"] .storymap-composition-media { grid-column: 2; grid-row: 2 / span 20; min-width: 0; }
   .storymap-card[data-presentation="media"][data-text-side="right"] .storymap-step { grid-column: 2; }
   .storymap-card[data-presentation="media"][data-text-side="right"] .storymap-composition-media { grid-column: 1; }
+  /* Explicit section widths stack text and media so both use the whole section. */
+  .storymap-card[data-presentation="media"]:is([data-section-width="full"], [data-section-width="custom"]) .storymap-card-body { grid-template-columns: minmax(0, 1fr); }
+  .storymap-card[data-presentation="media"]:is([data-section-width="full"], [data-section-width="custom"]) :is(.storymap-narrative, .storymap-step, .storymap-card-media, .storymap-image-trigger, .storymap-composition-media) { grid-column: 1; grid-row: auto; }
 }
 .storymap-composition-media img, .storymap-composition-media iframe { max-width: 100%; }
 .storymap-card-media video { display: block; width: 100%; max-height: 65dvh; border-radius: 8px; background: #102e44; }
