@@ -25,7 +25,7 @@ def test_upstream_request_is_bounded_identified_and_cached(service):
     args, kwargs = request.call_args
     assert args[0] == 'https://nominatim.openstreetmap.org/search'
     assert kwargs['params'] == {'q': 'Accra', 'format': 'geojson', 'limit': 8, 'bounded': 0, 'viewbox': '-4.0,10.0,4.0,0.0'}
-    assert 'IHP-WINS' in kwargs['headers']['User-Agent']
+    assert 'CKAN data stories location search' in kwargs['headers']['User-Agent']
     assert redis.set.call_args.kwargs == {'nx': True, 'px': 1100}
     assert redis.setex.call_args.args[1] == 86400
 

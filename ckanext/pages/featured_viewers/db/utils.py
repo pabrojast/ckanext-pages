@@ -74,11 +74,10 @@ def _add_column_if_not_exists(engine, table, column, col_type):
         ))
     except Exception:
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 conn.execute(text(
                     f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {col_type}"
                 ))
-                conn.commit()
         except Exception as e:
             log.debug(f"Column {column} on {table} may already exist: {e}")
 

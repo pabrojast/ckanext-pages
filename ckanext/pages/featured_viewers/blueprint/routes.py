@@ -11,6 +11,29 @@ import ckan.plugins.toolkit as tk
 from ckan.common import g
 from ckan import model
 
+
+def _default_terria_base():
+    """Configured Terria (ckanext.pages.terria_base_url) or the portal's own /terria/."""
+    configured = tk.config.get('ckanext.pages.terria_base_url', '')
+    if configured:
+        return configured
+    return tk.config.get('ckan.site_url', '').rstrip('/') + '/terria/'
+
+
+def _terria_hosts():
+    """Hosts a share link may point at: the configured Terria and the portal itself
+    (plus ckanext.featured_viewers.extra_terria_hosts, space separated)."""
+    hosts = []
+    for url in (tk.config.get('ckanext.pages.terria_base_url', ''), tk.config.get('ckan.site_url', '')):
+        host = urllib.parse.urlparse(url).netloc if url else ''
+        if host and host not in hosts:
+            hosts.append(host)
+    for host in (tk.config.get('ckanext.featured_viewers.extra_terria_hosts', '') or '').split():
+        if host not in hosts:
+            hosts.append(host)
+    return hosts
+
+
 log = logging.getLogger(__name__)
 
 featured_viewers_blueprint = Blueprint(
@@ -978,11 +1001,7 @@ def resolve_share_link():
         fragment = parsed.fragment
 
         # SSRF protection: only allow known Terria domains
-        allowed_domains = [
-            'map.dev-wins.com',
-            'terria.water-data.org',
-            'data210.dev-wins.com',
-        ]
+        allowed_domains = _terria_hosts()
         try:
             configured = tk.config.get('ckanext.pages.terria_base_url', '')
             if configured:
@@ -1111,14 +1130,10 @@ def save_to_terria():
     if not config or not isinstance(config, dict):
         return jsonify({'success': False, 'error': 'Missing or invalid config object'}), 400
 
-    base_url = (data.get('base_url') or 'https://map.dev-wins.com/').rstrip('/') + '/'
+    base_url = (data.get('base_url') or _default_terria_base()).rstrip('/') + '/'
 
     # Validate domain
-    allowed_domains = [
-        'map.dev-wins.com',
-        'terria.water-data.org',
-        'data210.dev-wins.com',
-    ]
+    allowed_domains = _terria_hosts()
     try:
         configured = tk.config.get('ckanext.pages.terria_base_url', '')
         if configured:

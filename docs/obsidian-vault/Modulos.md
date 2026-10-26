@@ -1,7 +1,7 @@
 # Modulos
 
 Tags: #arquitectura #backend
-Actualizado: 2026-10-23
+Actualizado: 2026-10-26
 
 Relacionadas: [[Arquitectura]], [[Rutas y Entrypoints]], [[Flujos Importantes]], [[Datos y Persistencia]]
 
@@ -240,3 +240,7 @@ La edición conserva la visibilidad de borradores tanto si `private` llega como 
 El módulo de selector `story_dashboards.py` reutiliza el editor compartido y las acciones CKAN. Su parámetro de idioma EN/ES no altera la sesión. Ver [[Dashboards en Historias]].
 
 Su plantilla es un selector sin cabecera ni toolbar; el ajuste de espacio superior se limita a su contenedor y no cambia las páginas generales del portal.
+
+## Disponibilidad de rutas especializadas (2026-10-26)
+
+Water Family y Rapid Response siguen disponibles por defecto. Para instalaciones con marca propia, `ckanext.pages.water_family.enabled = false` omite sus rutas y las de Open Source/AI/CRIDA y administración de tipos; no elimina datos ni desactiva sus acciones CKAN. Páginas/blog permanecen registrados y Data Stories/Featured Viewers conservan sus propios interruptores. Los ajustes de marca y Terria se describen en [[Variables de Entorno]]; el alcance exacto de rutas, en [[Rutas y Entrypoints]].

@@ -28,7 +28,7 @@
           {% if room.thumbnail_url %}
           <div class="section-title-bg" style="background-image: url('{{ room.thumbnail_url }}');"></div>
           {% else %}
-          <div class="section-title-bg" style="background-image: url('/Landing_page/Content/IHPTITLE04VIEWERS.jpg');"></div>
+          <div class="section-title-bg" style="background-image: url('{{ h.get_featured_viewers_hero_image() }}');"></div>
           {% endif %}
           <div class="section-title-overlay"></div>
           <div class="section-title-content">
@@ -69,7 +69,7 @@
       {% set viewers = room.get('viewers', []) %}
       {% if viewers %}
       <h2 style="margin-bottom: 1.5rem; color: #263238;">
-        <i class="fa fa-map" style="color: #0072BC;"></i>
+        <i class="fa fa-map" style="color: var(--pages-primary, #0072BC);"></i>
         {{ _('Viewers in this Room') }}
         <small class="text-muted">({{ viewers|length }})</small>
       </h2>

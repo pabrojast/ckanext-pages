@@ -59,7 +59,7 @@ def _ensure_blocks_metadata_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             # First check if table exists
             result = conn.execute(check_table_sql)
             table_exists = result.fetchone() is not None
@@ -79,13 +79,6 @@ def _ensure_blocks_metadata_column(engine):
                 )
                 conn.execute(add_column_sql)
 
-                # Handle commit for different SQLAlchemy versions
-                try:
-                    conn.commit()
-                except AttributeError:
-                    # SQLAlchemy 2.0+ with autocommit or different transaction handling
-                    pass
-
                 log.info("Successfully added blocks_metadata column to data_story_sections")
             else:
                 log.debug("blocks_metadata column already exists in data_story_sections")
@@ -94,16 +87,12 @@ def _ensure_blocks_metadata_column(engine):
         log.error(f"Error ensuring blocks_metadata column: {str(e)}")
         # Try alternative approach with IF NOT EXISTS (PostgreSQL 9.6+)
         try:
-            with engine.connect() as conn:
+            with engine.begin() as conn:
                 # PostgreSQL 9.6+ supports ADD COLUMN IF NOT EXISTS
                 add_column_sql = sa.text(
                     'ALTER TABLE data_story_sections ADD COLUMN IF NOT EXISTS blocks_metadata JSONB'
                 )
                 conn.execute(add_column_sql)
-                try:
-                    conn.commit()
-                except AttributeError:
-                    pass
                 log.info("Added blocks_metadata column using IF NOT EXISTS fallback")
         except Exception as e2:
             log.warning(f"Could not add blocks_metadata column: {str(e2)}")
@@ -132,7 +121,7 @@ def _ensure_countries_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -146,10 +135,6 @@ def _ensure_countries_column(engine):
             log.info("Adding countries column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN countries JSONB')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added countries column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure countries column on data_stories: {str(e)}")
@@ -177,7 +162,7 @@ def _ensure_paper_doi_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -191,10 +176,6 @@ def _ensure_paper_doi_column(engine):
             log.info("Adding paper_doi column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN paper_doi VARCHAR(255)')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added paper_doi column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure paper_doi column on data_stories: {str(e)}")
@@ -222,7 +203,7 @@ def _ensure_paper_citation_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -236,10 +217,6 @@ def _ensure_paper_citation_column(engine):
             log.info("Adding paper_citation column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN paper_citation TEXT')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added paper_citation column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure paper_citation column on data_stories: {str(e)}")
@@ -267,7 +244,7 @@ def _ensure_uploaded_images_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -281,10 +258,6 @@ def _ensure_uploaded_images_column(engine):
             log.info("Adding uploaded_images column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN uploaded_images JSONB')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added uploaded_images column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure uploaded_images column on data_stories: {str(e)}")
@@ -310,7 +283,7 @@ def _ensure_partners_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -324,10 +297,6 @@ def _ensure_partners_column(engine):
             log.info("Adding partners column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN partners JSONB')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added partners column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure partners column on data_stories: {str(e)}")
@@ -353,7 +322,7 @@ def _ensure_project_type_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -367,10 +336,6 @@ def _ensure_project_type_column(engine):
             log.info("Adding project_type column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN project_type VARCHAR(100)')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added project_type column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure project_type column on data_stories: {str(e)}")
@@ -396,7 +361,7 @@ def _ensure_display_mode_column(engine):
     """)
 
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             table_exists = conn.execute(check_table_sql).fetchone() is not None
             if not table_exists:
                 log.info("data_stories table does not exist yet, will be created by metadata.create_all()")
@@ -410,10 +375,6 @@ def _ensure_display_mode_column(engine):
             log.info("Adding display_mode column to data_stories table...")
             add_column_sql = sa.text('ALTER TABLE data_stories ADD COLUMN display_mode VARCHAR(20)')
             conn.execute(add_column_sql)
-            try:
-                conn.commit()
-            except AttributeError:
-                pass
             log.info("Successfully added display_mode column to data_stories")
     except Exception as e:
         log.warning(f"Could not ensure display_mode column on data_stories: {str(e)}")

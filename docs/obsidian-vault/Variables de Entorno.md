@@ -1,7 +1,7 @@
 # Variables de Entorno
 
 Tags: #operacion #referencia
-Actualizado: 2026-03-26
+Actualizado: 2026-10-26
 
 Relacionadas: [[Setup Local]], [[Deployment]], [[Troubleshooting]]
 
@@ -93,3 +93,16 @@ Para esta extensión, “variables de entorno” en la práctica significa “co
 Configurar el proveedor Terria con URL `/data-stories/api/location-search`, búsqueda explícita (Enter/botón) y atribución OpenStreetMap. No habilitar autocompletado contra el servicio público. Ver https://operations.osmfoundation.org/policies/nominatim/.
 
 `ckanext.data_stories.terria_runtime_url`: override opcional del visor embebido (por ejemplo, el Terria de dev); los enlaces y la resolución de shares siguen usando sus instancias originales. Sin override conserva la selección histórica por primer share.
+
+## Personalización del portal (2026-10-26)
+
+La integración de `node` incorpora estos settings de servidor:
+
+| Setting | Comportamiento |
+| --- | --- |
+| `ckanext.pages.water_family.enabled` | `true` por defecto. Con `false` no se registran las rutas especializadas de Water Family, Rapid Response, Open Source, AI, CRIDA ni administración de tipos. Conserva páginas/blog y los módulos opcionales. |
+| `ckanext.data_stories.hero_image` | Imagen de cabecera de Data Stories. Sin valor usa `/Landing_page/Content/IHPTITLE02DATASTORIES.jpg`. |
+| `ckanext.featured_viewers.hero_image` | Imagen de cabecera de Featured Viewers. Sin valor usa `/Landing_page/Content/IHPTITLE04VIEWERS.jpg`. |
+| `ckanext.featured_viewers.extra_terria_hosts` | Hosts adicionales, separados por espacios, permitidos para resolver/guardar shares; se añaden al host Terria configurado y al de `ckan.site_url`. |
+
+`ckanext.pages.terria_base_url` conserva prioridad. Sin valor, Data Stories y el guardado de Featured Viewers usan `/terria` del propio `ckan.site_url`, en lugar de un host externo fijo. Los antiguos hosts de desarrollo ya no están autorizados implícitamente por Featured Viewers: si se necesitan, deben declararse en la configuración. El cambio de rutas se evalúa al importar el blueprint y requiere reiniciar el proceso. Este interruptor controla rutas; no elimina registros ni desactiva las acciones CKAN del dominio. Ver [[Rutas y Entrypoints]], [[Frontend y Plantillas]] y [[Deployment]].

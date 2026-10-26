@@ -4,7 +4,7 @@
    ============================================================================ */
 
 :root {
-  --fv-blue: #0072BC;
+  --fv-blue: var(--pages-primary, #0072BC);
   --fv-blue-dark: #005A9C;
   --fv-blue-light: #009EE0;
   --fv-blue-pale: #E3F2FD;
@@ -1127,7 +1127,7 @@ body.fv-map-shell-open {
   color: #78909c;
 }
 .fv-room-card-meta i {
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
   margin-right: 0.25rem;
 }
 

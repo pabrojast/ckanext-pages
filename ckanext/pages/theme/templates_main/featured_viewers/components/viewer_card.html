@@ -47,7 +47,7 @@ Variables:
     <div class="event-card-content">
       <!-- Badges -->
       <div class="story-badges">
-        <span class="badge-modern" style="background: {{ cat_info.color or '#0072BC' }}; color: #fff;">
+        <span class="badge-modern" style="background: {{ cat_info.color or 'var(--pages-primary, #0072BC)' }}; color: #fff;">
           <i class="fa {{ cat_info.icon or 'fa-map' }}"></i> {{ cat_info.title }}
         </span>
         {% if viewer.status != 'published' %}
@@ -170,7 +170,7 @@ Variables:
 }
 
 .viewer-card-modern .event-title a {
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
   text-decoration: none;
   font-weight: 700;
 }
@@ -209,7 +209,7 @@ Variables:
 }
 
 .viewer-card-modern .story-meta-row .meta-item i {
-  color: #0072BC;
+  color: var(--pages-primary, #0072BC);
 }
 
 .viewer-card-modern .story-card-actions {

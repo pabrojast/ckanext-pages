@@ -1,7 +1,7 @@
 # Frontend y Plantillas
 
 Tags: #frontend #arquitectura
-Actualizado: 2026-10-23
+Actualizado: 2026-10-26
 
 Relacionadas: [[Estructura del Repo]], [[Modulos]], [[Flujos Importantes]]
 
@@ -200,3 +200,7 @@ El picker omite la toolbar vacía y usa `.story-dashboard-picker-page` para evit
 ## Iniciativas en News y Events
 
 En alta y edición, «Associated Initiatives» comparte la fila con «Organization» en la primera sección; en móvil se apila debajo. El selector permite agregar varias iniciativas, quitar asociaciones y conservarlas al reabrir. La sección inferior queda dedicada a «Member States». Los nombres largos se ajustan al ancho disponible. El formulario admite asociaciones históricas con hasta tres niveles de serialización JSON.
+
+## Marca configurable (2026-10-26)
+
+Las plantillas de Data Stories y Featured Viewers incorporadas desde `node` usan `var(--pages-primary, #0072BC)` para los colores principales que antes estaban fijados en esas plantillas. El tema puede definir `--pages-primary`; sin override conservan el azul anterior. Los helpers `get_data_stories_hero_image` y `get_featured_viewers_hero_image` permiten configurar las imágenes de cabecera y conservan los archivos anteriores como fallback. Los mensajes de acceso a la biblioteca de imágenes y el identificador del geocodificador usan texto genérico. Ver [[Variables de Entorno]] y [[Testing]].
