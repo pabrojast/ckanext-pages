@@ -102,7 +102,11 @@ jobs:
         run: |
           npm install --no-save --package-lock=false jquery@3.7.1
           npm install -g @playwright/cli@0.1.21
-          playwright-cli install-browser chrome --with-deps
+          if command -v google-chrome >/dev/null; then
+            google-chrome --version
+          else
+            playwright-cli install-browser chrome --with-deps
+          fi
       - name: Story and image regressions
         run: |
           node --test ckanext/pages/data_stories/tests/sequence.test.cjs

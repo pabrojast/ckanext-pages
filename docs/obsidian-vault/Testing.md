@@ -284,7 +284,7 @@ Las pruebas HTTP que esperan un 302 usan `follow_redirects=False`. Los submitter
 
 La regresión Water Family combina filtros de `extras`, comprueba el total y pagina después del filtrado. Las pruebas de arranque usan esquemas temporales dentro de la base CKAN de prueba: detectan columnas ajenas al esquema activo. SQLAlchemy 1.3 ejecuta el modo legacy; 1.4 ejecuta legacy y future. Las pruebas de importación conservan los casos de rollback, autorización, identidad y restauración.
 
-El navegador carga Quill y `story-images.js` reales; solo simula el transporte HTTP. Comprueba CSRF, espera de upload, fallos/reintentos, deduplicación y transparencia. El cliente envía la imagen original y `test_story_image_processing.py` comprueba la reducción del lado servidor. El compositor resuelve jQuery 3.7.1 instalado por CI o acepta una ruta como segundo argumento:
+CI reutiliza Chrome cuando el runner lo trae instalado y solo instala navegador/dependencias si falta. El navegador carga Quill y `story-images.js` reales; solo simula el transporte HTTP. Comprueba CSRF, espera de upload, fallos/reintentos, deduplicación y transparencia. El cliente envía la imagen original y `test_story_image_processing.py` comprueba la reducción del lado servidor. El compositor resuelve jQuery 3.7.1 instalado por CI o acepta una ruta como segundo argumento:
 
 ```bash
 npm install --no-save --package-lock=false jquery@3.7.1
