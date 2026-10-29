@@ -252,7 +252,7 @@
       clearTimeout(timer);
       box.removeData('metadata'); controls.empty(); stateForm = null;
       if (frame) frame.remove(); frame = null; preview.prop('hidden', true);
-      if (clearSelection) { data.view_id = ''; data.title = ''; data.state = {filters: [], widgetId: null}; current.text(t.current); }
+      if (clearSelection) { delete data.kind; delete data.simple; data.view_id = ''; data.title = ''; data.state = {filters: [], widgetId: null}; current.text(t.current); }
       message.text(''); notify();
     }
     function open() {
@@ -264,7 +264,8 @@
       frame = $('<iframe class="ds-dashboard-preview" allowfullscreen>').attr('title', t.preview);
       const active = frame;
       active.on('load', () => {if (frame === active) active[0].contentWindow.postMessage({type: 'dashboard:hello', version: 1}, location.origin);});
-      active.attr('src', '/dashboard/' + encodeURIComponent(data.view_id) + '/embed'); preview.append(active);
+      const nativeStart = data.kind === 'simple' ? {version: '8.0.0', initSources: [{simpleDashboard: data.simple}]} : null;
+      active.attr('src', nativeStart ? '/terria/#hideWelcomeMessage=1&dashboardOnly=1&start=' + encodeURIComponent(JSON.stringify(nativeStart)) : '/dashboard/' + encodeURIComponent(data.view_id) + '/embed'); preview.append(active);
       timer = setTimeout(() => {if (frame === active && !box.data('metadata')) message.text(t.slow);}, 20000);
     }
     const listener = event => {
@@ -331,6 +332,22 @@
     const find = step(t.step1, t.findHelp).append(field(t.searchLabel, search), load,
       field(t.dataset, datasets), field(t.resource, resources), field(t.dashboard, views));
     find.append($('<details class="ds-dashboard-help">').append($('<summary>').text(t.helpTitle), $('<p>').text(t.help), $('<p>').text(t.permissions), resourceLink));
+    const nativeSelect = select([['', language(options.language) === 'es' ? 'Elige un dashboard sencillo' : 'Choose a simple dashboard']], '');
+    const nativeItems = new Map();
+    const nativeBox = $('<div hidden>').append(field(language(options.language) === 'es' ? 'Dashboards sencillos' : 'Simple dashboards', nativeSelect));
+    Promise.all(['', '?public=1'].map(suffix => fetch('/api/simple-dashboards' + suffix, {credentials: 'same-origin'}).then(r => r.ok ? r.json() : {items: []})))
+      .then(lists => {
+        lists.forEach(list => (list.items || []).forEach(item => {if (!nativeItems.has(item.id)) nativeItems.set(item.id, item);}));
+        nativeItems.forEach(item => nativeSelect.append($('<option>').val(item.id).text(item.title + ' · r' + item.selected_revision)));
+        nativeBox.prop('hidden', !nativeItems.size);
+      }).catch(() => {});
+    nativeSelect.on('change', () => {
+      const item = nativeItems.get(nativeSelect.val()); if (!item) return;
+      ++request; reset();
+      Object.assign(data, {kind: 'simple', view_id: item.id, title: item.title, simple: {id: item.id, revision: item.selected_revision}});
+      current.text(data.title); open(); changed(); notify();
+    });
+    find.prepend(nativeBox);
     const choose = step(t.step2, t.optionsHelp).append(controls);
     const add = step(t.step3, options.picker ? t.addHelp : t.saveHelp);
     box.append(current, find, choose, add, message,
