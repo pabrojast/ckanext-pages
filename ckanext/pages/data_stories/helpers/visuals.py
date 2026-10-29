@@ -30,6 +30,22 @@ def dashboard_state(value):
 
 def dashboard_block(block):
     try:
+        if block.get('kind') == 'simple':
+            import json
+            from urllib.parse import quote
+            reference = block.get('simple') or {}
+            dashboard_id = str(UUID(str(reference.get('id'))))
+            revision = reference.get('revision')
+            if type(revision) is not int or revision < 1:
+                raise ValueError('Invalid native dashboard revision.')
+            start = {'version': '8.0.0', 'initSources': [{'simpleDashboard': {'id': dashboard_id, 'revision': revision}}]}
+            return {'type': 'dashboard', 'version': 1, 'kind': 'simple',
+                    'id': identifier(block.get('id')) or dashboard_id, 'view_id': dashboard_id,
+                    'simple': {'id': dashboard_id, 'revision': revision},
+                    'title': str(block.get('title') or 'Dashboard'),
+                    'state': dashboard_state(block.get('state')),
+                    'url': ('/terria/#hideWelcomeMessage=1&dashboardOnly=1&start=' +
+                            quote(json.dumps(start, separators=(',', ':'))))}
         view_id = str(UUID(str(block.get('view_id'))))
         return {'type': 'dashboard', 'version': 1,
                 'id': identifier(block.get('id')) or view_id,

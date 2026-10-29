@@ -80,6 +80,8 @@ jobs:
         ckanext/pages/data_stories/tests/test_storymap_helpers.py
         ckanext/pages/data_stories/tests/test_sequence.py
         ckanext/pages/data_stories/tests/test_form_metadata.py
+        ckanext/pages/data_stories/tests/test_visuals.py
+        ckanext/pages/data_stories/tests/test_compositions.py
         ckanext/pages/tests/test_portal_configuration.py
     - name: Atomic story imports and startup transactions
       env:

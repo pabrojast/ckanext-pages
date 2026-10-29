@@ -46,3 +46,15 @@ def test_invalid_filters_are_rejected(filters):
 
 def test_invalid_references_do_not_break_the_story():
     assert references({'references': [{'id': '<script>'}]}) == []
+
+
+def test_native_dashboard_reference_pins_revision_in_terria_embed():
+    import json
+    from urllib.parse import unquote
+    value = dashboard_block({'kind': 'simple', 'simple': {'id': VIEW, 'revision': 3}, 'title': 'Water'})
+    assert value['kind'] == 'simple'
+    assert value['view_id'] == VIEW
+    assert value['url'].startswith('/terria/#hideWelcomeMessage=1&dashboardOnly=1&start=')
+    start = json.loads(unquote(value['url'].split('&start=')[1]))
+    assert start['initSources'][0]['simpleDashboard'] == {'id': VIEW, 'revision': 3}
+    assert dashboard_block({'kind': 'simple', 'simple': {'id': VIEW, 'revision': -1}})['type'] == 'visual_error'
