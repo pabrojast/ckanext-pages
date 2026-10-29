@@ -42,7 +42,8 @@ def dashboard_block(block):
             return {'type': 'dashboard', 'version': 1, 'kind': 'simple',
                     'id': identifier(block.get('id')) or dashboard_id, 'view_id': dashboard_id,
                     'simple': {'id': dashboard_id, 'revision': revision},
-                    'title': str(block.get('title') or 'Dashboard'), 'state': dashboard_state(block.get('state')),
+                    'title': str(block.get('title') or 'Dashboard'),
+                    'state': dashboard_state(block.get('state')),
                     'url': ('/terria/#hideWelcomeMessage=1&dashboardOnly=1&start=' +
                             quote(json.dumps(start, separators=(',', ':'))))}
         view_id = str(UUID(str(block.get('view_id'))))
