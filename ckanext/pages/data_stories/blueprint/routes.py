@@ -143,11 +143,13 @@ def index():
     # Calculate pagination
     total_pages = (total_count + limit - 1) // limit
 
-    # Get featured stories if on first page
+    # Get featured stories if on first page. They are published stories, so,
+    # like the list above, anonymous users may see them (ignore_auth).
     featured_stories = []
     if page == 1:
         try:
-            featured_result = tk.get_action('data_story_list')(context, {
+            featured_context = dict(context, ignore_auth=True)
+            featured_result = tk.get_action('data_story_list')(featured_context, {
                 'is_featured': True,
                 'status': 'published',
                 'limit': 3,
